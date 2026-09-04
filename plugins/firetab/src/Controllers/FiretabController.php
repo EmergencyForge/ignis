@@ -13,6 +13,7 @@ use App\Http\FiveMSupport;
 use App\Integrations\DiscordWebhook;
 use Plugin\Firetab\Models\FireIncident;
 use App\Notifications\NotificationManager;
+use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use DateTime;
 use DateTimeZone;
@@ -1170,9 +1171,14 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/admin/list.php — QM-Übersicht aller Einsatzprotokolle.
-     * Nur für Admin / fire.incident.qm. Zeigt aktive oder archivierte Einsätze
-     * inkl. Federation-Daten und Bulk-Delete-Funktion.
+     * GET /firetab/admin/list — QM-Übersicht aller Einsatzprotokolle, sortiert,
+     * gesucht und geblättert auf dem Server (App\Support\ListQuery). Aktiv
+     * oder Archiv über `show_archived`. Die Liste ist ein Arbeitsbereich
+     * (assets/js/ui/workbench.js): angehakte Zeilen bekommen die Leiste mit
+     * „Löschen" (adminBulkDelete). Die Einsätze aus dem Verbund kommen
+     * weiterhin nur lesend dazu, wie bisher hinter den eigenen, also auf
+     * der letzten Seite und nur ohne Suchwort, weil sie aus dem JSON-Cache
+     * stammen und nicht in der Abfrage sortieren.
      */
     public function adminList(): void
     {
@@ -1181,17 +1187,32 @@ class FiretabController extends Controller
 
         $showArchived = isset($_GET['show_archived']) && $_GET['show_archived'] === '1';
 
+        $list = ListQuery::fromQuery($_GET, [
+            'nr'       => 'i.incident_number',
+            'start'    => 'i.started_at',
+            'location' => 'i.location',
+            'keyword'  => 'i.keyword',
+            'leader'   => 'leader_name',
+            'status'   => 'i.status',
+            'created'  => 'i.created_at',
+            'archived' => 'i.archived_at',
+        ], $showArchived ? 'archived' : 'created', 'desc', 20, ['show_archived']);
+
         $query = Capsule::table('intra_fire_incidents as i')
             ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
-            ->select('i.*', 'm.fullname as leader_name');
+            ->select('i.*', 'm.fullname as leader_name')
+            ->where('i.archived', $showArchived ? 1 : 0);
 
-        if ($showArchived) {
-            $query->where('i.archived', 1)->orderByDesc('i.archived_at');
-        } else {
-            $query->where('i.archived', 0)->orderByDesc('i.created_at');
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('i.incident_number', 'LIKE', $list->like())
+                    ->orWhere('i.location', 'LIKE', $list->like())
+                    ->orWhere('i.keyword', 'LIKE', $list->like())
+                    ->orWhere('m.fullname', 'LIKE', $list->like());
+            });
         }
 
-        $incidents = $query->get()->map(fn ($r) => (array) $r)->all();
+        $incidents = $list->paginate($query)->map(fn ($r) => (array) $r)->all();
 
         // Resolve federation leader names
         foreach ($incidents as &$inc) {
@@ -1202,7 +1223,7 @@ class FiretabController extends Controller
         unset($inc);
 
         // Append federated fire incidents (read-only)
-        if (\App\Federation\FederationMiddleware::isEnabled() && !$showArchived) {
+        if (\App\Federation\FederationMiddleware::isEnabled() && !$showArchived && $list->q === '' && $list->page === $list->lastPage()) {
             try {
                 $fedRows = Capsule::table('intra_federation_cache_fire as fcf')
                     ->join('intra_federation_links as fl', function ($join) {
@@ -1229,7 +1250,51 @@ class FiretabController extends Controller
         $this->renderView('firetab/admin-list', [
             'incidents'    => $incidents,
             'showArchived' => $showArchived,
+            'list'         => $list,
         ]);
+    }
+
+    /**
+     * POST /firetab/admin/list/delete — löscht die in der QM-Liste
+     * angehakten Protokolle (`ids[]`, Aktionsleiste des Arbeitsbereichs).
+     * Löschen heißt hier dasselbe wie beim Löschen nach leeren Feldern
+     * (Api\FireController::bulkDeleteEmpty): archiviert mit Status
+     * „Ausgeblendet", nichts wird hart entfernt. Je Einsatz ein Eintrag im
+     * Einsatz-Log und im Audit-Log, eine Meldung für alle.
+     */
+    public function adminBulkDelete(): void
+    {
+        $this->requireAuth();
+        $this->ensure('fireIncident.manageQm', redirectTo: 'einsatz/admin/list');
+
+        $raw = $_POST['ids'] ?? [];
+        $ids = is_array($raw) ? array_values(array_unique(array_filter(array_map('intval', $raw), static fn (int $id): bool => $id > 0))) : [];
+        $existing = $ids === [] ? [] : Capsule::table('intra_fire_incidents')->whereIn('id', $ids)->where('archived', 0)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
+        if ($existing === []) {
+            Flash::error('Kein Protokoll ausgewählt.');
+            $this->redirect('einsatz/admin/list');
+        }
+
+        $userId = (int) ($_SESSION['userid'] ?? 0);
+        try {
+            foreach ($existing as $id) {
+                Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+                    'archived'    => 1,
+                    'archived_at' => Capsule::connection()->raw('NOW()'),
+                    'archived_by' => $userId,
+                    'status'      => 4,
+                    'updated_by'  => $userId,
+                    'updated_at'  => Capsule::connection()->raw('NOW()'),
+                ]);
+                $this->logAction($id, 'archived', 'Einsatz aus der QM-Liste gelöscht');
+                (new AuditLogger())->log($userId, 'Einsatz gelöscht [ID: ' . $id . ']', 'Aus der QM-Liste (Sammelaktion), archiviert mit Status ausgeblendet', 'Feuerwehr', 1);
+            }
+            Flash::success(count($existing) === 1 ? 'Einsatzprotokoll gelöscht.' : count($existing) . ' Einsatzprotokolle gelöscht.');
+        } catch (PDOException $e) {
+            Flash::error('Fehler: ' . $e->getMessage());
+        }
+
+        $this->redirect('einsatz/admin/list');
     }
 
     // ── Helpers ────────────────────────────────────────────

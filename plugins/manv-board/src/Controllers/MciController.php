@@ -6,6 +6,7 @@ namespace Plugin\ManvBoard\Controllers;
 
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Support\ListQuery;
 use Plugin\ManvBoard\Models\MANVLage;
 use Plugin\ManvBoard\Models\MANVLog;
 use Plugin\ManvBoard\Models\MANVPatient;
@@ -265,8 +266,20 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
+        // Sortierung der Patiententabelle auf dem Server (?sort=&dir=), die
+        // Kopfzellen sind Links; Standard ist die Sichtungskategorie, dann
+        // die Patientennummer (so hatte DataTables vorher im Browser sortiert).
+        $list = ListQuery::fromQuery($_GET, [
+            'nr'         => 'patienten_nummer',
+            'sk'         => 'sichtungskategorie',
+            'name'       => 'name',
+            'verletzung' => 'verletzungen',
+            'transport'  => 'transportmittel_rufname',
+            'ziel'       => 'transportziel',
+        ], 'sk', 'asc', 1000, ['id']);
+
         $stats      = $manvLage->getStatistics($lageId);
-        $patienten  = $manvPatient->getByLage($lageId);
+        $patienten  = $manvPatient->getByLage($lageId, null, $list);
         $ressourcen = $manvRessource->getByLage($lageId, 'fahrzeug');
 
         // Patienten mit Fahrzeug-rd_type anreichern (für "kann transportieren"-Check)
@@ -293,6 +306,7 @@ class MciController extends Controller
             'stats'      => $stats,
             'patienten'  => $patienten,
             'ressourcen' => $ressourcen,
+            'list'       => $list,
         ]);
     }
 

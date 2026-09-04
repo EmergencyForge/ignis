@@ -61,7 +61,7 @@ final class LegacyClassUsageTest extends TestCase
         'assets/components/profiles/documents/main.php',
         'assets/components/profiles/modals.php',
         'dashboard.php',
-        'plugins/firetab/templates/firetab/admin-list.php',
+
         'plugins/firetab/templates/firetab/create.php',
         'plugins/firetab/templates/firetab/login-vehicle.php',
         'plugins/firetab/templates/firetab/tabs/asu_trupps.php',

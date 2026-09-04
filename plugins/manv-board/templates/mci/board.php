@@ -2,11 +2,16 @@
 /**
  * View: MANV-Board (Live-Dashboard einer Lage)
  *
+ * Die Patiententabelle sortiert auf dem Server (App\Support\ListQuery,
+ * MciController::board, ?sort=&dir=), die Kopfzellen sind Links; Standard
+ * ist Sichtungskategorie, dann Patientennummer.
+ *
  * @var array<string,mixed>            $lage
  * @var int                            $lageId
  * @var array<string,int>              $stats
  * @var array<int,array<string,mixed>> $patienten   (mit fahrzeug_rd_type + fahrzeug_rufname angereichert)
  * @var array<int,array<string,mixed>> $ressourcen
+ * @var \App\Support\ListQuery         $list
  */
 
 $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
@@ -14,41 +19,30 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
 $layout = 'admin';
 $bodyId = 'manv-board';
 $bodyPage = 'edivi';
-?>
-<?php ob_start(); ?>
-    <style>
-        .stats-bar {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
 
-        .badge-sk1 { background-color: #dc3545 !important; }
-        .badge-sk2 { background-color: #ffc107 !important; color: #000 !important; }
-        .badge-sk3 { background-color: #28a745 !important; }
-        .badge-sk4 { background-color: #17a2b8 !important; }
-        .badge-sk5 { background-color: #000 !important; color: #fff !important; }
-        .badge-sk6 { background-color: #9b59b6 !important; color: #fff !important; }
-        .badge-tot { background-color: #000 !important; color: #fff !important; }
-    </style>
-<?php $layoutHead = ob_get_clean(); ?>
+$pgPath = 'mci/board';
+?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <header class="twplus-page-header mb-6">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>mci/index">MANV-Board</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($lage['einsatznummer']) ?></span></nav>
+            <header class="twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Aktive MANV-Lage</p>
                     <h1><?= htmlspecialchars($lage['einsatznummer']) ?></h1>
                     <p class="twplus-page-header__description">
                         <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatzort']) ?>
+                        · Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
                     </p>
-                    <small class="text-gray-400">
-                        Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
-                    </small>
                 </div>
                 <div class="twplus-page-header__actions">
-                    <a href="<?= BASE_PATH ?>mci/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>mci/log?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost">
+                        <i class="fas fa-history mr-2"></i>Aktionslog
+                    </a>
+                    <a href="<?= BASE_PATH ?>mci/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--secondary">
                         <i class="fas fa-edit mr-2"></i>Bearbeiten
+                    </a>
+                    <a href="<?= BASE_PATH ?>mci/patient-create?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--primary">
+                        <i class="fas fa-user-plus mr-2"></i>Neuer Patient
                     </a>
                 </div>
             </header>
@@ -66,81 +60,61 @@ $bodyPage = 'edivi';
                 </div>
             </div>
 
-            <div class="twplus-stats">
+            <dl class="twplus-stats mb-4" aria-label="Patienten nach Sichtung">
+                <div class="twplus-stats__item">
+                    <dt class="twplus-stats__label">Gesamt</dt>
+                    <dd class="twplus-stats__value"><?= (int) $stats['total_patienten'] ?></dd>
+                </div>
+                <?php foreach (['sk1' => 'SK1', 'sk2' => 'SK2', 'sk3' => 'SK3', 'sk4' => 'SK4', 'sk5' => 'SK5', 'sk6' => 'SK6'] as $skKey => $skLabel): ?>
                     <div class="twplus-stats__item">
-                        <h3 class="mb-0"><?= (int) $stats['total_patienten'] ?></h3>
-                        <small class="twplus-stats__label">Gesamt</small>
+                        <dt class="twplus-stats__label"><span class="ignis-chip ignis-chip--<?= $skKey ?>"><?= $skLabel ?></span></dt>
+                        <dd class="twplus-stats__value"><?= (int) ($stats[$skKey] ?? 0) ?></dd>
                     </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0 text-[#d46b6b]"><?= (int) $stats['sk1'] ?></h3>
-                        <small class="text-gray-400">SK1</small>
-                    </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0 text-[#ddb84a]"><?= (int) $stats['sk2'] ?></h3>
-                        <small class="text-gray-400">SK2</small>
-                    </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0 text-[#6abf76]"><?= (int) $stats['sk3'] ?></h3>
-                        <small class="text-gray-400">SK3</small>
-                    </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0 text-[#5bb8cc]"><?= (int) $stats['sk4'] ?></h3>
-                        <small class="text-gray-400">SK4</small>
-                    </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0" style="color: #fff;"><?= (int) ($stats['sk5'] ?? 0) ?></h3>
-                        <small class="text-gray-400">SK5</small>
-                    </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0" style="color: #9b59b6;"><?= (int) ($stats['sk6'] ?? 0) ?></h3>
-                        <small class="text-gray-400">SK6</small>
-                    </div>
-                    <div class="twplus-stats__item">
-                        <h3 class="mb-0"><?= (int) $stats['transportiert'] ?></h3>
-                        <small class="text-gray-400">Transportiert</small>
-                    </div>
-            </div>
+                <?php endforeach; ?>
+                <div class="twplus-stats__item">
+                    <dt class="twplus-stats__label">Transportiert</dt>
+                    <dd class="twplus-stats__value"><?= (int) $stats['transportiert'] ?></dd>
+                </div>
+            </dl>
 
             <div class="twplus-table-card mb-4">
                 <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
-                    <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Patienten</h5>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="ressourcen?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
-                            <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
-                        </a>
-                        <a href="<?= BASE_PATH ?>mci/patient-create?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary no-underline hover:no-underline">
-                            <i class="fas fa-user-plus mr-2"></i>Neuer Patient
-                        </a>
-                    </div>
+                    <h2 class="ignis-card__title mb-0"><i class="fas fa-users mr-2"></i>Patienten an der Einsatzstelle</h2>
+                    <a href="<?= BASE_PATH ?>mci/resources?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
+                        <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
+                    </a>
                 </div>
                 <div class="twplus-table-card__scroll">
-                        <table id="patientenTable" class="twplus-table">
+                        <table id="patientenTable" class="ignis-table">
                             <thead>
                                 <tr>
-                                    <th>Pat.-Nr.</th>
-                                    <th>SK</th>
-                                    <th>Name</th>
-                                    <th data-tw-priority="low">Verletzung</th>
-                                    <th data-tw-priority="medium">Transportmittel</th>
-                                    <th data-tw-priority="low">Transportziel</th>
-                                    <th>Status</th>
-                                    <th>Aktionen</th>
+                                    <?= $list->th('nr', 'Pat.-Nr.', $pgPath) ?>
+                                    <?= $list->th('sk', 'SK', $pgPath) ?>
+                                    <?= $list->th('name', 'Name', $pgPath) ?>
+                                    <?= $list->th('verletzung', 'Verletzung', $pgPath) ?>
+                                    <?= $list->th('transport', 'Transportmittel', $pgPath) ?>
+                                    <?= $list->th('ziel', 'Transportziel', $pgPath) ?>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if ($patienten === []): ?>
+                                    <tr><td colspan="8" class="ignis-table-empty">Keine Patienten an der Einsatzstelle.</td></tr>
+                                <?php endif; ?>
                                 <?php foreach ($patienten as $patient):
-                                    $skBadgeClass = 'badge-' . strtolower((string) $patient['sichtungskategorie']);
+                                    $skChipClass = 'ignis-chip--' . strtolower((string) $patient['sichtungskategorie']);
                                     $canTransport       = !in_array($patient['sichtungskategorie'] ?? '', ['SK4', 'SK5', 'SK6', 'tot'], true);
                                     $isTransportVehicle = isset($patient['fahrzeug_rd_type']) && (int) $patient['fahrzeug_rd_type'] >= 1;
                                 ?>
                                     <tr>
-                                        <td><strong><?= htmlspecialchars($patient['patienten_nummer']) ?></strong></td>
-                                        <td data-tw-priority="low">
-                                            <span class="ignis-chip <?= $skBadgeClass ?>">
+                                        <td><strong class="ignis-mono"><?= htmlspecialchars($patient['patienten_nummer']) ?></strong></td>
+                                        <td>
+                                            <span class="ignis-chip <?= $skChipClass ?>">
                                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? '') ?>
                                             </span>
                                         </td>
-                                        <td data-tw-priority="medium">
+                                        <td>
                                             <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
                                             <?php if (!empty($patient['vorname'])): ?>
                                                 <?= htmlspecialchars($patient['vorname']) ?>
@@ -150,37 +124,37 @@ $bodyPage = 'edivi';
                                             <?php if (!empty($patient['verletzungen'])): ?>
                                                 <?= htmlspecialchars(mb_substr($patient['verletzungen'], 0, 50)) ?><?= mb_strlen($patient['verletzungen']) > 50 ? '...' : '' ?>
                                             <?php else: ?>
-                                                <span class="text-gray-400">-</span>
+                                                <span class="ignis-list-meta">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if (!empty($patient['transportmittel_rufname'])): ?>
                                                 <i class="fas fa-ambulance mr-1"></i><?= htmlspecialchars($patient['fahrzeug_rufname'] ?? $patient['transportmittel_rufname']) ?>
                                             <?php else: ?>
-                                                <span class="text-gray-400">Nicht zugewiesen</span>
+                                                <span class="ignis-list-meta">Nicht zugewiesen</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td data-tw-priority="low"><?= !empty($patient['transportziel']) ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
+                                        <td><?= !empty($patient['transportziel']) ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
                                         <td>
                                             <?php if (!empty($patient['transport_abfahrt'])): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">Abgefahren</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--secondary">Abgefahren</span>
                                             <?php elseif (!empty($patient['transportziel'])): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--success">Bereit</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Bereit</span>
                                             <?php else: ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--warning">Wartend</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--warn">Wartend</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <a href="<?= BASE_PATH ?>mci/patient-view?id=<?= (int) $patient['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                        <td class="ignis-table__actions">
                                             <?php if ($canTransport && $isTransportVehicle && empty($patient['transport_abfahrt']) && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--success transport-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--secondary transport-btn"
                                                     data-patient-id="<?= (int) $patient['id'] ?>"
                                                     data-patient-nr="<?= htmlspecialchars($patient['patienten_nummer']) ?>">
                                                     <i class="fas fa-truck-loading mr-1"></i>Abfahrt
                                                 </button>
                                             <?php endif; ?>
+                                            <a href="<?= BASE_PATH ?>mci/patient-view?id=<?= (int) $patient['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Patient öffnen" aria-label="Patient öffnen">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -189,34 +163,13 @@ $bodyPage = 'edivi';
                 </div>
             </div>
 
-            <div class="mb-4 mt-4">
-                <div class="ignis-card">
-                    <div class="ignis-card__body twplus-mobile-actions">
-                        <a href="index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                            <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
-                        </a>
-                        <a href="log?id=<?= $lageId ?>" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
-                            <i class="fas fa-history mr-2"></i>Aktionslog
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <p class="ignis-list-meta"><a href="<?= BASE_PATH ?>mci/index"><i class="fas fa-arrow-left mr-1"></i>Zurück zur Übersicht</a></p>
         </div>
     </div>
 
 
     <script>
         $(document).ready(function() {
-            $('#patientenTable').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [10, 25, 50, 100],
-                pageLength: 25,
-                order: [[1, 'asc'], [0, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Einträge')
-            });
-
             // Transport-Abfahrt-Bestaetigung war frueher ein eigenes Modal mit
             // einem einzigen Confirm-Button. showConfirm + Inline-AJAX ersetzt
             // das vollstaendig — kein Modal-Markup, kein currentPatientId-State.
