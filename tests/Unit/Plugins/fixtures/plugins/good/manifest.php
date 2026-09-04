@@ -8,5 +8,6 @@ return [
     'autoload' => ['GoodPluginFixture\\' => 'src/'],
     'policies' => ['goodres' => 'GoodPluginFixture\\Policies\\GoodresPolicy'],
     'search' => ['GoodPluginFixture\\Search\\WidgetSource'],
+    'notifications' => ['GoodPluginFixture\\Notifications\\WidgetType'],
     'default_enabled' => true,
 ];

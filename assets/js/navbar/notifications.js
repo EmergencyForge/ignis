@@ -2,13 +2,13 @@
  * ignis UI — Zähler ungelesener Benachrichtigungen.
  *
  * Fragt alle 30 s GET /api/notifications/poll ab (nur bei sichtbarem Tab)
- * und hält die Marken `.notification-poll-badge` (Kontomenü der Topbar),
+ * und hält die Marken `.notification-poll-badge` (Glocke in der Topbar,
+ * Zähler am Sidebar-Eintrag „Posteingang"), das aria-label der Glocke,
  * den Zähler im Browsertitel und einen Toast für eine neue Meldung
- * aktuell. Die Glocke mit Flyout kommt mit I9; bis dahin führt der
- * Eintrag im Kontomenü zur Seite.
+ * aktuell. Ändert sich der Zähler, geht das Event `ignis:inbox-count`
+ * am window heraus; shell.js lädt darauf das Popover der Glocke neu.
  *
- * Ausgeschrieben aus dem Inline-Script der alten navbar.php. Andere
- * Skripte setzen den Zähler über window.intraNotifSetCount(count).
+ * Andere Skripte setzen den Zähler über window.intraNotifSetCount(count).
  */
 const POLL_INTERVAL = 30000;
 
@@ -29,20 +29,28 @@ function init() {
     }
 
     function updateBadges(count) {
-        const text = count > 9 ? '9+' : String(count);
+        const text = count > 99 ? '99+' : String(count);
         badges.forEach((b) => {
             b.textContent = text;
             b.toggleAttribute('hidden', count <= 0);
         });
+        document.querySelectorAll('details[data-ignis-inbox] > summary').forEach((s) => {
+            s.setAttribute('aria-label', count > 0 ? 'Posteingang, ' + count + ' ungelesen' : 'Posteingang');
+        });
         updateTitle(count);
+    }
+
+    function setCount(count) {
+        const next = count | 0;
+        const changed = next !== lastKnownCount;
+        lastKnownCount = next;
+        updateBadges(next);
+        if (changed) window.dispatchEvent(new CustomEvent('ignis:inbox-count', { detail: { count: next } }));
     }
 
     updateBadges(lastKnownCount);
 
-    window.intraNotifSetCount = (count) => {
-        lastKnownCount = count | 0;
-        updateBadges(lastKnownCount);
-    };
+    window.intraNotifSetCount = setCount;
 
     async function poll() {
         if (document.visibilityState === 'hidden') return;
@@ -51,7 +59,6 @@ function init() {
             const data = await res.json();
             if (!data.success) return;
             const increased = data.unreadCount > lastKnownCount;
-            updateBadges(data.unreadCount);
             if (increased && Array.isArray(data.new)) {
                 const fresh = data.new.find((n) => !toasted[n.id]);
                 if (fresh) {
@@ -59,7 +66,7 @@ function init() {
                     if (typeof window.showToast === 'function') window.showToast(fresh.title, 'info');
                 }
             }
-            lastKnownCount = data.unreadCount;
+            setCount(data.unreadCount);
             lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
         } catch (e) { /* nächster Tick */ }
     }

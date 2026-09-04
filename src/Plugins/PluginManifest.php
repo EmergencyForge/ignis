@@ -30,7 +30,10 @@ use InvalidArgumentException;
  *
  * `search` nennt Klassen, die App\Search\SearchSourceInterface umsetzen;
  * die globale Suche fragt sie neben den Kern-Quellen ab
- * (PluginLoader::searchSources()).
+ * (PluginLoader::searchSources()). `notifications` nennt Klassen, die
+ * App\Notifications\NotificationTypeInterface umsetzen; der
+ * NotificationManager registriert sie neben den Kern-Typen
+ * (PluginLoader::notificationTypes()).
  */
 final class PluginManifest
 {
@@ -45,6 +48,7 @@ final class PluginManifest
      * @param array<string, string> $autoload      PSR-4-Map: Namespace-Prefix => Verzeichnis (relativ zum Plugin)
      * @param array<string, string> $policies      Gate-Ressource => Policy-Klasse (FQCN)
      * @param list<string>          $search        Quellen der globalen Suche (FQCN, App\Search\SearchSourceInterface)
+     * @param list<string>          $notifications Benachrichtigungstypen (FQCN, App\Notifications\NotificationTypeInterface)
      * @param bool                  $defaultEnabled Bei Erstinstallation direkt aktiv?
      * @param bool                  $removable      Darf der Nutzer es deaktivieren?
      */
@@ -59,6 +63,7 @@ final class PluginManifest
         public readonly array $autoload,
         public readonly array $policies,
         public readonly array $search,
+        public readonly array $notifications,
         public readonly bool $defaultEnabled,
         public readonly bool $removable,
     ) {}
@@ -93,6 +98,7 @@ final class PluginManifest
             autoload: self::stringMap($data['autoload'] ?? []),
             policies: self::stringMap($data['policies'] ?? []),
             search: self::stringList($data['search'] ?? []),
+            notifications: self::stringList($data['notifications'] ?? []),
             defaultEnabled: (bool) ($data['default_enabled'] ?? false),
             removable: (bool) ($data['removable'] ?? true),
         );

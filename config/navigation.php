@@ -21,6 +21,8 @@
  *           permissions?: string[],   ANY-Match; fehlt: jeder Eingeloggte
  *           match?: string[],         Pfadpräfixe (ohne BASE_PATH), unter denen der
  *                                     Eintrag als aktiv gilt, zusätzlich zum href
+ *           counter?: string,         Schlüssel für App\Support\NavigationCounters,
+ *                                     Zähler an der Zeile (z.B. 'inbox')
  *           external?: bool,          target=_blank mit Pfeil
  *           quick_action?: array{
  *               type: 'drawer'|'link'|'modal',
@@ -67,6 +69,15 @@ return [
                     'href'  => BASE_PATH . 'index',
                     'icon'  => 'fa-solid fa-house',
                     'match' => ['/'],
+                ],
+                // Benachrichtigungen des Betrachters; der Zähler sind die
+                // ungelesenen, ohne die Typen, die er nicht sehen darf.
+                [
+                    'label'   => 'Posteingang',
+                    'href'    => BASE_PATH . 'inbox',
+                    'icon'    => 'fa-solid fa-inbox',
+                    'match'   => ['/inbox'],
+                    'counter' => 'inbox',
                 ],
                 [
                     'label'        => 'Kalender',

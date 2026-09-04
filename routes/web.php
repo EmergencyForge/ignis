@@ -35,13 +35,14 @@ use App\Http\Controllers\FormsController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PersonnelController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthMiddleware;
+use App\Http\Middleware\CsrfMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
 
 // Smoke-Test-Route — hilft beim Verifizieren, dass die Pipeline steht.
@@ -162,56 +163,23 @@ $router->get('/forms/admin/view',      [FormsController::class, 'adminView'], $a
 $router->post('/forms/admin/view',     [FormsController::class, 'decide'],    $antragDecideAuth);
 
 // ----------------------------------------------------------------------------
-//  Benachrichtigungen-Modul
+//  Posteingang (App\Notifications\NotificationManager)
 //
-//  Eine einzige URL (`/benachrichtigungen/index.php`) dient als View-Listing
-//  (GET) und als Action-Endpoint (POST mit `action`-Feld). Der Router
-//  dispatcht nur auf Method + URL — die Unterscheidung der 3 Actions
-//  passiert mit einem kleinen Dispatcher-Closure, damit PolicyMiddleware
-//  pro Action den korrekten Permission-Check macht.
+//  Nur Anmeldung nötig; welche Typen ein Nutzer sieht, entscheiden die
+//  Handler der Typ-Registry. Das Popover füttert die Glocke in der Topbar
+//  (assets/js/ui/shell.js), /inbox/{id}/open setzt gelesen und geht zum
+//  Ziel des Eintrags. Die alte Seite /notifications leitet hierher.
 // ----------------------------------------------------------------------------
 
-$notifIndexAuth  = [new AuthMiddleware(), new PolicyMiddleware('notification.viewAny')];
-$notifMarkAuth   = [new AuthMiddleware(), new PolicyMiddleware('notification.markRead')];
-$notifDeleteAuth = [new AuthMiddleware(), new PolicyMiddleware('notification.delete')];
+$router->get('/inbox',                 [InboxController::class, 'index'],   [new AuthMiddleware()]);
+$router->get('/inbox/popover',         [InboxController::class, 'popover'], [new AuthMiddleware()]);
+$router->get('/inbox/{id:\d+}/open',   [InboxController::class, 'open'],    [new AuthMiddleware()]);
+$router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 
-// GET → Liste
-$router->get('/notifications',           [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/notifications/',          [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/notifications/index',     [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/notifications/index.php', [NotificationController::class, 'index'], $notifIndexAuth);
-
-// POST-Dispatcher anhand $_POST['action']. Gate::authorize() wirft bei
-// fehlender Berechtigung eine AuthorizationException, die im globalen
-// Exception-Handler (public/index.php) zu Flash+Redirect wird.
-$notifPostDispatch = function (\App\Http\Request $request) {
-    $controller = app(NotificationController::class);
-    $action     = (string) ($request->post['action'] ?? '');
-
-    switch ($action) {
-        case 'mark_read':
-            \App\Auth\Gate::authorize('notification.markRead');
-            $controller->markAsRead();
-            break;
-        case 'mark_all_read':
-            \App\Auth\Gate::authorize('notification.markRead');
-            $controller->markAllAsRead();
-            break;
-        case 'delete':
-            \App\Auth\Gate::authorize('notification.delete');
-            $controller->delete();
-            break;
-        default:
-            \App\Auth\Gate::authorize('notification.viewAny');
-            $controller->index();
-    }
-    return \App\Http\Response::empty();
-};
-
-$router->post('/notifications',           $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/notifications/',          $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/notifications/index',     $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/notifications/index.php', $notifPostDispatch, [new AuthMiddleware()]);
+$notifRedirect = static fn (): \App\Http\Response => \App\Http\Response::redirect(BASE_PATH . 'inbox', 301);
+foreach (['/notifications', '/notifications/', '/notifications/index', '/notifications/index.php'] as $notifPath) {
+    $router->get($notifPath, $notifRedirect);
+}
 
 // ----------------------------------------------------------------------------
 //  Fahrtenbuch-Modul

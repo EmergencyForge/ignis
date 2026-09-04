@@ -64,13 +64,15 @@ final class DefectReporter
         ]);
     }
 
-    /** Benachrichtigt alle User mit vehicles.view oder admin-Permission. */
+    /**
+     * Benachrichtigt alle User mit vehicles.view oder admin-Permission, als
+     * Typ `vehicle_defect` (NotificationManager::coreTypes()), den nur
+     * sieht, wer das Fahrzeugrecht noch hat.
+     */
     private function notifyStaff(int $defectId, int $vehicleId, string $title, bool $operable, int $reporterId): void
     {
         try {
             $vehName = (string) (Capsule::table('intra_fahrzeuge')->where('id', $vehicleId)->value('name') ?: 'Unbekannt');
-
-            $notificationManager = new NotificationManager();
 
             $users = Capsule::table('intra_users as u')
                 ->leftJoin('intra_users_roles as r', 'u.role', '=', 'r.id')
@@ -79,6 +81,7 @@ final class DefectReporter
                 ->map(fn ($row) => (array) $row)
                 ->all();
 
+            $recipients = [];
             foreach ($users as $u) {
                 if ((int) $u['id'] === $reporterId) continue;
 
@@ -89,20 +92,20 @@ final class DefectReporter
                         $hasPerm = true;
                     }
                 }
-                if (!$hasPerm) continue;
-
-                $msg = 'Fahrzeug: ' . $vehName;
-                if (!$operable) {
-                    $msg .= ' — Nicht einsatzfähig!';
+                if ($hasPerm) {
+                    $recipients[] = (int) $u['id'];
                 }
-                $notificationManager->create(
-                    (int) $u['id'],
-                    'system',
-                    'Neuer Defekt: ' . $title,
-                    $msg,
-                    (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'settings/vehicles/defects/index'
-                );
             }
+
+            $msg = 'Fahrzeug: ' . $vehName;
+            if (!$operable) {
+                $msg .= ' — Nicht einsatzfähig!';
+            }
+            app(NotificationManager::class)->notify('vehicle_defect', $recipients, [
+                'title'   => 'Neuer Defekt: ' . $title,
+                'message' => $msg,
+                'link'    => (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'settings/vehicles/defects/index?vehicle=' . $vehicleId,
+            ]);
         } catch (\Throwable $e) {
             Logger::error('VehicleDefects: Benachrichtigungsfehler', ['error' => $e->getMessage()]);
         }

@@ -75,6 +75,18 @@ class PluginManifestTest extends TestCase
     }
 
     #[Test]
+    public function it_reads_the_notification_types(): void
+    {
+        $data = $this->validData();
+        $data['notifications'] = ['Plugin\\Enotf\\Notifications\\ProtocolType'];
+
+        $m = PluginManifest::fromArray($data);
+
+        $this->assertSame(['Plugin\\Enotf\\Notifications\\ProtocolType'], $m->notifications);
+        $this->assertSame([], PluginManifest::fromArray($this->validData())->notifications);
+    }
+
+    #[Test]
     public function it_rejects_a_missing_id(): void
     {
         $data = $this->validData();
