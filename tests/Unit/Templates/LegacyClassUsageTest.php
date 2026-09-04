@@ -12,9 +12,10 @@ use PHPUnit\Framework\TestCase;
  * Markup nichts mehr oder hängen an Resten in admin.scss, die mit dem
  * Redesign verschwinden. Der Test findet jede Ansicht außerhalb von eNOTF,
  * die solche Klassen noch trägt, und verlangt, dass sie auf der Liste unten
- * steht. Die Liste ist der Rest, nicht die Regel: wer eine Ansicht auf die
- * ignis-Bausteine umstellt (ignis-btn, ignis-input, ignis-table,
- * ignis-chip, ignis-alert, ignis-input-group), streicht sie hier.
+ * steht. Die Liste ist seit der Bootstrap-Reste-Runde leer: jede Ansicht
+ * nimmt die ignis-Bausteine (ignis-btn, ignis-input, ignis-table,
+ * ignis-chip, ignis-alert, ignis-btn-group) und Tailwind für das Layout.
+ * Wer eine neue Ansicht mit alten Klassen anlegt, fällt hier durch.
  *
  * Geprüft werden die Klassen im Attribut `class="…"`, auch in JS-Strings
  * innerhalb der Templates; eNOTF (plugins/enotf*, assets/components/enotf)
@@ -51,15 +52,7 @@ final class LegacyClassUsageTest extends TestCase
      * Ansichten, die noch alte Klassen tragen (Stand der Redesign-Runde).
      * Pfade relativ zur Repo-Wurzel.
      */
-    private const STILL_LEGACY = [
-        'plugins/firetab/templates/firetab/create.php',
-        'plugins/firetab/templates/firetab/login-vehicle.php',
-        'plugins/firetab/templates/firetab/tabs/asu_trupps.php',
-        'plugins/firetab/templates/firetab/tabs/fahrzeuge.php',
-        'plugins/firetab/templates/firetab/tabs/lagekarte.php',
-        'plugins/firetab/templates/firetab/tabs/log.php',
-        'plugins/firetab/templates/firetab/tabs/stammdaten.php',
-    ];
+    private const STILL_LEGACY = [];
 
     /** @return list<string> Verzeichnisse und Dateien relativ zur Repo-Wurzel */
     private function roots(): array

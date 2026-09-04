@@ -39,7 +39,7 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
             </div>
             <div class="md:col-span-4">
                 <label class="ignis-field__label">Einsatzleiter *</label>
-                <select class="form-select" name="edit_leader_id" data-custom-dropdown="true" data-search-threshold="5" <?= $incident['finalized'] ? 'disabled' : '' ?> required>
+                <select class="ignis-input" name="edit_leader_id" data-custom-dropdown="true" data-search-threshold="5" <?= $incident['finalized'] ? 'disabled' : '' ?> required>
                     <option value="">– auswählen –</option>
                     <?php
                     $leaders = \App\Federation\FederatedPersonnel::getLeaderOptions();

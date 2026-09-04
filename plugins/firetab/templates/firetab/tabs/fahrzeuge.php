@@ -14,14 +14,15 @@
         </div>
     <?php else: ?>
         <div class="twplus-table-card">
-            <table class="table table-striped twplus-table">
+            <div class="twplus-table-card__scroll">
+            <table class="ignis-table" id="table-incident-vehicles">
                 <thead>
                     <tr>
-                        <th>Art</th>
-                        <th>Rufname</th>
-                        <th>Status</th>
-                        <th>Identifier</th>
-                        <th style="width: 120px;">Aktion</th>
+                        <th scope="col">Art</th>
+                        <th scope="col">Rufname</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Identifier</th>
+                        <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,16 +66,16 @@
                                     <?= htmlspecialchars($statusDisplay['text']) ?>
                                 </div>
                             </td>
-                            <td><?= htmlspecialchars($ident) ?></td>
-                            <td class="text-right">
+                            <td><span class="ignis-mono"><?= htmlspecialchars($ident) ?></span></td>
+                            <td class="ignis-table__actions">
                                 <?php if (!$incident['finalized']): ?>
                                     <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
                                         <input type="hidden" name="action" value="remove_vehicle">
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                                         <input type="hidden" name="return_tab" value="fahrzeuge">
                                         <input type="hidden" name="vehicle_row_id" value="<?= (int)$av['id'] ?>">
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
-                                            <i class="fa-solid fa-trash"></i>
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" aria-label="Fahrzeug entfernen" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
+                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 <?php endif; ?>
@@ -83,6 +84,7 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -97,7 +99,7 @@
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
                     <label class="ignis-field__label">Vorhandene Fahrzeuge</label>
-                    <select name="vehicle_id" class="form-select" data-custom-dropdown="true" data-search-threshold="5">
+                    <select name="vehicle_id" class="ignis-input" data-custom-dropdown="true" data-search-threshold="5">
                         <option value="">Bitte wählen....</option>
                         <?php
                         $attachedIds = array_filter(array_map(fn($x) => $x['vehicle_id'] ?? null, $attachedVehicles));
@@ -108,7 +110,7 @@
                             <option value="<?= (int)$v['id'] ?>"><?= htmlspecialchars($v['veh_type'] ?? $v['name']) ?> (<?= htmlspecialchars($v['name']) ?>)</option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="text-gray-400">Oder Freitext-Felder unten nutzen</small>
+                    <small class="form-hint">Oder Freitext-Felder unten nutzen</small>
                 </div>
                 <div>
                     <label class="ignis-field__label">Freitext Funkrufname</label>
@@ -150,7 +152,7 @@
         height: 35px;
         font-weight: bold;
         font-size: 14px;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
     }
 </style>

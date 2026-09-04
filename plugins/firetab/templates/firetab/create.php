@@ -13,19 +13,6 @@ use App\Helpers\Flash;
 
 <head>
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
-    <style>
-        .enotf-dropdown-container.form-select {
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: var(--bs-body-color);
-            background-color: var(--bs-body-bg);
-            background-clip: padding-box;
-            border: var(--bs-border-width) solid var(--bs-border-color);
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
-    </style>
 </head>
 
 <body data-theme="dark" data-page="protokolle">
@@ -69,7 +56,7 @@ use App\Helpers\Flash;
                         </div>
                         <div class="md:col-span-6">
                             <label class="ignis-field__label">Einsatzleiter*</label>
-                            <select name="leader_id" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
+                            <select name="leader_id" class="ignis-input" required data-custom-dropdown="true" data-search-threshold="5">
                                 <option value="">Bitte wählen...</option>
                                 <?php foreach ($leaders as $l): ?>
                                     <option value="<?= htmlspecialchars((string)$l['id']) ?>"><?= htmlspecialchars($l['fullname']) ?><?= $l['source_name'] ? ' [' . htmlspecialchars($l['source_name']) . ']' : '' ?></option>
@@ -99,7 +86,7 @@ use App\Helpers\Flash;
                             <input type="text" name="owner_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">
-                            <small class="text-gray-400">Optional: Angaben zum Geschädigten, Eigentümer oder Halter (Name/Kontakt).</small>
+                            <small class="form-hint">Optional: Angaben zum Geschädigten, Eigentümer oder Halter (Name/Kontakt).</small>
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end">

@@ -41,42 +41,37 @@
         font-size: 0.65rem;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.45);
+        color: var(--text-3);
         font-weight: 500;
     }
 
     /* Warning/Danger-States (triggert aus JS via classList) */
-    .asu-clock-time.text-warning { color: #ffc107; }
-    .asu-clock-time.text-danger  { color: #ef4444; }
+    .asu-clock-time.text-warning { color: var(--warn); }
+    .asu-clock-time.text-danger  { color: var(--danger); }
 
-    /* Progressbar */
-    .asu-progress {
-        background-color: rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
-        overflow: hidden;
-    }
+    /* Progressbar: ignis-progress, hier 20 px hoch mit dem Prozentwert darüber */
+    .asu-progress { height: 20px; }
 
     .asu-progress-bar {
-        background-color: var(--main-color);
         transition: background-color 0.3s, width 0.3s;
     }
 
-    .asu-progress-bar.asu-warning { background-color: #ffc107; }
-    .asu-progress-bar.asu-danger  { background-color: #ef4444; }
+    .asu-progress-bar.asu-warning { background-color: var(--warn); }
+    .asu-progress-bar.asu-danger  { background-color: var(--danger); }
 </style>
 
 <!-- 3 Trupps nebeneinander -->
 <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
     <!-- Trupp 1 -->
     <div>
-        <div class="ignis-card bg-[rgba(0,0,0,0.3)] h-full">
+        <div class="ignis-card bg-[var(--surface-2)] h-full">
             <div class="ignis-card__header flex items-center justify-between">
-                <h5 class="mb-0">1. Trupp</h5>
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="ignis-btn ignis-btn--success" onclick="startTrupp(1)">
+                <h3 class="ignis-card__title">1. Trupp</h3>
+                <div class="ignis-btn-group">
+                    <button type="button" class="ignis-btn ignis-btn--success" aria-label="Trupp starten" onclick="startTrupp(1)">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="stopTrupp(1)">
+                    <button type="button" class="ignis-btn ignis-btn--danger" aria-label="Trupp stoppen" onclick="stopTrupp(1)">
                         <i class="fa-solid fa-stop"></i>
                     </button>
                 </div>
@@ -117,8 +112,8 @@
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress asu-progress relative mt-2" style="height: 20px;">
-                        <div class="progress-bar asu-progress-bar" id="trupp1ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="ignis-progress asu-progress relative mt-2">
+                        <div class="ignis-progress__bar asu-progress-bar" id="trupp1ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         <span id="trupp1Percent" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white" style="pointer-events:none;mix-blend-mode:difference;">0%</span>
                     </div>
                 </div>
@@ -190,14 +185,14 @@
 
     <!-- Trupp 2 -->
     <div>
-        <div class="ignis-card bg-[rgba(0,0,0,0.3)] h-full">
+        <div class="ignis-card bg-[var(--surface-2)] h-full">
             <div class="ignis-card__header flex items-center justify-between">
-                <h5 class="mb-0">2. Trupp</h5>
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="ignis-btn ignis-btn--success" onclick="startTrupp(2)">
+                <h3 class="ignis-card__title">2. Trupp</h3>
+                <div class="ignis-btn-group">
+                    <button type="button" class="ignis-btn ignis-btn--success" aria-label="Trupp starten" onclick="startTrupp(2)">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="stopTrupp(2)">
+                    <button type="button" class="ignis-btn ignis-btn--danger" aria-label="Trupp stoppen" onclick="stopTrupp(2)">
                         <i class="fa-solid fa-stop"></i>
                     </button>
                 </div>
@@ -238,8 +233,8 @@
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress asu-progress relative mt-2" style="height: 20px;">
-                        <div class="progress-bar asu-progress-bar" id="trupp2ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="ignis-progress asu-progress relative mt-2">
+                        <div class="ignis-progress__bar asu-progress-bar" id="trupp2ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         <span id="trupp2Percent" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white" style="pointer-events:none;mix-blend-mode:difference;">0%</span>
                     </div>
                 </div>
@@ -311,14 +306,14 @@
 
     <!-- Trupp 3 (Sicherheitstrupp) -->
     <div>
-        <div class="ignis-card bg-[rgba(0,0,0,0.3)] h-full">
+        <div class="ignis-card bg-[var(--surface-2)] h-full">
             <div class="ignis-card__header flex items-center justify-between">
-                <h5 class="mb-0">Sicherheitstrupp</h5>
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="ignis-btn ignis-btn--success" onclick="startTrupp(3)">
+                <h3 class="ignis-card__title">Sicherheitstrupp</h3>
+                <div class="ignis-btn-group">
+                    <button type="button" class="ignis-btn ignis-btn--success" aria-label="Trupp starten" onclick="startTrupp(3)">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="stopTrupp(3)">
+                    <button type="button" class="ignis-btn ignis-btn--danger" aria-label="Trupp stoppen" onclick="stopTrupp(3)">
                         <i class="fa-solid fa-stop"></i>
                     </button>
                 </div>
@@ -359,8 +354,8 @@
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress asu-progress relative mt-2" style="height: 20px;">
-                        <div class="progress-bar asu-progress-bar" id="trupp3ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="ignis-progress asu-progress relative mt-2">
+                        <div class="ignis-progress__bar asu-progress-bar" id="trupp3ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         <span id="trupp3Percent" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white" style="pointer-events:none;mix-blend-mode:difference;">0%</span>
                     </div>
                 </div>
