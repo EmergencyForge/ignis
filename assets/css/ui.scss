@@ -1351,9 +1351,15 @@ body:has(.ignis-dialog-backdrop.is-open) {
     cursor: default;
   }
 
-  // Invalid-State (nach Browser-native Validierung oder via .is-invalid)
+  // Invalid-State: erst nach Interaktion. :user-invalid setzt der Browser,
+  // sobald der Nutzer das Feld angefasst oder das Formular abgeschickt hat;
+  // .was-validated am Formular (oder einem Vorfahren) färbt alle ungültigen
+  // Felder, etwa nach einem gescheiterten Post. Die alte Regel
+  // :invalid:not(:placeholder-shown) färbte leere Pflicht-Selects und
+  // Felder ohne Placeholder schon beim Laden rot.
   &.is-invalid,
-  &:invalid:not(:focus):not(:placeholder-shown) {
+  &:user-invalid,
+  .was-validated &:invalid {
     border-color: var(--danger);
 
     &:focus {
