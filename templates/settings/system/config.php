@@ -86,57 +86,10 @@ $layout = 'admin';
 $bodyId = 'settings';
 $SITE_TITLE = 'System-Konfiguration';
 ?>
-<?php ob_start(); ?>
-    <style>
-        .config-preview {
-            padding: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .logo-preview,
-        .meta-image-preview {
-            max-width: 200px;
-            max-height: 100px;
-            border: 1px solid var(--bs-border-color);
-            border-radius: 0;
-            padding: 0.5rem;
-        }
-
-        .color-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .color-input-wrapper input[type="color"] {
-            width: 60px;
-            height: 40px;
-            border: none;
-            border-radius: 0.375rem;
-            cursor: pointer;
-        }
-
-        .color-input-wrapper input[type="text"] {
-            flex: 1;
-        }
-
-        .form-label {
-            font-weight: 600;
-        }
-
-        .form-text {
-            font-size: 0.875rem;
-        }
-
-        .config-section {
-            margin-bottom: 2rem;
-        }
-    </style>
-<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">System</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Konfiguration</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">System</p>
@@ -145,21 +98,21 @@ $SITE_TITLE = 'System-Konfiguration';
                         </div>
                     </div>
 
-                    <div class="twplus-toolbar mb-4">
-                        <div class="btn-toolbar-group" id="categoryFilter">
-                            <button class="ignis-btn active" data-category="">Alle</button>
+                    <div class="ignis-list-toolbar">
+                        <nav class="ignis-filter-links" id="categoryFilter" aria-label="Kategorie">
+                            <button type="button" class="is-active" data-category="">Alle</button>
                             <?php foreach ($configByCategory as $category => $configs): ?>
-                                <button class="ignis-btn" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
+                                <button type="button" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
                             <?php endforeach; ?>
-                        </div>
+                        </nav>
                     </div>
 
                     <form method="post" id="configForm">
                         <?php foreach ($configByCategory as $category => $configs): ?>
                             <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>">
-                                <div class="ignis-card twplus-section-card mb-4">
+                                <div class="ignis-card mb-4">
                                     <div class="ignis-card__header">
-                                        <h5 class="mb-0"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></h5>
+                                        <h2 class="ignis-card__title"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></h2>
                                     </div>
                                     <div class="ignis-card__body">
                                         <?php foreach ($configs as $config): ?>
@@ -175,34 +128,37 @@ $SITE_TITLE = 'System-Konfiguration';
                                                 <div>
 
                                                 <?php if ($config['config_key'] === 'API_KEY'): ?>
-                                                    <div class="input-group">
+                                                    <div class="flex items-center gap-2">
                                                         <input
                                                             type="password"
-                                                            class="ignis-input"
+                                                            class="ignis-input ignis-mono"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
                                                             readonly>
                                                         <button
                                                             type="button"
-                                                            class="ignis-btn ignis-btn--outline-secondary ignis-btn--icon"
+                                                            class="ignis-btn ignis-btn--secondary ignis-btn--icon"
                                                             onclick="toggleApiKeyVisibility()"
-                                                            title="API-Schlüssel anzeigen/verbergen"
+                                                            title="API-Schlüssel anzeigen"
+                                                            aria-label="API-Schlüssel anzeigen oder verbergen"
                                                             id="toggleApiKeyBtn">
-                                                            <i class="fa-solid fa-eye"></i>
+                                                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="ignis-btn ignis-btn--outline-primary ignis-btn--icon"
+                                                            class="ignis-btn ignis-btn--secondary ignis-btn--icon"
                                                             onclick="copyApiKey()"
-                                                            title="API-Schlüssel kopieren">
-                                                            <i class="fa-solid fa-copy"></i>
+                                                            title="API-Schlüssel kopieren"
+                                                            aria-label="API-Schlüssel kopieren">
+                                                            <i class="fa-solid fa-copy" aria-hidden="true"></i>
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="ignis-btn ignis-btn--soft-warning ignis-btn--icon"
+                                                            class="ignis-btn ignis-btn--ghost-danger ignis-btn--icon"
                                                             onclick="regenerateApiKey(event)"
-                                                            title="API-Schlüssel neu generieren">
-                                                            <i class="fa-solid fa-rotate"></i>
+                                                            title="API-Schlüssel neu generieren"
+                                                            aria-label="API-Schlüssel neu generieren">
+                                                            <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                                         </button>
                                                     </div>
                                                     <div class="ignis-field__hint">Dieser API-Schlüssel wird für externe Schnittstellen verwendet. Ein neuer Schlüssel macht alte Integrationen ungültig.</div>
@@ -218,15 +174,17 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     </label>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'color'): ?>
-                                                    <div class="color-input-wrapper">
+                                                    <div class="flex items-center gap-2">
                                                         <input
                                                             type="color"
+                                                            class="h-10 w-14 shrink-0 cursor-pointer rounded-md border border-[var(--border)] bg-transparent p-0"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>_picker"
+                                                            aria-label="Farbe wählen"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
                                                             onchange="updateColorValue('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
                                                         <input
                                                             type="text"
-                                                            class="ignis-input"
+                                                            class="ignis-input ignis-mono"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>"
                                                             name="<?= htmlspecialchars($config['config_key']) ?>"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
@@ -246,12 +204,12 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         oninput="updateLogoPreview(this.value)">
                                                     <div class="ignis-field__hint">Relativer Pfad oder vollständige URL zum Logo.</div>
-                                                    <div class="config-preview">
-                                                        <strong>Vorschau:</strong><br>
+                                                    <div class="mt-2">
+                                                        <span class="ignis-field__label block mb-1">Vorschau</span>
                                                         <img
                                                             src="<?= htmlspecialchars($config['config_value']) ?>"
-                                                            alt="Logo Preview"
-                                                            class="logo-preview"
+                                                            alt="Vorschau des Logos"
+                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
                                                             id="logo_preview"
                                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
                                                     </div>
@@ -265,19 +223,19 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         oninput="updateMetaImagePreview(this.value)">
                                                     <div class="ignis-field__hint">Vollständige URL zum Bild für Link-Vorschau.</div>
-                                                    <div class="config-preview">
-                                                        <strong>Vorschau:</strong><br>
+                                                    <div class="mt-2">
+                                                        <span class="ignis-field__label block mb-1">Vorschau</span>
                                                         <img
                                                             src="<?= htmlspecialchars($config['config_value']) ?>"
-                                                            alt="Meta Image Preview"
-                                                            class="meta-image-preview"
+                                                            alt="Vorschau des Link-Bildes"
+                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
                                                             id="meta_image_preview"
                                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
                                                     </div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'REGISTRATION_MODE'): ?>
                                                     <select
-                                                        class="form-select"
+                                                        class="ignis-input"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>">
                                                         <option value="open" <?= $config['config_value'] === 'open' ? 'selected' : '' ?>>Offen (für jeden möglich)</option>
@@ -288,7 +246,7 @@ $SITE_TITLE = 'System-Konfiguration';
 
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'ENOTF_BZ_UNIT'): ?>
                                                     <select
-                                                        class="form-select"
+                                                        class="ignis-input"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>">
                                                         <option value="mg/dl" <?= $config['config_value'] === 'mg/dl' ? 'selected' : '' ?>>mg/dl (Milligramm pro Deziliter)</option>
@@ -313,8 +271,8 @@ $SITE_TITLE = 'System-Konfiguration';
                         <?php endforeach; ?>
 
                         <div class="twplus-sticky-actions mb-6">
-                            <button type="submit" name="save_config" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
-                                <i class="fa-solid fa-save"></i> Änderungen speichern
+                            <button type="submit" name="save_config" class="ignis-btn ignis-btn--primary">
+                                <i class="fa-solid fa-save" aria-hidden="true"></i> Änderungen speichern
                             </button>
                         </div>
                     </form>
@@ -323,15 +281,14 @@ $SITE_TITLE = 'System-Konfiguration';
     </div>
 
     <script>
-        // Category segmented control filtering
-        document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(btn) {
+        // Kategorie-Filter: blendet die Karten der anderen Kategorien aus.
+        document.querySelectorAll('#categoryFilter button').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
-                this.classList.add('active');
+                document.querySelectorAll('#categoryFilter button').forEach(function(b) { b.classList.remove('is-active'); });
+                this.classList.add('is-active');
                 var cat = this.dataset.category;
                 document.querySelectorAll('.config-section').forEach(function(section) {
-                    if (!cat) { section.style.display = ''; return; }
-                    section.style.display = (section.dataset.configCategory === cat) ? '' : 'none';
+                    section.hidden = !!cat && section.dataset.configCategory !== cat;
                 });
             });
         });

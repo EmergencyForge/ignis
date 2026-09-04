@@ -59,15 +59,6 @@ final class LegacyClassUsageTest extends TestCase
         'plugins/firetab/templates/firetab/tabs/lagekarte.php',
         'plugins/firetab/templates/firetab/tabs/log.php',
         'plugins/firetab/templates/firetab/tabs/stammdaten.php',
-        'templates/settings/dashboard/index.php',
-        'templates/settings/documents/categories.php',
-        'templates/settings/documents/visual-editor.php',
-        'templates/settings/personnel/ranks.php',
-        'templates/settings/system/config.php',
-        'templates/settings/system/cron.php',
-        'templates/settings/system/logs.php',
-        'templates/settings/system/performance.php',
-        'templates/settings/system/updater.php',
     ];
 
     /** @return list<string> Verzeichnisse und Dateien relativ zur Repo-Wurzel */

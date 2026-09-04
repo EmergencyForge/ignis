@@ -269,14 +269,15 @@ $SITE_TITLE = 'System Updates';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <div class="twplus-page-header mb-6">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Updates</span></nav>
+                    <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Wartung</p><h1>System-Updates</h1><p class="twplus-page-header__description">Version, verfügbare Releases und Update-Kanal verwalten.</p></div>
                     </div>
 
                     <!-- Current Version Card -->
-                    <div class="ignis-card twplus-section-card mb-4">
+                    <div class="ignis-card mb-4">
                         <div class="ignis-card__header">
-                            <h5 class="mb-0">Aktuelle Version</h5>
+                            <h2 class="ignis-card__title">Aktuelle Version</h2>
                         </div>
                         <div class="ignis-card__body">
                             <?php if ($isPreRelease): ?>
@@ -300,14 +301,14 @@ $SITE_TITLE = 'System Updates';
                                         <dd>
                                             <strong><?= htmlspecialchars($currentVersion['version']) ?></strong>
                                             <?php if ($isPreRelease): ?>
-                                                <span class="ignis-chip ignis-chip--warning text-black ml-1">Pre-Release</span>
+                                                <span class="ignis-chip ignis-chip--warn ml-1">Pre-Release</span>
                                             <?php endif; ?>
                                         </dd>
 
                                         <dt>Aktualisiert am:</dt>
                                         <dd>
                                             <?= htmlspecialchars($currentVersion['updated_at']) ?>
-                                            <small class="text-gray-400">(vor <?= $versionAge ?> Tagen)</small>
+                                            <small class="text-[var(--text-3)]">(vor <?= $versionAge ?> Tagen)</small>
                                         </dd>
 
                                         <dt>Build-Nummer:</dt>
@@ -323,8 +324,8 @@ $SITE_TITLE = 'System Updates';
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                             <input type="hidden" name="check_updates" value="1">
                                             <input type="hidden" name="include_prerelease" id="include-prerelease-hidden" value="0">
-                                            <button type="submit" class="ignis-btn ignis-btn--soft-primary w-full">
-                                                <i class="fa-solid fa-sync"></i> Auf Updates prüfen
+                                            <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--block">
+                                                <i class="fa-solid fa-rotate" aria-hidden="true"></i> Auf Updates prüfen
                                             </button>
                                         </form>
 
@@ -340,14 +341,14 @@ $SITE_TITLE = 'System Updates';
                                                 <input type="hidden" name="check_updates" value="1">
                                                 <input type="hidden" name="force_refresh" value="1">
                                                 <input type="hidden" name="include_prerelease" id="force-refresh-prerelease" value="0">
-                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary ignis-btn--sm w-full">
-                                                    <i class="fa-solid fa-sync"></i> Neu laden
+                                                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm ignis-btn--block">
+                                                    <i class="fa-solid fa-rotate" aria-hidden="true"></i> Neu laden
                                                 </button>
                                             </form>
                                             <form method="post" class="flex-1">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                                                <button type="submit" name="clear_cache" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm w-full">
-                                                    <i class="fa-solid fa-trash"></i> Cache leeren
+                                                <button type="submit" name="clear_cache" class="ignis-btn ignis-btn--ghost ignis-btn--sm ignis-btn--block">
+                                                    <i class="fa-solid fa-trash" aria-hidden="true"></i> Cache leeren
                                                 </button>
                                             </form>
                                         </div>
@@ -360,11 +361,9 @@ $SITE_TITLE = 'System Updates';
 
                     <?php if ($checking && $updateInfo): ?>
                         <!-- Update Information Card -->
-                        <div class="ignis-card twplus-section-card mb-4">
+                        <div class="ignis-card mb-4">
                             <div class="ignis-card__header">
-                                <h5 class="mb-0">
-                                    Update-Informationen
-                                </h5>
+                                <h2 class="ignis-card__title">Update-Informationen</h2>
                             </div>
                             <div class="ignis-card__body">
                                 <?php if (isset($updateInfo['error'])): ?>
@@ -394,7 +393,7 @@ $SITE_TITLE = 'System Updates';
                                         <p class="mb-0">
                                             Eine neue Version ist verfügbar: <strong><?= htmlspecialchars($updateInfo['latest_version']) ?></strong>
                                             <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease']): ?>
-                                                <span class="ignis-chip ignis-chip--warning text-black ml-1"><i class="fa-solid fa-flask"></i> Pre-Release</span>
+                                                <span class="ignis-chip ignis-chip--warn ml-1"><i class="fa-solid fa-flask" aria-hidden="true"></i> Pre-Release</span>
                                             <?php endif; ?>
                                             <span class="ignis-chip ignis-chip--<?= $alertClass ?> ml-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
                                             <?php if (isset($updateInfo['cached']) && $updateInfo['cached']): ?>
@@ -460,8 +459,8 @@ $SITE_TITLE = 'System Updates';
                                                 <input type="hidden" name="new_version" value="<?= htmlspecialchars($updateInfo['latest_version']) ?>">
                                                 <input type="hidden" name="is_prerelease" value="<?= isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] ? '1' : '0' ?>">
                                                 <input type="hidden" name="expected_sha256" value="<?= htmlspecialchars($updateInfo['checksum_sha256'] ?? '') ?>">
-                                                <button type="button" id="install-update-btn" class="ignis-btn ignis-btn--success w-full">
-                                                    <i class="fa-solid fa-download"></i> Update jetzt installieren
+                                                <button type="button" id="install-update-btn" class="ignis-btn ignis-btn--primary ignis-btn--block">
+                                                    <i class="fa-solid fa-download" aria-hidden="true"></i> Update jetzt installieren
                                                 </button>
                                             </form>
 
@@ -470,15 +469,15 @@ $SITE_TITLE = 'System Updates';
                                             <?php if (isset($updateInfo['html_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['html_url']) ?>"
                                                     target="_blank"
-                                                    class="ignis-btn ignis-btn--outline-primary w-full mb-2">
-                                                    <i class="fa-solid fa-external-link-alt"></i> Release auf GitHub ansehen
+                                                    class="ignis-btn ignis-btn--secondary ignis-btn--block mb-2" rel="noopener">
+                                                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Release auf GitHub ansehen
                                                 </a>
                                             <?php endif; ?>
 
                                             <?php if (isset($updateInfo['download_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['download_url']) ?>"
-                                                    class="ignis-btn ignis-btn--outline-secondary w-full">
-                                                    <i class="fa-solid fa-file-zipper"></i> ZIP manuell herunterladen
+                                                    class="ignis-btn ignis-btn--ghost ignis-btn--block">
+                                                    <i class="fa-solid fa-file-zipper" aria-hidden="true"></i> ZIP manuell herunterladen
                                                 </a>
                                             <?php endif; ?>
                                         </div>
@@ -487,7 +486,7 @@ $SITE_TITLE = 'System Updates';
                                     <?php if (!empty($updateInfo['release_notes'])): ?>
                                         <hr>
                                         <h6>Release-Notizen:</h6>
-                                        <div class="border rounded p-3 bg-[rgba(0,0,0,0.3)]" style="max-height: 400px; overflow-y: auto;">
+                                        <div class="max-h-[400px] overflow-y-auto rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-3">
                                             <?= $updater->getFormattedReleaseNotes($updateInfo['release_notes']) ?>
                                         </div>
                                     <?php endif; ?>
@@ -510,9 +509,9 @@ $SITE_TITLE = 'System Updates';
 
                     <?php if ($isDevMode): ?>
                         <!-- Dev Mode: Branch Update -->
-                        <div class="ignis-card twplus-section-card mb-4 border-warning">
-                            <div class="ignis-card__header bg-[#c49a2a] bg-opacity-10">
-                                <h5 class="mb-0"><i class="fa-solid fa-code-branch mr-2"></i>Entwickler-Modus: Branch-Update</h5>
+                        <div class="ignis-card mb-4 border-[var(--warn)]">
+                            <div class="ignis-card__header bg-[var(--warn-soft)]">
+                                <h2 class="ignis-card__title"><i class="fa-solid fa-code-branch mr-2" aria-hidden="true"></i>Entwickler-Modus: Branch-Update</h2>
                             </div>
                             <div class="ignis-card__body">
                                 <div class="ignis-alert ignis-alert--warning mb-3">
@@ -524,7 +523,7 @@ $SITE_TITLE = 'System Updates';
                                 <?php if (!empty($devBranches)): ?>
                                     <div class="mb-3">
                                         <label for="dev-branch-select" class="ignis-field__label">Branch auswählen:</label>
-                                        <select class="form-select" id="dev-branch-select">
+                                        <select class="ignis-input" id="dev-branch-select">
                                             <option value="">-- Branch wählen --</option>
                                             <?php foreach ($devBranches as $branch): ?>
                                                 <option value="<?= htmlspecialchars($branch['name']) ?>"
@@ -537,12 +536,12 @@ $SITE_TITLE = 'System Updates';
                                     </div>
 
                                     <?php if ($devBranchInfo): ?>
-                                        <div class="ignis-card bg-[rgba(0,0,0,0.3)] mb-3">
+                                        <div class="ignis-card bg-[var(--surface-2)] mb-3">
                                             <div class="ignis-card__body">
                                                 <h6><i class="fa-solid fa-code-commit mr-2"></i>Neuester Commit auf <code><?= htmlspecialchars($selectedBranch) ?></code></h6>
                                                 <dl class="mb-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
                                                     <dt>SHA:</dt>
-                                                    <dd><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-gray-400">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
+                                                    <dd><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-[var(--text-3)]">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
 
                                                     <dt>Nachricht:</dt>
                                                     <dd><?= htmlspecialchars($devBranchInfo['commit']['message'] ?? '') ?></dd>
@@ -575,8 +574,8 @@ $SITE_TITLE = 'System Updates';
                                                         <input type="hidden" name="dev_install_branch" value="1">
                                                         <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
                                                         <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
-                                                        <button type="button" id="dev-install-btn" class="ignis-btn ignis-btn--warning w-full">
-                                                            <i class="fa-solid fa-download"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
+                                                        <button type="button" id="dev-install-btn" class="ignis-btn ignis-btn--warning ignis-btn--block">
+                                                            <i class="fa-solid fa-download" aria-hidden="true"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
                                                         </button>
                                                     </form>
                                                 <?php endif; ?>

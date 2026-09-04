@@ -1,7 +1,9 @@
 <?php
 /**
- * View: Performance-Diagnostik
- *
+ * View: Performance-Diagnostik. Kennzahlen als Kacheln, die Blöcke als
+ * ignis-detail__block (Überschrift in Kapitälchen wie die Seitenspalte
+ * der Detailseiten), Auslastung als ignis-progress, Platzhalter als
+ * ignis-skeleton; die Werte kommen per fetch aus /api/system/performance.
  */
 
 use App\Auth\Permissions;
@@ -10,218 +12,110 @@ $layout = 'admin';
 $bodyId = 'settings';
 $SITE_TITLE = 'Performance';
 ?>
-<?php ob_start(); ?>
-    <style>
-        .perf-card {
-            background-color: var(--body-bg-lighter);
-            border: 1px solid var(--darkgray);
-            border-radius: 12px;
-            padding: 1.25rem;
-        }
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Performance</span></nav>
 
-        .row .perf-card {
-            height: 100%;
-        }
-
-        .perf-card h6 {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05rem;
-            color: var(--light-text);
-            margin-bottom: 0.75rem;
-        }
-
-        .perf-stat {
-            font-size: 2rem;
-            font-weight: bold;
-            line-height: 1.2;
-        }
-
-        .perf-stat-sm {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .perf-label {
-            font-size: 0.8rem;
-            color: var(--light-text);
-        }
-
-        .perf-table th {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.03rem;
-            color: var(--light-text);
-            border-bottom-color: var(--darkgray);
-        }
-
-        .perf-table td {
-            border-bottom-color: var(--darkgray);
-            vertical-align: middle;
-        }
-
-        .perf-bar-bg {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .perf-bar {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .perf-badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-        }
-
-        .loading-placeholder {
-            animation: pulse 1.5s ease-in-out infinite;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            height: 2rem;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-        }
-
-        .info-grid .info-item {
-            padding: 0.5rem;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .info-grid .info-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--light-text);
-        }
-
-        .info-grid .info-value {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-    </style>
-<?php $layoutHead = ob_get_clean(); ?>
-    <div class="twplus-page mt-4 mb-5">
-
-        <nav class="ignis-breadcrumb mb-3" aria-label="breadcrumb">
-            <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
-            <span class="ignis-breadcrumb__item">Einstellungen</span>
-            <span class="ignis-breadcrumb__item is-active">Performance</span>
-        </nav>
-
-        <div class="twplus-page-header mb-4">
-            <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Performance-Dashboard</h1><p class="twplus-page-header__description">Datenbank, Laufzeitumgebung und Systemauslastung im Überblick.</p></div>
-            <div class="twplus-page-header__actions">
-            <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="refreshBtn" onclick="loadData()">
-                <i class="fa-solid fa-arrows-rotate"></i> Aktualisieren
-            </button>
-            </div>
-        </div>
-
-
-        <!-- Übersicht-Karten -->
-        <div class="twplus-stats mb-4">
-            <div class="perf-card twplus-stats__item">
-                <h6><i class="fa-solid fa-database mr-1"></i> Datenbank-Größe</h6>
-                <div class="perf-stat" id="dbSize">--</div>
-                <div class="perf-label" id="dbSizeDetail">Lade...</div>
-            </div>
-            <div class="perf-card twplus-stats__item">
-                <h6><i class="fa-solid fa-table mr-1"></i> Tabellen / Zeilen</h6>
-                <div class="perf-stat" id="dbTables">--</div>
-                <div class="perf-label" id="dbRows">--</div>
-            </div>
-            <div class="perf-card twplus-stats__item">
-                <h6><i class="fa-solid fa-users mr-1"></i> Aktive Benutzer</h6>
-                <div class="perf-stat" id="activeUsers">--</div>
-                <div class="perf-label" id="activeUsersDetail">Lade...</div>
-            </div>
-            <div class="perf-card twplus-stats__item">
-                <h6><i class="fa-solid fa-server mr-1"></i> Server-Uptime</h6>
-                <div class="perf-stat" id="uptime">--</div>
-                <div class="perf-label" id="uptimeDetail">Lade...</div>
-            </div>
-        </div>
-
-        <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div class="perf-card">
-                <h6><i class="fa-solid fa-chart-pie mr-1"></i> Content-Statistiken</h6>
-                <div id="contentStats">
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder"></div>
+            <div class="page-header twplus-page-header mb-4">
+                <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Performance-Dashboard</h1><p class="twplus-page-header__description">Datenbank, Laufzeitumgebung und Systemauslastung im Überblick.</p></div>
+                <div class="header-actions twplus-page-header__actions">
+                    <button type="button" class="ignis-btn ignis-btn--secondary" id="refreshBtn" onclick="loadData()">
+                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Aktualisieren
+                    </button>
                 </div>
             </div>
-            <div class="perf-card">
-                <h6><i class="fa-solid fa-microchip mr-1"></i> Server-Umgebung</h6>
-                <div id="serverInfo">
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder"></div>
+
+            <!-- Übersicht-Kacheln -->
+            <div class="twplus-stats mb-4" aria-label="Kennzahlen">
+                <div class="twplus-stats__item">
+                    <span class="twplus-stats__label"><i class="fa-solid fa-database mr-1" aria-hidden="true"></i> Datenbank-Größe</span>
+                    <span class="twplus-stats__value" id="dbSize">--</span>
+                    <span class="block text-xs text-[var(--text-3)]" id="dbSizeDetail">Lade...</span>
+                </div>
+                <div class="twplus-stats__item">
+                    <span class="twplus-stats__label"><i class="fa-solid fa-table mr-1" aria-hidden="true"></i> Tabellen / Zeilen</span>
+                    <span class="twplus-stats__value" id="dbTables">--</span>
+                    <span class="block text-xs text-[var(--text-3)]" id="dbRows">--</span>
+                </div>
+                <div class="twplus-stats__item">
+                    <span class="twplus-stats__label"><i class="fa-solid fa-users mr-1" aria-hidden="true"></i> Aktive Benutzer</span>
+                    <span class="twplus-stats__value" id="activeUsers">--</span>
+                    <span class="block text-xs text-[var(--text-3)]" id="activeUsersDetail">Lade...</span>
+                </div>
+                <div class="twplus-stats__item">
+                    <span class="twplus-stats__label"><i class="fa-solid fa-server mr-1" aria-hidden="true"></i> Server-Uptime</span>
+                    <span class="twplus-stats__value" id="uptime">--</span>
+                    <span class="block text-xs text-[var(--text-3)]" id="uptimeDetail">Lade...</span>
                 </div>
             </div>
-            <div class="perf-card">
-                <h6><i class="fa-brands fa-php mr-1"></i> PHP-Konfiguration</h6>
-                <div id="phpInfo">
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder"></div>
+
+            <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div class="ignis-detail__block">
+                    <h4><i class="fa-solid fa-chart-pie mr-1" aria-hidden="true"></i> Content-Statistiken</h4>
+                    <div id="contentStats" class="grid gap-2">
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                    </div>
+                </div>
+                <div class="ignis-detail__block">
+                    <h4><i class="fa-solid fa-microchip mr-1" aria-hidden="true"></i> Server-Umgebung</h4>
+                    <div id="serverInfo" class="grid gap-2">
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                    </div>
+                </div>
+                <div class="ignis-detail__block">
+                    <h4><i class="fa-brands fa-php mr-1" aria-hidden="true"></i> PHP-Konfiguration</h4>
+                    <div id="phpInfo" class="grid gap-2">
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabellen-Details -->
+            <div class="twplus-table-card mb-4">
+                <div class="twplus-table-card__scroll">
+                    <table class="ignis-table" id="table-performance">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tabelle</th>
+                                <th scope="col" class="ignis-table__num">Zeilen</th>
+                                <th scope="col" class="ignis-table__num">Größe</th>
+                                <th scope="col" class="w-1/4">Anteil</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableList">
+                            <tr><td colspan="4"><span class="ignis-skeleton block h-8"></span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="ignis-list-footer">
+                    <p class="ignis-list-meta">Die zehn größten Tabellen nach Speicherbedarf.</p>
+                </div>
+            </div>
+
+            <!-- Verbindungen & System-Status -->
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div class="ignis-detail__block">
+                    <h4><i class="fa-solid fa-plug mr-1" aria-hidden="true"></i> Verbindungen</h4>
+                    <div id="connectionInfo" class="grid gap-2">
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                    </div>
+                </div>
+                <div class="ignis-detail__block">
+                    <h4><i class="fa-solid fa-code-branch mr-1" aria-hidden="true"></i> System-Status</h4>
+                    <div id="systemStatus" class="grid gap-2">
+                        <span class="ignis-skeleton block h-8"></span>
+                        <span class="ignis-skeleton block h-8"></span>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Tabellen-Details -->
-        <div class="perf-card mb-4">
-            <h6><i class="fa-solid fa-list mr-1"></i> Top 10 Tabellen nach Größe</h6>
-            <div class="table-responsive">
-                <table class="table table-sm perf-table mb-0 twplus-table">
-                    <thead>
-                        <tr>
-                            <th>Tabelle</th>
-                            <th class="text-right">Zeilen</th>
-                            <th class="text-right">Größe</th>
-                            <th style="width: 25%;">Anteil</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableList">
-                        <tr><td colspan="4"><div class="loading-placeholder"></div></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Verbindungen & System-Status -->
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div class="perf-card">
-                <h6><i class="fa-solid fa-plug mr-1"></i> Verbindungen</h6>
-                <div id="connectionInfo">
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder"></div>
-                </div>
-            </div>
-            <div class="perf-card">
-                <h6><i class="fa-solid fa-code-branch mr-1"></i> System-Status</h6>
-                <div id="systemStatus">
-                    <div class="loading-placeholder mb-2"></div>
-                    <div class="loading-placeholder"></div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <script>
@@ -262,6 +156,27 @@ $SITE_TITLE = 'Performance';
             brandeinsaetze: { label: 'Brandeinsätze', icon: 'fa-fire' }
         };
 
+        // Auslastung: bis 25 % ok, bis 50 % warn, darüber danger (Tabellen);
+        // Verbindungen: bis 50 % ok, bis 80 % warn.
+        function progressVariant(pct, warnAt, dangerAt) {
+            return pct > dangerAt ? 'danger' : pct > warnAt ? 'warning' : 'success';
+        }
+
+        function progressBar(pct, warnAt, dangerAt) {
+            return '<div class="ignis-progress ignis-progress--' + progressVariant(pct, warnAt, dangerAt) + '"><div class="ignis-progress__bar" style="width: ' + Math.min(100, pct).toFixed(1) + '%"></div></div>';
+        }
+
+        // Kennwert-Zeile in einem Block: Label links, Wert rechts.
+        function statRow(labelHtml, valueHtml, first) {
+            return '<div class="flex items-center justify-between py-2' + (first ? '' : ' border-t border-[var(--fill-2)]') + '"><span>' + labelHtml + '</span><span class="font-semibold">' + valueHtml + '</span></div>';
+        }
+
+        function infoGrid(items) {
+            return '<div class="grid grid-cols-2 gap-2">' + items.map(([label, value]) =>
+                '<div class="rounded-md bg-[var(--fill-1)] p-2"><div class="text-xs uppercase text-[var(--text-3)]">' + label + '</div><div class="font-semibold">' + value + '</div></div>'
+            ).join('') + '</div>';
+        }
+
         async function loadData() {
             const btn = document.getElementById('refreshBtn');
             btn.disabled = true;
@@ -288,7 +203,7 @@ $SITE_TITLE = 'Performance';
                 showAlert('Fehler beim Laden der Daten: ' + error.message, {type: 'error', title: 'Fehler'});
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Aktualisieren';
+                btn.innerHTML = '<i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Aktualisieren';
             }
         }
 
@@ -321,60 +236,33 @@ $SITE_TITLE = 'Performance';
 
             for (const [key, value] of Object.entries(content)) {
                 const info = CONTENT_LABELS[key] || { label: key, icon: 'fa-circle' };
-                html += `
-                    <div class="flex justify-between items-center py-2 ${html ? 'border-t border-secondary border-opacity-25' : ''}">
-                        <span><i class="fa-solid ${info.icon} mr-2 text-[var(--text-dimmed,#818189)]"></i>${info.label}</span>
-                        <span class="perf-stat-sm">${formatNumber(value)}</span>
-                    </div>`;
+                html += statRow('<i class="fa-solid ' + info.icon + ' mr-2 text-[var(--text-3)]" aria-hidden="true"></i>' + info.label, formatNumber(value), html === '');
             }
 
+            container.className = '';
             container.innerHTML = html;
         }
 
         function renderServer(server) {
             const container = document.getElementById('serverInfo');
-            container.innerHTML = `
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">DB-Version</div>
-                        <div class="info-value">${server.db_version || 'N/A'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Buffer Pool</div>
-                        <div class="info-value">${server.buffer_pool_mb ? server.buffer_pool_mb + ' MB' : 'N/A'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Max Connections</div>
-                        <div class="info-value">${server.max_connections || 'N/A'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Slow Queries</div>
-                        <div class="info-value">${server.slow_queries !== null ? server.slow_queries : 'N/A'}</div>
-                    </div>
-                </div>`;
+            container.className = '';
+            container.innerHTML = infoGrid([
+                ['DB-Version', server.db_version || 'N/A'],
+                ['Buffer Pool', server.buffer_pool_mb ? server.buffer_pool_mb + ' MB' : 'N/A'],
+                ['Max Connections', server.max_connections || 'N/A'],
+                ['Slow Queries', server.slow_queries !== null ? server.slow_queries : 'N/A'],
+            ]);
         }
 
         function renderPHP(php) {
             const container = document.getElementById('phpInfo');
-            container.innerHTML = `
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">PHP-Version</div>
-                        <div class="info-value">${php.version}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Memory Limit</div>
-                        <div class="info-value">${php.memory_limit}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Max Upload</div>
-                        <div class="info-value">${php.upload_max_filesize}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Max Exec Time</div>
-                        <div class="info-value">${php.max_execution_time}s</div>
-                    </div>
-                </div>`;
+            container.className = '';
+            container.innerHTML = infoGrid([
+                ['PHP-Version', php.version],
+                ['Memory Limit', php.memory_limit],
+                ['Max Upload', php.upload_max_filesize],
+                ['Max Exec Time', php.max_execution_time + 's'],
+            ]);
         }
 
         function renderTables(tables, totalSizeMb) {
@@ -383,27 +271,22 @@ $SITE_TITLE = 'Performance';
 
             tables.forEach(table => {
                 const pct = totalSizeMb > 0 ? ((table.size_mb / totalSizeMb) * 100) : 0;
-                const barColor = pct > 50 ? '#D10000' : pct > 25 ? '#B86B00' : '#198754';
 
                 html += `
                     <tr>
-                        <td>
-                            <code class="text-sm">${table.table_name}</code>
-                        </td>
-                        <td class="text-right">${formatNumber(table.row_count || 0)}</td>
-                        <td class="text-right">${table.size_mb} MB</td>
+                        <td><code class="ignis-mono">${table.table_name}</code></td>
+                        <td class="ignis-table__num">${formatNumber(table.row_count || 0)}</td>
+                        <td class="ignis-table__num">${table.size_mb} MB</td>
                         <td>
                             <div class="flex items-center gap-2">
-                                <div class="perf-bar-bg grow">
-                                    <div class="perf-bar" style="width: ${pct}%; background: ${barColor};"></div>
-                                </div>
-                                <span class="text-sm text-[var(--text-dimmed,#818189)]" style="min-width: 35px;">${pct.toFixed(0)}%</span>
+                                <div class="grow">${progressBar(pct, 25, 50)}</div>
+                                <span class="min-w-[2.5rem] text-right text-sm text-[var(--text-3)]">${pct.toFixed(0)}%</span>
                             </div>
                         </td>
                     </tr>`;
             });
 
-            tbody.innerHTML = html || '<tr><td colspan="4" class="text-[var(--text-dimmed,#818189)]">Keine Daten</td></tr>';
+            tbody.innerHTML = html || '<tr><td colspan="4" class="ignis-table-empty">Keine Daten</td></tr>';
         }
 
         function renderConnections(server) {
@@ -411,19 +294,17 @@ $SITE_TITLE = 'Performance';
             const used = server.threads_connected || 0;
             const max = server.max_connections || 100;
             const pct = (used / max) * 100;
-            const barColor = pct > 80 ? '#D10000' : pct > 50 ? '#B86B00' : '#198754';
 
+            container.className = '';
             container.innerHTML = `
                 <div class="mb-3">
                     <div class="flex justify-between mb-1">
                         <span class="text-sm">Aktive Verbindungen</span>
                         <span class="text-sm font-bold">${used} / ${max}</span>
                     </div>
-                    <div class="perf-bar-bg">
-                        <div class="perf-bar" style="width: ${pct}%; background: ${barColor};"></div>
-                    </div>
+                    ${progressBar(pct, 50, 80)}
                 </div>
-                <div class="text-sm text-[var(--text-dimmed,#818189)]">
+                <div class="text-sm text-[var(--text-3)]">
                     Auslastung: ${pct.toFixed(1)}%
                 </div>`;
         }
@@ -431,29 +312,20 @@ $SITE_TITLE = 'Performance';
         function renderSystemStatus(data) {
             const container = document.getElementById('systemStatus');
             const items = [
-                {
-                    label: 'Migrationen ausgeführt',
-                    value: data.migrations.executed,
-                    icon: 'fa-code-branch',
-                    color: 'success'
-                },
-                {
-                    label: 'Template-Dateien',
-                    value: data.templates.count,
-                    icon: 'fa-file-code',
-                    color: 'info'
-                }
+                { label: 'Migrationen ausgeführt', value: data.migrations.executed, icon: 'fa-code-branch', chip: 'ok' },
+                { label: 'Template-Dateien', value: data.templates.count, icon: 'fa-file-code', chip: 'info' },
             ];
 
             let html = '';
             items.forEach(item => {
-                html += `
-                    <div class="flex justify-between items-center py-2 ${html ? 'border-t border-secondary border-opacity-25' : ''}">
-                        <span><i class="fa-solid ${item.icon} mr-2 text-${item.color}"></i>${item.label}</span>
-                        <span class="perf-ignis-chip bg-${item.color} bg-opacity-25 text-${item.color}">${item.value}</span>
-                    </div>`;
+                html += statRow(
+                    '<i class="fa-solid ' + item.icon + ' mr-2 text-[var(--' + item.chip + ')]" aria-hidden="true"></i>' + item.label,
+                    '<span class="ignis-chip ignis-chip--' + item.chip + '">' + item.value + '</span>',
+                    html === ''
+                );
             });
 
+            container.className = '';
             container.innerHTML = html;
         }
 

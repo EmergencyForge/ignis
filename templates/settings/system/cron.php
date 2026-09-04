@@ -1,7 +1,10 @@
 <?php
 
 /**
- * View: Cron-Jobs-Verwaltung
+ * View: Cron-Jobs-Verwaltung. Die Jobs als ignis-Tabelle mit Chips für
+ * Status und Aktivität und Zeilenaktionen (Verlauf, Ausführen, Pausieren,
+ * Löschen); der externe Trigger-Endpoint zum Aufklappen darüber, neue Jobs
+ * über den Dialog (Dialog.form).
  *
  * @var array<int,array<string,mixed>> $jobs
  * @var string                         $cronEndpointToken
@@ -19,113 +22,125 @@ if ($publicUrl !== '' && !preg_match('~^https?://~i', $publicUrl)) {
 }
 $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars($cronEndpointToken);
 
+// Letzter Lauf => [Text, Chip-Semantik]
+$runStatus = [
+    'success' => ['OK', 'ok'],
+    'failed'  => ['Fehler', 'danger'],
+    'running' => ['läuft', 'info'],
+];
+
 $layout = 'admin';
 $bodyId = 'settings';
 $SITE_TITLE = 'Cron-Jobs';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <div class="twplus-page-header mb-6">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Cron-Jobs</span></nav>
+
+            <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Automatisierung</p><h1>Cron-Jobs</h1><p class="twplus-page-header__description">Zeitpläne, letzte Ausführungen und Fehlerstatus geplanter Aufgaben.</p></div>
-                <div class="twplus-page-header__actions">
-                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateCronJobModal()">
-                    <i class="fa-solid fa-plus"></i> Neuer Job
-                </button>
+                <div class="header-actions twplus-page-header__actions">
+                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateCronJobModal()">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Neuer Job
+                    </button>
                 </div>
             </div>
 
-
-            <details class="twplus-section-card mb-4 px-4 py-3">
-                <summary class="cursor-pointer text-sm text-gray-400 flex items-center gap-2 select-none">
-                    <i class="fa-solid fa-link"></i>
-                    <strong>Externer Trigger-Endpoint</strong>
-                    <span class="text-gray-500">— für cron-job.org, UptimeRobot &amp; Co.</span>
+            <details class="ignis-card mb-4">
+                <summary class="ignis-card__header cursor-pointer select-none text-sm">
+                    <span><i class="fa-solid fa-link mr-1" aria-hidden="true"></i> <strong>Externer Trigger-Endpoint</strong> <span class="text-[var(--text-3)]">— für cron-job.org, UptimeRobot &amp; Co.</span></span>
                 </summary>
-                <div class="flex items-center gap-2 mt-3">
-                    <input type="password" class="ignis-input ignis-input--sm" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly style="font-family: var(--font-mono, monospace); font-size: 0.78rem;">
-                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
-                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
-                        <i class="fa-solid fa-copy"></i> Kopieren
-                    </button>
+                <div class="ignis-card__body">
+                    <div class="flex items-center gap-2">
+                        <label for="cron-endpoint-url" class="sr-only">Endpoint-URL</label>
+                        <input type="password" class="ignis-input ignis-input--sm ignis-mono" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly>
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Anzeigen" aria-label="Endpoint anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
+                            <i class="fa-solid fa-copy" aria-hidden="true"></i> Kopieren
+                        </button>
+                    </div>
+                    <small class="form-hint block">Wenn weder Unix-Cron noch die Piggyback-Middleware laufen, rufe diesen URL minütlich auf — der Scheduler wird dann alle fälligen Jobs abarbeiten. Der Token gilt als Passwort und sollte nur an vertrauenswürdige Dienste weitergegeben werden.</small>
                 </div>
-                <small class="text-gray-500 mt-2 block">Wenn weder Unix-Cron noch die Piggyback-Middleware laufen, rufe diesen URL minütlich auf — der Scheduler wird dann alle fälligen Jobs abarbeiten. Der Token gilt als Passwort und sollte nur an vertrauenswürdige Dienste weitergegeben werden.</small>
             </details>
 
             <div class="twplus-table-card">
-                <table class="table table-striped twplus-table" id="table-cron-jobs">
+                <div class="twplus-table-card__scroll">
+                <table class="ignis-table" id="table-cron-jobs">
                     <thead>
                         <tr>
-                            <th>Identifier</th>
-                            <th>Schedule</th>
-                            <th>Handler</th>
-                            <th>Aktiv</th>
-                            <th>Letzter Lauf</th>
-                            <th>Nächster Lauf</th>
-                            <th>Fails</th>
-                            <th style="width:220px;"></th>
+                            <th scope="col">Job</th>
+                            <th scope="col">Zeitplan</th>
+                            <th scope="col">Handler</th>
+                            <th scope="col">Aktiv</th>
+                            <th scope="col">Letzter Lauf</th>
+                            <th scope="col">Nächster Lauf</th>
+                            <th scope="col" class="ignis-table__num">Fehler</th>
+                            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if ($jobs === []): ?>
+                            <tr><td colspan="8" class="ignis-table-empty">Noch keine Cron-Jobs angelegt.</td></tr>
+                        <?php endif; ?>
                         <?php foreach ($jobs as $job):
-                            $statusBadge = match ($job['last_status']) {
-                                'success' => "<span class='badge-status status-success'><span class='status-dot'></span>OK</span>",
-                                'failed'  => "<span class='badge-status status-danger'><span class='status-dot'></span>FAIL</span>",
-                                'running' => "<span class='badge-status status-info'><span class='status-dot'></span>läuft</span>",
-                                default   => "<span class='badge-status status-muted'><span class='status-dot'></span>–</span>",
-                            };
-                            $activeBadge = ((int) $job['active']) === 1
-                                ? "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>"
-                                : "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
+                            [$runText, $runChip] = $runStatus[$job['last_status']] ?? ['–', 'secondary'];
+                            $isActive  = ((int) $job['active']) === 1;
                             $isBuiltin = ((int) $job['is_builtin']) === 1;
-                            $jobId = (int) $job['id'];
+                            $jobId     = (int) $job['id'];
                         ?>
-                            <tr>
+                            <tr<?= $isActive ? '' : ' class="is-muted"' ?>>
                                 <td>
-                                    <div class="font-bold"><?= htmlspecialchars($job['name']) ?></div>
-                                    <small class="text-gray-500"><?= htmlspecialchars($job['identifier']) ?><?php if ($isBuiltin): ?> · <span class="text-[#ddb84a]">built-in</span><?php endif; ?></small>
+                                    <div class="font-semibold"><?= htmlspecialchars($job['name']) ?></div>
+                                    <small class="text-[var(--text-3)]"><span class="ignis-mono"><?= htmlspecialchars($job['identifier']) ?></span><?php if ($isBuiltin): ?> · <span class="text-[var(--warn)]">built-in</span><?php endif; ?></small>
                                 </td>
-                                <td><code style="font-size:0.78rem;"><?= htmlspecialchars($job['schedule']) ?></code></td>
+                                <td><code class="ignis-mono"><?= htmlspecialchars($job['schedule']) ?></code></td>
                                 <td>
-                                    <span class="ignis-chip" style="font-size:0.65rem;"><?= htmlspecialchars($job['handler_type']) ?></span>
+                                    <span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($job['handler_type']) ?></span>
                                     <?php if (!($job['handler_available'] ?? true)): ?>
-                                        <span class="ignis-chip ignis-chip--warning" title="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
+                                        <span class="ignis-chip ignis-chip--warn" title="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
                                     <?php endif; ?>
-                                    <div style="font-size:0.72rem;word-break:break-all;max-width:220px;"><?= htmlspecialchars($job['handler']) ?></div>
+                                    <div class="max-w-[220px] break-all text-xs text-[var(--text-3)]"><?= htmlspecialchars($job['handler']) ?></div>
                                 </td>
-                                <td><?= $activeBadge ?></td>
                                 <td>
-                                    <?= $statusBadge ?>
-                                    <div style="font-size:0.7rem;" class="text-gray-500">
+                                    <?php if ($isActive): ?>
+                                        <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Ja</span>
+                                    <?php else: ?>
+                                        <span class="ignis-chip ignis-chip--dot ignis-chip--danger">Nein</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span class="ignis-chip ignis-chip--dot ignis-chip--<?= $runChip ?>"><?= $runText ?></span>
+                                    <div class="text-xs text-[var(--text-3)]">
                                         <?= htmlspecialchars(DateTimeHelper::formatShort($job['last_run_at'] ?? null)) ?>
                                     </div>
                                 </td>
-                                <td style="font-size:0.78rem;">
+                                <td class="text-xs">
                                     <?= htmlspecialchars(DateTimeHelper::formatShort($job['next_run_at'] ?? null)) ?>
                                 </td>
-                                <td><?= (int) $job['fail_count'] ?></td>
-                                <td>
-                                    <div class="flex gap-1">
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" title="History" onclick="showCronHistory(<?= $jobId ?>, '<?= htmlspecialchars($job['name'], ENT_QUOTES) ?>')">
-                                            <i class="fa-solid fa-clock-rotate-left"></i>
+                                <td class="ignis-table__num"><?= (int) $job['fail_count'] ?></td>
+                                <td class="ignis-table__actions">
+                                    <div class="ignis-row-actions">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Verlauf" aria-label="Verlauf" onclick="showCronHistory(<?= $jobId ?>, '<?= htmlspecialchars($job['name'], ENT_QUOTES) ?>')">
+                                            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-success" title="Jetzt ausführen" onclick="runCronJob(<?= $jobId ?>, this)">
-                                            <i class="fa-solid fa-play"></i>
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Jetzt ausführen" aria-label="Jetzt ausführen" onclick="runCronJob(<?= $jobId ?>, this)">
+                                            <i class="fa-solid fa-play" aria-hidden="true"></i>
                                         </button>
-                                        <form method="POST" action="<?= $base ?>settings/system/cron/toggle" style="display:inline">
+                                        <form method="POST" action="<?= $base ?>settings/system/cron/toggle" class="inline">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                             <input type="hidden" name="id" value="<?= $jobId ?>">
-                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning" title="Aktivieren / Pausieren">
-                                                <i class="fa-solid <?= ((int) $job['active']) === 1 ? 'fa-pause' : 'fa-play' ?>"></i>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="<?= $isActive ? 'Pausieren' : 'Aktivieren' ?>" aria-label="<?= $isActive ? 'Pausieren' : 'Aktivieren' ?>">
+                                                <i class="fa-solid <?= $isActive ? 'fa-pause' : 'fa-toggle-on' ?>" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                         <?php if (!$isBuiltin): ?>
-                                            <form method="POST" action="<?= $base ?>settings/system/cron/delete" style="display:inline" data-confirm="Job wirklich löschen?">
+                                            <form method="POST" action="<?= $base ?>settings/system/cron/delete" class="inline" onsubmit="<?= confirm_attr('Job wirklich löschen?') ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <input type="hidden" name="id" value="<?= $jobId ?>">
-                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger" title="Löschen">
-                                                    <i class="fa-solid fa-trash"></i>
+                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Löschen" aria-label="Löschen">
+                                                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -135,49 +150,50 @@ $SITE_TITLE = 'Cron-Jobs';
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Form-Body fuer Cron-Job-Create. -->
     <template id="createCronJobFormTemplate">
-        <div class="flex flex-wrap -mx-3 mb-3">
-            <div class="flex-1 px-3">
-                <label class="ignis-field__label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
-                <input type="text" class="ignis-input" name="identifier" pattern="[a-z0-9._-]+" required>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 mb-3">
+            <div>
+                <label class="ignis-field__label" for="cron-identifier">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
+                <input type="text" class="ignis-input" name="identifier" id="cron-identifier" pattern="[a-z0-9._-]+" placeholder="z.B. discord.weekly" required>
             </div>
-            <div class="flex-1 px-3">
-                <label class="ignis-field__label">Anzeigename</label>
-                <input type="text" class="ignis-input" name="name" required>
+            <div>
+                <label class="ignis-field__label" for="cron-name">Anzeigename</label>
+                <input type="text" class="ignis-input" name="name" id="cron-name" placeholder="z.B. Wochenstatistik" required>
             </div>
         </div>
         <div class="mb-3">
-            <label class="ignis-field__label">Beschreibung <small class="form-hint">(optional)</small></label>
-            <input type="text" class="ignis-input" name="description">
+            <label class="ignis-field__label" for="cron-description">Beschreibung <small class="form-hint">(optional)</small></label>
+            <input type="text" class="ignis-input" name="description" id="cron-description" placeholder="Was der Job tut">
         </div>
-        <div class="flex flex-wrap -mx-3 mb-3">
-            <div class="flex-1 px-3">
-                <label class="ignis-field__label">Handler-Typ</label>
-                <select name="handler_type" class="form-select" required>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 mb-3">
+            <div>
+                <label class="ignis-field__label" for="cron-handler-type">Handler-Typ</label>
+                <select name="handler_type" id="cron-handler-type" class="ignis-input" required>
                     <option value="webhook">Webhook (HTTP-URL)</option>
                     <option value="console">Console-Command (aus Allowlist)</option>
                     <option value="job">Queue-Job (FQCN dispatchen)</option>
                 </select>
             </div>
-            <div class="flex-1 px-3">
-                <label class="ignis-field__label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
-                <input type="text" class="ignis-input" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
+            <div>
+                <label class="ignis-field__label" for="cron-schedule">Schedule <small class="form-hint">(Cron-Expression)</small></label>
+                <input type="text" class="ignis-input ignis-mono" name="schedule" id="cron-schedule" placeholder="*/5 * * * *" required>
             </div>
         </div>
         <div class="mb-3">
-            <label class="ignis-field__label">Handler</label>
-            <input type="text" class="ignis-input" name="handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
-            <small class="form-hint">Webhook: Ziel-URL · Console: Command-Name · Queue: Job-Klassen-FQCN</small>
+            <label class="ignis-field__label" for="cron-handler">Handler</label>
+            <input type="text" class="ignis-input" name="handler" id="cron-handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
+            <small class="form-hint block">Webhook: Ziel-URL · Console: Command-Name · Queue: Job-Klassen-FQCN</small>
         </div>
         <div class="mb-2">
-            <label class="ignis-field__label">Config <small class="form-hint">(JSON, optional)</small></label>
-            <textarea class="ignis-input" name="config" rows="4" style="font-family:monospace;font-size:0.78rem;" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
-            <small class="form-hint">
+            <label class="ignis-field__label" for="cron-config">Config <small class="form-hint">(JSON, optional)</small></label>
+            <textarea class="ignis-input ignis-mono text-xs" name="config" id="cron-config" rows="4" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
+            <small class="form-hint block">
                 Platzhalter (Webhook): <code>{{SERVER_NAME}}</code>, <code>{{SERVER_CITY}}</code>, <code>{{SYSTEM_NAME}}</code>, <code>{{DATE}}</code>, <code>{{TIME}}</code>, <code>{{TIMESTAMP}}</code>, <code>{{ISO8601}}</code>
             </small>
         </div>
@@ -213,7 +229,7 @@ $SITE_TITLE = 'Cron-Jobs';
                 formAction:   <?= json_encode($base . 'settings/system/cron/create') ?>,
                 hiddenFields: { csrf_token: <?= json_encode($csrfToken) ?> },
                 submitLabel:  'Erstellen',
-                submitVariant:'success',
+                submitVariant:'primary',
             });
         }
 
@@ -222,10 +238,10 @@ $SITE_TITLE = 'Cron-Jobs';
             // dann den Inhalt asynchron via fetch nachschieben.
             var bodyEl = document.createElement('div');
             bodyEl.className = 'text-sm';
-            bodyEl.innerHTML = '<div class="text-gray-500">Lade…</div>';
+            bodyEl.innerHTML = '<div class="text-[var(--text-3)]">Lade…</div>';
 
             new Dialog({
-                title:   'History — ' + name,
+                title:   'Verlauf — ' + name,
                 size:    'xl',
                 body:    bodyEl,
                 actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
@@ -234,19 +250,20 @@ $SITE_TITLE = 'Cron-Jobs';
             fetch(<?= json_encode($base . 'settings/system/cron/history') ?> + '?id=' + id)
                 .then(r => r.json())
                 .then(data => {
-                    if (!data.ok) { bodyEl.innerHTML = '<div class="text-[#d46b6b]">Fehler beim Laden</div>'; return; }
+                    if (!data.ok) { bodyEl.innerHTML = '<div class="text-[var(--danger)]">Fehler beim Laden</div>'; return; }
                     if (!data.runs || data.runs.length === 0) {
-                        bodyEl.innerHTML = '<div class="text-gray-500">Noch keine Läufe.</div>';
+                        bodyEl.innerHTML = '<div class="text-[var(--text-3)]">Noch keine Läufe.</div>';
                         return;
                     }
+                    const chipFor = { success: 'ok', failed: 'danger' };
                     const rows = data.runs.map(r => {
-                        const statusClass = r.status === 'success' ? 'status-success' : (r.status === 'failed' ? 'status-danger' : 'status-muted');
-                        const output = r.output ? `<pre style="font-size:0.72rem;white-space:pre-wrap;word-break:break-word;margin:0 0 0.5rem 0;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:4px;">${escapeHtml(r.output)}</pre>` : '';
+                        const chip = chipFor[r.status] || 'secondary';
+                        const output = r.output ? `<pre class="ignis-mono mb-2 whitespace-pre-wrap break-words rounded-md bg-[var(--surface-2)] p-2 text-xs">${escapeHtml(r.output)}</pre>` : '';
                         return `
-                            <div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="badge-status ${statusClass}"><span class="status-dot"></span>${r.status}</span>
-                                    <span class="text-gray-500" style="font-size:0.72rem;">${formatLocalTime(r.started_at)} · ${r.duration_ms || 0}ms</span>
+                            <div class="border-b border-[var(--fill-2)] py-2 last:border-b-0">
+                                <div class="mb-1 flex items-center justify-between">
+                                    <span class="ignis-chip ignis-chip--dot ignis-chip--${chip}">${escapeHtml(r.status)}</span>
+                                    <span class="text-xs text-[var(--text-3)]">${formatLocalTime(r.started_at)} · ${r.duration_ms || 0}ms</span>
                                 </div>
                                 ${output}
                             </div>`;
@@ -274,11 +291,4 @@ $SITE_TITLE = 'Cron-Jobs';
                 hour: '2-digit', minute: '2-digit'
             });
         }
-
-        // Confirm-Guard für Löschen-Buttons
-        document.querySelectorAll('form[data-confirm]').forEach(f => {
-            f.addEventListener('submit', e => {
-                if (!confirm(f.getAttribute('data-confirm'))) e.preventDefault();
-            });
-        });
     </script>

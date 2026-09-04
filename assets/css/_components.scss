@@ -350,15 +350,25 @@ a.twplus-stats__item {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
 
-  a {
+  // Links für Filter über den Server, Knöpfe für Filter im Browser
+  // (Konfiguration nach Kategorie, Fehlerprotokoll nach Stufe).
+  a,
+  button {
     padding: 0.3rem 0.7rem;
+    border: 0;
     border-radius: var(--radius-sm);
+    background: transparent;
     color: var(--text-2);
+    font: inherit;
     font-size: 0.78rem;
     font-weight: 500;
+    line-height: 1.4;
     text-decoration: none;
+    cursor: pointer;
 
     &:hover { background: var(--fill-2); color: var(--text); }
+
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
     &.is-active {
       background: var(--surface);

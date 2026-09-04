@@ -22,70 +22,65 @@ $bodyId = 'settings';
 $SITE_TITLE = 'Dokumenten-Kategorien';
 ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="twplus-page my-6">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
+        <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
 
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Dokumente</p><h1>Dokumenten-Kategorien</h1><p class="twplus-page-header__description">Kategorien, Farben, Icons und Reihenfolge der Dokumentablage verwalten.</p></div>
                 <div class="header-actions twplus-page-header__actions">
-                    <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--outline-secondary">
-                        <i class="fa-solid fa-file-lines"></i> Templates verwalten
+                    <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--secondary">
+                        <i class="fa-solid fa-file-lines" aria-hidden="true"></i> Templates verwalten
                     </a>
-                    <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openCreateCategoryModal()">
-                        <i class="fa-solid fa-plus"></i> Kategorie erstellen
+                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateCategoryModal()">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Kategorie erstellen
                     </button>
                 </div>
             </div>
 
 
             <div class="twplus-table-card">
-                <table class="table table-striped mb-0 twplus-table" id="categoryTable">
+                <div class="twplus-table-card__scroll">
+                <table class="ignis-table" id="categoryTable">
                     <thead>
                         <tr>
-                            <th scope="col" style="width:60px">Reihenfolge</th>
+                            <th scope="col" class="ignis-table__num">Reihenfolge</th>
                             <th scope="col">Name</th>
                             <th scope="col">Vorschau</th>
                             <th scope="col">Icon</th>
-                            <th scope="col">Templates</th>
-                            <th scope="col" style="width:120px"></th>
+                            <th scope="col" class="ignis-table__num">Templates</th>
+                            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($kategorien)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-gray-400">Keine Kategorien vorhanden.</td>
+                                <td colspan="6" class="ignis-table-empty">Keine Kategorien vorhanden.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($kategorien as $kat): ?>
                                 <tr>
-                                    <td class="text-center"><?= (int)$kat['sort_order'] ?></td>
+                                    <td class="ignis-table__num"><?= (int)$kat['sort_order'] ?></td>
                                     <td><?= htmlspecialchars($kat['name']) ?></td>
                                     <td><span class="ignis-chip <?= htmlspecialchars($kat['color']) ?>"><?= htmlspecialchars($kat['name']) ?></span></td>
                                     <td>
                                         <?php if (!empty($kat['icon'])): ?>
-                                            <i class="<?= htmlspecialchars($kat['icon']) ?>"></i>
-                                            <small class="text-gray-400 ml-1"><?= htmlspecialchars($kat['icon']) ?></small>
+                                            <i class="<?= htmlspecialchars($kat['icon']) ?>" aria-hidden="true"></i>
+                                            <span class="ignis-mono ml-1 text-[var(--text-3)]"><?= htmlspecialchars($kat['icon']) ?></span>
                                         <?php else: ?>
-                                            <span class="text-gray-400">-</span>
+                                            <span class="text-[var(--text-3)]">—</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
-                                        <?php if ($kat['template_count'] > 0): ?>
-                                            <span class="ignis-chip"><?= (int)$kat['template_count'] ?></span>
-                                        <?php else: ?>
-                                            <span class="text-gray-400">0</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="flex justify-end gap-1">
-                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Bearbeiten"
+                                    <td class="ignis-table__num"><?= (int)$kat['template_count'] ?></td>
+                                    <td class="ignis-table__actions">
+                                        <div class="ignis-row-actions">
+                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Bearbeiten" aria-label="Bearbeiten"
                                                 onclick="openEditCategoryModal(<?= htmlspecialchars(json_encode($kat)) ?>)">
-                                                <i class="fa-solid fa-pen"></i>
+                                                <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                             </button>
                                             <?php if ($kat['template_count'] == 0): ?>
-                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen"
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Löschen" aria-label="Löschen"
                                                     onclick="deleteCategory(<?= (int)$kat['id'] ?>, '<?= htmlspecialchars($kat['name'], ENT_QUOTES) ?>')">
-                                                    <i class="fa-solid fa-trash"></i>
+                                                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                                 </button>
                                             <?php endif; ?>
                                         </div>
@@ -95,12 +90,10 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
                         <?php endif; ?>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="mt-3">
-                <small class="text-gray-400">
-                    <i class="fa-solid fa-info-circle"></i> Kategorien gruppieren Dokumenten-Templates. Kategorien, die von Templates verwendet werden, können nicht gelöscht werden.
-                </small>
+                </div>
+                <div class="ignis-list-footer">
+                    <p class="ignis-list-meta"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Kategorien gruppieren Dokumenten-Templates. Kategorien, die von Templates verwendet werden, können nicht gelöscht werden.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -109,7 +102,7 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
          Save laeuft per fetch() ueber den Dialog.form-onSubmit-Pfad. -->
     <template id="categoryFormTemplate">
         <div class="mb-3">
-            <label for="catName" class="ignis-field__label">Name <span class="text-[#d46b6b]">*</span></label>
+            <label for="catName" class="ignis-field__label">Name <span class="ignis-field__required">*</span></label>
             <input type="text" class="ignis-input" id="catName" required placeholder="z.B. Bescheinigung">
         </div>
         <div class="mb-3">
@@ -128,9 +121,9 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
             </div>
         </div>
         <div class="mb-3">
-            <label for="catIcon" class="ignis-field__label">Icon <span class="text-gray-400 text-sm">(optional)</span></label>
+            <label for="catIcon" class="ignis-field__label">Icon <small class="form-hint">(optional)</small></label>
             <input type="text" class="ignis-input" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
-            <div class="ignis-field__hint">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ml-1"></i></div>
+            <div class="ignis-field__hint">Font-Awesome-Klasse. Vorschau: <i id="iconPreview" class="ml-1" aria-hidden="true"></i></div>
         </div>
         <div class="mb-3">
             <label for="catSortOrder" class="ignis-field__label">Reihenfolge</label>
@@ -189,12 +182,12 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
                 submitLabel:  'Speichern',
                 submitIcon:   'fa-solid fa-save',
                 onOpen: function (dlg) {
-                    var $body = $(dlg.element);
-                    $body.find('#catName').val(cat.name);
-                    $body.find('#catColor').val(cat.color);
-                    $body.find('#catIcon').val(cat.icon || '');
-                    $body.find('#catSortOrder').val(cat.sort_order);
-                    bindCategoryPreviews(dlg.element);
+                    var body = dlg.element;
+                    body.querySelector('#catName').value = cat.name;
+                    body.querySelector('#catColor').value = cat.color;
+                    body.querySelector('#catIcon').value = cat.icon || '';
+                    body.querySelector('#catSortOrder').value = cat.sort_order;
+                    bindCategoryPreviews(body);
                 },
                 onSubmit: function (body, dlg) {
                     saveCategory(body, dlg, cat.id);
