@@ -110,7 +110,7 @@ final class PluginRegistry
             }
         } while ($removed);
 
-        // 3) Topologisch sortieren (Kahn): Abhängigkeiten zuerst.
+        // 3) Topologisch sortieren: Abhängigkeiten zuerst, Zyklen fallen raus.
         $this->active = $this->topologicalSort($candidates);
     }
 
@@ -135,38 +135,54 @@ final class PluginRegistry
     }
 
     /**
-     * Tiefensuche für die topologische Sortierung. Besuchte Knoten werden
-     * markiert; ein Knoten, der bereits im aktuellen Pfad liegt, zeigt einen
-     * Zyklus an und wird mit Grund übersprungen.
+     * Tiefensuche für die topologische Sortierung. Ein Knoten, der bereits
+     * im aktuellen Pfad liegt, zeigt einen Zyklus an. Der Zyklus und alles,
+     * was davon abhängt, wird mit Grund übersprungen — für einen Zyklus gibt
+     * es keine Ladereihenfolge, in der jede Abhängigkeit vor ihrem
+     * Abhängigen kommt. Dieselbe Logik wie in emergencyforge/plugin-system.
      *
      * @param array<string, Plugin> $candidates
      * @param list<string>          $trail
-     * @param array<string, true>   $visited
+     * @param array<string, bool>   $visited  true = einsortiert, false = verworfen
      * @param list<Plugin>          $sorted
      */
-    private function visit(string $id, array $candidates, array $trail, array &$visited, array &$sorted): void
+    private function visit(string $id, array $candidates, array $trail, array &$visited, array &$sorted): bool
     {
         if (isset($visited[$id])) {
-            return;
+            return $visited[$id];
         }
         if (in_array($id, $trail, true)) {
             $this->skipped[] = [
                 'id' => $id,
                 'reason' => 'Zyklische Abhängigkeit: ' . implode(' → ', [...$trail, $id]),
             ];
-            return;
+            $visited[$id] = false;
+            return false;
         }
 
         $deps = $candidates[$id]->manifest->depends;
         sort($deps);
         foreach ($deps as $dep) {
-            if (isset($candidates[$dep])) {
-                $this->visit($dep, $candidates, [...$trail, $id], $visited, $sorted);
+            if (!isset($candidates[$dep])) {
+                continue;
+            }
+            if (!$this->visit($dep, $candidates, [...$trail, $id], $visited, $sorted)) {
+                // Der Zyklus-Ursprung hat sich oben schon selbst vermerkt;
+                // alle anderen Knoten auf dem Weg fallen mit dieser Begründung.
+                if (!isset($visited[$id])) {
+                    $this->skipped[] = [
+                        'id' => $id,
+                        'reason' => "Abhängigkeit '{$dep}' ist Teil eines Zyklus.",
+                    ];
+                    $visited[$id] = false;
+                }
+                return false;
             }
         }
 
         $visited[$id] = true;
         $sorted[] = $candidates[$id];
+        return true;
     }
 
     /**

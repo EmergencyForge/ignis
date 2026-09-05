@@ -7,7 +7,6 @@ namespace App\Jobs;
 use App\Logging\Logger;
 use DateTime;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 use PDOException;
 
 /**
@@ -25,20 +24,14 @@ use PDOException;
  *   - Retry (Job erneut in `intra_jobs` pushen)
  *   - Delete (einzeln oder alle auf einmal)
  *
- * Die Klasse arbeitet rein gegen die DB; wenn die Tabelle `intra_failed_jobs`
- * noch nicht existiert (z.B. frische Installation ohne ausgeführte Migration),
- * fallen alle Lookups still auf leere Ergebnisse zurück.
+ * Die Klasse arbeitet rein gegen die DB (Capsule); wenn die Tabelle
+ * `intra_failed_jobs` noch nicht existiert (z.B. frische Installation ohne
+ * ausgeführte Migration), fallen alle Lookups still auf leere Ergebnisse
+ * zurück. Der Konstruktor öffnet keine Verbindung, damit die Console die
+ * Commands registrieren kann, ohne dass eine Datenbank erreichbar ist.
  */
 final class FailedJobsReader
 {
-    /**
-     * @param PDO|null $pdo Ungenutzt — Signatur bleibt für bestehende
-     *                      Aufrufer stabil.
-     */
-    public function __construct(?PDO $pdo = null)
-    {
-    }
-
     /**
      * Ist die Tabelle `intra_failed_jobs` überhaupt vorhanden? Wenn nicht,
      * geben wir den Admin-UI-Aufrufern einen Hinweis, statt einen
