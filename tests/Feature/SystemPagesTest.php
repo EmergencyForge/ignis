@@ -45,13 +45,25 @@ final class SystemPagesTest extends FeatureTestCase
     #[Test]
     public function dokumenten_kategorien_als_tabelle(): void
     {
-        Capsule::table('intra_dokument_kategorien')->insert(['name' => 'Bescheinigung', 'color' => 'ignis-chip--info', 'icon' => 'fa-solid fa-scroll', 'sort_order' => 2]);
+        // Eine Zeile aus der Zeit vor den Farbschlüsseln, zwei mit Schlüssel:
+        // der alte Klassenname und der Schlüssel rendern denselben Chip.
+        Capsule::table('intra_dokument_kategorien')->insert([
+            ['name' => 'Bescheinigung', 'color' => 'ignis-chip--success', 'icon' => 'fa-solid fa-scroll', 'sort_order' => 2],
+            ['name' => 'Nachweis',      'color' => 'ok',                  'icon' => null,                 'sort_order' => 3],
+            ['name' => 'Mahnung',       'color' => 'danger',              'icon' => null,                 'sort_order' => 4],
+        ]);
 
         $page = $this->get('/settings/documents/categories');
 
         $this->assertOk($page);
         $this->assertBodyContains('<table class="ignis-table" id="categoryTable">', $page);
-        $this->assertBodyContains('<span class="ignis-chip ignis-chip--info">Bescheinigung</span>', $page);
+        $this->assertBodyContains('<span class="ignis-chip ignis-chip--ok">Bescheinigung</span>', $page);
+        $this->assertBodyContains('<span class="ignis-chip ignis-chip--ok">Nachweis</span>', $page);
+        $this->assertBodyContains('<span class="ignis-chip ignis-chip--danger">Mahnung</span>', $page);
+        // Das Bearbeiten-Formular bekommt den Schlüssel, nicht den alten Klassennamen.
+        $this->assertBodyContains('&quot;name&quot;:&quot;Bescheinigung&quot;,&quot;color&quot;:&quot;ok&quot;', $page);
+        $this->assertBodyContains('<option value="ok">Grün</option>', $page);
+        $this->assertBodyNotContains('<option value="ignis-chip--', $page);
         $this->assertBodyContains('class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Löschen"', $page);
         $this->assertBodyNotContains('table-striped', $page);
     }

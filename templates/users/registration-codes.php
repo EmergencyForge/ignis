@@ -104,11 +104,11 @@ $bodyId = 'benutzer';
                                         </td>
                                         <td>
                                             <?php if ($code->is_used): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">Verwendet</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--dark">Verwendet</span>
                                             <?php elseif ($isExpired): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--danger">Abgelaufen</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--danger">Abgelaufen</span>
                                             <?php else: ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--success">Verfügbar</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--success">Verfügbar</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>

@@ -3289,58 +3289,6 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border: 1px solid var(--border);
   }
 
-  // ── Status-Modifier: Dot-Prefix für Ja/Nein/online/offline ────────
-  // Spiegelt `.badge-status` aus admin.scss — gap & dot identisch.
-  &--status {
-    gap: 0.4em;
-
-    &::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-      flex-shrink: 0;
-    }
-
-    &.ignis-chip--success::before,
-    &.ignis-chip--online::before {
-      background: var(--ok);
-      box-shadow: 0 0 4px var(--ok);
-    }
-
-    &.ignis-chip--danger::before,
-    &.ignis-chip--offline::before {
-      background: var(--danger);
-      box-shadow: none;
-    }
-
-    &.ignis-chip--warning::before,
-    &.ignis-chip--away::before {
-      background: var(--warn);
-    }
-
-    &.ignis-chip--info::before {
-      background: var(--info);
-    }
-  }
-
-  // online/offline/away als eigenständige Status-Aliase
-  &--online {
-    background: rgba(var(--ok-rgb), 0.2);
-    color: var(--ok);
-  }
-
-  &--offline {
-    background: rgba(var(--danger-rgb), 0.2);
-    color: var(--danger);
-  }
-
-  &--away {
-    background: rgba(var(--warn-rgb), 0.2);
-    color: var(--warn);
-  }
-
   // ── Removable: ×-Knopf mit Hover-Hervorhebung ─────────────────────
   &--removable {
     padding-right: 0.3em;

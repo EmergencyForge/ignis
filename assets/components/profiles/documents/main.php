@@ -40,11 +40,11 @@ $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dok
     ->all();
 
 // Chip je Dokumenttyp: eigene Vorlagen tragen die Farbe ihrer Kategorie
-// (Klassenname aus intra_dokument_kategorien), die festen Typen eine Semantik.
+// (Farbschlüssel aus intra_dokument_kategorien), die festen Typen eine Semantik.
 $profileDocumentChip = static function (array $doc): string {
     $type = (int) $doc['type'];
     if ($type === 99 && !empty($doc['category_color'])) {
-        return (string) $doc['category_color'];
+        return \App\Models\DocumentCategory::chipClass((string) $doc['category_color']);
     }
     if ($type === 99) {
         return match ($doc['template_category']) {

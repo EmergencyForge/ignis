@@ -62,7 +62,7 @@
 
 // =====================================================
 // Chips: ok | warn | danger | info, mit --dot als Punkt vor dem Text.
-// --success/--warning bleiben als Aliase, --status ist der alte Name für --dot.
+// --success/--warning bleiben als Aliase (ui.scss), --status/--online/--offline/--away sind weg.
 // =====================================================
 
 .ignis-chip--ok {

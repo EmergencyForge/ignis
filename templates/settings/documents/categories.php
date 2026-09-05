@@ -4,6 +4,7 @@
  */
 
 use App\Auth\Permissions;
+use App\Models\DocumentCategory;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Kategorien laden
@@ -14,7 +15,13 @@ $kategorien = Capsule::table('intra_dokument_kategorien as dk')
         'dk.*',
         Capsule::raw('(SELECT COUNT(*) FROM intra_dokument_templates WHERE category_id = dk.id) as template_count'),
     ])
-    ->map(fn ($row) => (array) $row)
+    ->map(static function ($row): array {
+        $kat = (array) $row;
+        // Alte Zeilen tragen noch den Klassennamen; das Formular kennt nur Schlüssel.
+        $kat['color'] = DocumentCategory::colorKey($kat['color']);
+
+        return $kat;
+    })
     ->all();
 
 $layout = 'admin';
@@ -61,7 +68,7 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
                                 <tr>
                                     <td class="ignis-table__num"><?= (int)$kat['sort_order'] ?></td>
                                     <td><?= htmlspecialchars($kat['name']) ?></td>
-                                    <td><span class="ignis-chip <?= htmlspecialchars($kat['color']) ?>"><?= htmlspecialchars($kat['name']) ?></span></td>
+                                    <td><span class="ignis-chip <?= DocumentCategory::chipClass($kat['color']) ?>"><?= htmlspecialchars($kat['name']) ?></span></td>
                                     <td>
                                         <?php if (!empty($kat['icon'])): ?>
                                             <i class="<?= htmlspecialchars($kat['icon']) ?>" aria-hidden="true"></i>
@@ -106,15 +113,11 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
             <input type="text" class="ignis-input" id="catName" required placeholder="z.B. Bescheinigung">
         </div>
         <div class="mb-3">
-            <label for="catColor" class="ignis-field__label">Badge-Farbe</label>
+            <label for="catColor" class="ignis-field__label">Farbe</label>
             <select class="ignis-input" id="catColor">
-                <option value="ignis-chip--secondary">Grau (Standard)</option>
-                <option value="ignis-chip--primary">Blau</option>
-                <option value="ignis-chip--success">Grün</option>
-                <option value="ignis-chip--danger">Rot</option>
-                <option value="ignis-chip--warning">Gelb</option>
-                <option value="ignis-chip--info">Cyan</option>
-                <option value="ignis-chip--dark">Dunkel</option>
+                <?php foreach (DocumentCategory::COLOR_LABELS as $key => $label): ?>
+                    <option value="<?= $key ?>"><?= htmlspecialchars($label) ?></option>
+                <?php endforeach; ?>
             </select>
             <div class="mt-2">
                 <span class="ignis-chip" id="colorPreview">Vorschau</span>
@@ -134,6 +137,8 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
 
     <script>
         const BASE_PATH = '<?= BASE_PATH ?>';
+        // Farbschlüssel -> Chip-Klasse für die Vorschau, dieselbe Abbildung wie im Model.
+        const CHIP_CLASSES = <?= json_encode(DocumentCategory::CHIP_CLASSES) ?>;
 
         // Live-Preview-Handler im Dialog: pro Open neu binden, weil der
         // Body bei jedem Open frisch aus dem <template> geklont wird.
@@ -145,7 +150,7 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
             var iconPreview = root.querySelector('#iconPreview');
 
             function updateColor() {
-                preview.className = 'ignis-chip ' + (color.value || '');
+                preview.className = 'ignis-chip ' + (CHIP_CLASSES[color.value] || '');
                 preview.textContent = name.value || 'Vorschau';
             }
             function updateIcon() {

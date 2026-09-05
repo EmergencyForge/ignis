@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Assets;
 
+use App\Models\DocumentCategory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -165,5 +166,30 @@ final class ComponentClassTest extends TestCase
         }
 
         $this->assertSame([], $missing, "Diese Bausteine fehlen im gebauten CSS:\n  " . implode("\n  ", $missing));
+    }
+
+    /**
+     * Die Dokumenten-Kategorien speichern Farbschlüssel; die Abbildung auf
+     * die Chip-Klasse lebt im Model und muss auf Klassen zeigen, die das
+     * gebaute CSS kennt — sonst rendert eine Kategorie grau, ohne dass es
+     * jemand merkt.
+     */
+    public function testDocumentCategoryColorsPointToBuiltChips(): void
+    {
+        $css     = $this->compiledCss();
+        $missing = [];
+
+        foreach (DocumentCategory::CHIP_CLASSES as $key => $class) {
+            if (!$this->cssDefines($css, $class)) {
+                $missing[] = $key . ' => ' . $class;
+            }
+        }
+
+        $this->assertSame([], $missing, "Diese Kategoriefarben zeigen auf unbekannte Chips:\n  " . implode("\n  ", $missing));
+        $this->assertSame(array_keys(DocumentCategory::CHIP_CLASSES), array_keys(DocumentCategory::COLOR_LABELS));
+        $this->assertSame('ignis-chip--ok', DocumentCategory::chipClass('ignis-chip--success'));
+        $this->assertSame('ignis-chip--ok', DocumentCategory::chipClass('ok'));
+        $this->assertSame('ignis-chip--secondary', DocumentCategory::chipClass('lila'));
+        $this->assertSame('neutral', DocumentCategory::colorKey('text-bg-light'));
     }
 }
