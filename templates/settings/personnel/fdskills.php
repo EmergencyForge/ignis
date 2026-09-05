@@ -41,9 +41,9 @@ $SITE_TITLE = 'FW-Qualifikationen';
                                 <?php foreach ($qualis as $row):
                                     $dimmed = '';
                                     if ((int)$row['none'] === 0) {
-                                        $dgActive = "<span class='badge-status status-success'><span class='status-dot'></span>Nein</span>";
+                                        $dgActive = "<span class='ignis-chip ignis-chip--dot ignis-chip--ok'>Nein</span>";
                                     } else {
-                                        $dgActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Ja</span>";
+                                        $dgActive = "<span class='ignis-chip ignis-chip--dot ignis-chip--danger'>Ja</span>";
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
