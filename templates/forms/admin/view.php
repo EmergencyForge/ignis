@@ -2,7 +2,7 @@
 /**
  * View: Admin-Detailansicht eines Antrags mit Bearbeitungs-Form, nach dem
  * Detailmuster: Brotkrumen, Titel mit Status-Chip; Hauptspalte mit
- * Antragsteller und Antragsinhalt als Beschreibungslisten und der
+ * Antragsteller als Beschreibungsliste, Antragsinhalt als Feldraster und der
  * Bearbeitung als Formularkarte, Seitenspalte mit den Antragsdetails.
  *
  * @var \App\Models\Form                            $antrag
@@ -58,25 +58,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
                         <section class="ignis-card">
                             <div class="ignis-card__header"><h2 class="ignis-card__title"><i class="fa-solid fa-file-lines mr-2" aria-hidden="true"></i>Antragsinhalt</h2></div>
                             <div class="ignis-card__body">
-                                <?php if (!empty($felderMitWerten)): ?>
-                                    <dl class="ignis-detail__dl">
-                                        <?php foreach ($felderMitWerten as $feld): ?>
-                                            <?php
-                                            if ($feld->feldtyp === 'checkbox') {
-                                                $feldWert = $feld->wert ? '<i class="fa-solid fa-square-check text-[var(--ok)]" aria-hidden="true"></i> Ja' : '<i class="fa-regular fa-square text-[var(--text-3)]" aria-hidden="true"></i> Nein';
-                                            } elseif (empty($feld->wert)) {
-                                                $feldWert = '<span class="text-[var(--text-3)]">Keine Angabe</span>';
-                                            } else {
-                                                $feldWert = htmlspecialchars($feld->wert);
-                                            }
-                                            ?>
-                                            <dt><?= htmlspecialchars($feld->label) ?></dt>
-                                            <dd class="whitespace-pre-line"><?= $feldWert ?></dd>
-                                        <?php endforeach; ?>
-                                    </dl>
-                                <?php else: ?>
-                                    <p class="ignis-detail__muted">Keine Felddaten vorhanden.</p>
-                                <?php endif; ?>
+                                <?php require dirname(__DIR__) . '/_fields.php'; ?>
                             </div>
                         </section>
 
