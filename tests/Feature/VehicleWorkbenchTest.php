@@ -156,6 +156,44 @@ final class VehicleWorkbenchTest extends FeatureTestCase
     }
 
     #[Test]
+    public function sammel_emd_status_kennt_nur_die_fms_werte_und_schreibt_je_fahrzeug_ins_audit(): void
+    {
+        $this->login(['vehicles.manage']);
+        $a = FixtureFactory::fahrzeug(['name' => 'FMS A']);
+        $b = FixtureFactory::fahrzeug(['name' => 'FMS B']);
+        $c = FixtureFactory::fahrzeug(['name' => 'FMS C']);
+        Capsule::table('intra_fahrzeuge')->whereIn('id', [$a['id'], $b['id'], $c['id']])->update(['current_status' => '2', 'status_source' => 'incident']);
+
+        $response = $this->postWithToken('/settings/vehicles/vehicles/emd-status', ['ids' => [(string) $a['id'], (string) $b['id'], '999999999'], 'emd_status' => '6']);
+
+        $this->assertRedirect($response, self::LIST);
+        foreach ([$a, $b] as $vehicle) {
+            $row = Capsule::table('intra_fahrzeuge')->where('id', $vehicle['id'])->first(['current_status', 'status_source', 'status_updated_at']);
+            $this->assertSame('6', (string) $row->current_status);
+            $this->assertSame('manual', (string) $row->status_source);
+            $this->assertNotEmpty($row->status_updated_at);
+            $this->assertSame(1, $this->auditCount('Fahrzeug aktualisiert [ID: ' . $vehicle['id'] . ']'));
+        }
+        $this->assertSame('2', (string) Capsule::table('intra_fahrzeuge')->where('id', $c['id'])->value('current_status'));
+        $this->assertSame(0, $this->auditCount('Fahrzeug aktualisiert [ID: ' . $c['id'] . ']'));
+        $this->assertSame('EMD-Status: 6 (Nicht einsatzbereit) (Sammelaktion)', (string) Capsule::table('intra_audit_log')->where('user', $this->userId)->where('action', 'Fahrzeug aktualisiert [ID: ' . $a['id'] . ']')->value('details'));
+        $this->assertStringContainsString('2 Fahrzeuge auf Status 6 (Nicht einsatzbereit) gesetzt.', (string) ($_SESSION['flash']['text'] ?? ''));
+
+        // Werte außerhalb 0–6 ändern nichts, auch nicht der aktiv/inaktiv-Wert der anderen Sammelaktion.
+        foreach (['7', 'inactive', '', '2x'] as $bad) {
+            $this->postWithToken('/settings/vehicles/vehicles/emd-status', ['ids' => [(string) $c['id']], 'emd_status' => $bad]);
+        }
+        $this->assertSame('2', (string) Capsule::table('intra_fahrzeuge')->where('id', $c['id'])->value('current_status'));
+        $this->assertSame('incident', (string) Capsule::table('intra_fahrzeuge')->where('id', $c['id'])->value('status_source'));
+        $this->assertSame(0, $this->auditCount('Fahrzeug aktualisiert [ID: ' . $c['id'] . ']'));
+
+        // Ohne Recht bleibt alles stehen.
+        $this->login(['vehicles.view']);
+        $this->assertRedirect($this->postWithToken('/settings/vehicles/vehicles/emd-status', ['ids' => [(string) $c['id']], 'emd_status' => '1']));
+        $this->assertSame('2', (string) Capsule::table('intra_fahrzeuge')->where('id', $c['id'])->value('current_status'));
+    }
+
+    #[Test]
     public function sammelaktionen_brauchen_recht_und_csrf(): void
     {
         $vehicle = FixtureFactory::fahrzeug(['name' => 'Bleibt']);
@@ -214,6 +252,9 @@ final class VehicleWorkbenchTest extends FeatureTestCase
         $list = $this->get(self::LIST, ['query' => ['q' => 'Haken']]);
         $this->assertBodyContains('action="/settings/vehicles/vehicles/status" class="ignis-bulkbar" data-ignis-bulkbar hidden', $list);
         $this->assertBodyContains('formaction="/settings/vehicles/vehicles/delete" data-ignis-bulk-confirm=', $list);
+        $this->assertBodyContains('<select name="emd_status" id="bulk-emd-status" class="ignis-input ignis-input--sm">', $list);
+        $this->assertBodyContains('<option value="6">6 · Nicht einsatzbereit</option>', $list);
+        $this->assertBodyContains('formaction="/settings/vehicles/vehicles/emd-status"', $list);
         $this->assertBodyContains('data-ignis-select-all', $list);
         $this->assertBodyContains('data-ignis-select value="' . $vehicle['id'] . '"', $list);
         $this->assertBodyContains('href="/settings/vehicles/vehicles/' . $vehicle['id'] . '/edit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-drawer', $list);
