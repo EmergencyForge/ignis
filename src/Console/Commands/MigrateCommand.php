@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Database\AutoMigrator;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Nutzt den bestehenden `App\Database\AutoMigrator`, der auch beim
  * normalen Request-Lifecycle läuft — der Command ist nur der CLI-Hook.
+ * Die Verbindung kommt erst beim Ausführen aus dem Container: die Console
+ * registriert alle Commands beim Start, und `list` oder `--help` sollen
+ * auch ohne erreichbare Datenbank gehen.
  *
  *   php cli/intra.php migrate
  */
@@ -25,7 +29,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class MigrateCommand extends Command
 {
     public function __construct(
-        private readonly \PDO $pdo,
+        private readonly ContainerInterface $container,
     ) {
         parent::__construct();
     }
@@ -41,7 +45,7 @@ final class MigrateCommand extends Command
         $output->writeln('');
 
         try {
-            $migrator = new AutoMigrator($this->pdo);
+            $migrator = new AutoMigrator($this->container->get(\PDO::class));
             $migrator->runIfNeeded();
         } catch (\Throwable $e) {
             $output->writeln('<error>Migration fehlgeschlagen: ' . $e->getMessage() . '</error>');
