@@ -86,7 +86,8 @@ jobs:
           #   - phinx.php              → Phinx-Config (vom AutoMigrator geladen)
           #   - tools/db-migrate.php   → wird von composer.json post-install-cmd aufgerufen
           #   - .htaccess              → Routing
-          #   - config/, src/, assets/, templates/, api/, alle Modul-Ordner
+          #   - config/, src/, assets/ (bis auf die gespiegelten Ordner, s. u.),
+          #     templates/, api/, alle Modul-Ordner
           #   - composer.json/.lock, nginx.conf.example, README.md, LICENSE
           #   - .env.example
           zip -r "$ARCHIVE_NAME" . \
@@ -133,6 +134,16 @@ jobs:
             -x "storage/documents/*.pdf" \
             -x "storage/profile-pictures/*" \
             -x "uploads/*" \
+            `# — Gespiegelte Browser-Assets (Regel: der Webserver liefert nur aus` \
+            `#   public/; der Build spiegelt assets/img, assets/fonts und` \
+            `#   assets/_ext dorthin. Aus dem Quellordner fliegt raus, was kein PHP` \
+            `#   von der Platte liest: die Kartenkacheln (nur per URL in der` \
+            `#   Lagekarte, ~50 MB), die Fremdbibliotheken (~33 MB) und die Fonts.` \
+            `#   assets/img selbst bleibt: DocumentRenderer liest wappen_small.png` \
+            `#   und schrift_fw_schwarz.png für DomPDF von dort.` \
+            -x "assets/img/map/*" \
+            -x "assets/_ext/*" \
+            -x "assets/fonts/*" \
             `# — Preview / Design-Dateien —` \
             -x "*preview*.html" \
             -x "_preview*.html" \
