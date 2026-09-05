@@ -2,9 +2,9 @@
  * eNOTF v2 — Protokoll teilen (Vanilla-Ersatz für v1s share-modals.php).
  *
  * Zwei Dialoge über window.Dialog (assets/js/ui/dialog.js):
- *   - Senden:    EnotfV2Share.open(protocolId, enr) — Fahrzeugsuche mit
- *                Dropdown (Rufname/Kennzeichen/Identifier), POST auf
- *                share/send-request.
+ *   - Senden:    EnotfV2Share.open(protocolId, enr) — Fahrzeugauswahl
+ *                als <select> mit Ev2Select (Suchfeld ab acht Optionen),
+ *                POST auf share/send-request.
  *   - Empfangen: Poll auf share/check-requests (sofort + alle 15s, läuft
  *                auf Protokollseiten und Overview). Bei pending Anfrage
  *                öffnet sich der Übergabe-Dialog: Annehmen als Merge in
@@ -53,31 +53,37 @@
     // ── Senden-Dialog ─────────────────────────────────────────────────
 
     function vehicleLabel(vehicle) {
-        return (vehicle.name || vehicle.identifier) + ' (' + (Number(vehicle.rd_type) === 1 ? 'NA' : 'RD') + ')';
+        var label = (vehicle.name || vehicle.identifier) + ' (' + (Number(vehicle.rd_type) === 1 ? 'NA' : 'RD') + ')';
+        return vehicle.kennzeichen ? label + ' [' + vehicle.kennzeichen + ']' : label;
+    }
+
+    // Der FiveM-CEF zeigt native Select-Popups nicht; Ev2Select ersetzt
+    // die Aufklapp-Optik. Der MutationObserver der Komponente greift beim
+    // Einhängen des Dialogs, nachgeladene Optionen brauchen den Nachzug.
+    function refreshSelect(select) {
+        if (!window.Ev2Select) return;
+        if (typeof window.Ev2Select.enhance === 'function') window.Ev2Select.enhance(select);
+        if (typeof window.Ev2Select.refresh === 'function') window.Ev2Select.refresh(select);
     }
 
     function openShareDialog(protocolId, enr) {
         if (typeof window.Dialog === 'undefined') return;
 
-        var allVehicles = [];
-        var selectedVehicle = null;
-
         var body = document.createElement('div');
         body.innerHTML =
-            '<p>Wähle ein Fahrzeug aus, mit dem du dieses Protokoll teilen möchtest:</p>' +
-            '<div class="mb-3 relative">' +
-            '  <label class="ignis-field__label" data-share-label>Zielfahrzeug</label>' +
-            '  <input type="text" class="ignis-input w-100" data-share-search placeholder="Rufname, Kennzeichen oder ID eingeben..." autocomplete="off">' +
-            '  <div class="ev2-share-dropdown" data-share-dropdown hidden></div>' +
+            '<div class="edivi__box">' +
+            '  <label class="ev2-edivi-dialog__label" for="ev2-share-vehicle">Zielfahrzeug</label>' +
+            '  <select class="ignis-input" id="ev2-share-vehicle" data-share-vehicle>' +
+            '    <option value="">Fahrzeuge werden geladen...</option>' +
+            '  </select>' +
             '</div>' +
-            '<div class="ignis-alert ignis-alert--info">' +
+            '<div class="edivi__box edivi__log-comment">' +
             '  <i class="fa-solid fa-info-circle"></i> ' +
             '  Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.' +
             '</div>' +
-            '<div class="ignis-alert ignis-alert--danger mt-2" data-share-error hidden></div>';
+            '<div class="ev2-edivi-dialog__error" data-share-error hidden></div>';
 
-        var searchInput = body.querySelector('[data-share-search]');
-        var dropdown = body.querySelector('[data-share-dropdown]');
+        var vehicleSelect = body.querySelector('[data-share-vehicle]');
         var errorBox = body.querySelector('[data-share-error]');
         var confirmBtn = null;
 
@@ -90,65 +96,27 @@
             if (confirmBtn) confirmBtn.disabled = !enabled;
         }
 
-        function renderDropdown(vehicles) {
-            dropdown.innerHTML = '';
-            if (!vehicles.length) {
-                var empty = document.createElement('div');
-                empty.className = 'ev2-share-dropdown__item ev2-share-dropdown__item--disabled';
-                empty.textContent = 'Keine Fahrzeuge gefunden';
-                dropdown.appendChild(empty);
-                return;
-            }
-            vehicles.forEach(function (vehicle) {
-                var item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'ev2-share-dropdown__item';
-                var typeLabel = Number(vehicle.rd_type) === 1 ? 'NA' : 'RD';
-                item.innerHTML = esc(vehicle.name || vehicle.identifier) +
-                    ' <span class="ignis-chip">' + typeLabel + '</span>' +
-                    (vehicle.kennzeichen ? ' <small class="ev2-share-dropdown__plate">[' + esc(vehicle.kennzeichen) + ']</small>' : '');
-                item.addEventListener('click', function () {
-                    selectedVehicle = vehicle;
-                    searchInput.value = vehicleLabel(vehicle);
-                    dropdown.hidden = true;
-                    setConfirmEnabled(true);
-                });
-                dropdown.appendChild(item);
-            });
+        function selectedVehicleId() {
+            return vehicleSelect.value;
         }
 
-        searchInput.addEventListener('input', function () {
-            var term = searchInput.value.toLowerCase().trim();
-            dropdown.hidden = false;
+        function renderVehicles(vehicles) {
+            vehicleSelect.innerHTML = '';
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = vehicles.length ? 'Fahrzeug auswählen...' : 'Keine Fahrzeuge gefunden';
+            vehicleSelect.appendChild(placeholder);
+            vehicles.forEach(function (vehicle) {
+                var option = document.createElement('option');
+                option.value = vehicle.identifier;
+                option.textContent = vehicleLabel(vehicle);
+                vehicleSelect.appendChild(option);
+            });
+            refreshSelect(vehicleSelect);
+        }
 
-            // Auswahl zurücksetzen, sobald der Text nicht mehr zur Auswahl passt
-            if (selectedVehicle && searchInput.value !== vehicleLabel(selectedVehicle)) {
-                selectedVehicle = null;
-                setConfirmEnabled(false);
-            }
-
-            if (!term) {
-                renderDropdown(allVehicles);
-                return;
-            }
-            renderDropdown(allVehicles.filter(function (vehicle) {
-                return (vehicle.name || '').toLowerCase().indexOf(term) !== -1 ||
-                    (vehicle.kennzeichen || '').toLowerCase().indexOf(term) !== -1 ||
-                    vehicle.identifier.toLowerCase().indexOf(term) !== -1;
-            }));
-        });
-
-        searchInput.addEventListener('focus', function () {
-            if (allVehicles.length) {
-                dropdown.hidden = false;
-                if (!searchInput.value) renderDropdown(allVehicles);
-            }
-        });
-
-        body.addEventListener('click', function (e) {
-            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.hidden = true;
-            }
+        vehicleSelect.addEventListener('change', function () {
+            setConfirmEnabled(selectedVehicleId() !== '');
         });
 
         var dlg = new window.Dialog({
@@ -162,7 +130,7 @@
                     variant: 'soft-primary',
                     primary: true,
                     onClick: function (d) {
-                        if (!selectedVehicle) {
+                        if (!selectedVehicleId()) {
                             showError('Bitte wähle ein Fahrzeug aus');
                             return;
                         }
@@ -176,7 +144,7 @@
                             body: JSON.stringify({
                                 protocol_id: protocolId,
                                 enr: enr,
-                                target_vehicle: selectedVehicle.identifier,
+                                target_vehicle: selectedVehicleId(),
                             }),
                         })
                             .then(function (r) { return r.json(); })
@@ -197,16 +165,18 @@
                             .finally(function () {
                                 if (dlg.element) {
                                     confirmBtn.textContent = 'Teilen';
-                                    setConfirmEnabled(!!selectedVehicle);
+                                    setConfirmEnabled(selectedVehicleId() !== '');
                                 }
                             });
                     },
                 },
             ],
             onOpen: function (instance) {
+                instance.element.classList.add('ev2-edivi-dialog');
                 confirmBtn = instance.element.querySelector('[data-dialog-primary="true"]');
                 setConfirmEnabled(false);
-                searchInput.focus();
+                refreshSelect(vehicleSelect);
+                vehicleSelect.focus();
             },
         });
 
@@ -216,8 +186,7 @@
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.success && data.vehicles) {
-                    allVehicles = data.vehicles;
-                    renderDropdown(allVehicles);
+                    renderVehicles(data.vehicles);
                 } else {
                     showError(data.message || 'Fehler beim Laden der verfügbaren Fahrzeuge');
                 }
@@ -240,34 +209,43 @@
 
         var body = document.createElement('div');
         body.innerHTML =
-            '<div class="ignis-alert ignis-alert--info mb-3">' +
-            '  <strong>' + esc(requestData.source_vehicle) + '</strong> möchte folgendes Protokoll mit dir teilen:' +
+            '<div class="edivi__box edivi__log-comment">' +
+            '  <i class="fa-solid fa-share-nodes"></i> ' +
+            '  <strong>' + esc(requestData.source_vehicle) + '</strong> möchte folgendes Protokoll mit dir teilen.' +
             '</div>' +
-            '<table class="twplus-description-table mb-3">' +
-            '  <tbody>' +
-            '    <tr><th style="width:200px;">Einsatznummer:</th><td>' + esc(requestData.enr) + '</td></tr>' +
-            '    <tr><th>Patient:</th><td>' + esc(requestData.patname || 'Unbekannt') + '</td></tr>' +
-            '    <tr><th>Protokollart:</th><td>' + (Number(requestData.prot_by) === 1 ? 'Notarzt-Protokoll' : 'Rettungsdienst-Protokoll') + '</td></tr>' +
-            '    <tr><th>Einsatzdatum/-zeit:</th><td>' + esc((requestData.edatum || '') + ' ' + (requestData.ezeit || '')) + '</td></tr>' +
-            '  </tbody>' +
-            '</table>' +
-            '<p><strong>Was möchtest du tun?</strong></p>' +
-            '<label class="ignis-radio"><input type="radio" name="ev2ShareAction" value="merge"><span>' +
-            '  <strong>In bestehendes Protokoll übernehmen</strong><br>' +
-            '  <small class="text-[var(--text-dimmed,#818189)]">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>' +
-            '</span></label>' +
-            '<div class="ml-4 mb-3" data-share-protocols hidden>' +
-            '  <select class="form-select" data-share-protocol-select>' +
+            '<div class="edivi__box ev2-edivi-dialog__facts">' +
+            '  <dl>' +
+            '    <dt>Einsatznummer</dt><dd>' + esc(requestData.enr) + '</dd>' +
+            '    <dt>Patient</dt><dd>' + esc(requestData.patname || 'Unbekannt') + '</dd>' +
+            '    <dt>Protokollart</dt><dd>' + (Number(requestData.prot_by) === 1 ? 'Notarzt-Protokoll' : 'Rettungsdienst-Protokoll') + '</dd>' +
+            '    <dt>Einsatzdatum</dt><dd>' + esc(((requestData.edatum || '') + ' ' + (requestData.ezeit || '')).trim() || 'Unbekannt') + '</dd>' +
+            '  </dl>' +
+            '</div>' +
+            '<div class="ev2-edivi-dialog__choice edivi__interactbutton">' +
+            '  <input type="radio" class="btn-check" name="ev2ShareAction" id="ev2-share-merge" value="merge" autocomplete="off">' +
+            '  <label for="ev2-share-merge">In bestehendes Protokoll übernehmen</label>' +
+            '  <input type="radio" class="btn-check" name="ev2ShareAction" id="ev2-share-new" value="new" autocomplete="off">' +
+            '  <label for="ev2-share-new">Neues Protokoll erstellen</label>' +
+            '</div>' +
+            '<div class="edivi__box edivi__log-comment" data-share-hint hidden></div>' +
+            '<div class="edivi__box" data-share-protocols hidden>' +
+            '  <label class="ev2-edivi-dialog__label" for="ev2-share-protocol">Zielprotokoll</label>' +
+            '  <select class="ignis-input" id="ev2-share-protocol" data-share-protocol-select>' +
             '    <option value="">Protokolle werden geladen...</option>' +
             '  </select>' +
-            '</div>' +
-            '<label class="ignis-radio"><input type="radio" name="ev2ShareAction" value="new"><span>' +
-            '  <strong>Neues Protokoll erstellen</strong><br>' +
-            '  <small class="text-[var(--text-dimmed,#818189)]">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>' +
-            '</span></label>';
+            '</div>';
+
+        // Die Erklärung zur Auswahl steht unter den Kacheln statt in
+        // ihnen: edivi__interactbutton deckelt die Kachelhöhe bei 74px
+        // und schneidet alles darüber ab.
+        var ACTION_HINTS = {
+            merge: 'Die Daten werden in das gewählte Protokoll übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.',
+            'new': 'Es entsteht ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.',
+        };
 
         var protocolsBox = body.querySelector('[data-share-protocols]');
         var protocolSelect = body.querySelector('[data-share-protocol-select]');
+        var hintBox = body.querySelector('[data-share-hint]');
         var protocolsLoaded = false;
         var acceptBtn = null;
         var busy = false;
@@ -306,10 +284,12 @@
                         placeholder.textContent = 'Keine Protokolle gefunden';
                         protocolSelect.appendChild(placeholder);
                     }
+                    refreshSelect(protocolSelect);
                     updateAcceptState();
                 })
                 .catch(function () {
                     protocolSelect.innerHTML = '<option value="">Fehler beim Laden der Protokolle</option>';
+                    refreshSelect(protocolSelect);
                 });
         }
 
@@ -317,6 +297,8 @@
             if (e.target.name === 'ev2ShareAction') {
                 var isMerge = e.target.value === 'merge';
                 protocolsBox.hidden = !isMerge;
+                hintBox.textContent = ACTION_HINTS[e.target.value] || '';
+                hintBox.hidden = hintBox.textContent === '';
                 if (isMerge) loadOwnProtocols();
             }
             updateAcceptState();
@@ -391,6 +373,7 @@
                 },
             ],
             onOpen: function (instance) {
+                instance.element.classList.add('ev2-edivi-dialog');
                 acceptBtn = instance.element.querySelector('[data-dialog-primary="true"]');
                 updateAcceptState();
             },

@@ -41,7 +41,7 @@
     }
 
     function errorHtml(message) {
-        return '<div class="ignis-alert ignis-alert--danger">' + esc(message) + '</div>';
+        return '<div class="ev2-edivi-dialog__error">' + esc(message) + '</div>';
     }
 
     /**
@@ -132,7 +132,7 @@
                 { label: 'Schließen', variant: 'ghost', onClick: function (d) { d.close(null); } },
             ],
             onOpen: function (instance) {
-                instance.element.classList.add('ev2-qm-dialog');
+                instance.element.classList.add('ev2-edivi-dialog', 'ev2-qm-dialog');
             },
         });
 
