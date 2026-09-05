@@ -43,14 +43,14 @@ $SITE_TITLE = 'RD-Qualifikationen';
                                 <?php foreach ($qualis as $row):
                                     $dimmed = '';
                                     if ((int)$row['none'] === 0) {
-                                        $dgActive = "<span class='badge-status status-success'><span class='status-dot'></span>Nein</span>";
+                                        $dgActive = "<span class='ignis-chip ignis-chip--dot ignis-chip--ok'>Nein</span>";
                                     } else {
-                                        $dgActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Ja</span>";
+                                        $dgActive = "<span class='ignis-chip ignis-chip--dot ignis-chip--danger'>Ja</span>";
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $cert = (int)$row['trainable'] === 0
-                                        ? "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>"
-                                        : "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
+                                        ? "<span class='ignis-chip ignis-chip--dot ignis-chip--danger'>Nein</span>"
+                                        : "<span class='ignis-chip ignis-chip--dot ignis-chip--ok'>Ja</span>";
 
                                     $abk = $row['abkuerzung'] ?? '';
                                     $abkDisplay = $abk !== '' ? htmlspecialchars($abk) : "<span style='opacity:.5'>-</span>";

@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
  * ignis-chip, ignis-alert, ignis-btn-group) und Tailwind für das Layout.
  * Wer eine neue Ansicht mit alten Klassen anlegt, fällt hier durch.
  *
- * Geprüft werden die Klassen im Attribut `class="…"`, auch in JS-Strings
- * innerhalb der Templates; eNOTF (plugins/enotf*, assets/components/enotf)
+ * Geprüft werden die Klassen im Attribut `class="…"` (auch mit einfachen
+ * Anführungszeichen), auch in JS-Strings innerhalb der Templates; eNOTF (plugins/enotf*, assets/components/enotf)
  * ist nicht Teil des Redesigns.
  */
 final class LegacyClassUsageTest extends TestCase
@@ -26,6 +26,7 @@ final class LegacyClassUsageTest extends TestCase
     /** Klassen, die allein schon Bootstrap sind. */
     private const FORBIDDEN_TOKENS = [
         'badge',
+        'badge-status',
         'filter-btn',
         'form-control',
         'form-control-plaintext',
@@ -75,9 +76,9 @@ final class LegacyClassUsageTest extends TestCase
      */
     public static function legacyClasses(string $source): array
     {
-        preg_match_all('~class="([^"]*)"~', $source, $matches);
+        preg_match_all('~class=(["\'])(.*?)\1~', $source, $matches);
         $found = [];
-        foreach ($matches[1] as $attribute) {
+        foreach ($matches[2] as $attribute) {
             $tokens = preg_split('~\s+~', trim($attribute)) ?: [];
             foreach ($tokens as $token) {
                 if (in_array($token, self::FORBIDDEN_TOKENS, true)) {
