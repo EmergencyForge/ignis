@@ -148,4 +148,83 @@ final class FiretabAdminListTest extends FeatureTestCase
         $this->assertSame(0, (int) Capsule::table('intra_fire_incidents')->where('id', $id)->value('archived'));
         $this->assertRedirect($this->get(self::LIST));
     }
+
+    /**
+     * Ein Einsatz im Verbund-Cache, wie ihn FederationSyncService ablegt.
+     */
+    private function federatedIncident(string $instance, string $name, bool $active, string $number, string $location, string $keyword, int $hoursAgo): void
+    {
+        if (Capsule::table('intra_federation_links')->where('instance_id', $instance)->doesntExist()) {
+            Capsule::table('intra_federation_links')->insert([
+                'instance_id'      => $instance,
+                'instance_name'    => $name,
+                'instance_url'     => 'https://' . $instance . '.example',
+                'api_key_outgoing' => bin2hex(random_bytes(16)),
+                'api_key_incoming' => bin2hex(random_bytes(16)),
+                'consume_fire'     => 1,
+                'is_active'        => $active ? 1 : 0,
+            ]);
+        }
+        $created = date('Y-m-d H:i:s', strtotime("-$hoursAgo hours"));
+        Capsule::table('intra_federation_cache_fire')->insert([
+            'source_instance_id' => $instance,
+            'remote_id'          => random_int(1000, 999999),
+            'incident_number'    => $number,
+            'cached_data'        => json_encode([
+                'incident_number' => $number, 'location' => $location, 'keyword' => $keyword,
+                'status' => 2, 'finalized' => 1, 'leader_id' => 7, 'leader_name' => 'Nachbar Leiter',
+                'created_at' => $created, 'updated_at' => $created,
+            ], JSON_UNESCAPED_UNICODE),
+            'incident_date'      => $created,
+            'cached_at'          => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /**
+     * Die QM-Liste liest den Verbund-Schalter live aus intra_config (die
+     * Konstante FEDERATION_ENABLED steht einmal pro Prozess fest und ist
+     * im Testlauf schon false). Der Schalter geht am Ende wieder zurück.
+     */
+    #[Test]
+    public function verbund_einsaetze_stehen_in_suche_sortierung_und_seiten(): void
+    {
+        $before = Capsule::table('intra_config')->where('config_key', 'FEDERATION_ENABLED')->value('config_value');
+        Capsule::table('intra_config')->updateOrInsert(['config_key' => 'FEDERATION_ENABLED'], ['config_value' => 'true', 'config_type' => 'boolean']);
+        try {
+            $this->verbundListe();
+        } finally {
+            Capsule::table('intra_config')->where('config_key', 'FEDERATION_ENABLED')->update(['config_value' => $before ?? 'false']);
+        }
+    }
+
+    private function verbundListe(): void
+    {
+        $this->login(['fire.incident.qm']);
+        $stamp = uniqid();
+        $local = $this->incident("VB-$stamp-L", "Verbundplatz $stamp", 'TH1 Ölspur', 1);
+        $this->federatedIncident('inst-' . $stamp, 'Nachbarwache', true, "VB-$stamp-F", "Verbundplatz $stamp", "B2 Scheune $stamp", 5);
+        $this->federatedIncident('inst-off-' . $stamp, 'Stille Wache', false, "VB-$stamp-X", "Verbundplatz $stamp", 'B1 Papierkorb', 6);
+
+        // Das Suchwort trifft den Verbund-Einsatz über den Ort …
+        $page = $this->get(self::LIST, ['query' => ['q' => "Verbundplatz $stamp"]]);
+        $this->assertOk($page);
+        $this->assertBodyContains('1–2 von 2 Protokolle', $page);
+        $this->assertBodyContains("VB-$stamp-F <span class=\"ignis-chip ignis-chip--secondary\">Nachbarwache</span>", $page);
+        $this->assertBodyContains('<span class="ignis-list-meta">nur lesen</span>', $page);
+        $this->assertBodyContains('Nachbar Leiter', $page);
+        $this->assertBodyContains('data-ignis-select value="' . $local . '"', $page);
+        $this->assertBodyNotContains("VB-$stamp-X", $page);
+        // … und über das Stichwort, auch ohne eigenen Treffer.
+        $byKeyword = $this->get(self::LIST, ['query' => ['q' => "B2 Scheune $stamp"]]);
+        $this->assertBodyContains('1–1 von 1 Protokolle', $byKeyword);
+        $this->assertBodyContains("VB-$stamp-F", $byKeyword);
+        $this->assertBodyNotContains("VB-$stamp-L", $byKeyword);
+
+        // Sortiert wie die eigenen: nach Nummer aufsteigend steht F vor L.
+        $sorted = $this->get(self::LIST, ['query' => ['q' => "VB-$stamp", 'sort' => 'nr', 'dir' => 'asc']]);
+        $this->assertLessThan($this->pos($sorted->body, "VB-$stamp-L"), $this->pos($sorted->body, "VB-$stamp-F"));
+
+        // Im Archiv gibt es keinen Verbund.
+        $this->assertBodyNotContains("VB-$stamp-F", $this->get(self::LIST, ['query' => ['q' => "VB-$stamp", 'show_archived' => '1']]));
+    }
 }
