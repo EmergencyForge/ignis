@@ -512,7 +512,9 @@ final class DocumentsController
                     'timestamp'                   => $doc['timestamp'],
                     'template_name'               => $doc['template_name'],
                     'category_name'               => $doc['category_name'],
-                    'category_color'              => $doc['category_color'],
+                    // Die Chip-Klasse, nicht der gespeicherte Schlüssel: die Aufrufer
+                    // setzen den Wert direkt ins class-Attribut.
+                    'category_color'              => DocumentCategory::chipClass($doc['category_color']),
                     'is_archived'                 => (bool) $doc['is_archived'],
                     'pdf_url'                     => $pdfUrl,
                     'pdf_exists'                  => $pdfExists,
@@ -1062,7 +1064,7 @@ final class DocumentsController
         }
 
         $name      = trim((string) $input['name']);
-        $color     = $input['color'] ?? 'ignis-chip--secondary';
+        $color     = DocumentCategory::colorKey(isset($input['color']) ? (string) $input['color'] : null);
         $icon      = !empty($input['icon']) ? trim((string) $input['icon']) : null;
         $sortOrder = (int) ($input['sort_order'] ?? 0);
 

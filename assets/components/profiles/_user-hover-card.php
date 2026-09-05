@@ -35,7 +35,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
         <?php endif; ?>
         <?php if ($user->full_admin): ?>
             <dt>Status</dt>
-            <dd><span class="ignis-chip ignis-chip--status ignis-chip--danger">Admin+</span></dd>
+            <dd><span class="ignis-chip ignis-chip--dot ignis-chip--danger">Admin+</span></dd>
         <?php endif; ?>
         <dt>Mitarbeiter</dt>
         <dd>

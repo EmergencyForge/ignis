@@ -166,7 +166,13 @@ class DocumentTemplateManager
             ->orderBy('dk.sort_order')
             ->orderBy('t.name')
             ->get()
-            ->map(fn ($row) => (array) $row)
+            ->map(static function ($row): array {
+                $template = (array) $row;
+                // Die Aufrufer setzen category_color direkt als Klasse ein.
+                $template['category_color'] = DocumentCategory::chipClass($template['category_color']);
+
+                return $template;
+            })
             ->all();
     }
 
