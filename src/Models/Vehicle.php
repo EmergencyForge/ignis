@@ -35,6 +35,21 @@ class Vehicle extends Model
         'rd_type' => 'integer',
     ];
 
+    /**
+     * Die FMS-Status, die ein Fahrzeug tragen kann — dieselbe Menge, die
+     * fireTab beim Einzelfahrzeug erlaubt (FireController::setVehicleStatus)
+     * und die der EMD-Sync liefert.
+     */
+    public const STATUS_LABELS = [
+        '0' => 'Dringender Sprechwunsch',
+        '1' => 'Einsatzbereit Funk',
+        '2' => 'Einsatzbereit Wache',
+        '3' => 'Einsatz übernommen',
+        '4' => 'Am Einsatzort',
+        '5' => 'Sprechwunsch',
+        '6' => 'Nicht einsatzbereit',
+    ];
+
     public function defects(): HasMany
     {
         return $this->hasMany(VehicleDefect::class, 'vehicle_id', 'id');

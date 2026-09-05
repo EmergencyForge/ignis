@@ -15,6 +15,7 @@
  */
 
 use App\Auth\Permissions;
+use App\Models\Vehicle;
 use App\Security\CsrfProtection;
 
 $layout = 'admin';
@@ -99,6 +100,15 @@ $SITE_TITLE = 'Fahrzeuge';
                                     <option value="inactive">Inaktiv</option>
                                 </select>
                                 <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary"><i class="fa-solid fa-toggle-on" aria-hidden="true"></i> Status setzen</button>
+                            </span>
+                            <span class="ignis-bulkbar__group">
+                                <label for="bulk-emd-status" class="sr-only">EMD-Status</label>
+                                <select name="emd_status" id="bulk-emd-status" class="ignis-input ignis-input--sm">
+                                    <?php foreach (Vehicle::STATUS_LABELS as $code => $label): ?>
+                                        <option value="<?= $code ?>"><?= $code ?> · <?= htmlspecialchars($label) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary" formaction="<?= BASE_PATH ?>settings/vehicles/vehicles/emd-status"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> EMD-Status setzen</button>
                             </span>
                             <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--danger" formaction="<?= BASE_PATH ?>settings/vehicles/vehicles/delete" data-ignis-bulk-confirm="{n} ausgewählte Fahrzeuge wirklich löschen? Mängel und Protokollbezüge gehen mit."><i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen</button>
                             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-ignis-bulk-clear>Abbrechen</button>

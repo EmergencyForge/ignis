@@ -386,6 +386,7 @@ $router->get('/settings/vehicles/vehicles/{id:\d+}/edit',    [\App\Http\Controll
 // Fahrzeugseite (Detailmuster): Ziel von „Öffnen" in der Vorschau, Enter auf der Zeile und der Suche.
 $router->get('/settings/vehicles/vehicles/{id:\d+}',         [\App\Http\Controllers\Settings\FahrzeugeController::class, 'show'],    $settingsAuth);
 $router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
+$router->post('/settings/vehicles/vehicles/emd-status', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkEmdStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
 $router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
 $router->post('/settings/vehicles/vehload/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);

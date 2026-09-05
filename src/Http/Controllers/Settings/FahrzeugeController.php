@@ -12,6 +12,7 @@ use App\Http\Request;
 use App\Http\Requests\FormRequest;
 use App\Http\Requests\Vehicles\CreateDefectRequest;
 use App\Http\Response;
+use App\Models\Vehicle;
 use App\Support\Activity;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
@@ -427,6 +428,50 @@ class FahrzeugeController extends Controller
                 $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'Status: ' . $label . ' (Sammelaktion)');
             }
             Flash::success(count($existing) === 1 ? "Fahrzeug auf „{$label}\" gesetzt." : count($existing) . " Fahrzeuge auf „{$label}\" gesetzt.");
+        } catch (PDOException $e) {
+            error_log('PDO Update Error: ' . $e->getMessage());
+            Flash::set('error', 'exception');
+        }
+
+        $this->redirect('settings/vehicles/vehicles/index');
+    }
+
+    /**
+     * POST /settings/vehicles/vehicles/emd-status — setzt den FMS-Status
+     * (`emd_status`, Spalte current_status) der angehakten Fahrzeuge, mit
+     * derselben Statusmenge wie die Einzelaktion in fireTab und Audit je
+     * Fahrzeug. status_source hält fest, dass der Wert von Hand kam, damit
+     * der nächste EMD-Sync ihn wie jeden anderen überschreiben darf.
+     */
+    public function bulkEmdStatus(): void
+    {
+        $this->requireAuth();
+        $this->ensureManage();
+
+        $status = (string) ($_POST['emd_status'] ?? '');
+        if (!isset(Vehicle::STATUS_LABELS[$status])) {
+            Flash::error('Unbekannter Status.');
+            $this->redirect('settings/vehicles/vehicles/index');
+        }
+
+        $ids = $this->postedIds();
+        $existing = Capsule::table('intra_fahrzeuge')->whereIn('id', $ids)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
+        if ($existing === []) {
+            Flash::error('Kein Fahrzeug ausgewählt.');
+            $this->redirect('settings/vehicles/vehicles/index');
+        }
+
+        $label = $status . ' (' . Vehicle::STATUS_LABELS[$status] . ')';
+        try {
+            foreach ($existing as $id) {
+                Capsule::table('intra_fahrzeuge')->where('id', $id)->update([
+                    'current_status'    => $status,
+                    'status_updated_at' => date('Y-m-d H:i:s'),
+                    'status_source'     => 'manual',
+                ]);
+                $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'EMD-Status: ' . $label . ' (Sammelaktion)');
+            }
+            Flash::success(count($existing) === 1 ? "Fahrzeug auf Status {$label} gesetzt." : count($existing) . " Fahrzeuge auf Status {$label} gesetzt.");
         } catch (PDOException $e) {
             error_log('PDO Update Error: ' . $e->getMessage());
             Flash::set('error', 'exception');
