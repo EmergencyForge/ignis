@@ -19,9 +19,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Version bestimmen
-        id: version
-        run: echo "value=${{ inputs.version || github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+      # :latest ist das, was eine Instanz als "neueste stabile" zieht. Ein
+      # Prerelease darf den Zeiger nicht verschieben, ein Handstart auch
+      # nicht: bei workflow_dispatch gibt es kein Release-Objekt, aus dem
+      # sich "stabil" ablesen liesse, und der Handstart baut ohnehin meist
+      # eine Reparatur oder eine aeltere Version nach. Beide Faelle deckt
+      # dieselbe Bedingung ab, weil github.event.release.prerelease ohne
+      # Release-Objekt leer ist.
+      - name: Tags bestimmen
+        id: tags
+        env:
+          VERSION: ${{ inputs.version || github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          IMAGE=ghcr.io/emergencyforge/ignis
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          {
+            echo "value<<TAGLISTE"
+            echo "$IMAGE:$VERSION"
+            if [ "$PRERELEASE" = "false" ]; then
+              echo "$IMAGE:latest"
+            fi
+            echo "TAGLISTE"
+          } >> "$GITHUB_OUTPUT"
+
+      # storage/version.json ist die einzige Quelle, aus der die Anwendung
+      # ihre Version liest (HealthController, Footer, Telemetrie). Der
+      # Release-Build schreibt die Datei erst nach main; dieser Workflow
+      # checkt aber den Tag-Commit aus und saehe dort den Stand davor. Also
+      # hier neu schreiben, im selben Format wie build-release.yml.
+      - name: version.json schreiben
+        env:
+          VERSION: ${{ steps.tags.outputs.version }}
+        run: |
+          mkdir -p storage
+          cat > storage/version.json << EOF
+          {
+            "version": "$VERSION",
+            "updated_at": "$(date -u '+%Y-%m-%d %H:%M:%S')",
+            "build_number": "$GITHUB_RUN_NUMBER",
+            "commit_hash": "$GITHUB_SHA"
+          }
+          EOF
+          cat storage/version.json
 
       - uses: docker/setup-buildx-action@v3
 
@@ -35,8 +75,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/emergencyforge/ignis:${{ steps.version.outputs.value }}
-            ghcr.io/emergencyforge/ignis:latest
+          tags: ${{ steps.tags.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

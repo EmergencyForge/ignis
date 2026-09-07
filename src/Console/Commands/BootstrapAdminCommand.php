@@ -20,6 +20,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  * über Discord anmeldet. Wiederholte Aufrufe mit derselben Discord-ID
  * heben das bestehende Konto auf full_admin, statt ein zweites anzulegen.
  *
+ * Dabei wird das Konto auch wieder aktiv geschaltet. auth/callback.php weist
+ * ein Konto mit is_active = 0 beim Login ab; ohne diese Zeile meldete der
+ * Befehl auf einem gesperrten Konto "Konto aktualisiert" und Exit 0, und der
+ * Mensch käme trotzdem nicht rein.
+ *
  * Die Rolle wird gesetzt wie beim ersten Discord-Login in auth/callback.php:
  * `intra_users.role` ist NOT NULL mit Fremdschlüssel auf
  * `intra_users_roles.id`, ein Konto ohne Rolle lässt sich nicht anlegen.
@@ -66,6 +71,7 @@ final class BootstrapAdminCommand extends Command
         $user->username   = $username;
         $user->role       = $adminRole->id;
         $user->full_admin = true;
+        $user->is_active  = true;
         $user->save();
 
         $output->writeln($neu
