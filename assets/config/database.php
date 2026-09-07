@@ -6,15 +6,43 @@ Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
 
 // Ohne .env und ohne Umgebungsvariablen bleiben die folgenden Zeilen sonst
 // stillschweigend leer und laufen erst im PDO-Aufruf in einen unklaren
-// Fehler. Ein leeres Passwort ist erlaubt, deshalb zaehlt hier nur, ob der
-// Schluessel gesetzt ist, nicht ob er einen Wert hat.
+// Fehler. Gesucht wird in derselben Reihenfolge wie in tools/db-migrate.php:
+// erst $_ENV, dann $_SERVER — dort landen SetEnv aus der Apache-Config und
+// die env-Eintraege aus einem FPM-Pool, wenn variables_order kein E kennt —
+// und zuletzt getenv(). Ohne den zweiten und dritten Schritt meldet der
+// Web-Zweig "Datenbank nicht konfiguriert", waehrend die Migration auf
+// derselben Maschine durchlaeuft.
+$dbEnv = static function (string $key): ?string {
+    if (isset($_ENV[$key])) {
+        return (string) $_ENV[$key];
+    }
+    if (isset($_SERVER[$key]) && is_string($_SERVER[$key])) {
+        return $_SERVER[$key];
+    }
+    $value = getenv($key);
+    return $value === false ? null : $value;
+};
+
+// Ein leeres Passwort ist erlaubt, deshalb zaehlt hier nur, ob der Schluessel
+// gesetzt ist, nicht ob er einen Wert hat.
+$dbSettings  = [];
 $missingKeys = [];
 foreach (['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $requiredKey) {
-    if (!isset($_ENV[$requiredKey])) {
+    $value = $dbEnv($requiredKey);
+    if ($value === null) {
         $missingKeys[] = $requiredKey;
+    } else {
+        $dbSettings[$requiredKey] = $value;
     }
 }
 if ($missingKeys !== []) {
+    // Im Web waere echo + exit(1) eine 200er-Antwort mit einem deutschen Satz
+    // im Body — eine tote Instanz saehe damit fuer jeden Aufrufer, der auf den
+    // Statuscode schaut, gesund aus. In der CLI zaehlt weiterhin nur der
+    // Exitcode.
+    if (php_sapi_name() !== 'cli') {
+        http_response_code(503);
+    }
     echo 'Datenbank nicht konfiguriert, es fehlt: ' . implode(', ', $missingKeys)
         . '. Werte entweder in eine .env im Projektverzeichnis eintragen oder als '
         . 'Umgebungsvariablen setzen.' . PHP_EOL;
@@ -22,10 +50,10 @@ if ($missingKeys !== []) {
 }
 
 // Verbindungsdaten
-$db_host = $_ENV['DB_HOST'];
-$db_user = $_ENV['DB_USER'];
-$db_pass = $_ENV['DB_PASS'];
-$db_name = $_ENV['DB_NAME'];
+$db_host = $dbSettings['DB_HOST'];
+$db_user = $dbSettings['DB_USER'];
+$db_pass = $dbSettings['DB_PASS'];
+$db_name = $dbSettings['DB_NAME'];
 
 // Try utf8mb4 first, fallback to utf8 if not supported
 $charset = 'utf8mb4';

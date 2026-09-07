@@ -38,9 +38,23 @@ final class BootstrapAdminCommandTest extends FeatureTestCase
         $args   = ['--discord-id' => '999', '--username' => 'Doppelt'];
 
         self::assertSame(0, $tester->execute($args));
+
+        // Ein deaktiviertes Konto weist auth/callback.php beim Login ab. Der
+        // zweite Aufruf muss den Zugang wiederherstellen, sonst meldet der
+        // Befehl "Konto aktualisiert" und Exit 0, und der Mensch kommt
+        // trotzdem nicht rein.
+        User::query()->where('discord_id', '999')->update(['is_active' => 0]);
+
         self::assertSame(0, $tester->execute($args));
 
         self::assertSame(1, User::query()->where('discord_id', '999')->count());
+
+        $user = User::query()->where('discord_id', '999')->first();
+        self::assertNotNull($user);
+        self::assertTrue(
+            (bool) $user->is_active,
+            'Der wiederholte Aufruf muss ein deaktiviertes Konto wieder aktivieren.'
+        );
     }
 
     public function test_verweigert_eine_leere_discord_id(): void
