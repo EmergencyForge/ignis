@@ -31,4 +31,5 @@ return [
     \App\Console\Commands\CalendarBackfillAbsencesCommand::class,
     \App\Console\Commands\ChangelogRefreshCommand::class,
     \App\Console\Commands\BlogRefreshCommand::class,
+    \App\Console\Commands\BootstrapAdminCommand::class,
 ];
