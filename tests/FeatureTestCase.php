@@ -333,4 +333,17 @@ abstract class FeatureTestCase extends IntegrationTestCase
         $this->assertIsArray($decoded, 'Response body is not valid JSON: ' . substr($response->body, 0, 200));
         return $decoded;
     }
+
+    // ── Console-Helper ────────────────────────────────────────────────
+
+    /**
+     * Baut die Console-Application gegen den Test-Container und liefert
+     * einen CommandTester für den gesuchten Befehl.
+     */
+    protected function commandTester(string $name): \Symfony\Component\Console\Tester\CommandTester
+    {
+        $application = new \App\Console\Application($this->container);
+
+        return new \Symfony\Component\Console\Tester\CommandTester($application->find($name));
+    }
 }

@@ -331,6 +331,7 @@ return [
     \App\Console\Commands\CalendarBackfillAbsencesCommand::class => \DI\autowire(),
     \App\Console\Commands\ChangelogRefreshCommand::class => \DI\autowire(),
     \App\Console\Commands\BlogRefreshCommand::class      => \DI\autowire(),
+    \App\Console\Commands\BootstrapAdminCommand::class    => \DI\autowire(),
 
     // Service-Klassen für Commands
     \App\Jobs\FailedJobsReader::class     => \DI\autowire(),
