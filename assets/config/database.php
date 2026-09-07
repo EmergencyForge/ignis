@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false);
-$dotenv->load();
+// .env best-effort laden — in Docker- und CI-Setups stehen die DB_*-Variablen
+// schon in der Prozessumgebung, dann gibt es gar keine Datei.
+Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
 // Verbindungsdaten
 $db_host = $_ENV['DB_HOST'];
 $db_user = $_ENV['DB_USER'];
