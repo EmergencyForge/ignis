@@ -3,6 +3,24 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 // .env best-effort laden — in Docker- und CI-Setups stehen die DB_*-Variablen
 // schon in der Prozessumgebung, dann gibt es gar keine Datei.
 Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
+
+// Ohne .env und ohne Umgebungsvariablen bleiben die folgenden Zeilen sonst
+// stillschweigend leer und laufen erst im PDO-Aufruf in einen unklaren
+// Fehler. Ein leeres Passwort ist erlaubt, deshalb zaehlt hier nur, ob der
+// Schluessel gesetzt ist, nicht ob er einen Wert hat.
+$missingKeys = [];
+foreach (['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $requiredKey) {
+    if (!isset($_ENV[$requiredKey])) {
+        $missingKeys[] = $requiredKey;
+    }
+}
+if ($missingKeys !== []) {
+    echo 'Datenbank nicht konfiguriert, es fehlt: ' . implode(', ', $missingKeys)
+        . '. Werte entweder in eine .env im Projektverzeichnis eintragen oder als '
+        . 'Umgebungsvariablen setzen.' . PHP_EOL;
+    exit(1);
+}
+
 // Verbindungsdaten
 $db_host = $_ENV['DB_HOST'];
 $db_user = $_ENV['DB_USER'];
