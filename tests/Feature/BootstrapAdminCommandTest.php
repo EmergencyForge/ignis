@@ -43,7 +43,11 @@ final class BootstrapAdminCommandTest extends FeatureTestCase
         // zweite Aufruf muss den Zugang wiederherstellen, sonst meldet der
         // Befehl "Konto aktualisiert" und Exit 0, und der Mensch kommt
         // trotzdem nicht rein.
-        User::query()->where('discord_id', '999')->update(['is_active' => 0]);
+        User::query()->where('discord_id', '999')->update([
+            'is_active'      => 0,
+            'deactivated_at' => '2026-01-01 12:00:00',
+            'deactivated_by' => 1,
+        ]);
 
         self::assertSame(0, $tester->execute($args));
 
@@ -55,6 +59,12 @@ final class BootstrapAdminCommandTest extends FeatureTestCase
             (bool) $user->is_active,
             'Der wiederholte Aufruf muss ein deaktiviertes Konto wieder aktivieren.'
         );
+
+        // Der regulaere Weg im UserController raeumt beide Spalten mit ab. Bleibt
+        // die Historie stehen, traegt ein aktives Konto weiter ein
+        // Deaktivierungsdatum.
+        self::assertNull($user->deactivated_at, 'deactivated_at muss abgeraeumt sein.');
+        self::assertNull($user->deactivated_by, 'deactivated_by muss abgeraeumt sein.');
     }
 
     public function test_verweigert_eine_leere_discord_id(): void
