@@ -43,6 +43,29 @@ class DiscordOAuth
     }
 
     /**
+     * Die Adresse, an die Discord nach der Anmeldung zurückschickt.
+     *
+     * Normalerweise leitet ignis sie aus dem laufenden Request ab, das spart
+     * jeder Installation eine Variable. Hinter einem Reverse Proxy kann diese
+     * Herleitung danebenliegen, und der Fehler ist still: die Instanz läuft,
+     * /healthz bleibt grün, und erst der erste Mensch, der auf Anmelden
+     * klickt, sieht von Discord eine Fehlermeldung über eine unbekannte
+     * Redirect-URI.
+     *
+     * DISCORD_REDIRECT_URI schlägt die Herleitung deshalb. Wer sie setzt,
+     * braucht sich auf keine Kopfzeile zu verlassen — der Wert wandert
+     * unverändert an Discord und muss genauso im Developer Portal stehen.
+     */
+    public static function redirectUri(string $redirectPath): string
+    {
+        $configured = trim(env_value('DISCORD_REDIRECT_URI') ?? '');
+
+        return $configured !== ''
+            ? $configured
+            : ProtocolDetection::buildRedirectUri($redirectPath);
+    }
+
+    /**
      * Create a Discord OAuth provider instance
      *
      * @param string $redirectPath The path for the OAuth redirect (e.g., 'auth/callback.php')
@@ -55,7 +78,7 @@ class DiscordOAuth
         $config = [
             'clientId'                => $credentials['clientId'],
             'clientSecret'            => $credentials['clientSecret'],
-            'redirectUri'             => ProtocolDetection::buildRedirectUri($redirectPath),
+            'redirectUri'             => self::redirectUri($redirectPath),
             'urlAuthorize'            => 'https://discord.com/api/oauth2/authorize',
             'urlAccessToken'          => 'https://discord.com/api/oauth2/token',
             'urlResourceOwnerDetails' => 'https://discord.com/api/users/@me',
