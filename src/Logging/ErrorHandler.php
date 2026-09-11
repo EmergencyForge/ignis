@@ -181,20 +181,12 @@ class ErrorHandler
     }
 
     /**
-     * Einen Fatal in der Konsole sichtbar machen und den Lauf als
-     * fehlgeschlagen kennzeichnen.
+     * Einen Fatal in der Konsole sichtbar machen und mit 1 beenden, damit ein
+     * gestorbener Befehl nicht wie ein erfolgreicher aussieht.
      *
-     * Vorher endete beides hier im Nichts: leere Ausgabe, Exitcode 0. Ein
-     * gestorbener Befehl war damit von einem erfolgreichen nicht zu
-     * unterscheiden - weder fuer den Menschen davor noch fuer einen Aufrufer,
-     * der auf den Exitcode schaut. fabrica ruft ignis-Befehle per docker exec
-     * genau so auf.
-     *
-     * Anders als im Web bleibt die Meldung hier auch in Produktion stehen. Wer
-     * eine Konsole in diesem Container hat, kommt ohnehin an das Log; sie ihm
-     * vorzuenthalten schuetzt niemanden und kostet nur den Diagnoseanlauf, um
-     * den es hier geht. Der Stacktrace bleibt der Entwicklungsumgebung
-     * vorbehalten, der ist im Betrieb nur Laerm.
+     * Die Meldung bleibt anders als im Web auch in Produktion stehen: wer eine
+     * Konsole im Container hat, kommt ohnehin an das Log. Nur der Stacktrace
+     * ist der Entwicklungsumgebung vorbehalten.
      */
     private static function renderCliError(
         string $message,

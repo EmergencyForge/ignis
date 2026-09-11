@@ -10,12 +10,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Die Discord-Redirect-URI entsteht aus dem laufenden Request. Hinter einem
- * Reverse Proxy ist HTTP_HOST der interne Container-Name, die URI zeigt dann
- * ins Leere — und der Fehler ist still: die Instanz laeuft, /healthz bleibt
- * gruen, erst der erste Anmeldeversuch faellt auf die Nase. Deshalb zwei
- * Auswege, hier beide festgenagelt: X-Forwarded-Host, und DISCORD_REDIRECT_URI
- * als letztes Wort.
+ * Zwei Auswege gegen einen falschen Host hinter dem Proxy, hier beide
+ * festgenagelt: X-Forwarded-Host, und DISCORD_REDIRECT_URI als letztes Wort.
  */
 final class DiscordRedirectUriTest extends TestCase
 {
@@ -49,11 +45,6 @@ final class DiscordRedirectUriTest extends TestCase
         $this->assertSame('https://intra.example.de', $this->baseUrlOverHttps());
     }
 
-    /**
-     * Der Fall aus der Praxis: fabrica legt die Instanz hinter Caddy an, der
-     * Container heisst fabrica-ignis-kreis-nord, erreichbar ist sie aber unter
-     * ihrer Subdomain.
-     */
     #[Test]
     public function hinter_dem_proxy_gewinnt_der_weitergereichte_host(): void
     {

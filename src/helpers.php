@@ -156,17 +156,11 @@ if (!function_exists('search_base_path')) {
 
 if (!function_exists('env_value')) {
     /**
-     * Liest eine Umgebungsvariable in der Reihenfolge $_ENV, $_SERVER, getenv().
+     * Liest eine Umgebungsvariable aus $_ENV, $_SERVER, getenv().
      *
-     * Der zweite und dritte Schritt sind nicht optional: SetEnv aus einer
-     * Apache-Config und die env-Einträge eines FPM-Pools landen in $_SERVER
-     * oder nur in der Prozessumgebung, sobald variables_order kein E enthält.
-     * Wer nur $_ENV liest, sieht auf so einer Maschine gar nichts — und genau
-     * das ging auseinander, als der Fallback nur in database.php landete,
-     * während Eloquent weiter direkt aus $_ENV las.
-     *
-     * null heißt "nirgends gesetzt". Ein leerer String ist ein gültiger Wert,
-     * ein leeres DB_PASS etwa.
+     * Alle drei, weil SetEnv und FPM-Pool-Einträge bei variables_order ohne E
+     * nicht in $_ENV landen. null heißt nirgends gesetzt; ein leerer String
+     * ist ein gültiger Wert (leeres DB_PASS).
      */
     function env_value(string $key): ?string
     {

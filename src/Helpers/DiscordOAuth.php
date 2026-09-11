@@ -43,18 +43,9 @@ class DiscordOAuth
     }
 
     /**
-     * Die Adresse, an die Discord nach der Anmeldung zurückschickt.
-     *
-     * Normalerweise leitet ignis sie aus dem laufenden Request ab, das spart
-     * jeder Installation eine Variable. Hinter einem Reverse Proxy kann diese
-     * Herleitung danebenliegen, und der Fehler ist still: die Instanz läuft,
-     * /healthz bleibt grün, und erst der erste Mensch, der auf Anmelden
-     * klickt, sieht von Discord eine Fehlermeldung über eine unbekannte
-     * Redirect-URI.
-     *
-     * DISCORD_REDIRECT_URI schlägt die Herleitung deshalb. Wer sie setzt,
-     * braucht sich auf keine Kopfzeile zu verlassen — der Wert wandert
-     * unverändert an Discord und muss genauso im Developer Portal stehen.
+     * Die Adresse, an die Discord zurückschickt — normalerweise aus dem Request
+     * hergeleitet. DISCORD_REDIRECT_URI schlägt die Herleitung, für Setups, wo
+     * sie danebenliegt; der Wert muss so im Developer Portal stehen.
      */
     public static function redirectUri(string $redirectPath): string
     {
