@@ -41,3 +41,5 @@ plugins/*/.installed
 AGENTS.md
 Scratchpad.md
 Task Board.md
+.mcp.json
+components.json
