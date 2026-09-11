@@ -8,14 +8,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * In der CLI lief ein Fatal vorher ohne jede Ausgabe durch und der Prozess
- * endete mit 0 — ein gestorbener Befehl war von einem erfolgreichen nicht zu
- * unterscheiden. Das hat beim Containerisieren drei Diagnoseanlaeufe gekostet
- * und trifft jeden Aufrufer, der nur auf den Exitcode schaut; fabrica ruft
- * ignis-Befehle per docker exec genau so auf.
- *
- * Der Test muss einen echten Unterprozess starten: der Handler beendet den
- * Lauf, und genau der Exitcode ist die Zusage, um die es geht.
+ * Ein Fatal in der CLI muss sich melden und mit 1 enden. Braucht einen echten
+ * Unterprozess, weil der Exitcode die eigentliche Zusage ist.
  */
 final class ErrorHandlerCliTest extends TestCase
 {
