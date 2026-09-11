@@ -60,17 +60,9 @@ class ProtocolDetection
     /**
      * Der Host, unter dem die Instanz von außen erreichbar ist.
      *
-     * Hinter einem Reverse Proxy ist HTTP_HOST der interne Name, unter dem der
-     * Proxy den Container anspricht — bei einer per fabrica angelegten Instanz
-     * also so etwas wie fabrica-ignis-kreis-nord statt kreis-nord.example.de.
-     * Alles, was daraus eine nach außen gültige Adresse bauen will, wird damit
-     * falsch, allen voran die Discord-Redirect-URI.
-     *
-     * X-Forwarded-Host kommt vom Proxy und ist damit genauso wenig und genauso
-     * sehr vertrauenswürdig wie der Host-Header selbst, den diese Methode
-     * vorher schon ungeprüft genommen hat. Die Vorrangregel ist die übliche:
-     * wer vorne steht, weiß es besser. Trägt der Proxy eine Kette ein, zählt
-     * der erste Eintrag, das ist der ursprüngliche Client-Host.
+     * Hinter einem Proxy ist HTTP_HOST der interne Container-Name. Bei einer
+     * Kette zählt der erste Eintrag. Nicht vertrauenswürdiger als HTTP_HOST,
+     * das diese Klasse vorher ungeprüft nahm.
      */
     public static function getForwardedHost(): ?string
     {
@@ -81,9 +73,8 @@ class ProtocolDetection
 
         $first = trim(explode(',', $forwarded)[0]);
 
-        // Nur Host und optionaler Port. Ein Eintrag mit Schrägstrich, Leerzeichen
-        // oder Doppelpunkt-Unfug wäre kein Host, sondern ein Injektionsversuch —
-        // dann lieber zurück auf HTTP_HOST.
+        // Nur Host und optionaler Port — alles andere ist kein Proxy, sondern
+        // ein Versuch, die Adresse umzubiegen.
         if ($first === '' || preg_match('~^[A-Za-z0-9.\-]+(:\d{1,5})?$~', $first) !== 1) {
             return null;
         }
