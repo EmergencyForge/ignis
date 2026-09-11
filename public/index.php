@@ -40,6 +40,7 @@ $routeFiles = [
 
 foreach ($routeFiles as $file) {
     if (is_file($file)) {
+        $router->registerRouteSource($file);
         require $file;
     }
 }
@@ -49,6 +50,7 @@ foreach ($routeFiles as $file) {
 // dasselbe $router wie die Kern-Route-Dateien.
 try {
     foreach (app(\App\Plugins\PluginLoader::class)->routeFiles() as $file) {
+        $router->registerRouteSource($file);
         require $file;
     }
 } catch (\Throwable $e) {
