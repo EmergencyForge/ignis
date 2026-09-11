@@ -5,30 +5,17 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
 
 // Ohne .env und ohne Umgebungsvariablen bleiben die folgenden Zeilen sonst
-// stillschweigend leer und laufen erst im PDO-Aufruf in einen unklaren
-// Fehler. Gesucht wird in derselben Reihenfolge wie in tools/db-migrate.php:
-// erst $_ENV, dann $_SERVER — dort landen SetEnv aus der Apache-Config und
-// die env-Eintraege aus einem FPM-Pool, wenn variables_order kein E kennt —
-// und zuletzt getenv(). Ohne den zweiten und dritten Schritt meldet der
-// Web-Zweig "Datenbank nicht konfiguriert", waehrend die Migration auf
-// derselben Maschine durchlaeuft.
-$dbEnv = static function (string $key): ?string {
-    if (isset($_ENV[$key])) {
-        return (string) $_ENV[$key];
-    }
-    if (isset($_SERVER[$key]) && is_string($_SERVER[$key])) {
-        return $_SERVER[$key];
-    }
-    $value = getenv($key);
-    return $value === false ? null : $value;
-};
+// stillschweigend leer und laufen erst im PDO-Aufruf in einen unklaren Fehler.
+// env_value() aus src/helpers.php sucht in $_ENV, $_SERVER und getenv() — die
+// Reihenfolge steht dort begruendet und gilt fuer alle Leser derselben Werte,
+// vom Web-Bootstrap ueber die Capsule bis zu tools/db-migrate.php.
 
 // Ein leeres Passwort ist erlaubt, deshalb zaehlt hier nur, ob der Schluessel
 // gesetzt ist, nicht ob er einen Wert hat.
 $dbSettings  = [];
 $missingKeys = [];
 foreach (['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $requiredKey) {
-    $value = $dbEnv($requiredKey);
+    $value = env_value($requiredKey);
     if ($value === null) {
         $missingKeys[] = $requiredKey;
     } else {

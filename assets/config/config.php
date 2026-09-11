@@ -3,12 +3,22 @@
 // Autoloader muss zuerst geladen werden
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-// .env laden, BEVOR der Container gebaut wird — Eloquent-Capsule liest die
-// DB-Credentials direkt aus $_ENV beim Eager-Boot. createImmutable überschreibt
-// keine bereits gesetzten Werte (z.B. wenn ein vorheriger Bootstrap-Schritt
-// schon dotenv geladen hat oder Variablen vom Webserver gesetzt sind).
+// .env laden, BEVOR der Container gebaut wird — die Capsule-Konfiguration in
+// config/container.php liest die DB-Werte beim Eager-Boot. createImmutable
+// überschreibt keine bereits gesetzten Werte, ein vorheriger Bootstrap-Schritt
+// oder der Webserver behalten also Vorrang.
+//
+// safeLoad statt load: eine Instanz, die ihre Werte per SetEnv oder aus einem
+// FPM-Pool bekommt, hat gar keine .env — load() würfe dort eine
+// InvalidPathException, obwohl längst alles Nötige gesetzt ist.
+//
+// Das Tor prüft bewusst nur $_ENV und nicht env_value(): eine vorhandene .env
+// soll die Container-Umgebung schlagen dürfen, damit die lokal laufende
+// Web-App gegen die entfernte Dev-DB zeigen kann, während daneben die
+// CLI-Migrationen auf der Compose-DB arbeiten. Mit env_value() gewänne hier
+// die Container-Variable und die .env bliebe ungelesen.
 if (empty($_ENV['DB_HOST'])) {
-    \Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->load();
+    \Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
 }
 
 use App\Auth\Permissions;
