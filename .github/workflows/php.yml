@@ -303,23 +303,65 @@ jobs:
   # ─────────────────────────────────────────────
   # 6. Frontend Build – Vite + SCSS Diff-Check
   # ─────────────────────────────────────────────
+  # vite.config.js lädt das UI-Plugin aus dem Nachbar-Repo WebPackages.
+  # Beide Checkouts liegen deshalb nebeneinander unter dem Workspace:
+  # ignis/ und WebPackages/. Denselben Aufbau hat Lex.
   frontend:
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      #
+      # owner und repositories muessen dabeistehen: die Vorgabe stellt ein
+      # Token nur fuer *dieses* Repo aus, gebraucht wird eines fuer das
+      # Nachbar-Repo.
+      #
+      # Kein Rueckfall auf GITHUB_TOKEN: der kann ein fremdes privates Repo
+      # nicht lesen. Ein Rueckfall wuerde den Fehler nur bis zum Checkout
+      # verschleppen, wo er als "gibt es nicht" ankommt statt als "darf ich
+      # nicht".
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: ignis/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build assets (SCSS + Vite)
+        env:
+          EF_PACKAGES_DIR: ${{ github.workspace }}/WebPackages
         run: npm run build
 
       # Failt wenn `npm run build` Änderungen produziert die nicht committed sind —
@@ -351,8 +393,8 @@ jobs:
         with:
           name: frontend-build-diff
           path: |
-            frontend-build-diff.txt
-            frontend-build-diff.patch
+            ignis/frontend-build-diff.txt
+            ignis/frontend-build-diff.patch
           retention-days: 3
 
   # ─────────────────────────────────────────────
