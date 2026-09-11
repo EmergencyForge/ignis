@@ -49,6 +49,7 @@
     "queue:work": "@php cli/intra.php queue:work",
     "queue:failed:list": "@php cli/intra.php queue:failed:list",
     "telemetry:send": "@php cli/intra.php telemetry:send",
+    "phpstan": "@php vendor/bin/phpstan analyse --memory-limit=2G",
     "test": "@php vendor/bin/phpunit",
     "test:unit": "@php vendor/bin/phpunit --testsuite Unit",
     "test:integration": "@php vendor/bin/phpunit --testsuite Integration",
