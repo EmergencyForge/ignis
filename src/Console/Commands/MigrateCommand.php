@@ -36,8 +36,8 @@ final class MigrateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $db   = $_ENV['DB_NAME'] ?? '(unbekannt)';
+        $host = env_value('DB_HOST') ?? 'localhost';
+        $db   = env_value('DB_NAME') ?? '(unbekannt)';
 
         $output->writeln("<info>ıgnıs Datenbank-Migration</info>");
         $output->writeln("  Host:     $host");

@@ -36,21 +36,10 @@ if (is_file($root . '/.env')) {
     }
 }
 
-$env = static function (string $key): ?string {
-    if (isset($_ENV[$key])) {
-        return (string) $_ENV[$key];
-    }
-    if (isset($_SERVER[$key]) && is_string($_SERVER[$key])) {
-        return $_SERVER[$key];
-    }
-    $value = getenv($key);
-    return $value === false ? null : $value;
-};
-
 $db = [];
 $missing = [];
 foreach (['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $required) {
-    $value = $env($required);
+    $value = env_value($required);
     if ($value === null) {
         $missing[] = $required;
     } else {
