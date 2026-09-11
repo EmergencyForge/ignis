@@ -128,7 +128,11 @@ $router->get('/enotf/print/',           [EnotfPrintController::class, 'show'], $
 $router->get('/enotf/print/index',      [EnotfPrintController::class, 'show'], $enotfCrew);
 // Clean-URL: Parameter über $_GET reichen, damit show() weiterhin ?enr= liest.
 $router->get('/enotf/print/{enr:[\w._-]+}', function (\App\Http\Request $request, string $enr) {
-    $_GET['enr'] = $enr;
+    // Legacy-Aufruf /enotf/print/index.php?enr=… landet hier mit
+    // enr="index.php" — dann gilt der Query-Parameter, nicht das Segment.
+    if ($enr !== 'index.php') {
+        $_GET['enr'] = $enr;
+    }
     app(EnotfPrintController::class)->show();
     return \App\Http\Response::empty();
 }, $enotfCrew);

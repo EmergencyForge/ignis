@@ -6,23 +6,16 @@
  * @var array<int,array<string,mixed>>  $users
  * @var string|null                     $success
  * @var string|null                     $error
- * @var \PDO                            $pdo
  */
 
-use App\Helpers\Flash;
 
 $lageId     = (int) $lage['id'];
 $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer']);
+
+$layout = 'admin';
+$bodyId = 'manv-edit';
+$bodyPage = 'edivi';
 ?>
-<!DOCTYPE html>
-<html lang="de">
-
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" id="manv-edit" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-6">
@@ -33,7 +26,6 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
                 <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
@@ -154,7 +146,6 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         document.getElementById('lna_mitarbeiter_id').addEventListener('change', function() {
@@ -167,6 +158,3 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
             document.getElementById('orgl_name').value = selectedOption.value ? selectedOption.dataset.name : '';
         });
     </script>
-</body>
-
-</html>

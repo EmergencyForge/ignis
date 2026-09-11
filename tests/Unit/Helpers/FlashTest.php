@@ -135,11 +135,75 @@ class FlashTest extends TestCase
     }
 
     #[Test]
-    public function legacySetEscapesParameters(): void
+    public function legacySetTreatsUnknownKeysOfPlainTypesAsText(): void
+    {
+        Flash::set('error', 'Antrag nicht gefunden.');
+
+        $flash = Flash::get();
+        $this->assertSame('danger', $flash['type']);
+        $this->assertSame('Fehler!', $flash['title']);
+        $this->assertSame('Antrag nicht gefunden.', $flash['text']);
+    }
+
+    #[Test]
+    public function legacyTextsCarryNoMarkup(): void
+    {
+        Flash::set('user', 'new-password', ['username' => 'Max', 'pass' => 'abc123']);
+        $this->assertStringNotContainsString('<', Flash::get()['text']);
+
+        Flash::set('warning', 'no-fullname');
+        $this->assertStringNotContainsString('<', Flash::get()['text']);
+    }
+
+    #[Test]
+    public function renderEscapesParametersAndText(): void
     {
         Flash::set('user', 'new-password', ['username' => '<script>alert(1)</script>', 'pass' => 'safe']);
 
-        $flash = Flash::get();
-        $this->assertStringNotContainsString('<script>', $flash['text']);
+        $html = $this->render();
+
+        $this->assertStringNotContainsString('<script>', $html);
+        $this->assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $html);
+    }
+
+    #[Test]
+    public function renderWritesTemplateAndNoscriptFallback(): void
+    {
+        Flash::success('Gespeichert & fertig', 'Titel "A"');
+
+        $html = $this->render();
+
+        $this->assertStringContainsString(
+            '<template data-ignis-flash data-variant="success" data-title="Titel &quot;A&quot;"><div>Gespeichert &amp; fertig</div></template>',
+            $html,
+        );
+        $this->assertStringContainsString('<noscript><div class="ignis-alert ignis-alert--success mb-4" id="flash-alert" role="status">', $html);
+        $this->assertStringContainsString('<div class="ignis-alert__title">Titel &quot;A&quot;</div>Gespeichert &amp; fertig</div>', $html);
+        $this->assertArrayNotHasKey('flash', $_SESSION, 'render() verbraucht die Meldung.');
+    }
+
+    #[Test]
+    public function renderMarksErrorsAsAlert(): void
+    {
+        Flash::error('Kaputt');
+
+        $html = $this->render();
+
+        $this->assertStringContainsString('data-variant="danger"', $html);
+        $this->assertStringContainsString('ignis-alert--danger mb-4" id="flash-alert" role="alert"', $html);
+    }
+
+    #[Test]
+    public function renderWritesNothingWithoutFlash(): void
+    {
+        $this->assertSame('', $this->render());
+    }
+
+    private function render(): string
+    {
+        ob_start();
+        Flash::render();
+
+        return (string) ob_get_clean();
     }
 }

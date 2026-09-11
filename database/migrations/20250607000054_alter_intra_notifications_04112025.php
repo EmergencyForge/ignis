@@ -5,22 +5,31 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_notifications_04112025.php
- * Spiegelung:     database/legacy/alter_intra_notifications_04112025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Erweitert den Kommentar der Spalte intra_notifications.type um den neuen
+ * Benachrichtigungstyp "system". Typ und Länge der Spalte bleiben unverändert
+ * (varchar(50) NOT NULL).
  */
 class AlterIntraNotifications04112025 extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_notifications_04112025.php';
+        $this->table('intra_notifications')
+            ->changeColumn('type', 'string', [
+                'limit'   => 50,
+                'null'    => false,
+                'comment' => 'notification type: antrag, protokoll, dokument, system',
+            ])
+            ->update();
+    }
+
+    public function down(): void
+    {
+        $this->table('intra_notifications')
+            ->changeColumn('type', 'string', [
+                'limit'   => 50,
+                'null'    => false,
+                'comment' => 'notification type: antrag, protokoll, dokument',
+            ])
+            ->update();
     }
 }

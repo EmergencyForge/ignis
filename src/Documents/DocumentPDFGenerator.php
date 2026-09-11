@@ -2,20 +2,18 @@
 
 namespace App\Documents;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
 class DocumentPDFGenerator
 {
-    private PDO $pdo;
     private DocumentRenderer $renderer;
     private string $storagePath;
 
-    public function __construct(PDO $pdo, DocumentRenderer $renderer, string $storagePath = __DIR__ . '/../../storage/documents')
+    public function __construct(?DocumentRenderer $renderer = null, string $storagePath = __DIR__ . '/../../storage/documents')
     {
-        $this->pdo = $pdo;
-        $this->renderer = $renderer;
+        $this->renderer = $renderer ?? new DocumentRenderer();
         $this->storagePath = $storagePath;
 
         if (!is_dir($this->storagePath)) {
@@ -33,21 +31,17 @@ class DocumentPDFGenerator
         $html = $this->renderer->renderDocument($dbId);
 
         // Hole die docid für den Dateinamen
-        $stmt = $this->pdo->prepare("
-        SELECT d.docid, t.template_file 
-        FROM intra_mitarbeiter_dokumente d
-        JOIN intra_dokument_templates t ON d.template_id = t.id
-        WHERE d.id = :id
-        ");
-        $stmt->execute(['id' => $dbId]);
-        $docInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        $docInfo = Capsule::table('intra_mitarbeiter_dokumente as d')
+            ->join('intra_dokument_templates as t', 'd.template_id', '=', 't.id')
+            ->where('d.id', $dbId)
+            ->first(['d.docid', 't.template_file']);
 
         if (!$docInfo) {
             throw new \Exception("Dokument mit ID {$dbId} nicht gefunden");
         }
 
-        $docid = $docInfo['docid'];
-        $templateFile = $docInfo['template_file'];
+        $docid = $docInfo->docid;
+        $templateFile = $docInfo->template_file;
 
         // Generiere Dateiname basierend auf docid
         $filename = $this->generateFilename($docid);
@@ -139,16 +133,12 @@ class DocumentPDFGenerator
      */
     private function updateDocumentPath(int $dbId, string $filename): void
     {
-        $stmt = $this->pdo->prepare("
-            UPDATE intra_mitarbeiter_dokumente 
-            SET pdf_path = :pdf_path, 
-                pdf_generated_at = CURRENT_TIMESTAMP 
-            WHERE id = :id
-        ");
-        $stmt->execute([
-            'pdf_path' => $filename,
-            'id' => $dbId
-        ]);
+        Capsule::table('intra_mitarbeiter_dokumente')
+            ->where('id', $dbId)
+            ->update([
+                'pdf_path' => $filename,
+                'pdf_generated_at' => Capsule::raw('CURRENT_TIMESTAMP'),
+            ]);
     }
 
     /**
@@ -157,11 +147,9 @@ class DocumentPDFGenerator
      */
     public function getPDF(int $dbId): ?string
     {
-        $stmt = $this->pdo->prepare("
-            SELECT pdf_path FROM intra_mitarbeiter_dokumente WHERE id = :id
-        ");
-        $stmt->execute(['id' => $dbId]);
-        $pdfPath = $stmt->fetchColumn();
+        $pdfPath = Capsule::table('intra_mitarbeiter_dokumente')
+            ->where('id', $dbId)
+            ->value('pdf_path');
 
         $fullPath = $this->storagePath . DIRECTORY_SEPARATOR . $pdfPath;
 
@@ -205,11 +193,9 @@ class DocumentPDFGenerator
      */
     public function regeneratePDF(int $dbId): string
     {
-        $stmt = $this->pdo->prepare("
-            SELECT pdf_path FROM intra_mitarbeiter_dokumente WHERE id = :id
-        ");
-        $stmt->execute(['id' => $dbId]);
-        $oldPath = $stmt->fetchColumn();
+        $oldPath = Capsule::table('intra_mitarbeiter_dokumente')
+            ->where('id', $dbId)
+            ->value('pdf_path');
 
         // Lösche alte PDF falls vorhanden
         if ($oldPath) {
@@ -228,11 +214,9 @@ class DocumentPDFGenerator
      */
     public function deletePDF(int $dbId): bool
     {
-        $stmt = $this->pdo->prepare("
-            SELECT pdf_path FROM intra_mitarbeiter_dokumente WHERE id = :id
-        ");
-        $stmt->execute(['id' => $dbId]);
-        $pdfPath = $stmt->fetchColumn();
+        $pdfPath = Capsule::table('intra_mitarbeiter_dokumente')
+            ->where('id', $dbId)
+            ->value('pdf_path');
 
         if ($pdfPath) {
             $fullPath = $this->storagePath . DIRECTORY_SEPARATOR . $pdfPath;
@@ -240,12 +224,12 @@ class DocumentPDFGenerator
                 unlink($fullPath);
             }
 
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_mitarbeiter_dokumente 
-                SET pdf_path = NULL, pdf_generated_at = NULL 
-                WHERE id = :id
-            ");
-            $stmt->execute(['id' => $dbId]);
+            Capsule::table('intra_mitarbeiter_dokumente')
+                ->where('id', $dbId)
+                ->update([
+                    'pdf_path' => null,
+                    'pdf_generated_at' => null,
+                ]);
 
             return true;
         }

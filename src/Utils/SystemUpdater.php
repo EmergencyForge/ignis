@@ -2940,11 +2940,11 @@ class SystemUpdater
 
         $html = [];
         $html[] = "<div class='diagnostic-report'>";
-        $html[] = "  <div class='alert alert-{$severityClass}'>";
+        $html[] = "  <div class='ignis-alert ignis-alert--{$severityClass}'>";
         $html[] = "    <h4>{$severityIcon} Update-Diagnose</h4>";
-        $html[] = "    <div class='row mb-2'>";
-        $html[] = "      <div class='col-6'><strong>Schweregrad:</strong> " . strtoupper($diagnostics['severity']) . "</div>";
-        $html[] = "      <div class='col-6'><strong>Zeitpunkt:</strong> {$diagnostics['timestamp']}</div>";
+        $html[] = "    <div class='grid grid-cols-2 gap-3 mb-2'>";
+        $html[] = "      <div><strong>Schweregrad:</strong> " . strtoupper($diagnostics['severity']) . "</div>";
+        $html[] = "      <div><strong>Zeitpunkt:</strong> {$diagnostics['timestamp']}</div>";
         $html[] = "    </div>";
 
         if ($diagnostics['error_analysis']['has_error']) {
@@ -2958,29 +2958,29 @@ class SystemUpdater
         $html[] = "  </div>";
 
         // System Status
-        $html[] = "  <div class='card mb-3'>";
-        $html[] = "    <div class='card-header'><strong>System-Status</strong></div>";
-        $html[] = "    <div class='card-body'>";
-        $html[] = "      <div class='row'>";
-        $html[] = "        <div class='col-md-4'>";
+        $html[] = "  <div class='ignis-card mb-3'>";
+        $html[] = "    <div class='ignis-card__header'><strong>System-Status</strong></div>";
+        $html[] = "    <div class='ignis-card__body'>";
+        $html[] = "      <div class='grid grid-cols-1 gap-3 md:grid-cols-3'>";
+        $html[] = "        <div>";
         $html[] = "          <strong>PHP:</strong> {$diagnostics['system_info']['php_version']}<br>";
-        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['system_info']['status']) . "'>{$diagnostics['system_info']['status']}</small>";
+        $html[] = "          <span class='ignis-chip ignis-chip--" . $this->getStatusClass($diagnostics['system_info']['status']) . "'>{$diagnostics['system_info']['status']}</span>";
         $html[] = "        </div>";
-        $html[] = "        <div class='col-md-4'>";
+        $html[] = "        <div>";
         $html[] = "          <strong>Speicher:</strong> " . ($diagnostics['disk_space']['free_space_mb'] ?? 'unbekannt') . " MB<br>";
-        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['disk_space']['status']) . "'>{$diagnostics['disk_space']['status']}</small>";
+        $html[] = "          <span class='ignis-chip ignis-chip--" . $this->getStatusClass($diagnostics['disk_space']['status']) . "'>{$diagnostics['disk_space']['status']}</span>";
         $html[] = "        </div>";
-        $html[] = "        <div class='col-md-4'>";
+        $html[] = "        <div>";
         $html[] = "          <strong>Netzwerk:</strong> GitHub API<br>";
-        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['network']['status']) . "'>{$diagnostics['network']['status']}</small>";
+        $html[] = "          <span class='ignis-chip ignis-chip--" . $this->getStatusClass($diagnostics['network']['status']) . "'>{$diagnostics['network']['status']}</span>";
         $html[] = "        </div>";
         $html[] = "      </div>";
-        $html[] = "      <div class='row mt-2'>";
-        $html[] = "        <div class='col-md-4'>";
+        $html[] = "      <div class='grid grid-cols-1 gap-3 md:grid-cols-3 mt-2'>";
+        $html[] = "        <div>";
         $html[] = "          <strong>Berechtigungen:</strong><br>";
-        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['permissions']['status']) . "'>{$diagnostics['permissions']['status']}</small>";
+        $html[] = "          <span class='ignis-chip ignis-chip--" . $this->getStatusClass($diagnostics['permissions']['status']) . "'>{$diagnostics['permissions']['status']}</span>";
         $html[] = "        </div>";
-        $html[] = "        <div class='col-md-4'>";
+        $html[] = "        <div>";
         $html[] = "          <strong>Vendor:</strong><br>";
         $html[] = "          <small>" . ($diagnostics['dependencies']['vendor_directory_exists'] ? '✓ vorhanden' : '✗ fehlt') . "</small>";
         $html[] = "        </div>";
@@ -3035,16 +3035,16 @@ class SystemUpdater
         }
 
         if (!empty($problems)) {
-            $html[] = "  <div class='card mb-3'>";
-            $html[] = "    <div class='card-header bg-warning'><strong>⚠️ Problembereiche</strong></div>";
-            $html[] = "    <div class='card-body'>";
+            $html[] = "  <div class='ignis-card mb-3'>";
+            $html[] = "    <div class='ignis-card__header'><strong>⚠️ Problembereiche</strong></div>";
+            $html[] = "    <div class='ignis-card__body'>";
             $html[] = "      <ul class='mb-0'>";
             foreach ($problems as $problem) {
                 $html[] = "        <li>";
                 $html[] = "          <strong>{$problem['title']}:</strong> ";
-                $html[] = "          <span class='badge badge-" . $this->getStatusClass($problem['status']) . "'>{$problem['status']}</span>";
+                $html[] = "          <span class='ignis-chip ignis-chip--" . $this->getStatusClass($problem['status']) . "'>{$problem['status']}</span>";
                 if ($problem['details']) {
-                    $html[] = "          <br><small class='text-muted'>{$problem['details']}</small>";
+                    $html[] = "          <br><small class='text-gray-400'>{$problem['details']}</small>";
                 }
                 $html[] = "        </li>";
             }
@@ -3052,18 +3052,18 @@ class SystemUpdater
             $html[] = "    </div>";
             $html[] = "  </div>";
         } else {
-            $html[] = "  <div class='alert alert-success'>";
+            $html[] = "  <div class='ignis-alert ignis-alert--success'>";
             $html[] = "    ✓ Keine kritischen Probleme erkannt.";
             $html[] = "  </div>";
         }
 
         // Support Info
-        $html[] = "  <div class='card'>";
-        $html[] = "    <div class='card-body text-center'>";
+        $html[] = "  <div class='ignis-card'>";
+        $html[] = "    <div class='ignis-card__body text-center'>";
         $html[] = "      <p class='mb-2'><strong>Diagnose wurde gespeichert.</strong></p>";
         $html[] = "      <p class='mb-2'>Bitte kontaktieren Sie den Support mit diesem Bericht.</p>";
-        $html[] = "      <button class='btn btn-primary btn-sm' onclick='copyDiagnosticReport()'>📋 In Zwischenablage kopieren</button>";
-        $html[] = "      <button class='btn btn-secondary btn-sm' onclick='downloadDiagnosticReport()'>💾 Als Datei herunterladen</button>";
+        $html[] = "      <button class='ignis-btn ignis-btn--primary ignis-btn--sm' onclick='copyDiagnosticReport()'>📋 In Zwischenablage kopieren</button>";
+        $html[] = "      <button class='ignis-btn ignis-btn--ghost ignis-btn--sm' onclick='downloadDiagnosticReport()'>💾 Als Datei herunterladen</button>";
         $html[] = "    </div>";
         $html[] = "  </div>";
 

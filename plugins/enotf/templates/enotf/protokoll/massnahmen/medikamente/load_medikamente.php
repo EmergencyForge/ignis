@@ -1,10 +1,10 @@
 <?php
 /**
  * View: enotf/protokoll/massnahmen/medikamente/load_medikamente.php
- *
- * @var \PDO $pdo
  */
 
+
+use Plugin\Enotf\Models\Edivi;
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -17,11 +17,7 @@ if (!isset($_POST['enr'])) {
 $enr = $_POST['enr'];
 
 try {
-    $query = "SELECT medis FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['enr' => $enr]);
-
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $result = Edivi::where('enr', $enr)->first(['medis']);
 
     if (!$result) {
         echo json_encode([]);

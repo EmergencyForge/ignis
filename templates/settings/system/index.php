@@ -11,7 +11,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use App\Utils\SystemUpdater;
 
 $SITE_TITLE = 'System';
@@ -85,17 +84,10 @@ $cards = [
         'desc' => 'Geplante Jobs, manuell ausführen, History.',
     ],
 ];
+
+$layout = 'admin';
+$bodyId = 'settings-system';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="settings-system">
-    <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header">
@@ -106,7 +98,6 @@ $cards = [
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <div class="twplus-settings-layout">
                 <?php include __DIR__ . '/../../../assets/components/settings/system/_navigation.php'; ?>
@@ -154,8 +145,3 @@ $cards = [
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-
-</html>

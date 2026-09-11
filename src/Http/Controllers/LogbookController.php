@@ -165,7 +165,7 @@ class LogbookController extends Controller
         $fahrt->save();
 
         if ($userId > 0) {
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $userId,
                 'Fahrtenbuch-Eintrag erstellt',
                 "Fahrzeug: $vehicleIdentifier, Fahrer: {$data['fahrer_name']}, Typ: {$data['fahrttyp']}",
@@ -232,7 +232,7 @@ class LogbookController extends Controller
 
         $userId = (int) ($_SESSION['userid'] ?? 0);
         if ($userId > 0) {
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $userId,
                 'Fahrtenbuch-Eintrag bearbeitet',
                 "ID: {$data['id']}, Fahrzeug: $vehicleIdentifier",
@@ -264,7 +264,7 @@ class LogbookController extends Controller
 
         LogbookEntry::query()->where('id', $id)->delete();
 
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Fahrtenbuch-Eintrag gelöscht',
             'ID: ' . $id,

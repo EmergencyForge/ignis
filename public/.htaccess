@@ -1,0 +1,23 @@
+# Docroot von ıgnıs. Der Webserver zeigt auf dieses Verzeichnis; Quellcode,
+# Plugins, storage/ und die Konfiguration liegen eine Ebene höher und sind
+# nur über den Front-Controller (index.php) erreichbar.
+
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Links auf "public/assets/..." aus der Zeit vor dem Umzug (ältere
+    # Templates, Fremd-Plugins) zeigen jetzt doppelt auf dieses Verzeichnis.
+    # Präfix abschneiden, dann greift die normale Datei-Auslieferung.
+    RewriteRule ^public/(.+)$ $1 [L]
+
+    # Echte Dateien (gebaute Assets, cron.php) liefert Apache direkt aus.
+    # Alles andere geht an den Front-Controller. Eine ".php"-Regel wie in
+    # der alten Root-.htaccess braucht es nicht mehr: index.php streift
+    # das Suffix selbst ab und leitet auf die saubere URL um.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>

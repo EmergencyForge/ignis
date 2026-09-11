@@ -33,7 +33,7 @@ if (!isset($useGlobalBind)) {
     <div class="flex items-center justify-between mb-3">
         <h6 class="mb-0">Taktisches Zeichen</h6>
         <div class="flex gap-2">
-            <select class="form-select form-select-sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
+            <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
             <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
@@ -58,7 +58,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>grundzeichen" class="ignis-field__label">Grundzeichen</label>
-        <select class="form-select" name="grundzeichen" id="<?= $prefix ?>grundzeichen">
+        <select class="ignis-input" name="grundzeichen" id="<?= $prefix ?>grundzeichen">
             <option value="">-- Kein Zeichen --</option>
             <option value="abrollbehaelter">Abrollbehälter</option>
             <option value="amphibienfahrzeug">Amphibienfahrzeug</option>
@@ -93,7 +93,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>organisation" class="ignis-field__label">Organisation</label>
-        <select class="form-select" name="organisation" id="<?= $prefix ?>organisation">
+        <select class="ignis-input" name="organisation" id="<?= $prefix ?>organisation">
             <option value="">-- Keine --</option>
             <option value="bundeswehr">Bundeswehr</option>
             <option value="feuerwehr">Feuerwehr</option>
@@ -108,7 +108,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>fachaufgabe" class="ignis-field__label">Fachaufgabe</label>
-        <select class="form-select" name="fachaufgabe" id="<?= $prefix ?>fachaufgabe">
+        <select class="ignis-input" name="fachaufgabe" id="<?= $prefix ?>fachaufgabe">
             <option value="">-- Keine --</option>
             <option value="abwehr-wassergefahren">Abwehr von Wassergefahren</option>
             <option value="aerztliche-versorgung">Ärztliche Versorgung</option>
@@ -151,7 +151,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>einheit" class="ignis-field__label">Einheit</label>
-        <select class="form-select" name="einheit" id="<?= $prefix ?>einheit">
+        <select class="ignis-input" name="einheit" id="<?= $prefix ?>einheit">
             <option value="">-- Keine --</option>
             <option value="trupp">Trupp</option>
             <option value="staffel">Staffel</option>
@@ -165,7 +165,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>symbol" class="ignis-field__label">Symbol</label>
-        <select class="form-select" name="symbol" id="<?= $prefix ?>symbol">
+        <select class="ignis-input" name="symbol" id="<?= $prefix ?>symbol">
             <option value="">-- Kein Symbol --</option>
             <option value="abc">ABC</option>
             <option value="angriff">Angriff</option>

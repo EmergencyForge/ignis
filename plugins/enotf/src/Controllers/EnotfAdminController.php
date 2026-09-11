@@ -64,13 +64,13 @@ class EnotfAdminController extends Controller
             ->update(['hidden' => 1, 'protokoll_status' => 4]);
 
         Flash::set('edivi', 'deleted');
-        $auditLogger = new AuditLogger($this->pdo);
+        $auditLogger = new AuditLogger();
         $auditLogger->log($userid, 'Protokoll gelöscht [ID: ' . $id . ']', null, 'eNOTF', 1);
 
         // Notification für Protokoll-Autor
         if ($protocol && !empty($protocol->pfname)) {
             try {
-                $notificationManager = new NotificationManager($this->pdo);
+                $notificationManager = new NotificationManager();
                 $authorUserId = $notificationManager->getUserIdByFullname($protocol->pfname);
                 if ($authorUserId) {
                     $notificationManager->create(

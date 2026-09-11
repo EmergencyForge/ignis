@@ -3,7 +3,6 @@
  * View: eNOTF Create (Protokoll-Typ wählen)
  *
  * @var string $pinEnabled
- * @var \PDO   $pdo
  */
 
 use Plugin\Enotf\Helpers\EnotfUrl;

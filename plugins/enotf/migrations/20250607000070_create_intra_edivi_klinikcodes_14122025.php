@@ -5,22 +5,31 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_edivi_klinikcodes_14122025.php
- * Spiegelung:     database/legacy/create_intra_edivi_klinikcodes_14122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Klinik-Freigabecodes: kurzlebige sechsstellige Codes, mit denen die
+ * aufnehmende Klinik ein Protokoll (`enr`) einsehen kann. Codes sind
+ * eindeutig und laufen über `expires_at` ab.
  */
 class CreateIntraEdiviKlinikcodes14122025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_edivi_klinikcodes_14122025.php';
+        if ($this->hasTable('intra_edivi_klinikcodes')) {
+            return;
+        }
+
+        $this->table('intra_edivi_klinikcodes', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('enr',        'string',   ['limit' => 255, 'null' => false])
+            ->addColumn('code',       'string',   ['limit' => 6, 'null' => false])
+            ->addColumn('created_at', 'datetime', ['null' => false, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addColumn('expires_at', 'datetime', ['null' => false])
+            ->addIndex(['code'],       ['unique' => true, 'name' => 'code'])
+            ->addIndex(['enr'],        ['name' => 'enr'])
+            ->addIndex(['expires_at'], ['name' => 'expires_at'])
+            ->create();
     }
 }

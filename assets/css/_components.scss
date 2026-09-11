@@ -1,0 +1,987 @@
+// _components.scss — Bausteine des Redesigns (I6)
+//
+// Die vier Button-Stufen, die Semantik-Aliase für Chips und Alerts und die
+// Tabellen ohne DataTables. Die Grundformen (.ignis-btn, .ignis-chip,
+// .ignis-alert, .ignis-pagination) stehen weiter in ui.scss; diese Datei
+// wird am Ende von ui.scss geladen (meta.load-css), damit ihre Regeln bei
+// gleicher Spezifität gewinnen. Nur Tokens, keine Farbwerte
+// (tests/Unit/Assets/ThemeTokensTest.php); jeder Modifier im Markup muss im
+// gebauten CSS stehen (tests/Unit/Assets/ComponentClassTest.php).
+//
+// Farbe auf Text: Weiß nur auf Akzent- und Bedeutungsflächen (--on-accent,
+// --white auf --ok/--warn/--danger), sonst --text, damit der helle Satz
+// lesbar bleibt.
+
+// =====================================================
+// Buttons: primary | secondary | ghost | danger, dazu --sm und --icon
+// (beide in ui.scss). Die alten Modifier (--accent, --soft-*, --outline-*,
+// --ghost-danger, --success, --warning) bleiben in ui.scss definiert.
+// =====================================================
+
+.ignis-btn--primary {
+  color: var(--on-accent);
+}
+
+.ignis-btn--accent {
+  color: var(--on-accent);
+}
+
+.ignis-btn--secondary {
+  background: var(--fill-3);
+  color: var(--text);
+  border-color: transparent;
+
+  &:hover:not(:disabled):not(.is-loading) {
+    background: var(--fill-4);
+    color: var(--text);
+    transform: none;
+    box-shadow: none;
+  }
+
+  &:active:not(:disabled):not(.is-loading) {
+    background: var(--fill-3);
+  }
+}
+
+.ignis-btn--ghost {
+  &:hover:not(:disabled):not(.is-loading) {
+    color: var(--text);
+  }
+}
+
+.ignis-btn--info {
+  background: var(--info-soft);
+  color: var(--info);
+
+  &:hover:not(:disabled):not(.is-loading) {
+    background: rgba(var(--info-rgb), 0.25);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// =====================================================
+// Chips: ok | warn | danger | info, mit --dot als Punkt vor dem Text.
+// --success/--warning bleiben als Aliase (ui.scss), --status/--online/--offline/--away sind weg.
+// =====================================================
+
+.ignis-chip--ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.ignis-chip--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.ignis-chip--secondary {
+  background: var(--fill-2);
+  color: var(--text-2);
+}
+
+.ignis-chip--dot {
+  gap: 0.45em;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+// Chip als Schalter: ein <label> mit Checkbox, angehakt bekommt es die Akzentfläche.
+.ignis-chip--toggle {
+  cursor: pointer;
+
+  input {
+    margin: 0 0.35em 0 0;
+    accent-color: var(--accent);
+  }
+
+  &:has(input:checked) {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+
+// =====================================================
+// Alerts inline: ok | warn | error als Aliase von success | warning | danger
+// =====================================================
+
+.ignis-alert--ok {
+  background: var(--ok-soft);
+  border-left-color: var(--ok);
+
+  .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--ok); }
+}
+
+.ignis-alert--warn {
+  background: var(--warn-soft);
+  border-left-color: var(--warn);
+
+  .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--warn); }
+}
+
+.ignis-alert--error {
+  background: var(--danger-soft);
+  border-left-color: var(--danger);
+
+  .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--danger); }
+}
+
+// Ein Alert mit `hidden` bleibt weg, obwohl .ignis-alert display: flex setzt
+// (der Hosting-Hinweis auf dashboard.php wird per Skript eingeblendet).
+.ignis-alert[hidden] {
+  display: none;
+}
+
+// =====================================================
+// Pagination: aktiver Eintrag auf Akzent mit --on-accent, Hover in Textfarbe
+// =====================================================
+
+.ignis-pagination__item {
+  &:hover:not(:disabled):not(.is-active) {
+    color: var(--text);
+  }
+
+  &.is-active {
+    color: var(--on-accent);
+  }
+}
+
+// =====================================================
+// Tabellen: klebender Kopf, Zeilenaktionen beim Überfahren, Zahlen rechts
+// in Tabellenziffern, Kennzeichen in Mono, kein Zebra.
+// =====================================================
+
+table.ignis-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.6rem 0.9rem;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.055em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--fill-2);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 120ms ease;
+
+    &:hover { background: var(--fill-1); }
+    &:last-child td { border-bottom: 0; }
+    &.is-muted td { color: var(--text-3); }
+  }
+
+  .ignis-table__num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ignis-table__actions {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  a:not(.ignis-btn):not(.ignis-chip) {
+    color: inherit;
+  }
+}
+
+.ignis-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+
+  i {
+    font-size: 0.8em;
+    opacity: 0.45;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text);
+    text-decoration: none;
+    outline: none;
+
+    i { opacity: 0.8; }
+  }
+
+  &.is-asc,
+  &.is-desc {
+    color: var(--text);
+
+    i {
+      color: var(--accent);
+      opacity: 1;
+    }
+  }
+}
+
+.ignis-row-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+
+  tr:hover &,
+  tr:focus-within & {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
+}
+
+.ignis-mono {
+  font-family: var(--mono);
+  font-size: 0.95em;
+  letter-spacing: 0.01em;
+}
+
+.ignis-table-empty {
+  padding: 2rem 1rem;
+  color: var(--text-3);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+// Werkzeugleiste über der Tabelle: Suchfeld als GET-Formular, Filter als Links.
+.ignis-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+
+  &__search {
+    position: relative;
+    flex: 1 1 14rem;
+    max-width: 22rem;
+
+    > i {
+      position: absolute;
+      top: 50%;
+      left: 0.7rem;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 0.8rem;
+      pointer-events: none;
+    }
+
+    .ignis-input {
+      padding-left: 2rem;
+    }
+  }
+
+  &__spacer { flex: 1 1 auto; }
+
+  // Beschriftetes Feld in der Leiste (Fahrzeug, Zeitraum): Label über dem
+  // Feld, das Feld so breit wie sein Inhalt statt der vollen Breite.
+  &__field {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    .ignis-input { width: auto; min-width: 8rem; }
+  }
+
+  .ignis-field__label {
+    margin-bottom: 0.2rem;
+  }
+}
+
+// Kennzahl-Kachel als Link zur Liste (Dashboard): keine Unterstreichung,
+// Fläche beim Überfahren, der Pfeil im Label zeigt den Weg.
+a.twplus-stats__item {
+  color: inherit;
+  text-decoration: none;
+  transition: background 120ms ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--fill-1);
+    text-decoration: none;
+    outline: none;
+  }
+
+  .twplus-stats__arrow {
+    margin-left: 0.25rem;
+    color: var(--text-3);
+    font-size: 0.7em;
+  }
+}
+
+.ignis-filter-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  background: var(--fill-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  // Links für Filter über den Server, Knöpfe für Filter im Browser
+  // (Konfiguration nach Kategorie, Fehlerprotokoll nach Stufe).
+  a,
+  button {
+    padding: 0.3rem 0.7rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover { background: var(--fill-2); color: var(--text); }
+
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    &.is-active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+  }
+}
+
+.ignis-list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.ignis-list-meta {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 0.78rem;
+}
+
+// =====================================================
+// Formulare im Drawer (assets/js/ui/drawer-form.js): breiter als der
+// Standard-Drawer (Konzept: 520 px), der Seitenkopf der geladenen Ansicht
+// wird zum Drawer-Titel, die Karte darin verliert Rahmen und Ränder.
+// Als Seite ist .ignis-form-card eine Karte mit Fußzeile für die Knöpfe.
+// =====================================================
+
+.ignis-form-card {
+  max-width: 44rem;
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.ignis-drawer--form {
+  width: min(520px, 100vw);
+
+  .ignis-drawer__body {
+    padding: 1rem 1.25rem 2rem;
+    overflow-y: auto;
+  }
+
+  .ignis-fragment {
+    .ignis-breadcrumb,
+    .twplus-page-header { display: none; }
+    .twplus-page { padding: 0; }
+    .ignis-form-card { max-width: none; border: 0; background: transparent; box-shadow: none; }
+    .ignis-card__body { padding: 0; }
+    .ignis-form-card__footer { padding: 1rem 0 0; background: transparent; }
+  }
+}
+
+// Pflichtstern und Fehlertext auch ohne .ignis-field-Hülle (die Anlage-
+// Formulare setzen die Labels direkt).
+.ignis-field__required {
+  margin-left: 0.15rem;
+  color: var(--accent);
+}
+
+.ignis-field__error {
+  margin-top: 0.25rem;
+  color: var(--danger);
+  font-size: 0.78rem;
+}
+
+// =====================================================
+// Posteingang (App\Notifications\NotificationManager): Popover der
+// Glocke in der Topbar, Seite /inbox mit Tagesgruppen. Ungelesen ist ein
+// Punkt in Akzentfarbe vor dem Eintrag.
+// =====================================================
+
+.ignis-inbox-popover {
+  width: 380px;
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100vh - var(--topbar-h) - 1rem);
+  overflow-y: auto;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem 0.3rem;
+
+    b { color: var(--text); font-size: var(--fs-base); }
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.2rem 0.6rem 0.3rem;
+
+    form { display: contents; }
+  }
+
+  &__empty,
+  &__muted {
+    margin: 0;
+    padding: 0.6rem;
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+  }
+
+  &__muted { padding: 0; }
+
+  &__loading {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem 0.6rem;
+
+    .ignis-skeleton { display: block; height: 0.85em; border-radius: 999px; }
+  }
+
+  &__item {
+    align-items: flex-start;
+    white-space: normal;
+
+    > i { margin-top: 0.2rem; }
+    .ignis-inbox__dot { margin-top: 0.45rem; }
+    &.is-unread .ignis-inbox__dot { background: var(--accent); }
+  }
+}
+
+.ignis-menu__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible { text-decoration: underline; outline: none; }
+}
+
+.ignis-inbox {
+  &__group + &__group { border-top: 1px solid var(--border); }
+
+  &__day {
+    margin: 0;
+    padding: 0.6rem 1rem 0.3rem;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__list { margin: 0; padding: 0; list-style: none; }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-right: 0.5rem;
+    border-top: 1px solid var(--fill-2);
+
+    &:hover { background: var(--fill-1); }
+    &.is-unread .ignis-inbox__dot { background: var(--accent); }
+    &.is-unread .ignis-inbox__text b { color: var(--text); }
+  }
+
+  &__link {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.6rem 1rem;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover { text-decoration: none; }
+  }
+
+  &__dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fill-3);
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-md);
+    background: var(--fill-2);
+    color: var(--text-2);
+  }
+
+  &__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.1rem;
+
+    b { color: var(--text-2); font-weight: 600; overflow-wrap: anywhere; }
+    span { color: var(--text-3); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+    small { color: var(--text-3); font-size: var(--fs-xs); }
+  }
+
+  &__meta {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__when {
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__mark { flex: none; }
+
+  @media (max-width: 700px) {
+    &__meta .ignis-chip { display: none; }
+  }
+}
+
+// =====================================================
+// Arbeitsbereich für Listen (assets/js/ui/workbench.js): Liste links,
+// Vorschau der gewählten Zeile rechts, Aktionsleiste über der Liste,
+// sobald Zeilen angehakt sind. Unter 1100 px fällt die Vorschau weg und
+// ein Klick auf die Zeile öffnet die Seite.
+// =====================================================
+
+.ignis-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1rem;
+  align-items: start;
+
+  .ignis-bulkbar { grid-column: 1 / -1; }
+
+  @media (max-width: 1099px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ignis-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+
+  &[hidden] { display: none; }
+  &__spacer { flex: 1; }
+  &__count b { color: var(--text); }
+  &__group { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .ignis-input { width: auto; min-width: 8rem; }
+}
+
+.ignis-preview {
+  position: sticky;
+  top: calc(var(--topbar-h) + 1rem);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+
+  @media (max-width: 1099px) { display: none; }
+
+  &__empty {
+    padding: 1.75rem 0.5rem;
+    color: var(--text-3);
+    text-align: center;
+    line-height: 1.5;
+
+    i { display: block; margin-bottom: 0.5rem; font-size: 1.4rem; }
+    b { display: block; margin-bottom: 0.2rem; color: var(--text-2); }
+    kbd { padding: 0 0.3rem; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 0.85em; }
+  }
+
+  &__loading {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.25rem 0;
+
+    .ignis-skeleton { display: block; height: 0.85em; border-radius: 999px; }
+  }
+
+  &__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.6rem;
+    font-size: var(--fs-md);
+    font-weight: 700;
+    color: var(--text);
+
+    small { color: var(--text-3); font-weight: 400; font-size: var(--fs-sm); }
+  }
+
+  &__chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem; }
+
+  &__alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-md);
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-weight: 600;
+
+    i { margin-top: 0.15rem; }
+  }
+
+  &__dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.35rem 0.75rem;
+    margin: 0;
+
+    dt { color: var(--text-3); }
+    dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  }
+
+  &__section {
+    margin-top: 0.9rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--fill-2);
+
+    h4 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0 0 0.35rem;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+
+      a { font-weight: 500; letter-spacing: 0; text-transform: none; }
+    }
+  }
+
+  &__muted { color: var(--text-3); }
+  p.ignis-preview__muted { margin: 0; }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0;
+
+      .ignis-preview__muted { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
+  }
+
+  &__tz {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.5rem;
+  }
+
+  &__tz-svg {
+    display: inline-flex;
+    flex: none;
+    width: 56px;
+    height: 56px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--white);
+
+    svg { width: 100%; height: 100%; }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+}
+
+table.ignis-table {
+  tbody tr[data-ignis-row] {
+    cursor: default;
+
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    &[aria-selected="true"] > td { background: var(--accent-soft); }
+    &.is-checked > td { background: var(--fill-1); }
+  }
+
+  .ignis-table__check {
+    width: 2rem;
+    padding-right: 0;
+
+    input { vertical-align: middle; }
+  }
+}
+
+// =====================================================
+// Detailmuster (Lex L8): Register oder Karten links, Seitenspalte mit
+// Stammdaten und Aktivität rechts (templates/settings/vehicles/vehicles/
+// show.php, templates/partials/activity.php). Unter 1100 px rutscht die
+// Seitenspalte unter den Inhalt.
+// =====================================================
+
+.ignis-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 1099px) { grid-template-columns: minmax(0, 1fr); }
+
+  &__main { min-width: 0; }
+
+  &__aside {
+    display: grid;
+    gap: 0.75rem;
+    position: sticky;
+    top: calc(var(--topbar-h) + 1rem);
+
+    @media (max-width: 1099px) { position: static; }
+  }
+
+  &__block {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+
+    h4 {
+      margin: 0 0 0.5rem;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+  }
+
+  &__dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.35rem 0.75rem;
+    margin: 0;
+
+    dt { color: var(--text-3); }
+    dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  }
+
+  &__muted { margin: 0; color: var(--text-3); }
+
+  // Titel mit Chips: die Chips behalten ihre Größe neben der Überschrift.
+  &__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+
+    .ignis-chip { font-size: var(--fs-xs); }
+  }
+
+  &__groups {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__group-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text);
+
+    .ignis-detail__muted { font-weight: 400; font-size: var(--fs-xs); }
+  }
+
+  // Taktisches Zeichen: großes SVG neben Name und Feldern, darunter die
+  // JSON-Definition zum Kopieren.
+  &__tz {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3rem;
+    margin-bottom: 1rem;
+    color: var(--text-2);
+  }
+
+  &__tz-svg {
+    display: inline-flex;
+    flex: none;
+    width: 120px;
+    height: 120px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+
+    svg { width: 100%; height: 100%; }
+  }
+
+  &__json {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+
+    pre {
+      margin: 0;
+      padding: 0.75rem 0.9rem;
+      overflow-x: auto;
+      color: var(--text-2);
+      font-size: var(--fs-xs);
+      line-height: 1.5;
+    }
+  }
+
+  &__json-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.ignis-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    position: relative;
+    padding: 0.15rem 0 0.6rem 0.9rem;
+    border-left: 2px solid var(--fill-3);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0.45rem;
+      left: -5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-3);
+    }
+
+    &:last-child { padding-bottom: 0; }
+  }
+
+  &__text { display: block; color: var(--text); }
+  &__when { display: block; color: var(--text-3); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+}
+
+// Arbeitsbereich ohne Vorschau (fireTab-Einsatzliste): nur Leiste und Liste.
+.ignis-workbench--plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+// Sichtungskategorien des MANV-Boards (plugins/manv-board): volle Fläche in
+// der Bedeutungsfarbe, weil die Farbe hier das Signal ist.
+.ignis-chip--sk1 { background: var(--danger); color: var(--white); }
+.ignis-chip--sk2 { background: var(--warn); color: var(--bg); }
+.ignis-chip--sk3 { background: var(--ok); color: var(--white); }
+.ignis-chip--sk4 { background: var(--info); color: var(--white); }
+.ignis-chip--sk5,
+.ignis-chip--tot { background: var(--text); color: var(--bg); }
+.ignis-chip--sk6 { background: var(--fill-4); color: var(--text); }

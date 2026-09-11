@@ -3,11 +3,9 @@ $currentFd = $row['fachdienste'];
 if (!empty($currentFd)) {
     $fdDecode = json_decode($currentFd, true);
 
-    $stmtfd = $pdo->query("SELECT sgnr, sgname FROM intra_mitarbeiter_fdquali");
-    $fdNamen = [];
-    while ($fd = $stmtfd->fetch(PDO::FETCH_ASSOC)) {
-        $fdNamen[$fd['sgnr']] = $fd['sgname'];
-    }
+    $fdNamen = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_fdquali')
+        ->pluck('sgname', 'sgnr')
+        ->all();
 
     $fdGroups = [];
     foreach ($fdDecode as $fdValue) {

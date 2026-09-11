@@ -8,25 +8,19 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 
 /**
- * Feature-Tests für die Notification-Endpoints.
- *
- * Pilot-Test: zeigt das Muster für weitere Feature-Tests. Deckt die
- * drei häufigsten Auth-Szenarien ab:
- *   - HTML-Route ohne Auth → Redirect
- *   - HTML-Route mit Auth → 200 + Body
- *   - API-Route ohne Auth → 401 JSON
+ * Die Wege zu den Benachrichtigungen: die alte Seite /notifications
+ * leitet auf den Posteingang, der Posteingang verlangt die Anmeldung,
+ * das Polling der Glocke antwortet ohne Anmeldung mit 401 als JSON.
+ * Was der Posteingang zeigt, prüft InboxTest.
  */
 class NotificationRoutesTest extends FeatureTestCase
 {
     #[Test]
-    public function benachrichtigungen_index_redirects_unauthenticated(): void
+    public function inbox_redirects_unauthenticated(): void
     {
-        $response = $this->get('/notifications/index');
+        $response = $this->get('/inbox');
 
-        $this->assertRedirect($response);
-        // AuthMiddleware redirected auf /login.php (relativ zu BASE_PATH)
-        $location = $response->headers['Location'] ?? '';
-        $this->assertStringContainsString('login', $location);
+        $this->assertRedirect($response, 'login');
     }
 
     #[Test]
@@ -41,16 +35,12 @@ class NotificationRoutesTest extends FeatureTestCase
     }
 
     #[Test]
-    public function benachrichtigungen_index_renders_for_authenticated_user(): void
+    public function old_notifications_page_redirects_to_the_inbox(): void
     {
-        // User anlegen + als dieser User einloggen.
-        // Transaction-Isolation in IntegrationTestCase cleant das nach dem Test.
-        $user = \Tests\FixtureFactory::user();
-
-        $response = $this->actingAs($user->id)
-            ->get('/notifications/index');
-
-        $this->assertOk($response);
-        $this->assertBodyContains('Benachrichtigungen', $response);
+        foreach (['/notifications', '/notifications/index', '/notifications/index.php'] as $path) {
+            $response = $this->get($path);
+            $this->assertStatus(301, $response);
+            $this->assertSame('/inbox', $response->headers['Location'] ?? null, $path);
+        }
     }
 }

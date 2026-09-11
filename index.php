@@ -1,85 +1,83 @@
 <?php
 // Session wird durch config.php gestartet (SessionManager)
 require_once __DIR__ . '/assets/config/config.php';
-require_once __DIR__ . '/assets/config/database.php';
-
-// Wenn diese Datei aus dem Router-Closure heraus required wird (rootIndex
-// in routes/web.php), war database.php bereits durch das Bootstrap geladen
-// und require_once ist ein No-Op. $pdo ist dann im aktuellen Scope nicht
-// definiert — wir holen ihn aus dem Container, in dem config.php ihn
-// registriert hat.
-if (!isset($pdo) || !$pdo instanceof PDO) {
-    $pdo = app(PDO::class);
-}
 
 if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
     \App\Session\SessionManager::setRedirectFromRequest();
-    header("Location: " . BASE_PATH . "login.php");
-    exit();
+    return \App\Http\Response::redirect(BASE_PATH . 'login');
 }
 
-use App\Helpers\Flash;
+// Die Listen der Plugins nur, wenn das Plugin aktiv ist: die Partials lesen
+// dessen Tabellen (intra_edivi, intra_fire_incidents) und Helfer.
+$dashboardPlugins = app(\App\Plugins\PluginLoader::class);
+$dashboardEnotf   = $dashboardPlugins->isActive('enotf');
+$dashboardFiretab = $dashboardPlugins->isActive('firetab');
 
+// Die Seite rendert durch die Hülle (templates/layouts/admin.php):
+// Inhalt puffern, App\Helpers\Layout legt Topbar und Sidebar drumherum.
+ob_start();
 ?>
-
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="dashboard">
-    <!-- PRELOAD -->
-
-    <?php include __DIR__ . "/assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <!-- ------------ -->
-        <!-- PAGE CONTENT -->
-        <!-- ------------ -->
+    <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <!-- Page header + stats: tight grouping (related) -->
-            <div id="startpage" class="twplus-page-header">
+            <div id="startpage" class="twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Übersicht</p>
                     <h1>Dashboard</h1>
                     <p class="twplus-page-header__description">Deine wichtigsten Kennzahlen, Dokumente, Anträge und Protokolle auf einen Blick.</p>
                 </div>
+                <div class="twplus-page-header__actions">
+                    <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
+                </div>
             </div>
-            <?php Flash::render(); ?>
             <?php include __DIR__ . '/assets/components/index/stats.php' ?>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" style="margin-top:var(--space-xl);">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-10">
                 <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
                 <?php include __DIR__ . '/assets/components/index/blog.php' ?>
             </div>
 
-            <!-- Content sections: generous spacing between groups -->
-            <div class="twplus-dashboard-widget" data-section="documents" style="margin-top:var(--space-xl)">
-                <div class="twplus-section-card__header"><h4 class="twplus-section-card__title">Eigene Dokumente</h4></div>
-                <?php include __DIR__ . '/assets/components/index/documents.php' ?>
+            <div class="grid grid-cols-1 gap-6 mt-10">
+                <section class="ignis-card" data-section="documents" aria-labelledby="dashboard-documents-title">
+                    <div class="ignis-card__header">
+                        <h2 class="ignis-card__title" id="dashboard-documents-title">Eigene Dokumente</h2>
+                    </div>
+                    <div class="twplus-table-card__scroll">
+                        <?php include __DIR__ . '/assets/components/index/documents.php' ?>
+                    </div>
+                </section>
+                <section class="ignis-card" data-section="applications" aria-labelledby="dashboard-applications-title">
+                    <div class="ignis-card__header">
+                        <h2 class="ignis-card__title" id="dashboard-applications-title">Eigene Anträge</h2>
+                        <div class="ignis-card__actions">
+                            <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--sm ignis-btn--secondary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
+                        </div>
+                    </div>
+                    <div class="twplus-table-card__scroll">
+                        <?php include __DIR__ . '/assets/components/index/applications.php' ?>
+                    </div>
+                </section>
+                <?php if ($dashboardEnotf): ?>
+                    <section class="ignis-card" data-section="enotf" aria-labelledby="dashboard-enotf-title">
+                        <div class="ignis-card__header">
+                            <h2 class="ignis-card__title" id="dashboard-enotf-title">Eigene eNOTF-Protokolle</h2>
+                        </div>
+                        <div class="twplus-table-card__scroll">
+                            <?php include __DIR__ . '/assets/components/index/protocols.php' ?>
+                        </div>
+                    </section>
+                <?php endif; ?>
+                <?php if ($dashboardFiretab): ?>
+                    <section class="ignis-card" data-section="firetab" aria-labelledby="dashboard-firetab-title">
+                        <div class="ignis-card__header">
+                            <h2 class="ignis-card__title" id="dashboard-firetab-title">Eigene fireTab-Protokolle</h2>
+                        </div>
+                        <div class="twplus-table-card__scroll">
+                            <?php include __DIR__ . '/assets/components/index/fire-protocols.php' ?>
+                        </div>
+                    </section>
+                <?php endif; ?>
             </div>
-            <div class="twplus-dashboard-widget" data-section="applications" style="margin-top:var(--space-lg)">
-                <div class="twplus-section-card__header">
-                    <h4 class="twplus-section-card__title">Eigene Anträge</h4>
-                    <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--sm ignis-btn--soft-success"><i class="fa-solid fa-plus"></i> Antrag einreichen</a>
-                </div>
-                <?php include __DIR__ . '/assets/components/index/applications.php' ?>
-            </div>
-
-            <!-- Protokolle group: tighter spacing (related) -->
-            <div class="twplus-dashboard-widget" data-section="enotf" style="margin-top:var(--space-xl)">
-                <div class="twplus-section-card__header"><h4 class="twplus-section-card__title">Eigene eNOTF-Protokolle</h4></div>
-                <?php include __DIR__ . '/assets/components/index/protocols.php' ?>
-            </div>
-            <div class="twplus-dashboard-widget" data-section="firetab" style="margin-top:var(--space-lg)">
-                <div class="twplus-section-card__header"><h4 class="twplus-section-card__title">Eigene fireTab-Protokolle</h4></div>
-                <?php include __DIR__ . '/assets/components/index/fire-protocols.php' ?>
-            </div>
-            <div style="height:var(--space-xl)"></div>
         </div>
     </div>
-    <?php include __DIR__ . "/assets/components/footer.php"; ?>
-</body>
-
-</html>
+<?php
+echo \App\Helpers\Layout::render('admin', (string) ob_get_clean(), ['SITE_TITLE' => 'Dashboard', 'bodyId' => 'dashboard']);

@@ -5,22 +5,32 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_global_announcements_dismissed_20012026.php
- * Spiegelung:     database/legacy/create_intra_global_announcements_dismissed_20012026.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Merkt sich pro User, welche globalen Announcements er ausgeblendet hat.
+ * Ein Announcement kann je User nur einmal dismissed werden; beim Löschen
+ * des Users verschwinden auch seine Dismissals (FK ON DELETE CASCADE).
  */
 class CreateIntraGlobalAnnouncementsDismissed20012026 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_global_announcements_dismissed_20012026.php';
+        if ($this->hasTable('intra_global_announcements_dismissed')) {
+            return;
+        }
+
+        $this->table('intra_global_announcements_dismissed', [
+            'id'        => 'id',
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ])
+            ->addColumn('announcement_id', 'string', ['limit' => 64, 'null' => false])
+            ->addColumn('user_id', 'integer', ['null' => false])
+            ->addColumn('dismissed_at', 'datetime', ['null' => false])
+            ->addIndex(['announcement_id', 'user_id'], ['unique' => true, 'name' => 'unique_user_announcement'])
+            ->addIndex(['user_id'], ['name' => 'idx_user'])
+            ->addIndex(['dismissed_at'], ['name' => 'idx_dismissed'])
+            ->addForeignKey('user_id', 'intra_users', 'id', ['delete' => 'CASCADE'])
+            ->create();
     }
 }

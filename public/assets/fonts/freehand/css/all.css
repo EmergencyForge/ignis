@@ -1,0 +1,9 @@
+/* freehand-regular - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Freehand";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../font/freehand-v27-latin-regular.eot"); /* IE9 Compat Modes */
+  src: url("../font/freehand-v27-latin-regular.eot?#iefix") format("embedded-opentype"), url("../font/freehand-v27-latin-regular.woff2") format("woff2"), url("../font/freehand-v27-latin-regular.woff") format("woff"), url("../font/freehand-v27-latin-regular.ttf") format("truetype"), url("../font/freehand-v27-latin-regular.svg#Freehand") format("svg"); /* Legacy iOS */
+}

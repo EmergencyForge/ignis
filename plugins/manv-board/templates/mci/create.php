@@ -4,22 +4,15 @@
  *
  * @var array<int,array<string,mixed>> $users
  * @var string|null                     $error
- * @var \PDO                            $pdo
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Neue MANV-Lage anlegen';
+
+$layout = 'admin';
+$bodyId = 'manv-create';
+$bodyPage = 'edivi';
 ?>
-<!DOCTYPE html>
-<html lang="de">
-
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" id="manv-create" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-4">
@@ -30,7 +23,6 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <?php if (!empty($error)): ?>
                 <div class="ignis-alert ignis-alert--danger">
@@ -130,7 +122,6 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         document.getElementById('lna_mitarbeiter_id').addEventListener('change', function() {
@@ -143,6 +134,3 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
             document.getElementById('orgl_name').value = selectedOption.value ? selectedOption.dataset.name : '';
         });
     </script>
-</body>
-
-</html>

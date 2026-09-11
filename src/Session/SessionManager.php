@@ -86,8 +86,12 @@ class SessionManager
             return true;
         }
 
-        // Methode 2: Bestimmte Pfade die typischerweise in iframes laufen
-        $iframePaths = ['/enotf/', '/einsatz/'];
+        // Methode 2: Bestimmte Pfade die typischerweise in iframes laufen.
+        // Substring-Match deckt auch die API-Pfade ab (/api/enotf/…,
+        // /api/enotf-v2/…). '/enotf/' matcht '/enotf-v2/' NICHT (der
+        // Slash nach "enotf" fehlt dort), daher eigener Eintrag —
+        // ältere CEF-Builds senden Sec-Fetch-Dest nicht zuverlässig.
+        $iframePaths = ['/enotf/', '/enotf-v2/', '/einsatz/'];
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
         foreach ($iframePaths as $path) {
             if (strpos($requestUri, $path) !== false) {
@@ -215,6 +219,10 @@ class SessionManager
         $_SESSION['aktenid']            = $user['aktenid'] ?? null;
         $_SESSION['role']               = $user['role'] ?? null;
         $_SESSION['discordtag']         = $user['discord_id'] ?? null;
+        // Darstellungsmodus des Kontos (dark|light|system); head.php liest
+        // ihn über App\Helpers\Theme, ProfileController::theme() hält
+        // Session und Spalte gleich.
+        $_SESSION['theme']              = (string) ($user['theme'] ?? 'dark');
         $_SESSION['permissions']        = $permissions;
         $_SESSION['permissions_loaded'] = time();
     }

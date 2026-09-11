@@ -185,6 +185,27 @@ class PluginRegistryTest extends TestCase
     }
 
     #[Test]
+    public function it_drops_what_depends_on_a_cycle_and_keeps_the_rest(): void
+    {
+        $registry = new PluginRegistry($this->keyed([
+            $this->plugin('a', ['b']),
+            $this->plugin('b', ['a']),
+            $this->plugin('c', ['a']),
+            $this->plugin('d'),
+        ]));
+
+        $registry->resolve(['a', 'b', 'c', 'd'], '1.5.0');
+
+        $this->assertSame(['d'], $this->ids($registry->active()));
+        $byId = [];
+        foreach ($registry->skipped() as $skip) {
+            $byId[$skip['id']] = $skip['reason'];
+        }
+        $this->assertStringContainsString('Teil eines Zyklus', $byId['c']);
+        $this->assertArrayNotHasKey('d', $byId);
+    }
+
+    #[Test]
     public function it_discovers_plugins_from_a_directory_and_skips_broken_ones(): void
     {
         $registry = PluginRegistry::fromDirectory(__DIR__ . '/fixtures/plugins');

@@ -157,7 +157,10 @@ return [
     // -----------------------------------------------------------------------
 
     \App\Http\Pipeline::class => \DI\autowire(),
-    \App\Http\Router::class   => \DI\autowire(),
+    // Über die Factory, damit der Router seine Haken bekommt (Old-Input-
+    // Reset, Fragment-Redirects); FeatureTestCase baut ihn genauso.
+    \App\Http\Router::class   => \DI\factory(static fn (\Psr\Container\ContainerInterface $c): \App\Http\Router
+        => \App\Http\RouterFactory::create($c, $c->get(\App\Http\Pipeline::class))),
 
     // Plugin-Loader — einmal pro Request, cached das aktive Plugin-Set.
     \App\Plugins\PluginLoader::class => \DI\autowire(),
@@ -180,6 +183,7 @@ return [
     \App\Http\Controllers\Api\CharacterController::class         => \DI\autowire(),
     \App\Http\Controllers\Api\EmdSyncController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\NotificationController::class      => \DI\autowire(),
+    \App\Http\Controllers\InboxController::class                 => \DI\autowire(),
     \App\Http\Controllers\Api\VersionController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\HealthController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelProfileController::class    => \DI\autowire(),
@@ -327,6 +331,7 @@ return [
     \App\Console\Commands\CalendarBackfillAbsencesCommand::class => \DI\autowire(),
     \App\Console\Commands\ChangelogRefreshCommand::class => \DI\autowire(),
     \App\Console\Commands\BlogRefreshCommand::class      => \DI\autowire(),
+    \App\Console\Commands\BootstrapAdminCommand::class    => \DI\autowire(),
 
     // Service-Klassen für Commands
     \App\Jobs\FailedJobsReader::class     => \DI\autowire(),

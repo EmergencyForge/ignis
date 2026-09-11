@@ -2,6 +2,7 @@
 
 namespace App\Federation;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDO;
 
 /**
@@ -9,6 +10,9 @@ use PDO;
  * cached federation personnel from linked instances.
  *
  * When FEDERATION_ENABLED is false, returns only local data (zero overhead).
+ *
+ * Die Methoden laufen über die Eloquent-Capsule; der optionale $pdo-Parameter
+ * bleibt nur für Alt-Aufrufer erhalten und wird ignoriert.
  */
 class FederatedPersonnel
 {
@@ -24,26 +28,27 @@ class FederatedPersonnel
      * Each personnel entry has: id, fullname, dienstnr, dienstgrad_name, dienstgrad_badge,
      * quali_rd, is_remote, federation_id (for remote entries).
      */
-    public static function getAllGrouped(PDO $pdo): array
+    public static function getAllGrouped(?PDO $pdo = null): array
     {
         $groups = [];
 
         // Local personnel
-        $stmt = $pdo->query("
-            SELECT
-                m.id,
-                m.fullname,
-                m.dienstnr,
-                d.name AS dienstgrad_name,
-                d.abkuerzung AS dienstgrad_badge,
-                rd.name AS quali_rd,
-                rd.abkuerzung AS quali_rd_short
-            FROM intra_mitarbeiter m
-            LEFT JOIN intra_mitarbeiter_dienstgrade d ON m.dienstgrad = d.id
-            LEFT JOIN intra_mitarbeiter_rdquali rd ON m.rdquali = rd.id
-            ORDER BY m.fullname ASC
-        ");
-        $local = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $local = Capsule::table('intra_mitarbeiter as m')
+            ->leftJoin('intra_mitarbeiter_dienstgrade as d', 'm.dienstgrad', '=', 'd.id')
+            ->leftJoin('intra_mitarbeiter_rdquali as rd', 'm.rdquali', '=', 'rd.id')
+            ->select([
+                'm.id',
+                'm.fullname',
+                'm.dienstnr',
+                'd.name as dienstgrad_name',
+                'd.abkuerzung as dienstgrad_badge',
+                'rd.name as quali_rd',
+                'rd.abkuerzung as quali_rd_short',
+            ])
+            ->orderBy('m.fullname', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         foreach ($local as &$p) {
             $p['is_remote'] = false;
@@ -60,22 +65,27 @@ class FederatedPersonnel
         // Remote personnel (only if federation is enabled)
         if (FederationMiddleware::isEnabled()) {
             try {
-                $stmt = $pdo->query("
-                    SELECT
-                        fcp.id,
-                        fcp.source_instance_id,
-                        fcp.remote_id,
-                        fcp.fullname,
-                        fcp.dienstnr,
-                        fcp.dienstgrad_name,
-                        fcp.dienstgrad_badge,
-                        fcp.quali_rd,
-                        fl.instance_name AS source_name
-                    FROM intra_federation_cache_personnel fcp
-                    JOIN intra_federation_links fl ON fl.instance_id = fcp.source_instance_id AND fl.is_active = 1
-                    ORDER BY fl.instance_name ASC, fcp.fullname ASC
-                ");
-                $remoteAll = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $remoteAll = Capsule::table('intra_federation_cache_personnel as fcp')
+                    ->join('intra_federation_links as fl', function ($join) {
+                        $join->on('fl.instance_id', '=', 'fcp.source_instance_id')
+                            ->where('fl.is_active', 1);
+                    })
+                    ->select([
+                        'fcp.id',
+                        'fcp.source_instance_id',
+                        'fcp.remote_id',
+                        'fcp.fullname',
+                        'fcp.dienstnr',
+                        'fcp.dienstgrad_name',
+                        'fcp.dienstgrad_badge',
+                        'fcp.quali_rd',
+                        'fl.instance_name as source_name',
+                    ])
+                    ->orderBy('fl.instance_name', 'asc')
+                    ->orderBy('fcp.fullname', 'asc')
+                    ->get()
+                    ->map(fn ($row) => (array) $row)
+                    ->all();
 
                 // Group by source instance
                 $bySource = [];
@@ -122,27 +132,32 @@ class FederatedPersonnel
      *   ['fullname' => 'Anna Schmidt', 'source_name' => 'Rettungsdienst'],
      * ]
      */
-    public static function getAllNames(PDO $pdo): array
+    public static function getAllNames(?PDO $pdo = null): array
     {
         $names = [];
 
         // Local
-        $stmt = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
-        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $name) {
+        $localNames = Capsule::table('intra_mitarbeiter')
+            ->orderBy('fullname', 'asc')
+            ->pluck('fullname');
+        foreach ($localNames as $name) {
             $names[] = ['fullname' => $name, 'source_name' => null];
         }
 
         // Remote
         if (FederationMiddleware::isEnabled()) {
             try {
-                $stmt = $pdo->query("
-                    SELECT fcp.fullname, fl.instance_name AS source_name
-                    FROM intra_federation_cache_personnel fcp
-                    JOIN intra_federation_links fl ON fl.instance_id = fcp.source_instance_id AND fl.is_active = 1
-                    ORDER BY fl.instance_name ASC, fcp.fullname ASC
-                ");
-                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $names[] = $row;
+                $remote = Capsule::table('intra_federation_cache_personnel as fcp')
+                    ->join('intra_federation_links as fl', function ($join) {
+                        $join->on('fl.instance_id', '=', 'fcp.source_instance_id')
+                            ->where('fl.is_active', 1);
+                    })
+                    ->select(['fcp.fullname', 'fl.instance_name as source_name'])
+                    ->orderBy('fl.instance_name', 'asc')
+                    ->orderBy('fcp.fullname', 'asc')
+                    ->get();
+                foreach ($remote as $row) {
+                    $names[] = (array) $row;
                 }
             } catch (\PDOException $e) {
                 // Silently skip
@@ -158,16 +173,19 @@ class FederatedPersonnel
      *
      * @return array[] Each: ['id' => int|string, 'fullname' => string, 'source_name' => string|null]
      */
-    public static function getLeaderOptions(PDO $pdo): array
+    public static function getLeaderOptions(?PDO $pdo = null): array
     {
         $options = [];
 
         // Local
-        $stmt = $pdo->query("SELECT id, fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $localRows = Capsule::table('intra_mitarbeiter')
+            ->select(['id', 'fullname'])
+            ->orderBy('fullname', 'asc')
+            ->get();
+        foreach ($localRows as $row) {
             $options[] = [
-                'id' => (int) $row['id'],
-                'fullname' => $row['fullname'],
+                'id' => (int) $row->id,
+                'fullname' => $row->fullname,
                 'source_name' => null,
             ];
         }
@@ -175,17 +193,25 @@ class FederatedPersonnel
         // Remote
         if (FederationMiddleware::isEnabled()) {
             try {
-                $stmt = $pdo->query("
-                    SELECT fcp.remote_id, fcp.source_instance_id, fcp.fullname, fl.instance_name AS source_name
-                    FROM intra_federation_cache_personnel fcp
-                    JOIN intra_federation_links fl ON fl.instance_id = fcp.source_instance_id AND fl.is_active = 1
-                    ORDER BY fl.instance_name ASC, fcp.fullname ASC
-                ");
-                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $remote = Capsule::table('intra_federation_cache_personnel as fcp')
+                    ->join('intra_federation_links as fl', function ($join) {
+                        $join->on('fl.instance_id', '=', 'fcp.source_instance_id')
+                            ->where('fl.is_active', 1);
+                    })
+                    ->select([
+                        'fcp.remote_id',
+                        'fcp.source_instance_id',
+                        'fcp.fullname',
+                        'fl.instance_name as source_name',
+                    ])
+                    ->orderBy('fl.instance_name', 'asc')
+                    ->orderBy('fcp.fullname', 'asc')
+                    ->get();
+                foreach ($remote as $row) {
                     $options[] = [
-                        'id' => 'fed:' . $row['source_instance_id'] . ':' . $row['remote_id'],
-                        'fullname' => $row['fullname'],
-                        'source_name' => $row['source_name'],
+                        'id' => 'fed:' . $row->source_instance_id . ':' . $row->remote_id,
+                        'fullname' => $row->fullname,
+                        'source_name' => $row->source_name,
                     ];
                 }
             } catch (\PDOException $e) {
@@ -199,9 +225,12 @@ class FederatedPersonnel
     /**
      * Resolve a leader ID (local int or "fed:..." string) to a display name.
      *
+     * Signatur-Hinweis: $pdo wird ignoriert (siehe Klassen-Doc), $leaderId
+     * ist das zweite Argument, damit Alt-Aufrufer kompatibel bleiben.
+     *
      * @return string|null The fullname, or null if not found
      */
-    public static function resolveName(PDO $pdo, string|int|null $leaderId): ?string
+    public static function resolveName(?PDO $pdo = null, string|int|null $leaderId = null): ?string
     {
         if ($leaderId === null || $leaderId === '' || $leaderId === 0) {
             return null;
@@ -217,17 +246,15 @@ class FederatedPersonnel
             [, $instanceId, $remoteId] = $parts;
 
             try {
-                $stmt = $pdo->prepare("
-                    SELECT fcp.fullname, fl.instance_name
-                    FROM intra_federation_cache_personnel fcp
-                    JOIN intra_federation_links fl ON fl.instance_id = fcp.source_instance_id
-                    WHERE fcp.source_instance_id = ? AND fcp.remote_id = ?
-                ");
-                $stmt->execute([$instanceId, (int) $remoteId]);
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $row = Capsule::table('intra_federation_cache_personnel as fcp')
+                    ->join('intra_federation_links as fl', 'fl.instance_id', '=', 'fcp.source_instance_id')
+                    ->where('fcp.source_instance_id', $instanceId)
+                    ->where('fcp.remote_id', (int) $remoteId)
+                    ->select(['fcp.fullname', 'fl.instance_name'])
+                    ->first();
 
                 if ($row) {
-                    return $row['fullname'] . ' [' . $row['instance_name'] . ']';
+                    return $row->fullname . ' [' . $row->instance_name . ']';
                 }
             } catch (\PDOException $e) {
                 // Fall through
@@ -238,9 +265,10 @@ class FederatedPersonnel
 
         // Local ID
         try {
-            $stmt = $pdo->prepare("SELECT fullname FROM intra_mitarbeiter WHERE id = ?");
-            $stmt->execute([(int) $leaderId]);
-            return $stmt->fetchColumn() ?: null;
+            $name = Capsule::table('intra_mitarbeiter')
+                ->where('id', (int) $leaderId)
+                ->value('fullname');
+            return $name ?: null;
         } catch (\PDOException $e) {
             return null;
         }

@@ -283,7 +283,7 @@ class LogsController extends Controller
 
     private function failedJobsReader(): FailedJobsReader
     {
-        return new FailedJobsReader($this->pdo);
+        return new FailedJobsReader();
     }
 
     private function ensureAdmin(): void

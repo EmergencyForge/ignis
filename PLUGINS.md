@@ -30,6 +30,21 @@ grenzt kompatible ıgnıs-Versionen ein; `depends` nennt andere Plugin-IDs.
 `autoload`, `policies`, `permissions`, `default_enabled` und `removable`
 entsprechen den Beispielen der mitgelieferten Plugins unter `plugins/`.
 
+`search` nennt Klassen, die `App\Search\SearchSourceInterface` umsetzen
+(`key()`, `label()`, `allowed()`, `search(string $q, int $limit)`); die
+globale Suche in der Topbar fragt sie neben den Kern-Quellen ab und zeigt
+je Quelle eine Gruppe mit `label`, `sub` und `href` pro Treffer. fireTab
+(`Plugin\Firetab\Search\IncidentSource`) und die Wissensdatenbank
+(`Plugin\KnowledgeBase\Search\LexiconSource`) sind die Vorlagen.
+
+`notifications` nennt Klassen, die `App\Notifications\NotificationTypeInterface`
+umsetzen (`key()`, `label()`, `icon()`, `allowed()`, `link(array $row)`); der
+`NotificationManager` registriert sie neben den Kern-Typen. Ein Plugin legt
+Einträge über `notify($type, $userIds, ['title' => …, 'message' => …, 'link' => …])`
+an; Glocke, Posteingang und Zähler zeigen sie nur Nutzern, für die `allowed()`
+zutrifft. Einträge eines abgeschalteten Plugins bleiben lesbar (Rohtext, Link).
+fireTab (`Plugin\Firetab\Notifications\FireProtocolType`) ist die Vorlage.
+
 Ein heruntergeladenes Plugin bleibt vollständig inert. Erst die separate
 Installationsbestätigung in der Verwaltung legt den `.installed`-Marker an,
 führt Migrationen aus und aktiviert das Plugin.
@@ -39,8 +54,14 @@ führt Migrationen aus und aktiviert das Plugin.
 Plugins bringen kompiliertes `assets/plugin.css` beziehungsweise
 `assets/plugin.js` mit. Aktive Plugins werden automatisch in die Basis-Seiten
 eingebunden. Ein Tailwind-, Sass- oder JavaScript-Build auf dem Zielserver
-findet nicht statt. Öffentlich erreichbar sind ausschließlich statische
-Dateien unter `assets/` mit der serverseitigen Endungs-Allowlist.
+findet nicht statt.
+
+Das Docroot ist `public/`, der Plugin-Ordner liegt außerhalb. Dateien aus
+`assets/` erreicht der Browser über die Route
+`/plugins/<id>/assets/<pfad>`, die nur die Endungen css, js, map, woff2,
+png, svg und webp ausliefert und nur für installierte Plugins antwortet.
+Im Template `asset('plugins/<id>/assets/plugin.js')` verwenden, dann stimmt
+auch der Cache-Buster.
 
 ## Geplante Aufgaben
 

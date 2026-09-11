@@ -5,22 +5,33 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/insert_intra_enotf_quicklinks_29122025.php
- * Spiegelung:     database/legacy/insert_intra_enotf_quicklinks_29122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Standard-Quicklinks fürs eNOTF-Dashboard: Gefahrgut-Datenbank der BAM,
+ * OpenStreetMap, Fahrzeuginfo und der Link zurück in die Administration.
  */
 class InsertIntraEnotfQuicklinks29122025 extends AbstractMigration
 {
-    public function change(): void
+    private const ROWS = [
+        ['title' => 'Datenb. Gefahrgut', 'url' => 'https://www.dgg.bam.de/quickinfo/de/', 'icon' => 'fa-solid fa-radiation', 'category' => 'schnellzugriff', 'sort_order' => 1, 'col_width' => 'col',   'active' => 1],
+        ['title' => 'Openstreetmap',     'url' => 'https://www.openstreetmap.org/',      'icon' => 'fa-solid fa-map',       'category' => 'schnellzugriff', 'sort_order' => 2, 'col_width' => 'col',   'active' => 1],
+        ['title' => 'Fahrzeuginfo',      'url' => 'fahrzeuginfo.php',                    'icon' => 'fa-solid fa-ambulance', 'category' => 'schnellzugriff', 'sort_order' => 3, 'col_width' => 'col-6', 'active' => 1],
+        ['title' => 'Administration',    'url' => '../index.php',                        'icon' => 'fa-solid fa-toolbox',   'category' => 'verwaltung',     'sort_order' => 1, 'col_width' => 'col-6', 'active' => 1],
+    ];
+
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/insert_intra_enotf_quicklinks_29122025.php';
+        $this->table('intra_enotf_quicklinks')
+            ->insert(self::ROWS)
+            ->saveData();
+    }
+
+    public function down(): void
+    {
+        foreach (self::ROWS as $row) {
+            $this->execute(sprintf(
+                "DELETE FROM intra_enotf_quicklinks WHERE title = '%s' AND url = '%s'",
+                $row['title'],
+                $row['url']
+            ));
+        }
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Federation;
 
-use PDO;
+use App\Models\FederationLink;
+use App\Models\FederationSyncLog;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -10,13 +12,6 @@ use PDOException;
  */
 class FederationSyncService
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /**
      * Sync personnel from a linked instance.
      *
@@ -85,35 +80,26 @@ class FederationSyncService
      */
     private function upsertPersonnelCache(string $sourceInstanceId, array $person): void
     {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_federation_cache_personnel
-            (source_instance_id, remote_id, fullname, dienstnr, dienstgrad_name, dienstgrad_badge,
-             quali_rd, quali_fw, quali_fd, cached_data, cached_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-            ON DUPLICATE KEY UPDATE
-                fullname = VALUES(fullname),
-                dienstnr = VALUES(dienstnr),
-                dienstgrad_name = VALUES(dienstgrad_name),
-                dienstgrad_badge = VALUES(dienstgrad_badge),
-                quali_rd = VALUES(quali_rd),
-                quali_fw = VALUES(quali_fw),
-                quali_fd = VALUES(quali_fd),
-                cached_data = VALUES(cached_data),
-                cached_at = NOW()
-        ");
-
-        $stmt->execute([
-            $sourceInstanceId,
-            (int) $person['id'],
-            $person['fullname'] ?? null,
-            $person['dienstnr'] ?? null,
-            $person['dienstgrad_name'] ?? null,
-            $person['dienstgrad_badge'] ?? null,
-            $person['quali_rd'] ?? null,
-            $person['quali_fw'] ?? null,
-            $person['quali_fd'] ?? null,
-            json_encode($person, JSON_UNESCAPED_UNICODE),
-        ]);
+        Capsule::table('intra_federation_cache_personnel')->upsert(
+            [[
+                'source_instance_id' => $sourceInstanceId,
+                'remote_id' => (int) $person['id'],
+                'fullname' => $person['fullname'] ?? null,
+                'dienstnr' => $person['dienstnr'] ?? null,
+                'dienstgrad_name' => $person['dienstgrad_name'] ?? null,
+                'dienstgrad_badge' => $person['dienstgrad_badge'] ?? null,
+                'quali_rd' => $person['quali_rd'] ?? null,
+                'quali_fw' => $person['quali_fw'] ?? null,
+                'quali_fd' => $person['quali_fd'] ?? null,
+                'cached_data' => json_encode($person, JSON_UNESCAPED_UNICODE),
+                'cached_at' => Capsule::raw('NOW()'),
+            ]],
+            ['source_instance_id', 'remote_id'],
+            [
+                'fullname', 'dienstnr', 'dienstgrad_name', 'dienstgrad_badge',
+                'quali_rd', 'quali_fw', 'quali_fd', 'cached_data', 'cached_at',
+            ]
+        );
     }
 
     /**
@@ -127,12 +113,10 @@ class FederationSyncService
         }
 
         // Delete entries that weren't updated in this sync cycle (cached_at is older)
-        $stmt = $this->pdo->prepare("
-            DELETE FROM intra_federation_cache_personnel
-            WHERE source_instance_id = ?
-            AND cached_at < DATE_SUB(NOW(), INTERVAL 1 MINUTE)
-        ");
-        $stmt->execute([$sourceInstanceId]);
+        Capsule::table('intra_federation_cache_personnel')
+            ->where('source_instance_id', $sourceInstanceId)
+            ->whereRaw('cached_at < DATE_SUB(NOW(), INTERVAL 1 MINUTE)')
+            ->delete();
     }
 
     /**
@@ -188,12 +172,14 @@ class FederationSyncService
     private function logSync(int $linkId, string $type, string $status, int $records, int $durationMs, ?string $error = null): void
     {
         try {
-            $stmt = $this->pdo->prepare("
-                INSERT INTO intra_federation_sync_log
-                (link_id, sync_type, status, records_synced, duration_ms, error_message)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
-            $stmt->execute([$linkId, $type, $status, $records, $durationMs, $error]);
+            FederationSyncLog::create([
+                'link_id' => $linkId,
+                'sync_type' => $type,
+                'status' => $status,
+                'records_synced' => $records,
+                'duration_ms' => $durationMs,
+                'error_message' => $error,
+            ]);
         } catch (PDOException $e) {
             // Logging failure should not break the sync
         }
@@ -205,12 +191,11 @@ class FederationSyncService
     private function updateLinkSyncStatus(int $linkId, string $status, ?string $error = null): void
     {
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_federation_links
-                SET last_sync_at = NOW(), last_sync_status = ?, last_sync_error = ?
-                WHERE id = ?
-            ");
-            $stmt->execute([$status, $error, $linkId]);
+            FederationLink::where('id', $linkId)->update([
+                'last_sync_at' => Capsule::raw('NOW()'),
+                'last_sync_status' => $status,
+                'last_sync_error' => $error,
+            ]);
         } catch (PDOException $e) {
             // Non-critical
         }
@@ -221,10 +206,8 @@ class FederationSyncService
      */
     private function getActiveLink(int $linkId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM intra_federation_links WHERE id = ? AND is_active = 1");
-        $stmt->execute([$linkId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ?: null;
+        $link = FederationLink::where('id', $linkId)->where('is_active', 1)->first();
+        return $link ? $link->toArray() : null;
     }
 
     /**
@@ -382,24 +365,19 @@ class FederationSyncService
      */
     private function upsertEnotfCache(string $sourceInstanceId, array $protocol): void
     {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_federation_cache_enotf
-            (source_instance_id, remote_id, cached_data, protocol_date, cached_at)
-            VALUES (?, ?, ?, ?, NOW())
-            ON DUPLICATE KEY UPDATE
-                cached_data = VALUES(cached_data),
-                protocol_date = VALUES(protocol_date),
-                cached_at = NOW()
-        ");
-
         $protocolDate = $protocol['sendezeit'] ?? $protocol['edatum'] ?? null;
 
-        $stmt->execute([
-            $sourceInstanceId,
-            (int) $protocol['id'],
-            json_encode($protocol, JSON_UNESCAPED_UNICODE),
-            $protocolDate,
-        ]);
+        Capsule::table('intra_federation_cache_enotf')->upsert(
+            [[
+                'source_instance_id' => $sourceInstanceId,
+                'remote_id' => (int) $protocol['id'],
+                'cached_data' => json_encode($protocol, JSON_UNESCAPED_UNICODE),
+                'protocol_date' => $protocolDate,
+                'cached_at' => Capsule::raw('NOW()'),
+            ]],
+            ['source_instance_id', 'remote_id'],
+            ['cached_data', 'protocol_date', 'cached_at']
+        );
     }
 
     /**
@@ -407,24 +385,18 @@ class FederationSyncService
      */
     private function upsertFireCache(string $sourceInstanceId, array $incident): void
     {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_federation_cache_fire
-            (source_instance_id, remote_id, incident_number, cached_data, incident_date, cached_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
-            ON DUPLICATE KEY UPDATE
-                incident_number = VALUES(incident_number),
-                cached_data = VALUES(cached_data),
-                incident_date = VALUES(incident_date),
-                cached_at = NOW()
-        ");
-
-        $stmt->execute([
-            $sourceInstanceId,
-            (int) $incident['id'],
-            $incident['incident_number'] ?? null,
-            json_encode($incident, JSON_UNESCAPED_UNICODE),
-            $incident['created_at'] ?? null,
-        ]);
+        Capsule::table('intra_federation_cache_fire')->upsert(
+            [[
+                'source_instance_id' => $sourceInstanceId,
+                'remote_id' => (int) $incident['id'],
+                'incident_number' => $incident['incident_number'] ?? null,
+                'cached_data' => json_encode($incident, JSON_UNESCAPED_UNICODE),
+                'incident_date' => $incident['created_at'] ?? null,
+                'cached_at' => Capsule::raw('NOW()'),
+            ]],
+            ['source_instance_id', 'remote_id'],
+            ['incident_number', 'cached_data', 'incident_date', 'cached_at']
+        );
     }
 
     /**
@@ -446,11 +418,11 @@ class FederationSyncService
             $link = $this->getActiveLink($linkId);
             if (!$link) return null;
 
-            $stmt = $this->pdo->prepare("
-                SELECT MAX(cached_at) FROM `{$table}` WHERE source_instance_id = ?
-            ");
-            $stmt->execute([$link['instance_id']]);
-            return $stmt->fetchColumn() ?: null;
+            $max = Capsule::table($table)
+                ->where('source_instance_id', $link['instance_id'])
+                ->max('cached_at');
+
+            return $max ?: null;
         } catch (PDOException $e) {
             return null;
         }
@@ -463,14 +435,13 @@ class FederationSyncService
      */
     public function getPersonnelSyncDueLinks(): array
     {
-        $stmt = $this->pdo->query("
-            SELECT * FROM intra_federation_links
-            WHERE is_active = 1 AND consume_personnel = 1
-            AND (
-                last_sync_at IS NULL
-                OR last_sync_at < DATE_SUB(NOW(), INTERVAL sync_interval_minutes MINUTE)
-            )
-        ");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return FederationLink::where('is_active', 1)
+            ->where('consume_personnel', 1)
+            ->where(function ($query) {
+                $query->whereNull('last_sync_at')
+                    ->orWhereRaw('last_sync_at < DATE_SUB(NOW(), INTERVAL sync_interval_minutes MINUTE)');
+            })
+            ->get()
+            ->toArray();
     }
 }

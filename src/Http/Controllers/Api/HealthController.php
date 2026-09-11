@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Request;
 use App\Http\Response;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * `GET /healthz` — Machinen-lesbarer System-Health-Check.
@@ -36,10 +36,6 @@ use PDO;
  */
 final class HealthController
 {
-    public function __construct(private readonly PDO $pdo)
-    {
-    }
-
     public function index(Request $request): Response
     {
         $checks = [
@@ -50,6 +46,7 @@ final class HealthController
             'outbound_http'   => $this->checkOutboundHttp(),
             'process_control' => $this->checkProcessControl(),
             'php_extensions'  => $this->checkPhpExtensions(),
+            'rewrite'         => $this->checkRewrite($request),
         ];
 
         $overall = $this->aggregateStatus($checks);
@@ -73,7 +70,10 @@ final class HealthController
     {
         $start = microtime(true);
         try {
-            $this->pdo->query('SELECT 1');
+            // Expliziter Connectivity-Check über die Eloquent-Connection —
+            // das ist die Verbindung, über die die Anwendung ihre Queries
+            // fährt, also die, deren Erreichbarkeit hier zählt.
+            Capsule::connection()->select('SELECT 1');
             $ms = (int) round((microtime(true) - $start) * 1000);
             return ['status' => 'ok', 'ms' => $ms];
         } catch (\Throwable $e) {
@@ -87,8 +87,8 @@ final class HealthController
     private function checkQueue(): array
     {
         try {
-            $pending = (int) $this->pdo->query('SELECT COUNT(*) FROM intra_jobs')->fetchColumn();
-            $failed  = (int) $this->pdo->query('SELECT COUNT(*) FROM intra_failed_jobs')->fetchColumn();
+            $pending = Capsule::table('intra_jobs')->count();
+            $failed  = Capsule::table('intra_failed_jobs')->count();
 
             // Warnung wenn zu viele Pending-Jobs gestaut — Worker läuft nicht?
             $status = $pending > 500 ? 'degraded' : 'ok';
@@ -130,9 +130,8 @@ final class HealthController
     private function checkMigrations(): array
     {
         try {
-            $stmt = $this->pdo->query('SELECT MAX(version) FROM phinxlog');
-            $latest = $stmt !== false ? $stmt->fetchColumn() : null;
-            if ($latest === null || $latest === false) {
+            $latest = Capsule::table('phinxlog')->max('version');
+            if ($latest === null) {
                 return ['status' => 'down', 'error' => 'no-migrations-applied'];
             }
             return ['status' => 'ok', 'latest' => (string) $latest];
@@ -213,6 +212,39 @@ final class HealthController
             'status' => $missing === [] ? 'ok' : 'degraded',
             'required' => $required,
             'missing' => $missing,
+        ];
+    }
+
+    /**
+     * Kam die Anfrage über den Front-Controller, und zeigt das Docroot auf
+     * public/? Erreicht diese Methode überhaupt eine HTTP-Anfrage, hat das
+     * Rewrite funktioniert; der Wert steckt im Detail: Läuft die
+     * Installation noch über die Root-.htaccess (Docroot = Projektordner),
+     * steht in `document_root` "fallback", und das Dashboard weist darauf
+     * hin. Der Status bleibt dann trotzdem ok — die Durchreichung ist
+     * eine unterstützte, nur nicht die empfohlene Konfiguration.
+     *
+     * @return array<string,mixed>
+     */
+    private function checkRewrite(Request $request): array
+    {
+        $script          = str_replace('\\', '/', (string) ($request->server['SCRIPT_FILENAME'] ?? ''));
+        $frontController = str_ends_with($script, '/public/index.php');
+
+        // realpath('') wäre das Arbeitsverzeichnis — ein fehlender
+        // DOCUMENT_ROOT (CLI, Tests) darf nicht als Docroot durchgehen.
+        $docRootRaw = (string) ($request->server['DOCUMENT_ROOT'] ?? '');
+        $publicDir  = realpath(dirname(__DIR__, 4) . '/public');
+        $docRoot    = $docRootRaw !== '' ? realpath($docRootRaw) : false;
+        $mode       = 'unknown';
+        if ($publicDir !== false && $docRoot !== false) {
+            $mode = $docRoot === $publicDir ? 'public' : 'fallback';
+        }
+
+        return [
+            'status'           => $frontController ? 'ok' : 'degraded',
+            'front_controller' => $frontController,
+            'document_root'    => $mode,
         ];
     }
 

@@ -2,11 +2,11 @@
 
 namespace App\Documents;
 
-use PDO;
+use App\Models\DocumentTemplateAsset;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class TemplateAssetManager
 {
-    private PDO $pdo;
     private string $storagePath;
 
     private const ALLOWED_MIME_TYPES = [
@@ -18,9 +18,8 @@ class TemplateAssetManager
 
     private const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    public function __construct(PDO $pdo, string $storagePath = __DIR__ . '/../../storage/template-assets')
+    public function __construct(string $storagePath = __DIR__ . '/../../storage/template-assets')
     {
-        $this->pdo = $pdo;
         $this->storagePath = rtrim($storagePath, '/\\');
     }
 
@@ -74,13 +73,7 @@ class TemplateAssetManager
         }
 
         // DB-Eintrag erstellen
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_dokument_template_assets
-            (template_id, filename, original_name, mime_type, file_size, width_px, height_px, asset_type, uploaded_by)
-            VALUES (:template_id, :filename, :original_name, :mime_type, :file_size, :width_px, :height_px, :asset_type, :uploaded_by)
-        ");
-
-        $stmt->execute([
+        $asset = DocumentTemplateAsset::create([
             'template_id' => $templateId,
             'filename' => $filename,
             'original_name' => $file['name'],
@@ -92,10 +85,8 @@ class TemplateAssetManager
             'uploaded_by' => $_SESSION['user_id'] ?? null,
         ]);
 
-        $assetId = (int) $this->pdo->lastInsertId();
-
         return [
-            'id' => $assetId,
+            'id' => (int) $asset->id,
             'url' => '/storage/template-assets/' . $filename,
             'original_name' => $file['name'],
             'mime_type' => $mimeType,
@@ -110,23 +101,21 @@ class TemplateAssetManager
      */
     public function delete(int $assetId): bool
     {
-        $stmt = $this->pdo->prepare("SELECT filename FROM intra_dokument_template_assets WHERE id = :id");
-        $stmt->execute(['id' => $assetId]);
-        $asset = $stmt->fetch(PDO::FETCH_ASSOC);
+        $asset = DocumentTemplateAsset::find($assetId);
 
         if (!$asset) {
             return false;
         }
 
         // Datei löschen
-        $filePath = $this->storagePath . '/' . $asset['filename'];
+        $filePath = $this->storagePath . '/' . $asset->filename;
         if (file_exists($filePath)) {
             unlink($filePath);
         }
 
         // DB-Eintrag löschen
-        $stmt = $this->pdo->prepare("DELETE FROM intra_dokument_template_assets WHERE id = :id");
-        return $stmt->execute(['id' => $assetId]);
+        $asset->delete();
+        return true;
     }
 
     /**
@@ -134,21 +123,19 @@ class TemplateAssetManager
      */
     public function listAssets(?int $templateId = null): array
     {
+        $query = Capsule::table('intra_dokument_template_assets');
+
         if ($templateId !== null) {
-            $stmt = $this->pdo->prepare("
-                SELECT * FROM intra_dokument_template_assets
-                WHERE template_id = :template_id OR template_id IS NULL
-                ORDER BY created_at DESC
-            ");
-            $stmt->execute(['template_id' => $templateId]);
-        } else {
-            $stmt = $this->pdo->query("
-                SELECT * FROM intra_dokument_template_assets
-                ORDER BY created_at DESC
-            ");
+            $query->where(function ($q) use ($templateId) {
+                $q->where('template_id', $templateId)->orWhereNull('template_id');
+            });
         }
 
-        $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $assets = $query
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         foreach ($assets as &$asset) {
             $asset['url'] = '/storage/template-assets/' . $asset['filename'];
@@ -162,21 +149,19 @@ class TemplateAssetManager
      */
     public function getAsBase64(int $assetId): ?string
     {
-        $stmt = $this->pdo->prepare("SELECT filename, mime_type FROM intra_dokument_template_assets WHERE id = :id");
-        $stmt->execute(['id' => $assetId]);
-        $asset = $stmt->fetch(PDO::FETCH_ASSOC);
+        $asset = DocumentTemplateAsset::find($assetId);
 
         if (!$asset) {
             return null;
         }
 
-        $filePath = $this->storagePath . '/' . $asset['filename'];
+        $filePath = $this->storagePath . '/' . $asset->filename;
         if (!file_exists($filePath)) {
             return null;
         }
 
         $data = file_get_contents($filePath);
-        return 'data:' . $asset['mime_type'] . ';base64,' . base64_encode($data);
+        return 'data:' . $asset->mime_type . ';base64,' . base64_encode($data);
     }
 
     /**
@@ -184,15 +169,13 @@ class TemplateAssetManager
      */
     public function getAssetPath(int $assetId): ?string
     {
-        $stmt = $this->pdo->prepare("SELECT filename FROM intra_dokument_template_assets WHERE id = :id");
-        $stmt->execute(['id' => $assetId]);
-        $asset = $stmt->fetch(PDO::FETCH_ASSOC);
+        $asset = DocumentTemplateAsset::find($assetId);
 
         if (!$asset) {
             return null;
         }
 
-        return $this->storagePath . '/' . $asset['filename'];
+        return $this->storagePath . '/' . $asset->filename;
     }
 
     /**
@@ -200,15 +183,16 @@ class TemplateAssetManager
      */
     public function getAsset(int $assetId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM intra_dokument_template_assets WHERE id = :id");
-        $stmt->execute(['id' => $assetId]);
-        $asset = $stmt->fetch(PDO::FETCH_ASSOC);
+        $asset = DocumentTemplateAsset::find($assetId);
 
-        if ($asset) {
-            $asset['url'] = '/storage/template-assets/' . $asset['filename'];
+        if (!$asset) {
+            return null;
         }
 
-        return $asset ?: null;
+        $data = $asset->getAttributes();
+        $data['url'] = '/storage/template-assets/' . $data['filename'];
+
+        return $data;
     }
 
     private function getUploadErrorMessage(int $errorCode): string

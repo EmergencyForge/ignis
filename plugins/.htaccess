@@ -1,7 +1,14 @@
-# Plugins sind Anwendungscode. Öffentlich sind nur statische Dateien aus
-# plugins/<id>/assets/ mit einer kleinen Endungs-Allowlist. PHP, Templates,
-# Manifest, Migrationen und beliebige Dateien außerhalb von assets/ bleiben
-# auch dann gesperrt, wenn sie eine vermeintlich harmlose Endung tragen.
+# Plugins sind Anwendungscode und liegen außerhalb des Docroots (public/);
+# ihre statischen Dateien liefert die Route /plugins/<id>/assets/... aus.
+# Zeigt das Docroot auf public/, liest Apache diese Datei nie.
+#
+# Sie gilt für Installationen, deren Docroot noch das Projektverzeichnis
+# ist. Dort prüft Apache den Zugriff, BEVOR die Root-.htaccess die Anfrage
+# nach public/ durchreicht — ein pauschales Verbot würde also auch die
+# Asset-Anfragen abfangen, die die Route bedienen soll. Deshalb dürfen nur
+# Anfragen auf statische Dateien unter assets/ passieren (dieselbe
+# Endungs-Allowlist wie in der Route); alles andere bleibt gesperrt, auch
+# wenn mod_rewrite einmal fehlen sollte.
 SetEnvIf Request_URI "/plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(css|js|map|woff2|png|svg|webp)$" plugin_static_asset=1
 
 <IfModule mod_authz_core.c>

@@ -1,12 +1,15 @@
 <?php
 // Ensure required variables are available from parent context
-if (!isset($incident, $pdo, $id)) {
+if (!isset($incident, $id)) {
     die('Error: Required context not available');
 }
 
 use App\Helpers\MapCoordinates;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Helper function to get display name with fallback to vehicle operator
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('getDisplayName')) {
 function getDisplayName(?string $created_by_name, ?string $operator_name, ?string $vehicle_name): string
 {
     if (!empty($created_by_name)) {
@@ -26,25 +29,26 @@ function getDisplayName(?string $created_by_name, ?string $operator_name, ?strin
     }
     return 'Unbekannt';
 }
+}
 
 // Load existing markers for this incident
 $markers = [];
 try {
-    $stmt = $pdo->prepare("
-        SELECT
-            m.*,
-            mit.fullname AS created_by_name,
-            v.name AS vehicle_name,
-            op.fullname AS operator_name
-        FROM intra_fire_incident_map_markers m
-        LEFT JOIN intra_mitarbeiter mit ON m.created_by = mit.id
-        LEFT JOIN intra_fahrzeuge v ON m.vehicle_id = v.id
-        LEFT JOIN intra_mitarbeiter op ON m.operator_id = op.id
-        WHERE m.incident_id = ?
-        ORDER BY m.created_at DESC
-    ");
-    $stmt->execute([$id]);
-    $markers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $markers = Capsule::table('intra_fire_incident_map_markers as m')
+        ->leftJoin('intra_mitarbeiter as mit', 'm.created_by', '=', 'mit.id')
+        ->leftJoin('intra_fahrzeuge as v', 'm.vehicle_id', '=', 'v.id')
+        ->leftJoin('intra_mitarbeiter as op', 'm.operator_id', '=', 'op.id')
+        ->where('m.incident_id', $id)
+        ->select([
+            'm.*',
+            'mit.fullname as created_by_name',
+            'v.name as vehicle_name',
+            'op.fullname as operator_name',
+        ])
+        ->orderBy('m.created_at', 'desc')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 } catch (PDOException $e) {
     // Table might not exist yet
     $markers = [];
@@ -101,21 +105,21 @@ if (!empty($incident['location_x']) && !empty($incident['location_y'])) {
 // Load existing zones for this incident
 $zones = [];
 try {
-    $stmt = $pdo->prepare("
-        SELECT
-            z.*,
-            mit.fullname AS created_by_name,
-            v.name AS vehicle_name,
-            op.fullname AS operator_name
-        FROM intra_fire_incident_map_zones z
-        LEFT JOIN intra_mitarbeiter mit ON z.created_by = mit.id
-        LEFT JOIN intra_fahrzeuge v ON z.vehicle_id = v.id
-        LEFT JOIN intra_mitarbeiter op ON z.operator_id = op.id
-        WHERE z.incident_id = ?
-        ORDER BY z.created_at DESC
-    ");
-    $stmt->execute([$id]);
-    $zones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $zones = Capsule::table('intra_fire_incident_map_zones as z')
+        ->leftJoin('intra_mitarbeiter as mit', 'z.created_by', '=', 'mit.id')
+        ->leftJoin('intra_fahrzeuge as v', 'z.vehicle_id', '=', 'v.id')
+        ->leftJoin('intra_mitarbeiter as op', 'z.operator_id', '=', 'op.id')
+        ->where('z.incident_id', $id)
+        ->select([
+            'z.*',
+            'mit.fullname as created_by_name',
+            'v.name as vehicle_name',
+            'op.fullname as operator_name',
+        ])
+        ->orderBy('z.created_at', 'desc')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 } catch (PDOException $e) {
     // Table might not exist yet
     $zones = [];
@@ -124,27 +128,27 @@ try {
 // Load assigned vehicles with tactical symbols configured
 $assignedVehicles = [];
 try {
-    $stmt = $pdo->prepare("
-        SELECT
-            v.id,
-            v.name,
-            v.grundzeichen,
-            v.organisation,
-            v.fachaufgabe,
-            v.einheit,
-            v.symbol,
-            v.typ,
-            v.text,
-            v.tz_name
-        FROM intra_fire_incident_vehicles iv
-        JOIN intra_fahrzeuge v ON iv.vehicle_id = v.id
-        WHERE iv.incident_id = ?
-        AND v.grundzeichen IS NOT NULL
-        AND v.grundzeichen != ''
-        ORDER BY v.name ASC
-    ");
-    $stmt->execute([$id]);
-    $assignedVehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $assignedVehicles = Capsule::table('intra_fire_incident_vehicles as iv')
+        ->join('intra_fahrzeuge as v', 'iv.vehicle_id', '=', 'v.id')
+        ->where('iv.incident_id', $id)
+        ->whereNotNull('v.grundzeichen')
+        ->where('v.grundzeichen', '!=', '')
+        ->select([
+            'v.id',
+            'v.name',
+            'v.grundzeichen',
+            'v.organisation',
+            'v.fachaufgabe',
+            'v.einheit',
+            'v.symbol',
+            'v.typ',
+            'v.text',
+            'v.tz_name',
+        ])
+        ->orderBy('v.name', 'asc')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 } catch (PDOException $e) {
     // Table columns might not exist yet
     $assignedVehicles = [];
@@ -417,7 +421,7 @@ try {
 
         <?php if (!empty($assignedVehicles)): ?>
             <!-- Assigned Vehicle Markers Grid -->
-            <div class="mb-2 text-[var(--text-dimmed,#818189)] text-sm"><strong>Zugewiesene Fahrzeuge:</strong></div>
+            <div class="mb-2 text-[var(--text-3)] text-sm"><strong>Zugewiesene Fahrzeuge:</strong></div>
             <div class="marker-legend mb-3" id="vehicleMarkerLegend">
                 <?php foreach ($assignedVehicles as $vehicle): ?>
                     <div class="legend-item"
@@ -439,7 +443,7 @@ try {
         <?php endif; ?>
 
         <!-- Standard Markers Grid -->
-        <div class="mb-2 text-[var(--text-dimmed,#818189)] text-sm"><strong>Standard-Marker:</strong></div>
+        <div class="mb-2 text-[var(--text-3)] text-sm"><strong>Standard-Marker:</strong></div>
         <div class="marker-legend" id="markerLegend">
 
             <div class="legend-item" data-type="Einsatzleiter"
@@ -489,22 +493,22 @@ try {
         <!-- Marker List -->
         <div class="mt-4">
             <h6 class="mb-3"><i class="fa-solid fa-map-pin mr-2"></i>Platzierte Marker</h6>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
+            <div class="twplus-table-card">
+                <table class="ignis-table" id="table-map-markers">
                     <thead>
                         <tr>
-                            <th>Typ</th>
-                            <th>Beschreibung</th>
-                            <th>Erstellt von</th>
-                            <th>Fahrzeug</th>
-                            <th>Zeitstempel</th>
-                            <th>Aktionen</th>
+                            <th scope="col">Typ</th>
+                            <th scope="col">Beschreibung</th>
+                            <th scope="col">Erstellt von</th>
+                            <th scope="col">Fahrzeug</th>
+                            <th scope="col">Zeitstempel</th>
+                            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                         </tr>
                     </thead>
                     <tbody id="markerTableBody">
                         <?php if (empty($markers)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-[var(--text-dimmed,#818189)]">
+                                <td colspan="6" class="ignis-table-empty">
                                     Noch keine Marker platziert
                                 </td>
                             </tr>
@@ -518,11 +522,11 @@ try {
                                     <td><?= htmlspecialchars(getDisplayName($marker['created_by_name'], $marker['operator_name'], $marker['vehicle_name'])) ?></td>
                                     <td><?= htmlspecialchars($marker['vehicle_name'] ?? '-') ?></td>
                                     <td><?= fmt_dt($marker['created_at']) ?></td>
-                                    <td>
+                                    <td class="ignis-table__actions">
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon delete-marker-btn" aria-label="Marker löschen"
                                                 data-marker-id="<?= $marker['id'] ?>">
-                                                <i class="fa-solid fa-trash"></i>
+                                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                             </button>
                                         <?php endif; ?>
                                     </td>
@@ -537,23 +541,23 @@ try {
         <!-- Zone List -->
         <div class="mt-4">
             <h6 class="mb-3"><i class="fa-solid fa-draw-polygon mr-2"></i>Markierte Zonen</h6>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
+            <div class="twplus-table-card">
+                <table class="ignis-table" id="table-map-zones">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Farbe</th>
-                            <th>Beschreibung</th>
-                            <th>Erstellt von</th>
-                            <th>Fahrzeug</th>
-                            <th>Zeitstempel</th>
-                            <th>Aktionen</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Farbe</th>
+                            <th scope="col">Beschreibung</th>
+                            <th scope="col">Erstellt von</th>
+                            <th scope="col">Fahrzeug</th>
+                            <th scope="col">Zeitstempel</th>
+                            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                         </tr>
                     </thead>
                     <tbody id="zoneTableBody">
                         <?php if (empty($zones)): ?>
                             <tr>
-                                <td colspan="7" class="text-center text-[var(--text-dimmed,#818189)]">
+                                <td colspan="7" class="ignis-table-empty">
                                     Noch keine Zonen erstellt
                                 </td>
                             </tr>
@@ -572,11 +576,11 @@ try {
                                     <td><?= htmlspecialchars(getDisplayName($zone['created_by_name'], $zone['operator_name'], $zone['vehicle_name'])) ?></td>
                                     <td><?= htmlspecialchars($zone['vehicle_name'] ?? '-') ?></td>
                                     <td><?= fmt_dt($zone['created_at']) ?></td>
-                                    <td>
+                                    <td class="ignis-table__actions">
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon delete-zone-btn" aria-label="Zone löschen"
                                                 data-zone-id="<?= $zone['id'] ?>">
-                                                <i class="fa-solid fa-trash"></i>
+                                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                             </button>
                                         <?php endif; ?>
                                     </td>
@@ -602,7 +606,7 @@ try {
                         <div class="text-center mb-2">
                             <span id="selectedMarkerIcon">📌</span>
                         </div>
-                        <p class="text-center text-[var(--text-dimmed,#818189)] text-sm" id="selectedMarkerText">
+                        <p class="text-center text-[var(--text-3)] text-sm" id="selectedMarkerText">
                             Bitte wählen Sie einen Marker-Typ aus der Legende
                         </p>
                     </div>
@@ -618,7 +622,7 @@ try {
                         <label for="markerText" class="ignis-field__label">Text-Beschriftung</label>
                         <input type="text" class="ignis-input" id="markerText" name="text"
                             placeholder="z.B. LF20, RTW 1/82-1">
-                        <small class="text-[var(--text-dimmed,#818189)]">Wird auf dem taktischen Zeichen angezeigt</small>
+                        <small class="text-[var(--text-3)]">Wird auf dem taktischen Zeichen angezeigt</small>
                     </div>
 
                     <!-- Name field for tactical symbols -->
@@ -626,7 +630,7 @@ try {
                         <label for="markerName" class="ignis-field__label">Name</label>
                         <input type="text" class="ignis-input" id="markerName" name="name"
                             placeholder="z.B. Einsatzabschnitt Nord">
-                        <small class="text-[var(--text-dimmed,#818189)]">Name des taktischen Zeichens</small>
+                        <small class="text-[var(--text-3)]">Name des taktischen Zeichens</small>
                     </div>
 
                     <!-- Typ field for tactical symbols -->
@@ -634,7 +638,7 @@ try {
                         <label for="markerTyp" class="ignis-field__label">Typ</label>
                         <input type="text" class="ignis-input" id="markerTyp" name="typ"
                             placeholder="z.B. HLF20, RTW, DLK23/12">
-                        <small class="text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                        <small class="text-[var(--text-3)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                     </div>
 
                     <!-- Custom Tactical Symbol Fields -->
@@ -644,7 +648,7 @@ try {
 
                         <div class="mb-3">
                             <label for="customGrundzeichen" class="ignis-field__label">Grundzeichen <span class="text-[#d46b6b]">*</span></label>
-                            <select class="form-select" id="customGrundzeichen">
+                            <select class="ignis-input" id="customGrundzeichen">
                                 <option value="">-- Bitte wählen --</option>
                                 <option value="abrollbehaelter">Abrollbehälter</option>
                                 <option value="amphibienfahrzeug">Amphibienfahrzeug</option>
@@ -679,7 +683,7 @@ try {
 
                         <div class="mb-3">
                             <label for="customOrganisation" class="ignis-field__label">Organisation</label>
-                            <select class="form-select" id="customOrganisation">
+                            <select class="ignis-input" id="customOrganisation">
                                 <option value="">-- Keine --</option>
                                 <option value="bundeswehr">Bundeswehr</option>
                                 <option value="feuerwehr">Feuerwehr</option>
@@ -694,7 +698,7 @@ try {
 
                         <div class="mb-3">
                             <label for="customFachaufgabe" class="ignis-field__label">Fachaufgabe</label>
-                            <select class="form-select" id="customFachaufgabe">
+                            <select class="ignis-input" id="customFachaufgabe">
                                 <option value="">-- Keine --</option>
                                 <option value="abwehr-wassergefahren">Abwehr von Wassergefahren</option>
                                 <option value="aerztliche-versorgung">Ärztliche Versorgung</option>
@@ -743,7 +747,7 @@ try {
 
                         <div class="mb-3">
                             <label for="customEinheit" class="ignis-field__label">Einheit</label>
-                            <select class="form-select" id="customEinheit">
+                            <select class="ignis-input" id="customEinheit">
                                 <option value="">-- Keine --</option>
                                 <option value="trupp">Trupp</option>
                                 <option value="staffel">Staffel</option>
@@ -757,7 +761,7 @@ try {
 
                         <div class="mb-3">
                             <label for="customSymbol" class="ignis-field__label">Symbol</label>
-                            <select class="form-select" id="customSymbol">
+                            <select class="ignis-input" id="customSymbol">
                                 <option value="">-- Kein Symbol --</option>
                                 <option value="abc">Gefährliche Stoffe (ABC)</option>
                                 <option value="bagger">Bagger</option>
@@ -796,7 +800,7 @@ try {
                             <label for="customTyp" class="ignis-field__label">Typ</label>
                             <input type="text" class="ignis-input" id="customTyp"
                                 placeholder="z.B. HLF20, RTW, DLK23/12">
-                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                            <small class="ignis-field__hint text-[var(--text-3)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                         </div>
 
                         <div class="text-center mb-3">

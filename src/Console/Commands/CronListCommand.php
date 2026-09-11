@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use PDO;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -15,7 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `php cli/intra.php cron:list`
  *
  * Zeigt alle registrierten Cron-Jobs mit Status, letzter/nächster Ausführung
- * und Fail-Counter — nützlich zum Debuggen ohne Admin-UI.
+ * und Fail-Counter — nützlich zum Debuggen ohne Admin-UI. Die Verbindung
+ * kommt erst beim Ausführen aus dem Container, siehe MigrateCommand.
  */
 #[AsCommand(
     name: 'cron:list',
@@ -23,14 +25,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 final class CronListCommand extends Command
 {
-    public function __construct(private readonly PDO $pdo)
+    public function __construct(private readonly ContainerInterface $container)
     {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rows = $this->pdo
+        $rows = $this->container->get(PDO::class)
             ->query("SELECT identifier, name, schedule, active, last_status,
                             last_run_at, next_run_at, fail_count
                        FROM intra_cron_jobs

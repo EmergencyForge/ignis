@@ -14,15 +14,17 @@ final class AddSortOrderToBeladungTiles extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
+        $table = $this->table('intra_fahrzeuge_beladung_tiles');
 
-        $columns = $pdo->query("SHOW COLUMNS FROM intra_fahrzeuge_beladung_tiles LIKE 'sort_order'")->fetchAll();
-        if (!$columns) {
-            $pdo->exec(
-                "ALTER TABLE intra_fahrzeuge_beladung_tiles
-                 ADD COLUMN sort_order INT NOT NULL DEFAULT 0 AFTER amount,
-                 ADD INDEX idx_category_sort (category, sort_order)"
-            );
+        if (!$table->hasColumn('sort_order')) {
+            $table
+                ->addColumn('sort_order', 'integer', [
+                    'null'    => false,
+                    'default' => 0,
+                    'after'   => 'amount',
+                ])
+                ->addIndex(['category', 'sort_order'], ['name' => 'idx_category_sort'])
+                ->update();
         }
     }
 }

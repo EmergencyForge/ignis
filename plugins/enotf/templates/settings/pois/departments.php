@@ -5,7 +5,6 @@
  * @var array<string,mixed>            $poi
  * @var int|string                     $poi_id
  * @var array<int,array<string,mixed>> $departments
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;

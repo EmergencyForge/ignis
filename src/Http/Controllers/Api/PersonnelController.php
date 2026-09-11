@@ -9,9 +9,14 @@ use App\Http\Request;
 use App\Http\Requests\Personnel\UpdateProfileRequest;
 use App\Http\Response;
 use App\Logging\Logger;
+use App\Models\AmbSkill;
+use App\Models\FdSkill;
+use App\Models\Personnel;
+use App\Models\Rank;
+use App\Models\RegistrationCode;
 use App\Personnel\PersonalLogManager;
 use DateTime;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Personnel-Admin-API — Dienstnummer-Checks, Invite-Codes, Profil-Updates,
@@ -21,10 +26,6 @@ use PDO;
  */
 final class PersonnelController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * POST /api/personnel/check-dienstnr
      *
@@ -46,13 +47,7 @@ final class PersonnelController
         }
 
         try {
-            $stmt = $this->pdo->prepare(
-                "SELECT COUNT(*) as count FROM intra_mitarbeiter WHERE dienstnr = :dienstnr"
-            );
-            $stmt->execute(['dienstnr' => $dienstnr]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $available = ((int) $row['count']) === 0;
+            $available = Personnel::query()->where('dienstnr', $dienstnr)->count() === 0;
 
             return Response::json([
                 'available' => $available,
@@ -82,19 +77,12 @@ final class PersonnelController
         try {
             $excludeId = isset($request->post['exclude_id']) ? (int) $request->post['exclude_id'] : 0;
 
+            $query = Personnel::query()->where('dienstnr', $dienstnr);
             if ($excludeId > 0) {
-                $stmt = $this->pdo->prepare(
-                    "SELECT COUNT(*) FROM intra_mitarbeiter WHERE dienstnr = :dienstnr AND id != :exclude_id"
-                );
-                $stmt->execute(['dienstnr' => $dienstnr, 'exclude_id' => $excludeId]);
-            } else {
-                $stmt = $this->pdo->prepare(
-                    "SELECT COUNT(*) FROM intra_mitarbeiter WHERE dienstnr = :dienstnr"
-                );
-                $stmt->execute(['dienstnr' => $dienstnr]);
+                $query->where('id', '!=', $excludeId);
             }
 
-            return Response::text(((int) $stmt->fetchColumn()) > 0 ? 'exists' : 'not_exists');
+            return Response::text($query->count() > 0 ? 'exists' : 'not_exists');
         } catch (\Throwable $e) {
             Logger::error('Personnel: check-dienstnr-legacy Fehler', ['error' => $e->getMessage()]);
             return Response::text('error');
@@ -117,9 +105,7 @@ final class PersonnelController
 
         try {
             $code = bin2hex(random_bytes(8));
-            $this->pdo->prepare(
-                "INSERT INTO intra_registration_codes (code, label, created_by) VALUES (:code, :label, :created_by)"
-            )->execute([
+            RegistrationCode::create([
                 'code'       => $code,
                 'label'      => $label,
                 'created_by' => $_SESSION['userid'] ?? null,
@@ -176,11 +162,11 @@ final class PersonnelController
         $charakterid = (defined('CHAR_ID') && CHAR_ID) ? $data['charakterid'] : '';
 
         if ($dienstnr !== '') {
-            $checkStmt = $this->pdo->prepare(
-                "SELECT COUNT(*) FROM intra_mitarbeiter WHERE dienstnr = :dienstnr AND id != :id"
-            );
-            $checkStmt->execute(['dienstnr' => $dienstnr, 'id' => $id]);
-            if ($checkStmt->fetchColumn() > 0) {
+            $taken = Personnel::query()
+                ->where('dienstnr', $dienstnr)
+                ->where('id', '!=', $id)
+                ->count();
+            if ($taken > 0) {
                 return Response::json([
                     'success' => false,
                     'message' => 'Diese Dienstnummer ist bereits vergeben',
@@ -189,54 +175,47 @@ final class PersonnelController
         }
 
         try {
-            $stmt = $this->pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
-            $stmt->execute(['id' => $id]);
-            $current = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$current) {
+            // Bewusst Query-Builder statt Personnel-Model: die Change-Detection
+            // unten vergleicht die DB-Rohwerte strikt (===) mit den Request-
+            // Strings — Model-Casts (date/datetime) würden die Vergleiche kippen.
+            $currentRow = Capsule::table('intra_mitarbeiter')->where('id', $id)->first();
+            if (!$currentRow) {
                 return Response::json(['success' => false, 'message' => 'Mitarbeiter nicht gefunden'], 404);
             }
+            $current = (array) $currentRow;
 
-            $userHelper = new UserHelper($this->pdo);
+            $userHelper = new UserHelper();
             $edituser   = $userHelper->getCurrentUserFullnameForAction();
-            $logManager = new PersonalLogManager($this->pdo);
+            $logManager = new PersonalLogManager();
             $changes    = [];
 
             // Rank-Change mit Audit
             if ((int) $current['dienstgrad'] !== $dienstgrad) {
-                $this->pdo->prepare("UPDATE intra_mitarbeiter SET dienstgrad = :dg WHERE id = :id")
-                    ->execute(['dg' => $dienstgrad, 'id' => $id]);
+                Capsule::table('intra_mitarbeiter')->where('id', $id)->update(['dienstgrad' => $dienstgrad]);
 
-                $oldDg = $this->pdo->prepare("SELECT name FROM intra_mitarbeiter_dienstgrade WHERE id = ?");
-                $oldDg->execute([(int) $current['dienstgrad']]);
-                $newDg = $this->pdo->prepare("SELECT name FROM intra_mitarbeiter_dienstgrade WHERE id = ?");
-                $newDg->execute([$dienstgrad]);
-                $logManager->logRankChange($id, $oldDg->fetchColumn(), $newDg->fetchColumn(), $edituser);
+                $oldDgName = Rank::query()->where('id', (int) $current['dienstgrad'])->value('name');
+                $newDgName = Rank::query()->where('id', $dienstgrad)->value('name');
+                $logManager->logRankChange($id, $oldDgName, $newDgName, $edituser);
                 $changes[] = 'dienstgrad';
             }
 
             // RD-Quali-Change
             if ((int) $current['qualird'] !== $qualird) {
-                $this->pdo->prepare("UPDATE intra_mitarbeiter SET qualird = :q WHERE id = :id")
-                    ->execute(['q' => $qualird, 'id' => $id]);
+                Capsule::table('intra_mitarbeiter')->where('id', $id)->update(['qualird' => $qualird]);
 
-                $oldQ = $this->pdo->prepare("SELECT name FROM intra_mitarbeiter_rdquali WHERE id = ?");
-                $oldQ->execute([(int) $current['qualird']]);
-                $newQ = $this->pdo->prepare("SELECT name FROM intra_mitarbeiter_rdquali WHERE id = ?");
-                $newQ->execute([$qualird]);
-                $logManager->logQualificationChange($id, 'RD', $oldQ->fetchColumn(), $newQ->fetchColumn(), $edituser);
+                $oldQName = AmbSkill::query()->where('id', (int) $current['qualird'])->value('name');
+                $newQName = AmbSkill::query()->where('id', $qualird)->value('name');
+                $logManager->logQualificationChange($id, 'RD', $oldQName, $newQName, $edituser);
                 $changes[] = 'qualird';
             }
 
             // FW-Quali-Change
             if ((int) $current['qualifw2'] !== $qualifw2) {
-                $this->pdo->prepare("UPDATE intra_mitarbeiter SET qualifw2 = :q WHERE id = :id")
-                    ->execute(['q' => $qualifw2, 'id' => $id]);
+                Capsule::table('intra_mitarbeiter')->where('id', $id)->update(['qualifw2' => $qualifw2]);
 
-                $oldQ = $this->pdo->prepare("SELECT name FROM intra_mitarbeiter_fwquali WHERE id = ?");
-                $oldQ->execute([(int) $current['qualifw2']]);
-                $newQ = $this->pdo->prepare("SELECT name FROM intra_mitarbeiter_fwquali WHERE id = ?");
-                $newQ->execute([$qualifw2]);
-                $logManager->logQualificationChange($id, 'FW', $oldQ->fetchColumn(), $newQ->fetchColumn(), $edituser);
+                $oldQName = FdSkill::query()->where('id', (int) $current['qualifw2'])->value('name');
+                $newQName = FdSkill::query()->where('id', $qualifw2)->value('name');
+                $logManager->logQualificationChange($id, 'FW', $oldQName, $newQName, $edituser);
                 $changes[] = 'qualifw2';
             }
 
@@ -262,42 +241,38 @@ final class PersonnelController
             );
 
             if ($baseDataChanged) {
-                $setClauses = [
-                    'fullname = :fullname', 'gebdatum = :gebdatum', 'discordtag = :discordtag',
-                    'telefonnr = :telefonnr', 'dienstnr = :dienstnr', 'geschlecht = :geschlecht',
-                    'zusatz = :zusatzqual', 'pfp = :pfp',
-                ];
-                $params = [
-                    'fullname'   => $fullname, 'gebdatum' => $gebdatum, 'discordtag' => $discordtag,
-                    'telefonnr'  => $telefonnr, 'dienstnr' => $dienstnr, 'geschlecht' => $geschlecht,
-                    'zusatzqual' => $zusatzqual, 'pfp' => $pfp, 'id' => $id,
+                $updateData = [
+                    'fullname'   => $fullname,
+                    'gebdatum'   => $gebdatum,
+                    'discordtag' => $discordtag,
+                    'telefonnr'  => $telefonnr,
+                    'dienstnr'   => $dienstnr,
+                    'geschlecht' => $geschlecht,
+                    'zusatz'     => $zusatzqual,
+                    'pfp'        => $pfp,
                 ];
                 if (defined('CHAR_ID') && CHAR_ID) {
-                    $setClauses[]        = 'charakterid = :charakterid';
-                    $params['charakterid'] = $charakterid;
+                    $updateData['charakterid'] = $charakterid;
                 }
 
-                $this->pdo->prepare(
-                    "UPDATE intra_mitarbeiter SET " . implode(', ', $setClauses) . " WHERE id = :id"
-                )->execute($params);
+                Capsule::table('intra_mitarbeiter')->where('id', $id)->update($updateData);
                 $logManager->logProfileModification($id, $edituser);
                 $changes[] = 'basedata';
             }
 
             // Aktuelle Daten für die Response holen (mit Joins)
-            $stmt = $this->pdo->prepare("
-                SELECT m.*,
-                    dg.name as dg_name, dg.name_m as dg_name_m, dg.name_w as dg_name_w, dg.badge as dg_badge,
-                    rd.name as rd_name, rd.name_m as rd_name_m, rd.name_w as rd_name_w, rd.none as rd_none,
-                    fw.shortname as fw_shortname, fw.none as fw_none
-                FROM intra_mitarbeiter m
-                LEFT JOIN intra_mitarbeiter_dienstgrade dg ON m.dienstgrad = dg.id
-                LEFT JOIN intra_mitarbeiter_rdquali rd ON m.qualird = rd.id
-                LEFT JOIN intra_mitarbeiter_fwquali fw ON m.qualifw2 = fw.id
-                WHERE m.id = :id
-            ");
-            $stmt->execute(['id' => $id]);
-            $updated = $stmt->fetch(PDO::FETCH_ASSOC);
+            $updated = (array) Capsule::table('intra_mitarbeiter as m')
+                ->leftJoin('intra_mitarbeiter_dienstgrade as dg', 'm.dienstgrad', '=', 'dg.id')
+                ->leftJoin('intra_mitarbeiter_rdquali as rd', 'm.qualird', '=', 'rd.id')
+                ->leftJoin('intra_mitarbeiter_fwquali as fw', 'm.qualifw2', '=', 'fw.id')
+                ->select(
+                    'm.*',
+                    'dg.name as dg_name', 'dg.name_m as dg_name_m', 'dg.name_w as dg_name_w', 'dg.badge as dg_badge',
+                    'rd.name as rd_name', 'rd.name_m as rd_name_m', 'rd.name_w as rd_name_w', 'rd.none as rd_none',
+                    'fw.shortname as fw_shortname', 'fw.none as fw_none'
+                )
+                ->where('m.id', $id)
+                ->first();
 
             $g = (int) $updated['geschlecht'];
             $dgText = $g === 0 ? $updated['dg_name_m'] : ($g === 1 ? $updated['dg_name_w'] : $updated['dg_name']);
@@ -397,9 +372,7 @@ final class PersonnelController
         // Altes Profilbild löschen falls vorhanden
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         try {
-            $stmt = $this->pdo->prepare("SELECT pfp FROM intra_mitarbeiter WHERE id = :id");
-            $stmt->execute(['id' => $mitarbeiterId]);
-            $oldPfp = $stmt->fetchColumn();
+            $oldPfp = Personnel::query()->where('id', $mitarbeiterId)->value('pfp');
 
             if ($oldPfp && str_starts_with((string) $oldPfp, $base . 'storage/profile-pictures/')) {
                 $oldFile = dirname(__DIR__, 4) . '/' . str_replace($base, '', (string) $oldPfp);
@@ -414,8 +387,7 @@ final class PersonnelController
         $relativePath = $base . 'storage/profile-pictures/' . $filename;
 
         try {
-            $this->pdo->prepare("UPDATE intra_mitarbeiter SET pfp = :pfp WHERE id = :id")
-                ->execute(['pfp' => $relativePath, 'id' => $mitarbeiterId]);
+            Personnel::query()->where('id', $mitarbeiterId)->update(['pfp' => $relativePath]);
 
             return Response::json([
                 'success' => true,

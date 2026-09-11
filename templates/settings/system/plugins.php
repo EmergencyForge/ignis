@@ -3,7 +3,6 @@
 /**
  * View: Plugin-Verwaltung
  *
- * @var \PDO                                $pdo
  * @var list<array{id: string, manifest: \App\Plugins\PluginManifest, enabled: bool, active: bool, skipReason: ?string, requiredBy: list<string>}> $rows
  * @var string                              $message
  * @var string                              $messageType
@@ -16,19 +15,11 @@
 use App\Security\CsrfProtection;
 
 $csrfToken = CsrfProtection::getToken();
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Plugins';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="dark">
-
-<head>
-    <?php
-    $SITE_TITLE = 'Plugins';
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
@@ -258,7 +249,3 @@ $csrfToken = CsrfProtection::getToken();
             </div>
         </div>
     </div>
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

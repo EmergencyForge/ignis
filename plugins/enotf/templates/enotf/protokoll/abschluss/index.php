@@ -1,22 +1,19 @@
 <?php
 /**
  * View: enotf/protokoll/abschluss/index.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 
+use App\Models\Personnel;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Models\Edivi;
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -229,12 +226,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         <select name="fzg_transp" id="fzg_transp" class="w-100 form-select" data-custom-dropdown="true" data-search-threshold="5">
                                                             <option selected value="NULL">Fzg. Transp.</option>
                                                             <?php
-                                                            require dirname(__DIR__, 6) . '/assets/config/database.php';
                                                             require_once dirname(__DIR__, 6) . '/assets/functions/enotf/pin_middleware.php';
 
-                                                            $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE rd_type = 2 AND active = 1 ORDER BY priority ASC");
-                                                            $stmt->execute();
-                                                            $fahrzeuge = $stmt->fetchAll();
+                                                            $fahrzeuge = Capsule::table('intra_fahrzeuge')
+                                                                ->where('rd_type', 2)
+                                                                ->where('active', 1)
+                                                                ->orderBy('priority', 'ASC')
+                                                                ->get()
+                                                                ->map(fn ($row) => (array) $row)
+                                                                ->all();
                                                             foreach ($fahrzeuge as $row) {
                                                                 echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
                                                             }
@@ -244,12 +244,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         <select name="fzg_transp" id="fzg_transp" class="w-100 form-select" data-custom-dropdown="true" data-search-threshold="5">
                                                             <option selected value="NULL">Fzg. Transp.</option>
                                                             <?php
-                                                            require dirname(__DIR__, 6) . '/assets/config/database.php';
                                                             require_once dirname(__DIR__, 6) . '/assets/functions/enotf/pin_middleware.php';
 
-                                                            $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE rd_type = 2 ORDER BY priority ASC");
-                                                            $stmt->execute();
-                                                            $fahrzeuge = $stmt->fetchAll();
+                                                            $fahrzeuge = Capsule::table('intra_fahrzeuge')
+                                                                ->where('rd_type', 2)
+                                                                ->orderBy('priority', 'ASC')
+                                                                ->get()
+                                                                ->map(fn ($row) => (array) $row)
+                                                                ->all();
 
                                                             foreach ($fahrzeuge as $row) {
                                                                 if ($row['identifier'] == $daten['fzg_transp'] && $row['active'] == 1) {
@@ -290,12 +292,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         <select name="fzg_na" id="fzg_na" class="w-100 form-select" data-custom-dropdown="true" data-search-threshold="5">
                                                             <option selected value="NULL">Fzg. NA</option>
                                                             <?php
-                                                            require dirname(__DIR__, 6) . '/assets/config/database.php';
                                                             require_once dirname(__DIR__, 6) . '/assets/functions/enotf/pin_middleware.php';
 
-                                                            $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE rd_type = 1 AND active = 1 ORDER BY priority ASC");
-                                                            $stmt->execute();
-                                                            $fahrzeuge = $stmt->fetchAll();
+                                                            $fahrzeuge = Capsule::table('intra_fahrzeuge')
+                                                                ->where('rd_type', 1)
+                                                                ->where('active', 1)
+                                                                ->orderBy('priority', 'ASC')
+                                                                ->get()
+                                                                ->map(fn ($row) => (array) $row)
+                                                                ->all();
                                                             foreach ($fahrzeuge as $row) {
                                                                 echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
                                                             }
@@ -305,12 +310,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         <select name="fzg_na" id="fzg_na" class="w-100 form-select" data-custom-dropdown="true" data-search-threshold="5">
                                                             <option selected value="NULL">Fzg. NA</option>
                                                             <?php
-                                                            require dirname(__DIR__, 6) . '/assets/config/database.php';
                                                             require_once dirname(__DIR__, 6) . '/assets/functions/enotf/pin_middleware.php';
 
-                                                            $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE rd_type = 1 ORDER BY priority ASC");
-                                                            $stmt->execute();
-                                                            $fahrzeuge = $stmt->fetchAll();
+                                                            $fahrzeuge = Capsule::table('intra_fahrzeuge')
+                                                                ->where('rd_type', 1)
+                                                                ->orderBy('priority', 'ASC')
+                                                                ->get()
+                                                                ->map(fn ($row) => (array) $row)
+                                                                ->all();
 
                                                             foreach ($fahrzeuge as $row) {
                                                                 if ($row['identifier'] == $daten['fzg_na'] && $row['active'] == 1) {
@@ -358,8 +365,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Protokolldaten</h5>
                                         <div class="col">
                                             <?php
-                                            $stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
-                                            $fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
+                                            $fullnames = Personnel::orderBy('fullname', 'ASC')->pluck('fullname')->all();
                                             $currentValue = $daten['pfname'] ?? '';
                                             ?>
                                             <div class="row my-2">
@@ -387,8 +393,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <h5 class="text-light px-2 py-1">Übergabe</h5>
                                         <div class="col">
                                             <?php
-                                            $stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
-                                            $fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
+                                            $fullnames = Personnel::orderBy('fullname', 'ASC')->pluck('fullname')->all();
                                             ?>
                                             <div class="row my-2">
                                                 <div class="col">

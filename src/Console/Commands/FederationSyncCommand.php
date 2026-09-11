@@ -6,7 +6,7 @@ namespace App\Console\Commands;
 
 use App\Federation\FederationSyncService;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +26,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class FederationSyncCommand extends Command
 {
     public function __construct(
-        private readonly PDO $pdo,
         private readonly FederationSyncService $sync,
     ) {
         parent::__construct();
@@ -69,13 +68,15 @@ final class FederationSyncCommand extends Command
      */
     private function getDueLinks(): array
     {
-        $stmt = $this->pdo->query(
-            "SELECT * FROM intra_federation_links
-              WHERE is_active = 1
-                AND (last_sync_at IS NULL
-                     OR last_sync_at < DATE_SUB(NOW(), INTERVAL COALESCE(sync_interval_minutes, 60) MINUTE))"
-        );
-        return $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        return Capsule::table('intra_federation_links')
+            ->where('is_active', 1)
+            ->where(function ($query) {
+                $query->whereNull('last_sync_at')
+                    ->orWhereRaw('last_sync_at < DATE_SUB(NOW(), INTERVAL COALESCE(sync_interval_minutes, 60) MINUTE)');
+            })
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
     }
 
     /**

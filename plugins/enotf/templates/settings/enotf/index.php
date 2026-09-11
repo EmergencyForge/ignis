@@ -5,20 +5,19 @@
  * @var array<int,array<string,mixed>> $quicklinks
  * @var array<string,string>           $catNames
  * @var array<int,array<string,mixed>> $activeCategories
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 5) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
@@ -32,7 +31,7 @@ use App\Helpers\Flash;
                                     <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
-                                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
+                                    <button type="button" class="ignis-btn ignis-btn--success" data-dialog-target="#createQuicklinkModal">
                                         <i class="fa-solid fa-plus"></i> Link erstellen
                                     </button>
                                 </div>
@@ -76,7 +75,7 @@ use App\Helpers\Flash;
                                     $icon = htmlspecialchars($row['icon']);
                                     $colWidth = htmlspecialchars($row['col_width']);
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-dialog-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -99,13 +98,13 @@ use App\Helpers\Flash;
 
     <?php if (Permissions::check('admin')) : ?>
         <!-- Edit Modal -->
-        <div class="modal fade" id="editQuicklinkModal" tabindex="-1" aria-labelledby="editQuicklinkModalLabel" aria-hidden="true">
+        <div data-dialog-source class="modal" id="editQuicklinkModal" tabindex="-1" aria-labelledby="editQuicklinkModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/enotf/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editQuicklinkModalLabel">Link bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                            <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
                             <input type="hidden" name="id" id="quicklink-id">
@@ -125,7 +124,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-category" class="ignis-field__label">Kategorie</label>
-                                <select class="form-select" name="category" id="quicklink-category" required>
+                                <select class="ignis-input" name="category" id="quicklink-category" required>
                                     <?php foreach ($activeCategories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
                                     <?php endforeach; ?>
@@ -133,7 +132,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-col-width" class="ignis-field__label">Spaltenbreite (Bootstrap)</label>
-                                <select class="form-select" name="col_width" id="quicklink-col-width" required>
+                                <select class="ignis-input" name="col_width" id="quicklink-col-width" required>
                                     <option value="col">Automatisch (col)</option>
                                     <option value="col-6">Halbe Breite (col-6)</option>
                                     <option value="col-4">Ein Drittel (col-4)</option>
@@ -150,7 +149,7 @@ use App\Helpers\Flash;
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-quicklink-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                                 <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
@@ -160,13 +159,13 @@ use App\Helpers\Flash;
         </div>
 
         <!-- Create Modal -->
-        <div class="modal fade" id="createQuicklinkModal" tabindex="-1" aria-labelledby="createQuicklinkModalLabel" aria-hidden="true">
+        <div data-dialog-source class="modal" id="createQuicklinkModal" tabindex="-1" aria-labelledby="createQuicklinkModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/enotf/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createQuicklinkModalLabel">Neuen Link erstellen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                            <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
@@ -185,7 +184,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-category" class="ignis-field__label">Kategorie</label>
-                                <select class="form-select" name="category" id="create-quicklink-category" required>
+                                <select class="ignis-input" name="category" id="create-quicklink-category" required>
                                     <?php foreach ($activeCategories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
                                     <?php endforeach; ?>
@@ -193,7 +192,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-col-width" class="ignis-field__label">Spaltenbreite (Bootstrap)</label>
-                                <select class="form-select" name="col_width" id="create-quicklink-col-width" required>
+                                <select class="ignis-input" name="col_width" id="create-quicklink-col-width" required>
                                     <option value="col">Automatisch (col)</option>
                                     <option value="col-6" selected>Halbe Breite (col-6)</option>
                                     <option value="col-4">Ein Drittel (col-4)</option>
@@ -208,7 +207,7 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="create-quicklink-active"><input type="checkbox" name="active" id="create-quicklink-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                             <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>

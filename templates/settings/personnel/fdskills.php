@@ -3,21 +3,14 @@
  * View: FW Qualifikationen verwalten
  *
  * @var array<int,array<string,mixed>> $qualis
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'FW-Qualifikationen';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
@@ -32,9 +25,8 @@ use App\Helpers\Flash;
                         <?php endif; ?>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
                     <div class="twplus-table-card">
-                        <table class="table table-striped twplus-table" id="table-dienstgrade">
+                        <table class="ignis-table" id="table-dienstgrade">
                             <thead>
                                 <tr>
                                     <th scope="col">Priorität</th>
@@ -49,9 +41,9 @@ use App\Helpers\Flash;
                                 <?php foreach ($qualis as $row):
                                     $dimmed = '';
                                     if ((int)$row['none'] === 0) {
-                                        $dgActive = "<span class='badge-status status-success'><span class='status-dot'></span>Nein</span>";
+                                        $dgActive = "<span class='ignis-chip ignis-chip--dot ignis-chip--ok'>Nein</span>";
                                     } else {
-                                        $dgActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Ja</span>";
+                                        $dgActive = "<span class='ignis-chip ignis-chip--dot ignis-chip--danger'>Ja</span>";
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
@@ -106,18 +98,6 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
     <script>
-        $(document).ready(function() {
-            $('#table-dienstgrade').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [5, 10, 20],
-                pageLength: 10,
-                order: [[0, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Qualifikationen')
-            });
-        });
-
         function openCreateQualifwModal() {
             Dialog.form({
                 title:        'FW Qualifikation anlegen',
@@ -163,8 +143,3 @@ use App\Helpers\Flash;
             });
         }
     </script>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-
-</html>

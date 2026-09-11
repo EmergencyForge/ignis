@@ -5,28 +5,30 @@
  * Wird bei jedem Seitenaufruf eingebunden, damit nach Crew-Änderungen
  * (Tausch, Beitritt, etc.) die Daten aktuell sind.
  *
- * Voraussetzung: $pdo muss verfügbar sein, Session muss gestartet sein.
+ * Voraussetzung: Session muss gestartet sein.
  */
 if (!empty($_SESSION['enotf_session_token'])) {
-    $__refreshStmt = $pdo->prepare("
-        SELECT s.fahrername, s.fahrerquali, s.beifahrername, s.beifahrerquali,
-               s.praktikantname, s.praktikantquali, s.active
-        FROM intra_enotf_session_members m
-        JOIN intra_enotf_sessions s ON s.id = m.session_id
-        WHERE m.session_token = :token
-        LIMIT 1
-    ");
-    $__refreshStmt->execute([':token' => $_SESSION['enotf_session_token']]);
-    $__refreshData = $__refreshStmt->fetch(PDO::FETCH_ASSOC);
+    $__refreshData = \Illuminate\Database\Capsule\Manager::table('intra_enotf_session_members as m')
+        ->join('intra_enotf_sessions as s', 's.id', '=', 'm.session_id')
+        ->where('m.session_token', $_SESSION['enotf_session_token'])
+        ->first([
+            's.fahrername',
+            's.fahrerquali',
+            's.beifahrername',
+            's.beifahrerquali',
+            's.praktikantname',
+            's.praktikantquali',
+            's.active',
+        ]);
 
-    if ($__refreshData && (int)$__refreshData['active'] === 1) {
-        $_SESSION['fahrername']      = $__refreshData['fahrername'];
-        $_SESSION['fahrerquali']     = $__refreshData['fahrerquali'];
-        $_SESSION['beifahrername']   = $__refreshData['beifahrername'];
-        $_SESSION['beifahrerquali']  = $__refreshData['beifahrerquali'];
-        $_SESSION['praktikantname']  = $__refreshData['praktikantname'];
-        $_SESSION['praktikantquali'] = $__refreshData['praktikantquali'];
+    if ($__refreshData && (int)$__refreshData->active === 1) {
+        $_SESSION['fahrername']      = $__refreshData->fahrername;
+        $_SESSION['fahrerquali']     = $__refreshData->fahrerquali;
+        $_SESSION['beifahrername']   = $__refreshData->beifahrername;
+        $_SESSION['beifahrerquali']  = $__refreshData->beifahrerquali;
+        $_SESSION['praktikantname']  = $__refreshData->praktikantname;
+        $_SESSION['praktikantquali'] = $__refreshData->praktikantquali;
     }
 
-    unset($__refreshStmt, $__refreshData);
+    unset($__refreshData);
 }

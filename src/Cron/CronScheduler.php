@@ -10,7 +10,7 @@ use App\Cron\JobHandler\JobHandlerInterface;
 use App\Cron\JobHandler\WebhookHandler;
 use App\Logging\Logger;
 use Cron\CronExpression;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -33,7 +33,6 @@ final class CronScheduler
     private const FAIL_LIMIT        = 5;
 
     public function __construct(
-        private readonly PDO $pdo,
         private readonly ContainerInterface $container,
     ) {
     }
@@ -44,18 +43,21 @@ final class CronScheduler
      */
     public function tick(): int
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT id, identifier, handler_type, handler, schedule, config,
-                    last_run_at, fail_count
-               FROM intra_cron_jobs
-              WHERE active = 1
-                AND (next_run_at IS NULL OR next_run_at <= UTC_TIMESTAMP())
-              ORDER BY next_run_at ASC, id ASC
-              LIMIT :lim"
-        );
-        $stmt->bindValue(':lim', self::MAX_RUNS_PER_TICK, PDO::PARAM_INT);
-        $stmt->execute();
-        $dueJobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $dueJobs = Capsule::table('intra_cron_jobs')
+            ->where('active', 1)
+            ->where(function ($query) {
+                $query->whereNull('next_run_at')
+                    ->orWhereRaw('next_run_at <= UTC_TIMESTAMP()');
+            })
+            ->orderBy('next_run_at')
+            ->orderBy('id')
+            ->limit(self::MAX_RUNS_PER_TICK)
+            ->get([
+                'id', 'identifier', 'handler_type', 'handler', 'schedule', 'config',
+                'last_run_at', 'fail_count',
+            ])
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         $executed = 0;
         foreach ($dueJobs as $row) {
@@ -73,17 +75,16 @@ final class CronScheduler
      */
     private function acquireLock(int $jobId, ?string $previousLastRunAt): bool
     {
-        $sql = $previousLastRunAt === null
-            ? "UPDATE intra_cron_jobs SET last_run_at = UTC_TIMESTAMP() WHERE id = :id AND last_run_at IS NULL"
-            : "UPDATE intra_cron_jobs SET last_run_at = UTC_TIMESTAMP() WHERE id = :id AND last_run_at = :prev";
+        $query = Capsule::table('intra_cron_jobs')->where('id', $jobId);
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':id', $jobId, PDO::PARAM_INT);
-        if ($previousLastRunAt !== null) {
-            $stmt->bindValue(':prev', $previousLastRunAt);
+        if ($previousLastRunAt === null) {
+            $query->whereNull('last_run_at');
+        } else {
+            $query->where('last_run_at', $previousLastRunAt);
         }
-        $stmt->execute();
-        return $stmt->rowCount() === 1;
+
+        $affected = $query->update(['last_run_at' => Capsule::raw('UTC_TIMESTAMP()')]);
+        return $affected === 1;
     }
 
     /**
@@ -140,30 +141,23 @@ final class CronScheduler
 
     private function startRunLog(int $jobId): int
     {
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO intra_cron_runs (job_id, started_at, status)
-             VALUES (:id, UTC_TIMESTAMP(), 'running')"
-        );
-        $stmt->execute([':id' => $jobId]);
-        return (int) $this->pdo->lastInsertId();
+        return Capsule::table('intra_cron_runs')->insertGetId([
+            'job_id'     => $jobId,
+            'started_at' => Capsule::raw('UTC_TIMESTAMP()'),
+            'status'     => 'running',
+        ]);
     }
 
     private function finishRunLog(int $runId, JobResult $result): void
     {
-        $stmt = $this->pdo->prepare(
-            "UPDATE intra_cron_runs
-                SET finished_at = UTC_TIMESTAMP(),
-                    status      = :status,
-                    duration_ms = :dur,
-                    output      = :out
-              WHERE id = :id"
-        );
-        $stmt->execute([
-            ':status' => $result->status,
-            ':dur'    => $result->durationMs,
-            ':out'    => $result->output,
-            ':id'     => $runId,
-        ]);
+        Capsule::table('intra_cron_runs')
+            ->where('id', $runId)
+            ->update([
+                'finished_at' => Capsule::raw('UTC_TIMESTAMP()'),
+                'status'      => $result->status,
+                'duration_ms' => $result->durationMs,
+                'output'      => $result->output,
+            ]);
     }
 
     private function updateJob(int $jobId, int $currentFails, string $schedule, JobResult $result): void
@@ -172,25 +166,20 @@ final class CronScheduler
         $newFails  = $result->isSuccess() ? 0 : $currentFails + 1;
         $pause     = $newFails >= self::FAIL_LIMIT;
 
-        $stmt = $this->pdo->prepare(
-            "UPDATE intra_cron_jobs
-                SET last_status      = :status,
-                    last_duration_ms = :dur,
-                    last_output      = :out,
-                    next_run_at      = :next,
-                    fail_count       = :fails,
-                    active           = CASE WHEN :pause = 1 THEN 0 ELSE active END
-              WHERE id = :id"
-        );
-        $stmt->execute([
-            ':status' => $result->status,
-            ':dur'    => $result->durationMs,
-            ':out'    => $result->output,
-            ':next'   => $nextRunAt,
-            ':fails'  => $newFails,
-            ':pause'  => $pause ? 1 : 0,
-            ':id'     => $jobId,
-        ]);
+        $update = [
+            'last_status'      => $result->status,
+            'last_duration_ms' => $result->durationMs,
+            'last_output'      => $result->output,
+            'next_run_at'      => $nextRunAt,
+            'fail_count'       => $newFails,
+        ];
+        if ($pause) {
+            $update['active'] = 0;
+        }
+
+        Capsule::table('intra_cron_jobs')
+            ->where('id', $jobId)
+            ->update($update);
 
         if ($pause) {
             Logger::warning('CronScheduler: job paused due to fail-limit', [
@@ -223,18 +212,17 @@ final class CronScheduler
      */
     public function runJobById(int $jobId): array
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT id, identifier, handler_type, handler, schedule, config,
-                    last_run_at, fail_count
-               FROM intra_cron_jobs WHERE id = :id"
-        );
-        $stmt->execute([':id' => $jobId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = Capsule::table('intra_cron_jobs')
+            ->where('id', $jobId)
+            ->first([
+                'id', 'identifier', 'handler_type', 'handler', 'schedule', 'config',
+                'last_run_at', 'fail_count',
+            ]);
         if (!$row) {
             return ['ok' => false, 'error' => 'Job nicht gefunden'];
         }
 
-        $result = $this->runJob($row);
+        $result = $this->runJob((array) $row);
         return [
             'ok'          => $result->isSuccess(),
             'status'      => $result->status,

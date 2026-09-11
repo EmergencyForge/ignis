@@ -1,9 +1,9 @@
 <?php
 
 /**
- * MANV-Board — hängt seine Section in den bestehenden Rail-Eintrag
- * „Protokolle" ein. Fällt der Ziel-Eintrag weg, erscheint das Fragment
- * als eigener Rail-Eintrag (deshalb die vollständigen Felder).
+ * MANV-Board — hängt seinen Eintrag in die Gruppe „Protokolle" ein. Fällt
+ * die Zielgruppe weg, erscheint das Fragment als eigene Gruppe (deshalb
+ * die vollständigen Felder).
  */
 
 return [
@@ -12,20 +12,17 @@ return [
         'id'         => 'manv-board',
         'label'      => 'MANV-Board',
         'icon'       => 'fa-solid fa-truck-medical',
-        'sections'   => [
+        'items'      => [
             [
-                'label'       => 'MANV-Board',
-                'permissions' => ['admin', 'mci.manage'],
-                'items'       => [
-                    [
-                        'label'        => 'MANV-Board',
-                        'href'         => BASE_PATH . 'mci/',
-                        'quick_action' => [
-                            'type'   => 'link',
-                            'target' => BASE_PATH . 'mci/create',
-                            'label'  => 'Neue MANV-Lage anlegen',
-                        ],
-                    ],
+                'label'        => 'MANV-Board',
+                'href'         => BASE_PATH . 'mci/',
+                'icon'         => 'fa-solid fa-truck-medical',
+                'permissions'  => ['admin', 'mci.manage'],
+                'match'        => ['/mci'],
+                'quick_action' => [
+                    'type'   => 'link',
+                    'target' => BASE_PATH . 'mci/create',
+                    'label'  => 'Neue MANV-Lage anlegen',
                 ],
             ],
         ],

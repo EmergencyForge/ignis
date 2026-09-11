@@ -7,11 +7,14 @@
  */
 
 use App\Auth\Permissions;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 if (!Permissions::check(['admin'])) return;
 
-// Safe count helper — returns 0 if table doesn't exist or not whitelisted
-function _setupCount(PDO $pdo, string $table): int
+// Safe count helper — returns 0 if table doesn't exist or not whitelisted.
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('_setupCount')) {
+function _setupCount(string $table): int
 {
     static $whitelist = [
         'intra_mitarbeiter_dienstgrade',
@@ -23,16 +26,20 @@ function _setupCount(PDO $pdo, string $table): int
     ];
     if (!in_array($table, $whitelist, true)) return 0;
     try {
-        return (int)$pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn();
+        return Capsule::table($table)->count();
     } catch (Exception) {
         return 0;
     }
+}
 }
 
 // Check what's configured
 $checkConfigDone = false;
 try {
-    $cfgVal = $pdo->query("SELECT config_value FROM intra_system_config WHERE config_key = 'SYSTEM_URL' LIMIT 1")->fetchColumn();
+    $cfgVal = Capsule::table('intra_system_config')
+        ->where('config_key', 'SYSTEM_URL')
+        ->limit(1)
+        ->value('config_value');
     $checkConfigDone = ($cfgVal && $cfgVal !== 'CHANGE_ME');
 } catch (Exception $e) {
 }
@@ -40,12 +47,12 @@ try {
 // POIs gehören zum eNOTF-Plugin — ohne aktives Plugin entfällt der Schritt.
 $setupEnotfActive = function_exists('app') && app(\App\Plugins\PluginLoader::class)->isActive('enotf');
 
-$checkDienstgrade = _setupCount($pdo, 'intra_mitarbeiter_dienstgrade');
-$checkQuali       = _setupCount($pdo, 'intra_mitarbeiter_rdquali');
-$checkRollen      = _setupCount($pdo, 'intra_users_roles');
-$checkMitarbeiter = _setupCount($pdo, 'intra_mitarbeiter');
-$checkPois        = _setupCount($pdo, 'intra_edivi_pois');
-$checkFahrzeuge   = _setupCount($pdo, 'intra_fahrzeuge');
+$checkDienstgrade = _setupCount('intra_mitarbeiter_dienstgrade');
+$checkQuali       = _setupCount('intra_mitarbeiter_rdquali');
+$checkRollen      = _setupCount('intra_users_roles');
+$checkMitarbeiter = _setupCount('intra_mitarbeiter');
+$checkPois        = _setupCount('intra_edivi_pois');
+$checkFahrzeuge   = _setupCount('intra_fahrzeuge');
 
 // Step completion flags (computed once, reused in HTML)
 $doneConfig       = $checkConfigDone;
