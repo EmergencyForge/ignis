@@ -65,19 +65,30 @@ final class Router
     /** @var array<int, string> */
     private array $groupPrefixStack = [];
 
+    /** @var list<string> Dateien, aus denen der Route-Satz stammt. */
+    private array $routeSources = [];
+
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly Pipeline $pipeline,
         /**
          * Cache-Verhalten für den FastRoute-Dispatcher.
          *   - `true`  (Default): File-Cache unter `storage/cache/routes.php`,
-         *                        mit mtime-basierter Auto-Invalidation.
+         *                        verfällt automatisch, sobald sich die per
+         *                        registerRouteSource() gemeldeten Quellen
+         *                        ändern.
          *   - `false`:            Kein Cache — jede Request baut den Dispatcher
          *                        frisch. Tests nutzen das, damit das Live-Cache-
          *                        File (mit Produktions-Routen) die Test-Router-
          *                        Instanzen nicht verfälscht.
          */
         private readonly bool $enableCache = true,
+        /**
+         * Ablage des Route-Caches. null nimmt `storage/cache/routes.php`,
+         * also den Ort, an dem er im Betrieb liegt. Tests setzen einen
+         * eigenen Pfad, damit sie den echten Cache nicht anfassen.
+         */
+        private readonly ?string $cacheFile = null,
     ) {}
 
     // ── Haken ─────────────────────────────────────────────────────────
@@ -291,7 +302,7 @@ final class Router
             return simpleDispatcher($routeCallback);
         }
 
-        $cacheFile = dirname(__DIR__, 2) . '/storage/cache/routes.php';
+        $cacheFile = $this->cacheFile ?? dirname(__DIR__, 2) . '/storage/cache/routes.php';
         $this->invalidateStaleRouteCache($cacheFile);
 
         $cacheDir = dirname($cacheFile);
@@ -306,24 +317,69 @@ final class Router
     }
 
     /**
-     * Löscht den Route-Cache, wenn eine der Route-Definitions-Dateien neuer
-     * ist als das Cache-File. Stellt sicher, dass Dev-Änderungen an routes/
-     * im nächsten Request wirksam sind, ohne manuelles Cache-Clearing.
+     * Meldet eine Datei, aus der Routen dieses Routers stammen.
+     *
+     * public/index.php ruft das für jede Datei auf, die es einliest — die
+     * Kern-Routen und die Fragmente der aktiven Plugins. Der Router kennt
+     * damit die Quellen seines Route-Satzes, ohne selbst etwas über Plugins
+     * zu wissen.
+     */
+    public function registerRouteSource(string $file): void
+    {
+        $this->routeSources[] = $file;
+    }
+
+    /**
+     * Verwirft den Route-Cache, sobald sich der Satz der Quelldateien oder
+     * deren Inhalt geändert hat.
+     *
+     * Verglichen wird ein Fingerabdruck über alle gemeldeten Quellen, nicht
+     * nur deren Alter. Ein reiner mtime-Vergleich sieht drei der vier Fälle
+     * nicht, die im Betrieb vorkommen:
+     *
+     *   - Ein Plugin wird im Panel deaktiviert. Auf der Platte ändert sich
+     *     nichts, die Datei wird nur nicht mehr eingelesen — der Cache
+     *     liefert die Routen des abgeschalteten Plugins weiter aus.
+     *   - Ein Plugin wird deinstalliert. Seine Datei ist weg, die mtime der
+     *     übrigen bleibt.
+     *   - Eine Plugin-Routendatei wird bearbeitet. Der alte Vergleich sah
+     *     ausschließlich routes/, also nur die Kern-Dateien.
+     *
+     * Der vierte Fall, eine frische Installation, fiele auch einem
+     * mtime-Vergleich auf. Über die Liste fallen alle vier auf.
      */
     private function invalidateStaleRouteCache(string $cacheFile): void
     {
-        if (!is_file($cacheFile)) {
+        $stampFile = $cacheFile . '.sources';
+        $current   = $this->routeSourceFingerprint();
+
+        if (is_file($cacheFile) && @file_get_contents($stampFile) === $current) {
             return;
         }
 
-        $cacheMtime = (int) filemtime($cacheFile);
-        $routesDir  = dirname(__DIR__, 2) . '/routes';
-        foreach ((glob($routesDir . '/*.php') ?: []) as $routeFile) {
-            if ((int) filemtime($routeFile) > $cacheMtime) {
-                @unlink($cacheFile);
-                return;
-            }
+        @unlink($cacheFile);
+
+        $stampDir = dirname($stampFile);
+        if (!is_dir($stampDir)) {
+            @mkdir($stampDir, 0755, true);
         }
+        @file_put_contents($stampFile, $current);
+    }
+
+    /**
+     * Pfad und Änderungszeit jeder Quelldatei, sortiert. Sortiert, weil die
+     * Ladereihenfolge der Plugins nichts über den Route-Satz aussagt und ein
+     * Wechsel darin sonst grundlos den Cache verwürfe.
+     */
+    private function routeSourceFingerprint(): string
+    {
+        $parts = [];
+        foreach ($this->routeSources as $file) {
+            $parts[] = $file . ':' . (is_file($file) ? (int) filemtime($file) : 0);
+        }
+        sort($parts);
+
+        return hash('xxh128', implode("\n", $parts));
     }
 
     /**
