@@ -46,10 +46,10 @@ return [
     // bleibt identisch zu assets/config/database.php: persistent connections,
     // utf8mb4 mit utf8-Fallback.
     PDO::class => function (): PDO {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $name = $_ENV['DB_NAME'] ?? '';
-        $user = $_ENV['DB_USER'] ?? '';
-        $pass = $_ENV['DB_PASS'] ?? '';
+        $host = env_value('DB_HOST') ?? 'localhost';
+        $name = env_value('DB_NAME') ?? '';
+        $user = env_value('DB_USER') ?? '';
+        $pass = env_value('DB_PASS') ?? '';
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -109,11 +109,11 @@ return [
         $capsule = new Capsule($illuminate);
         $capsule->addConnection([
             'driver'    => 'mysql',
-            'host'      => $_ENV['DB_HOST'] ?? 'localhost',
-            'port'      => (int) ($_ENV['DB_PORT'] ?? 3306),
-            'database'  => $_ENV['DB_NAME'] ?? '',
-            'username'  => $_ENV['DB_USER'] ?? '',
-            'password'  => $_ENV['DB_PASS'] ?? '',
+            'host'      => env_value('DB_HOST') ?? 'localhost',
+            'port'      => (int) (env_value('DB_PORT') ?? 3306),
+            'database'  => env_value('DB_NAME') ?? '',
+            'username'  => env_value('DB_USER') ?? '',
+            'password'  => env_value('DB_PASS') ?? '',
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
