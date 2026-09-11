@@ -64,8 +64,8 @@ class CreateIntraKbCategoriesTags08032026 extends AbstractMigration
                 'encoding'    => 'utf8mb4',
                 'collation'   => 'utf8mb4_general_ci',
             ])
-                ->addColumn('entry_id', 'integer')
-                ->addColumn('tag_id',   'integer')
+                ->addColumn('entry_id', 'integer', ['null' => false])
+                ->addColumn('tag_id',   'integer', ['null' => false])
                 ->addForeignKey('entry_id', 'intra_kb_entries', 'id', [
                     'delete'     => 'CASCADE',
                     'constraint' => 'fk_kb_et_entry',

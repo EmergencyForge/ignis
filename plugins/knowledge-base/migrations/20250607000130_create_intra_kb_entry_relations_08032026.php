@@ -25,8 +25,8 @@ class CreateIntraKbEntryRelations08032026 extends AbstractMigration
             'encoding'    => 'utf8mb4',
             'collation'   => 'utf8mb4_unicode_ci',
         ])
-            ->addColumn('entry_id',         'integer')
-            ->addColumn('related_entry_id', 'integer')
+            ->addColumn('entry_id',         'integer', ['null' => false])
+            ->addColumn('related_entry_id', 'integer', ['null' => false])
             ->addColumn('created_at',       'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
             ->addForeignKey('entry_id', 'intra_kb_entries', 'id', [
                 'delete'     => 'CASCADE',
