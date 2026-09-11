@@ -123,6 +123,14 @@ class ErrorHandler
             self::renderJsonError($exception, $errorId);
         } elseif (php_sapi_name() !== 'cli') {
             self::renderHtmlError($exception, errorId: $errorId);
+        } else {
+            self::renderCliError(
+                get_class($exception) . ': ' . $exception->getMessage(),
+                $exception->getFile(),
+                $exception->getLine(),
+                $errorId,
+                $exception->getTraceAsString()
+            );
         }
     }
 
@@ -167,7 +175,44 @@ class ErrorHandler
             ]);
         } elseif (php_sapi_name() !== 'cli') {
             self::renderHtmlError(null, $error['message'], $errorId);
+        } else {
+            self::renderCliError($error['message'], $error['file'], $error['line'], $errorId);
         }
+    }
+
+    /**
+     * Einen Fatal in der Konsole sichtbar machen und den Lauf als
+     * fehlgeschlagen kennzeichnen.
+     *
+     * Vorher endete beides hier im Nichts: leere Ausgabe, Exitcode 0. Ein
+     * gestorbener Befehl war damit von einem erfolgreichen nicht zu
+     * unterscheiden - weder fuer den Menschen davor noch fuer einen Aufrufer,
+     * der auf den Exitcode schaut. fabrica ruft ignis-Befehle per docker exec
+     * genau so auf.
+     *
+     * Anders als im Web bleibt die Meldung hier auch in Produktion stehen. Wer
+     * eine Konsole in diesem Container hat, kommt ohnehin an das Log; sie ihm
+     * vorzuenthalten schuetzt niemanden und kostet nur den Diagnoseanlauf, um
+     * den es hier geht. Der Stacktrace bleibt der Entwicklungsumgebung
+     * vorbehalten, der ist im Betrieb nur Laerm.
+     */
+    private static function renderCliError(
+        string $message,
+        string $file,
+        int $line,
+        string $errorId,
+        ?string $trace = null
+    ): void {
+        $out = defined('STDERR') ? STDERR : fopen('php://stderr', 'w');
+
+        fwrite($out, PHP_EOL . 'Fehler [' . $errorId . ']: ' . $message . PHP_EOL);
+        fwrite($out, '  in ' . $file . ':' . $line . PHP_EOL);
+
+        if ($trace !== null && self::isDevelopment()) {
+            fwrite($out, $trace . PHP_EOL);
+        }
+
+        exit(1);
     }
 
     /**
