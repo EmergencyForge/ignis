@@ -8,8 +8,10 @@ use App\Http\Request;
 use Plugin\Enotf\Requests\KlinikCodeGenerateRequest;
 use App\Http\Response;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as DB;
 use PDOException;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviKlinikcode;
 
 /**
  * Generiert Klinik-Einmal-Codes für ein eNOTF-Protokoll.
@@ -30,10 +32,6 @@ final class KlinikCodeController
     private const CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     private const CODE_LENGTH = 6;
     private const MAX_GENERATE_ATTEMPTS = 100;
-
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
 
     /**
      * POST /api/klinik/generate-code
@@ -89,9 +87,7 @@ final class KlinikCodeController
 
     private function protokollExists(string $enr): bool
     {
-        $stmt = $this->pdo->prepare("SELECT enr FROM intra_edivi WHERE enr = :enr LIMIT 1");
-        $stmt->execute([':enr' => $enr]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+        return Edivi::where('enr', $enr)->exists();
     }
 
     /**
@@ -99,16 +95,12 @@ final class KlinikCodeController
      */
     private function findValidExistingCode(string $enr): ?array
     {
-        $stmt = $this->pdo->prepare("
-            SELECT code, expires_at
-            FROM intra_edivi_klinikcodes
-            WHERE enr = :enr AND expires_at > NOW()
-            ORDER BY created_at DESC
-            LIMIT 1
-        ");
-        $stmt->execute([':enr' => $enr]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        $row = EdiviKlinikcode::where('enr', $enr)
+            ->where('expires_at', '>', DB::raw('NOW()'))
+            ->orderByDesc('created_at')
+            ->first(['code', 'expires_at']);
+
+        return $row ? ['code' => $row->code, 'expires_at' => $row->expires_at] : null;
     }
 
     /**
@@ -119,8 +111,6 @@ final class KlinikCodeController
      */
     private function generateUniqueCode(): ?string
     {
-        $checkStmt = $this->pdo->prepare("SELECT id FROM intra_edivi_klinikcodes WHERE code = :code");
-
         for ($attempt = 0; $attempt < self::MAX_GENERATE_ATTEMPTS; $attempt++) {
             $code = '';
             $charsLen = strlen(self::CODE_CHARS);
@@ -128,8 +118,7 @@ final class KlinikCodeController
                 $code .= self::CODE_CHARS[random_int(0, $charsLen - 1)];
             }
 
-            $checkStmt->execute([':code' => $code]);
-            if (!$checkStmt->fetch()) {
+            if (!EdiviKlinikcode::where('code', $code)->exists()) {
                 return $code;
             }
         }
@@ -145,27 +134,21 @@ final class KlinikCodeController
      */
     private function storeCode(string $enr, string $code): array
     {
-        $this->pdo->prepare("
-            INSERT INTO intra_edivi_klinikcodes (enr, code, expires_at)
-            VALUES (:enr, :code, DATE_ADD(NOW(), INTERVAL 1 HOUR))
-        ")->execute([
-            ':enr'  => $enr,
-            ':code' => $code,
+        DB::table('intra_edivi_klinikcodes')->insert([
+            'enr'        => $enr,
+            'code'       => $code,
+            'expires_at' => DB::raw('DATE_ADD(NOW(), INTERVAL 1 HOUR)'),
         ]);
 
-        $stmt = $this->pdo->prepare("
-            SELECT code, DATE_FORMAT(expires_at, '%Y-%m-%d %H:%i:%s') AS expires_at
-            FROM intra_edivi_klinikcodes
-            WHERE enr = :enr
-            ORDER BY id DESC
-            LIMIT 1
-        ");
-        $stmt->execute([':enr' => $enr]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = DB::table('intra_edivi_klinikcodes')
+            ->where('enr', $enr)
+            ->orderByDesc('id')
+            ->select('code', DB::raw("DATE_FORMAT(expires_at, '%Y-%m-%d %H:%i:%s') AS expires_at"))
+            ->first();
 
         return [
-            'code'       => (string) $row['code'],
-            'expires_at' => (string) $row['expires_at'],
+            'code'       => (string) $row->code,
+            'expires_at' => (string) $row->expires_at,
         ];
     }
 }

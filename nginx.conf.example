@@ -1,10 +1,15 @@
 # ============================================================
-# intraRP – Nginx Konfiguration (Beispiel)
+# ıgnıs – Nginx Konfiguration (Beispiel)
 # ============================================================
 #
 # Diese Datei ist eine Referenz-Konfiguration für Nginx.
 # Apache-User brauchen diese Datei NICHT – die .htaccess-Dateien
 # im Projekt übernehmen dort alles automatisch.
+#
+# Das Docroot ist das Verzeichnis public/ im Projekt. Alles andere
+# (src/, plugins/, storage/, vendor/, .env) liegt außerhalb und wird
+# vom Webserver nie angefasst. Die Durchreichung über die Root-
+# .htaccess gibt es unter Nginx nicht – `root` MUSS auf public/ zeigen.
 #
 # Anleitung:
 #   1. Die map{}-Blöcke MÜSSEN im http{}-Block stehen
@@ -40,10 +45,10 @@ map $http_user_agent $frame_options {
 
 server {
     listen 443 ssl http2;
-    server_name example.com;       # <-- anpassen
+    server_name example.com;           # <-- anpassen
 
-    root /var/www/intraRP;         # <-- Pfad zum Projekt-Root anpassen
-    index index.php index.html;
+    root /var/www/intraRP/public;      # <-- Pfad zum Projekt anpassen, /public bleibt
+    index index.php;
 
     # SSL (Pflicht – Sessions funktionieren nur mit SSL!)
     ssl_certificate     /etc/ssl/certs/example.crt;      # <-- anpassen
@@ -63,84 +68,33 @@ server {
     autoindex off;
     client_max_body_size 10M;
 
-    # ====================================================
-    # Zugriffsbeschränkungen (VOR den allgemeinen Locations)
-    # ====================================================
-    #
-    # eNOTF-Clean-URLs (`/enotf/p/{enr}/...`) und alle anderen
-    # Applikations-URLs werden vom Front-Controller über den
-    # `try_files`-Fallback weiter unten dispatched.
-
-    # Sensible Dateien komplett blockieren
-    location ~ /\.(env|git|htaccess|htpasswd) {
+    # Versteckte Dateien nie ausliefern (.htaccess liegt auch in public/)
+    location ~ /\. {
         return 403;
-    }
-
-    # Kompilierte Plugin-Assets — muss VOR der allgemeinen Plugin-Sperre
-    # stehen. Nur die dokumentierte Endungs-Allowlist wird ausgeliefert.
-    location ~ ^/plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(?:css|js|map|woff2|png|svg|webp)$ {
-        try_files $uri =404;
-        expires 7d;
-        add_header Cache-Control "public, immutable";
-        add_header Content-Security-Policy $csp_header always;
-        add_header X-Frame-Options $frame_options always;
-    }
-
-    # Nicht-web-Verzeichnisse — synchron zur .htaccess-Blocklist
-    # (src, cli, tools, tests, database, config, docker, routes, plugins, .github)
-    location ~ ^/(src|cli|tools|tests|database|config|docker|routes|plugins|\.github)/ {
-        return 403;
-    }
-
-    # Zusätzlich: vendor, storage/logs, storage/cache, assets/config
-    location ~ ^/(vendor|storage/logs|storage/cache|assets/config)/ {
-        return 403;
-    }
-
-    # /storage/documents/ – nur PDFs erlauben
-    location /storage/documents/ {
-        # Alles blockieren ...
-        return 403;
-    }
-    location ~ ^/storage/documents/.+\.pdf$ {
-        # ... ausser PDFs
-    }
-
-    # /storage/profile-pictures/ – nur Bilder erlauben
-    location /storage/profile-pictures/ {
-        return 403;
-    }
-    location ~ ^/storage/profile-pictures/.+\.(png|jpe?g|webp)$ {
-        # Bilder erlauben
     }
 
     # ====================================================
-    # Request-Dispatch (Router-first)
+    # Request-Dispatch
     # ====================================================
     #
-    # Fallback-Kette (Reihenfolge wichtig!):
-    #   1. $uri        → existierende Datei (Assets, uploads) direkt ausliefern
-    #   2. $uri/       → Directory-Index (praktisch nur noch für `public/`)
-    #   3. $uri.php    → extensionlose URLs (seltener Fall — Module sind
-    #                    vollständig auf den Router umgestellt, aber dieser
-    #                    Schritt bleibt als Safety-Net)
-    #   4. @router     → zentraler Front-Controller (public/index.php)
+    # In public/ liegen nur die gebauten Assets, index.php und cron.php.
+    # Alles, was keine echte Datei ist, geht an den Front-Controller:
+    # Seiten, API, Plugin-Assets (/plugins/<id>/assets/...) und Uploads
+    # (/storage/profile-pictures/..., /storage/documents/...) liefert er
+    # über Routen aus, jeweils mit eigener Endungs-Allowlist.
     #
-    # Alle Applikations-URLs (`/benutzer/...`, `/enotf/...`, `/settings/...`
-    # usw.) landen über den Fallback im Front-Controller, weil keine
-    # physischen Modul-Verzeichnisse mehr existieren.
-    #
-    # Legacy `*.php`-Aufrufe (z. B. `/benutzer/list.php` aus alten Bookmarks
-    # oder externen Integrationen) landen ebenfalls im Front-Controller —
-    # die dort eingebaute Bridge antwortet bei GET/HEAD mit einem 301 auf
-    # die Clean-URL und schreibt POST/PUT/DELETE intern um, damit Form-
-    # Submits ihren Body durch die Migration retten.
+    # Legacy `*.php`-Aufrufe (z. B. `/login.php` aus alten Bookmarks)
+    # landen ebenfalls im Front-Controller – die dort eingebaute Bridge
+    # antwortet bei GET/HEAD mit einem 301 auf die Clean-URL und schreibt
+    # POST/PUT/DELETE intern um, damit Form-Submits ihren Body behalten.
+
+    # Links auf "public/assets/..." aus der Zeit vor dem Umzug
+    location ^~ /public/ {
+        rewrite ^/public/(.+)$ /$1 last;
+    }
+
     location / {
-        try_files $uri $uri/ $uri.php @router;
-    }
-
-    location @router {
-        rewrite ^(.*)$ /public/index.php last;
+        try_files $uri /index.php$is_args$args;
     }
 
     # ====================================================
@@ -148,15 +102,16 @@ server {
     # ====================================================
 
     location ~ \.php$ {
-        # Nur existierende PHP-Dateien ausführen (keine 404 an PHP weiterleiten)
+        # Nur die beiden echten PHP-Dateien in public/ ausführen
         try_files $uri =404;
 
         # Backend-Header entfernen (damit sie nicht mit Nginx-Headern kollidieren)
         fastcgi_hide_header Content-Security-Policy;
         fastcgi_hide_header X-Frame-Options;
 
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;   # <-- PHP-Version anpassen
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;   # <-- PHP-Version anpassen
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
         include fastcgi_params;
 
         # Timeout für lange Anfragen (z.B. EMD-Sync)
@@ -167,7 +122,8 @@ server {
     # Statische Dateien – Caching
     # ====================================================
 
-    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$ {
+    location ~* \.(css|js|map|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|json)$ {
+        try_files $uri /index.php$is_args$args;
         expires 7d;
         add_header Cache-Control "public, immutable";
 

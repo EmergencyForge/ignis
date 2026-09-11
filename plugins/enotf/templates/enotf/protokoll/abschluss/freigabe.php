@@ -1,23 +1,20 @@
 <?php
 /**
  * View: enotf/protokoll/abschluss/freigabe.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviPoi;
 
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -35,22 +32,16 @@ $transportziel = $daten['transportziel'] ?? '';
 $ziel = '';
 if ($transportziel !== '') {
     if (str_starts_with($transportziel, 'poi_')) {
-        $stmto = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE id = :id");
-        $stmto->execute(['id' => substr($transportziel, 4)]);
+        $zielName = EdiviPoi::where('id', substr($transportziel, 4))->value('name');
     } else {
-        $stmto = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE legacy_identifier = :ident");
-        $stmto->execute(['ident' => $transportziel]);
+        $zielName = EdiviPoi::where('legacy_identifier', $transportziel)->value('name');
     }
-    $ziel = (string) ($stmto->fetchColumn() ?: '');
+    $ziel = (string) ($zielName ?: '');
 }
 
-$stmtNa = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :fzg_na");
-$stmtNa->execute(['fzg_na' => $daten['fzg_na']]);
-$fzgNA = $stmtNa->fetchColumn();
+$fzgNA = Capsule::table('intra_fahrzeuge')->where('identifier', $daten['fzg_na'])->value('name');
 
-$stmtTransp = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :fzg_transp");
-$stmtTransp->execute(['fzg_transp' => $daten['fzg_transp']]);
-$fzgTransp = $stmtTransp->fetchColumn();
+$fzgTransp = Capsule::table('intra_fahrzeuge')->where('identifier', $daten['fzg_transp'])->value('name');
 
 if ($daten['freigegeben'] == 1) {
     $ist_freigegeben = true;

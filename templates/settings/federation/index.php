@@ -1,8 +1,6 @@
 <?php
 /**
  * View: Federation-Konfiguration
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
@@ -15,8 +13,8 @@ use App\Session\SessionManager;
 $csrfToken = CsrfProtection::getToken();
 $userId    = SessionManager::userId();
 
-$configManager = new ConfigManager($pdo);
-$pairingService = new FederationPairingService($pdo);
+$configManager = new ConfigManager();
+$pairingService = new FederationPairingService();
 
 $federationEnabled = \App\Federation\FederationMiddleware::isEnabled();
 $instanceId = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_ID');
@@ -194,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'sync_now') {
         $linkId = (int) ($_POST['link_id'] ?? 0);
         if ($linkId > 0) {
-            $syncService = new \App\Federation\FederationSyncService($pdo);
+            $syncService = new \App\Federation\FederationSyncService();
             $messages = [];
 
             // Sync all enabled data types
@@ -247,26 +245,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $federationEnabled = $configManager->get('FEDERATION_ENABLED', false);
 $instanceId = $configManager->get('FEDERATION_INSTANCE_ID', '');
 $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Instanzvernetzung';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php
-    $SITE_TITLE = 'Instanzvernetzung';
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
                     <div class="twplus-page-header mb-6">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Vernetzung</p><h1><i class="fa-solid fa-link" style="color:var(--main-color);margin-right:0.5rem"></i>Instanzvernetzung</h1><p class="twplus-page-header__description">Verbundene Installationen, Freigaben und Synchronisierung verwalten.</p></div>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <!-- Federation Toggle -->
                     <div class="ignis-card twplus-section-card mb-4">
@@ -511,7 +500,3 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-</html>

@@ -5,22 +5,24 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/update_intra_mitarbeiter_23062025.php
- * Spiegelung:     database/legacy/update_intra_mitarbeiter_23062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Lockert intra_mitarbeiter.charakterid: die Charakter-ID ist ab jetzt
+ * optional (NULL erlaubt statt NOT NULL).
  */
 class UpdateIntraMitarbeiter23062025 extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/update_intra_mitarbeiter_23062025.php';
+        $this->table('intra_mitarbeiter')
+            ->changeColumn('charakterid', 'string', ['limit' => 255, 'null' => true, 'default' => null])
+            ->update();
+    }
+
+    public function down(): void
+    {
+        // Ursprüngliche Definition aus create_intra_mitarbeiter_07062025:
+        // varchar(255) NOT NULL
+        $this->table('intra_mitarbeiter')
+            ->changeColumn('charakterid', 'string', ['limit' => 255, 'null' => false])
+            ->update();
     }
 }

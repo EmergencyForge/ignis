@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \DateTime|null $deactivated_at
  * @property int|null    $deactivated_by
  * @property array|null  $theme_config
+ * @property string      $theme  dark|light|system, siehe ProfileController::theme()
  * @property-read Role|null $userRole
  */
 class User extends Model

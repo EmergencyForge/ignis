@@ -5,22 +5,34 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_fahrzeuge_beladung_tiles_23062025.php
- * Spiegelung:     database/legacy/create_intra_fahrzeuge_beladung_tiles_23062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Beladungs-Kacheln für Fahrzeuge: einzelne Beladungsgegenstände mit Menge,
+ * einer Kategorie (intra_fahrzeuge_beladung_categories) zugeordnet.
  */
 class CreateIntraFahrzeugeBeladungTiles23062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_fahrzeuge_beladung_tiles_23062025.php';
+        if ($this->hasTable('intra_fahrzeuge_beladung_tiles')) {
+            return;
+        }
+
+        $this->table('intra_fahrzeuge_beladung_tiles', [
+            'id'        => 'id',
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('category',   'integer',   ['default' => 0, 'null' => false])
+            ->addColumn('amount',     'integer',   ['default' => 0, 'null' => false])
+            ->addColumn('title',      'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'null' => false])
+            ->addIndex(['category'], ['name' => 'FK_beladung_categories'])
+            ->addForeignKey('category', 'intra_fahrzeuge_beladung_categories', 'id', [
+                'delete'     => 'CASCADE',
+                'update'     => 'CASCADE',
+                'constraint' => 'FK_beladung_categories',
+            ])
+            ->create();
     }
 }

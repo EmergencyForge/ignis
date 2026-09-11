@@ -39,7 +39,7 @@ class FailedJobsReaderTest extends IntegrationTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->reader = new FailedJobsReader($this->pdo);
+        $this->reader = new FailedJobsReader();
     }
 
     protected function tearDown(): void

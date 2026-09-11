@@ -1,23 +1,19 @@
 <?php
 /**
  * View: enotf/protokoll/massnahmen/medikamente/1.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviMedikament;
 
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -76,9 +72,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <div class="col">
                             <?php
                             // Load medications from database, sorted alphabetically by wirkstoff
-                            $medStmt = $pdo->prepare("SELECT wirkstoff, herstellername, dosierungen FROM intra_edivi_medikamente WHERE active = 1 ORDER BY wirkstoff ASC");
-                            $medStmt->execute();
-                            $medikamente = $medStmt->fetchAll(PDO::FETCH_ASSOC);
+                            $medikamente = EdiviMedikament::where('active', 1)
+                                ->orderBy('wirkstoff', 'ASC')
+                                ->get(['wirkstoff', 'herstellername', 'dosierungen'])
+                                ->all();
                             ?>
                             <div class="row">
                                 <div class="col">

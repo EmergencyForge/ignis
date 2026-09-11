@@ -9,13 +9,14 @@
  * @var array<int,array<string,mixed>>  $attachedVehicles
  * @var array<int,array<string,mixed>>  $sitreps
  * @var array<int,array<string,mixed>>  $asuProtocols
- * @var \PDO                            $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 
 // Helper for date/time formatting (UTC → Europe/Berlin)
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('fmt_dt')) {
 function fmt_dt(?string $ts): string
 {
     if (!$ts) return '-';
@@ -27,8 +28,11 @@ function fmt_dt(?string $ts): string
         return $ts;
     }
 }
+}
 
 // Helper to format seconds as MM:SS
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('fmt_elapsed')) {
 function fmt_elapsed(int|string $seconds): string
 {
     $sec = (int)$seconds;
@@ -36,6 +40,7 @@ function fmt_elapsed(int|string $seconds): string
     $mins = floor($sec / 60);
     $secs = $sec % 60;
     return sprintf('%02d:%02d', $mins, $secs);
+}
 }
 ?>
 <!DOCTYPE html>
@@ -102,18 +107,18 @@ function fmt_elapsed(int|string $seconds): string
                             <span class="align-middle text-xs text-gray-400">QM-Status:
                                 <?php
                                 if (!$incident['finalized']) {
-                                    $badge = 'bg-secondary';
+                                    $badge = 'ignis-chip--secondary';
                                     $statusText = 'Unfertig';
                                 } else {
                                     $statusMap = [
-                                        0 => ['bg-secondary', 'Ungesehen'],
-                                        1 => ['bg-warning', 'In Prüfung'],
-                                        2 => ['bg-success', 'Freigegeben'],
-                                        3 => ['bg-danger', 'Ungenügend'],
-                                        4 => ['bg-dark', 'Ausgeblendet'],
+                                        0 => ['ignis-chip--secondary', 'Ungesehen'],
+                                        1 => ['ignis-chip--warning', 'In Prüfung'],
+                                        2 => ['ignis-chip--success', 'Freigegeben'],
+                                        3 => ['ignis-chip--danger', 'Ungenügend'],
+                                        4 => ['ignis-chip--dark', 'Ausgeblendet'],
                                     ];
                                     $s = (int)$incident['status'];
-                                    [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
+                                    [$badge, $statusText] = $statusMap[$s] ?? ['ignis-chip--secondary', 'Unbekannt'];
                                 }
                                 ?>
                                 <span class="ignis-chip <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
@@ -140,7 +145,7 @@ function fmt_elapsed(int|string $seconds): string
         <template id="qmStatusFormTemplate">
             <div class="mb-3">
                 <label class="ignis-field__label">Status</label>
-                <select name="status" class="form-select">
+                <select name="status" class="ignis-input">
                     <option value="0" <?= (int)$incident['status'] === 0 ? 'selected' : '' ?>>Ungesehen</option>
                     <option value="1" <?= (int)$incident['status'] === 1 ? 'selected' : '' ?>>In Prüfung</option>
                     <option value="2" <?= (int)$incident['status'] === 2 ? 'selected' : '' ?>>Freigegeben</option>

@@ -5,22 +5,26 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_edivi_hospital_departments_21012026_sort_order.php
- * Spiegelung:     database/legacy/alter_intra_edivi_hospital_departments_21012026_sort_order.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Eigene Sortierreihenfolge für Krankenhaus-Abteilungen: `sort_order`
+ * (niedriger = höhere Priorität, Default 999) samt Index.
  */
 class AlterIntraEdiviHospitalDepartments21012026SortOrder extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_edivi_hospital_departments_21012026_sort_order.php';
+        $table = $this->table('intra_edivi_hospital_departments');
+
+        if ($table->hasColumn('sort_order')) {
+            return;
+        }
+
+        $table->addColumn('sort_order', 'integer', [
+            'null'    => false,
+            'default' => 999,
+            'comment' => 'Custom sort order (lower = higher priority)',
+            'after'   => 'name',
+        ])
+            ->addIndex(['sort_order'], ['name' => 'idx_sort_order'])
+            ->update();
     }
 }

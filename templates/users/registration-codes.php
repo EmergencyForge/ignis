@@ -5,22 +5,14 @@
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RegistrationCode> $codes
  * @var string                                                                       $registrationMode
  * @var string                                                                       $systemUrl
- * @var \PDO                                                                         $pdo
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Einladungen verwalten';
+
+$layout = 'admin';
+$bodyId = 'benutzer';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -47,7 +39,6 @@ $SITE_TITLE = 'Einladungen verwalten';
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <div class="ignis-alert ignis-alert--info mb-4">
                         <i class="fa-solid fa-circle-info ignis-alert__icon"></i>
@@ -72,7 +63,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                     <div class="twplus-table-card">
                         <div class="twplus-table-card__toolbar"><h2 class="twplus-section-card__title">Alle Einladungen</h2></div>
                         <div class="twplus-table-card__scroll">
-                        <table class="table table-striped twplus-table" id="inviteTable">
+                        <table class="ignis-table" id="inviteTable">
                             <thead>
                                 <tr>
                                     <th scope="col">Bezeichnung</th>
@@ -113,11 +104,11 @@ $SITE_TITLE = 'Einladungen verwalten';
                                         </td>
                                         <td>
                                             <?php if ($code->is_used): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">Verwendet</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--dark">Verwendet</span>
                                             <?php elseif ($isExpired): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--danger">Abgelaufen</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--danger">Abgelaufen</span>
                                             <?php else: ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--success">Verfügbar</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--success">Verfügbar</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -173,7 +164,6 @@ $SITE_TITLE = 'Einladungen verwalten';
         </div>
     </template>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
         function openCreateInviteModal() {
@@ -201,18 +191,4 @@ $SITE_TITLE = 'Einladungen verwalten';
             });
         }
 
-        $(document).ready(function() {
-            $('#inviteTable').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [10, 20, 50],
-                pageLength: 10,
-                order: [[2, 'desc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Einladungen')
-            });
-        });
     </script>
-</body>
-
-</html>

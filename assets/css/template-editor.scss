@@ -28,7 +28,7 @@
   // Dunklerer Brand-Surface-Ton, damit die weiße PDF-Seite klar abhebt.
   // Leichter radialer Vignette-Effekt für Tiefe — gibt dem Workspace
   // etwas "Werkzeug"-Haltung wie in Figma/Photoshop-Canvas.
-  background: #17161c radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.025), transparent 60%);
+  background: var(--surface) radial-gradient(circle at 50% 30%, var(--fill-1), transparent 60%);
   text-align: center;
 }
 
@@ -49,7 +49,7 @@
 
 .canvas-container-wrapper {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  background: #fff;
+  background: var(--white);
   position: relative;
 }
 
@@ -196,7 +196,7 @@
   color: var(--bs-body-color);
 }
 .sidebar-tabs .nav-link:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fill-1);
 }
 .sidebar-tabs .nav-link .badge {
   font-size: 0.55rem;

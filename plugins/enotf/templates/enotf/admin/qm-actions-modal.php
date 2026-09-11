@@ -1,8 +1,6 @@
 <?php
 /**
  * View: eNOTF QM-Actions-Modal (AJAX)
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
@@ -10,19 +8,20 @@ use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Utils\AuditLogger;
 use App\Notifications\NotificationManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Models\EdiviQmLog;
 
-$userHelper = new UserHelper($pdo);
+$userHelper = new UserHelper();
 
-$stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE id = :id");
-$stmt->bindParam(':id', $_GET['id']);
-$stmt->execute();
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$row = Capsule::table('intra_edivi')->where('id', $_GET['id'])->first();
 
-if (count($row) == 0) {
+if ($row === null) {
     http_response_code(404);
     exit(json_encode(['success' => false, 'message' => 'Protokoll nicht gefunden']));
 }
+
+$row = (array) $row;
 
 $ist_freigegeben = ($row['freigegeben'] == 1);
 
@@ -73,40 +72,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!empty($logEntries)) {
-        $stmt = $pdo->prepare("INSERT INTO intra_edivi_qmlog (protokoll_id, kommentar, bearbeiter, log_aktion) VALUES (:id, :kommentar, :bearbeiter, :log_aktion)");
-
         foreach ($logEntries as $entry) {
-            $stmt->execute([
-                'id' => $_GET['id'],
+            EdiviQmLog::create([
+                'protokoll_id' => $_GET['id'],
                 'kommentar' => $entry['kommentar'],
                 'bearbeiter' => $entry['bearbeiter'],
-                'log_aktion' => $entry['log_aktion']
+                'log_aktion' => $entry['log_aktion'],
             ]);
         }
     }
 
-    $auditLogger = new AuditLogger($pdo);
+    $auditLogger = new AuditLogger();
     $auditLogger->log($_SESSION['userid'], 'Protokoll aktualisiert [ID: ' . $_GET['id'] . ']', NULL, 'eNOTF', 1);
 
-    $stmt = $pdo->prepare("UPDATE intra_edivi SET bearbeiter = :bearbeiter, protokoll_status = :status WHERE id = :id");
-    $stmt->execute([
+    Capsule::table('intra_edivi')->where('id', $_GET['id'])->update([
         'bearbeiter' => $bearbeiter,
-        'status' => $protokoll_status,
-        'id' => $_GET['id']
+        'protokoll_status' => $protokoll_status,
     ]);
 
     // Create notification for protocol author if status changed
     if ($protokoll_status != $old_status && !empty($row['pfname'])) {
         try {
             // First, look up the mitarbeiter's discord tag by their fullname
-            $mitarbeiterStmt = $pdo->prepare("SELECT discordtag FROM intra_mitarbeiter WHERE fullname = ? LIMIT 1");
-            $mitarbeiterStmt->execute([$row['pfname']]);
-            $mitarbeiter = $mitarbeiterStmt->fetch(PDO::FETCH_ASSOC);
+            $mitarbeiter = Capsule::table('intra_mitarbeiter')
+                ->where('fullname', $row['pfname'])
+                ->first(['discordtag']);
 
-            if ($mitarbeiter && !empty($mitarbeiter['discordtag'])) {
+            if ($mitarbeiter && !empty($mitarbeiter->discordtag)) {
                 // Now look up the user by discord tag
-                $notificationManager = new NotificationManager($pdo);
-                $userId = $notificationManager->getUserIdByDiscordTag($mitarbeiter['discordtag']);
+                $notificationManager = new NotificationManager();
+                $userId = $notificationManager->getUserIdByDiscordTag($mitarbeiter->discordtag);
 
                 if ($userId) {
                     $notificationManager->create(
@@ -117,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         EnotfUrl::protokoll($row['enr'])
                     );
                 } else {
-                    error_log("QM Notification: User not found for discord tag: " . $mitarbeiter['discordtag']);
+                    error_log("QM Notification: User not found for discord tag: " . $mitarbeiter->discordtag);
                 }
             } else {
                 error_log("QM Notification: No mitarbeiter found with fullname: " . $row['pfname'] . " or no discord tag set");

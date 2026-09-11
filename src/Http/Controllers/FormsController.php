@@ -16,6 +16,7 @@ use App\Models\FormData;
 use App\Models\FormField;
 use App\Models\FormType;
 use App\Notifications\NotificationManager;
+use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -242,14 +243,34 @@ class FormsController extends Controller
      */
     public function adminList(): void
     {
-        $antraege = Form::query()
+        $list = ListQuery::fromQuery($_GET, [
+            'nr'     => 'intra_antraege.uniqueid',
+            'typ'    => 'typ_name',
+            'von'    => 'intra_antraege.name_dn',
+            'status' => 'intra_antraege.cirs_status',
+            'datum'  => 'intra_antraege.time_added',
+        ], 'datum', 'desc', 25, ['status']);
+
+        $query = Form::query()
             ->with('typ')
-            ->orderBy('time_added', 'desc')
-            ->get();
+            ->leftJoin('intra_antrag_typen', 'intra_antraege.antragstyp_id', '=', 'intra_antrag_typen.id')
+            ->select('intra_antraege.*', 'intra_antrag_typen.name as typ_name');
+
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('intra_antraege.uniqueid', 'LIKE', $list->like())
+                    ->orWhere('intra_antraege.name_dn', 'LIKE', $list->like())
+                    ->orWhere('intra_antrag_typen.name', 'LIKE', $list->like());
+            });
+        }
+        if ($list->filter('status') !== '' && isset(self::STATUS_DISPLAY[(int) $list->filter('status')])) {
+            $query->where('intra_antraege.cirs_status', (int) $list->filter('status'));
+        }
 
         $this->renderView('forms/admin/list', [
-            'antraege'      => $antraege,
+            'antraege'      => $list->paginate($query),
             'statusDisplay' => self::STATUS_DISPLAY,
+            'list'          => $list,
         ]);
     }
 
@@ -278,7 +299,7 @@ class FormsController extends Controller
         }
 
         $felderMitWerten = $this->loadFieldsWithValues($antrag);
-        $userHelper      = new UserHelper($this->pdo);
+        $userHelper      = new UserHelper();
 
         $this->renderView('forms/admin/view', [
             'antrag'             => $antrag,
@@ -317,10 +338,10 @@ class FormsController extends Controller
             $this->redirect('antrag/admin/view?antrag=' . $caseId);
         }
 
-        $userHelper       = new UserHelper($this->pdo);
+        $userHelper       = new UserHelper();
         $newCirsManager   = $userHelper->getCurrentUserFullnameForAction();
         $currentUserId    = (int) $_SESSION['userid'];
-        $auditLogger      = new AuditLogger($this->pdo);
+        $auditLogger      = new AuditLogger();
 
         // Diff-Audit: nur tatsächliche Änderungen loggen
         if ($antrag->cirs_manager !== $newCirsManager) {
@@ -355,7 +376,7 @@ class FormsController extends Controller
         }
 
         // Notification an den Antragsteller
-        $notificationManager = new NotificationManager($this->pdo);
+        $notificationManager = new NotificationManager();
         $statusName          = Form::STATUS_LABELS[$data['cirs_status']] ?? 'Unbekannt';
         if ($antrag->discordid !== null && $antrag->discordid !== '') {
             $userId = $notificationManager->getUserIdByDiscordTag($antrag->discordid);
@@ -382,7 +403,7 @@ class FormsController extends Controller
      * Lädt das Mitarbeiter-Profil zum aktuellen Discord-Tag aus der Session.
      * Returns null wenn keine Discord-Session, kein Profil oder archivierter Rank.
      *
-     * Bewusst via Capsule (kein Mitarbeiter-Model in dieser Phase) — der
+     * Bewusst via Capsule (es gibt kein Mitarbeiter-Model) — der
      * geschlechts-bedingte Rank-Name ist sehr Mitarbeiter-spezifisch
      * und gehört eigentlich in das Mitarbeiter-Modul, wenn das migriert wird.
      */

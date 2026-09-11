@@ -9,7 +9,6 @@
  * @var array<int,array<string,mixed>>  $vehicles
  * @var array<string,mixed>             $prefill
  * @var string                          $pinEnabled  ('true' / 'false')
- * @var \PDO                            $pdo
  */
 
 use Plugin\Enotf\Helpers\EnotfUrl;

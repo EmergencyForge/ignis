@@ -8,8 +8,10 @@ use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
+use App\Models\Vehicle;
+use App\Models\VehicleTzTemplate;
 use App\Utils\AuditLogger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -21,10 +23,6 @@ use PDOException;
  */
 final class VehicleTzTemplatesController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET|POST /api/vehicles/tz-templates?action=list|save|delete|apply_to_type
      */
@@ -60,13 +58,15 @@ final class VehicleTzTemplatesController
         }
 
         try {
-            $stmt = $this->pdo->query("
-                SELECT t.*, u.username AS created_by_name
-                FROM intra_fahrzeuge_tz_templates t
-                LEFT JOIN intra_users u ON t.created_by = u.id
-                ORDER BY t.name ASC
-            ");
-            return Response::json(['success' => true, 'templates' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+            $templates = Capsule::table('intra_fahrzeuge_tz_templates as t')
+                ->leftJoin('intra_users as u', 't.created_by', '=', 'u.id')
+                ->select('t.*', 'u.username as created_by_name')
+                ->orderBy('t.name')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
+
+            return Response::json(['success' => true, 'templates' => $templates]);
         } catch (PDOException $e) {
             Logger::error('TzTemplates: list Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'message' => $e->getMessage()]);
@@ -91,36 +91,23 @@ final class VehicleTzTemplatesController
         ];
 
         try {
-            $existStmt = $this->pdo->prepare("SELECT id FROM intra_fahrzeuge_tz_templates WHERE name = ?");
-            $existStmt->execute([$name]);
-            $existing = $existStmt->fetch(PDO::FETCH_ASSOC);
+            $existing = VehicleTzTemplate::query()->where('name', $name)->first();
 
             if ($existing) {
-                $stmt = $this->pdo->prepare("
-                    UPDATE intra_fahrzeuge_tz_templates
-                    SET grundzeichen = :grundzeichen, organisation = :organisation, fachaufgabe = :fachaufgabe,
-                        einheit = :einheit, symbol = :symbol, typ = :typ, text = :text
-                    WHERE id = :id
-                ");
-                $stmt->execute(array_merge($fields, [':id' => $existing['id']]));
-                $resultId      = (int) $existing['id'];
+                $existing->update($fields);
+                $resultId      = (int) $existing->id;
                 $resultMessage = "Vorlage '{$name}' aktualisiert";
             } else {
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO intra_fahrzeuge_tz_templates
-                    (name, grundzeichen, organisation, fachaufgabe, einheit, symbol, typ, text, created_by)
-                    VALUES (:name, :grundzeichen, :organisation, :fachaufgabe, :einheit, :symbol, :typ, :text, :created_by)
-                ");
-                $stmt->execute(array_merge(
-                    [':name' => $name],
+                $template = VehicleTzTemplate::create(array_merge(
+                    ['name' => $name],
                     $fields,
-                    [':created_by' => $_SESSION['userid'] ?? null]
+                    ['created_by' => $_SESSION['userid'] ?? null]
                 ));
-                $resultId      = (int) $this->pdo->lastInsertId();
+                $resultId      = (int) $template->id;
                 $resultMessage = "Vorlage '{$name}' gespeichert";
             }
 
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $_SESSION['userid'] ?? 0,
                 "TZ-Vorlage gespeichert: {$name}",
                 null,
@@ -147,15 +134,13 @@ final class VehicleTzTemplatesController
         }
 
         try {
-            $nameStmt = $this->pdo->prepare("SELECT name FROM intra_fahrzeuge_tz_templates WHERE id = ?");
-            $nameStmt->execute([$id]);
-            $tpl = $nameStmt->fetch(PDO::FETCH_ASSOC);
+            $tpl = VehicleTzTemplate::find($id);
 
-            $this->pdo->prepare("DELETE FROM intra_fahrzeuge_tz_templates WHERE id = ?")->execute([$id]);
+            VehicleTzTemplate::query()->where('id', $id)->delete();
 
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $_SESSION['userid'] ?? 0,
-                "TZ-Vorlage gelöscht: " . ($tpl['name'] ?? $id),
+                "TZ-Vorlage gelöscht: " . ($tpl->name ?? $id),
                 null,
                 'Fahrzeuge',
                 1
@@ -181,37 +166,28 @@ final class VehicleTzTemplatesController
         }
 
         try {
-            $tplStmt = $this->pdo->prepare("SELECT * FROM intra_fahrzeuge_tz_templates WHERE id = ?");
-            $tplStmt->execute([$templateId]);
-            $tpl = $tplStmt->fetch(PDO::FETCH_ASSOC);
+            $tpl = VehicleTzTemplate::find($templateId);
 
             if (!$tpl) {
                 return Response::json(['success' => false, 'message' => 'Vorlage nicht gefunden']);
             }
 
             // tz_name bleibt individuell pro Fahrzeug — wird nicht überschrieben
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_fahrzeuge
-                SET grundzeichen = :grundzeichen, organisation = :organisation, fachaufgabe = :fachaufgabe,
-                    einheit = :einheit, symbol = :symbol, typ = :typ, text = :text
-                WHERE veh_type = :veh_type
-            ");
-            $stmt->execute([
-                ':grundzeichen' => $tpl['grundzeichen'],
-                ':organisation' => $tpl['organisation'],
-                ':fachaufgabe'  => $tpl['fachaufgabe'],
-                ':einheit'      => $tpl['einheit'],
-                ':symbol'       => $tpl['symbol'],
-                ':typ'          => $tpl['typ'],
-                ':text'         => $tpl['text'],
-                ':veh_type'     => $vehType,
-            ]);
+            $affected = Vehicle::query()
+                ->where('veh_type', $vehType)
+                ->update([
+                    'grundzeichen' => $tpl->grundzeichen,
+                    'organisation' => $tpl->organisation,
+                    'fachaufgabe'  => $tpl->fachaufgabe,
+                    'einheit'      => $tpl->einheit,
+                    'symbol'       => $tpl->symbol,
+                    'typ'          => $tpl->typ,
+                    'text'         => $tpl->text,
+                ]);
 
-            $affected = $stmt->rowCount();
-
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $_SESSION['userid'] ?? 0,
-                "TZ-Vorlage '{$tpl['name']}' auf {$affected} Fahrzeuge vom Typ '{$vehType}' angewendet",
+                "TZ-Vorlage '{$tpl->name}' auf {$affected} Fahrzeuge vom Typ '{$vehType}' angewendet",
                 null,
                 'Fahrzeuge',
                 1

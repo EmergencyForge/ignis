@@ -2,15 +2,12 @@
 
 namespace App\Telemetry;
 
-use PDO;
-
-require_once __DIR__ . '/../Config/ConfigManager.php';
-
 use App\Config\ConfigManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * TelemetryManager - Sammelt und sendet anonymisierte Statistiken
- * 
+ *
  * DATENSCHUTZ-HINWEIS:
  * - Telemetrie ist standardmäßig DEAKTIVIERT (Opt-In)
  * - Es werden KEINE persönlichen Daten übertragen
@@ -19,15 +16,13 @@ use App\Config\ConfigManager;
  */
 class TelemetryManager
 {
-    private PDO $pdo;
     private ConfigManager $config;
 
     public const HEARTBEAT_INTERVAL = 86400; // 24 Stunden
 
-    public function __construct(PDO $pdo)
+    public function __construct()
     {
-        $this->pdo = $pdo;
-        $this->config = new ConfigManager($pdo);
+        $this->config = new ConfigManager();
     }
 
     public function isEnabled(): bool
@@ -44,12 +39,13 @@ class TelemetryManager
     {
         $this->getOrCreateInstallationId();
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config 
-                SET config_value = 'true', updated_at = NOW()
-                WHERE config_key = 'TELEMETRY_ENABLED'
-            ");
-            return $stmt->execute();
+            Capsule::table('intra_config')
+                ->where('config_key', 'TELEMETRY_ENABLED')
+                ->update([
+                    'config_value' => 'true',
+                    'updated_at'   => Capsule::raw('NOW()'),
+                ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to enable telemetry: " . $e->getMessage());
             return false;
@@ -59,12 +55,13 @@ class TelemetryManager
     public function disable(?int $userId = null): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config 
-                SET config_value = 'false', updated_at = NOW()
-                WHERE config_key = 'TELEMETRY_ENABLED'
-            ");
-            return $stmt->execute();
+            Capsule::table('intra_config')
+                ->where('config_key', 'TELEMETRY_ENABLED')
+                ->update([
+                    'config_value' => 'false',
+                    'updated_at'   => Capsule::raw('NOW()'),
+                ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to disable telemetry: " . $e->getMessage());
             return false;
@@ -94,13 +91,19 @@ class TelemetryManager
             $installationId = $this->generateUUID();
 
             try {
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO intra_config 
-                    (config_key, config_value, config_type, category, description, is_editable, display_order)
-                    VALUES (?, ?, 'string', 'telemetrie', 'Eindeutige Installations-ID für Telemetrie', 0, 1)
-                    ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
-                ");
-                $stmt->execute(['INSTALLATION_ID', $installationId]);
+                Capsule::table('intra_config')->upsert(
+                    [[
+                        'config_key'    => 'INSTALLATION_ID',
+                        'config_value'  => $installationId,
+                        'config_type'   => 'string',
+                        'category'      => 'telemetrie',
+                        'description'   => 'Eindeutige Installations-ID für Telemetrie',
+                        'is_editable'   => 0,
+                        'display_order' => 1,
+                    ]],
+                    ['config_key'],
+                    ['config_value']
+                );
             } catch (\PDOException $e) {
                 \App\Logging\Logger::warning("Failed to save installation ID: " . $e->getMessage());
             }
@@ -147,7 +150,8 @@ class TelemetryManager
     private function getDatabaseVersion(): ?string
     {
         try {
-            return $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
+            $row = Capsule::connection()->selectOne('SELECT VERSION() AS version');
+            return $row->version ?? null;
         } catch (\PDOException $e) {
             return null;
         }
@@ -176,17 +180,16 @@ class TelemetryManager
         try {
             // Aktive Mitarbeiter - prüfe welche Status-Spalte existiert
             try {
-                $stmt = $this->pdo->query("SHOW COLUMNS FROM intra_mitarbeiter LIKE 'status'");
-                if ($stmt->rowCount() > 0) {
-                    $stmt = $this->pdo->query("
-                        SELECT COUNT(*) FROM intra_mitarbeiter 
-                        WHERE status IN ('Aktiv', 'aktiv', '1', 1) OR status IS NULL
-                    ");
-                    $stats['active_employees'] = (int) $stmt->fetchColumn();
+                if (Capsule::schema()->hasColumn('intra_mitarbeiter', 'status')) {
+                    $stats['active_employees'] = Capsule::table('intra_mitarbeiter')
+                        ->where(function ($query) {
+                            $query->whereIn('status', ['Aktiv', 'aktiv', '1', 1])
+                                ->orWhereNull('status');
+                        })
+                        ->count();
                 } else {
                     // Fallback: alle zählen
-                    $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
-                    $stats['active_employees'] = (int) $stmt->fetchColumn();
+                    $stats['active_employees'] = Capsule::table('intra_mitarbeiter')->count();
                 }
             } catch (\PDOException $e) {
                 // Tabelle existiert nicht
@@ -194,25 +197,21 @@ class TelemetryManager
 
             // Gesamt Mitarbeiter
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
-                $stats['total_employees'] = (int) $stmt->fetchColumn();
+                $stats['total_employees'] = Capsule::table('intra_mitarbeiter')->count();
             } catch (\PDOException $e) {
             }
 
             // Gesamt User
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_users");
-                $stats['total_users'] = (int) $stmt->fetchColumn();
+                $stats['total_users'] = Capsule::table('intra_users')->count();
             } catch (\PDOException $e) {
             }
 
             // Aktive User (Login in letzten 30 Tagen via Session-Logs)
             try {
-                $stmt = $this->pdo->query("
-                    SELECT COUNT(DISTINCT user_id) FROM intra_session_logs
-                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-                ");
-                $stats['active_users'] = (int) $stmt->fetchColumn();
+                $stats['active_users'] = (int) Capsule::table('intra_session_logs')
+                    ->whereRaw('created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+                    ->count(Capsule::raw('DISTINCT user_id'));
             } catch (\PDOException $e) {
                 // Fallback: Alle User zählen
                 $stats['active_users'] = $stats['total_users'];
@@ -220,86 +219,72 @@ class TelemetryManager
 
             // Logins letzte 30 Tage (Gesamtzahl, nicht distinct)
             try {
-                $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_session_logs
-                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-                ");
-                $stats['logins_last_30_days'] = (int) $stmt->fetchColumn();
+                $stats['logins_last_30_days'] = Capsule::table('intra_session_logs')
+                    ->whereRaw('created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+                    ->count();
             } catch (\PDOException $e) {
             }
 
             // Fahrzeuge
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fahrzeuge");
-                $stats['vehicles'] = (int) $stmt->fetchColumn();
+                $stats['vehicles'] = Capsule::table('intra_fahrzeuge')->count();
             } catch (\PDOException $e) {
             }
 
             // eNOTF Einträge (letzte 30 Tage + gesamt)
             try {
-                $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_edivi
-                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-                ");
-                $stats['enotf_last_30_days'] = (int) $stmt->fetchColumn();
+                $stats['enotf_last_30_days'] = Capsule::table('intra_edivi')
+                    ->whereRaw('created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+                    ->count();
 
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_edivi");
-                $stats['enotf_total'] = (int) $stmt->fetchColumn();
+                $stats['enotf_total'] = Capsule::table('intra_edivi')->count();
             } catch (\PDOException $e) {
             }
 
             // Feuerwehr-Einsätze (letzte 30 Tage + gesamt)
             try {
-                $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_fire_incidents
-                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-                ");
-                $stats['fire_incidents_last_30_days'] = (int) $stmt->fetchColumn();
+                $stats['fire_incidents_last_30_days'] = Capsule::table('intra_fire_incidents')
+                    ->whereRaw('created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)')
+                    ->count();
 
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents");
-                $stats['fire_incidents_total'] = (int) $stmt->fetchColumn();
+                $stats['fire_incidents_total'] = Capsule::table('intra_fire_incidents')->count();
             } catch (\PDOException $e) {
             }
 
             // MANV-Lagen gesamt
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_manv_lagen");
-                $stats['manv_total'] = (int) $stmt->fetchColumn();
+                $stats['manv_total'] = Capsule::table('intra_manv_lagen')->count();
             } catch (\PDOException $e) {
             }
 
             // Dokument-Templates gesamt
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_dokument_templates");
-                $stats['documents_total'] = (int) $stmt->fetchColumn();
+                $stats['documents_total'] = Capsule::table('intra_dokument_templates')->count();
             } catch (\PDOException $e) {
             }
 
             // Wissensbasis-Artikel gesamt
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries");
-                $stats['knowledge_base_articles'] = (int) $stmt->fetchColumn();
+                $stats['knowledge_base_articles'] = Capsule::table('intra_kb_entries')->count();
             } catch (\PDOException $e) {
             }
 
             // Konfigurierte Discord-Webhooks
             try {
-                $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_config
-                    WHERE config_key LIKE 'DISCORD_WEBHOOK_%'
-                    AND config_value IS NOT NULL AND config_value != ''
-                ");
-                $stats['discord_webhooks_configured'] = (int) $stmt->fetchColumn();
+                $stats['discord_webhooks_configured'] = Capsule::table('intra_config')
+                    ->where('config_key', 'like', 'DISCORD_WEBHOOK_%')
+                    ->whereNotNull('config_value')
+                    ->where('config_value', '!=', '')
+                    ->count();
             } catch (\PDOException $e) {
             }
 
             // Tage seit Installation (basierend auf ältestem User oder Config-Eintrag)
             try {
-                $stmt = $this->pdo->query("
-                    SELECT DATEDIFF(NOW(), MIN(created_at)) FROM intra_users
-                ");
-                $days = $stmt->fetchColumn();
-                $stats['days_since_install'] = $days !== false ? (int) $days : 0;
+                $days = Capsule::table('intra_users')
+                    ->selectRaw('DATEDIFF(NOW(), MIN(created_at)) AS days')
+                    ->value('days');
+                $stats['days_since_install'] = $days !== null ? (int) $days : 0;
             } catch (\PDOException $e) {
             }
         } catch (\PDOException $e) {
@@ -322,36 +307,31 @@ class TelemetryManager
         try {
             // eNOTF - Tabelle existiert und hat Einträge
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_edivi");
-                $modules['enotf'] = ((int) $stmt->fetchColumn()) > 0;
+                $modules['enotf'] = Capsule::table('intra_edivi')->count() > 0;
             } catch (\PDOException $e) {
             }
 
             // Feuerwehr-Einsätze
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents");
-                $modules['fire_incidents'] = ((int) $stmt->fetchColumn()) > 0;
+                $modules['fire_incidents'] = Capsule::table('intra_fire_incidents')->count() > 0;
             } catch (\PDOException $e) {
             }
 
             // MANV - korrekte Tabelle: intra_manv_lagen
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_manv_lagen");
-                $modules['manv'] = ((int) $stmt->fetchColumn()) > 0;
+                $modules['manv'] = Capsule::table('intra_manv_lagen')->count() > 0;
             } catch (\PDOException $e) {
             }
 
             // Dokumente - Templates oder Mitarbeiter-Dokumente
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_dokument_templates");
-                $modules['documents'] = ((int) $stmt->fetchColumn()) > 0;
+                $modules['documents'] = Capsule::table('intra_dokument_templates')->count() > 0;
             } catch (\PDOException $e) {
             }
 
             // Wissensdatenbank
             try {
-                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries");
-                $modules['knowledge_base'] = ((int) $stmt->fetchColumn()) > 0;
+                $modules['knowledge_base'] = Capsule::table('intra_kb_entries')->count() > 0;
             } catch (\PDOException $e) {
             }
         } catch (\PDOException $e) {
@@ -494,13 +474,19 @@ class TelemetryManager
     {
         $until = date('c', time() + $seconds);
         try {
-            $stmt = $this->pdo->prepare("
-                INSERT INTO intra_config 
-                (config_key, config_value, config_type, category, description, is_editable, display_order)
-                VALUES ('TELEMETRY_RATE_LIMIT_UNTIL', ?, 'string', 'telemetrie', 'Rate-Limit Cooldown', 0, 99)
-                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
-            ");
-            $stmt->execute([$until]);
+            Capsule::table('intra_config')->upsert(
+                [[
+                    'config_key'    => 'TELEMETRY_RATE_LIMIT_UNTIL',
+                    'config_value'  => $until,
+                    'config_type'   => 'string',
+                    'category'      => 'telemetrie',
+                    'description'   => 'Rate-Limit Cooldown',
+                    'is_editable'   => 0,
+                    'display_order' => 99,
+                ]],
+                ['config_key'],
+                ['config_value']
+            );
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to set rate limit cooldown: " . $e->getMessage());
         }
@@ -509,7 +495,9 @@ class TelemetryManager
     private function clearRateLimitCooldown(): void
     {
         try {
-            $this->pdo->exec("DELETE FROM intra_config WHERE config_key = 'TELEMETRY_RATE_LIMIT_UNTIL'");
+            Capsule::table('intra_config')
+                ->where('config_key', 'TELEMETRY_RATE_LIMIT_UNTIL')
+                ->delete();
         } catch (\PDOException $e) {
             // Ignorieren
         }
@@ -518,13 +506,19 @@ class TelemetryManager
     private function updateLastHeartbeat(): void
     {
         try {
-            $stmt = $this->pdo->prepare("
-                INSERT INTO intra_config 
-                (config_key, config_value, config_type, category, description, is_editable, display_order)
-                VALUES ('TELEMETRY_LAST_HEARTBEAT', ?, 'string', 'telemetrie', 'Letzter Telemetrie-Heartbeat', 0, 2)
-                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
-            ");
-            $stmt->execute([date('c')]);
+            Capsule::table('intra_config')->upsert(
+                [[
+                    'config_key'    => 'TELEMETRY_LAST_HEARTBEAT',
+                    'config_value'  => date('c'),
+                    'config_type'   => 'string',
+                    'category'      => 'telemetrie',
+                    'description'   => 'Letzter Telemetrie-Heartbeat',
+                    'is_editable'   => 0,
+                    'display_order' => 2,
+                ]],
+                ['config_key'],
+                ['config_value']
+            );
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to update last heartbeat: " . $e->getMessage());
         }

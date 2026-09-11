@@ -31,11 +31,12 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Brand-Orange — Haupt-Akzentfarbe des Systems
+                // Akzentfarbe des Systems: kommt aus assets/css/_tokens.scss
+                // bzw. SYSTEM_COLOR (head.php), deshalb hier nur die Variable.
                 brand: {
-                    DEFAULT: '#FF4D00',
-                    light:   '#FF6A33',
-                    dark:    '#CC3D00',
+                    DEFAULT: 'var(--accent)',
+                    light:   'var(--accent)',
+                    dark:    'var(--accent-hover)',
                 },
                 // Dark-Surface-Palette (purplish-dark grays)
                 surface: {

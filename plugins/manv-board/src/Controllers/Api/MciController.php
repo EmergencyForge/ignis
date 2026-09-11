@@ -7,10 +7,10 @@ namespace Plugin\ManvBoard\Controllers\Api;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\ManvBoard\Models\MANVLage;
 use Plugin\ManvBoard\Models\MANVLog;
 use Plugin\ManvBoard\Models\MANVPatient;
-use PDO;
 
 /**
  * MANV (Massenanfall von Verletzten) — Admin-API.
@@ -21,10 +21,6 @@ use PDO;
  */
 final class MciController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET|POST /api/manv/api?action=...
      */
@@ -34,9 +30,9 @@ final class MciController
         $lageIdParam = $request->query['lage_id'] ?? $request->post['lage_id'] ?? null;
         $lageId = $lageIdParam !== null ? (int) $lageIdParam : null;
 
-        $manvLage    = new MANVLage($this->pdo);
-        $manvPatient = new MANVPatient($this->pdo);
-        $manvLog     = new MANVLog($this->pdo);
+        $manvLage    = new MANVLage();
+        $manvPatient = new MANVPatient();
+        $manvLog     = new MANVLog();
 
         try {
             return match ($action) {
@@ -131,39 +127,32 @@ final class MciController
             return Response::json(['success' => false, 'error' => 'Patient-ID fehlt'], 400);
         }
 
-        $stmt = $this->pdo->prepare(
-            "SELECT manv_lage_id, patienten_nummer, transportmittel_rufname FROM intra_manv_patienten WHERE id = ?"
-        );
-        $stmt->execute([$patientId]);
-        $patient = $stmt->fetch(PDO::FETCH_ASSOC);
+        $patient = Capsule::table('intra_manv_patienten')
+            ->where('id', $patientId)
+            ->select(['manv_lage_id', 'patienten_nummer', 'transportmittel_rufname'])
+            ->first();
         if (!$patient) {
             return Response::json(['success' => false, 'error' => 'Patient nicht gefunden'], 404);
         }
+        $patient = (array) $patient;
 
-        $this->pdo->prepare("
-            UPDATE intra_manv_patienten
-            SET transport_abfahrt = NOW(),
-                geaendert_von = ?,
-                geaendert_am = NOW()
-            WHERE id = ?
-        ")->execute([
-            $_SESSION['user_id'] ?? null,
-            $patientId,
-        ]);
+        Capsule::table('intra_manv_patienten')
+            ->where('id', $patientId)
+            ->update([
+                'transport_abfahrt' => Capsule::raw('NOW()'),
+                'geaendert_von'     => $_SESSION['user_id'] ?? null,
+                'geaendert_am'      => Capsule::raw('NOW()'),
+            ]);
 
         // Fahrzeug aus Ressourcen entfernen, falls vorhanden
         if ($patient['transportmittel_rufname']) {
-            $deleteStmt = $this->pdo->prepare("
-                DELETE FROM intra_manv_ressourcen
-                WHERE manv_lage_id = ? AND bezeichnung = ?
-                LIMIT 1
-            ");
-            $deleteStmt->execute([
-                (int) $patient['manv_lage_id'],
-                $patient['transportmittel_rufname'],
-            ]);
+            $deletedRows = Capsule::table('intra_manv_ressourcen')
+                ->where('manv_lage_id', (int) $patient['manv_lage_id'])
+                ->where('bezeichnung', $patient['transportmittel_rufname'])
+                ->limit(1)
+                ->delete();
 
-            if ($deleteStmt->rowCount() > 0) {
+            if ($deletedRows > 0) {
                 $manvLog->log(
                     (int) $patient['manv_lage_id'],
                     'ressource_abgefahren',

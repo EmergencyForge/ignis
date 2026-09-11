@@ -37,7 +37,7 @@ final class PluginsController extends Controller
         }
 
         $registry   = PluginRegistry::fromDirectory(PluginLoader::pluginsDir());
-        $repository = new PluginRepository($this->pdo);
+        $repository = new PluginRepository();
         $repository->syncDiscovered($registry->all());
         $catalogClient = $this->catalogClient();
         $installer = $this->catalogInstaller();
@@ -166,7 +166,7 @@ final class PluginsController extends Controller
     private function catalogClient(): CatalogClient
     {
         $override = trim((string) ($_ENV['HUB_PLUGINS_URL'] ?? getenv('HUB_PLUGINS_URL') ?: ''));
-        $hubUrl = trim((string) (new ConfigManager($this->pdo))->get('HUB_URL', 'https://hub.emergencyforge.de'));
+        $hubUrl = trim((string) (new ConfigManager())->get('HUB_URL', 'https://hub.emergencyforge.de'));
         if ($hubUrl === '') $hubUrl = 'https://hub.emergencyforge.de';
         $endpoint = $override !== '' ? $override : rtrim($hubUrl, '/') . '/v1/plugins';
         $cache = dirname(__DIR__, 4) . '/storage/cache/plugin-catalog.json';
@@ -208,7 +208,7 @@ final class PluginsController extends Controller
         // Migrationen des frisch installierten Plugins direkt ausführen,
         // statt auf den nächsten Request zu warten.
         try {
-            (new \App\Database\AutoMigrator($this->pdo))->runIfNeeded();
+            (new \App\Database\AutoMigrator(app(\PDO::class)))->runIfNeeded();
         } catch (\Throwable $e) {
             return [
                 "„{$plugin->manifest->name}\u{201c} wurde installiert, aber der Migrationslauf meldete: " . $e->getMessage(),

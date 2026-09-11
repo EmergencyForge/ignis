@@ -5,22 +5,21 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_fire_incident_vehicles_27122025_add_status.php
- * Spiegelung:     database/legacy/alter_fire_incident_vehicles_27122025_add_status.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * EMD-Status pro Einsatzfahrzeug: aktueller Status (0-9, N, #, C) und
+ * Zeitpunkt der letzten Aktualisierung.
  */
 class AlterFireIncidentVehicles27122025AddStatus extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_fire_incident_vehicles_27122025_add_status.php';
+        $table = $this->table('intra_fire_incident_vehicles');
+        if ($table->hasColumn('current_status')) {
+            return;
+        }
+
+        $table
+            ->addColumn('current_status', 'string', ['limit' => 10, 'null' => true, 'comment' => 'Aktueller EMD Status (0-9, N, #, C)', 'after' => 'radio_name'])
+            ->addColumn('status_updated_at', 'timestamp', ['null' => true, 'comment' => 'Zeitpunkt der letzten Status-Aktualisierung', 'after' => 'current_status'])
+            ->update();
     }
 }

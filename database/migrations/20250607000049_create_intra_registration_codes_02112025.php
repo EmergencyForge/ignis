@@ -5,22 +5,33 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_registration_codes_02112025.php
- * Spiegelung:     database/legacy/create_intra_registration_codes_02112025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Registrierungscodes: Einmal-Codes für die Nutzer-Registrierung, mit
+ * Ersteller, Einlöser und Einlöse-Zeitpunkt.
  */
 class CreateIntraRegistrationCodes02112025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_registration_codes_02112025.php';
+        if ($this->hasTable('intra_registration_codes')) {
+            return;
+        }
+
+        $this->table('intra_registration_codes', [
+            'id'        => 'id',
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('code',       'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('created_by', 'integer',   ['null' => true])
+            ->addColumn('created_at', 'timestamp', ['null' => true, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addColumn('used_by',    'integer',   ['null' => true])
+            ->addColumn('used_at',    'timestamp', ['null' => true, 'default' => null])
+            ->addColumn('is_used',    'boolean',   ['null' => true, 'default' => 0])
+            ->addIndex(['code'],       ['unique' => true, 'name' => 'code'])
+            ->addIndex(['created_by'], ['name' => 'created_by'])
+            ->addIndex(['used_by'],    ['name' => 'used_by'])
+            ->create();
     }
 }

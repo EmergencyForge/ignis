@@ -6,7 +6,7 @@ namespace App\Hub;
 
 use App\Config\ConfigManager;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * ChangelogClient — Bridge zur public Changelog-API von emergencyforge.de.
@@ -32,7 +32,6 @@ final class ChangelogClient
     private const HARD_CAP        = 25;
 
     public function __construct(
-        private readonly PDO $pdo,
         private readonly ConfigManager $config,
     ) {}
 
@@ -51,14 +50,12 @@ final class ChangelogClient
         $limit = max(1, min(self::HARD_CAP, $limit));
 
         try {
-            $stmt = $this->pdo->prepare(
-                'SELECT id, version, product, title, preview, url, tags, published_at
-                 FROM intra_changelog_cache
-                 ORDER BY published_at DESC
-                 LIMIT ' . $limit
-            );
-            $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = Capsule::table('intra_changelog_cache')
+                ->orderByDesc('published_at')
+                ->limit($limit)
+                ->get(['id', 'version', 'product', 'title', 'preview', 'url', 'tags', 'published_at'])
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (\PDOException $e) {
             Logger::warning('ChangelogClient: cache read failed: ' . $e->getMessage());
             return [];
@@ -205,16 +202,10 @@ final class ChangelogClient
     {
         // Atomar: Cache leer, dann frisch befuellen. Wenn ein Insert fehlt,
         // rollen wir zurueck — alter Cache bleibt sichtbar.
-        $this->pdo->beginTransaction();
+        $connection = Capsule::connection();
+        $connection->beginTransaction();
         try {
-            $this->pdo->exec('DELETE FROM intra_changelog_cache');
-
-            $stmt = $this->pdo->prepare(
-                'INSERT INTO intra_changelog_cache
-                    (id, version, product, title, preview, url, tags, published_at, fetched_at)
-                 VALUES
-                    (:id, :version, :product, :title, :preview, :url, :tags, :published_at, NOW())'
-            );
+            $connection->table('intra_changelog_cache')->delete();
 
             $written = 0;
             foreach ($items as $item) {
@@ -233,22 +224,23 @@ final class ChangelogClient
 
                 $publishedDateTime = $this->normalizeDate($pubAt);
 
-                $stmt->execute([
-                    ':id'           => $id,
-                    ':version'      => $this->stringField($item, 'version') !== '' ? $this->stringField($item, 'version') : null,
-                    ':product'      => $this->stringField($item, 'product') !== '' ? $this->stringField($item, 'product') : null,
-                    ':title'        => $title,
-                    ':preview'      => $this->stringField($item, 'preview') !== '' ? $this->stringField($item, 'preview') : null,
-                    ':url'          => $url,
-                    ':tags'         => $tags === [] ? null : json_encode($tags, JSON_UNESCAPED_UNICODE),
-                    ':published_at' => $publishedDateTime,
+                $connection->table('intra_changelog_cache')->insert([
+                    'id'           => $id,
+                    'version'      => $this->stringField($item, 'version') !== '' ? $this->stringField($item, 'version') : null,
+                    'product'      => $this->stringField($item, 'product') !== '' ? $this->stringField($item, 'product') : null,
+                    'title'        => $title,
+                    'preview'      => $this->stringField($item, 'preview') !== '' ? $this->stringField($item, 'preview') : null,
+                    'url'          => $url,
+                    'tags'         => $tags === [] ? null : json_encode($tags, JSON_UNESCAPED_UNICODE),
+                    'published_at' => $publishedDateTime,
+                    'fetched_at'   => Capsule::raw('NOW()'),
                 ]);
                 $written++;
             }
-            $this->pdo->commit();
+            $connection->commit();
             return $written;
         } catch (\Throwable $e) {
-            $this->pdo->rollBack();
+            $connection->rollBack();
             Logger::warning('ChangelogClient: persist failed: ' . $e->getMessage());
             return 0;
         }
@@ -258,11 +250,10 @@ final class ChangelogClient
     private function loadMeta(): array
     {
         try {
-            $stmt = $this->pdo->prepare(
-                'SELECT key_name, value FROM intra_changelog_meta WHERE key_name IN (:k1, :k2)'
-            );
-            $stmt->execute([':k1' => 'etag', ':k2' => 'last_modified']);
-            $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+            $rows = Capsule::table('intra_changelog_meta')
+                ->whereIn('key_name', ['etag', 'last_modified'])
+                ->pluck('value', 'key_name')
+                ->all();
         } catch (\PDOException) {
             return ['etag' => '', 'last_modified' => ''];
         }
@@ -276,11 +267,11 @@ final class ChangelogClient
     private function saveMeta(array $values): void
     {
         try {
-            $stmt = $this->pdo->prepare(
-                'REPLACE INTO intra_changelog_meta (key_name, value) VALUES (:k, :v)'
-            );
             foreach ($values as $key => $value) {
-                $stmt->execute([':k' => $key, ':v' => $value]);
+                Capsule::table('intra_changelog_meta')->updateOrInsert(
+                    ['key_name' => $key],
+                    ['value' => $value]
+                );
             }
         } catch (\PDOException $e) {
             Logger::warning('ChangelogClient: saveMeta failed: ' . $e->getMessage());

@@ -1,29 +1,24 @@
 <?php
 /**
  * View: eNOTF Print/Detail-Ansicht
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
 use Plugin\Enotf\Helpers\BloodSugarHelper;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviVitalwert;
 
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     // Zeiten abrufen
-    $queryZeiten = "SELECT salarm, s1, s2, s3, s4, spat, s7, s8, sende FROM intra_edivi WHERE enr = :enr";
-    $stmtZeiten = $pdo->prepare($queryZeiten);
-    $stmtZeiten->execute(['enr' => $_GET['enr']]);
-    $zeiten = $stmtZeiten->fetch(PDO::FETCH_ASSOC);
+    $zeiten = Edivi::where('enr', $_GET['enr'])
+        ->first(['salarm', 's1', 's2', 's3', 's4', 'spat', 's7', 's8', 'sende']);
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -37,7 +32,7 @@ if (isset($_GET['enr'])) {
 $enr = $daten['enr'];
 
 // Initialize BloodSugarHelper
-$bzHelper = new BloodSugarHelper($pdo);
+$bzHelper = new BloodSugarHelper();
 $bzUnit = $bzHelper->getCurrentUnit();
 
 $prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
@@ -125,14 +120,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>[#<?= $daten['enr'] ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
+    <!-- vendor.css liefert FontAwesome für die Topbar-Icons -->
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/print.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/freehand/css/all.min.css" />
     <!-- Bootstrap -->
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- Chart.js (lokales Bundle statt CDN — rendert auch ohne Außenanbindung) -->
+    <script src="<?= BASE_PATH ?>public/assets/dist/vendor-chart.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />
@@ -258,15 +254,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         $fahrzeugname = '';
                         if ($daten['prot_by'] === 0) {
                             if (!empty($daten['fzg_transp'])) {
-                                $stmt = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :id LIMIT 1");
-                                $stmt->execute(['id' => $daten['fzg_transp']]);
-                                $fahrzeugname = $stmt->fetchColumn();
+                                $fahrzeugname = Capsule::table('intra_fahrzeuge')
+                                    ->where('identifier', $daten['fzg_transp'])
+                                    ->value('name');
                             }
                         } else {
                             if (!empty($daten['fzg_na'])) {
-                                $stmt = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :id LIMIT 1");
-                                $stmt->execute(['id' => $daten['fzg_na']]);
-                                $fahrzeugname = $stmt->fetchColumn();
+                                $fahrzeugname = Capsule::table('intra_fahrzeuge')
+                                    ->where('identifier', $daten['fzg_na'])
+                                    ->value('name');
                             }
                         }
                         ?>
@@ -1116,7 +1112,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="col">
                         <h6 class="print__heading">Neurologie</h6>
                     </div>
-                    <div class="w-8/12 border-start border-dark px-3">
+                    <div class="col-8 border-start border-dark">
                         <?php
                         $d_bewusstsein_labels = [
                             1 => 'wach',
@@ -1464,12 +1460,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
                 <?php
                 // Vitalparameter aus Datenbank laden
-                $queryVitals = "SELECT * FROM intra_edivi_vitalparameter_einzelwerte 
-                            WHERE enr = :enr AND geloescht = 0 
-                            ORDER BY zeitpunkt ASC";
-                $stmtVitals = $pdo->prepare($queryVitals);
-                $stmtVitals->execute(['enr' => $enr]);
-                $vitalsRaw = $stmtVitals->fetchAll(PDO::FETCH_ASSOC);
+                $vitalsRaw = EdiviVitalwert::where('enr', $enr)
+                    ->where('geloescht', 0)
+                    ->orderBy('zeitpunkt', 'ASC')
+                    ->get()
+                    ->all();
 
                 // Nach Zeitpunkt gruppieren
                 $groupedVitals = [];

@@ -193,9 +193,9 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 .text-start  { text-align: left !important; }
 .text-end    { text-align: right !important; }
 .text-center { text-align: center !important; }
-.text-muted  { color: var(--text-dimmed, #818189) !important; }
-.text-light  { color: #fff !important; }
-.text-dark   { color: #000 !important; }
+.text-muted  { color: var(--text-3) !important; }
+.text-light  { color: var(--white) !important; }
+.text-dark   { color: var(--black) !important; }
 
 .fw-bold    { font-weight: 700 !important; }
 .fw-semibold{ font-weight: 600 !important; }
@@ -207,7 +207,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 .form-label {
     margin-bottom: 0.25rem;
     font-size: 0.82rem;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-weight: 500;
     display: block;
 }
@@ -215,7 +215,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 .form-text {
     margin-top: 0.25rem;
     font-size: 0.78rem;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
 }
 
 .form-control,
@@ -225,23 +225,23 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     padding: 0.4rem 0.65rem;
     font-size: 0.82rem;
     line-height: 1.5;
-    color: var(--input-text, #fff);
-    background-color: var(--input-bg, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    color: var(--input-text);
+    background-color: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
     transition: border-color 0.12s ease, box-shadow 0.12s ease;
     appearance: none;
     -webkit-appearance: none;
 
     &::placeholder {
-        color: var(--input-placeholder, #818189);
+        color: var(--input-placeholder);
     }
 
     &:focus,
     &:focus-visible {
         outline: none;
-        border-color: var(--main-color, #ff4d00);
-        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.18);
     }
 
     &:disabled,
@@ -279,7 +279,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 
     .form-check-label {
         cursor: pointer;
-        color: var(--text-normal, #bbbac1);
+        color: var(--text-2);
     }
 }
 
@@ -293,7 +293,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     font-size: 0.82rem;
     font-weight: 500;
     line-height: 1.5;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     text-align: center;
     text-decoration: none;
     vertical-align: middle;
@@ -304,10 +304,10 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     border-radius: var(--radius-md, 6px);
     transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
 
-    &:hover { color: #fff; }
+    &:hover { color: var(--white); }
     &:focus, &:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.25);
     }
     &:disabled, &.disabled {
         pointer-events: none;
@@ -322,13 +322,13 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 // nutzen wir das u.a. unter dem Discord-Login als Sekundär-Aktion.
 .btn-ghost {
     background-color: transparent;
-    color: var(--text-normal, #bbbac1);
-    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-2);
+    border-color: var(--fill-3);
 
     &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #fff;
-        border-color: rgba(255, 255, 255, 0.2);
+        background-color: var(--fill-2);
+        color: var(--white);
+        border-color: var(--fill-4);
     }
 }
 
@@ -339,35 +339,35 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     flex-direction: column;
     min-width: 0;
     word-wrap: break-word;
-    background-color: var(--body-bg-lighter, #161616);
+    background-color: var(--surface);
     background-clip: border-box;
-    border: 1px solid var(--darkgray, #2a2a2a);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
 }
 
 .card-header {
     padding: 0.75rem 1rem;
-    background-color: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    background-color: var(--fill-1);
+    border-bottom: 1px solid var(--border);
 }
 
 .card-body {
     flex: 1 1 auto;
     padding: 1rem;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
 }
 
 .card-title {
     margin-bottom: 0.5rem;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-title, #fff);
+    color: var(--text);
 }
 
 .card-subtitle {
     margin-top: -0.25rem;
     margin-bottom: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
 }
 
 .card-text {
@@ -376,8 +376,8 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 
 .card-footer {
     padding: 0.5rem 1rem;
-    background-color: rgba(255, 255, 255, 0.02);
-    border-top: 1px solid var(--darkgray, #2a2a2a);
+    background-color: var(--fill-1);
+    border-top: 1px solid var(--border);
 }
 
 // ── Badges ─────────────────────────────────────────────────────────
@@ -387,7 +387,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     font-size: 0.7rem;
     font-weight: 600;
     line-height: 1;
-    color: #fff;
+    color: var(--white);
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
@@ -403,30 +403,30 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     border-radius: var(--radius-md, 6px);
 }
 
-.alert-info     { color: #c8e7f0; background-color: rgba(13, 202, 240, 0.12);  border-color: rgba(13, 202, 240, 0.25); }
-.alert-success  { color: #c2efd4; background-color: rgba(40, 167, 69, 0.12);   border-color: rgba(40, 167, 69, 0.25); }
-.alert-warning  { color: #ffe5a3; background-color: rgba(255, 193, 7, 0.12);   border-color: rgba(255, 193, 7, 0.25); }
-.alert-danger   { color: #f5c2c7; background-color: rgba(220, 53, 69, 0.12);   border-color: rgba(220, 53, 69, 0.25); }
-.alert-secondary{ color: #d1d3d4; background-color: rgba(108, 117, 125, 0.12); border-color: rgba(108, 117, 125, 0.25); }
+.alert-info     { color: var(--info); background-color: rgba(var(--info-rgb), 0.12);  border-color: rgba(var(--info-rgb), 0.25); }
+.alert-success  { color: var(--ok); background-color: rgba(var(--ok-rgb), 0.12);   border-color: rgba(var(--ok-rgb), 0.25); }
+.alert-warning  { color: var(--warn); background-color: rgba(var(--warn-rgb), 0.12);   border-color: rgba(var(--warn-rgb), 0.25); }
+.alert-danger   { color: var(--danger); background-color: rgba(var(--danger-rgb), 0.12);   border-color: rgba(var(--danger-rgb), 0.25); }
+.alert-secondary{ color: var(--text); background-color: var(--fill-3); border-color: var(--fill-4); }
 
 // ── Background-Utilities ────────────────────────────────────────────
-.bg-primary   { background-color: #4a6fa5 !important; color: #fff !important; }
-.bg-success   { background-color: #3a7d44 !important; color: #fff !important; }
-.bg-danger    { background-color: #b03a3a !important; color: #fff !important; }
-.bg-warning   { background-color: #c49a2a !important; color: #fff !important; }
-.bg-info      { background-color: #2c8aab !important; color: #fff !important; }
-.bg-secondary { background-color: #6c757d !important; color: #fff !important; }
-.bg-dark      { background-color: #1a1a1a !important; color: #fff !important; }
-.bg-light     { background-color: #f0f0f0 !important; color: #000 !important; }
+.bg-primary   { background-color: var(--accent) !important; color: var(--white) !important; }
+.bg-success   { background-color: var(--ok) !important; color: var(--white) !important; }
+.bg-danger    { background-color: var(--danger) !important; color: var(--white) !important; }
+.bg-warning   { background-color: var(--warn) !important; color: var(--white) !important; }
+.bg-info      { background-color: var(--info) !important; color: var(--white) !important; }
+.bg-secondary { background-color: var(--text-3) !important; color: var(--white) !important; }
+.bg-dark      { background-color: var(--bg-2) !important; color: var(--text) !important; }
+.bg-light     { background-color: var(--surface-3) !important; color: var(--text) !important; }
 
-.text-bg-primary   { background-color: #4a6fa5 !important; color: #fff !important; }
-.text-bg-success   { background-color: #3a7d44 !important; color: #fff !important; }
-.text-bg-danger    { background-color: #b03a3a !important; color: #fff !important; }
-.text-bg-warning   { background-color: #c49a2a !important; color: #fff !important; }
-.text-bg-info      { background-color: #2c8aab !important; color: #fff !important; }
-.text-bg-secondary { background-color: #6c757d !important; color: #fff !important; }
-.text-bg-dark      { background-color: #1a1a1a !important; color: #fff !important; }
-.text-bg-light     { background-color: #f0f0f0 !important; color: #000 !important; }
+.text-bg-primary   { background-color: var(--accent) !important; color: var(--white) !important; }
+.text-bg-success   { background-color: var(--ok) !important; color: var(--white) !important; }
+.text-bg-danger    { background-color: var(--danger) !important; color: var(--white) !important; }
+.text-bg-warning   { background-color: var(--warn) !important; color: var(--white) !important; }
+.text-bg-info      { background-color: var(--info) !important; color: var(--white) !important; }
+.text-bg-secondary { background-color: var(--text-3) !important; color: var(--white) !important; }
+.text-bg-dark      { background-color: var(--bg-2) !important; color: var(--text) !important; }
+.text-bg-light     { background-color: var(--surface-3) !important; color: var(--text) !important; }
 
 // ── Sizing-Utilities ───────────────────────────────────────────────
 .w-25  { width: 25% !important; }
@@ -474,30 +474,30 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
         padding: 0.3rem 0.6rem;
         font-size: 0.82rem;
         line-height: 1;
-        color: var(--text-normal, #bbbac1);
+        color: var(--text-2);
         background-color: transparent;
-        border: 1px solid var(--darkgray, #2a2a2a);
+        border: 1px solid var(--border);
         border-radius: var(--radius-sm, 4px);
         text-decoration: none;
         cursor: pointer;
         transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.18);
+            background-color: var(--fill-2);
+            color: var(--white);
+            border-color: var(--fill-4);
         }
 
         &:focus, &:focus-visible {
             outline: none;
-            box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+            box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.25);
         }
     }
 
     .page-item.active .page-link {
-        background-color: var(--main-color, #ff4d00);
-        border-color: var(--main-color, #ff4d00);
-        color: #fff;
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: var(--white);
     }
 
     .page-item.disabled .page-link {
@@ -519,8 +519,8 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 .form-check-input {
     width: 1rem;
     height: 1rem;
-    background-color: var(--input-bg, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background-color: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: 3px;
     appearance: none;
     -webkit-appearance: none;
@@ -528,8 +528,8 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     vertical-align: middle;
 
     &[type="checkbox"]:checked {
-        background-color: var(--main-color, #ff4d00);
-        border-color:    var(--main-color, #ff4d00);
+        background-color: var(--accent);
+        border-color:    var(--accent);
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: center;
@@ -540,8 +540,8 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
         border-radius: 50%;
 
         &:checked {
-            background-color: var(--main-color, #ff4d00);
-            border-color: var(--main-color, #ff4d00);
+            background-color: var(--accent);
+            border-color: var(--accent);
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: center;
@@ -551,7 +551,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     &:focus,
     &:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.25);
     }
 }
 

@@ -1,11 +1,15 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../assets/config/config.php';
-require __DIR__ . '/../assets/config/database.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../assets/config/config.php';
 
 use App\Helpers\DiscordOAuth;
+use App\Http\Response;
+use App\Models\RegistrationCode;
+use App\Models\Role;
+use App\Models\User;
 use App\Notifications\NotificationManager;
 use App\Session\SessionManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -16,17 +20,17 @@ error_reporting(E_ALL);
 $stateResult = SessionManager::consumeOAuth2State((string) ($_GET['state'] ?? ''));
 switch ($stateResult) {
     case 'missing':
-        exit('Session expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+        return Response::html('Session expired. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
     case 'expired':
-        exit('Authorization expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+        return Response::html('Authorization expired. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
     case 'mismatch':
-        exit('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+        return Response::html('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
 }
 
 $provider = DiscordOAuth::createProvider('auth/callback.php');
 
 if (!isset($_GET['code'])) {
-    exit('Authorization code not provided.');
+    return Response::text('Authorization code not provided.', 400);
 }
 
 try {
@@ -42,14 +46,11 @@ try {
     $avatar = $discordUser['avatar'];
 
     // Check if this is the first user (database is empty)
-    $checkTotalUsersStmt = $pdo->query("SELECT COUNT(*) FROM intra_users");
-    $totalUsers = $checkTotalUsersStmt->fetchColumn();
+    $totalUsers = User::query()->count();
     $isFirstUser = ($totalUsers == 0);
 
     // Check if user exists first to determine if this is a login or registration attempt
-    $checkUserStmt = $pdo->prepare("SELECT COUNT(*) FROM intra_users WHERE discord_id = :discord_id");
-    $checkUserStmt->execute(['discord_id' => $discordId]);
-    $userExists = $checkUserStmt->fetchColumn() > 0;
+    $userExists = User::query()->where('discord_id', $discordId)->exists();
 
     // If user doesn't exist and registration is closed, reject before proceeding (unless first user)
     if (!$userExists && !$isFirstUser) {
@@ -57,56 +58,44 @@ try {
 
         if ($registrationMode === 'closed') {
             SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.');
-            header('Location: ' . BASE_PATH . 'login.php');
-            exit;
+            return Response::redirect(BASE_PATH . 'login');
         } elseif ($registrationMode === 'code') {
             $code = SessionManager::getRegistrationCode();
             if (!$code) {
                 SessionManager::setRegistrationError('Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
         }
     }
 
-    $adminRoleStmt = $pdo->prepare("SELECT id FROM intra_users_roles WHERE admin = 1 LIMIT 1");
-    $adminRoleStmt->execute();
-    $adminRole = $adminRoleStmt->fetch();
+    $adminRole = Role::query()->where('admin', 1)->first();
 
     if (!$adminRole) {
-        exit('Admin role not configured in intra_users_roles table.');
+        return Response::text('Admin role not configured in intra_users_roles table.', 500);
     }
 
-    $defaultRoleStmt = $pdo->prepare("SELECT id FROM intra_users_roles WHERE `default` = 1 LIMIT 1");
-    $defaultRoleStmt->execute();
-    $defaultRole = $defaultRoleStmt->fetch();
+    $defaultRole = Role::query()->where('default', 1)->first();
 
     if (!$defaultRole) {
-        exit('Default role not configured in intra_users_roles table.');
+        return Response::text('Default role not configured in intra_users_roles table.', 500);
     }
 
-    $checkStmt = $pdo->query("SELECT COUNT(*) FROM intra_users");
-    $userCount = $checkStmt->fetchColumn();
+    $userCount = User::query()->count();
 
     if ($userCount == 0) {
-        $stmt = $pdo->prepare("
-            INSERT INTO intra_users (discord_id, username, fullname, role, full_admin) 
-            VALUES (:discord_id, :username, NULL, :role, :full_admin)
-        ");
-        $stmt->execute([
+        $firstUser = User::create([
             'discord_id' => $discordId,
             'username'   => $username,
-            'role'       => $adminRole['id'],
-            'full_admin' => 1
+            'fullname'   => null,
+            'role'       => $adminRole->id,
+            'full_admin' => 1,
         ]);
-        
-        $firstUserId = $pdo->lastInsertId();
-        
+
         // Send notification to first user about configuration
         try {
-            $notificationManager = new NotificationManager($pdo);
+            $notificationManager = new NotificationManager();
             $notificationManager->create(
-                $firstUserId,
+                (int) $firstUser->id,
                 'system',
                 'Willkommen bei intraRP!',
                 'Als erster Benutzer haben Sie Administratorrechte. Bitte besuchen Sie die System-Konfiguration, um wichtige Einstellungen wie den Systemnamen, Logo und weitere Optionen anzupassen.',
@@ -117,30 +106,23 @@ try {
         }
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM intra_users WHERE discord_id = :discord_id");
-    $stmt->execute(['discord_id' => $discordId]);
-    $user = $stmt->fetch();
+    $user = User::query()->where('discord_id', $discordId)->first();
 
     if ($user) {
         // Deaktivierte Benutzer ablehnen
-        if (isset($user['is_active']) && $user['is_active'] == 0) {
+        if (isset($user->is_active) && !$user->is_active) {
             SessionManager::setRegistrationError('Dein Benutzerkonto wurde deaktiviert. Bitte wende dich an einen Administrator.');
-            header('Location: ' . BASE_PATH . 'login.php');
-            exit;
+            return Response::redirect(BASE_PATH . 'login');
         }
 
-        if ($user['full_admin'] == 1) {
+        if ($user->full_admin) {
             $perms = ['full_admin'];
         } else {
-            $roleStmt = $pdo->prepare("SELECT permissions FROM intra_users_roles WHERE id = :role_id");
-            $roleStmt->execute(['role_id' => $user['role']]);
-            $role = $roleStmt->fetch();
-            $perms = ($role && isset($role['permissions']))
-                ? (json_decode($role['permissions'], true) ?? [])
-                : [];
+            $role = Role::query()->find($user->role);
+            $perms = $role?->permissions ?? [];
         }
 
-        SessionManager::loginUser($user, $perms);
+        SessionManager::loginUser($user->toArray(), $perms);
     } else {
         // Check registration mode
         $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
@@ -148,8 +130,7 @@ try {
         if ($registrationMode === 'closed') {
             // No registration allowed - redirect to login with error message
             SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.');
-            header('Location: ' . BASE_PATH . 'login.php');
-            exit;
+            return Response::redirect(BASE_PATH . 'login');
         } elseif ($registrationMode === 'code') {
             // Check for valid registration code
             $code = SessionManager::getRegistrationCode();
@@ -157,79 +138,71 @@ try {
             if (!$code) {
                 // No code provided - redirect to login with error message
                 SessionManager::setRegistrationError('Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
 
-            $codeStmt = $pdo->prepare("SELECT * FROM intra_registration_codes WHERE code = :code AND is_used = 0");
-            $codeStmt->execute(['code' => $code]);
-            $codeRecord = $codeStmt->fetch();
+            $codeRecord = RegistrationCode::query()
+                ->where('code', $code)
+                ->where('is_used', 0)
+                ->first();
 
             if (!$codeRecord) {
                 SessionManager::clearRegistrationCode();
                 SessionManager::setRegistrationError('Ungültiger oder bereits verwendeter Einladungslink.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
 
             // Ablaufdatum prüfen
-            if (!empty($codeRecord['expires_at']) && strtotime($codeRecord['expires_at']) < time()) {
+            if ($codeRecord->expires_at !== null && $codeRecord->expires_at->isPast()) {
                 SessionManager::clearRegistrationCode();
                 SessionManager::setRegistrationError('Dieser Einladungslink ist abgelaufen.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
 
             // Create user with the code
-            $insertStmt = $pdo->prepare("
-                INSERT INTO intra_users (discord_id, username, fullname, role, full_admin) 
-                VALUES (:discord_id, :username, NULL, :role, :full_admin)
-            ");
-            $insertStmt->execute([
+            $newUser = User::create([
                 'discord_id' => $discordId,
                 'username'   => $username,
-                'role'       => $defaultRole['id'],
-                'full_admin' => 0
+                'fullname'   => null,
+                'role'       => $defaultRole->id,
+                'full_admin' => 0,
             ]);
 
             // Mark code as used
-            $userId = $pdo->lastInsertId();
-            $updateCodeStmt = $pdo->prepare("UPDATE intra_registration_codes SET is_used = 1, used_by = :user_id, used_at = NOW() WHERE id = :code_id");
-            $updateCodeStmt->execute(['user_id' => $userId, 'code_id' => $codeRecord['id']]);
+            RegistrationCode::query()
+                ->whereKey($codeRecord->id)
+                ->update([
+                    'is_used' => 1,
+                    'used_by' => $newUser->id,
+                    'used_at' => Capsule::raw('NOW()'),
+                ]);
 
             SessionManager::clearRegistrationCode();
 
-            $stmt = $pdo->prepare("SELECT * FROM intra_users WHERE discord_id = :discord_id");
-            $stmt->execute(['discord_id' => $discordId]);
-            $user = $stmt->fetch();
+            $user = User::query()->where('discord_id', $discordId)->first();
         } else {
             // Open registration
-            $insertStmt = $pdo->prepare("
-                INSERT INTO intra_users (discord_id, username, fullname, role, full_admin) 
-                VALUES (:discord_id, :username, NULL, :role, :full_admin)
-            ");
-            $insertStmt->execute([
+            User::create([
                 'discord_id' => $discordId,
                 'username'   => $username,
-                'role'       => $defaultRole['id'],
-                'full_admin' => 0
+                'fullname'   => null,
+                'role'       => $defaultRole->id,
+                'full_admin' => 0,
             ]);
 
-            $stmt = $pdo->prepare("SELECT * FROM intra_users WHERE discord_id = :discord_id");
-            $stmt->execute(['discord_id' => $discordId]);
-            $user = $stmt->fetch();
+            $user = User::query()->where('discord_id', $discordId)->first();
         }
 
-        SessionManager::loginUser($user, []);
+        SessionManager::loginUser($user->toArray(), []);
     }
 
-    $redirectUrl = SessionManager::pullRedirectUrl() ?? BASE_PATH . 'index.php';
+    $redirectUrl = SessionManager::pullRedirectUrl() ?? BASE_PATH . 'index';
 
     // Cleanup: gelesene Benachrichtigungen älter als 30 Tage löschen (max. 1x pro Tag)
     try {
         $lastCleanup = (int) SessionManager::get('notification_cleanup', 0);
         if (time() - $lastCleanup > 86400) {
-            $notificationManager = new NotificationManager($pdo);
+            $notificationManager = new NotificationManager();
             $notificationManager->deleteOldRead(30);
             SessionManager::set('notification_cleanup', time());
         }
@@ -237,9 +210,7 @@ try {
         error_log("Notification cleanup error: " . $e->getMessage());
     }
 
-    header("Location: $redirectUrl");
-    exit;
+    return Response::redirect($redirectUrl);
 } catch (Exception $e) {
-    echo 'Failed to get access token: ' . $e->getMessage();
-    exit;
+    return Response::text('Failed to get access token: ' . $e->getMessage(), 500);
 }

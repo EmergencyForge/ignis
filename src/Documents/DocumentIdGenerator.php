@@ -2,16 +2,17 @@
 
 namespace App\Documents;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
+
 class DocumentIdGenerator
 {
     /**
      * Generiert eine eindeutige 12-stellige alphanumerische Dokument-ID
      * Format: XXXX-XXXX-XXXX (z.B. A7B2-K9M4-P3X8)
-     * 
-     * @param \PDO $pdo Datenbankverbindung zur Prüfung auf Eindeutigkeit
+     *
      * @return string 12-stellige Dokument-ID mit Bindestrichen
      */
-    public static function generate(\PDO $pdo): string
+    public static function generate(): string
     {
         $maxAttempts = 100;
         $attempts = 0;
@@ -25,9 +26,9 @@ class DocumentIdGenerator
             }
 
             // Prüfe ob ID bereits existiert
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM intra_mitarbeiter_dokumente WHERE docid = ?");
-            $stmt->execute([$docId]);
-            $exists = $stmt->fetchColumn() > 0;
+            $exists = Capsule::table('intra_mitarbeiter_dokumente')
+                ->where('docid', $docId)
+                ->count() > 0;
         } while ($exists);
 
         return $docId;

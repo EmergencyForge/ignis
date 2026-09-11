@@ -6,5 +6,4 @@ use App\Session\SessionManager;
 // Session sicher zerstören (löscht Cookie und Session-Daten)
 SessionManager::destroy();
 
-header('Location: ' . BASE_PATH . 'login.php');
-exit;
+return \App\Http\Response::redirect(BASE_PATH . 'login');

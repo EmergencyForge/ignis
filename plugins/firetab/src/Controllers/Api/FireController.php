@@ -8,8 +8,11 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
 use App\Utils\AuditLogger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
+use Plugin\Firetab\Models\FireIncidentLogEntry;
+use Plugin\Firetab\Models\FireIncidentVehicle;
+use Plugin\Firetab\Models\FireStatusQueueEntry;
 
 /**
  * Fire-Incident-API: Fahrzeug-Status-Updates (in-Einsatz-Polling von der
@@ -18,10 +21,6 @@ use PDOException;
  */
 final class FireController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * POST /api/fire/status
      *
@@ -55,16 +54,15 @@ final class FireController
     private function getVehicleStatus(int $vehicleId): Response
     {
         try {
-            $stmt = $this->pdo->prepare(
-                "SELECT current_status, status_source FROM intra_fahrzeuge WHERE id = :id LIMIT 1"
-            );
-            $stmt->execute([':id' => $vehicleId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $row = Capsule::table('intra_fahrzeuge')
+                ->where('id', $vehicleId)
+                ->select(['current_status', 'status_source'])
+                ->first();
 
             return Response::json([
                 'success'        => true,
-                'current_status' => $row['current_status'] ?? null,
-                'status_source'  => $row['status_source']  ?? null,
+                'current_status' => $row->current_status ?? null,
+                'status_source'  => $row->status_source  ?? null,
             ]);
         } catch (PDOException $e) {
             Logger::error('Fire: get_status Fehler', ['error' => $e->getMessage()]);
@@ -89,15 +87,12 @@ final class FireController
         }
 
         try {
-            $checkStmt = $this->pdo->prepare("
-                SELECT fiv.id, fi.incident_number
-                FROM intra_fire_incident_vehicles fiv
-                JOIN intra_fire_incidents fi ON fiv.incident_id = fi.id
-                WHERE fiv.vehicle_id = :vehicle_id AND fiv.incident_id = :incident_id
-                LIMIT 1
-            ");
-            $checkStmt->execute([':vehicle_id' => $vehicleId, ':incident_id' => $incidentId]);
-            $assignment = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            $assignment = Capsule::table('intra_fire_incident_vehicles as fiv')
+                ->join('intra_fire_incidents as fi', 'fiv.incident_id', '=', 'fi.id')
+                ->where('fiv.vehicle_id', $vehicleId)
+                ->where('fiv.incident_id', $incidentId)
+                ->select(['fiv.id', 'fi.incident_number'])
+                ->first();
 
             if (!$assignment) {
                 return Response::json([
@@ -106,73 +101,60 @@ final class FireController
                 ], 403);
             }
 
-            $incidentNumber = $assignment['incident_number'];
+            $incidentNumber = $assignment->incident_number;
 
-            $vehStmt = $this->pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE id = ? LIMIT 1");
-            $vehStmt->execute([$vehicleId]);
-            $vehicleName = $vehStmt->fetchColumn() ?: 'Unbekannt';
+            $vehicleName = Capsule::table('intra_fahrzeuge')
+                ->where('id', $vehicleId)
+                ->value('name') ?: 'Unbekannt';
 
-            $this->pdo->beginTransaction();
+            Capsule::connection()->transaction(function () use ($vehicleId, $incidentId, $newStatus, $vehicleName, $incidentNumber): void {
+                // 1. Status auf intra_fire_incident_vehicles aktualisieren
+                FireIncidentVehicle::where('vehicle_id', $vehicleId)
+                    ->where('incident_id', $incidentId)
+                    ->update([
+                        'current_status'    => $newStatus,
+                        'status_updated_at' => Capsule::raw('NOW()'),
+                    ]);
 
-            // 1. Status auf intra_fire_incident_vehicles aktualisieren
-            $this->pdo->prepare("
-                UPDATE intra_fire_incident_vehicles
-                SET current_status = :status, status_updated_at = NOW()
-                WHERE vehicle_id = :vehicle_id AND incident_id = :incident_id
-            ")->execute([
-                ':status'      => $newStatus,
-                ':vehicle_id'  => $vehicleId,
-                ':incident_id' => $incidentId,
-            ]);
+                // 2. Status-Queue für FiveM-Polling
+                FireStatusQueueEntry::create([
+                    'vehicle_id'      => $vehicleId,
+                    'vehicle_name'    => $vehicleName,
+                    'incident_number' => $incidentNumber,
+                    'new_status'      => $newStatus,
+                ]);
 
-            // 2. Status-Queue für FiveM-Polling
-            $this->pdo->prepare("
-                INSERT INTO intra_fire_status_queue
-                (vehicle_id, vehicle_name, incident_number, new_status)
-                VALUES (:vehicle_id, :vehicle_name, :incident_number, :new_status)
-            ")->execute([
-                ':vehicle_id'      => $vehicleId,
-                ':vehicle_name'    => $vehicleName,
-                ':incident_number' => $incidentNumber,
-                ':new_status'      => $newStatus,
-            ]);
+                // 3. Audit-Log
+                $statusLabels = [
+                    '0' => 'Dringender Sprechwunsch',
+                    '1' => 'Einsatzbereit Funk',
+                    '2' => 'Einsatzbereit Wache',
+                    '3' => 'Einsatz übernommen',
+                    '4' => 'Am Einsatzort',
+                    '5' => 'Sprechwunsch',
+                    '6' => 'Nicht einsatzbereit',
+                ];
+                FireIncidentLogEntry::create([
+                    'incident_id'        => $incidentId,
+                    'action_type'        => 'status_changed',
+                    'action_description' => "Status auf $newStatus (" . $statusLabels[$newStatus] . ") geändert",
+                    'vehicle_id'         => $vehicleId,
+                    'operator_id'        => $_SESSION['einsatz_operator_id'] ?? null,
+                    'created_by'         => $_SESSION['userid'] ?? null,
+                ]);
 
-            // 3. Audit-Log
-            $statusLabels = [
-                '0' => 'Dringender Sprechwunsch',
-                '1' => 'Einsatzbereit Funk',
-                '2' => 'Einsatzbereit Wache',
-                '3' => 'Einsatz übernommen',
-                '4' => 'Am Einsatzort',
-                '5' => 'Sprechwunsch',
-                '6' => 'Nicht einsatzbereit',
-            ];
-            $this->pdo->prepare("
-                INSERT INTO intra_fire_incident_log
-                (incident_id, action_type, action_description, vehicle_id, operator_id, created_by)
-                VALUES (?, 'status_changed', ?, ?, ?, ?)
-            ")->execute([
-                $incidentId,
-                "Status auf $newStatus (" . $statusLabels[$newStatus] . ") geändert",
-                $vehicleId,
-                $_SESSION['einsatz_operator_id'] ?? null,
-                $_SESSION['userid'] ?? null,
-            ]);
-
-            // 4. intra_fahrzeuge auch updaten (für die Status-Anzeige)
-            $this->pdo->prepare("
-                UPDATE intra_fahrzeuge
-                SET current_status = :status, status_updated_at = NOW(), status_source = 'incident'
-                WHERE id = :id
-            ")->execute([':status' => $newStatus, ':id' => $vehicleId]);
-
-            $this->pdo->commit();
+                // 4. intra_fahrzeuge auch updaten (für die Status-Anzeige)
+                Capsule::table('intra_fahrzeuge')
+                    ->where('id', $vehicleId)
+                    ->update([
+                        'current_status'    => $newStatus,
+                        'status_updated_at' => Capsule::raw('NOW()'),
+                        'status_source'     => 'incident',
+                    ]);
+            });
 
             return Response::json(['success' => true, 'new_status' => $newStatus]);
         } catch (PDOException $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
             Logger::error('Fire: set_status Fehler', [
                 'error'       => $e->getMessage(),
                 'vehicle_id'  => $vehicleId,
@@ -221,6 +203,8 @@ final class FireController
                 return Response::json(['success' => false, 'message' => 'Keine gültigen Felder ausgewählt']);
             }
 
+            // Bedingungen stammen ausschließlich aus der Whitelist oben —
+            // keine Nutzereingaben im SQL.
             $conditions = [];
             foreach ($fieldsToCheck as $field) {
                 $conditions[] = match ($field) {
@@ -237,33 +221,37 @@ final class FireController
                 $fieldsToCheck
             ));
 
-            $timeCondition = '';
-            if ($timePeriod !== 'all') {
-                $days          = (int) $timePeriod;
-                $timeCondition = "AND i.created_at > DATE_SUB(NOW(), INTERVAL {$days} DAY)";
-            }
+            $baseQuery = function () use ($whereClause, $timePeriod, $statusFilter) {
+                $query = Capsule::table('intra_fire_incidents as i')
+                    ->where('i.archived', 0)
+                    ->whereRaw("({$whereClause})");
 
-            $statusCondition = match ($statusFilter) {
-                'unfinalized' => 'AND i.finalized = 0',
-                'finalized'   => 'AND i.finalized = 1',
-                default       => '',
+                if ($timePeriod !== 'all') {
+                    $days = (int) $timePeriod;
+                    $query->whereRaw("i.created_at > DATE_SUB(NOW(), INTERVAL {$days} DAY)");
+                }
+
+                match ($statusFilter) {
+                    'unfinalized' => $query->where('i.finalized', 0),
+                    'finalized'   => $query->where('i.finalized', 1),
+                    default       => null,
+                };
+
+                return $query;
             };
 
             if ($isPreview) {
-                $query = "
-                    SELECT i.id, i.incident_number, i.location, i.keyword, i.created_at, i.finalized,
-                        m.fullname AS leader_name
-                    FROM intra_fire_incidents i
-                    LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id
-                    WHERE i.archived = 0
-                    AND ({$whereClause})
-                    {$timeCondition}
-                    {$statusCondition}
-                    ORDER BY i.created_at DESC
-                ";
-                $stmt = $this->pdo->prepare($query);
-                $stmt->execute();
-                $protocols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $protocols = $baseQuery()
+                    ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+                    ->select([
+                        'i.id', 'i.incident_number', 'i.location', 'i.keyword',
+                        'i.created_at', 'i.finalized',
+                        'm.fullname as leader_name',
+                    ])
+                    ->orderBy('i.created_at', 'desc')
+                    ->get()
+                    ->map(fn ($row) => (array) $row)
+                    ->all();
 
                 return Response::json([
                     'success'             => true,
@@ -274,16 +262,7 @@ final class FireController
             }
 
             // Count before delete
-            $countStmt = $this->pdo->prepare("
-                SELECT COUNT(*) as count
-                FROM intra_fire_incidents i
-                WHERE i.archived = 0
-                AND ({$whereClause})
-                {$timeCondition}
-                {$statusCondition}
-            ");
-            $countStmt->execute();
-            $count = (int) ($countStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
+            $count = $baseQuery()->count();
 
             if ($count === 0) {
                 return Response::json([
@@ -295,21 +274,14 @@ final class FireController
 
             // Soft-delete via archived=1
             $userId = (int) ($_SESSION['userid'] ?? 0);
-            $deleteStmt = $this->pdo->prepare("
-                UPDATE intra_fire_incidents i
-                SET i.archived = 1,
-                    i.archived_at = NOW(),
-                    i.archived_by = :userId,
-                    i.status = 4,
-                    i.updated_by = :userId2,
-                    i.updated_at = NOW()
-                WHERE i.archived = 0
-                AND ({$whereClause})
-                {$timeCondition}
-                {$statusCondition}
-            ");
-            $deleteStmt->execute(['userId' => $userId, 'userId2' => $userId]);
-            $affectedRows = $deleteStmt->rowCount();
+            $affectedRows = $baseQuery()->update([
+                'i.archived'    => 1,
+                'i.archived_at' => Capsule::raw('NOW()'),
+                'i.archived_by' => $userId,
+                'i.status'      => 4,
+                'i.updated_by'  => $userId,
+                'i.updated_at'  => Capsule::raw('NOW()'),
+            ]);
 
             $timeLabel   = $timePeriod === 'all' ? 'alle' : "letzte {$timePeriod} Tage";
             $statusLabel = match ($statusFilter) {
@@ -318,7 +290,7 @@ final class FireController
                 default       => '',
             };
 
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $userId,
                 "Bulk-Delete: {$affectedRows} Einsatzprotokolle gelöscht",
                 "Gelöschte Protokolle mit leeren Feldern ({$selectedFieldsLabel}), Zeitraum: {$timeLabel}{$statusLabel}",

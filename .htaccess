@@ -1,3 +1,11 @@
+# ıgnıs — Root-.htaccess
+#
+# Das Docroot ist public/. Zeigt der Webserver dorthin, liest Apache diese
+# Datei nie. Sie ist für Installationen da, deren Docroot nicht umgestellt
+# werden kann (Webspace ohne Einstellung): Dann reicht sie jede Anfrage
+# nach public/ durch, wo public/.htaccess den Rest erledigt, und hält die
+# Sperren für alles aufrecht, was nie über HTTP erreichbar sein darf.
+
 #1 ---- Prevent listing
 
 IndexIgnore *
@@ -42,58 +50,32 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# Block interne Verzeichnisse komplett vor direktem Web-Zugriff.
-# Diese Ordner enthalten Quellcode, CLI-Scripts, Tools und Legacy-Code,
-# die niemals direkt über HTTP erreichbar sein sollen — sie werden
-# entweder aus anderen Scripts includiert oder nur über die CLI aufgerufen.
-RewriteRule ^src/ - [F,L]
-RewriteRule ^cli/ - [F,L]
-RewriteRule ^tools/ - [F,L]
-RewriteRule ^tests/ - [F,L]
-RewriteRule ^database/ - [F,L]
-RewriteRule ^config/ - [F,L]
-RewriteRule ^docker/ - [F,L]
-RewriteRule ^routes/ - [F,L]
-RewriteRule ^\.github/ - [F,L]
-# Aktive Plugins dürfen ausschließlich fertig gebaute, statische Dateien aus
-# ihrem assets/-Ordner ausliefern. Alles andere bleibt gesperrt; die zweite
-# Schutzschicht in plugins/.htaccess prüft dieselbe Allowlist.
-RewriteRule ^plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(?:css|js|map|woff2|png|svg|webp)$ - [L,NC]
-RewriteRule ^plugins/ - [F,L]
-
-# cron/ bleibt erreichbar, weil HTTP-triggerbare Cron-Endpoints dort liegen
-# (queue-worker-cron.php, telemetry-cron.php). Diese prüfen API-Key intern
-# und sind die einzigen expliziten Einsprungspunkte — andere Dateien dort
-# werden nicht erstellt, aber Legacy-Datei-Schutz hängt an den Script-Checks.
-
 #2 ---- Rewrites
 
-RewriteEngine On
+<IfModule mod_rewrite.c>
+    RewriteEngine On
 
-# ============================================================
-# Router Fallback
-#
-# Greift, wenn der Request weder auf eine echte Datei noch auf
-# ein echtes Verzeichnis zeigt, und leitet ihn an den Single-
-# Entry-Point `public/index.php` weiter, wo `App\Http\Router`
-# das Matching übernimmt. eNOTF-Clean-URLs (`/enotf/p/{enr}/...`)
-# sind direkt im Router registriert.
-#
-# Bestehende Modul-Files (benutzer/list.php, einsatz/index.php, ...)
-# bleiben unberührt, weil `!-f` dann false ist und die Regel nicht
-# greift. Extension-lose URLs auf echte Files (z.B. Form-Actions wie
-# assets/functions/enotf/enrbridge) mappt die `.php`-Regel davor —
-# analog zum `$uri.php`-Schritt in der nginx.conf.example.
-# ============================================================
+    # Interne Verzeichnisse bleiben gesperrt, auch wenn die Durchreichung
+    # unten sie ohnehin nie erreichen würde. Doppelt hält besser, falls
+    # jemand die Regel darunter anpasst. plugins/ steht nicht in der Liste:
+    # Plugin-Assets laufen über die Route /plugins/<id>/assets/... und
+    # müssen deshalb nach public/ durchkommen.
+    RewriteRule ^src/ - [F,L]
+    RewriteRule ^cli/ - [F,L]
+    RewriteRule ^tools/ - [F,L]
+    RewriteRule ^tests/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^docker/ - [F,L]
+    RewriteRule ^routes/ - [F,L]
+    RewriteRule ^vendor/ - [F,L]
+    RewriteRule ^\.github/ - [F,L]
 
-# Extensionslose URLs -> .php. Ersetzt MultiViews, das auf PHP-FPM-Setups
-# (KeyHelp, Plesk, ...) stillschweigend versagt, weil mod_negotiation
-# .php ohne mod_mime-Typ nicht als Variante erkennt.
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php [L]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ public/index.php [L,QSA]
+    # Alles nach public/ durchreichen — es sei denn, die Anfrage zeigt
+    # schon dorthin (das ist nach dem internen Redirect der Fall). Dort
+    # liefert public/.htaccess echte Dateien aus und schickt den Rest an
+    # index.php. Die Bedingung prüft die Rückreferenz der Regel, damit
+    # auch Installationen in einem Unterverzeichnis funktionieren.
+    RewriteCond $1 !^public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

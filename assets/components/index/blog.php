@@ -213,7 +213,7 @@ $timeAgo = static function (string $iso): string {
     }
 
     .intra__blog .blog__badge--new {
-        background: var(--main-color, #ff4d00);
+        background: var(--accent);
         color: #fff;
         font-size: 0.65rem;
         font-weight: 700;

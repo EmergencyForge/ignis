@@ -4,6 +4,7 @@ namespace App\Federation;
 
 use App\Api\ApiResponse;
 use App\Exceptions\FederationAuthException;
+use App\Models\FederationLink;
 use PDO;
 
 /**
@@ -58,11 +59,14 @@ class FederationMiddleware
     /**
      * Authentifiziert einen eingehenden Federation-Request via X-Federation-Key.
      *
+     * Läuft über die Eloquent-Capsule; der optionale $pdo-Parameter bleibt
+     * nur für Alt-Aufrufer erhalten und wird ignoriert.
+     *
      * @return array Der zur authentifizierten Instanz passende Eintrag aus
      *               `intra_federation_links`.
      * @throws FederationAuthException
      */
-    public static function tryAuthenticate(PDO $pdo): array
+    public static function tryAuthenticate(?PDO $pdo = null): array
     {
         self::tryRequireEnabled();
 
@@ -73,13 +77,9 @@ class FederationMiddleware
         }
 
         try {
-            $stmt = $pdo->prepare("
-                SELECT * FROM intra_federation_links
-                WHERE api_key_incoming = ? AND is_active = 1
-                LIMIT 1
-            ");
-            $stmt->execute([$key]);
-            $link = $stmt->fetch(PDO::FETCH_ASSOC);
+            $link = FederationLink::where('api_key_incoming', $key)
+                ->where('is_active', 1)
+                ->first();
         } catch (\PDOException $e) {
             throw new FederationAuthException('Datenbankfehler', 500, $e);
         }
@@ -88,7 +88,7 @@ class FederationMiddleware
             throw new FederationAuthException('Ungültiger Federation-Key', 403);
         }
 
-        return $link;
+        return $link->toArray();
     }
 
     /**
@@ -133,10 +133,10 @@ class FederationMiddleware
      *
      * @return array The matching intra_federation_links record
      */
-    public static function authenticate(PDO $pdo): array
+    public static function authenticate(?PDO $pdo = null): array
     {
         try {
-            return self::tryAuthenticate($pdo);
+            return self::tryAuthenticate();
         } catch (FederationAuthException $e) {
             ApiResponse::error($e->getMessage(), $e->statusCode());
         }

@@ -5,22 +5,21 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_fire_incidents_27122025_add_caller_fields.php
- * Spiegelung:     database/legacy/alter_fire_incidents_27122025_add_caller_fields.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Melder-Daten am Einsatz: Name und Kontakt (Telefon) der Person, die den
+ * Einsatz gemeldet hat.
  */
 class AlterFireIncidents27122025AddCallerFields extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_fire_incidents_27122025_add_caller_fields.php';
+        $table = $this->table('intra_fire_incidents');
+        if ($table->hasColumn('caller_name')) {
+            return;
+        }
+
+        $table
+            ->addColumn('caller_name', 'string', ['limit' => 255, 'null' => true, 'comment' => 'Name des Melders', 'after' => 'keyword'])
+            ->addColumn('caller_contact', 'string', ['limit' => 255, 'null' => true, 'comment' => 'Kontakt des Melders (Telefon)', 'after' => 'caller_name'])
+            ->update();
     }
 }

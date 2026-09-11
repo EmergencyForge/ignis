@@ -1,23 +1,18 @@
 <?php
 /**
  * View: enotf/protokoll/protokollart.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
+use Plugin\Enotf\Models\Edivi;
 
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -54,15 +49,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['rdprot'])) {
-        $stmt = $pdo->prepare("UPDATE intra_edivi SET prot_by = 0 WHERE enr = :enr");
-        $stmt->execute([':enr' => $_GET['enr']]);
+        Edivi::where('enr', $_GET['enr'])->update(['prot_by' => 0]);
         Redirects::redirect($defaultUrl, []);
         exit();
     }
 
     if (isset($_POST['naprot'])) {
-        $stmt = $pdo->prepare("UPDATE intra_edivi SET prot_by = 1 WHERE enr = :enr");
-        $stmt->execute([':enr' => $_GET['enr']]);
+        Edivi::where('enr', $_GET['enr'])->update(['prot_by' => 1]);
         Redirects::redirect($defaultUrl, []);
         exit();
     }

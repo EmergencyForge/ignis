@@ -3,23 +3,21 @@
  * View: eNOTF Voranmeldung
  *
  * PIN-Lockscreen wird vom Controller geprüft.
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
 use App\Integrations\DiscordWebhook;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviPoi;
+use Plugin\Enotf\Models\EdiviPrereg;
 
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -90,35 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             $rawDate = $m[3] . '-' . str_pad($m[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($m[1], 2, '0', STR_PAD_LEFT);
         }
         $arrivalDateTime = $rawDate . ' ' . $_POST['arrival_time'] . ':00';
-        $stmt = $pdo->prepare("
-            INSERT INTO intra_edivi_prereg (
-                priority,
-                arrival,
-                fahrzeug,
-                diagnose,
-                geschlecht,
-                `alter`,
-                text,
-                kreislauf,
-                gcs,
-                intubiert,
-                ziel
-            ) VALUES (
-                :priority,
-                :arrival,
-                :fahrzeug,
-                :diagnose,
-                :geschlecht,
-                :alter,
-                :text,
-                :kreislauf,
-                :gcs,
-                :intubiert,
-                :ziel
-            )
-        ");
-
-        $stmt->execute([
+        $prereg = EdiviPrereg::create([
             'priority' => $_POST['priority'],
             'arrival' => $arrivalDateTime,
             'fahrzeug' => $_POST['fahrzeug'],
@@ -136,11 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
 
         // LOGGING: Voranmeldung wurde gespeichert
         $logFile = __DIR__ . '/../schnittstelle/php_errors.log';
-        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Voranmeldung gespeichert, ID: " . $pdo->lastInsertId() . "\n", FILE_APPEND);
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Voranmeldung gespeichert, ID: " . $prereg->id . "\n", FILE_APPEND);
 
         // Discord Webhook Benachrichtigung senden
         try {
-            $preregId = $pdo->lastInsertId();
+            $preregId = $prereg->id;
 
             file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Discord Webhook wird vorbereitet...\n", FILE_APPEND);
 
@@ -249,9 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             $zielText = $_POST['ziel'];
             if (strpos($_POST['ziel'], 'poi_') === 0) {
                 $poiId = str_replace('poi_', '', $_POST['ziel']);
-                $poiStmt = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE id = ?");
-                $poiStmt->execute([$poiId]);
-                $poiData = $poiStmt->fetch();
+                $poiData = EdiviPoi::where('id', $poiId)->first(['name']);
                 if ($poiData) {
                     $zielText = $poiData['name'];
                 }
@@ -476,12 +444,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <select name="ziel" id="ziel" class="w-100 form-select" required data-custom-dropdown="true" data-search-threshold="5">
                                                 <option disabled hidden selected value="NULL">---</option>
                                                 <?php
-                                                require dirname(__DIR__, 5) . '/assets/config/database.php';
-
                                                 // Nur POIs mit Typ "Krankenhaus" laden
-                                                $stmt = $pdo->prepare("SELECT id, name FROM intra_edivi_pois WHERE typ = 'Krankenhaus' AND active = 1 ORDER BY name ASC");
-                                                $stmt->execute();
-                                                $krankenhaeuserPois = $stmt->fetchAll();
+                                                $krankenhaeuserPois = EdiviPoi::where('typ', 'Krankenhaus')
+                                                    ->where('active', 1)
+                                                    ->orderBy('name', 'ASC')
+                                                    ->get(['id', 'name'])
+                                                    ->all();
 
                                                 // POI-Krankenhäuser mit poi_ prefix ausgeben
                                                 foreach ($krankenhaeuserPois as $row) {
@@ -496,13 +464,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="col">
                                                 <label for="fahrzeug" class="edivi__description">Fahrzeug Transport</label>
                                                 <?php
-                                                require dirname(__DIR__, 5) . '/assets/config/database.php';
-
                                                 $selectedFzg = $daten['fzg_transp'] ?? $daten['fzg_na'] ?? 'NULL';
 
-                                                $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge ORDER BY priority ASC");
-                                                $stmt->execute();
-                                                $fahrzeuge = $stmt->fetchAll();
+                                                $fahrzeuge = Capsule::table('intra_fahrzeuge')
+                                                    ->orderBy('priority', 'ASC')
+                                                    ->get()
+                                                    ->map(fn ($row) => (array) $row)
+                                                    ->all();
                                                 ?>
 
                                                 <select name="fahrzeug" id="fahrzeug" class="w-100 form-select" required data-custom-dropdown="true" data-search-threshold="5">

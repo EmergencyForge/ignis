@@ -1,10 +1,12 @@
 <?php
 /**
  * View: enotf/protokoll/massnahmen/medikamente/save_medikament.php
- *
- * @var \PDO $pdo
  */
 
+
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviMedikament;
 
 header('Content-Type: text/plain; charset=utf-8');
 
@@ -55,9 +57,10 @@ try {
         }
 
         // Validate wirkstoff against database
-        $wirkstoffStmt = $pdo->prepare("SELECT wirkstoff FROM intra_edivi_medikamente WHERE wirkstoff = :wirkstoff AND active = 1");
-        $wirkstoffStmt->execute([':wirkstoff' => $medikamentData['wirkstoff']]);
-        if (!$wirkstoffStmt->fetch()) {
+        $wirkstoffExists = EdiviMedikament::where('wirkstoff', $medikamentData['wirkstoff'])
+            ->where('active', 1)
+            ->exists();
+        if (!$wirkstoffExists) {
             http_response_code(400);
             echo "Ungültiger Wirkstoff: " . $medikamentData['wirkstoff'];
             exit();
@@ -93,10 +96,7 @@ try {
 
         error_log("Processing medication for ENR: " . $enr);
 
-        $query = "SELECT medis FROM intra_edivi WHERE enr = :enr";
-        $stmt = $pdo->prepare($query);
-        $stmt->execute(['enr' => $enr]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = Edivi::where('enr', $enr)->first(['medis']);
 
         if (!$result) {
             http_response_code(404);
@@ -131,19 +131,11 @@ try {
             exit();
         }
 
-        $updateQuery = "UPDATE intra_edivi SET medis = :medis, last_edit = NOW() WHERE enr = :enr";
-        $updateStmt = $pdo->prepare($updateQuery);
-
-        if (!$updateStmt) {
-            $errorInfo = $pdo->errorInfo();
-            http_response_code(500);
-            echo "Fehler beim Vorbereiten der SQL-Anweisung: " . implode(" ", $errorInfo);
-            error_log("SQL prepare error in save_medikament.php: " . implode(" ", $errorInfo));
-            exit();
-        }
-
         try {
-            $executeResult = $updateStmt->execute(['medis' => $medikamenteJson, 'enr' => $enr]);
+            $affectedRows = Edivi::where('enr', $enr)->update([
+                'medis'     => $medikamenteJson,
+                'last_edit' => Capsule::raw('NOW()'),
+            ]);
         } catch (PDOException $e) {
             http_response_code(500);
             echo "Fehler beim Ausführen der SQL-Anweisung: " . $e->getMessage();
@@ -151,15 +143,7 @@ try {
             exit();
         }
 
-        if (!$executeResult) {
-            $errorInfo = $updateStmt->errorInfo();
-            http_response_code(500);
-            echo "Fehler beim Ausführen der SQL-Anweisung: " . implode(" ", $errorInfo);
-            error_log("SQL execute failed in save_medikament.php: " . implode(" ", $errorInfo));
-            exit();
-        }
-
-        if ($updateStmt->rowCount() === 0) {
+        if ($affectedRows === 0) {
             error_log("Warning: No rows were updated for ENR: " . $enr);
         }
 
@@ -176,10 +160,7 @@ try {
 
         $timestamp = $_POST['timestamp'];
 
-        $query = "SELECT medis FROM intra_edivi WHERE enr = :enr";
-        $stmt = $pdo->prepare($query);
-        $stmt->execute(['enr' => $enr]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = Edivi::where('enr', $enr)->first(['medis']);
 
         if (!$result) {
             http_response_code(404);
@@ -213,14 +194,10 @@ try {
         $medikamente = array_values($medikamente);
 
         $medikamenteJson = empty($medikamente) ? '0' : json_encode($medikamente, JSON_UNESCAPED_UNICODE);
-        $updateQuery = "UPDATE intra_edivi SET medis = :medis, last_edit = NOW() WHERE enr = :enr";
-        $updateStmt = $pdo->prepare($updateQuery);
-
-        if (!$updateStmt->execute(['medis' => $medikamenteJson, 'enr' => $enr])) {
-            http_response_code(500);
-            echo "Fehler beim Ausführen der SQL-Anweisung: " . implode(" ", $updateStmt->errorInfo());
-            exit();
-        }
+        Edivi::where('enr', $enr)->update([
+            'medis'     => $medikamenteJson,
+            'last_edit' => Capsule::raw('NOW()'),
+        ]);
 
         http_response_code(200); // Explicitly set 200 status
         echo "Medikament erfolgreich gelöscht";

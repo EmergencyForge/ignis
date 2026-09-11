@@ -2,25 +2,39 @@
 
 declare(strict_types=1);
 
+use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_edivi_qmlog_07062025.php
- * Spiegelung:     database/legacy/create_intra_edivi_qmlog_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * QM-Log für eDIVI-Protokolle: Kommentare und Statusaktionen der
+ * Qualitätssicherung je Protokoll. Einträge hängen per FK am Protokoll
+ * und werden beim Löschen des Protokolls mitentfernt.
  */
 class CreateIntraEdiviQmlog07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_edivi_qmlog_07062025.php';
+        if ($this->hasTable('intra_edivi_qmlog')) {
+            return;
+        }
+
+        $this->table('intra_edivi_qmlog', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('protokoll_id', 'integer',   ['null' => false])
+            ->addColumn('kommentar',    'text',      ['limit' => MysqlAdapter::TEXT_LONG, 'null' => false])
+            ->addColumn('log_aktion',   'boolean',   ['null' => true])
+            ->addColumn('bearbeiter',   'string',    ['limit' => 255, 'null' => true])
+            ->addColumn('timestamp',    'timestamp', ['null' => false, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addIndex(['protokoll_id'], ['name' => 'FK_intra_edivi_qmlog_intra_edivi'])
+            ->addForeignKey('protokoll_id', 'intra_edivi', 'id', [
+                'delete'     => 'CASCADE',
+                'update'     => 'CASCADE',
+                'constraint' => 'FK_intra_edivi_qmlog_intra_edivi',
+            ])
+            ->create();
     }
 }

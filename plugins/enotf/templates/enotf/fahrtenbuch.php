@@ -9,7 +9,6 @@
  * @var array<string,string>           $fahrttypen
  * @var array<int,array<string,mixed>> $entries
  * @var string                         $pinEnabled
- * @var \PDO                           $pdo
  */
 
 use Plugin\Enotf\Helpers\EnotfUrl;

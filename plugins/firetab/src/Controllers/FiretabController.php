@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Plugin\Firetab\Controllers;
 
 use App\Auth\Gate;
+use App\Config\ConfigManager;
 use App\Federation\FederatedPersonnel;
+use App\Federation\FederationMiddleware;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Controllers\Controller;
@@ -13,11 +15,11 @@ use App\Http\FiveMSupport;
 use App\Integrations\DiscordWebhook;
 use Plugin\Firetab\Models\FireIncident;
 use App\Notifications\NotificationManager;
+use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 use PDOException;
 
 /**
@@ -295,7 +297,7 @@ class FiretabController extends Controller
 
         // Federation leader fallback
         if (empty($incident['leader_name']) && !empty($incident['leader_id'])) {
-            $incident['leader_name'] = FederatedPersonnel::resolveName($this->pdo, $incident['leader_id']);
+            $incident['leader_name'] = FederatedPersonnel::resolveName($incident['leader_id']);
         }
 
         // Check vehicle assignment (skip for admin/QM)
@@ -381,7 +383,7 @@ class FiretabController extends Controller
         // Clear all einsatz_viewed session variables
         \App\Session\SessionManager::forgetByPrefix('einsatz_viewed_');
 
-        $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+        $leaders = FederatedPersonnel::getLeaderOptions();
 
         $this->renderView('firetab/create', [
             'leaders' => $leaders,
@@ -436,7 +438,7 @@ class FiretabController extends Controller
         }
 
         if (!empty($errors)) {
-            $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+            $leaders = FederatedPersonnel::getLeaderOptions();
             $this->renderView('firetab/create', [
                 'leaders' => $leaders,
                 'errors'  => $errors,
@@ -482,7 +484,7 @@ class FiretabController extends Controller
             $this->redirect('einsatz/view?id=' . $incidentId);
         } catch (PDOException $e) {
             Capsule::connection()->getPdo()->rollBack();
-            $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+            $leaders = FederatedPersonnel::getLeaderOptions();
             $this->renderView('firetab/create', [
                 'leaders' => $leaders,
                 'errors'  => ['Fehler beim Speichern: ' . $e->getMessage()],
@@ -691,7 +693,7 @@ class FiretabController extends Controller
             ->first();
 
         try {
-            $notificationManager = new NotificationManager($this->pdo);
+            $notificationManager = new NotificationManager();
             $notificationManager->notifyFireProtocolFinalized($incidentData);
         } catch (\Exception $e) {
             error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): ' . $e->getMessage());
@@ -727,7 +729,7 @@ class FiretabController extends Controller
         $this->logAction($id, 'status_changed', "QM-Status geändert zu '" . (FireIncident::STATUS_LABELS[$status] ?? 'Unbekannt') . "'");
 
         if (isset($_SESSION['userid'])) {
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . (FireIncident::STATUS_LABELS[$status] ?? '?'), null, 'Feuerwehr', 1);
         }
 
@@ -738,8 +740,8 @@ class FiretabController extends Controller
                 ->select('i.*', 'm.fullname as leader_name')
                 ->first();
 
-            $notificationManager = new NotificationManager($this->pdo);
-            $userHelper = new UserHelper($this->pdo);
+            $notificationManager = new NotificationManager();
+            $userHelper = new UserHelper();
             $qmUsername = $userHelper->getCurrentUserFullnameForAction();
             $notificationManager->notifyFireProtocolStatusChanged($incidentData, $qmUsername);
         } catch (\Exception $e) {
@@ -960,7 +962,7 @@ class FiretabController extends Controller
         $this->logAction($id, 'archived', 'Einsatz archiviert');
 
         if (isset($_SESSION['userid'])) {
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log($_SESSION['userid'], 'Einsatz archiviert [ID: ' . $id . ']', null, 'Feuerwehr', 1);
         }
 
@@ -984,7 +986,7 @@ class FiretabController extends Controller
         $this->logAction($id, 'unarchived', 'Einsatz wiederhergestellt');
 
         if (isset($_SESSION['userid'])) {
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log($_SESSION['userid'], 'Einsatz wiederhergestellt [ID: ' . $id . ']', null, 'Feuerwehr', 1);
         }
 
@@ -1171,9 +1173,21 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/admin/list.php — QM-Übersicht aller Einsatzprotokolle.
-     * Nur für Admin / fire.incident.qm. Zeigt aktive oder archivierte Einsätze
-     * inkl. Federation-Daten und Bulk-Delete-Funktion.
+     * GET /firetab/admin/list — QM-Übersicht aller Einsatzprotokolle, sortiert,
+     * gesucht und geblättert auf dem Server (App\Support\ListQuery). Aktiv
+     * oder Archiv über `show_archived`. Die Liste ist ein Arbeitsbereich
+     * (assets/js/ui/workbench.js): angehakte Zeilen bekommen die Leiste mit
+     * „Löschen" (adminBulkDelete).
+     *
+     * Die Einsätze aus dem Verbund (JSON-Cache intra_federation_cache_fire,
+     * nur aktive Links) laufen als UNION ALL in derselben Abfrage mit: die
+     * Spalten, die Liste und Sortierung brauchen, kommen per JSON_EXTRACT aus
+     * dem Cache, die Abfrage liegt als abgeleitete Tabelle unter Suche,
+     * Sortierung und Seitenschnitt. So stehen sie in Suche und Seiten wie
+     * die eigenen, bleiben aber nur lesend (federation_source gesetzt).
+     * Ob der Verbund an ist, sagt die Einstellung in intra_config, wie auf
+     * der Verbund-Seite; die Konstante aus config.php ist nur der Rückfall,
+     * weil sie einmal pro Prozess feststeht.
      */
     public function adminList(): void
     {
@@ -1182,55 +1196,125 @@ class FiretabController extends Controller
 
         $showArchived = isset($_GET['show_archived']) && $_GET['show_archived'] === '1';
 
-        $query = Capsule::table('intra_fire_incidents as i')
-            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
-            ->select('i.*', 'm.fullname as leader_name');
+        $list = ListQuery::fromQuery($_GET, [
+            'nr'       => 'incident_number',
+            'start'    => 'started_at',
+            'location' => 'location',
+            'keyword'  => 'keyword',
+            'leader'   => 'leader_name',
+            'status'   => 'status',
+            'created'  => 'created_at',
+            'archived' => 'archived_at',
+        ], $showArchived ? 'archived' : 'created', 'desc', 20, ['show_archived']);
 
-        if ($showArchived) {
-            $query->where('i.archived', 1)->orderByDesc('i.archived_at');
-        } else {
-            $query->where('i.archived', 0)->orderByDesc('i.created_at');
+        $rows = Capsule::table('intra_fire_incidents as i')
+            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+            ->where('i.archived', $showArchived ? 1 : 0)
+            ->select([
+                'i.id', 'i.incident_number', 'i.started_at', 'i.location', 'i.keyword',
+                'i.leader_id', 'm.fullname as leader_name', 'i.status', 'i.finalized',
+                'i.created_at', 'i.archived_at',
+                Capsule::connection()->raw('NULL as federation_source'),
+            ]);
+
+        $federationOn = (bool) (new ConfigManager())->get('FEDERATION_ENABLED', FederationMiddleware::isEnabled());
+        if ($federationOn && !$showArchived) {
+            $json = static fn (string $key): \Illuminate\Contracts\Database\Query\Expression
+                => Capsule::connection()->raw("JSON_UNQUOTE(JSON_EXTRACT(fcf.cached_data, '$." . $key . "')) as " . $key);
+            $federated = Capsule::table('intra_federation_cache_fire as fcf')
+                ->join('intra_federation_links as fl', function ($join) {
+                    $join->on('fl.instance_id', '=', 'fcf.source_instance_id')
+                         ->where('fl.is_active', 1);
+                })
+                ->select([
+                    'fcf.remote_id as id', 'fcf.incident_number',
+                    Capsule::connection()->raw('fcf.incident_date as started_at'),
+                    $json('location'), $json('keyword'),
+                    Capsule::connection()->raw('NULL as leader_id'),
+                    $json('leader_name'), $json('status'), $json('finalized'),
+                    Capsule::connection()->raw('fcf.incident_date as created_at'),
+                    Capsule::connection()->raw('NULL as archived_at'),
+                    'fl.instance_name as federation_source',
+                ]);
+            $rows->unionAll($federated);
         }
 
-        $incidents = $query->get()->map(fn ($r) => (array) $r)->all();
+        $query = Capsule::connection()->query()->fromSub($rows, 'u');
 
-        // Resolve federation leader names
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('incident_number', 'LIKE', $list->like())
+                    ->orWhere('location', 'LIKE', $list->like())
+                    ->orWhere('keyword', 'LIKE', $list->like())
+                    ->orWhere('leader_name', 'LIKE', $list->like());
+            });
+        }
+
+        $incidents = $list->paginate($query)->map(fn ($r) => (array) $r)->all();
+
         foreach ($incidents as &$inc) {
-            if (empty($inc['leader_name']) && !empty($inc['leader_id'])) {
-                $inc['leader_name'] = FederatedPersonnel::resolveName($this->pdo, $inc['leader_id']);
+            if ($inc['federation_source'] !== null) {
+                // Nur lesend, wie bisher: die Vorlage kennt die Zeile an diesen Schlüsseln.
+                $inc['_federation_source']   = $inc['federation_source'];
+                $inc['_federation_readonly'] = true;
+                $inc['id']         = 'fed_' . $inc['id'];
+                $inc['location']   = $inc['location'] ?? '';
+                $inc['keyword']    = $inc['keyword'] ?? '';
+                $inc['started_at'] = $inc['started_at'] ?? $inc['created_at'] ?? date('Y-m-d H:i:s');
+            } elseif (empty($inc['leader_name']) && !empty($inc['leader_id'])) {
+                $inc['leader_name'] = FederatedPersonnel::resolveName($inc['leader_id']);
             }
         }
         unset($inc);
 
-        // Append federated fire incidents (read-only)
-        if (\App\Federation\FederationMiddleware::isEnabled() && !$showArchived) {
-            try {
-                $fedRows = Capsule::table('intra_federation_cache_fire as fcf')
-                    ->join('intra_federation_links as fl', function ($join) {
-                        $join->on('fl.instance_id', '=', 'fcf.source_instance_id')
-                             ->where('fl.is_active', 1);
-                    })
-                    ->orderByDesc('fcf.incident_date')
-                    ->select('fcf.cached_data', 'fl.instance_name')
-                    ->get();
-
-                foreach ($fedRows as $fedRow) {
-                    $fi = json_decode($fedRow->cached_data, true);
-                    if (!$fi) continue;
-                    $fi['_federation_source']   = $fedRow->instance_name;
-                    $fi['_federation_readonly'] = true;
-                    $fi['id'] = 'fed_' . ($fi['id'] ?? 0);
-                    $incidents[] = $fi;
-                }
-            } catch (\PDOException $e) {
-                // Silently skip
-            }
-        }
-
         $this->renderView('firetab/admin-list', [
             'incidents'    => $incidents,
             'showArchived' => $showArchived,
+            'list'         => $list,
         ]);
+    }
+
+    /**
+     * POST /firetab/admin/list/delete — löscht die in der QM-Liste
+     * angehakten Protokolle (`ids[]`, Aktionsleiste des Arbeitsbereichs).
+     * Löschen heißt hier dasselbe wie beim Löschen nach leeren Feldern
+     * (Api\FireController::bulkDeleteEmpty): archiviert mit Status
+     * „Ausgeblendet", nichts wird hart entfernt. Je Einsatz ein Eintrag im
+     * Einsatz-Log und im Audit-Log, eine Meldung für alle.
+     */
+    public function adminBulkDelete(): void
+    {
+        $this->requireAuth();
+        $this->ensure('fireIncident.manageQm', redirectTo: 'einsatz/admin/list');
+
+        $raw = $_POST['ids'] ?? [];
+        $ids = is_array($raw) ? array_values(array_unique(array_filter(array_map('intval', $raw), static fn (int $id): bool => $id > 0))) : [];
+        $existing = $ids === [] ? [] : Capsule::table('intra_fire_incidents')->whereIn('id', $ids)->where('archived', 0)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
+        if ($existing === []) {
+            Flash::error('Kein Protokoll ausgewählt.');
+            $this->redirect('einsatz/admin/list');
+        }
+
+        $userId = (int) ($_SESSION['userid'] ?? 0);
+        try {
+            foreach ($existing as $id) {
+                Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+                    'archived'    => 1,
+                    'archived_at' => Capsule::connection()->raw('NOW()'),
+                    'archived_by' => $userId,
+                    'status'      => 4,
+                    'updated_by'  => $userId,
+                    'updated_at'  => Capsule::connection()->raw('NOW()'),
+                ]);
+                $this->logAction($id, 'archived', 'Einsatz aus der QM-Liste gelöscht');
+                (new AuditLogger())->log($userId, 'Einsatz gelöscht [ID: ' . $id . ']', 'Aus der QM-Liste (Sammelaktion), archiviert mit Status ausgeblendet', 'Feuerwehr', 1);
+            }
+            Flash::success(count($existing) === 1 ? 'Einsatzprotokoll gelöscht.' : count($existing) . ' Einsatzprotokolle gelöscht.');
+        } catch (PDOException $e) {
+            Flash::error('Fehler: ' . $e->getMessage());
+        }
+
+        $this->redirect('einsatz/admin/list');
     }
 
     // ── Helpers ────────────────────────────────────────────

@@ -16,7 +16,6 @@
  *   @var string                       $accountStatus 'none'|'pending'|'active'|'inactive'
  *   @var array|null                   $panelakte     Verlinkter User oder null
  *   @var array|null                   $pendingInvite Pending Registration-Code oder null
- *   @var \PDO                         $pdo
  *
  * Bindet folgende Legacy-Partials ein, die unverändert bleiben:
  *   - assets/components/profiles/checks.php
@@ -29,7 +28,7 @@
  *   - assets/components/profiles/dienstgradselector_rd.php
  *   - assets/components/profiles/qualiselector.php
  *
- * Diese Partials erwarten $row, $pdo und einige der oben definierten Variablen
+ * Diese Partials erwarten $row und einige der oben definierten Variablen
  * im lokalen Scope. extract() im Controller-renderView() erledigt das.
  */
 
@@ -37,16 +36,14 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 
 $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
+
+$layout = 'admin';
+$bodyId = 'mitarbeiter';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/mitarbeiter/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="mitarbeiter">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
+<?php ob_start(); ?>
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css" />
+    <link rel="stylesheet" href="<?= asset('public/assets/dist/personal.css') ?>" />
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
@@ -279,7 +276,6 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
     </aside>
     <?php endif; ?>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <?php if ($canEdit): ?>
     <script src="<?= BASE_PATH ?>assets/js/dienstnr-check.js"></script>
@@ -312,6 +308,3 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
         ], JSON_THROW_ON_ERROR) ?>
     });
     </script>
-</body>
-
-</html>

@@ -1,8 +1,6 @@
 <?php
 /**
  * View: Dokument-Visual-Editor
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
@@ -17,7 +15,7 @@ if (!$templateId) {
     exit();
 }
 
-$manager = new DocumentTemplateManager($pdo);
+$manager = new DocumentTemplateManager();
 $template = $manager->getTemplate($templateId);
 
 if (!$template) {
@@ -33,7 +31,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/template-editor.css" />
+    <link rel="stylesheet" href="<?= asset('public/assets/dist/template-editor.css') ?>" />
     <style>
         /* Nur Styles die spezifisch fuer visual-editor.php sind und nicht in template-editor.css */
         body { overflow: hidden; }
@@ -49,7 +47,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         .editor-toolbar .separator { width: 1px; height: 22px; background: var(--bs-border-color); margin: 0 0.15rem; }
         .editor-toolbar .ignis-checkbox { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
         .editor-toolbar .{ line-height: 1; }
-        .editor-toolbar .form-select { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
+        .editor-toolbar .ignis-input { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
         .element-item.field-placed { opacity: 0.5; }
         .element-item.field-placed::after { content: '\f00c'; font-family: 'Font Awesome 7 Free'; font-weight: 900; font-size: 0.6rem; color: var(--bs-success); margin-left: auto; }
     </style>
@@ -181,7 +179,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <span>Vorschau</span>
         </label>
 
-        <select class="form-select form-select-sm" data-custom-dropdown="true" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
+        <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
             <option value="schmal" selected>Schmal (1,27cm)</option>
             <option value="normal">Normal (2,5cm)</option>
             <option value="mittel">Mittel (1,91cm)</option>
@@ -462,8 +460,8 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
     <!-- Shortcut-Hilfe Park-Body -->
     <div id="shortcutHelpModal" class="ignis-dialog-park" hidden>
-        <div class="p-0" style="font-size:0.82rem;">
-            <table class="table table-sm table-striped mb-0 twplus-table">
+        <div class="p-0 text-sm">
+            <table class="ignis-table">
                 <tbody>
                     <tr><td class="pl-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
                     <tr><td class="pl-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>

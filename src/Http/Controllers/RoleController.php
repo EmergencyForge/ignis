@@ -78,7 +78,7 @@ class RoleController extends Controller
             $role->save();
 
             Flash::set('role', 'created');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 (int) $_SESSION['userid'],
                 'Rolle erstellt',
                 'Name: ' . $data['name'],
@@ -125,7 +125,7 @@ class RoleController extends Controller
             $role->save();
 
             Flash::set('success', 'updated');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 (int) $_SESSION['userid'],
                 'Rolle aktualisiert [ID: ' . $data['id'] . ']',
                 'Name: ' . $data['name'],
@@ -168,7 +168,7 @@ class RoleController extends Controller
             $role->delete();
 
             Flash::set('role', 'deleted');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 (int) $_SESSION['userid'],
                 'Rolle gelöscht [ID: ' . $id . ']',
                 null,

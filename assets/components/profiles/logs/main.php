@@ -1,12 +1,11 @@
 <?php
-require __DIR__ . '/../../../../assets/config/database.php';
 
 use App\Personnel\PersonalLogManager;
 
 $logsPerPage = 6;
 $logPage = isset($_GET['logpage']) ? (int)$_GET['logpage'] : 1;
 
-$logManager = new PersonalLogManager($pdo);
+$logManager = new PersonalLogManager();
 $result = $logManager->getSystemLogs($_GET['id'], $logPage, $logsPerPage);
 $logs = $result['entries'];
 $totalLogs = $result['total'];

@@ -4,24 +4,17 @@
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
  * @var array<string, array<string, string>>                            $permissionGroups
- * @var \PDO                                                            $pdo
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
 $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
+
+$layout = 'admin';
+$bodyId = 'benutzer';
+$SITE_TITLE = 'Rollen';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -44,9 +37,8 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                             <?php endif; ?>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
                     <div class="twplus-table-card">
-                        <table class="table table-striped twplus-table" id="table-rollen">
+                        <table class="ignis-table" id="table-rollen">
                             <thead>
                                 <tr>
                                     <th scope="col">ID</th>
@@ -147,18 +139,6 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
     <?php endif; ?>
 
     <script>
-        $(document).ready(function() {
-            $('#table-rollen').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [5, 10, 20],
-                pageLength: 10,
-                order: [[1, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Rollen')
-            });
-        });
-
         // Edit + Create teilen sich das gleiche <template>; Body wird pro Open
         // frisch geklont, deshalb gibt es keine Reset-Logik mehr — der Create-
         // Open faengt mit leeren Feldern an, ein Edit-Open setzt sie via onOpen.
@@ -216,6 +196,3 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
             });
         }
     </script>
-</body>
-
-</html>

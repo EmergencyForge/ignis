@@ -28,21 +28,33 @@ Event-Vertrag stehen in [PLUGINS.md](PLUGINS.md).
 
 ### Hosting und URL-Rewriting
 
-ıgnıs benötigt Apache mit `mod_rewrite` und aktivem `.htaccess`-Override. In
-der VirtualHost-Konfiguration muss für das Installationsverzeichnis mindestens
-`AllowOverride FileInfo Options` (oder `AllowOverride All`) gelten. Bei einer
-Installation in einem Unterverzeichnis muss `BASE_PATH` einschließlich
-abschließendem Slash gesetzt sein, zum Beispiel `/ignis/`.
+Der Document-Root muss auf das Verzeichnis `public/` zeigen. Dort liegen nur
+der Front-Controller `index.php`, `cron.php` und die gebauten Assets; Quellcode,
+Plugins, `storage/` und die `.env` bleiben außerhalb und sind vom Webserver
+aus nicht erreichbar. Plugin-Dateien und Uploads liefert die Anwendung über
+eigene Routen aus.
 
-Nach der Anmeldung prüft das Dashboard automatisch sowohl eine Router-URL als
-auch die extensionlose Auflösung einer echten PHP-Datei. Erscheint die Warnung
+Apache braucht `mod_rewrite` und für `public/` mindestens
+`AllowOverride FileInfo Options` (oder `AllowOverride All`), damit die
+mitgelieferte `public/.htaccess` greift. Bei einer Installation in einem
+Unterverzeichnis muss `BASE_PATH` einschließlich abschließendem Slash gesetzt
+sein, zum Beispiel `/ignis/`.
+
+Lässt sich der Document-Root auf dem Webspace nicht umstellen, kann er auf das
+Projektverzeichnis zeigen: Die `.htaccess` im Projekt-Root reicht dann jede
+Anfrage nach `public/` durch und sperrt die internen Verzeichnisse. Das
+funktioniert, ist aber die zweite Wahl, weil der Schutz des Quellcodes dann
+allein an dieser Datei hängt. Das Dashboard weist auf diese Konfiguration hin.
+
+Nach der Anmeldung ruft das Dashboard `/api/health` auf. Erscheint die Warnung
 „URL-Rewriting funktioniert nicht“, prüfe zuerst:
 
-1. Ist `mod_rewrite` aktiviert?
-2. Darf der Webserver die mitgelieferte `.htaccess` lesen und anwenden?
-3. Zeigt der Document-Root auf das Repository beziehungsweise ist die
-   Weiterleitung nach `public/index.php` erlaubt?
+1. Zeigt der Document-Root auf `public/` (oder ersatzweise auf das Projekt)?
+2. Ist `mod_rewrite` aktiviert?
+3. Darf der Webserver die mitgelieferte `.htaccess` lesen und anwenden?
 
-Für nginx enthält [`nginx.conf.example`](nginx.conf.example) die entsprechenden
-`try_files`-Regeln. Der öffentliche Endpunkt `/api/health` meldet zusätzlich
-fehlende PHP-Erweiterungen, HTTP-Transport und eingeschränkte Prozessfunktionen.
+Für nginx gibt es keine Durchreichung: `root` muss auf `public/` zeigen.
+[`nginx.conf.example`](nginx.conf.example) enthält die passenden
+`try_files`-Regeln. `/api/health` meldet außerdem fehlende PHP-Erweiterungen,
+HTTP-Transport, eingeschränkte Prozessfunktionen und unter `rewrite`, ob der
+Document-Root auf `public/` zeigt.

@@ -2,27 +2,21 @@
 
 namespace App\Integrations;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
  * Discord Webhook Integration
- * 
+ *
  * Handles sending notifications to Discord channels via webhooks
  */
 class DiscordWebhook
 {
-    private PDO $pdo;
     private static ?array $webhookCache = null;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
 
     /**
      * Load webhook URLs from config
-     * 
+     *
      * @return array Array of webhook URLs by type
      */
     private function loadWebhooks(): array
@@ -32,13 +26,9 @@ class DiscordWebhook
         }
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT config_key, config_value 
-                FROM intra_config 
-                WHERE config_key IN ('DISCORD_WEBHOOK_ENOTF_PROTOCOL', 'DISCORD_WEBHOOK_FIRE_PROTOCOL', 'DISCORD_WEBHOOK_ENOTF_PREREG')
-            ");
-            $stmt->execute();
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = Capsule::table('intra_config')
+                ->whereIn('config_key', ['DISCORD_WEBHOOK_ENOTF_PROTOCOL', 'DISCORD_WEBHOOK_FIRE_PROTOCOL', 'DISCORD_WEBHOOK_ENOTF_PREREG'])
+                ->get(['config_key', 'config_value']);
 
             self::$webhookCache = [
                 'enotf_protocol' => '',
@@ -47,15 +37,15 @@ class DiscordWebhook
             ];
 
             foreach ($results as $row) {
-                switch ($row['config_key']) {
+                switch ($row->config_key) {
                     case 'DISCORD_WEBHOOK_ENOTF_PROTOCOL':
-                        self::$webhookCache['enotf_protocol'] = $row['config_value'];
+                        self::$webhookCache['enotf_protocol'] = $row->config_value;
                         break;
                     case 'DISCORD_WEBHOOK_FIRE_PROTOCOL':
-                        self::$webhookCache['fire_protocol'] = $row['config_value'];
+                        self::$webhookCache['fire_protocol'] = $row->config_value;
                         break;
                     case 'DISCORD_WEBHOOK_ENOTF_PREREG':
-                        self::$webhookCache['enotf_prereg'] = $row['config_value'];
+                        self::$webhookCache['enotf_prereg'] = $row->config_value;
                         break;
                 }
             }

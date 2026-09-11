@@ -47,14 +47,14 @@ if ($incident) {
                     <p class="ignis-card__text">
                         <?php
                         $statusMap = [
-                            0 => ['bg-secondary', 'Ungesehen'],
-                            1 => ['bg-warning', 'In Prüfung'],
-                            2 => ['bg-success', 'Freigegeben'],
-                            3 => ['bg-danger', 'Ungenügend'],
-                            4 => ['bg-dark', 'Ausgeblendet'],
+                            0 => ['ignis-chip--secondary', 'Ungesehen'],
+                            1 => ['ignis-chip--warning', 'In Prüfung'],
+                            2 => ['ignis-chip--success', 'Freigegeben'],
+                            3 => ['ignis-chip--danger', 'Ungenügend'],
+                            4 => ['ignis-chip--dark', 'Ausgeblendet'],
                         ];
                         $s = (int)$incident['status'];
-                        [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
+                        [$badge, $statusText] = $statusMap[$s] ?? ['ignis-chip--secondary', 'Unbekannt'];
                         ?>
                         <span class="ignis-chip <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
                     </p>

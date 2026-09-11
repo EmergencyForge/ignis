@@ -645,6 +645,31 @@ body {
   cursor: pointer;
 }
 
+// admin.css lädt NACH divi.css und färbt Links global blau + unterstrichen
+// (a:not(...):hover mit langer :not()-Kette — Spezifität ~0,13,1, gewinnt
+// gegen jede normale Komponentenregel hier). Die eDIVI-Flächenbuttons sind
+// aber Links ohne eigene Klasse — Hover-Farben deshalb mit !important
+// zurückholen (betrifft v1 UND v2, beide laden divi.css + admin.css).
+[class*="edivi__interactbutton"] > a:hover,
+#edivi__nidanav > a:hover {
+  color: var(--white) !important;
+  text-decoration: none !important;
+}
+
+.edivi__freigabe-buttons a:hover {
+  color: var(--black) !important;
+  text-decoration: none !important;
+}
+
+.edivi__freigabe-buttons a#final:hover {
+  color: var(--white) !important;
+}
+
+body[data-page="verlauf"] .edivi__vitalparam-mainbuttons a:hover {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
 [class*="edivi__interactbutton"] > a.active,
 [class*="edivi__interactbutton"] > label.active {
   background-color: #5f5f5f;
@@ -1470,6 +1495,9 @@ button#save-anamnese-btn {
 
 .edivi__login-buttons a:hover {
   background-color: var(--main-color-dimmed);
+  // gegen admin.css' globales blaues a:hover (siehe interactbutton-Block)
+  color: var(--white) !important;
+  text-decoration: none !important;
 }
 
 .edivi__header-overview {
@@ -1837,6 +1865,34 @@ body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input {
   flex: 1;
 }
 
+// NIBP/RR als EIN Feld (wie SpO₂/BZ/Temperatur): der Rahmen liegt auf dem
+// Box-Container, die beiden Inputs sind randlos/transparent darin, der
+// „/"-Trenner ist reiner Text ohne eigenen Block. Rahmenfarbe #555 = das,
+// was admin.css (border-color var(--darkgray)) den übrigen .form-control-
+// Vitalfeldern gibt — so sind alle Boxen der Maske identisch gerahmt.
+body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] {
+  border: 3px solid var(--enotf-border, #555555);
+  background-color: #333333;
+}
+
+// [type]-Attribute halten die Spezifität über den 3px-Rahmenregeln der
+// Einzel-Inputs weiter unten (beide !important, sonst gewänne die spätere)
+body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input[type="text"].edivi__vitalparam-shared,
+body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input[type="number"].edivi__vitalparam-shared {
+  border: 0 !important;
+  background-color: transparent !important;
+}
+
+// Pflichtfeld-Markierung (rote Füllung) bleibt auch ohne eigenen Rahmen sichtbar
+body[data-page="verlauf"]
+  .edivi__vitalparam-box[data-before="NIBP/RR"]
+  input[type="text"].edivi__vitalparam-shared.edivi__vitalparam-required,
+body[data-page="verlauf"]
+  .edivi__vitalparam-box[data-before="NIBP/RR"]
+  input[type="number"].edivi__vitalparam-shared.edivi__vitalparam-required {
+  background-color: rgba(220, 53, 69, 0.3) !important;
+}
+
 body[data-page="verlauf"] .edivi_vitalparam-spacer {
   display: flex;
   align-items: center;
@@ -1845,10 +1901,7 @@ body[data-page="verlauf"] .edivi_vitalparam-spacer {
   color: #fff;
   min-width: 30px;
   background: transparent;
-  border-top: 3px solid #333333;
-  border-bottom: 3px solid #333333;
-  border-left: 0;
-  border-right: 0;
+  border: 0;
   pointer-events: none;
   z-index: 1;
   height: 100%;

@@ -9,10 +9,8 @@
  * @var array<int,array<string,mixed>> $krankenhaeuser
  * @var string|null                    $success
  * @var string|null                    $error
- * @var \PDO                           $pdo
  */
 
-use App\Helpers\Flash;
 
 $skColors = [
     'SK1' => 'danger',
@@ -27,12 +25,12 @@ $skColor = $skColors[$patient['sichtungskategorie'] ?? ''] ?? 'secondary';
 
 $canTransport = !in_array($patient['sichtungskategorie'] ?? '', ['SK4', 'SK5', 'SK6', 'tot'], true);
 $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
-?>
-<!DOCTYPE html>
-<html lang="de">
 
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
+$layout = 'admin';
+$bodyId = 'patient-view';
+$bodyPage = 'edivi';
+?>
+<?php ob_start(); ?>
     <style>
         .quick-action-btn { margin: 0.25rem; }
         .bg-sk5 { background-color: #000 !important; color: #fff !important; }
@@ -50,13 +48,9 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             margin-bottom: 1rem;
         }
     </style>
-</head>
-
-<body data-theme="dark" id="patient-view" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
                 <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
@@ -163,7 +157,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
-                                    <select class="ignis-input form-control-lg" id="sichtungskategorie" name="sichtungskategorie">
+                                    <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie">
                                         <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-[#d46b6b]">SK1 - Rot</option>
                                         <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-[#ddb84a]">SK2 - Gelb</option>
                                         <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-[#6abf76]">SK3 - Grün</option>
@@ -267,7 +261,6 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         document.getElementById('transportmittel_id').addEventListener('change', function() {
@@ -306,6 +299,3 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             }
         });
     </script>
-</body>
-
-</html>

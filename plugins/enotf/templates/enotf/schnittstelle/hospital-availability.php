@@ -1,11 +1,10 @@
 <?php
 /**
  * View: eNOTF Klinik-Personal-Login zur Verfügbarkeitsmeldung
- *
- * @var \PDO $pdo
  */
 
 use App\Session\SessionManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 $error = '';
 $success_message = '';
@@ -28,17 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     } else {
         try {
             // Find hospital by access code (plaintext comparison)
-            $stmt = $pdo->prepare("
-                SELECT p.id, p.name, p.ort, p.ortsteil
-                FROM intra_edivi_pois p
-                JOIN intra_edivi_hospital_access_codes c ON p.id = c.poi_id
-                WHERE c.code = :code AND p.active = 1
-            ");
-            $stmt->execute(['code' => $code]);
-            $hospital_data = $stmt->fetch(PDO::FETCH_ASSOC);
+            $hospital_data = Capsule::table('intra_edivi_pois as p')
+                ->join('intra_edivi_hospital_access_codes as c', 'p.id', '=', 'c.poi_id')
+                ->where('c.code', $code)
+                ->where('p.active', 1)
+                ->first(['p.id', 'p.name', 'p.ort', 'p.ortsteil']);
 
             if ($hospital_data) {
-                SessionManager::set('hospital_poi_id', $hospital_data['id']);
+                SessionManager::set('hospital_poi_id', $hospital_data->id);
             } else {
                 $error = 'Ungültiger Zugangscode.';
             }
@@ -54,18 +50,17 @@ $hospitalPoiId = SessionManager::get('hospital_poi_id');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']) && $hospitalPoiId !== null) {
     try {
         foreach ($_POST['availability'] ?? [] as $dept_id => $status) {
-            $stmt = $pdo->prepare("
-                INSERT INTO intra_edivi_hospital_availability (department_id, status, updated_by)
-                VALUES (:dept_id, :status, 'Klinikpersonal')
-                ON DUPLICATE KEY UPDATE
-                    status = VALUES(status),
-                    updated_by = 'Klinikpersonal',
-                    updated_at = CURRENT_TIMESTAMP
-            ");
-            $stmt->execute([
-                'dept_id' => $dept_id,
-                'status' => $status
-            ]);
+            // Upsert: unique key auf department_id — updated_at wird auch
+            // bei unverändertem Status aufgefrischt.
+            Capsule::table('intra_edivi_hospital_availability')->upsert(
+                [
+                    'department_id' => $dept_id,
+                    'status'        => $status,
+                    'updated_by'    => 'Klinikpersonal',
+                ],
+                ['department_id'],
+                ['status', 'updated_by', 'updated_at' => Capsule::raw('CURRENT_TIMESTAMP')]
+            );
         }
         $success_message = 'Verfügbarkeiten erfolgreich aktualisiert.';
     } catch (PDOException $e) {
@@ -76,25 +71,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
 
 // Load hospital data if logged in
 if ($hospitalPoiId !== null) {
-    $stmt = $pdo->prepare("SELECT * FROM intra_edivi_pois WHERE id = ?");
-    $stmt->execute([$hospitalPoiId]);
-    $hospital = $stmt->fetch(PDO::FETCH_ASSOC);
+    $hospital = Capsule::table('intra_edivi_pois')->where('id', $hospitalPoiId)->first();
+    $hospital = $hospital ? (array) $hospital : false;
 
     // Load departments with availability
-    $stmt = $pdo->prepare("
-        SELECT
-            d.id,
-            d.name,
-            d.sort_order,
-            COALESCE(a.status, 'not_staffed') as status,
-            a.updated_at
-        FROM intra_edivi_hospital_departments d
-        LEFT JOIN intra_edivi_hospital_availability a ON d.id = a.department_id
-        WHERE d.poi_id = ?
-        ORDER BY d.sort_order ASC, d.name ASC
-    ");
-    $stmt->execute([$hospitalPoiId]);
-    $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $departments = Capsule::table('intra_edivi_hospital_departments as d')
+        ->leftJoin('intra_edivi_hospital_availability as a', 'd.id', '=', 'a.department_id')
+        ->select(
+            'd.id',
+            'd.name',
+            'd.sort_order',
+            Capsule::raw("COALESCE(a.status, 'not_staffed') as status"),
+            'a.updated_at'
+        )
+        ->where('d.poi_id', $hospitalPoiId)
+        ->orderBy('d.sort_order')
+        ->orderBy('d.name')
+        ->get()
+        ->map(fn ($r) => (array) $r)
+        ->all();
 }
 
 // Status configuration

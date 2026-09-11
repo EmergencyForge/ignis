@@ -13,9 +13,7 @@ use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 
 // Session-Crew-Daten bei jedem Seitenaufruf aus DB aktualisieren
-if (isset($pdo)) {
-    include_once __DIR__ . '/../../functions/enotf/session_refresh.php';
-}
+include_once __DIR__ . '/../../functions/enotf/session_refresh.php';
 
 $topbar_sync           = $topbar_sync ?? ['leitstelle', 'session', 'pat_sync'];
 $topbar_show_abmelden  = $topbar_show_abmelden ?? false;

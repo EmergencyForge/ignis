@@ -5,22 +5,32 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_fire_incident_map_markers_25122025_add_text.php
- * Spiegelung:     database/legacy/alter_intra_fire_incident_map_markers_25122025_add_text.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Ergänzt Text-Beschriftung, Name und Typ der taktischen Zeichen für
+ * Karten-Marker. Jede Spalte wird einzeln geprüft, da Teilstände aus
+ * früheren Versionen existieren können.
  */
 class AlterIntraFireIncidentMapMarkers25122025AddText extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_fire_incident_map_markers_25122025_add_text.php';
+        $table = $this->table('intra_fire_incident_map_markers');
+        $changed = false;
+
+        if (!$table->hasColumn('text')) {
+            $table->addColumn('text', 'string', ['limit' => 100, 'null' => true, 'comment' => 'Taktisches Zeichen: Text-Beschriftung', 'after' => 'symbol']);
+            $changed = true;
+        }
+        if (!$table->hasColumn('name')) {
+            $table->addColumn('name', 'string', ['limit' => 100, 'null' => true, 'comment' => 'Taktisches Zeichen: Name', 'after' => 'text']);
+            $changed = true;
+        }
+        if (!$table->hasColumn('typ')) {
+            $table->addColumn('typ', 'string', ['limit' => 100, 'null' => true, 'comment' => 'Taktisches Zeichen: Typ (einsatz, geplant, etc.)', 'after' => 'name']);
+            $changed = true;
+        }
+
+        if ($changed) {
+            $table->update();
+        }
     }
 }

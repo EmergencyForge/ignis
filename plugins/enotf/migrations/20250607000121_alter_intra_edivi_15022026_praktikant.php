@@ -5,22 +5,33 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_edivi_15022026_praktikant.php
- * Spiegelung:     database/legacy/alter_intra_edivi_15022026_praktikant.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Praktikant (3. Person) auf Fahrzeugen: dritte Personal-Spalte für
+ * Transport- und NA-Fahrzeug.
  */
 class AlterIntraEdivi15022026Praktikant extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_edivi_15022026_praktikant.php';
+        $table = $this->table('intra_edivi');
+
+        if (!$table->hasColumn('fzg_transp_perso_3')) {
+            $table->addColumn('fzg_transp_perso_3', 'string', [
+                'limit'   => 255,
+                'null'    => true,
+                'default' => null,
+                'after'   => 'fzg_transp_perso_2',
+            ]);
+        }
+
+        if (!$table->hasColumn('fzg_na_perso_3')) {
+            $table->addColumn('fzg_na_perso_3', 'string', [
+                'limit'   => 255,
+                'null'    => true,
+                'default' => null,
+                'after'   => 'fzg_na_perso_2',
+            ]);
+        }
+
+        $table->update();
     }
 }

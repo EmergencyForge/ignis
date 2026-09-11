@@ -2,17 +2,12 @@
 
 namespace App\Documents;
 
-use PDO;
+use App\Models\DocumentTemplate;
+use App\Models\DocumentTemplateLayout;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class TemplateLayoutManager
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /** Maximale Groesse des Canvas-JSON in Bytes (5 MB) */
     private const MAX_CANVAS_JSON_SIZE = 5 * 1024 * 1024;
 
@@ -91,44 +86,31 @@ class TemplateLayoutManager
 
         if ($existing) {
             // Aktuelle Version deaktivieren
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_dokument_template_layouts
-                SET is_active = 0
-                WHERE template_id = :template_id AND is_active = 1
-            ");
-            $stmt->execute(['template_id' => $templateId]);
+            DocumentTemplateLayout::where('template_id', $templateId)
+                ->where('is_active', 1)
+                ->update(['is_active' => 0]);
 
             $newVersion = $existing['version'] + 1;
         } else {
             $newVersion = 1;
         }
 
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_dokument_template_layouts
-            (template_id, version, canvas_json, page_width_mm, page_height_mm, is_active, created_by)
-            VALUES (:template_id, :version, :canvas_json, :page_width_mm, :page_height_mm, 1, :created_by)
-        ");
-
-        $stmt->execute([
-            'template_id' => $templateId,
-            'version' => $newVersion,
-            'canvas_json' => $canvasJson,
-            'page_width_mm' => $pageWidthMm ?? 210.00,
+        $layout = DocumentTemplateLayout::create([
+            'template_id'    => $templateId,
+            'version'        => $newVersion,
+            'canvas_json'    => $canvasJson,
+            'page_width_mm'  => $pageWidthMm ?? 210.00,
             'page_height_mm' => $pageHeightMm ?? 297.00,
-            'created_by' => $_SESSION['user_id'] ?? null,
+            'is_active'      => 1,
+            'created_by'     => $_SESSION['user_id'] ?? null,
         ]);
 
-        $layoutId = (int) $this->pdo->lastInsertId();
+        $layoutId = (int) $layout->id;
 
         // Template mit neuem Layout verknüpfen
-        $stmt = $this->pdo->prepare("
-            UPDATE intra_dokument_templates
-            SET layout_id = :layout_id, editor_type = 'visual'
-            WHERE id = :template_id
-        ");
-        $stmt->execute([
-            'layout_id' => $layoutId,
-            'template_id' => $templateId,
+        DocumentTemplate::where('id', $templateId)->update([
+            'layout_id'   => $layoutId,
+            'editor_type' => 'visual',
         ]);
 
         return $layoutId;
@@ -139,16 +121,12 @@ class TemplateLayoutManager
      */
     public function getLayout(int $templateId): ?array
     {
-        $stmt = $this->pdo->prepare("
-            SELECT * FROM intra_dokument_template_layouts
-            WHERE template_id = :template_id AND is_active = 1
-            ORDER BY version DESC
-            LIMIT 1
-        ");
-        $stmt->execute(['template_id' => $templateId]);
-        $layout = $stmt->fetch(PDO::FETCH_ASSOC);
+        $layout = DocumentTemplateLayout::where('template_id', $templateId)
+            ->where('is_active', 1)
+            ->orderByDesc('version')
+            ->first();
 
-        return $layout ?: null;
+        return $layout?->getAttributes();
     }
 
     /**
@@ -156,11 +134,9 @@ class TemplateLayoutManager
      */
     public function getLayoutById(int $layoutId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM intra_dokument_template_layouts WHERE id = :id");
-        $stmt->execute(['id' => $layoutId]);
-        $layout = $stmt->fetch(PDO::FETCH_ASSOC);
+        $layout = DocumentTemplateLayout::find($layoutId);
 
-        return $layout ?: null;
+        return $layout?->getAttributes();
     }
 
     /**
@@ -168,14 +144,12 @@ class TemplateLayoutManager
      */
     public function getLayoutVersions(int $templateId): array
     {
-        $stmt = $this->pdo->prepare("
-            SELECT id, version, is_active, created_by, created_at, updated_at
-            FROM intra_dokument_template_layouts
-            WHERE template_id = :template_id
-            ORDER BY version DESC
-        ");
-        $stmt->execute(['template_id' => $templateId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return Capsule::table('intra_dokument_template_layouts')
+            ->where('template_id', $templateId)
+            ->orderByDesc('version')
+            ->get(['id', 'version', 'is_active', 'created_by', 'created_at', 'updated_at'])
+            ->map(fn ($row) => (array) $row)
+            ->all();
     }
 
     /**
@@ -184,38 +158,18 @@ class TemplateLayoutManager
     public function restoreVersion(int $templateId, int $layoutId): bool
     {
         // Alle Versionen deaktivieren
-        $stmt = $this->pdo->prepare("
-            UPDATE intra_dokument_template_layouts
-            SET is_active = 0
-            WHERE template_id = :template_id
-        ");
-        $stmt->execute(['template_id' => $templateId]);
+        DocumentTemplateLayout::where('template_id', $templateId)
+            ->update(['is_active' => 0]);
 
         // Gewählte Version aktivieren
-        $stmt = $this->pdo->prepare("
-            UPDATE intra_dokument_template_layouts
-            SET is_active = 1
-            WHERE id = :id AND template_id = :template_id
-        ");
-        $result = $stmt->execute([
-            'id' => $layoutId,
-            'template_id' => $templateId,
-        ]);
+        DocumentTemplateLayout::where('id', $layoutId)
+            ->where('template_id', $templateId)
+            ->update(['is_active' => 1]);
 
         // Template layout_id aktualisieren
-        if ($result) {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_dokument_templates
-                SET layout_id = :layout_id
-                WHERE id = :template_id
-            ");
-            $stmt->execute([
-                'layout_id' => $layoutId,
-                'template_id' => $templateId,
-            ]);
-        }
+        DocumentTemplate::where('id', $templateId)->update(['layout_id' => $layoutId]);
 
-        return $result;
+        return true;
     }
 
     /**
@@ -223,7 +177,7 @@ class TemplateLayoutManager
      */
     public function deleteLayouts(int $templateId): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM intra_dokument_template_layouts WHERE template_id = :template_id");
-        return $stmt->execute(['template_id' => $templateId]);
+        DocumentTemplateLayout::where('template_id', $templateId)->delete();
+        return true;
     }
 }

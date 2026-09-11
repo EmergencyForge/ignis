@@ -1,0 +1,51 @@
+// _tokens-legacy.scss — alte Token-Namen als Aliase auf _tokens.scss
+//
+// Templates, Plugins und Inline-Styles verweisen noch auf die Namen aus dem
+// alten style.scss (--main-color, --body-bg, --text-dimmed, --darkgray, …).
+// Hier zeigen sie auf die neuen Tokens, damit nichts bricht, während die
+// Ansichten Schritt für Schritt umziehen. Nur style.scss lädt diese Datei:
+// die eNOTF-Seiten (divi.scss) definieren dieselben Namen selbst und
+// bekommen ui.css ohne diese Aliase.
+//
+// Neue Regeln nehmen die Namen aus _tokens.scss.
+
+:root {
+  --main-color: var(--accent);
+  --main-color-dimmed: var(--accent-hover);
+  --main-color-rgb: var(--accent-rgb);
+  --main-color-soft: var(--accent-soft);
+  --fw-red: var(--accent);
+  --secondary-color: var(--bg-2);
+  --secondary-color-dimmed: var(--surface-2);
+
+  --body-bg: var(--bg);
+  --body-bg-darker: var(--bg-2);
+  --body-bg-lighter: var(--surface);
+  --card-bg: var(--surface);
+  --darkgray: var(--border);
+  --border-color: var(--border);
+
+  --text-title: var(--text);
+  --text-normal: var(--text-2);
+  --text-dimmed: var(--text-3);
+  --text-color: var(--text);
+  --tag-color: var(--text-3);
+  --gray: var(--text);
+  --alt-white: var(--text);
+
+  --sidebar-width: 260px;
+  --sidebar-bg: var(--bg-2);
+  --sidebar-hover-bg: var(--surface);
+  --sidebar-avatar-bg: var(--surface);
+  --sidebar-icon-color: var(--text-2);
+  --sidebar-link-color: var(--text);
+  --sidebar-role-text: var(--text-2);
+
+  --link-color: var(--link);
+  --selection-bg: var(--accent);
+  --selection-color: var(--on-accent);
+  --shadow-soft: var(--shadow);
+  --shadow-strong: var(--shadow-lg);
+  --box-shadow-strong: var(--shadow-lg);
+  --button-border-radius: var(--radius);
+}

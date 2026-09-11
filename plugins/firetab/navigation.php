@@ -1,9 +1,9 @@
 <?php
 
 /**
- * fireTab — hängt seine Section in den bestehenden Rail-Eintrag
- * „Protokolle" ein. Fällt der Ziel-Eintrag weg, erscheint das Fragment
- * als eigener Rail-Eintrag (deshalb die vollständigen Felder).
+ * fireTab — hängt seine Einträge in die Gruppe „Protokolle" ein. Fällt
+ * die Zielgruppe weg, erscheint das Fragment als eigene Gruppe (deshalb
+ * die vollständigen Felder).
  */
 
 return [
@@ -12,21 +12,19 @@ return [
         'id'         => 'firetab',
         'label'      => 'FW Einsatzprotokolle',
         'icon'       => 'fa-solid fa-fire',
-        'sections'   => [
+        'items'      => [
             [
-                'label' => 'FW Einsatzprotokolle',
-                'items' => [
-                    [
-                        'label'    => 'fireTab öffnen',
-                        'href'     => BASE_PATH . 'firetab/',
-                        'external' => true,
-                    ],
-                    [
-                        'label'       => 'Qualitätsmanagement',
-                        'href'        => BASE_PATH . 'firetab/admin/list',
-                        'permissions' => ['admin', 'fire.incident.qm'],
-                    ],
-                ],
+                'label'    => 'fireTab öffnen',
+                'href'     => BASE_PATH . 'firetab/',
+                'icon'     => 'fa-solid fa-fire',
+                'external' => true,
+            ],
+            [
+                'label'       => 'Einsatz-QM',
+                'href'        => BASE_PATH . 'firetab/admin/list',
+                'icon'        => 'fa-solid fa-clipboard-check',
+                'permissions' => ['admin', 'fire.incident.qm'],
+                'match'       => ['/firetab/admin'],
             ],
         ],
     ],

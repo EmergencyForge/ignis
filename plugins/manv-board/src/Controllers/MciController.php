@@ -6,6 +6,7 @@ namespace Plugin\ManvBoard\Controllers;
 
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Support\ListQuery;
 use Plugin\ManvBoard\Models\MANVLage;
 use Plugin\ManvBoard\Models\MANVLog;
 use Plugin\ManvBoard\Models\MANVPatient;
@@ -43,7 +44,7 @@ class MciController extends Controller
             $statusFilter = 'aktiv';
         }
 
-        $manvLage = new MANVLage($this->pdo);
+        $manvLage = new MANVLage();
         $lagen    = $manvLage->getAll($statusFilter);
 
         // Statistiken pro Lage vorberechnen — vermeidet $manvLage->getStatistics()
@@ -103,8 +104,8 @@ class MciController extends Controller
         }
 
         try {
-            $manvLage = new MANVLage($this->pdo);
-            $manvLog  = new MANVLog($this->pdo);
+            $manvLage = new MANVLage();
+            $manvLog  = new MANVLog();
 
             $lageId = $manvLage->create($data);
 
@@ -136,7 +137,7 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvLage = new MANVLage($this->pdo);
+        $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
@@ -166,7 +167,7 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvLage = new MANVLage($this->pdo);
+        $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
@@ -195,7 +196,7 @@ class MciController extends Controller
 
         try {
             $manvLage->update($lageId, $data);
-            (new MANVLog($this->pdo))->log(
+            (new MANVLog())->log(
                 $lageId,
                 'lage_bearbeitet',
                 'MANV-Lage wurde bearbeitet',
@@ -223,14 +224,14 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvLage = new MANVLage($this->pdo);
+        $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
             $this->redirect('manv/index');
         }
 
-        $logEntries = (new MANVLog($this->pdo))->getByLage($lageId, 200);
+        $logEntries = (new MANVLog())->getByLage($lageId, 200);
 
         $this->renderView('mci/log', [
             'lage'       => $lage,
@@ -255,9 +256,9 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvLage      = new MANVLage($this->pdo);
-        $manvPatient   = new MANVPatient($this->pdo);
-        $manvRessource = new MANVRessource($this->pdo);
+        $manvLage      = new MANVLage();
+        $manvPatient   = new MANVPatient();
+        $manvRessource = new MANVRessource();
 
         $lage = $manvLage->getById($lageId);
         if ($lage === null) {
@@ -265,8 +266,20 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
+        // Sortierung der Patiententabelle auf dem Server (?sort=&dir=), die
+        // Kopfzellen sind Links; Standard ist die Sichtungskategorie, dann
+        // die Patientennummer (so hatte DataTables vorher im Browser sortiert).
+        $list = ListQuery::fromQuery($_GET, [
+            'nr'         => 'patienten_nummer',
+            'sk'         => 'sichtungskategorie',
+            'name'       => 'name',
+            'verletzung' => 'verletzungen',
+            'transport'  => 'transportmittel_rufname',
+            'ziel'       => 'transportziel',
+        ], 'sk', 'asc', 1000, ['id']);
+
         $stats      = $manvLage->getStatistics($lageId);
-        $patienten  = $manvPatient->getByLage($lageId);
+        $patienten  = $manvPatient->getByLage($lageId, null, $list);
         $ressourcen = $manvRessource->getByLage($lageId, 'fahrzeug');
 
         // Patienten mit Fahrzeug-rd_type anreichern (für "kann transportieren"-Check)
@@ -293,6 +306,7 @@ class MciController extends Controller
             'stats'      => $stats,
             'patienten'  => $patienten,
             'ressourcen' => $ressourcen,
+            'list'       => $list,
         ]);
     }
 
@@ -309,7 +323,7 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvLage = new MANVLage($this->pdo);
+        $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
@@ -345,8 +359,8 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvPatient = new MANVPatient($this->pdo);
-        $manvLog     = new MANVLog($this->pdo);
+        $manvPatient = new MANVPatient();
+        $manvLog     = new MANVLog();
 
         // Fahrzeugzuweisung auflösen + Doppel-Zuweisung prüfen
         $transportmittel        = null;
@@ -371,8 +385,8 @@ class MciController extends Controller
 
                 if ($existing) {
                     Flash::error(
-                        'Das Fahrzeug ' . htmlspecialchars($fahrzeug->bezeichnung)
-                        . ' ist bereits Patient ' . htmlspecialchars($existing->patienten_nummer)
+                        'Das Fahrzeug ' . $fahrzeug->bezeichnung
+                        . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
                     $this->redirect('manv/patient-create?lage_id=' . $lageId);
@@ -437,9 +451,9 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvPatient = new MANVPatient($this->pdo);
-        $manvLage    = new MANVLage($this->pdo);
-        $manvLog     = new MANVLog($this->pdo);
+        $manvPatient = new MANVPatient();
+        $manvLage    = new MANVLage();
+        $manvLog     = new MANVLog();
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
@@ -491,8 +505,8 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvPatient = new MANVPatient($this->pdo);
-        $manvLog     = new MANVLog($this->pdo);
+        $manvPatient = new MANVPatient();
+        $manvLog     = new MANVLog();
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
@@ -522,8 +536,8 @@ class MciController extends Controller
 
                 if ($existing) {
                     Flash::error(
-                        'Das Fahrzeug ' . htmlspecialchars($fahrzeug->bezeichnung)
-                        . ' ist bereits Patient ' . htmlspecialchars($existing->patienten_nummer)
+                        'Das Fahrzeug ' . $fahrzeug->bezeichnung
+                        . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
                     $this->redirect('manv/patient-view?id=' . $patientId);
@@ -605,8 +619,8 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvLage      = new MANVLage($this->pdo);
-        $manvRessource = new MANVRessource($this->pdo);
+        $manvLage      = new MANVLage();
+        $manvRessource = new MANVRessource();
 
         $lage = $manvLage->getById($lageId);
         if ($lage === null) {
@@ -651,8 +665,8 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        $manvRessource = new MANVRessource($this->pdo);
-        $manvLog       = new MANVLog($this->pdo);
+        $manvRessource = new MANVRessource();
+        $manvLog       = new MANVLog();
 
         $bezeichnung = trim((string) ($_POST['bezeichnung'] ?? ''));
         if ($bezeichnung === '') {
@@ -669,7 +683,7 @@ class MciController extends Controller
 
         if ($existing) {
             Flash::error(
-                'Das Fahrzeug ' . htmlspecialchars($bezeichnung)
+                'Das Fahrzeug ' . $bezeichnung
                 . ' wurde bereits zu dieser MANV-Lage hinzugefügt.'
             );
             $this->redirect('mci/resources?lage_id=' . $lageId);
@@ -730,8 +744,8 @@ class MciController extends Controller
         ];
 
         try {
-            (new MANVRessource($this->pdo))->update($resourceId, $data);
-            (new MANVLog($this->pdo))->log(
+            (new MANVRessource())->update($resourceId, $data);
+            (new MANVLog())->log(
                 $lageId,
                 'ressource_bearbeitet',
                 'Ressource ' . $data['bezeichnung'] . ' wurde bearbeitet',
@@ -764,8 +778,8 @@ class MciController extends Controller
         }
 
         try {
-            (new MANVRessource($this->pdo))->delete($resourceId);
-            (new MANVLog($this->pdo))->log(
+            (new MANVRessource())->delete($resourceId);
+            (new MANVLog())->log(
                 $lageId,
                 'ressource_geloescht',
                 'Ressource wurde gelöscht',

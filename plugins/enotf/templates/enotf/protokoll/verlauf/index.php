@@ -1,28 +1,25 @@
 <?php
 /**
  * View: enotf/protokoll/verlauf/index.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\BloodSugarHelper;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviVitalwert;
 
 $daten = array();
 $vitals = array();
 
 // Initialize BloodSugarHelper
-$bzHelper = new BloodSugarHelper($pdo);
+$bzHelper = new BloodSugarHelper();
 $bzUnit = $bzHelper->getCurrentUnit();
 $bzDecimalPlaces = $bzHelper->getDecimalPlaces();
 
 if (isset($_GET['enr'])) {
     // Basis-Daten laden
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -30,12 +27,12 @@ if (isset($_GET['enr'])) {
     }
 
     // GEÄNDERT: Einzelwerte aus neuer Tabelle laden (nur aktive)
-    $queryVitals = "SELECT * FROM intra_edivi_vitalparameter_einzelwerte 
-                    WHERE enr = :enr AND geloescht = 0 
-                    ORDER BY zeitpunkt ASC, parameter_name ASC";
-    $stmtVitals = $pdo->prepare($queryVitals);
-    $stmtVitals->execute(['enr' => $_GET['enr']]);
-    $vitalsRaw = $stmtVitals->fetchAll(PDO::FETCH_ASSOC);
+    $vitalsRaw = EdiviVitalwert::where('enr', $_GET['enr'])
+        ->where('geloescht', 0)
+        ->orderBy('zeitpunkt', 'ASC')
+        ->orderBy('parameter_name', 'ASC')
+        ->get()
+        ->all();
 
     // GEÄNDERT: Daten für Chart umstrukturieren
     $vitals = [];
@@ -126,10 +123,9 @@ foreach ($vitals as $vital) {
 }
 
 // GEÄNDERT: Anzahl der verfügbaren Einzelwerte ermitteln
-$queryCount = "SELECT COUNT(*) as count FROM intra_edivi_vitalparameter_einzelwerte WHERE enr = :enr AND geloescht = 0";
-$stmtCount = $pdo->prepare($queryCount);
-$stmtCount->execute(['enr' => $enr]);
-$totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
+$totalVitals = EdiviVitalwert::where('enr', $enr)
+    ->where('geloescht', 0)
+    ->count();
 ?>
 
 <!DOCTYPE html>
@@ -140,8 +136,8 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
     $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
-    <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Chart.js (lokales Bundle statt CDN — rendert auch ohne Außenanbindung) -->
+    <script src="<?= BASE_PATH ?>public/assets/dist/vendor-chart.js"></script>
 
     <style>
         .chart-container {

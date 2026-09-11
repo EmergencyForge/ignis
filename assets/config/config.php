@@ -55,19 +55,18 @@ if (SessionManager::isLoggedIn()) {
     $permissionsTTL = 300; // 5 Minuten
 
     if (!SessionManager::has('permissions') || SessionManager::permissionsAge() > $permissionsTTL) {
-        require_once __DIR__ . '/database.php';
         SessionManager::setPermissions(
-            Permissions::retrieveFromDatabase($pdo, (int) SessionManager::userId())
+            Permissions::retrieveFromDatabase((int) SessionManager::userId())
         );
     }
 }
 
-// Load configuration from database
+// Legacy-PDO-Verbindung aufbauen und in den Container schieben. Der App-Code
+// läuft komplett über Eloquent — diese Verbindung existiert nur noch für die
+// Migrations-Infrastruktur (AutoMigrator, TwigToVisualMigrator) und für
+// Konsumenten, die PDO::class aus dem Container ziehen (Console-Commands,
+// Plugin-API-Controller). Idempotent: kann mehrfach pro Request laufen.
 require_once __DIR__ . '/database.php';
-
-// Existierende $pdo-Instanz in den Container schieben, damit Legacy-Code
-// (der direkt $pdo nutzt) und neuer DI-Code (app(PDO::class)) dieselbe
-// Verbindung verwenden. Idempotent: kann mehrfach pro Request laufen.
 if (isset($pdo) && $pdo instanceof PDO) {
     $GLOBALS['app_container']->set(PDO::class, $pdo);
 }
@@ -94,7 +93,7 @@ try {
 }
 
 try {
-    $configManager = new ConfigManager($pdo);
+    $configManager = new ConfigManager();
     $configManager->loadAndDefineConfig();
 } catch (Exception $e) {
     // Fallback to default values if database is not available or table doesn't exist
@@ -103,7 +102,7 @@ try {
     // BASIS DATEN - Fallback defaults
     if (!defined('API_KEY')) define('API_KEY', 'CHANGE_ME');
     if (!defined('SYSTEM_NAME')) define('SYSTEM_NAME', 'ıgnıs');
-    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', '#FF4D00');
+    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', \App\Helpers\Theme::DEFAULT_ACCENT);
     if (!defined('SYSTEM_URL')) define('SYSTEM_URL', 'CHANGE_ME');
     if (!defined('SYSTEM_LOGO')) define('SYSTEM_LOGO', '/assets/img/ignis-wordmark.svg');
     if (!defined('META_IMAGE_URL')) define('META_IMAGE_URL', '');

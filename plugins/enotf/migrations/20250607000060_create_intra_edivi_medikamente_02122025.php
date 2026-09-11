@@ -5,22 +5,31 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_edivi_medikamente_02122025.php
- * Spiegelung:     database/legacy/create_intra_edivi_medikamente_02122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Medikamentenstamm für das eDIVI-Protokoll: Wirkstoff (eindeutig),
+ * optionaler Herstellername und wählbare Dosierungen als kommaseparierte
+ * Liste. Sortierung über `priority`, Deaktivierung über `active`.
  */
 class CreateIntraEdiviMedikamente02122025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_edivi_medikamente_02122025.php';
+        if ($this->hasTable('intra_edivi_medikamente')) {
+            return;
+        }
+
+        $this->table('intra_edivi_medikamente', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('priority',        'integer',   ['null' => false, 'default' => 0])
+            ->addColumn('wirkstoff',       'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('herstellername',  'string',    ['limit' => 255, 'null' => true])
+            ->addColumn('dosierungen',     'text',      ['null' => true])
+            ->addColumn('active',          'boolean',   ['null' => false, 'default' => 1])
+            ->addColumn('created_at',      'timestamp', ['null' => false, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addIndex(['wirkstoff'], ['unique' => true, 'name' => 'unique_wirkstoff'])
+            ->create();
     }
 }

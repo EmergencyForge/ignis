@@ -241,7 +241,7 @@ class DashboardController extends Controller
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger($this->pdo);
+        $logger = new AuditLogger();
         $logger->log($_SESSION['userid'], $action, $details, 'Dashboard', 1);
     }
 }

@@ -2,25 +2,34 @@
 
 declare(strict_types=1);
 
+use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_users_roles_07062025.php
- * Spiegelung:     database/legacy/create_intra_users_roles_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Rollen-Tabelle: Name, Priorität, Farbe und JSON-Permissions pro Rolle,
+ * plus Flags für Default-Rolle und Admin.
  */
 class CreateIntraUsersRoles07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_users_roles_07062025.php';
+        if ($this->hasTable('intra_users_roles')) {
+            return;
+        }
+
+        $this->table('intra_users_roles', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('priority',    'integer',   ['default' => 0, 'null' => false])
+            ->addColumn('name',        'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('color',       'string',    ['limit' => 255, 'null' => true])
+            ->addColumn('permissions', 'text',      ['limit' => MysqlAdapter::TEXT_LONG, 'null' => true])
+            ->addColumn('default',     'boolean',   ['default' => 0, 'null' => false])
+            ->addColumn('admin',       'boolean',   ['default' => 0, 'null' => false])
+            ->addColumn('created_at',  'timestamp', ['null' => true, 'default' => 'CURRENT_TIMESTAMP'])
+            ->create();
     }
 }

@@ -6,23 +6,15 @@
  *   @var \App\Models\User                                                    $target
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role>     $availableRoles
  *   @var \Illuminate\Support\Collection|array                                $auditEntries
- *   @var \PDO                                                                $pdo (legacy compat)
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
+
+$layout = 'admin';
+$bodyId = 'benutzer';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -53,7 +45,6 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php Flash::render(); ?>
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= (int) $target->id ?>" />
@@ -99,12 +90,12 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
             </div>
 
             <?php if (Gate::allows('user.viewAuditLog')): ?>
-                <h2 class="mb-3">Benutzer-Log</h2>
+                <h2 class="mb-3">Benutzer-Log <small class="text-[var(--text-3)] font-normal">(letzte 100 Einträge, alles unter <a href="<?= BASE_PATH ?>users/audit-log">Audit Log</a>)</small></h2>
                 <div class="flex flex-wrap -mx-3">
                     <div class="flex-1 px-3">
                         <div class="twplus-table-card">
                             <div class="twplus-table-card__scroll">
-                            <table class="table table-striped twplus-table" id="table-audit">
+                            <table class="ignis-table" id="table-audit">
                                 <thead>
                                     <tr>
                                         <th scope="col">Zeitstempel</th>
@@ -135,21 +126,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         </div>
     </div>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
-    <script>
-        $(document).ready(function() {
-            $('#table-audit').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [10, 20, 40],
-                pageLength: 20,
-                order: [[0, 'desc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Einträge')
-            });
-        });
-    </script>
 
     <?php if (Gate::allows('user.delete', $target)): ?>
     <script>
@@ -193,6 +170,3 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         });
     </script>
     <?php endif; ?>
-</body>
-
-</html>

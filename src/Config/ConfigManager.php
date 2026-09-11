@@ -2,18 +2,11 @@
 
 namespace App\Config;
 
-use PDO;
-use PDOException;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class ConfigManager
 {
-    private PDO $pdo;
     private static ?array $configCache = null;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
 
     /**
      * Load all configuration values from database and define them as constants
@@ -40,7 +33,7 @@ class ConfigManager
 
     /**
      * Get all configuration values from database
-     * 
+     *
      * @return array Array of configuration records
      */
     public function getAllConfig(): array
@@ -51,13 +44,14 @@ class ConfigManager
         }
 
         try {
-            $stmt = $this->pdo->query("
-                SELECT * FROM intra_config 
-                ORDER BY display_order ASC, config_key ASC
-            ");
-            self::$configCache = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            self::$configCache = Capsule::table('intra_config')
+                ->orderBy('display_order')
+                ->orderBy('config_key')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
             return self::$configCache;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to load config: " . $e->getMessage());
             return [];
         }
@@ -65,7 +59,7 @@ class ConfigManager
 
     /**
      * Get configuration values grouped by category
-     * 
+     *
      * @return array Array grouped by category
      */
     public function getConfigByCategory(): array
@@ -94,19 +88,16 @@ class ConfigManager
     public function get(string $key, $default = null)
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT config_value, config_type FROM intra_config
-                WHERE config_key = ?
-            ");
-            $stmt->execute([$key]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = Capsule::table('intra_config')
+                ->where('config_key', $key)
+                ->first(['config_value', 'config_type']);
 
             if ($result) {
-                return $this->convertValue($result['config_value'], $result['config_type']);
+                return $this->convertValue($result->config_value, $result->config_type);
             }
 
             return $default;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to get config value: " . $e->getMessage());
             return null;
         }
@@ -114,7 +105,7 @@ class ConfigManager
 
     /**
      * Update a configuration value
-     * 
+     *
      * @param string $key Configuration key
      * @param mixed $value New value
      * @param int|null $userId User ID making the change
@@ -126,14 +117,17 @@ class ConfigManager
             // Clear cache
             self::$configCache = null;
 
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config 
-                SET config_value = ?, updated_by = ?, updated_at = NOW()
-                WHERE config_key = ? AND is_editable = 1
-            ");
+            Capsule::table('intra_config')
+                ->where('config_key', $key)
+                ->where('is_editable', 1)
+                ->update([
+                    'config_value' => $value,
+                    'updated_by'   => $userId,
+                    'updated_at'   => Capsule::raw('NOW()'),
+                ]);
 
-            return $stmt->execute([$value, $userId, $key]);
-        } catch (PDOException $e) {
+            return true;
+        } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to update config value: " . $e->getMessage());
             return false;
         }
@@ -141,44 +135,37 @@ class ConfigManager
 
     /**
      * Update multiple configuration values at once
-     * 
+     *
      * @param array $updates Array of key => value pairs
      * @param int|null $userId User ID making the changes
      * @return array Array with success status and list of failed keys
      */
     public function updateMultiple(array $updates, ?int $userId = null): array
     {
-        $failed = [];
         $updated = [];
 
-        $this->pdo->beginTransaction();
+        $connection = Capsule::connection();
+        $connection->beginTransaction();
 
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config 
-                SET config_value = ?, updated_by = ?, updated_at = NOW()
-                WHERE config_key = ? AND is_editable = 1
-            ");
-
             foreach ($updates as $key => $value) {
-                if ($stmt->execute([$value, $userId, $key])) {
-                    $updated[] = $key;
-                } else {
-                    $failed[] = $key;
-                }
+                $connection->table('intra_config')
+                    ->where('config_key', $key)
+                    ->where('is_editable', 1)
+                    ->update([
+                        'config_value' => $value,
+                        'updated_by'   => $userId,
+                        'updated_at'   => Capsule::raw('NOW()'),
+                    ]);
+                $updated[] = $key;
             }
 
-            if (empty($failed)) {
-                $this->pdo->commit();
-                // Clear cache after successful commit
-                self::$configCache = null;
-                return ['success' => true, 'updated' => $updated, 'failed' => []];
-            } else {
-                $this->pdo->rollBack();
-                return ['success' => false, 'updated' => [], 'failed' => array_keys($updates)];
-            }
-        } catch (PDOException $e) {
-            $this->pdo->rollBack();
+            $connection->commit();
+            // Clear cache after successful commit
+            self::$configCache = null;
+            return ['success' => true, 'updated' => $updated, 'failed' => []];
+        } catch (\PDOException $e) {
+            $connection->rollBack();
             \App\Logging\Logger::error("Failed to update multiple config values: " . $e->getMessage());
             return ['success' => false, 'updated' => [], 'failed' => array_keys($updates)];
         }
@@ -186,7 +173,7 @@ class ConfigManager
 
     /**
      * Convert string value to appropriate type
-     * 
+     *
      * @param string $value String value from database
      * @param string $type Type specification
      * @return mixed Converted value
@@ -212,7 +199,7 @@ class ConfigManager
 
     /**
      * Get category display name
-     * 
+     *
      * @param string $category Category key
      * @return string Display name
      */

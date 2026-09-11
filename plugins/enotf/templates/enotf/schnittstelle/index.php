@@ -1,9 +1,9 @@
 <?php
 /**
  * View: eNOTF Arrivalboard (Krankenhaussicht)
- *
- * @var \PDO $pdo
  */
+
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 
@@ -18,15 +18,14 @@ $zielName = '';
 // Legacy-Identifier — werden nach der Konsolidierungs-Migration aus
 // `intra_edivi_pois` gelesen (legacy_identifier-Spalte).
 if ($ziel) {
+    $zielQuery = Capsule::table('intra_edivi_pois');
     if (str_starts_with($ziel, 'poi_')) {
-        $stmt = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE id = :id");
-        $stmt->execute(['id' => substr($ziel, 4)]);
+        $zielQuery->where('id', substr($ziel, 4));
     } else {
-        $stmt = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE legacy_identifier = :ident");
-        $stmt->execute(['ident' => $ziel]);
+        $zielQuery->where('legacy_identifier', $ziel);
     }
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $zielName = $row ? $row['name'] : 'Unbekanntes Ziel';
+    $row = $zielQuery->first(['name']);
+    $zielName = $row ? $row->name : 'Unbekanntes Ziel';
 }
 ?>
 
@@ -58,15 +57,19 @@ if ($ziel) {
                     </thead>
                     <tbody>
                         <?php
-                        $pdo->prepare("UPDATE intra_edivi_prereg SET active = 0 WHERE active = 1 AND arrival IS NOT NULL AND arrival < NOW() - INTERVAL 10 MINUTE")->execute();
+                        Capsule::table('intra_edivi_prereg')
+                            ->where('active', 1)
+                            ->whereNotNull('arrival')
+                            ->where('arrival', '<', Capsule::raw('NOW() - INTERVAL 10 MINUTE'))
+                            ->update(['active' => 0]);
+
+                        $preregQuery = Capsule::table('intra_edivi_prereg')
+                            ->where('active', 1)
+                            ->orderBy('arrival');
                         if ($ziel) {
-                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_prereg WHERE ziel = :ziel AND active = 1 ORDER BY arrival ASC");
-                            $stmt->bindParam(':ziel', $ziel);
-                        } else {
-                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_prereg WHERE active = 1 ORDER BY arrival ASC");
+                            $preregQuery->where('ziel', $ziel);
                         }
-                        $stmt->execute();
-                        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        $result = $preregQuery->get()->map(fn ($r) => (array) $r)->all();
                         foreach ($result as $row) {
                             if (!empty($row['arrival'])) {
                                 $row['arrival'] = (new DateTime($row['arrival']))->format('H:i');

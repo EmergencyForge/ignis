@@ -5,22 +5,23 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_fahrzeuge_13032026_allowed_jobs.php
- * Spiegelung:     database/legacy/alter_intra_fahrzeuge_13032026_allowed_jobs.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Job-basierte Fahrzeug-Filterung: allowed_jobs enthält kommagetrennte
+ * Job-Namen, die dieses Fahrzeug sehen dürfen. NULL = alle Jobs.
  */
 class AlterIntraFahrzeuge13032026AllowedJobs extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_fahrzeuge_13032026_allowed_jobs.php';
+        $table = $this->table('intra_fahrzeuge');
+
+        if (!$table->hasColumn('allowed_jobs')) {
+            $table->addColumn('allowed_jobs', 'string', [
+                'limit'   => 500,
+                'null'    => true,
+                'default' => null,
+                'comment' => 'Kommagetrennte Job-Namen die dieses Fahrzeug sehen duerfen. NULL = alle.',
+                'after'   => 'rd_type',
+            ])->update();
+        }
     }
 }

@@ -35,10 +35,14 @@ use App\Http\Controllers\FormsController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PersonnelController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\InboxController;
+use App\Http\Controllers\PluginAssetController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthMiddleware;
+use App\Http\Middleware\CsrfMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
 
 // Smoke-Test-Route — hilft beim Verifizieren, dass die Pipeline steht.
@@ -52,31 +56,39 @@ $router->get('/_router/ping', function ($request) {
 });
 
 // ----------------------------------------------------------------------------
-//  Top-Level public pages — Invite-Link, Login, Logout, Index.
+//  Root-Einstiegspunkte — Index, Dashboard, Login, Invite, Logout, OAuth.
 //
-//  invite.php existiert weiterhin als Datei und wird direkt von Apache
-//  serviert, wenn jemand `/invite.php?code=...` aufruft (Legacy-Link aus
-//  alten Mails). Die kanonische Form ist `/invite?code=...` — diese Route
-//  inkludiert die existierende Datei, damit beide URLs identisch wirken.
+//  Die Seiten liegen weiterhin als Skripte im Projekt-Root (index.php,
+//  login.php, auth/callback.php, ...), sind dort aber nicht mehr per URL
+//  erreichbar: Der Webserver liefert nur noch aus public/ aus. Jede Route
+//  bindet ihr Skript per require ein. Gibt das Skript eine Response zurück
+//  (Redirect, Fehlermeldung), wird sie durchgereicht; sonst hat es sein
+//  HTML schon selbst ausgegeben.
+//
+//  `.php`-Suffixe (`/login.php`, `/invite.php?code=...` aus alten Mails)
+//  streift der Front-Controller ab, bevor der Router matcht. Einzige
+//  Ausnahme ist `/index.php`, das dort bewusst unangetastet bleibt —
+//  deshalb steht es hier ausdrücklich mit drin.
 // ----------------------------------------------------------------------------
 
-$router->get('/invite', function () {
-    require __DIR__ . '/../invite.php';
-    return \App\Http\Response::empty();
-});
-
-$rootIndex = function () {
-    require __DIR__ . '/../index.php';
-    return \App\Http\Response::empty();
+$rootScript = static function (string $file): \Closure {
+    $path = dirname(__DIR__) . '/' . $file;
+    return static function () use ($path): \App\Http\Response {
+        $result = require $path;
+        return $result instanceof \App\Http\Response ? $result : \App\Http\Response::empty();
+    };
 };
-$router->get('/',      $rootIndex);
-$router->get('/index', $rootIndex);
 
-$loginPage = function () {
-    require __DIR__ . '/../login.php';
-    return \App\Http\Response::empty();
-};
-$router->match(['GET', 'POST'], '/login', $loginPage);
+$rootIndex = $rootScript('index.php');
+$router->get('/',          $rootIndex);
+$router->get('/index',     $rootIndex);
+$router->get('/index.php', $rootIndex);
+$router->get('/dashboard', $rootScript('dashboard.php'));
+$router->match(['GET', 'POST'], '/login', $rootScript('login.php'));
+$router->get('/invite',        $rootScript('invite.php'));
+$router->get('/logout',        $rootScript('logout.php'));
+$router->get('/auth/discord',  $rootScript('auth/discord.php'));
+$router->get('/auth/callback', $rootScript('auth/callback.php'));
 
 // ----------------------------------------------------------------------------
 //  Benutzer-Modul — UserController + RoleController rufen intern
@@ -151,56 +163,23 @@ $router->get('/forms/admin/view',      [FormsController::class, 'adminView'], $a
 $router->post('/forms/admin/view',     [FormsController::class, 'decide'],    $antragDecideAuth);
 
 // ----------------------------------------------------------------------------
-//  Benachrichtigungen-Modul
+//  Posteingang (App\Notifications\NotificationManager)
 //
-//  Eine einzige URL (`/benachrichtigungen/index.php`) dient als View-Listing
-//  (GET) und als Action-Endpoint (POST mit `action`-Feld). Der Router
-//  dispatcht nur auf Method + URL — die Unterscheidung der 3 Actions
-//  passiert mit einem kleinen Dispatcher-Closure, damit PolicyMiddleware
-//  pro Action den korrekten Permission-Check macht.
+//  Nur Anmeldung nötig; welche Typen ein Nutzer sieht, entscheiden die
+//  Handler der Typ-Registry. Das Popover füttert die Glocke in der Topbar
+//  (assets/js/ui/shell.js), /inbox/{id}/open setzt gelesen und geht zum
+//  Ziel des Eintrags. Die alte Seite /notifications leitet hierher.
 // ----------------------------------------------------------------------------
 
-$notifIndexAuth  = [new AuthMiddleware(), new PolicyMiddleware('notification.viewAny')];
-$notifMarkAuth   = [new AuthMiddleware(), new PolicyMiddleware('notification.markRead')];
-$notifDeleteAuth = [new AuthMiddleware(), new PolicyMiddleware('notification.delete')];
+$router->get('/inbox',                 [InboxController::class, 'index'],   [new AuthMiddleware()]);
+$router->get('/inbox/popover',         [InboxController::class, 'popover'], [new AuthMiddleware()]);
+$router->get('/inbox/{id:\d+}/open',   [InboxController::class, 'open'],    [new AuthMiddleware()]);
+$router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 
-// GET → Liste
-$router->get('/notifications',           [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/notifications/',          [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/notifications/index',     [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/notifications/index.php', [NotificationController::class, 'index'], $notifIndexAuth);
-
-// POST-Dispatcher anhand $_POST['action']. Gate::authorize() wirft bei
-// fehlender Berechtigung eine AuthorizationException, die im globalen
-// Exception-Handler (public/index.php) zu Flash+Redirect wird.
-$notifPostDispatch = function (\App\Http\Request $request) {
-    $controller = app(NotificationController::class);
-    $action     = (string) ($request->post['action'] ?? '');
-
-    switch ($action) {
-        case 'mark_read':
-            \App\Auth\Gate::authorize('notification.markRead');
-            $controller->markAsRead();
-            break;
-        case 'mark_all_read':
-            \App\Auth\Gate::authorize('notification.markRead');
-            $controller->markAllAsRead();
-            break;
-        case 'delete':
-            \App\Auth\Gate::authorize('notification.delete');
-            $controller->delete();
-            break;
-        default:
-            \App\Auth\Gate::authorize('notification.viewAny');
-            $controller->index();
-    }
-    return \App\Http\Response::empty();
-};
-
-$router->post('/notifications',           $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/notifications/',          $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/notifications/index',     $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/notifications/index.php', $notifPostDispatch, [new AuthMiddleware()]);
+$notifRedirect = static fn (): \App\Http\Response => \App\Http\Response::redirect(BASE_PATH . 'inbox', 301);
+foreach (['/notifications', '/notifications/', '/notifications/index', '/notifications/index.php'] as $notifPath) {
+    $router->get($notifPath, $notifRedirect);
+}
 
 // ----------------------------------------------------------------------------
 //  Fahrtenbuch-Modul
@@ -256,10 +235,21 @@ $calendarCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('calendar.crea
 $router->get('/calendar',          [CalendarController::class, 'index'],         $calendarViewAuth);
 $router->get('/calendar/',         [CalendarController::class, 'index'],         $calendarViewAuth);
 $router->get('/calendar/view',     [CalendarController::class, 'show'],          $calendarViewAuth);
+// Anlage-Formular: Seite oder Fragment im Drawer (drawer-form.js)
+$router->get('/calendar/create',   [CalendarController::class, 'create'],        $calendarCreateAuth);
 $router->post('/calendar/create',  [CalendarController::class, 'store'],         $calendarCreateAuth);
 $router->post('/calendar/update',  [CalendarController::class, 'update'],        $calendarViewAuth);
 $router->post('/calendar/delete',  [CalendarController::class, 'destroy'],       $calendarViewAuth);
 $router->post('/calendar/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
+
+// ----------------------------------------------------------------------------
+//  Eigenes Konto
+//
+//  Darstellungsmodus (dark|light|system), gepostet aus dem Benutzermenü der
+//  Navbar. Braucht nur ein Login, keine Permission.
+// ----------------------------------------------------------------------------
+
+$router->post('/profile/theme', [ProfileController::class, 'theme'], [new AuthMiddleware()]);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul
@@ -317,7 +307,9 @@ $mitarbeiterProfileDispatch = function (\App\Http\Request $request) {
 
 $router->post('/personnel/profile',     $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
 
-// store() ist ein AJAX-JSON-Endpoint (gibt JSON zurück, nicht Redirect)
+// Anlage-Formular: Seite oder Fragment im Drawer (drawer-form.js); store()
+// ist ein normaler Formular-Post mit Redirect.
+$router->get('/personnel/create',      [PersonnelController::class, 'create'], $mitarbeiterCreateAuth);
 $router->post('/personnel/create',     [PersonnelController::class, 'store'], $mitarbeiterCreateAuth);
 
 // destroy() läuft per GET (Legacy — könnte später auf DELETE umgestellt werden,
@@ -334,7 +326,7 @@ $router->get('/personnel/document-view',     [PersonnelController::class, 'showD
 $router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\App\Http\Request $request): \App\Http\Response {
     $docid = (string) ($request->query['docid'] ?? '');
     $base  = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-    $url   = $base . 'mitarbeiter/dokument-view' . ($docid !== '' ? '?docid=' . rawurlencode($docid) : '');
+    $url   = $base . 'personnel/document-view' . ($docid !== '' ? '?docid=' . rawurlencode($docid) : '');
     return \App\Http\Response::redirect($url, 308);
 });
 
@@ -379,9 +371,23 @@ $router->get('/settings/documents/visual-editor',     [\App\Http\Controllers\Set
 
 // Fahrzeuge-Settings (Fahrzeuge + Beladelisten + Defekte)
 $router->get('/settings/vehicles/vehicles/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'index'],   $settingsAuth);
+// Anlage-Formulare (Fahrzeug, Mangel): Seite oder Fragment im Drawer (drawer-form.js)
+$router->get('/settings/vehicles/vehicles/create',      [\App\Http\Controllers\Settings\FahrzeugeController::class, 'create'],  $settingsAuth);
 $router->post('/settings/vehicles/vehicles/create',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'store'],   $settingsAuth);
+$router->get('/settings/vehicles/defects/create',       [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defektCreate'], $settingsAuth);
+$router->post('/settings/vehicles/defects/create',      [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defektStore'],  $settingsAuth);
 $router->post('/settings/vehicles/vehicles/update',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'update'],  $settingsAuth);
-$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'], $settingsAuth);
+// Arbeitsbereich der Liste (assets/js/ui/workbench.js): Vorschau und
+// Bearbeiten-Formular je Zeile, Sammelaktionen der Aktionsleiste mit
+// CSRF-Token; Löschen nimmt ein `id` oder `ids[]`. Die Rechte prüft der
+// Controller wie bei Liste und Einzelaktion (vehicle.view / vehicle.manage).
+$router->get('/settings/vehicles/vehicles/{id:\d+}/preview', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'preview'], $settingsAuth);
+$router->get('/settings/vehicles/vehicles/{id:\d+}/edit',    [\App\Http\Controllers\Settings\FahrzeugeController::class, 'edit'],    $settingsAuth);
+// Fahrzeugseite (Detailmuster): Ziel von „Öffnen" in der Vorschau, Enter auf der Zeile und der Suche.
+$router->get('/settings/vehicles/vehicles/{id:\d+}',         [\App\Http\Controllers\Settings\FahrzeugeController::class, 'show'],    $settingsAuth);
+$router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
+$router->post('/settings/vehicles/vehicles/emd-status', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkEmdStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
+$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
 $router->post('/settings/vehicles/vehload/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
 $router->get('/settings/vehicles/defects/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
@@ -437,8 +443,17 @@ $router->post('/settings/system/cron/run',     [\App\Http\Controllers\Settings\C
 $router->post('/settings/system/cron/delete',  [\App\Http\Controllers\Settings\CronController::class, 'delete'],  $settingsAuth);
 $router->post('/settings/system/cron/create',  [\App\Http\Controllers\Settings\CronController::class, 'store'],   $settingsAuth);
 
-// 308-Redirects für Legacy-API-URLs (JS-Callsites nutzen noch alte Pfade)
-$settingsApiRedirect = function (string $target): \Closure {
+// ----------------------------------------------------------------------------
+//  Legacy-API-URLs → 308 auf die Router-Routen
+//
+//  Die Pfade unter assets/functions/ waren früher kleine PHP-Skripte, die
+//  denselben 308 gesetzt haben; die Dateien sind weg, weil assets/ nicht
+//  mehr im Docroot liegt. 308 bewahrt Methode und Body, damit alte
+//  JS-POSTs ohne Änderung durchkommen. Alle Pfade stehen ohne `.php`,
+//  weil der Front-Controller das Suffix vor dem Routing abstreift.
+// ----------------------------------------------------------------------------
+
+$legacyApiRedirect = function (string $target): \Closure {
     return function (\App\Http\Request $request) use ($target): \App\Http\Response {
         $qs   = $request->server['QUERY_STRING'] ?? '';
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
@@ -446,8 +461,42 @@ $settingsApiRedirect = function (string $target): \Closure {
         return \App\Http\Response::redirect($url, 308);
     };
 };
-$router->match(['GET', 'POST'], '/settings/vehicles/defects/handler.php',       $settingsApiRedirect('/api/vehicles/defects-handler'));
-$router->match(['GET', 'POST'], '/settings/system/regenerate-api-key.php',      $settingsApiRedirect('/api/system/regenerate-api-key'));
+$legacyApiPaths = [
+    '/settings/vehicles/defects/handler'         => '/api/vehicles/defects-handler',
+    '/settings/system/regenerate-api-key'        => '/api/system/regenerate-api-key',
+    '/assets/functions/checkdienstnr2'           => '/api/personnel/check-dienstnr',
+    '/assets/functions/checkdnr'                 => '/api/personnel/check-dienstnr-legacy',
+    '/assets/functions/save_fields'              => '/api/enotf/save-fields',
+    '/assets/functions/documents/categories'     => '/api/documents/categories',
+    '/assets/functions/documents/create-custom'  => '/api/documents/create-custom',
+    '/assets/functions/documents/delete'         => '/api/documents/delete',
+    '/assets/functions/documents/get'            => '/api/documents/get',
+    '/assets/functions/documents/list'           => '/api/documents/list',
+    '/assets/functions/documents/save'           => '/api/documents/save',
+    '/assets/functions/system/global-search-api' => '/api/system/global-search',
+    '/assets/functions/system/performance-api'   => '/api/system/performance',
+    '/assets/functions/system/theme-api'         => '/api/system/theme',
+];
+foreach ($legacyApiPaths as $legacyPath => $target) {
+    $router->match(['GET', 'POST', 'DELETE'], $legacyPath, $legacyApiRedirect($target));
+}
+
+// eNOTF v1 postet sein Anlege-Formular an dieses Skript (Form-Action in
+// plugins/enotf/templates/enotf/create.php). Es bleibt, wo es liegt, und
+// bekommt hier seine Route; es antwortet weiterhin selbst per header().
+$router->match(['GET', 'POST'], '/assets/functions/enotf/enrbridge', $rootScript('assets/functions/enotf/enrbridge.php'));
+
+// ----------------------------------------------------------------------------
+//  Statische Dateien außerhalb des Docroots
+//
+//  Plugin-Assets und Uploads liegen nicht unter public/. Diese Routen
+//  liefern sie mit Endungs-Allowlist und realpath-Prüfung aus; die
+//  Details stehen in den Controllern. Keine Auth — wie zuvor beim
+//  direkten Zugriff durch den Webserver.
+// ----------------------------------------------------------------------------
+
+$router->get('/plugins/{id:[a-z0-9_-]+}/assets/{path:.+}', [PluginAssetController::class, 'serve']);
+$router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileController::class, 'serve']);
 
 /*
  * BEISPIEL — Benutzer-Modul mit Policy-basierter Autorisierung

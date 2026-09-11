@@ -5,22 +5,36 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
+ * Sonderrechte Anfahrt & Transport Felder.
  *
- * Original-Datei: assets/database/alter_intra_edivi_12032026_sonderrechte.php
- * Spiegelung:     database/legacy/alter_intra_edivi_12032026_sonderrechte.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Fügt zwei neue Spalten hinzu:
+ * - sonderrechte_anfahrt: Tri-State (NULL=leer, 'nein', 'ja') - Pflichtfeld
+ * - sonderrechte_transport: Tri-State (NULL=leer, 'nein', 'ja') - optional
  */
 class AlterIntraEdivi12032026Sonderrechte extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_edivi_12032026_sonderrechte.php';
+        $table = $this->table('intra_edivi');
+
+        if (!$table->hasColumn('sonderrechte_anfahrt')) {
+            $table->addColumn('sonderrechte_anfahrt', 'string', [
+                'limit'   => 4,
+                'null'    => true,
+                'default' => null,
+                'after'   => 'ebesonderheiten',
+            ]);
+        }
+
+        if (!$table->hasColumn('sonderrechte_transport')) {
+            $table->addColumn('sonderrechte_transport', 'string', [
+                'limit'   => 4,
+                'null'    => true,
+                'default' => null,
+                'after'   => 'sonderrechte_anfahrt',
+            ]);
+        }
+
+        $table->update();
     }
 }

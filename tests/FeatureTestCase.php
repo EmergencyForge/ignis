@@ -8,6 +8,7 @@ use App\Http\Pipeline;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
+use App\Http\RouterFactory;
 
 /**
  * Base für Feature-Tests, die den echten Router + Middleware-Pipeline
@@ -59,13 +60,20 @@ abstract class FeatureTestCase extends IntegrationTestCase
         $this->sessionBefore = $_SESSION ?? [];
         $_SESSION = [];
 
+        // Wie der Front-Controller (public/index.php): die Konfiguration mit
+        // ihren Konstanten (BASE_PATH, SYSTEM_NAME, ...) liegt vor dem ersten
+        // Request. Seit der Hülle rendert der Inhalt einer Ansicht vor
+        // head.php, das die Konfiguration früher nebenbei nachgeladen hat.
+        require_once dirname(__DIR__) . '/assets/config/config.php';
+
         // Frischer Router pro Test — kein File-Cache, sodass Test-Routen-
         // Änderungen sofort greifen und keine Live-Cache-Files die Tests
-        // verfälschen.
-        $this->router = new Router(
+        // verfälschen. Über die Factory, damit die Haken dieselben sind
+        // wie in Produktion.
+        $this->router = RouterFactory::create(
             $this->container,
             $this->container->get(Pipeline::class),
-            enableCache: false,
+            cache: false,
         );
 
         $this->loadRoutes();
@@ -93,6 +101,17 @@ abstract class FeatureTestCase extends IntegrationTestCase
             if (is_file($file)) {
                 require $file;
             }
+        }
+
+        // Routen der aktiven Plugins, wie in public/index.php nach den
+        // Kern-Routen. Welche Plugins aktiv sind, entscheidet die Test-DB
+        // (intra_plugins, beim ersten Zugriff aus den Manifesten befüllt).
+        try {
+            foreach (app(\App\Plugins\PluginLoader::class)->routeFiles() as $file) {
+                require $file;
+            }
+        } catch (\Throwable $e) {
+            // ohne Plugin-Tabelle bleiben es die Kern-Routen
         }
     }
 
@@ -139,11 +158,45 @@ abstract class FeatureTestCase extends IntegrationTestCase
         // Output-Buffer einschalten — Legacy-Controller rufen teilweise
         // `echo`/`include` direkt und setzen dann `emitted=true`. Für Tests
         // wollen wir den Body im Response haben, also fangen wir's ab.
+        // Pfad und Methode auch in $_SERVER, wie der Webserver sie setzt:
+        // die Navigation erkennt daran ihren aktiven Eintrag.
+        $serverBefore = [
+            'REQUEST_URI'    => $_SERVER['REQUEST_URI'] ?? null,
+            'REQUEST_METHOD' => $_SERVER['REQUEST_METHOD'] ?? null,
+        ];
+        $_SERVER['REQUEST_URI'] = $path . (($opts['query'] ?? []) !== [] ? '?' . http_build_query($opts['query']) : '');
+        $_SERVER['REQUEST_METHOD'] = strtoupper($method);
+        // Header auch in die Superglobale, weil Controller::wantsFragment()
+        // sie dort liest (die Templates kennen den Request nicht).
+        foreach ($server as $key => $value) {
+            if (str_starts_with($key, 'HTTP_')) {
+                $serverBefore[$key] = $_SERVER[$key] ?? null;
+                $_SERVER[$key] = $value;
+            }
+        }
+
+        // Die Listen-Controller lesen ihre Query (q, sort, page, Filter)
+        // aus $_GET, die Formular-Controller ihre Felder aus $_POST, wie es
+        // der Webserver füllt.
+        $getBefore  = $_GET;
+        $postBefore = $_POST;
+        $_GET  = $opts['query'] ?? [];
+        $_POST = $opts['post'] ?? [];
+
         ob_start();
         try {
             $response = $this->router->dispatch($request);
         } finally {
             $captured = ob_get_clean() ?: '';
+            $_GET  = $getBefore;
+            $_POST = $postBefore;
+            foreach ($serverBefore as $key => $value) {
+                if ($value === null) {
+                    unset($_SERVER[$key]);
+                } else {
+                    $_SERVER[$key] = $value;
+                }
+            }
         }
 
         // Wenn Controller direkt ausgegeben hat (emitted=true + leerer body),
@@ -279,5 +332,18 @@ abstract class FeatureTestCase extends IntegrationTestCase
         $decoded = json_decode($response->body, true);
         $this->assertIsArray($decoded, 'Response body is not valid JSON: ' . substr($response->body, 0, 200));
         return $decoded;
+    }
+
+    // ── Console-Helper ────────────────────────────────────────────────
+
+    /**
+     * Baut die Console-Application gegen den Test-Container und liefert
+     * einen CommandTester für den gesuchten Befehl.
+     */
+    protected function commandTester(string $name): \Symfony\Component\Console\Tester\CommandTester
+    {
+        $application = new \App\Console\Application($this->container);
+
+        return new \Symfony\Component\Console\Tester\CommandTester($application->find($name));
     }
 }

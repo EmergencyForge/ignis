@@ -1,17 +1,16 @@
 <?php
 /**
  * View: eNOTF Admin/QM Protokollübersicht
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Flash;
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -19,9 +18,9 @@ use App\Helpers\Flash;
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="edivi">
+<body data-theme="dark" data-page="edivi">
     <?php include dirname(__DIR__, 5) . "/assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -30,7 +29,7 @@ use App\Helpers\Flash;
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
-                    <div class="flex align-items-center gap-3">
+                    <div class="flex items-center gap-3">
                         <div class="btn-toolbar-group">
                             <a href="?view=0" class="ignis-btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
                             <a href="?view=1" class="ignis-btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
@@ -44,8 +43,8 @@ use App\Helpers\Flash;
                 </div>
             </div>
             <?php Flash::render(); ?>
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>
@@ -58,20 +57,26 @@ use App\Helpers\Flash;
                             </thead>
                             <tbody>
                                 <?php
-                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE hidden <> 1");
-                                $stmt->execute();
-                                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                $result = Capsule::table('intra_edivi')
+                                    ->where('hidden', '<>', 1)
+                                    ->get()
+                                    ->map(fn ($r) => (array) $r)
+                                    ->all();
 
                                 // Append federated eNOTF protocols (read-only)
                                 if (\App\Federation\FederationMiddleware::isEnabled()) {
                                     try {
-                                        $fedStmt = $pdo->query("
-                                            SELECT fce.cached_data, fl.instance_name
-                                            FROM intra_federation_cache_enotf fce
-                                            JOIN intra_federation_links fl ON fl.instance_id = fce.source_instance_id AND fl.is_active = 1
-                                            ORDER BY fce.protocol_date DESC
-                                        ");
-                                        foreach ($fedStmt->fetchAll(PDO::FETCH_ASSOC) as $fedRow) {
+                                        $fedRows = Capsule::table('intra_federation_cache_enotf as fce')
+                                            ->join('intra_federation_links as fl', function ($join) {
+                                                $join->on('fl.instance_id', '=', 'fce.source_instance_id')
+                                                    ->where('fl.is_active', 1);
+                                            })
+                                            ->orderByDesc('fce.protocol_date')
+                                            ->select('fce.cached_data', 'fl.instance_name')
+                                            ->get()
+                                            ->map(fn ($r) => (array) $r)
+                                            ->all();
+                                        foreach ($fedRows as $fedRow) {
                                             $p = json_decode($fedRow['cached_data'], true);
                                             if (!$p) continue;
                                             $p['_federation_source'] = $fedRow['instance_name'];
@@ -173,18 +178,18 @@ use App\Helpers\Flash;
     </div>
 
     <!-- QM Actions Modal -->
-    <div class="modal fade" id="qmActionsModal" tabindex="-1" aria-labelledby="qmActionsModalLabel" aria-hidden="true">
+    <div data-dialog-source class="modal" id="qmActionsModal" tabindex="-1" aria-labelledby="qmActionsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="qmActionsModalLabel">QM-Funktionen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="qmActionsContent">
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
+                    <div class="twplus-skeleton" aria-label="QM-Aktionen werden geladen">
+                        <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                        <div class="twplus-skeleton__line"></div>
+                        <div class="twplus-skeleton__line"></div>
                     </div>
                 </div>
             </div>
@@ -192,18 +197,18 @@ use App\Helpers\Flash;
     </div>
 
     <!-- QM Log Modal -->
-    <div class="modal fade" id="qmLogModal" tabindex="-1" aria-labelledby="qmLogModalLabel" aria-hidden="true">
+    <div data-dialog-source class="modal" id="qmLogModal" tabindex="-1" aria-labelledby="qmLogModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="qmLogModalLabel">QM-Log</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="qmLogContent">
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
+                    <div class="twplus-skeleton" aria-label="QM-Log wird geladen">
+                        <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                        <div class="twplus-skeleton__line"></div>
+                        <div class="twplus-skeleton__line"></div>
                     </div>
                 </div>
             </div>
@@ -211,22 +216,22 @@ use App\Helpers\Flash;
     </div>
 
     <!-- Bulk Delete Empty Protocols Modal -->
-    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+    <div data-dialog-source class="modal" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="bulkDeleteModalLabel">Leere Protokolle löschen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="bulkDeleteContent">
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
+                    <div class="twplus-skeleton" aria-label="Felder werden geladen">
+                        <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                        <div class="twplus-skeleton__line"></div>
+                        <div class="twplus-skeleton__line"></div>
                     </div>
                 </div>
                 <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                     <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                     </button>

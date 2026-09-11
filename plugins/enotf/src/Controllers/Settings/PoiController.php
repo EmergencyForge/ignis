@@ -312,12 +312,13 @@ class PoiController extends Controller
 
             if ($poiId && $newCode !== '') {
                 try {
-                    // ON DUPLICATE KEY UPDATE — wir nutzen raw SQL für die UPSERT-Semantik
-                    $this->pdo->prepare("
-                        INSERT INTO intra_edivi_hospital_access_codes (poi_id, code)
-                        VALUES (:poi_id, :code)
-                        ON DUPLICATE KEY UPDATE code = VALUES(code), updated_at = CURRENT_TIMESTAMP
-                    ")->execute(['poi_id' => $poiId, 'code' => $newCode]);
+                    // Upsert: unique key auf poi_id — bestehender Code wird
+                    // überschrieben, updated_at dabei aufgefrischt.
+                    Capsule::table('intra_edivi_hospital_access_codes')->upsert(
+                        ['poi_id' => $poiId, 'code' => $newCode],
+                        ['poi_id'],
+                        ['code', 'updated_at' => Capsule::raw('CURRENT_TIMESTAMP')]
+                    );
 
                     Flash::set('success', 'Zugangscode erfolgreich generiert: ' . htmlspecialchars($newCode));
                 } catch (PDOException $e) {

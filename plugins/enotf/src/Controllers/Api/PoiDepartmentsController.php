@@ -8,8 +8,8 @@ use App\Http\Request;
 use Plugin\Enotf\Requests\PoiDepartmentsSortRequest;
 use App\Http\Response;
 use App\Logging\Logger;
-use PDO;
 use PDOException;
+use Plugin\Enotf\Models\HospitalDepartment;
 
 /**
  * POI-Departments-Admin-Endpoints.
@@ -20,10 +20,6 @@ use PDOException;
  */
 final class PoiDepartmentsController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * POST /api/pois/departments-sort
      *
@@ -34,13 +30,8 @@ final class PoiDepartmentsController
         $data = PoiDepartmentsSortRequest::validate($request);
 
         try {
-            $stmt = $this->pdo->prepare(
-                "UPDATE intra_edivi_hospital_departments SET sort_order = :sort_order WHERE id = :id"
-            );
-            $stmt->execute([
-                ':sort_order' => (int) $data['sort_order'],
-                ':id'         => (int) $data['department_id'],
-            ]);
+            HospitalDepartment::where('id', (int) $data['department_id'])
+                ->update(['sort_order' => (int) $data['sort_order']]);
 
             return Response::json(['success' => true]);
         } catch (PDOException $e) {
