@@ -8,12 +8,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * env_value() ist die einzige Stelle, an der die DB-Zugangsdaten gesucht
- * werden — Web-Bootstrap, Eloquent-Capsule, Console und tools/db-migrate.php
- * hängen alle daran. Als der Fallback nur in assets/config/database.php
- * existierte, lief die Migration auf einer SetEnv-Maschine durch, während
- * Eloquent mit leerem Datenbanknamen startete. Deshalb hier festgehalten:
- * alle drei Quellen zählen, und zwar in dieser Reihenfolge.
+ * Alle drei Quellen zählen, und zwar in dieser Reihenfolge. Web-Bootstrap,
+ * Capsule, Console und tools/db-migrate.php hängen daran.
  */
 final class EnvValueTest extends TestCase
 {

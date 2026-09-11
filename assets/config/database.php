@@ -4,12 +4,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 // schon in der Prozessumgebung, dann gibt es gar keine Datei.
 Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
 
-// Ohne .env und ohne Umgebungsvariablen bleiben die folgenden Zeilen sonst
-// stillschweigend leer und laufen erst im PDO-Aufruf in einen unklaren Fehler.
-// env_value() aus src/helpers.php sucht in $_ENV, $_SERVER und getenv() — die
-// Reihenfolge steht dort begruendet und gilt fuer alle Leser derselben Werte,
-// vom Web-Bootstrap ueber die Capsule bis zu tools/db-migrate.php.
-
 // Ein leeres Passwort ist erlaubt, deshalb zaehlt hier nur, ob der Schluessel
 // gesetzt ist, nicht ob er einen Wert hat.
 $dbSettings  = [];
