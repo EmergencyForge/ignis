@@ -72,6 +72,11 @@ final class BootstrapAdminCommand extends Command
         $user->role       = $adminRole->id;
         $user->full_admin = true;
         $user->is_active  = true;
+        // Wie beim regulaeren Reaktivieren im UserController: die Historie
+        // gehoert mit abgeraeumt, sonst traegt ein aktives Konto weiter ein
+        // Deaktivierungsdatum und verwirrt beim naechsten Blick in die Tabelle.
+        $user->deactivated_at = null;
+        $user->deactivated_by = null;
         $user->save();
 
         $output->writeln($neu
