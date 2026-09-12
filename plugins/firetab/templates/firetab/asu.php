@@ -47,7 +47,7 @@
                     <h1><i class="fa-solid fa-lungs mr-2"></i>Atemschutzüberwachung (ASU)</h1>
                     <div class="current-time-display">
                         <i class="fa-solid fa-clock mr-2"></i>
-                        <span id="currentTime" style="font-family: monospace; font-size: 1.1rem; font-weight: bold;">00:00</span>
+                        <span id="currentTime" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold;">00:00</span>
                     </div>
                 </div>
 

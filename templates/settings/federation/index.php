@@ -277,7 +277,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
                                         <label class="ignis-field__label" style="font-size:var(--fs-sm);">Instanz-ID</label>
-                                        <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--font-mono);font-size:var(--fs-xs);">
+                                        <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--mono);font-size:var(--fs-xs);">
                                     </div>
                                     <div>
                                         <form method="post" class="flex items-end gap-2">
@@ -319,7 +319,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                     <?php if ($generatedToken): ?>
                                         <div class="mb-2">
                                             <textarea class="ignis-input ignis-input--sm" rows="3" readonly
-                                                      style="font-family:var(--font-mono);font-size:var(--fs-xs);word-break:break-all;"
+                                                      style="font-family:var(--mono);font-size:var(--fs-xs);word-break:break-all;"
                                                       onclick="this.select()"><?= htmlspecialchars($generatedToken) ?></textarea>
                                         </div>
                                         <div class="ignis-alert ignis-alert--warning" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
@@ -353,7 +353,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                         <input type="hidden" name="action" value="pair_with_token">
                                         <textarea name="connection_token" class="ignis-input ignis-input ignis-input--sm mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
-                                                  style="font-family:var(--font-mono);font-size:var(--fs-xs);"></textarea>
+                                                  style="font-family:var(--mono);font-size:var(--fs-xs);"></textarea>
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-success">
                                             <i class="fa-solid fa-handshake"></i> Verbinden
                                         </button>

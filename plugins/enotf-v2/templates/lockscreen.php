@@ -68,7 +68,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
             padding: 15px;
             margin-bottom: 20px;
             letter-spacing: 10px;
-            font-family: monospace;
+            font-family: var(--mono);
             min-height: 70px;
         }
 
