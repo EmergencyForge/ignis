@@ -205,7 +205,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 margin-bottom: 10px;
                 border-radius: 4px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                font-family: Arial, sans-serif;
+                font-family: var(--font);
                 font-size: 14px;
                 opacity: 0;
                 transform: translateX(300px);

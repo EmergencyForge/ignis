@@ -59,7 +59,7 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
             padding: 15px;
             margin-bottom: 20px;
             letter-spacing: 10px;
-            font-family: monospace;
+            font-family: var(--mono);
             min-height: 70px;
         }
 

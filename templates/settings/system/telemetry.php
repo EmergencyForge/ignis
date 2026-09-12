@@ -130,7 +130,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                             font-weight: 600;
                         }
                         .uuid-banner code.uuid-value {
-                            font-family: var(--font-mono, 'Inconsolata', 'JetBrains Mono', Consolas, monospace);
+                            font-family: var(--mono);
                             font-size: 0.82rem;
                             background: var(--bs-tertiary-bg, rgba(255,255,255,0.05));
                             padding: 0.22rem 0.55rem;

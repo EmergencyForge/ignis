@@ -30,7 +30,7 @@
     .asu-clock-time {
         font-size: 1.9rem;
         font-weight: 700;
-        font-family: 'Inconsolata', 'JetBrains Mono', Consolas, monospace;
+        font-family: var(--mono);
         font-variant-numeric: tabular-nums;
         letter-spacing: 0.04em;
         color: var(--main-color);

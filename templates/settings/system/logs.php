@@ -24,7 +24,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
             position: relative;
         }
         .logs-lookup-hero .lookup-input {
-            font-family: var(--font-mono, 'Inconsolata', 'JetBrains Mono', Consolas, monospace);
+            font-family: var(--mono);
             letter-spacing: 0.14em;
             text-transform: uppercase;
             font-weight: 600;
@@ -54,7 +54,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
         }
         .logs-group-row .info { min-width: 0; }
         .logs-group-row .info .exception {
-            font-family: var(--font-mono, 'Inconsolata', monospace);
+            font-family: var(--mono);
             font-weight: 600;
             font-size: 0.85rem;
             display: block;
@@ -72,7 +72,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
             margin-top: 2px;
         }
         .logs-group-row .info .file {
-            font-family: var(--font-mono, 'Inconsolata', monospace);
+            font-family: var(--mono);
             font-size: 0.7rem;
             opacity: 0.5;
             margin-top: 2px;
@@ -105,7 +105,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
             font-weight: 600;
         }
         .logs-detail-value {
-            font-family: var(--font-mono, 'Inconsolata', monospace);
+            font-family: var(--mono);
             font-size: 0.82rem;
             word-break: break-all;
         }
@@ -121,7 +121,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
             border-radius: 6px;
             font-size: 0.75rem;
             line-height: 1.55;
-            font-family: var(--font-mono, 'Inconsolata', monospace);
+            font-family: var(--mono);
             white-space: pre;
             overflow-x: auto;
             max-height: 420px;
@@ -136,7 +136,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
         .logs-id-pill {
             background: var(--fill-2);
             border: 1px solid var(--border);
-            font-family: var(--font-mono, 'Inconsolata', monospace);
+            font-family: var(--mono);
             font-size: 0.72rem;
             padding: 3px 8px;
             border-radius: 4px;
