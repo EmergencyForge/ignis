@@ -1,3 +1,6 @@
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     level: 6
 
@@ -9,6 +12,12 @@ parameters:
         - assets/fonts
         - assets/_ext
 
+    # Hier stehen nur noch Faelle, die PHPStan grundsaetzlich nicht wissen kann
+    # und die deshalb auch bei neuem Code wieder auftreten duerfen. Alles, was
+    # schlicht Altlast ist, liegt in phpstan-baseline.neon: dort ist jede
+    # Fundstelle einzeln festgehalten, statt eine ganze Kategorie fuer src/ und
+    # plugins/ abzuschalten. Der Unterschied ist der Zweck der Uebung - eine
+    # abgeschaltete Kategorie verdeckt auch den Fehler von morgen.
     ignoreErrors:
         # $pdo, $daten, $enr etc. werden per require/include eingebunden
         # und sind in den jeweiligen Dateien immer verfügbar
@@ -84,6 +93,11 @@ parameters:
             path: login.php
             reportUnmatched: false
 
+        -
+            identifier: notIdentical.alwaysFalse
+            path: login.php
+            reportUnmatched: false
+
         # Rechtliches-Konstanten (LEGAL_IMPRESSUM_URL, LEGAL_DATENSCHUTZ_URL) werden zur Laufzeit aus der DB geladen
         -
             identifier: identical.alwaysFalse
@@ -95,132 +109,6 @@ parameters:
             path: assets/components/footer.php
             reportUnmatched: false
 
-        -
-            identifier: notIdentical.alwaysFalse
-            path: login.php
-            reportUnmatched: false
-
-        # Conditions-System: Komplexe verschachtelte Arrays mit Closures
-        -
-            identifier: missingType.iterableValue
-            path: assets/functions/enotf/conditions.php
-            reportUnmatched: false
-
-        # src/ Infrastruktur-Code - komplexe dynamische Arrays und defensive Coding Patterns
-        # Diese Klassen verwenden viele dynamische Arrays für Konfiguration,
-        # Diagnose-Reports, Update-Status etc. Type hints wären sehr komplex
-        -
-            identifier: missingType.iterableValue
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        # src/ defensive coding patterns - zusätzliche Sicherheitsprüfungen die technisch redundant sind
-        -
-            identifier: notIdentical.alwaysTrue
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: nullCoalesce.expr
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: nullCoalesce.offset
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: missingType.parameter
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: missingType.property
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: missingType.return
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: function.impossibleType
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: identical.alwaysTrue
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: deadCode.unreachable
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: argument.type
-            paths:
-                - src/Integrations/
-            reportUnmatched: false
-
-        -
-            identifier: catch.neverThrown
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: property.onlyWritten
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: greater.alwaysTrue
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: booleanNot.alwaysTrue
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: booleanAnd.leftAlwaysTrue
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
         # Federation: FEDERATION_ENABLED Konstante wird zur Laufzeit aus der DB geladen
         -
             identifier: identical.alwaysFalse
@@ -230,18 +118,4 @@ parameters:
         -
             identifier: booleanAnd.alwaysFalse
             path: src/Federation/FederationMiddleware.php
-            reportUnmatched: false
-
-        -
-            identifier: function.alreadyNarrowedType
-            paths:
-                - src/
-                - plugins/
-            reportUnmatched: false
-
-        -
-            identifier: booleanOr.rightAlwaysTrue
-            paths:
-                - src/
-                - plugins/
             reportUnmatched: false
