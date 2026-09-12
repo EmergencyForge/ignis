@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -31,8 +32,9 @@ class Vehicle extends Model
     protected $table = 'intra_fahrzeuge';
 
     protected $casts = [
-        'id'      => 'integer',
-        'rd_type' => 'integer',
+        'id'                   => 'integer',
+        'rd_type'              => 'integer',
+        'stationierung_poi_id' => 'integer',
     ];
 
     /**
@@ -53,5 +55,22 @@ class Vehicle extends Model
     public function defects(): HasMany
     {
         return $this->hasMany(VehicleDefect::class, 'vehicle_id', 'id');
+    }
+
+    /**
+     * Feste Stationierung — eine Wache aus den POIs. Ohne Fremdschlüssel in
+     * der Datenbank, ein gelöschter POI liefert hier also null.
+     *
+     * @return BelongsTo<Poi, $this>
+     */
+    public function stationierung(): BelongsTo
+    {
+        return $this->belongsTo(Poi::class, 'stationierung_poi_id', 'id');
+    }
+
+    /** Der Text, der im Fahrtenbuch festgeschrieben wird. Leer, wenn ungesetzt. */
+    public function stationierungsort(): string
+    {
+        return $this->stationierung?->label() ?? '';
     }
 }
