@@ -410,6 +410,9 @@ function initFieldEditPanel(panel, field, index) {
     const genderWrap = panel.querySelector('[data-edit="gender-wrap"]');
     const optionsList = panel.querySelector('[data-edit="options-list"]');
 
+    const genderBox = panel.querySelector('[data-edit="gender"]');
+    const genderAn = () => Boolean(genderBox?.checked);
+
     // Typ-Wechsel → Optionen/Gender ein-/ausblenden
     typeSelect.addEventListener('change', () => {
         const t = typeSelect.value;
@@ -417,14 +420,23 @@ function initFieldEditPanel(panel, field, index) {
         if (genderWrap) genderWrap.style.display = (t === 'select') ? '' : 'none';
     });
 
+    // Haken um → die Gender-Zeilen aller Optionen mitziehen
+    genderBox?.addEventListener('change', () => {
+        optionsList.querySelectorAll('[data-opt="gender-row"]').forEach(row => {
+            row.style.display = genderAn() ? '' : 'none';
+        });
+    });
+
     // Bestehende Optionen rendern
     if (field.field_type === 'select' && field.field_options) {
-        field.field_options.forEach(opt => addInlineOption(optionsList, opt.value, opt.label));
+        field.field_options.forEach(opt => addInlineOption(
+            optionsList, opt.value, opt.label, opt.label_m || '', opt.label_w || '', genderAn()
+        ));
     }
 
     // Option hinzufügen
     panel.querySelector('[data-edit="add-option"]').addEventListener('click', () => {
-        addInlineOption(optionsList, '', '');
+        addInlineOption(optionsList, '', '', '', '', genderAn());
     });
 
     // Übernehmen
@@ -440,7 +452,16 @@ function initFieldEditPanel(panel, field, index) {
             optionsList.querySelectorAll('.inline-option').forEach(row => {
                 const v = row.querySelector('[data-opt="value"]').value;
                 const l = row.querySelector('[data-opt="label"]').value;
-                if (v && l) options.push({ value: v, label: l });
+                if (!v || !l) return;
+
+                const opt = { value: v, label: l };
+                // Wie im Dialog: leer gelassene Formen fallen auf das
+                // allgemeine Label zurueck, statt zu fehlen.
+                if (genderAn()) {
+                    opt.label_m = row.querySelector('[data-opt="label-m"]').value || l;
+                    opt.label_w = row.querySelector('[data-opt="label-w"]').value || l;
+                }
+                options.push(opt);
             });
         } else if (type === 'db_dg') {
             options = DIENSTGRADE.map(dg => ({ value: dg.id, label: dg.name, label_m: dg.name_m, label_w: dg.name_w }));
@@ -467,13 +488,24 @@ function initFieldEditPanel(panel, field, index) {
     });
 }
 
-function addInlineOption(container, value, label) {
+// Die beiden Gender-Felder sind immer im Markup und werden nur ein- und
+// ausgeblendet. Wer den Haken kurz abwaehlt, soll die eingetragenen Formen
+// nicht verlieren.
+function addInlineOption(container, value, label, labelM = '', labelW = '', genderSpecific = false) {
     const row = document.createElement('div');
-    row.className = 'inline-option flex gap-2 mb-1';
+    row.className = 'inline-option mb-1';
     row.innerHTML = `
-        <input type="text" class="ignis-input ignis-input--sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
-        <input type="text" class="ignis-input ignis-input--sm" data-opt="label" value="${label}" placeholder="Label">
-        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="flex gap-2">
+            <input type="text" class="ignis-input ignis-input--sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
+            <input type="text" class="ignis-input ignis-input--sm" data-opt="label" value="${label}" placeholder="Label">
+            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex gap-2 mt-1" data-opt="gender-row" style="${genderSpecific ? '' : 'display:none;'}">
+            <span style="width:80px;flex:0 0 80px;"></span>
+            <input type="text" class="ignis-input ignis-input--sm" data-opt="label-m" value="${labelM}" placeholder="männlich (♂)">
+            <input type="text" class="ignis-input ignis-input--sm" data-opt="label-w" value="${labelW}" placeholder="weiblich (♀)">
+            <span style="padding:0.1rem 0.3rem;visibility:hidden;"><i class="fa-solid fa-xmark"></i></span>
+        </div>
     `;
     container.appendChild(row);
 }
