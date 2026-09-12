@@ -67,18 +67,30 @@ if (SessionManager::isLoggedIn()) {
 // Migrations-Infrastruktur (AutoMigrator, TwigToVisualMigrator) und für
 // Konsumenten, die PDO::class aus dem Container ziehen (Console-Commands,
 // Plugin-API-Controller). Idempotent: kann mehrfach pro Request laufen.
-require_once __DIR__ . '/database.php';
-if (isset($pdo) && $pdo instanceof PDO) {
-    $GLOBALS['app_container']->set(PDO::class, $pdo);
-}
+//
+// In der CLI bleibt das aus. Jeder Web-Request braucht die Datenbank ohnehin,
+// ein Konsolenaufruf nicht: `list` und `--help` sollen auch dann antworten,
+// wenn keine Datenbank erreichbar ist — fabrica fragt eine frisch gestartete
+// Instanz genau so nach ihrer Bereitschaft. Die Verbindung entsteht dort erst,
+// wenn ein Befehl PDO::class aus dem Container zieht; die Factory in
+// config/container.php baut sie mit denselben Optionen.
+if (php_sapi_name() !== 'cli') {
+    require_once __DIR__ . '/database.php';
+    if (isset($pdo) && $pdo instanceof PDO) {
+        $GLOBALS['app_container']->set(PDO::class, $pdo);
+    }
 
-// Auto-run pending database migrations (lightweight file-count check)
-try {
-    $autoMigrator = new \App\Database\AutoMigrator($pdo);
-    $autoMigrator->runIfNeeded();
-} catch (Exception $e) {
-    // Non-critical: log and continue (first install may not have all tables yet)
-    \App\Logging\Logger::warning("Auto-migration check failed: " . $e->getMessage());
+    // Auto-run pending database migrations (lightweight file-count check).
+    // In der CLI ist `intra migrate` der ausdrückliche Weg — Migrationen als
+    // Nebenwirkung eines beliebigen Befehls laufen zu lassen, wäre ohnehin
+    // nichts, worauf man sich verlassen sollte.
+    try {
+        $autoMigrator = new \App\Database\AutoMigrator($pdo);
+        $autoMigrator->runIfNeeded();
+    } catch (Exception $e) {
+        // Non-critical: log and continue (first install may not have all tables yet)
+        \App\Logging\Logger::warning("Auto-migration check failed: " . $e->getMessage());
+    }
 }
 
 // Aktive Plugins anbinden: Autoloading für ihre Klassen und Gate-Policies
