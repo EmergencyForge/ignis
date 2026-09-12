@@ -3,17 +3,19 @@
 namespace App\Documents;
 
 use App\Models\DocumentTemplateAsset;
+use App\Support\FileUpload;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 class TemplateAssetManager
 {
     private string $storagePath;
 
+    /** MIME-Typ => Dateiendung */
     private const ALLOWED_MIME_TYPES = [
-        'image/png',
-        'image/jpeg',
-        'image/gif',
-        'image/svg+xml',
+        'image/png'     => 'png',
+        'image/jpeg'    => 'jpg',
+        'image/gif'     => 'gif',
+        'image/svg+xml' => 'svg',
     ];
 
     private const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -33,33 +35,16 @@ class TemplateAssetManager
      */
     public function upload(array $file, ?int $templateId = null, string $assetType = 'image'): array
     {
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            throw new \Exception('Upload-Fehler: ' . $this->getUploadErrorMessage($file['error']));
-        }
+        $gespeichert = FileUpload::store(
+            $file,
+            $this->storagePath,
+            self::MAX_FILE_SIZE,
+            self::ALLOWED_MIME_TYPES
+        );
 
-        if ($file['size'] > self::MAX_FILE_SIZE) {
-            throw new \Exception('Datei ist zu groß (max. 10MB)');
-        }
-
-        $mimeType = mime_content_type($file['tmp_name']);
-        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES)) {
-            throw new \Exception('Ungültiger Dateityp. Erlaubt: PNG, JPG, GIF, SVG');
-        }
-
-        // Generiere eindeutigen Dateinamen
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = bin2hex(random_bytes(16)) . '.' . strtolower($extension);
-
-        // Stelle sicher, dass das Verzeichnis existiert
-        if (!is_dir($this->storagePath)) {
-            mkdir($this->storagePath, 0755, true);
-        }
-
-        $targetPath = $this->storagePath . '/' . $filename;
-
-        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-            throw new \Exception('Datei konnte nicht gespeichert werden');
-        }
+        $filename   = $gespeichert['name'];
+        $targetPath = $gespeichert['pfad'];
+        $mimeType   = $gespeichert['mime'];
 
         // Bild-Dimensionen ermitteln
         $width = null;
@@ -195,17 +180,4 @@ class TemplateAssetManager
         return $data;
     }
 
-    private function getUploadErrorMessage(int $errorCode): string
-    {
-        return match ($errorCode) {
-            UPLOAD_ERR_INI_SIZE => 'Datei überschreitet die maximale Upload-Größe',
-            UPLOAD_ERR_FORM_SIZE => 'Datei überschreitet die maximale Formulargröße',
-            UPLOAD_ERR_PARTIAL => 'Datei wurde nur teilweise hochgeladen',
-            UPLOAD_ERR_NO_FILE => 'Keine Datei hochgeladen',
-            UPLOAD_ERR_NO_TMP_DIR => 'Temporäres Verzeichnis fehlt',
-            UPLOAD_ERR_CANT_WRITE => 'Datei konnte nicht geschrieben werden',
-            UPLOAD_ERR_EXTENSION => 'Upload durch Erweiterung blockiert',
-            default => 'Unbekannter Fehler',
-        };
-    }
 }
