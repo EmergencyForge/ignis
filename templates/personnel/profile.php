@@ -57,35 +57,35 @@ $bodyId = 'mitarbeiter';
                     </header>
 
                     <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
-                        <span class="font-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
+                        <span class="font-semibold" style="font-size: var(--fs-sm);">Konto-Status:</span>
                         <?php if ($accountStatus === 'active'): ?>
                             <span class="ignis-chip ignis-chip--success"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
-                                <a href="<?= BASE_PATH ?>users/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
+                                <a href="<?= BASE_PATH ?>users/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--fs-sm);">
                                     <?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)
                                 </a>
                             <?php elseif ($panelakte): ?>
-                                <span style="font-size: var(--font-size-sm);"><?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)</span>
+                                <span style="font-size: var(--fs-sm);"><?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)</span>
                             <?php endif; ?>
                         <?php elseif ($accountStatus === 'inactive'): ?>
                             <span class="ignis-chip"><i class="fa-solid fa-circle-minus mr-1"></i>Konto deaktiviert</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
-                                <a href="<?= BASE_PATH ?>users/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
+                                <a href="<?= BASE_PATH ?>users/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--fs-sm);">
                                     <?= htmlspecialchars($panelakte['username']) ?>
                                 </a>
                             <?php endif; ?>
                         <?php elseif ($accountStatus === 'pending'): ?>
                             <span class="ignis-chip ignis-chip--warning"><i class="fa-solid fa-clock mr-1"></i>Einladung ausstehend</span>
                             <?php if ($pendingInvite && !empty($pendingInvite['expires_at'])): ?>
-                                <span style="font-size: var(--font-size-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
+                                <span style="font-size: var(--fs-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="ignis-chip ignis-chip--dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark mr-1"></i>Kein Konto</span>
                             <?php if (Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="generateInviteBtn" style="font-size: var(--font-size-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="generateInviteBtn" style="font-size: var(--fs-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
                                     <i class="fa-solid fa-paper-plane mr-1"></i>Einladen
                                 </button>
-                                <span id="inviteResult" style="font-size: var(--font-size-xs);"></span>
+                                <span id="inviteResult" style="font-size: var(--fs-xs);"></span>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
