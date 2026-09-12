@@ -45,15 +45,28 @@ final class Application extends SymfonyApplication
         }
     }
 
+    /**
+     * Dieselbe Suchreihenfolge wie Api\VersionController und
+     * Api\HealthController: storage/ zuerst, system/updates/ als Altlast.
+     * Die Release-Workflows schreiben nach storage/ — wer nur dort nicht
+     * nachsieht, meldet "dev", waehrend /healthz danebem die echte Version
+     * ausgibt.
+     */
     private function appVersion(): string
     {
-        $versionFile = __DIR__ . '/../../system/updates/version.json';
-        if (is_file($versionFile)) {
+        $appRoot = dirname(__DIR__, 2);
+
+        foreach (['/storage/version.json', '/system/updates/version.json'] as $candidate) {
+            $versionFile = $appRoot . $candidate;
+            if (!is_file($versionFile)) {
+                continue;
+            }
             $data = json_decode((string) file_get_contents($versionFile), true);
             if (is_array($data) && isset($data['version'])) {
                 return (string) $data['version'];
             }
         }
+
         return 'dev';
     }
 }
