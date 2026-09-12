@@ -210,7 +210,7 @@ $SITE_TITLE = 'Plugins';
                                     </div>
                                     <div class="ignis-card__body">
                                         <p class="ignis-card__text"><?= htmlspecialchars((string) ($plugin['description'] ?: 'Keine Beschreibung hinterlegt.')) ?></p>
-                                        <div class="text-gray-500" style="font-size:0.72rem;font-family:monospace;">
+                                        <div class="text-gray-500" style="font-size:0.72rem;font-family:var(--mono);">
                                             SHA256 <?= $plugin['sha256'] !== '' ? htmlspecialchars(substr((string) $plugin['sha256'], 0, 12)) . '…' : 'fehlt' ?>
                                         </div>
                                     </div>
