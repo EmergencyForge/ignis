@@ -115,9 +115,13 @@ $val = function (string $field, string $default = '') use ($entry) {
 
     <!-- Stationierungsort -->
     <div class="md:col-span-12">
-        <label for="fb_stationierungsort" class="ignis-field__label">Stationierungsort</label>
-        <input type="text" class="<?= $fieldClass ?>" id="fb_stationierungsort" name="stationierungsort"
-               value="<?= $val('stationierungsort') ?>" placeholder="z.B. Feuerwehr Gerätehaus">
+        <label for="fb_stationierungsort" class="ignis-field__label">
+            Stationierungsort
+            <small class="form-hint">(kommt vom Fahrzeug)</small>
+        </label>
+        <input type="text" class="<?= $fieldClass ?>" id="fb_stationierungsort"
+               value="<?= $val('stationierungsort') ?>" placeholder="Ergibt sich aus dem gewählten Fahrzeug"
+               readonly disabled>
     </div>
 
     <!-- Grund -->

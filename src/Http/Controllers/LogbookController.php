@@ -10,6 +10,7 @@ use App\Helpers\Flash;
 use App\Http\Requests\Fahrtenbuch\CreateFahrtRequest;
 use App\Http\Requests\Fahrtenbuch\UpdateFahrtRequest;
 use App\Models\LogbookEntry;
+use App\Models\Vehicle;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -119,6 +120,22 @@ class LogbookController extends Controller
      * läuft NICHT über die Standard-`requireAuth()` der Base-Klasse, weil
      * eNOTF/FireTab keine $_SESSION['userid'] haben.
      */
+    /**
+     * Stationierung des Fahrzeugs als Text. Hat das Fahrzeug keine hinterlegt,
+     * bleibt der bisherige Wert stehen — Altbestand und Einträge ohne Fahrzeug
+     * verlieren so nichts.
+     */
+    private static function stationierungFuer(?int $vehicleId, string $bisher): string
+    {
+        if ($vehicleId === null || $vehicleId <= 0) {
+            return $bisher;
+        }
+
+        $ort = Vehicle::query()->find($vehicleId)?->stationierungsort() ?? '';
+
+        return $ort !== '' ? $ort : $bisher;
+    }
+
     public function store(): void
     {
         $this->requireAnyContext();
@@ -155,7 +172,11 @@ class LogbookController extends Controller
         $fahrt->datum              = $data['datum'];
         $fahrt->abfahrt            = $data['abfahrt'];
         $fahrt->ankunft            = $data['ankunft'];
-        $fahrt->stationierungsort  = $data['stationierungsort'];
+        // Kommt vom Fahrzeug, nicht aus dem Formular: eine Wache laesst sich
+        // im echten Fahrtenbuch auch nicht je Fahrt umschreiben. Der Text wird
+        // festgeschrieben, damit ein spaeterer Wechsel die Historie nicht
+        // rueckwirkend aendert.
+        $fahrt->stationierungsort  = self::stationierungFuer($vehicleId, $data['stationierungsort']);
         $fahrt->kilometer          = $data['kilometer'];
         $fahrt->grund              = $data['grund'];
         $fahrt->fahrttyp           = $data['fahrttyp'];
@@ -221,7 +242,7 @@ class LogbookController extends Controller
         $entry->datum              = $data['datum'];
         $entry->abfahrt            = $data['abfahrt'];
         $entry->ankunft            = $data['ankunft'];
-        $entry->stationierungsort  = $data['stationierungsort'];
+        $entry->stationierungsort  = self::stationierungFuer($vehicleId, $entry->stationierungsort);
         $entry->kilometer          = $data['kilometer'];
         $entry->grund              = $data['grund'];
         $entry->fahrttyp           = $data['fahrttyp'];

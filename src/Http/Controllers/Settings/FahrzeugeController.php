@@ -12,6 +12,7 @@ use App\Http\Request;
 use App\Http\Requests\FormRequest;
 use App\Http\Requests\Vehicles\CreateDefectRequest;
 use App\Http\Response;
+use App\Models\Poi;
 use App\Models\Vehicle;
 use App\Support\Activity;
 use App\Support\ListQuery;
@@ -135,6 +136,7 @@ class FahrzeugeController extends Controller
             'defects'         => $defects,
             'openDefects'     => $openDefects,
             'loadout'         => $this->loadoutFor((string) ($vehicle['veh_type'] ?? '')),
+            'stationierungen' => $this->stationierungen(),
             'activityEntries' => Activity::vehicle((int) $id),
             'tabs'            => [
                 ['id' => 'maengel',  'label' => $openDefects > 0 ? 'Mängel (' . $openDefects . ')' : 'Mängel', 'partial' => '_defects-tab'],
@@ -263,7 +265,7 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $this->renderView('settings/vehicles/vehicles/create', []);
+        $this->renderView('settings/vehicles/vehicles/create', ['stationierungen' => $this->stationierungen()]);
     }
 
     /**
@@ -282,7 +284,7 @@ class FahrzeugeController extends Controller
             $this->redirect('settings/vehicles/vehicles/index');
         }
 
-        $this->renderView('settings/vehicles/vehicles/create', ['vehicle' => (array) $vehicle]);
+        $this->renderView('settings/vehicles/vehicles/create', ['vehicle' => (array) $vehicle, 'stationierungen' => $this->stationierungen()]);
     }
 
     public function store(): void
@@ -710,6 +712,37 @@ class FahrzeugeController extends Controller
     /**
      * Sammelt alle Vehicle-Felder inkl. Tactical-Symbol-Daten in ein Array.
      */
+    /**
+     * Wachen zur Auswahl. Ohne POI-Tabelle (Installation vor der Migration)
+     * bleibt die Liste leer und das Feld zeigt nur „keine Stationierung".
+     *
+     * @return list<array{id:int, label:string}>
+     */
+    private function stationierungen(): array
+    {
+        try {
+            $rows = Capsule::table('intra_edivi_pois')
+                ->whereIn('typ', Poi::STATIONIERUNGS_TYPEN)
+                ->where('active', 1)
+                ->orderBy('name')
+                ->get(['id', 'name', 'ort']);
+        } catch (PDOException) {
+            return [];
+        }
+
+        $wachen = [];
+        foreach ($rows as $row) {
+            $ort      = trim((string) ($row->ort ?? ''));
+            $name     = (string) $row->name;
+            $wachen[] = [
+                'id'    => (int) $row->id,
+                'label' => $ort === '' ? $name : $name . ' (' . $ort . ')',
+            ];
+        }
+
+        return $wachen;
+    }
+
     private function collectVehicleData(
         string $name,
         string $kennzeichen,
@@ -729,6 +762,9 @@ class FahrzeugeController extends Controller
             'rd_type'      => $rdType,
             'allowed_jobs' => $allowedJobs,
             'active'       => $active,
+            // 0 heisst "keine Wache gewaehlt" — als NULL ablegen, damit der
+            // LEFT JOIN sauber leer bleibt statt auf eine id 0 zu zeigen.
+            'stationierung_poi_id' => ((int) ($_POST['stationierung_poi_id'] ?? 0)) ?: null,
             'grundzeichen' => trim($_POST['grundzeichen'] ?? '') ?: null,
             'organisation' => trim($_POST['organisation'] ?? '') ?: null,
             'fachaufgabe'  => trim($_POST['fachaufgabe'] ?? '') ?: null,

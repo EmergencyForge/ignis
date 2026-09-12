@@ -80,6 +80,21 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="<?= $prefix ?>stationierung_poi_id" class="ignis-field__label">
+                            Stationierung
+                            <small class="form-hint">(Wache aus den POIs — im Fahrtenbuch nicht änderbar)</small>
+                        </label>
+                        <select class="ignis-input" name="stationierung_poi_id" id="<?= $prefix ?>stationierung_poi_id">
+                            <option value="">--- Keine Stationierung ---</option>
+                            <?php foreach (($stationierungen ?? []) as $wache): ?>
+                                <option value="<?= (int) $wache['id'] ?>"<?= $value('stationierung_poi_id') === (string) $wache['id'] ? ' selected' : '' ?>><?= htmlspecialchars($wache['label']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if (($stationierungen ?? []) === []): ?>
+                            <small class="form-hint">Noch keine Wache hinterlegt — anzulegen unter Einstellungen &rsaquo; POIs, Typ „Rettungswache" oder „Feuerwache".</small>
+                        <?php endif; ?>
+                    </div>
                     <label class="ignis-checkbox mb-3" for="<?= $prefix ?>active"><input type="checkbox" name="active" id="<?= $prefix ?>active"<?= $active === null || $active !== '' ? ' checked' : '' ?>><span>Aktiv?</span></label>
                     <div class="mb-3">
                         <label for="<?= $prefix ?>allowed_jobs" class="ignis-field__label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
