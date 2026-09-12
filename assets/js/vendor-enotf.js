@@ -13,5 +13,13 @@
  * Dependency in `bootstrap`.
  */
 
-import 'bootstrap';
+// Der Namensimport zieht dieselben Nebenwirkungen wie ein blosses
+// `import 'bootstrap'` — die Data-API registriert sich, data-bs-toggle
+// funktioniert. Was er zusaetzlich liefert, ist der Global: nur der
+// UMD-Bundle-Build setzt window.bootstrap von sich aus, der ESM-Einstieg
+// nicht. Die v1-Templates rufen aber `new bootstrap.Modal(...)` auf und
+// liefen deshalb still ins Leere.
+import * as bootstrap from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+window.bootstrap = bootstrap;
