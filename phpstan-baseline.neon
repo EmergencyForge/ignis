@@ -3709,36 +3709,6 @@ parameters:
 			path: src/Federation/FederationSyncService.php
 
 		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Functions.php
-
-		-
-			message: '#^Function __\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Functions.php
-
-		-
-			message: '#^Function _la\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Functions.php
-
-		-
-			message: '#^Function lang\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Functions.php
-
-		-
-			message: '#^Function larray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Functions.php
-
-		-
 			message: '#^Method App\\Helpers\\Flash\:\:get\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
