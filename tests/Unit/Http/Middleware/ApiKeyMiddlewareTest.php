@@ -25,13 +25,51 @@ class ApiKeyMiddlewareTest extends TestCase
         return fn ($req) => Response::json(['ok' => true, 'source' => $req->attribute('api_auth')]);
     }
 
+    /**
+     * Führt $fn mit einem bestimmten APP_ENV aus; null heißt „nirgends gesetzt".
+     *
+     * Muss alle Quellen anfassen, nicht nur $_ENV. Die Middleware liest
+     * `$_ENV['APP_ENV'] ?? getenv('APP_ENV')`, und docker-compose.yml setzt
+     * APP_ENV=development in die Prozessumgebung. Ein blosses
+     * unset($_ENV['APP_ENV']) laesst getenv() also unberuehrt — auf dem Host
+     * gruen, im Container rot, weil dort der Localhost-Bypass weiter griff.
+     */
+    private function withAppEnv(?string $value, callable $fn): void
+    {
+        $vorherEnv    = $_ENV['APP_ENV']    ?? null;
+        $vorherServer = $_SERVER['APP_ENV'] ?? null;
+        $vorherGetenv = getenv('APP_ENV');
+
+        unset($_ENV['APP_ENV'], $_SERVER['APP_ENV']);
+        putenv('APP_ENV');
+
+        if ($value !== null) {
+            $_ENV['APP_ENV'] = $value;
+            putenv('APP_ENV=' . $value);
+        }
+
+        try {
+            $fn();
+        } finally {
+            unset($_ENV['APP_ENV'], $_SERVER['APP_ENV']);
+            putenv('APP_ENV');
+
+            if ($vorherEnv !== null) {
+                $_ENV['APP_ENV'] = $vorherEnv;
+            }
+            if ($vorherServer !== null) {
+                $_SERVER['APP_ENV'] = $vorherServer;
+            }
+            if ($vorherGetenv !== false) {
+                putenv('APP_ENV=' . $vorherGetenv);
+            }
+        }
+    }
+
     #[Test]
     public function allows_request_from_localhost_without_key_in_development(): void
     {
-        $previous = $_ENV['APP_ENV'] ?? null;
-        $_ENV['APP_ENV'] = 'development';
-
-        try {
+        $this->withAppEnv('development', function (): void {
             $mw  = new ApiKeyMiddleware();
             $req = new Request('POST', '/api/fivem/foo', server: ['REMOTE_ADDR' => '127.0.0.1']);
 
@@ -39,13 +77,7 @@ class ApiKeyMiddlewareTest extends TestCase
 
             $this->assertSame(200, $res->status);
             $this->assertStringContainsString('"source":"localhost"', $res->body);
-        } finally {
-            if ($previous === null) {
-                unset($_ENV['APP_ENV']);
-            } else {
-                $_ENV['APP_ENV'] = $previous;
-            }
-        }
+        });
     }
 
     #[Test]
@@ -54,21 +86,14 @@ class ApiKeyMiddlewareTest extends TestCase
         // Ohne APP_ENV=development verlangt die Middleware den API-Key
         // auch fuer 127.0.0.1 — Schutz vor Shared-Hosting-Nachbarn,
         // kompromittierten lokalen Scripts und gespoofter REMOTE_ADDR.
-        $previous = $_ENV['APP_ENV'] ?? null;
-        unset($_ENV['APP_ENV']);
-
-        try {
+        $this->withAppEnv(null, function (): void {
             $mw  = new ApiKeyMiddleware();
             $req = new Request('POST', '/api/fivem/foo', server: ['REMOTE_ADDR' => '127.0.0.1']);
 
             $res = $mw->process($req, $this->ok());
 
             $this->assertSame(403, $res->status);
-        } finally {
-            if ($previous !== null) {
-                $_ENV['APP_ENV'] = $previous;
-            }
-        }
+        });
     }
 
     #[Test]
