@@ -2838,3 +2838,31 @@ body[data-page] {
     top: auto;
   }
 }
+
+// ── Tailwind-Breiten in einem Bootstrap-Row ───────────────────────────
+//
+// Die v1-Vorlagen setzen Spaltenbreiten als w-N/12 auf die Kinder eines
+// .row. Seit dem Tailwind-4-Upgrade stapeln die sich untereinander, und
+// zwar nicht, weil die Klassen fehlen — Tailwind erzeugt sie weiterhin.
+//
+// Der Grund sind Cascade Layers. Tailwind 4 legt seine Utilities per
+// @import ... layer(utilities) in einen Layer, Bootstrap kommt ungelayert
+// aus vendor-enotf.css. Ungelayerte Regeln schlagen gelayerte, unabhaengig
+// von Spezifitaet und Reihenfolge — und Bootstrap setzt in .row > * ein
+// width: 100% auf jedes Kind. Das gewinnt also gegen jedes w-N/12, jede
+// Spalte wird voll breit, und der Flex-Container bricht sie um.
+//
+// Unter Tailwind 3 lagen die Utilities im selben Layer wie alles andere,
+// dort entschied die Reihenfolge, und tailwind.css laedt zuletzt.
+//
+// Diese Datei ist ungelayert und liegt auf denselben Seiten. Die Regeln
+// sind auf `.row >` eingegrenzt, damit sich ausserhalb eines Bootstrap-Row
+// nichts aendert, und haben mit zwei Klassen genug Spezifitaet gegen
+// .row > *. Die Alternative — Bootstrap selbst in einen Layer zu ziehen —
+// haette die halbe v1-Optik neu sortiert.
+@for $i from 1 through 12 {
+  .row > .w-#{$i}\/12 {
+    width: percentage(calc($i / 12));
+    max-width: percentage(calc($i / 12));
+  }
+}
