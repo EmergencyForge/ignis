@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\UploadException;
 use App\Helpers\UserHelper;
 use App\Http\Request;
 use App\Http\Requests\Personnel\UpdateProfileRequest;
@@ -15,6 +16,7 @@ use App\Models\Personnel;
 use App\Models\Rank;
 use App\Models\RegistrationCode;
 use App\Personnel\PersonalLogManager;
+use App\Support\FileUpload;
 use DateTime;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -322,52 +324,22 @@ final class PersonnelController
         }
 
         $fileInfo = $request->files['pfp'] ?? null;
-        if (!is_array($fileInfo) || ($fileInfo['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        if (!is_array($fileInfo)) {
             return Response::json(['success' => false, 'message' => 'Keine Datei hochgeladen'], 400);
         }
 
-        if (($fileInfo['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
-            return Response::json(['success' => false, 'message' => 'Upload-Fehler'], 400);
+        try {
+            $gespeichert = FileUpload::store(
+                $fileInfo,
+                dirname(__DIR__, 4) . '/storage/profile-pictures',
+                2 * 1024 * 1024,
+                ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp'],
+            );
+        } catch (UploadException $e) {
+            return Response::json(['success' => false, 'message' => $e->getMessage()], $e->status);
         }
 
-        $maxSize = 2 * 1024 * 1024; // 2MB
-        if ((int) $fileInfo['size'] > $maxSize) {
-            return Response::json(['success' => false, 'message' => 'Datei zu groß (max. 2 MB)'], 400);
-        }
-
-        $finfo    = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo ? finfo_file($finfo, $fileInfo['tmp_name']) : false;
-        if ($finfo) {
-            finfo_close($finfo);
-        }
-        $allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
-        if (!in_array($mimeType, $allowedTypes, true)) {
-            return Response::json([
-                'success' => false,
-                'message' => 'Ungültiger Dateityp. Erlaubt: PNG, JPG, WebP',
-            ], 400);
-        }
-
-        $storagePath = dirname(__DIR__, 4) . '/storage/profile-pictures';
-        if (!is_dir($storagePath)) {
-            mkdir($storagePath, 0755, true);
-        }
-
-        $ext = match ($mimeType) {
-            'image/png'  => 'png',
-            'image/jpeg' => 'jpg',
-            'image/webp' => 'webp',
-            default      => 'jpg',
-        };
-        $filename   = bin2hex(random_bytes(16)) . '.' . $ext;
-        $targetPath = $storagePath . '/' . $filename;
-
-        if (!move_uploaded_file($fileInfo['tmp_name'], $targetPath)) {
-            return Response::json([
-                'success' => false,
-                'message' => 'Datei konnte nicht gespeichert werden',
-            ], 500);
-        }
+        $filename = $gespeichert['name'];
 
         // Altes Profilbild löschen falls vorhanden
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
