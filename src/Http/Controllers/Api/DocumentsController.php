@@ -623,6 +623,10 @@ final class DocumentsController
                 'asset'      => $result,
                 'csrf_token' => CsrfProtection::getResponseToken(),
             ]);
+        } catch (\App\Exceptions\UploadException $e) {
+            // Durchreichen: "Datei ist zu groß" hilft dem Hochladenden, das
+            // generische "Interner Fehler" darunter nicht.
+            return Response::json(['success' => false, 'error' => $e->getMessage()]);
         } catch (\Throwable $e) {
             Logger::error('Documents: asset-upload Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'error' => 'Interner Fehler']);
