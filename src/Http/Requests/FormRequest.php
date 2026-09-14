@@ -67,6 +67,13 @@ abstract class FormRequest
         // danach gegebenenfalls mit dem Ergebnis dieses Aufrufs neu befüllen.
         SessionManager::forget(self::OLD_INPUT_SESSION_KEY);
 
+        // Der CSRF-Token gehört der Middleware, nicht dem Formular. Er
+        // steht in jedem Post, und `v::keySet()` weist einen Satz mit einem
+        // Schlüssel zurück, den es nicht kennt — ohne diese Zeile müsste
+        // ihn jede einzelne Regelmenge deklarieren, und die erste, die es
+        // vergisst, weist jede Eingabe ab.
+        unset($input['csrf_token']);
+
         try {
             static::rules()->assert($input);
         } catch (NestedValidationException $e) {

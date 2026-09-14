@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 ?>
 <meta charset="UTF-8" />
+<?= csrf_head() ?>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>

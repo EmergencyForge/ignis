@@ -30,7 +30,6 @@ class SaveDocumentRequest extends FormRequest
             v::key('template_id', v::optional(v::stringType()), false),
             // Der Token steht im selben Formular; keySet weist sonst den
             // ganzen Satz als unbekannten Schluessel zurueck.
-            v::key('csrf_token', v::optional(v::stringType()), false),
         );
     }
 

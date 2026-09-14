@@ -56,6 +56,7 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                             <?php if ($canDelete): ?>
                                 <form method="post" action="<?= BASE_PATH ?>calendar/delete?id=<?= (int) $event->id ?>"
                                       onsubmit="<?= confirm_attr('Diesen Termin wirklich löschen?') ?>" class="inline">
+                                          <?= csrf_field() ?>
                                     <button type="submit" class="ignis-btn ignis-btn--danger">
                                         <i class="fa-solid fa-trash"></i> Löschen
                                     </button>
@@ -177,6 +178,7 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                                   class="flex flex-wrap gap-2"
                                   data-rsvp-form
                                   data-event-id="<?= (int) $event->id ?>">
+                                      <?= csrf_field() ?>
                                 <button name="response" value="accepted"
                                         class="ignis-btn ignis-btn--soft-success ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
                                     <i class="fa-solid fa-check"></i> Zusagen

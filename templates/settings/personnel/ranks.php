@@ -113,6 +113,7 @@ $SITE_TITLE = 'Dienstgrade';
              ausserhalb der Dialog-DOM, damit die Form auch nach Dialog-Close
              noch existiert (Submit erfolgt direkt nach Confirm). -->
         <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personnel/ranks/delete" method="POST" hidden>
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="dienstgrad-delete-id">
         </form>
     <?php endif; ?>

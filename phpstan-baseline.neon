@@ -5077,12 +5077,6 @@ parameters:
 			path: src/Policies/UserPolicy.php
 
 		-
-			message: '#^Method App\\Security\\CsrfProtection\:\:requireValid\(\) has parameter \$jsonInput with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Security/CsrfProtection.php
-
-		-
 			message: '#^Comparison operation "\>\=" between int\<80300, 80599\> and 70300 is always true\.$#'
 			identifier: greaterOrEqual.alwaysTrue
 			count: 1
@@ -6097,12 +6091,6 @@ parameters:
 			path: src/Http/Requests/Documents/SaveDocumentRequest.php
 
 		-
-			message: '#^Parameter \#5 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Http/Requests/Documents/SaveDocumentRequest.php
-
-		-
 			message: '#^Parameter \#1 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
 			identifier: argument.type
 			count: 1
@@ -6116,12 +6104,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#3 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Http/Requests/Settings/SaveDocumentTemplateRequest.php
-
-		-
-			message: '#^Parameter \#4 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Http/Requests/Settings/SaveDocumentTemplateRequest.php

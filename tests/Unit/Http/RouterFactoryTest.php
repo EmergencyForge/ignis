@@ -6,6 +6,7 @@ namespace Tests\Unit\Http;
 
 use App\Http\Requests\FormRequest;
 use App\Http\RouterFactory;
+use App\Security\CsrfProtection;
 use EmergencyForge\Http\Exceptions\RedirectException;
 use EmergencyForge\Http\Pipeline;
 use EmergencyForge\Http\Request;
@@ -22,6 +23,9 @@ use Tests\TestCase;
  * Zwischenspeicher beginnt mit jedem Dispatch frisch, und ein unbekannter
  * Pfad landet auf der 404-Seite von ignis statt auf dem Plain-Text-
  * Rueckfall des Pakets.
+ *
+ * Und er traegt CsrfMiddleware global, weshalb jeder POST hier einen
+ * Token mitschickt. Was ohne passiert, steht in Tests\Feature\CsrfTest.
  */
 final class RouterFactoryTest extends TestCase
 {
@@ -51,7 +55,12 @@ final class RouterFactoryTest extends TestCase
     {
         $this->router->post('/save', static fn (): Response => Response::redirect('/form'));
 
-        $res = $this->router->dispatch(new Request('POST', '/save', server: ['HTTP_X_REQUESTED_WITH' => 'fragment']));
+        $res = $this->router->dispatch(new Request(
+            'POST',
+            '/save',
+            post: ['csrf_token' => CsrfProtection::getToken()],
+            server: ['HTTP_X_REQUESTED_WITH' => 'fragment'],
+        ));
 
         $this->assertSame(200, $res->status);
         $this->assertSame('', $res->body);
@@ -65,7 +74,7 @@ final class RouterFactoryTest extends TestCase
     {
         $this->router->post('/save', static fn (): Response => Response::redirect('/form'));
 
-        $res = $this->router->dispatch(new Request('POST', '/save'));
+        $res = $this->router->dispatch(new Request('POST', '/save', post: ['csrf_token' => CsrfProtection::getToken()]));
 
         $this->assertSame(302, $res->status);
         $this->assertSame('/form', $res->headers['Location']);
@@ -96,7 +105,7 @@ final class RouterFactoryTest extends TestCase
             });
             $this->router->get('/form', static fn (): Response => Response::text((string) old('title', '-') . '|' . (string) old('csrf_token', '-') . '|' . (string) old('password', '-')));
 
-            $this->router->dispatch(new Request('POST', '/form'));
+            $this->router->dispatch(new Request('POST', '/form', post: ['csrf_token' => CsrfProtection::getToken()]));
             $this->assertSame('Bremsen|-|-', $this->router->dispatch(new Request('GET', '/form'))->body);
             $this->assertSame('-|-|-', $this->router->dispatch(new Request('GET', '/form'))->body, 'Der Bag ist nach einem Request verbraucht.');
         } finally {

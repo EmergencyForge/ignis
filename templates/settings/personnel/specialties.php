@@ -79,6 +79,7 @@ $SITE_TITLE = 'Fachdienste';
 
         <!-- Hidden Delete-Form fuer den Loesch-Action im Edit-Dialog. -->
         <form id="delete-qualifd-form" action="<?= BASE_PATH ?>settings/personnel/specialties/delete" method="POST" style="display:none;">
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="qualifd-delete-id">
         </form>
     <?php endif; ?>

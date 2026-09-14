@@ -48,6 +48,7 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
             </div>
 
             <form method="POST" action="<?= htmlspecialchars($action) ?>" class="ignis-card ignis-form-card" data-ignis-form="<?= $isEdit ? 'vehicle-edit' : 'vehicle-create' ?>">
+                <?= csrf_field() ?>
                 <?php if ($isEdit): ?>
                     <input type="hidden" name="id" value="<?= (int) $vehicle['id'] ?>">
                 <?php endif; ?>

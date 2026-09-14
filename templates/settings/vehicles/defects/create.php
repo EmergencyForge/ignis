@@ -40,6 +40,7 @@ $operable  = (string) old('vehicle_operable', '1');
             </div>
 
             <form method="POST" action="<?= BASE_PATH ?>settings/vehicles/defects/create" class="ignis-card ignis-form-card" data-ignis-form="defect-create">
+                <?= csrf_field() ?>
                 <div class="ignis-card__body">
                     <div class="mb-3">
                         <label for="defect-vehicle" class="ignis-field__label">Fahrzeug</label>

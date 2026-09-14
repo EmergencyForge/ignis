@@ -191,6 +191,10 @@ class SessionManager
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
+            // Mit der Session-ID auch den CSRF-Token: nach einem Wechsel
+            // der Identitaet soll kein Token mehr gelten, der davor
+            // ausgegeben wurde.
+            \App\Security\CsrfProtection::rotate();
         }
     }
 

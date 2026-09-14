@@ -127,7 +127,8 @@ $bodyId = 'benutzer';
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if (!$code->is_used): ?>
-                                                    <form method="POST" class="inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result => { if(result) this.submit(); });">
+                                                    <form method="POST" class="inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result =>
+                                                        <?= csrf_field() ?> { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="code_id" value="<?= (int) $code->id ?>">
                                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen">

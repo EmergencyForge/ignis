@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../../config/config.php';
 $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 ?>
 <meta charset="UTF-8" />
+<?= csrf_head() ?>
 <?php // Darstellungsmodus des Kontos (dark|light|system) am <html>, bevor ein Stylesheet lädt.
 // Die Hülle (templates/layouts/admin.php) schreibt ihn selbst als Attribut und meldet das über $layoutTheme.
 if (!isset($layoutTheme)) { echo \App\Helpers\Theme::headScript(); } ?>

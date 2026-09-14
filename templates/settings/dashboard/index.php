@@ -132,9 +132,11 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
 
     <!-- Hidden Delete-Forms fuer dangerAction in Edit-Dialogen -->
     <form id="delete-tile-form" action="<?= BASE_PATH ?>settings/dashboard/tiles/delete" method="POST" hidden>
+        <?= csrf_field() ?>
         <input type="hidden" name="id" id="delete-tile-id">
     </form>
     <form id="delete-category-form" action="<?= BASE_PATH ?>settings/dashboard/categories/delete" method="POST" hidden>
+        <?= csrf_field() ?>
         <input type="hidden" name="id" id="delete-category-id">
     </form>
 

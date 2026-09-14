@@ -13,7 +13,6 @@ use App\Logging\Logger;
 use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
 use App\Models\Personnel;
-use App\Security\CsrfProtection;
 use App\Session\SessionManager;
 use App\Utils\AuditLogger;
 use EmergencyForge\Editor\Renderer;
@@ -38,14 +37,7 @@ use RuntimeException;
  * `Accept: application/json`. Deshalb antwortet die Methode je nach
  * Aufrufer als JSON oder mit Flash und Weiterleitung.
  *
- * Zwei Stellen sind heikler, als sie aussehen:
- *
- * CsrfProtection::validateToken() dreht den Session-Token bei jeder
- * erfolgreichen Prüfung weiter. Die Autosave hätte ab dem zweiten Versuch
- * dauerhaft einen veralteten Token geschickt und wäre still gescheitert —
- * der Nutzer sieht eine allgemeine Fehlermeldung und verliert beim
- * Schließen des Tabs seine Änderungen. Darum trägt jede JSON-Antwort den
- * aktuellen Token im Body, und der Editor schreibt ihn zurück.
+ * Eine Stelle ist heikler, als sie aussieht:
  *
  * Der Statuswechsel läuft nie über `Model::save()` (das kennt nur
  * `WHERE id = ?`), sondern über ein bedingtes
@@ -398,15 +390,10 @@ final class EditorDocumentController extends Controller
     }
 
     /**
-     * Jede JSON-Antwort trägt den aktuellen CSRF-Token, damit die Autosave
-     * nach der Token-Rotation weiterarbeiten kann.
-     *
      * @param  array<string,mixed>  $payload
      */
     private function json(array $payload, int $status = 200): Response
     {
-        $payload['csrf_token'] = CsrfProtection::getToken();
-
         return Response::json($payload, $status);
     }
 

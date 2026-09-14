@@ -5,20 +5,13 @@
  * `Accept: application/json` gegen dieselbe Route (siehe
  * DocumentController::save()-Klassenkommentar).
  *
- * CSRF-Token-Rotation: der Server rotiert den
- * Token bei jeder erfolgreichen Prüfung — jede Server-Antwort (Erfolg,
- * jeder Fehlerpfad von save(), UND eine 403-Ablehnung durch
- * CsrfMiddleware) trägt darum den aktuell gültigen Token im Body
- * (`csrf_token`), den `rememberToken()` zurück ins versteckte Feld
- * schreibt. Ohne das wäre der zweite Save (egal ob Klick oder Autosave)
- * immer mit dem bereits verbrauchten Token unterwegs gewesen. Ein
- * einzelner automatischer Retry bei 403 fängt außerdem eine reine
- * Race-Situation ab (z. B. zwei Tabs derselben Session), ohne den Nutzer
- * mit einer Fehlermeldung zu stören — gegated auf `data.error === 'csrf'`,
- * damit ein ganz normaler Business-403 (z. B.
- * "bereits ausgestellt", der ebenfalls einen `csrf_token` im Body trägt,
- * siehe DocumentController::jsonWithToken()) NICHT versehentlich einen
- * sinnlosen Retry auslöst.
+ * Der CSRF-Token steht im versteckten Feld des Formulars und gilt für die
+ * ganze Sitzung. Diese Datei trug einmal eine ganze Mechanik, um den bei
+ * jeder Prüfung neu gewürfelten Token aus der Antwort zurück ins Feld zu
+ * schreiben, samt einem automatischen zweiten Versuch für den Fall, dass
+ * ein Autosave ihn dem offenen Formular unter den Fingern weggenommen
+ * hatte. Beides ist weg, seit CsrfProtection nicht mehr rotiert — der
+ * Grund dafür steht dort.
  *
  * Dazu zwei Dinge rund um die Vorlagen-Bausteine des Editor-Pakets: eine
  * Snackbar an `onBlocked` (der Guard verwirft sonst stumm, und mit Feldern
@@ -194,12 +187,6 @@
         // DocumentController::save() (Erfolg UND jeder Fehlerpfad) als auch
         // CsrfMiddleware::rejected() (bei einer echten Token-Ablehnung)
         // liefern den aktuell gültigen Token im Body mit.
-        function rememberToken(data) {
-            if (data && typeof data.csrf_token === 'string' && data.csrf_token !== '') {
-                csrfInput.value = data.csrf_token;
-            }
-        }
-
         function postSave(isAutosave, contentJson) {
             var body = new URLSearchParams();
             body.set('csrf_token', csrfInput.value);
@@ -241,7 +228,7 @@
          *   handleIssueClick) — ohne diese Auskunft müsste er `dirty` als
          *   Erfolgs-Ersatz lesen, was dasselbe meint, aber nicht sagt.
          */
-        function save(isAutosave, isRetry, contentJson) {
+        function save(isAutosave, contentJson) {
             if (readOnly) {
                 return Promise.resolve(false);
             }
@@ -250,9 +237,8 @@
                 return Promise.resolve(true);
             }
 
-            // Inhalt wird EINMAL pro Save-Versuch (nicht pro Retry neu) als
-            // String eingefroren — siehe Vergleich weiter unten im
-            // Erfolgsfall.
+            // Inhalt wird EINMAL pro Save-Versuch als String eingefroren —
+            // siehe Vergleich weiter unten im Erfolgsfall.
             if (contentJson === undefined) {
                 contentJson = JSON.stringify(editor.getJSON());
             }
@@ -261,8 +247,6 @@
 
             return postSave(isAutosave, contentJson)
                 .then(function (result) {
-                    rememberToken(result.data);
-
                     if (result.ok && result.data && result.data.success) {
                         // dirty nur zuruecksetzen, wenn der Editor-Inhalt sich
                         // seit dem Absenden dieses Requests NICHT weiter
@@ -278,27 +262,6 @@
                         }
                         setStatus('Gespeichert ' + formatTime(new Date()));
                         return true;
-                    }
-
-                    // Token war veraltet (z.B. durch einen vorherigen Save
-                    // bereits rotiert) — CsrfMiddleware::rejected() liefert bei
-                    // Accept: application/json einen frischen Token mit (siehe
-                    // rememberToken() oben), damit lohnt sich GENAU EIN
-                    // automatischer erneuter Versuch, bevor der Nutzer eine
-                    // Fehlermeldung sieht. `error === 'csrf'` grenzt das
-                    // gezielt auf ECHTE Token-Ablehnungen ein —
-                    // DocumentController::jsonWithToken() haengt
-                    // denselben `csrf_token` auch an ganz normale
-                    // Business-403-Antworten (z.B. "bereits ausgestellt") an,
-                    // die sollen NICHT automatisch wiederholt werden.
-                    if (
-                        result.status === 403 &&
-                        !isRetry &&
-                        result.data &&
-                        result.data.error === 'csrf' &&
-                        result.data.csrf_token
-                    ) {
-                        return save(isAutosave, true, contentJson);
                     }
 
                     setStatus((result.data && result.data.message) || 'Speichern fehlgeschlagen.');

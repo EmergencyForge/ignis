@@ -41,6 +41,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
             </div>
 
             <form method="post" class="ignis-detail">
+                <?= csrf_field() ?>
                 <div class="ignis-detail__main">
                     <div class="ignis-detail__groups">
                         <section class="ignis-card">

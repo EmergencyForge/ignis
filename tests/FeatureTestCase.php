@@ -223,13 +223,32 @@ abstract class FeatureTestCase extends IntegrationTestCase
     }
 
     /**
+     * Schickt einen POST — mit gültigem CSRF-Token, so wie ein Formular
+     * der Anwendung ihn schickt.
+     *
+     * Wer die Prüfung selbst testen will, setzt `$body['csrf_token']` auf
+     * einen falschen Wert oder ruft `request('POST', …)` direkt.
+     *
      * @param array<string,mixed> $body  POST-Daten (werden mit $opts['post'] gemerged)
      * @param array<string,mixed> $opts
      */
     protected function post(string $path, array $body = [], array $opts = []): Response
     {
         $opts['post'] = array_merge($opts['post'] ?? [], $body);
+
+        if (!array_key_exists('csrf_token', $opts['post'])) {
+            $opts['post']['csrf_token'] = $this->csrfToken();
+        }
+
         return $this->request('POST', $path, $opts);
+    }
+
+    /**
+     * Der CSRF-Token der Test-Sitzung; legt beim ersten Aufruf einen an.
+     */
+    protected function csrfToken(): string
+    {
+        return \App\Security\CsrfProtection::getToken();
     }
 
     // ── Auth-Helper ───────────────────────────────────────────────────

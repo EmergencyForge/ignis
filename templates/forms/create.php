@@ -50,6 +50,7 @@ $bodyId = 'antrag-create';
             <?php endif; ?>
 
             <form method="post" action="" class="ignis-card ignis-form-card" data-ignis-form="antrag-create">
+                <?= csrf_field() ?>
                 <div class="ignis-card__body">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <?php foreach ($felder as $feld):

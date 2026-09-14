@@ -82,13 +82,15 @@ final class ThemeTest extends FeatureTestCase
     }
 
     #[Test]
-    public function ohne_csrf_token_aendert_sich_nichts(): void
+    public function mit_falschem_csrf_token_aendert_sich_nichts(): void
     {
         $user = $this->login();
 
-        $response = $this->post('/profile/theme', ['theme' => 'light']);
+        // Ausdruecklich ein falscher Token: post() legt sonst einen
+        // gueltigen bei, wie es ein Formular der Anwendung auch tut.
+        $response = $this->post('/profile/theme', ['theme' => 'light', 'csrf_token' => 'falsch']);
 
-        $this->assertRedirect($response, 'index');
+        $this->assertStatus(403, $response);
         $this->assertSame('dark', User::query()->findOrFail($user->id)->theme);
     }
 

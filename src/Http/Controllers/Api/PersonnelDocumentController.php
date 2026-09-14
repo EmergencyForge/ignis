@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Api;
 use App\Auth\Gate;
 use App\Logging\Logger;
 use App\Models\PersonnelDocument;
-use App\Security\CsrfProtection;
 use App\Utils\AuditLogger;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
@@ -103,8 +102,8 @@ final class PersonnelDocumentController
         }
 
         try {
+            // Den CSRF-Token prueft CsrfMiddleware, global am Router.
             $input = $request->json();
-            CsrfProtection::requireValid($input);
 
             $docid    = (string) ($input['docid'] ?? '');
             $archived = (bool) ($input['archived'] ?? true);
@@ -129,11 +128,7 @@ final class PersonnelDocumentController
                 1,
             );
 
-            return Response::json([
-                'success'    => true,
-                'archived'   => $archived,
-                'csrf_token' => CsrfProtection::getResponseToken(),
-            ]);
+            return Response::json(['success' => true, 'archived' => $archived]);
         } catch (\Throwable $e) {
             Logger::error('Dokument archivieren fehlgeschlagen: ' . $e->getMessage());
 

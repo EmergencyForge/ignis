@@ -93,6 +93,7 @@ $SITE_TITLE = 'FW-Qualifikationen';
         </template>
 
         <form id="delete-qualifw-form" action="<?= BASE_PATH ?>settings/personnel/fdskills/delete" method="POST" style="display:none;">
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="qualifw-delete-id">
         </form>
     <?php endif; ?>

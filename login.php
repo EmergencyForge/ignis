@@ -93,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 
                         // Optional code input field
                         echo '<form method="POST" class="mb-4">';
+                        echo csrf_field();
                         echo '<div class="relative mb-3">';
                         echo '<label class="ignis-field__label" for="registration_code">Registrierungscode</label>';
                         echo '<i class="fa-solid fa-key pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>';

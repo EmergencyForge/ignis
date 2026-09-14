@@ -38,6 +38,7 @@ $SITE_TITLE = 'Antragstypen';
                 </div>
             <?php else: ?>
                 <form method="post" action="">
+                    <?= csrf_field() ?>
                     <div class="twplus-table-card">
                         <div class="twplus-table-card__scroll">
                             <table class="ignis-table" id="table-antragstypen">

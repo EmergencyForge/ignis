@@ -37,6 +37,7 @@ $formFields = [
             </div>
 
             <form method="POST" action="<?= BASE_PATH ?>personnel/create" class="ignis-card ignis-form-card" data-ignis-form="personnel-create" data-ignis-validate>
+                <?= csrf_field() ?>
             <?= \App\Support\FormErrors::summary($formErrors, $formFields, 'ignis') ?>
                 <div class="ignis-card__body">
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">

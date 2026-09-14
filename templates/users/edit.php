@@ -46,6 +46,7 @@ $bodyId = 'benutzer';
                         <?php endif; ?>
                     </div>
                     <form name="form" method="post" action="">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= (int) $target->id ?>" />
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
