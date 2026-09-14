@@ -48,6 +48,7 @@ final class AuthMiddleware implements MiddlewareInterface
 
     public function process(Request $request, callable $next): Response
     {
+        \App\Auth\FabricaSession::enforce();
         if (!$this->isActive()) {
             return $next($request);
         }

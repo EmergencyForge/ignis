@@ -87,6 +87,8 @@ $router->match(['GET', 'POST'], '/login', $rootScript('login.php'));
 $router->get('/invite',        $rootScript('invite.php'));
 $router->get('/logout',        $rootScript('logout.php'));
 $router->get('/auth/discord',  $rootScript('auth/discord.php'));
+$router->get('/auth/fabrica', [\App\Http\Controllers\FabricaAuthController::class, 'login']);
+$router->get('/auth/fabrica/callback', [\App\Http\Controllers\FabricaAuthController::class, 'callback']);
 $router->get('/auth/callback', $rootScript('auth/callback.php'));
 
 // ----------------------------------------------------------------------------
