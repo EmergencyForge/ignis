@@ -86,6 +86,23 @@ final class FabricaClientTest extends TestCase
         }
     }
 
+    public function test_profile_is_validated_without_requiring_it_from_older_fabrica_servers(): void
+    {
+        foreach ([null, 'Sync member', 42, [], '', str_repeat('x', 201)] as $username) {
+            $data = $this->identity() + ['username' => $username];
+            $client = new FabricaClient('https://console.example.test', self::INSTANCE, self::INSTANCE . '.' . str_repeat('s', 43), new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], json_encode($data, JSON_THROW_ON_ERROR))]))]));
+            $session = [];
+            $client->begin($session);
+            try {
+                $login = $client->finish($session, ['state' => $session['fabrica_pending']['state'], 'code' => str_repeat('c', 43)]);
+                self::assertTrue($username === null || $username === 'Sync member');
+                self::assertSame($username, $login['username']);
+            } catch (RuntimeException) {
+                self::assertFalse($username === null || $username === 'Sync member');
+            }
+        }
+    }
+
     public function test_configuration_requires_https_and_instance_scoped_secret(): void
     {
         $this->expectException(RuntimeException::class);

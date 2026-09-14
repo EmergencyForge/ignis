@@ -22,11 +22,16 @@ if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf' && class_exists(\P
 }
 
 $centralLogin = \App\Auth\FabricaClient::enabled();
-$registrationMode = $centralLogin ? 'central' : (defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open');
+$registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
 $error = \App\Session\SessionManager::pullRegistrationError();
 
 // Handle code submission
-if (!$centralLogin && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
+    if ($registrationMode === 'closed') {
+        \App\Session\SessionManager::clearRegistrationCode();
+        \App\Session\SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bestehende Benutzer können sich weiterhin anmelden.');
+        return Response::redirect(BASE_PATH . 'login');
+    }
     $code = trim($_POST['registration_code']);
 
     if (!empty($code)) {
@@ -43,7 +48,7 @@ if (!$centralLogin && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reg
             } else {
                 \App\Session\SessionManager::setRegistrationCode($code);
                 // Redirect to Discord auth
-                return Response::redirect(BASE_PATH . 'auth/discord');
+                return Response::redirect(BASE_PATH . ($centralLogin ? 'auth/fabrica' : 'auth/discord'));
             }
         } else {
             $error = 'Ungültiger oder bereits verwendeter Einladungscode.';
@@ -96,8 +101,7 @@ if (!$centralLogin && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reg
                         echo csrf_field();
                         echo '<div class="relative mb-3">';
                         echo '<label class="ignis-field__label" for="registration_code">Registrierungscode</label>';
-                        echo '<i class="fa-solid fa-key pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>';
-                        echo '<input type="text" class="ignis-input" id="registration_code" name="registration_code" placeholder="Code aus der Einladung" autocomplete="one-time-code" style="padding-left: 35px;">';
+                        echo '<input type="text" class="ignis-input" id="registration_code" name="registration_code" placeholder="Code aus der Einladung" autocomplete="one-time-code">';
                         echo '</div>';
                         echo '<button type="submit" class="ignis-btn ignis-btn--secondary block w-full">Mit Code registrieren</button>';
                         echo '</form>';
@@ -112,7 +116,7 @@ if (!$centralLogin && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reg
         <?php
         // Dieselbe Quelle wie die Versionszeile der Sidebar.
         $loginVersionFile = __DIR__ . '/storage/version.json';
-        $loginVersionInfo = is_file($loginVersionFile) ? json_decode((string) (string) file_get_contents($loginVersionFile), true) : null;
+        $loginVersionInfo = is_file($loginVersionFile) ? json_decode((string) file_get_contents($loginVersionFile), true) : null;
         $loginVersion = is_array($loginVersionInfo) && !empty($loginVersionInfo['version']) ? (string) $loginVersionInfo['version'] : null;
         ?>
         <p class="twplus-login__foot">

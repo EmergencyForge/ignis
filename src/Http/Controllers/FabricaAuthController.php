@@ -10,6 +10,7 @@ use App\Session\SessionManager;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Throwable;
+use DomainException;
 
 final class FabricaAuthController
 {
@@ -22,7 +23,7 @@ final class FabricaAuthController
             SessionManager::start();
             return $this->privateResponse(Response::redirect(($this->client ?? FabricaClient::fromEnvironment())->begin($_SESSION)));
         } catch (Throwable) {
-            return $this->privateResponse(Response::text('Die EmergencyForge-Anmeldung ist noch nicht vollständig eingerichtet.', 503));
+            return $this->privateResponse(Response::text('Die Sync-Anmeldung ist noch nicht vollständig eingerichtet.', 503));
         }
     }
 
@@ -32,12 +33,22 @@ final class FabricaAuthController
         try {
             $client = $this->client ?? FabricaClient::fromEnvironment();
             $login = $client->finish($_SESSION, $request->query);
-            $user = FabricaIdentity::user($client->origin, $login['subject']);
-            if ($user === null) return $this->privateResponse(Response::text('Dein EmergencyForge-Konto ist hier noch keinem aktiven Benutzer zugeordnet. Bitte wende dich an die Instanzverwaltung.', 403));
+            $code = SessionManager::getRegistrationCode();
+            $user = FabricaIdentity::resolve(
+                $client->origin, $login['subject'], $login['username'],
+                defined('REGISTRATION_MODE') ? (string) REGISTRATION_MODE : 'open',
+                is_string($code) ? $code : null,
+            );
+            SessionManager::clearRegistrationCode();
             $_SESSION['fabrica_login'] = $login + ['localUserId' => (int) $user->id];
             SessionManager::loginUser($user->toArray(), []);
             SessionManager::setPermissions(\App\Auth\Permissions::retrieveFromDatabase((int) $user->id));
             return $this->privateResponse(Response::redirect(SessionManager::pullRedirectUrl() ?? (defined('BASE_PATH') ? (string) BASE_PATH : '/')));
+        } catch (DomainException $e) {
+            SessionManager::logoutUser();
+            SessionManager::clearRegistrationCode();
+            SessionManager::setRegistrationError($e->getMessage());
+            return $this->privateResponse(Response::redirect((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'login'));
         } catch (Throwable) {
             SessionManager::logoutUser();
             return $this->privateResponse(Response::text('Die Anmeldung konnte nicht bestätigt werden. Bitte beginne die Anmeldung erneut.', 403));

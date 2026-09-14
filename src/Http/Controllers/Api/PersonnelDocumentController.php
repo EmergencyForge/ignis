@@ -59,7 +59,8 @@ final class PersonnelDocumentController
 
             // Wer es selbst ausgestellt hat, darf es auch ohne das
             // allgemeine Leserecht ansehen.
-            $isOwn = ($doc['ausstellerid'] ?? null) == ($_SESSION['discord_id'] ?? '');
+            $discordId = $_SESSION['discordtag'] ?? null;
+            $isOwn = is_string($discordId) && $discordId !== '' && (string) ($doc['ausstellerid'] ?? '') === $discordId;
             if (!$isOwn && Gate::denies('document.view')) {
                 return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
             }
