@@ -3,7 +3,7 @@
 /**
  * View: Plugin-Verwaltung
  *
- * @var list<array{id: string, manifest: \App\Plugins\PluginManifest, enabled: bool, active: bool, skipReason: ?string, requiredBy: list<string>}> $rows
+ * @var list<array{id: string, manifest: \EmergencyForge\Plugins\PluginManifest, enabled: bool, active: bool, skipReason: ?string, requiredBy: list<string>}> $rows
  * @var string                              $message
  * @var string                              $messageType
  * @var list<array<string,mixed>>           $catalogRows

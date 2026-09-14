@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Auth\Permissions;
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
 use App\Telemetry\GlobalAnnouncementManager;
 use App\Telemetry\TelemetryManager;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * Telemetrie-Endpoints — Heartbeat (API-Key-gated) und Background-AJAX

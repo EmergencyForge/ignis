@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Cron\JobHandler;
 
-use App\Cron\JobResult;
 use App\Plugins\PluginLoader;
 use App\Utils\SystemUpdater;
+use EmergencyForge\Cron\Handler\ConsoleHandler as PackageConsoleHandler;
+use EmergencyForge\Cron\Handler\JobHandlerInterface;
+use EmergencyForge\Cron\JobResult;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Führt einen registrierten Symfony-Console-Command via CLI-Entrypoint
- * [cli/intra.php](cli/intra.php) aus.
+ * Console-Jobs von ignis.
  *
- * `$handler` ist der Command-Name (z.B. "queue:work", "telemetry:send").
- * Zusätzliche Argumente können in `config.args` (Array) übergeben werden.
- *
- * Nur Commands aus einer Allowlist dürfen ausgeführt werden — das verhindert,
- * dass ein kompromittiertes Admin-UI beliebigen CLI-Zugriff bekommt.
+ * Die Arbeit macht der Handler aus emergencyforge/cron-scheduler: eigener
+ * PHP-Prozess, Allowlist, Timeout, gekürzte Ausgabe. Zwei Dinge bleiben
+ * hier, weil sie ignis gehören — die Liste der erlaubten Commands und der
+ * Sonderweg für `updates:check`.
  */
 final class ConsoleHandler implements JobHandlerInterface
 {
@@ -38,116 +38,56 @@ final class ConsoleHandler implements JobHandlerInterface
         'updates:check',
     ];
 
+    private PackageConsoleHandler $inner;
+
     public function __construct(private readonly ContainerInterface $container)
     {
+        $appRoot = dirname(__DIR__, 3);
+
+        $this->inner = new PackageConsoleHandler(
+            cliPath: $appRoot . '/cli/intra.php',
+            allowlist: self::ALLOWLIST,
+            isPluginCommand: fn (string $name): bool => $this->isPluginCommand($name),
+            workingDir: $appRoot,
+        );
     }
 
     public function isAvailable(string $handler): bool
     {
-        if (in_array($handler, self::ALLOWLIST, true)) {
-            return true;
+        return $this->inner->isAvailable($handler);
+    }
+
+    public function run(string $handler, array $config, int $timeoutSeconds): JobResult
+    {
+        // Der Update-Check braucht weder einen zweiten Prozess noch eine
+        // Queue. Ihn im laufenden Prozess zu erledigen hält die
+        // Erkennung auch auf Managed Hosting am Leben, wo proc_open
+        // gesperrt ist.
+        if ($handler === 'updates:check') {
+            return $this->runPortableUpdateCheck();
         }
 
+        return $this->inner->run($handler, $config, $timeoutSeconds);
+    }
+
+    /**
+     * Kennt ein aktives Plugin diesen Command? Die Klassen stehen in den
+     * Manifesten, den Namen kennt erst die instanziierte Command-Klasse.
+     */
+    private function isPluginCommand(string $name): bool
+    {
         try {
-            $classes = $this->container->get(PluginLoader::class)->mergeConsoleCommands([]);
-            foreach ($classes as $class) {
+            foreach ($this->container->get(PluginLoader::class)->mergeConsoleCommands([]) as $class) {
                 $command = $this->container->get($class);
-                if ($command instanceof Command && $command->getName() === $handler) {
+                if ($command instanceof Command && $command->getName() === $name) {
                     return true;
                 }
             }
         } catch (\Throwable) {
             return false;
         }
+
         return false;
-    }
-
-    public function run(string $handler, array $config, int $timeoutSeconds): JobResult
-    {
-        if (!$this->isAvailable($handler)) {
-            return JobResult::skipped("Command '{$handler}' ist nicht registriert; das zugehörige Plugin ist möglicherweise inaktiv.");
-        }
-
-        // Der Update-Check benötigt weder einen separaten Prozess noch eine
-        // Queue. Ihn im aktuellen PHP-Prozess auszuführen hält die automatische
-        // Erkennung auch auf Managed Hosting mit deaktiviertem proc_open aktiv.
-        if ($handler === 'updates:check') {
-            return $this->runPortableUpdateCheck();
-        }
-
-        $appRoot = dirname(__DIR__, 3);
-        $cliPath = $appRoot . '/cli/intra.php';
-        if (!is_file($cliPath)) {
-            return JobResult::failed(0, 'CLI-Entrypoint nicht gefunden: ' . $cliPath);
-        }
-
-        $phpBinary = PHP_BINARY !== '' ? PHP_BINARY : 'php';
-        $args = (array) ($config['args'] ?? []);
-
-        $cmdParts = array_merge(
-            [$phpBinary, $cliPath, $handler],
-            array_map('strval', $args)
-        );
-        $cmd = implode(' ', array_map('escapeshellarg', $cmdParts));
-
-        $descriptors = [
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ];
-
-        // proc_open steht in disable_functions vieler Shared-Hosting-Setups —
-        // seit PHP 8 wirft der Aufruf dann einen fatalen Error statt false.
-        if (!function_exists('proc_open')) {
-            return JobResult::failed(0, 'proc_open ist auf diesem Hosting deaktiviert (disable_functions) — Console-Jobs können nicht ausgeführt werden.');
-        }
-
-        $startedAt = microtime(true);
-        $proc = @proc_open($cmd, $descriptors, $pipes, $appRoot);
-        if (!is_resource($proc)) {
-            return JobResult::failed(0, 'proc_open schlug fehl: ' . $cmd);
-        }
-
-        stream_set_blocking($pipes[1], false);
-        stream_set_blocking($pipes[2], false);
-
-        $stdout  = '';
-        $stderr  = '';
-        $deadline = microtime(true) + $timeoutSeconds;
-
-        while (true) {
-            $status = proc_get_status($proc);
-            $stdout .= (string) stream_get_contents($pipes[1]);
-            $stderr .= (string) stream_get_contents($pipes[2]);
-
-            if (!$status['running']) {
-                break;
-            }
-            if (microtime(true) >= $deadline) {
-                proc_terminate($proc, 15);
-                usleep(200_000);
-                if (proc_get_status($proc)['running']) {
-                    proc_terminate($proc, 9);
-                }
-                $stderr .= "\n[timeout nach {$timeoutSeconds}s]";
-                break;
-            }
-            usleep(100_000);
-        }
-
-        $stdout .= (string) stream_get_contents($pipes[1]);
-        $stderr .= (string) stream_get_contents($pipes[2]);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        $exitCode = proc_close($proc);
-
-        $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
-        $combined = trim($stdout . ($stderr !== '' ? "\n[stderr]\n" . $stderr : ''));
-        $output = $this->truncate($this->stripAnsi($combined), 8000);
-
-        if ($exitCode === 0) {
-            return JobResult::success($durationMs, $output);
-        }
-        return JobResult::failed($durationMs, "Exit {$exitCode}\n" . $output);
     }
 
     private function runPortableUpdateCheck(): JobResult
@@ -161,7 +101,7 @@ final class ConsoleHandler implements JobHandlerInterface
             }
 
             $current = (string) ($result['current_version'] ?? '?');
-            $latest = (string) ($result['latest_version'] ?? '?');
+            $latest  = (string) ($result['latest_version'] ?? '?');
             $message = !empty($result['available'])
                 ? "Neue Version verfügbar: {$latest} (aktuell: {$current})."
                 : "Installation ist aktuell ({$current}).";
@@ -173,22 +113,5 @@ final class ConsoleHandler implements JobHandlerInterface
                 'Update-Check fehlgeschlagen: ' . $e->getMessage()
             );
         }
-    }
-
-    /**
-     * Entfernt ANSI-Escape-Sequenzen (Farbcodes aus Symfony Console) aus dem
-     * Output, damit er im Browser und in Logs sauber lesbar ist.
-     */
-    private function stripAnsi(string $text): string
-    {
-        return preg_replace('/\x1b\[[0-9;]*[A-Za-z]/', '', $text) ?? $text;
-    }
-
-    private function truncate(string $text, int $maxLen): string
-    {
-        if (strlen($text) <= $maxLen) {
-            return $text;
-        }
-        return substr($text, 0, $maxLen) . "\n… (gekürzt)";
     }
 }

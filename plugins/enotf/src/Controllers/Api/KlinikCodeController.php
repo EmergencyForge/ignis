@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Plugin\Enotf\Controllers\Api;
 
-use App\Http\Request;
-use Plugin\Enotf\Requests\KlinikCodeGenerateRequest;
-use App\Http\Response;
 use App\Logging\Logger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as DB;
 use PDOException;
 use Plugin\Enotf\Models\Edivi;
 use Plugin\Enotf\Models\EdiviKlinikcode;
+use Plugin\Enotf\Requests\KlinikCodeGenerateRequest;
 
 /**
  * Generiert Klinik-Einmal-Codes für ein eNOTF-Protokoll.

@@ -9,12 +9,12 @@ declare(strict_types=1);
  * kommen Hospitals (Verfügbarkeiten), Klinik-Codes, POI-Verwaltung und
  * die POI-Hover-Card.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\JsonExceptionMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
+use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
 use Plugin\Enotf\Controllers\Api\EnotfController;
 use Plugin\Enotf\Controllers\Api\HospitalAvailabilityController;
 use Plugin\Enotf\Controllers\Api\KlinikCodeController;

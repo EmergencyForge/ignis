@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api;
 use App\Api\ApiResponse;
 use App\Federation\FederationMiddleware;
 use App\Federation\FederationPairingService;
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**

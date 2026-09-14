@@ -5,11 +5,11 @@ declare(strict_types=1);
 /**
  * MANV-Board — API-Routen (Session-basiert).
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\JsonExceptionMiddleware;
+use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
 use Plugin\ManvBoard\Controllers\Api\MciController;
 
 $mciAuth = [JsonExceptionMiddleware::class, new AuthMiddleware()];

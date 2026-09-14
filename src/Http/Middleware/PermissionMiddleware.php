@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Auth\Permissions;
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Middleware\MiddlewareInterface;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * Prüft, ob der eingeloggte User mindestens eine der angegebenen Permissions

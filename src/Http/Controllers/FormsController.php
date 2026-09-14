@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Auth\Gate;
 use App\Calendar\AbsenceSyncService;
-use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Antraege\DecideAntragRequest;
@@ -18,6 +17,7 @@ use App\Models\FormType;
 use App\Notifications\NotificationManager;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**

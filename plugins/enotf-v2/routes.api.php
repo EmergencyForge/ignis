@@ -15,11 +15,11 @@ declare(strict_types=1);
  *   POST { "enr": "...", "fields": { "spalte": wert, ... } }
  *   →    { "ok": bool, "updated": [...], "errors": {...} }
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\JsonExceptionMiddleware;
+use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
 use Plugin\EnotfV2\Controllers\Api\PlausibilityApiController;
 use Plugin\EnotfV2\Controllers\Api\ProtokollApiController;
 

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Helpers\Flash;
-use App\Http\Request;
 use App\Notifications\NotificationManager;
 use App\Session\SessionManager;
 use App\Support\ListQuery;
+use EmergencyForge\Http\Request;
 
 /**
  * Posteingang: die Benachrichtigungen des angemeldeten Nutzers
@@ -91,7 +91,7 @@ final class InboxController extends Controller
             $this->redirect('inbox');
         }
 
-        throw new \App\Http\RedirectException($href);
+        throw new \EmergencyForge\Http\Exceptions\RedirectException($href);
     }
 
     public function read(): void

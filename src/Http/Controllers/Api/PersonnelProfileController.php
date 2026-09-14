@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * Personnel-Profile-API für das Admin-Panel. Liefert HTML-Fragmente für

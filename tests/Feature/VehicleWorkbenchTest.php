@@ -39,7 +39,7 @@ final class VehicleWorkbenchTest extends FeatureTestCase
     /**
      * @param array<string,mixed> $post
      */
-    private function postWithToken(string $path, array $post): \App\Http\Response
+    private function postWithToken(string $path, array $post): \EmergencyForge\Http\Response
     {
         return $this->post($path, $post + ['csrf_token' => CsrfProtection::getToken()]);
     }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Plugins;
 
-use App\Plugins\Plugin;
-use App\Plugins\PluginManifest;
-use App\Plugins\PluginRegistry;
+use EmergencyForge\Plugins\Plugin;
+use EmergencyForge\Plugins\PluginManifest;
+use EmergencyForge\Plugins\PluginRegistry;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

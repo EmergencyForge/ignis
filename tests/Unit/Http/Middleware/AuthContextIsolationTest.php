@@ -6,9 +6,9 @@ namespace Tests\Unit\Http\Middleware;
 
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Request;
-use App\Http\Response;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

@@ -28,14 +28,14 @@ declare(strict_types=1);
  *
  * ==============================================================================
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
-use App\Http\Controllers\FormsController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\FormsController;
+use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PersonnelController;
-use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -48,7 +48,7 @@ use App\Http\Middleware\PolicyMiddleware;
 // Smoke-Test-Route — hilft beim Verifizieren, dass die Pipeline steht.
 // Kein Auth erforderlich, damit sie auch ohne Login erreichbar ist.
 $router->get('/_router/ping', function ($request) {
-    return \App\Http\Response::json([
+    return \EmergencyForge\Http\Response::json([
         'success' => true,
         'message' => 'pong',
         'time'    => date('c'),
@@ -73,9 +73,9 @@ $router->get('/_router/ping', function ($request) {
 
 $rootScript = static function (string $file): \Closure {
     $path = dirname(__DIR__) . '/' . $file;
-    return static function () use ($path): \App\Http\Response {
+    return static function () use ($path): \EmergencyForge\Http\Response {
         $result = require $path;
-        return $result instanceof \App\Http\Response ? $result : \App\Http\Response::empty();
+        return $result instanceof \EmergencyForge\Http\Response ? $result : \EmergencyForge\Http\Response::empty();
     };
 };
 
@@ -100,14 +100,14 @@ $userAuth = [new AuthMiddleware()];
 $router->get('/users/list',     [UserController::class, 'index'], $userAuth);
 
 // edit.php: GET → edit(), POST (mit ?new=1) → update() — Dispatcher-Closure
-$benutzerEditDispatch = function (\App\Http\Request $request) {
+$benutzerEditDispatch = function (\EmergencyForge\Http\Request $request) {
     $controller = app(UserController::class);
     if ($request->method === 'POST' && (string) ($request->post['new'] ?? '') === '1') {
         $controller->update();
     } else {
         $controller->edit();
     }
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 };
 $router->match(['GET', 'POST'], '/users/edit',     $benutzerEditDispatch, $userAuth);
 
@@ -176,7 +176,7 @@ $router->get('/inbox/popover',         [InboxController::class, 'popover'], [new
 $router->get('/inbox/{id:\d+}/open',   [InboxController::class, 'open'],    [new AuthMiddleware()]);
 $router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 
-$notifRedirect = static fn (): \App\Http\Response => \App\Http\Response::redirect(BASE_PATH . 'inbox', 301);
+$notifRedirect = static fn (): \EmergencyForge\Http\Response => \EmergencyForge\Http\Response::redirect(BASE_PATH . 'inbox', 301);
 foreach (['/notifications', '/notifications/', '/notifications/index', '/notifications/index.php'] as $notifPath) {
     $router->get($notifPath, $notifRedirect);
 }
@@ -200,7 +200,7 @@ $router->get('/logbook/index.php', [LogbookController::class, 'index'], $fahrtLi
 // POST /fahrtenbuch/actions.php — Multi-Context-Dispatcher.
 // Keine Router-Middleware, weil die drei Auth-Kontexte (userid/fahrername/
 // einsatz_vehicle_id) im Controller via `requireAnyContext()` geprüft werden.
-$fahrtPostDispatch = function (\App\Http\Request $request) {
+$fahrtPostDispatch = function (\EmergencyForge\Http\Request $request) {
     $controller = app(LogbookController::class);
     $action     = (string) ($request->post['action'] ?? '');
 
@@ -214,7 +214,7 @@ $fahrtPostDispatch = function (\App\Http\Request $request) {
             exit;
         })(),
     };
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 };
 
 $router->post('/logbook/actions',     $fahrtPostDispatch);
@@ -277,7 +277,7 @@ $router->get('/personnel/profile',     [PersonnelController::class, 'show'], $mi
 // Profile POST-Dispatcher anhand $_POST['new']
 // 1=Update / 4=Fachdienste / 5=Notiz → mitarbeiter.update
 // 6=Dokument erstellen → mitarbeiter.manageDocs
-$mitarbeiterProfileDispatch = function (\App\Http\Request $request) {
+$mitarbeiterProfileDispatch = function (\EmergencyForge\Http\Request $request) {
     $controller = app(PersonnelController::class);
     $action     = (string) ($request->post['new'] ?? '');
 
@@ -302,7 +302,7 @@ $mitarbeiterProfileDispatch = function (\App\Http\Request $request) {
             \App\Auth\Gate::authorize('personnel.view');
             $controller->show();
     }
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 };
 
 $router->post('/personnel/profile',     $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
@@ -323,11 +323,11 @@ $router->get('/personnel/document-view',     [PersonnelController::class, 'showD
 // mehr. Public/index.php strippt das .php-Suffix per 301 ab, weshalb die
 // Route hier OHNE .php registriert ist; sie leitet dann auf den modernen
 // Dokument-Viewer um.
-$router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\App\Http\Request $request): \App\Http\Response {
+$router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\EmergencyForge\Http\Request $request): \EmergencyForge\Http\Response {
     $docid = (string) ($request->query['docid'] ?? '');
     $base  = defined('BASE_PATH') ? (string) BASE_PATH : '/';
     $url   = $base . 'personnel/document-view' . ($docid !== '' ? '?docid=' . rawurlencode($docid) : '');
-    return \App\Http\Response::redirect($url, 308);
+    return \EmergencyForge\Http\Response::redirect($url, 308);
 });
 
 $router->post('/personnel/document-delete',     [PersonnelController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
@@ -454,11 +454,11 @@ $router->post('/settings/system/cron/create',  [\App\Http\Controllers\Settings\C
 // ----------------------------------------------------------------------------
 
 $legacyApiRedirect = function (string $target): \Closure {
-    return function (\App\Http\Request $request) use ($target): \App\Http\Response {
+    return function (\EmergencyForge\Http\Request $request) use ($target): \EmergencyForge\Http\Response {
         $qs   = $request->server['QUERY_STRING'] ?? '';
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         $url  = rtrim($base, '/') . $target . ($qs !== '' ? '?' . $qs : '');
-        return \App\Http\Response::redirect($url, 308);
+        return \EmergencyForge\Http\Response::redirect($url, 308);
     };
 };
 $legacyApiPaths = [

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\CharacterController;
-use App\Http\Request;
-use App\Exceptions\ValidationException;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use EmergencyForge\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

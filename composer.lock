@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b73f288cd80ab305dd5c1636f154915d",
+    "content-hash": "72eb1a4e4f85e51e6961ede61f100bad",
     "packages": [
         {
             "name": "brick/math",
@@ -767,6 +767,151 @@
                 }
             ],
             "time": "2025-10-31T18:51:33+00:00"
+        },
+        {
+            "name": "emergencyforge/cron-scheduler",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/cron-scheduler",
+                "reference": "ec3088c3840751f2a56f8f41672c533bd0db94f8"
+            },
+            "require": {
+                "dragonmantank/cron-expression": "^3.6",
+                "php": ">=8.3",
+                "psr/log": "^2.0 || ^3.0"
+            },
+            "require-dev": {
+                "emergencyforge/http-kernel": "^0.1",
+                "phpunit/phpunit": "^10.5"
+            },
+            "suggest": {
+                "emergencyforge/http-kernel": "Für CronTickMiddleware, die den Tick an einen normalen Seitenaufruf hängt."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\Cron\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\Cron\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Cron ohne Crontab für EmergencyForge-Anwendungen: Scheduler mit Optimistic Lock, Lauf-Protokoll, Auto-Pause nach Fehlläufen, Handler für Console-Commands und Webhooks, Piggyback-Tick am Request-Ende.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/health-check",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/health-check",
+                "reference": "764aaa28937fd3d5bb2f8ed7dbb7870ffef7dc99"
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\Health\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\Health\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Maschinenlesbarer Health-Check für EmergencyForge-Anwendungen: Check-Registry, Aggregation zu ok/degraded/down, Standard-Checks für Datenbank, Migrationen, Speicherplatz, PHP-Umgebung.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/http-kernel",
+            "version": "0.1.1",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/http-kernel",
+                "reference": "1bc2dc5a0f8246becfcfaed9fbe8637cec4211cf"
+            },
+            "require": {
+                "nikic/fast-route": "^1.3",
+                "php": ">=8.3",
+                "psr/container": "^1.1 || ^2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\Http\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\Http\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Schlanker HTTP-Kern der EmergencyForge-Anwendungen: Router (FastRoute), Middleware-Pipeline, Request/Response ohne PSR-7.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/plugin-system",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/plugin-system",
+                "reference": "86d39abe912783f75a01293284400eb680c7721c"
+            },
+            "require": {
+                "ext-tokenizer": "*",
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\Plugins\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\Plugins\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Plugin-Entdeckung und -Auflösung der EmergencyForge-Anwendungen: literal-only Manifeste, Versions-Constraints, Abhängigkeitsauflösung in Ladereihenfolge.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "enyo/dropzone",
@@ -7350,15 +7495,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

@@ -3,12 +3,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../assets/config/config.php';
 
 use App\Helpers\DiscordOAuth;
-use App\Http\Response;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\NotificationManager;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 ini_set('display_errors', 1);

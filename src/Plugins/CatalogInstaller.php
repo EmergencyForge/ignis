@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Plugins;
 
 use App\Logging\Logger;
+use EmergencyForge\Plugins\Plugin;
+use EmergencyForge\Plugins\PluginManifest;
 use ZipArchive;
 
 /** Sicherer Staging-Installer für digest-gepinnte Katalog-ZIPs. */
@@ -58,7 +60,7 @@ final class CatalogInstaller
             $manifest = PluginManifest::fromFile($manifestPath);
             if ($manifest->id !== $slug) throw new \RuntimeException('Manifest-ID stimmt nicht mit dem Katalog-Slug überein.');
             if ($this->ignisVersion !== null && !$manifest->isCompatibleWith($this->ignisVersion)) {
-                throw new \RuntimeException("Plugin benötigt ignis {$manifest->ignisRequire}; installiert ist {$this->ignisVersion}.");
+                throw new \RuntimeException("Plugin benötigt ignis {$manifest->hostRequire}; installiert ist {$this->ignisVersion}.");
             }
 
             $target = $this->pluginsDir . '/' . $slug;

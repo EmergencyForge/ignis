@@ -12,24 +12,24 @@ declare(strict_types=1);
  *
  * Diese Datei wird von `public/index.php` nach `routes/api.php` geladen.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AsuSyncController;
 use App\Http\Controllers\Api\DocumentsController;
 use App\Http\Controllers\Api\FederationController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\PersonnelProfileController;
 use App\Http\Controllers\Api\SystemController as SystemApiController;
 use App\Http\Controllers\Api\TelemetryApiController;
 use App\Http\Controllers\Api\VehicleTzTemplatesController;
-use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\VersionController;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\JsonExceptionMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
+use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
 
 // JsonExceptionMiddleware läuft als äußerste Schicht und wandelt
 // FormRequest-Validation- und Gate-Authorization-Exceptions zentral in

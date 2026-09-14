@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http;
 
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
+
 /**
  * Liefert eine statische Datei aus einem Verzeichnis aus, das nicht im
  * Docroot liegt (Plugin-Assets, storage/). Der Webserver kennt diese

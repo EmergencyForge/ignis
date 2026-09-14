@@ -4,7 +4,7 @@ require_once __DIR__ . '/assets/config/config.php';
 
 if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
     \App\Session\SessionManager::setRedirectFromRequest();
-    return \App\Http\Response::redirect(BASE_PATH . 'login');
+    return \EmergencyForge\Http\Response::redirect(BASE_PATH . 'login');
 }
 
 // Die Listen der Plugins nur, wenn das Plugin aktiv ist: die Partials lesen

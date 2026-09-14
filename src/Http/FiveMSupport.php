@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http;
 
+use EmergencyForge\Http\Request;
+
 /**
  * FiveMSupport — Hilfsfunktionen für intraRP-Pages, die im FiveM-Client
  * (CitizenFX-CEF-Webview) angezeigt werden.
@@ -48,7 +50,19 @@ final class FiveMSupport
     }
 
     /**
-     * Prüft den User-Agent auf CitizenFX-Marker.
+     * Prüft den User-Agent eines Requests auf CitizenFX-Marker.
+     *
+     * Die Request-Variante steht hier und nicht am Request selbst: der
+     * kommt aus emergencyforge/http-kernel und kennt FiveM nicht.
+     */
+    public static function isFiveM(Request $request): bool
+    {
+        return str_contains($request->userAgent(), 'CitizenFX');
+    }
+
+    /**
+     * Prüft den User-Agent auf CitizenFX-Marker. Liest die Superglobals,
+     * für Seiten ausserhalb der Middleware-Pipeline.
      */
     public static function isCitizenFx(): bool
     {

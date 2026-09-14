@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Http\Validation;
 
-use App\Http\Request;
 use App\Http\Validation\FormRequest;
-use App\Exceptions\ValidationException;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use EmergencyForge\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Respect\Validation\Validator as v;
 use Tests\TestCase;

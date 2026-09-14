@@ -6,9 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\UploadException;
 use App\Helpers\UserHelper;
-use App\Http\Request;
 use App\Http\Requests\Personnel\UpdateProfileRequest;
-use App\Http\Response;
 use App\Logging\Logger;
 use App\Models\AmbSkill;
 use App\Models\FdSkill;
@@ -18,6 +16,8 @@ use App\Models\RegistrationCode;
 use App\Personnel\PersonalLogManager;
 use App\Support\FileUpload;
 use DateTime;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**

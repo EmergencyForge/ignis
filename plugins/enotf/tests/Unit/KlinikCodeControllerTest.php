@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Plugin\Enotf\Tests\Unit;
 
-use Plugin\Enotf\Controllers\Api\KlinikCodeController;
-use App\Http\Request;
-use App\Exceptions\ValidationException;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use EmergencyForge\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
+use Plugin\Enotf\Controllers\Api\KlinikCodeController;
 use Tests\TestCase;
 
 /**

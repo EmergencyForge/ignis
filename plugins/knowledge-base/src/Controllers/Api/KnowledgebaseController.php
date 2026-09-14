@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Plugin\KnowledgeBase\Controllers\Api;
 
 use App\Auth\Gate;
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 use Plugin\KnowledgeBase\KBHelper;

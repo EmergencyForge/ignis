@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../assets/config/config.php';
 
-use App\Cron\CronScheduler;
+use EmergencyForge\Cron\CronScheduler;
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');

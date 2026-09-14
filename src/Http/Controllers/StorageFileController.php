@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\FileResponse;
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * `GET /storage/{area}/{file}` — hochgeladene Dateien.

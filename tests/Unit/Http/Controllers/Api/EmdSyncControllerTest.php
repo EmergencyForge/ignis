@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\EmdSyncController;
-use App\Http\Request;
+use EmergencyForge\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -92,6 +92,6 @@ class EmdSyncControllerTest extends TestCase
         $params = $syncMethod->getParameters();
         $this->assertCount(1, $params);
         $this->assertSame(Request::class, (string) $params[0]->getType());
-        $this->assertSame(\App\Http\Response::class, (string) $syncMethod->getReturnType());
+        $this->assertSame(\EmergencyForge\Http\Response::class, (string) $syncMethod->getReturnType());
     }
 }

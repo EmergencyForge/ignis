@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Auth\Gate;
-use App\Exceptions\AuthorizationException;
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Exceptions\AuthorizationException;
+use EmergencyForge\Http\Middleware\MiddlewareInterface;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * Deklarative Policy-Prüfung auf Route-Ebene.

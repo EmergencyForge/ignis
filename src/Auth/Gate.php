@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Auth;
 
-use App\Exceptions\AuthorizationException;
+use EmergencyForge\Http\Exceptions\AuthorizationException;
 
 /**
  * Gate — kleiner statischer Facade für Authorization-Entscheidungen.

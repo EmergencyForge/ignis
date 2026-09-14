@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Middleware;
 
 use App\Http\Middleware\ApiKeyMiddleware;
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Http\Controllers\Api\SystemController;
-use App\Plugins\Plugin;
 use App\Plugins\PluginLoader;
-use App\Plugins\PluginManifest;
 use App\Search\SearchRegistry;
+use EmergencyForge\Plugins\Plugin;
+use EmergencyForge\Plugins\PluginManifest;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;

@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
-use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
 use App\Http\Requests\FormRequest;
+use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
 use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
-use App\Http\Response;
-use App\Models\Rank;
+use App\Models\AmbSkill;
 use App\Models\FdSkill;
 use App\Models\Personnel;
 use App\Models\PersonnelDocument;
-use App\Models\AmbSkill;
+use App\Models\Rank;
 use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -158,14 +158,14 @@ class PersonnelController extends Controller
      * ignis-popover-Instanz geschoben. Auth: gleiche Sicht-Permission
      * wie die Mitarbeiter-Liste.
      */
-    public function card(\App\Http\Request $request, string $id): \App\Http\Response
+    public function card(\EmergencyForge\Http\Request $request, string $id): \EmergencyForge\Http\Response
     {
         $this->requireAuth();
         \App\Auth\Gate::authorize('personnel.viewList');
 
         $idInt = (int) $id;
         if ($idInt <= 0) {
-            return \App\Http\Response::html('Ungültige ID.', 400);
+            return \EmergencyForge\Http\Response::html('Ungültige ID.', 400);
         }
 
         /** @var Personnel|null $mitarbeiter */
@@ -174,7 +174,7 @@ class PersonnelController extends Controller
             ->find($idInt);
 
         if ($mitarbeiter === null) {
-            return \App\Http\Response::html('Mitarbeiter nicht gefunden.', 404);
+            return \EmergencyForge\Http\Response::html('Mitarbeiter nicht gefunden.', 404);
         }
 
         return $this->renderMitarbeiterCard($mitarbeiter);
@@ -189,14 +189,14 @@ class PersonnelController extends Controller
      * `data-dienstnr-card="042"` getriggert (siehe user-hover-card.js).
      * Selber Output wie `card()`, einfach ein zweiter Lookup-Pfad.
      */
-    public function cardByDienstnr(\App\Http\Request $request, string $nr): \App\Http\Response
+    public function cardByDienstnr(\EmergencyForge\Http\Request $request, string $nr): \EmergencyForge\Http\Response
     {
         $this->requireAuth();
         \App\Auth\Gate::authorize('personnel.viewList');
 
         $dienstnr = trim($nr);
         if ($dienstnr === '') {
-            return \App\Http\Response::html('Ungültige Dienstnummer.', 400);
+            return \EmergencyForge\Http\Response::html('Ungültige Dienstnummer.', 400);
         }
 
         /** @var Personnel|null $mitarbeiter */
@@ -206,19 +206,19 @@ class PersonnelController extends Controller
             ->first();
 
         if ($mitarbeiter === null) {
-            return \App\Http\Response::html('Dienstnummer nicht gefunden.', 404);
+            return \EmergencyForge\Http\Response::html('Dienstnummer nicht gefunden.', 404);
         }
 
         return $this->renderMitarbeiterCard($mitarbeiter);
     }
 
-    private function renderMitarbeiterCard(Personnel $mitarbeiter): \App\Http\Response
+    private function renderMitarbeiterCard(Personnel $mitarbeiter): \EmergencyForge\Http\Response
     {
         $profileUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
 
         ob_start();
         include __DIR__ . '/../../../assets/components/profiles/_hover-card.php';
-        return \App\Http\Response::html((string) ob_get_clean());
+        return \EmergencyForge\Http\Response::html((string) ob_get_clean());
     }
 
     public function show(): void

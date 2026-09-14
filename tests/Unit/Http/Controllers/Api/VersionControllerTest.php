@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\VersionController;
-use App\Http\Request;
+use EmergencyForge\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Auth\Gate;
-use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
-use App\Http\Request;
 use App\Http\Requests\FormRequest;
 use App\Http\Requests\Vehicles\CreateDefectRequest;
-use App\Http\Response;
 use App\Models\Poi;
 use App\Models\Vehicle;
 use App\Support\Activity;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use App\Vehicles\DefectReporter;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 

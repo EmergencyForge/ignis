@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http;
 
 use App\Http\FileResponse;
-use App\Http\Request;
+use EmergencyForge\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

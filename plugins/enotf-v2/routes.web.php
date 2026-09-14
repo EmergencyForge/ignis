@@ -29,7 +29,7 @@ declare(strict_types=1);
  * CEF, ältere Clients — passieren). Die JSON-API braucht das nicht
  * (application/json erzwingt cross-site einen CORS-Preflight).
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
@@ -46,9 +46,9 @@ $enotfV2Entry = [CsrfMiddleware::class, new AuthMiddleware('ENOTF_REQUIRE_USER_A
 $enotfV2Crew  = [CsrfMiddleware::class, new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'), new PinLockscreenMiddleware('enotf-v2/lockscreen'), FiveMCspMiddleware::class];
 
 // Einstieg: immer zur Overview (die leitet ohne Crew-Session zur Login-Seite)
-$enotfV2Home = static function (): \App\Http\Response {
+$enotfV2Home = static function (): \EmergencyForge\Http\Response {
     $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-    return \App\Http\Response::redirect($base . 'enotf-v2/overview');
+    return \EmergencyForge\Http\Response::redirect($base . 'enotf-v2/overview');
 };
 $router->get('/enotf-v2/',      $enotfV2Home, $enotfV2Crew);
 $router->get('/enotf-v2/index', $enotfV2Home, $enotfV2Crew);
@@ -93,17 +93,17 @@ $router->get('/enotf-v2/p/{enr:[\w._-]+}/{section:[\w-]+}',    [ProtokollControl
 // Security-Header und wären die einzigen v2-Routen mit abweichendem CSP.
 $enotfV2QmAuth = [CsrfMiddleware::class, new AuthMiddleware(), FiveMCspMiddleware::class];
 
-$router->match(['GET', 'POST'], '/enotf-v2/qm/actions/{id:\d+}', function (\App\Http\Request $request, string $id): \App\Http\Response {
+$router->match(['GET', 'POST'], '/enotf-v2/qm/actions/{id:\d+}', function (\EmergencyForge\Http\Request $request, string $id): \EmergencyForge\Http\Response {
     $_GET['id'] = $id; // das v1-Fragment liest die Protokoll-ID aus $_GET
     if (strtoupper($request->method) === 'POST' && !\App\Auth\Gate::allows('enotf.editProtocol')) {
-        return \App\Http\Response::json(['success' => false, 'message' => 'Keine Berechtigung'], 403);
+        return \EmergencyForge\Http\Response::json(['success' => false, 'message' => 'Keine Berechtigung'], 403);
     }
     app(\Plugin\Enotf\Controllers\EnotfAdminController::class)->qmActionsModal();
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfV2QmAuth);
 
-$router->get('/enotf-v2/qm/log/{id:\d+}', function (\App\Http\Request $request, string $id): \App\Http\Response {
+$router->get('/enotf-v2/qm/log/{id:\d+}', function (\EmergencyForge\Http\Request $request, string $id): \EmergencyForge\Http\Response {
     $_GET['id'] = $id;
     app(\Plugin\Enotf\Controllers\EnotfAdminController::class)->qmLogModal();
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfV2QmAuth);

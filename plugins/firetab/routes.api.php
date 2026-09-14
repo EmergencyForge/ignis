@@ -9,13 +9,13 @@ declare(strict_types=1);
  * Session-Kontext) zum Abholen der Fire-Status-Queue. Die `/api/fire/...`-
  * Routen sind session-basiert und bedienen das fireTab-Frontend.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\JsonExceptionMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
+use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
 use Plugin\Firetab\Controllers\Api\FireController;
 use Plugin\Firetab\Controllers\Api\FireLagekarteController;
 use Plugin\Firetab\Controllers\Api\FireStatusPollController;
