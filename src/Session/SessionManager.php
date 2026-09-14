@@ -321,6 +321,7 @@ class SessionManager
      */
     public static function logoutUser(): void
     {
+        unset($_SESSION['fabrica_login'], $_SESSION['fabrica_pending']);
         $keys = [
             'userid', 'cirs_username', 'aktenid', 'role', 'discordtag',
             'permissions', 'permissions_loaded',
@@ -369,6 +370,7 @@ class SessionManager
 
     public static function isLoggedIn(): bool
     {
+        \App\Auth\FabricaSession::enforce();
         return !empty($_SESSION['userid']);
     }
 

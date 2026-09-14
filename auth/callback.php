@@ -11,6 +11,8 @@ use App\Session\SessionManager;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
+if (\App\Auth\FabricaClient::enabled()) return Response::text('Die direkte Discord-Anmeldung ist deaktiviert.', 403);
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);

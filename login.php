@@ -21,11 +21,12 @@ if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf' && class_exists(\P
     }
 }
 
-$registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
+$centralLogin = \App\Auth\FabricaClient::enabled();
+$registrationMode = $centralLogin ? 'central' : (defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open');
 $error = \App\Session\SessionManager::pullRegistrationError();
 
 // Handle code submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
+if (!$centralLogin && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
     $code = trim($_POST['registration_code']);
 
     if (!empty($code)) {
@@ -105,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                     ?>
 
                     <div class="mb-4 text-center">
-                        <a href="<?= BASE_PATH ?>auth/discord" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><i class="fa-brands fa-discord" aria-hidden="true"></i> Mit Discord anmelden</a>
+                        <a href="<?= BASE_PATH ?><?= $centralLogin ? 'auth/fabrica' : 'auth/discord' ?>" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><i class="<?= $centralLogin ? 'fa-solid fa-right-to-bracket' : 'fa-brands fa-discord' ?>" aria-hidden="true"></i> Mit <?= $centralLogin ? 'EmergencyForge' : 'Discord' ?> anmelden</a>
                     </div>
                 </div>
         <?php

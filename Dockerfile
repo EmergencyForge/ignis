@@ -1,5 +1,8 @@
 FROM php:8.3-apache
 
+# Internal capability for EmergencyForge-managed Fabrica deployments.
+LABEL de.emergencyforge.fabrica.login="1"
+
 # System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
