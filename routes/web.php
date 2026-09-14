@@ -351,8 +351,18 @@ $settingsAuth = [new AuthMiddleware()];
 // Antrag-Settings
 $router->get('/settings/forms/list',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'listAction'],  $settingsAuth);
 $router->get('/settings/forms/create',     [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
+// Das Anlegen postete bisher auf die GET-Route darueber und bekam 405.
+$router->post('/settings/forms/create',    [\App\Http\Controllers\Settings\AntragSettingsController::class, 'store'],      $settingsAuth);
 $router->get('/settings/forms/edit',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
 $router->post('/settings/forms/edit',      [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
+
+// Umschalten, Loeschen und die Reihenfolge liefen als ?toggle=, ?delete=
+// und ?delete_feld= ueber GET — eine Zustandsaenderung an einer Adresse,
+// die jeder Bildaufruf und jeder Vorablade-Mechanismus ausloest.
+$router->post('/settings/forms/toggle',        [\App\Http\Controllers\Settings\AntragSettingsController::class, 'toggle'],       $settingsAuth);
+$router->post('/settings/forms/delete',        [\App\Http\Controllers\Settings\AntragSettingsController::class, 'destroy'],      $settingsAuth);
+$router->post('/settings/forms/sort',          [\App\Http\Controllers\Settings\AntragSettingsController::class, 'sort'],         $settingsAuth);
+$router->post('/settings/forms/fields/delete', [\App\Http\Controllers\Settings\AntragSettingsController::class, 'destroyField'], $settingsAuth);
 
 // Dashboard-Settings
 $router->get('/settings/dashboard/index',      [\App\Http\Controllers\Settings\DashboardController::class, 'index'], $settingsAuth);

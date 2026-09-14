@@ -4,65 +4,45 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Helpers\Flash;
 use App\Auth\Gate;
+use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Antraege\AddFormFieldRequest;
+use App\Http\Requests\Antraege\SaveFormTypeRequest;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * AntragSettingsController — Verwaltung der Antragstypen und ihrer Felder.
+ * Die Antragstypen und ihre Felder.
  *
- * Heißt bewusst "AntragSettings", um Konflikte mit dem bereits migrierten
- * App\Http\Controllers\FormsController (Antragstellung) zu vermeiden.
+ * Heißt „AntragSettings", damit der Name nicht mit
+ * {@see \App\Http\Controllers\FormsController} kollidiert, der die
+ * Antragstellung selbst macht.
+ *
+ * Zwei Dinge waren hier kaputt, bevor die FormRequests kamen:
+ *
+ * Aktivieren, Löschen eines Typs und Löschen eines Feldes liefen über
+ * `?toggle=`, `?delete=` und `?delete_feld=` — Zustandsänderungen an einer
+ * GET-Adresse. Ein `<img src="…?delete=5">` auf irgendeiner Seite reicht
+ * dann, und der Vorablade-Mechanismus eines Browsers braucht nicht einmal
+ * einen Angreifer. CsrfMiddleware greift dort nicht, sie prüft nur
+ * schreibende Methoden. Alle drei sind jetzt eigene POST-Routen.
+ *
+ * Und zwei Formulare posteten auf eine Adresse, für die nur GET
+ * registriert war: das Anlegen eines Antragstyps und die Sortierung der
+ * Liste antworteten mit 405. Beides waren tote Knöpfe.
  */
 class AntragSettingsController extends Controller
 {
+    private const LISTE = 'settings/forms/list';
+
     public function listAction(): void
     {
         $this->requireAuth();
         $this->ensureAdmin('index.php');
 
-        // Toggle Aktivierungsstatus
-        if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
-            $id = (int) $_GET['toggle'];
-            Capsule::table('intra_antrag_typen')
-                ->where('id', $id)
-                ->update(['aktiv' => Capsule::raw('NOT aktiv')]);
-            Flash::set('success', 'Status erfolgreich geändert');
-            $this->redirect('settings/forms/list');
-        }
-
-        // Antragstyp löschen
-        if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-            $id = (int) $_GET['delete'];
-            $count = (int) Capsule::table('intra_antraege')
-                ->where('antragstyp_id', $id)
-                ->count();
-
-            if ($count > 0) {
-                Flash::set('error', 'Dieser Antragstyp kann nicht gelöscht werden, da noch ' . $count . ' Anträge existieren.');
-            } else {
-                Capsule::table('intra_antrag_typen')->where('id', $id)->delete();
-                Flash::set('success', 'Antragstyp erfolgreich gelöscht');
-            }
-            $this->redirect('settings/forms/list');
-        }
-
-        // Sortierung aktualisieren
-        if (isset($_POST['update_sortierung'])) {
-            $sortierungen = $_POST['sortierung'] ?? [];
-            foreach ($sortierungen as $id => $sort) {
-                Capsule::table('intra_antrag_typen')
-                    ->where('id', (int) $id)
-                    ->update(['sortierung' => (int) $sort]);
-            }
-            Flash::set('success', 'Sortierung aktualisiert');
-            $this->redirect('settings/forms/list');
-        }
-
-        // Antragstypen mit Aggregaten laden
         $typen = Capsule::select("
             SELECT
                 at.*,
@@ -79,61 +59,92 @@ class AntragSettingsController extends Controller
         $this->renderView('settings/forms/list', ['typen' => $typen]);
     }
 
+    /** POST — Antragstyp aktivieren oder stilllegen. */
+    public function toggle(): void
+    {
+        $id = $this->postedId(self::LISTE);
+
+        Capsule::table('intra_antrag_typen')
+            ->where('id', $id)
+            ->update(['aktiv' => Capsule::raw('NOT aktiv')]);
+
+        $this->audit('Antragstyp umgeschaltet', '[ID: ' . $id . ']', $id);
+        Flash::set('success', 'Status erfolgreich geändert');
+        $this->redirect(self::LISTE);
+    }
+
+    /** POST — Antragstyp löschen, sofern kein Antrag daran hängt. */
+    public function destroy(): void
+    {
+        $id = $this->postedId(self::LISTE);
+
+        $anzahl = (int) Capsule::table('intra_antraege')->where('antragstyp_id', $id)->count();
+        if ($anzahl > 0) {
+            Flash::set('error', 'Dieser Antragstyp kann nicht gelöscht werden, da noch ' . $anzahl . ' Anträge existieren.');
+            $this->redirect(self::LISTE);
+        }
+
+        Capsule::table('intra_antrag_typen')->where('id', $id)->delete();
+
+        $this->audit('Antragstyp gelöscht', '[ID: ' . $id . ']', $id);
+        Flash::set('success', 'Antragstyp erfolgreich gelöscht');
+        $this->redirect(self::LISTE);
+    }
+
+    /** POST — die Reihenfolge der Liste. */
+    public function sort(): void
+    {
+        $this->requireAuth();
+        $this->ensureAdmin('index.php');
+
+        foreach ($this->sortierungen($_POST['sortierung'] ?? null) as $id => $sortierung) {
+            Capsule::table('intra_antrag_typen')->where('id', $id)->update(['sortierung' => $sortierung]);
+        }
+
+        Flash::set('success', 'Sortierung aktualisiert');
+        $this->redirect(self::LISTE);
+    }
+
     public function createForm(): void
     {
         $this->requireAuth();
         $this->ensureAdmin('index.php');
 
-        if (isset($_POST['submit'])) {
-            $this->handleCreate();
-            return;
-        }
-
-        $defaultSort = ((int) Capsule::table('intra_antrag_typen')->max('sortierung') ?? 0) + 1;
-
         $this->renderView('settings/forms/create', [
-            'defaultSort' => $defaultSort,
+            'defaultSort' => $this->naechsteSortierung(),
             'errors'      => [],
             'old'         => [],
         ]);
     }
 
-    private function handleCreate(): void
+    /** POST — einen Antragstyp anlegen. */
+    public function store(): void
     {
-        $name         = trim($_POST['name'] ?? '');
-        $beschreibung = trim($_POST['beschreibung'] ?? '');
-        $icon         = trim($_POST['icon'] ?? '');
-        $aktiv        = isset($_POST['aktiv']) ? 1 : 0;
-        $sortierung   = (int) ($_POST['sortierung'] ?? 0);
+        $this->requireAuth();
+        $this->ensureAdmin('index.php');
 
-        if ($name === '') {
-            Flash::set('error', 'Bitte geben Sie einen Namen für den Antragstyp an.');
-            $defaultSort = ((int) Capsule::table('intra_antrag_typen')->max('sortierung') ?? 0) + 1;
-            $this->renderView('settings/forms/create', [
-                'defaultSort' => $defaultSort,
-                'old'         => $_POST,
-            ]);
-            return;
+        try {
+            $data = SaveFormTypeRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/forms/create');
         }
 
         try {
-            $newId = Capsule::table('intra_antrag_typen')->insertGetId([
-                'name'         => $name,
-                'beschreibung' => $beschreibung,
-                'icon'         => $icon,
-                'aktiv'        => $aktiv,
-                'sortierung'   => $sortierung,
-                'erstellt_von' => $_SESSION['userid'] ?? null,
-            ]);
-
-            $this->audit('Neuer Antragstyp erstellt', $name . ' [ID: ' . $newId . ']');
-
-            Flash::set('success', 'Antragstyp erfolgreich erstellt. Sie können jetzt Felder hinzufügen.');
-            $this->redirect('settings/forms/edit?id=' . $newId);
+            $newId = Capsule::table('intra_antrag_typen')->insertGetId(
+                $data + ['erstellt_von' => $_SESSION['userid'] ?? null],
+            );
         } catch (PDOException $e) {
-            Flash::set('error', 'Fehler beim Erstellen: ' . $e->getMessage());
+            // Die Meldung der Datenbank gehört ins Protokoll, nicht in die
+            // Hinweisblase: sie nennt Tabellen- und Spaltennamen.
+            error_log('Antragstyp anlegen fehlgeschlagen: ' . $e->getMessage());
+            Flash::set('error', 'Der Antragstyp konnte nicht angelegt werden.');
             $this->redirect('settings/forms/create');
         }
+
+        $this->audit('Neuer Antragstyp erstellt', $data['name'] . ' [ID: ' . $newId . ']', (int) $newId);
+        Flash::set('success', 'Antragstyp erfolgreich erstellt. Du kannst jetzt Felder hinzufügen.');
+        $this->redirect('settings/forms/edit?id=' . $newId);
     }
 
     public function edit(): void
@@ -141,49 +152,23 @@ class AntragSettingsController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('index.php');
 
-        $id = (int) ($_GET['id'] ?? 0);
-        if ($id <= 0) {
-            Flash::set('error', 'Ungültige Antragstyp-ID');
-            $this->redirect('settings/forms/list');
-        }
+        $id  = (int) ($_GET['id'] ?? 0);
+        $typ = $this->typOderZurueck($id);
 
-        $typ = Capsule::table('intra_antrag_typen')->where('id', $id)->first();
-        if (!$typ) {
-            Flash::set('error', 'Antragstyp nicht gefunden');
-            $this->redirect('settings/forms/list');
-        }
-
-        // POST: Antragstyp aktualisieren
         if (isset($_POST['update_typ'])) {
-            $this->handleUpdateTyp($id);
-            return;
+            $this->updateTyp($id);
         }
 
-        // POST: Feld hinzufügen
         if (isset($_POST['add_feld'])) {
-            $this->handleAddFeld($id);
-            return;
+            $this->addFeld($id);
         }
 
-        // GET: Feld löschen
-        if (isset($_GET['delete_feld'])) {
-            $feldId = (int) $_GET['delete_feld'];
-            Capsule::table('intra_antrag_felder')
-                ->where('id', $feldId)
-                ->where('antragstyp_id', $id)
-                ->delete();
-            Flash::set('success', 'Feld gelöscht');
-            $this->redirect('settings/forms/edit?id=' . $id);
-        }
-
-        // POST: Felder-Sortierung
         if (isset($_POST['update_felder_sortierung'])) {
-            $sortierungen = $_POST['feld_sortierung'] ?? [];
-            foreach ($sortierungen as $feldId => $sort) {
+            foreach ($this->sortierungen($_POST['feld_sortierung'] ?? null) as $feldId => $sortierung) {
                 Capsule::table('intra_antrag_felder')
-                    ->where('id', (int) $feldId)
+                    ->where('id', $feldId)
                     ->where('antragstyp_id', $id)
-                    ->update(['sortierung' => (int) $sort]);
+                    ->update(['sortierung' => $sortierung]);
             }
             Flash::set('success', 'Sortierung aktualisiert');
             $this->redirect('settings/forms/edit?id=' . $id);
@@ -203,73 +188,134 @@ class AntragSettingsController extends Controller
         ]);
     }
 
-    private function handleUpdateTyp(int $id): void
+    /** POST — ein Feld löschen. */
+    public function destroyField(): void
     {
-        $name         = trim($_POST['name'] ?? '');
-        $beschreibung = trim($_POST['beschreibung'] ?? '');
-        $icon         = trim($_POST['icon'] ?? '');
-        $aktiv        = isset($_POST['aktiv']) ? 1 : 0;
-        $sortierung   = (int) ($_POST['sortierung'] ?? 0);
+        $this->requireAuth();
+        $this->ensureAdmin('index.php');
 
-        if ($name === '') {
-            Flash::set('error', 'Bitte geben Sie einen Namen an.');
+        $typId = (int) ($_POST['antragstyp_id'] ?? 0);
+        $this->typOderZurueck($typId);
+
+        $feldId = (int) ($_POST['id'] ?? 0);
+        if ($feldId <= 0) {
+            Flash::set('error', 'Ungültige Feld-ID');
+            $this->redirect('settings/forms/edit?id=' . $typId);
+        }
+
+        Capsule::table('intra_antrag_felder')
+            ->where('id', $feldId)
+            ->where('antragstyp_id', $typId)
+            ->delete();
+
+        $this->audit('Antragsfeld gelöscht', '[Feld: ' . $feldId . ']', $typId);
+        Flash::set('success', 'Feld gelöscht');
+        $this->redirect('settings/forms/edit?id=' . $typId);
+    }
+
+    // ── Innereien ───────────────────────────────────────────────
+
+    private function updateTyp(int $id): never
+    {
+        try {
+            $data = SaveFormTypeRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
             $this->redirect('settings/forms/edit?id=' . $id);
         }
 
-        Capsule::table('intra_antrag_typen')->where('id', $id)->update([
-            'name'         => $name,
-            'beschreibung' => $beschreibung,
-            'icon'         => $icon,
-            'aktiv'        => $aktiv,
-            'sortierung'   => $sortierung,
-        ]);
+        Capsule::table('intra_antrag_typen')->where('id', $id)->update($data);
 
-        $this->audit('Antragstyp aktualisiert', $name . ' [ID: ' . $id . ']');
-
+        $this->audit('Antragstyp aktualisiert', $data['name'] . ' [ID: ' . $id . ']', $id);
         Flash::set('success', 'Antragstyp erfolgreich aktualisiert');
         $this->redirect('settings/forms/edit?id=' . $id);
     }
 
-    private function handleAddFeld(int $id): void
+    private function addFeld(int $id): never
     {
-        $feldname    = trim($_POST['feldname'] ?? '');
-        $label       = trim($_POST['label'] ?? '');
-        $feldtyp     = $_POST['feldtyp'] ?? 'text';
-        $pflichtfeld = isset($_POST['pflichtfeld']) ? 1 : 0;
-        $breite      = $_POST['breite'] ?? 'full';
-        $platzhalter = trim($_POST['platzhalter'] ?? '');
-        $hinweistext = trim($_POST['hinweistext'] ?? '');
-        $readonly    = isset($_POST['readonly']) ? 1 : 0;
-        $autoFill    = $_POST['auto_fill'] ?: null;
-        $optionen    = trim($_POST['optionen'] ?? '');
-
-        if ($feldname === '' || $label === '') {
-            Flash::set('error', 'Feldname und Label sind erforderlich');
+        try {
+            $data = AddFormFieldRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
             $this->redirect('settings/forms/edit?id=' . $id);
         }
 
         $maxSort = (int) Capsule::table('intra_antrag_felder')
             ->where('antragstyp_id', $id)
             ->max('sortierung');
-        $nextSort = $maxSort + 1;
 
-        Capsule::table('intra_antrag_felder')->insert([
-            'antragstyp_id' => $id,
-            'feldname'      => $feldname,
-            'label'         => $label,
-            'feldtyp'       => $feldtyp,
-            'pflichtfeld'   => $pflichtfeld,
-            'breite'        => $breite,
-            'platzhalter'   => $platzhalter,
-            'hinweistext'   => $hinweistext,
-            'readonly'      => $readonly,
-            'auto_fill'     => $autoFill,
-            'optionen'      => $optionen,
-            'sortierung'    => $nextSort,
-        ]);
+        Capsule::table('intra_antrag_felder')->insert(
+            $data + ['antragstyp_id' => $id, 'sortierung' => $maxSort + 1],
+        );
 
+        $this->audit('Antragsfeld angelegt', $data['feldname'] . ' [ID: ' . $id . ']', $id);
         Flash::set('success', 'Feld erfolgreich hinzugefügt');
         $this->redirect('settings/forms/edit?id=' . $id);
+    }
+
+    /** Die Kennung aus dem Post, oder zurück zur Liste. */
+    private function postedId(string $zurueck): int
+    {
+        $this->requireAuth();
+        $this->ensureAdmin('index.php');
+
+        $id = (int) ($_POST['id'] ?? 0);
+        if ($id <= 0) {
+            Flash::set('error', 'Ungültige Antragstyp-ID');
+            $this->redirect($zurueck);
+        }
+
+        return $id;
+    }
+
+    /** Den Antragstyp holen, oder zurück zur Liste. */
+    private function typOderZurueck(int $id): \stdClass
+    {
+        if ($id <= 0) {
+            Flash::set('error', 'Ungültige Antragstyp-ID');
+            $this->redirect(self::LISTE);
+        }
+
+        $typ = Capsule::table('intra_antrag_typen')->where('id', $id)->first();
+        if (!$typ instanceof \stdClass) {
+            Flash::set('error', 'Antragstyp nicht gefunden');
+            $this->redirect(self::LISTE);
+        }
+
+        return $typ;
+    }
+
+    /**
+     * Die Sortierungstabelle eines Formulars als Kennung => Zahl.
+     *
+     * Der Post bringt sie als `sortierung[12]=3`. Beides muss eine Zahl
+     * sein, sonst landet ein Schlüssel wie `sortierung[abc]` als
+     * `WHERE id = 0` in der Abfrage.
+     *
+     * @return array<int,int>
+     */
+    private function sortierungen(mixed $roh): array
+    {
+        if (!is_array($roh)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($roh as $id => $sortierung) {
+            if (!is_numeric($id) || !is_numeric($sortierung)) {
+                continue;
+            }
+            if ((int) $id > 0) {
+                $out[(int) $id] = (int) $sortierung;
+            }
+        }
+
+        return $out;
+    }
+
+    private function naechsteSortierung(): int
+    {
+        return (int) Capsule::table('intra_antrag_typen')->max('sortierung') + 1;
     }
 
     private function ensureAdmin(string $redirect): void
@@ -280,12 +326,24 @@ class AntragSettingsController extends Controller
         }
     }
 
-    private function audit(string $action, string $details): void
+    /**
+     * Schreibt ins Prüfprotokoll. Die Kennung des Antragstyps geht als
+     * `context.id` mit, damit {@see \App\Support\Activity} sie nicht aus
+     * dem Meldungstext klauben muss.
+     */
+    private function audit(string $action, string $details, ?int $id = null): void
     {
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger();
-        $logger->log($_SESSION['userid'], $action, $details, 'Antragstypen', 1);
+
+        (new AuditLogger())->log(
+            $_SESSION['userid'],
+            $action,
+            $details,
+            'Antragstypen',
+            1,
+            $id === null ? [] : ['id' => $id],
+        );
     }
 }

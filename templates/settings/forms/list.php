@@ -37,83 +37,92 @@ $SITE_TITLE = 'Antragstypen';
                     <a href="<?= BASE_PATH ?>settings/forms/create" class="ignis-btn ignis-btn--primary twplus-empty__action"><i class="fa-solid fa-plus" aria-hidden="true"></i> Neuer Antragstyp</a>
                 </div>
             <?php else: ?>
-                <form method="post" action="">
+                <form method="POST" action="<?= BASE_PATH ?>settings/forms/sort" id="antragstyp-sortierung">
                     <?= csrf_field() ?>
-                    <div class="twplus-table-card">
-                        <div class="twplus-table-card__scroll">
-                            <table class="ignis-table" id="table-antragstypen">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="w-20">Sort.</th>
-                                        <th scope="col" class="w-12"><span class="sr-only">Icon</span></th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Beschreibung</th>
-                                        <th scope="col" class="ignis-table__num">Felder</th>
-                                        <th scope="col" class="ignis-table__num">Anträge</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($typen as $typ):
-                                        $editUrl = BASE_PATH . 'settings/forms/edit?id=' . (int) $typ['id'];
-                                        $beschreibung = (string) ($typ['beschreibung'] ?? '');
-                                    ?>
-                                        <tr<?= $typ['aktiv'] ? '' : ' class="is-muted"' ?>>
-                                            <td>
-                                                <label class="sr-only" for="sort-<?= (int) $typ['id'] ?>">Sortierung <?= htmlspecialchars($typ['name']) ?></label>
-                                                <input type="number"
-                                                    name="sortierung[<?= (int)$typ['id'] ?>]"
-                                                    id="sort-<?= (int) $typ['id'] ?>"
-                                                    value="<?= (int)$typ['sortierung'] ?>"
-                                                    class="ignis-input ignis-input--sm ignis-table__num">
-                                            </td>
-                                            <td class="text-center">
-                                                <i class="<?= htmlspecialchars($typ['icon']) ?> text-xl" aria-hidden="true"></i>
-                                            </td>
-                                            <td><a href="<?= htmlspecialchars($editUrl) ?>"><strong><?= htmlspecialchars($typ['name']) ?></strong></a></td>
-                                            <td class="text-[var(--text-3)]">
-                                                <?= htmlspecialchars(mb_substr($beschreibung, 0, 80)) ?><?= mb_strlen($beschreibung) > 80 ? '…' : '' ?>
-                                            </td>
-                                            <td class="ignis-table__num"><?= (int)$typ['anzahl_felder'] ?></td>
-                                            <td class="ignis-table__num"><?= (int)$typ['anzahl_antraege'] ?></td>
-                                            <td>
-                                                <?php if ($typ['aktiv']): ?>
-                                                    <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Aktiv</span>
-                                                <?php else: ?>
-                                                    <span class="ignis-chip ignis-chip--dot ignis-chip--secondary">Inaktiv</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td class="ignis-table__actions">
-                                                <div class="ignis-row-actions">
-                                                    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Bearbeiten" aria-label="Bearbeiten">
-                                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                                                    </a>
-                                                    <a href="?toggle=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>" aria-label="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
-                                                        <i class="fa-solid fa-power-off" aria-hidden="true"></i>
-                                                    </a>
-                                                    <?php if ((int)$typ['anzahl_antraege'] === 0): ?>
-                                                        <a href="?delete=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Löschen" aria-label="Löschen"
-                                                            onclick="event.preventDefault(); showConfirm('Antragstyp wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Antragstyp löschen'}).then(result => { if(result) window.location.href = this.href; });">
-                                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                                                        </a>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="ignis-list-footer">
-                            <p class="ignis-list-meta"><?= count($typen) ?> Antragstypen</p>
-                            <button type="submit" name="update_sortierung" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
-                                <i class="fa-solid fa-save" aria-hidden="true"></i> Sortierung speichern
-                            </button>
-                        </div>
-                    </div>
                 </form>
+                <div class="twplus-table-card">
+                    <div class="twplus-table-card__scroll">
+                        <table class="ignis-table" id="table-antragstypen">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="w-20">Sort.</th>
+                                    <th scope="col" class="w-12"><span class="sr-only">Icon</span></th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Beschreibung</th>
+                                    <th scope="col" class="ignis-table__num">Felder</th>
+                                    <th scope="col" class="ignis-table__num">Anträge</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($typen as $typ):
+                                    $editUrl = BASE_PATH . 'settings/forms/edit?id=' . (int) $typ['id'];
+                                    $beschreibung = (string) ($typ['beschreibung'] ?? '');
+                                ?>
+                                    <tr<?= $typ['aktiv'] ? '' : ' class="is-muted"' ?>>
+                                        <td>
+                                            <label class="sr-only" for="sort-<?= (int) $typ['id'] ?>">Sortierung <?= htmlspecialchars($typ['name']) ?></label>
+                                            <input type="number"
+                                                form="antragstyp-sortierung"
+                                                name="sortierung[<?= (int)$typ['id'] ?>]"
+                                                id="sort-<?= (int) $typ['id'] ?>"
+                                                value="<?= (int)$typ['sortierung'] ?>"
+                                                class="ignis-input ignis-input--sm ignis-table__num">
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="<?= htmlspecialchars($typ['icon']) ?> text-xl" aria-hidden="true"></i>
+                                        </td>
+                                        <td><a href="<?= htmlspecialchars($editUrl) ?>"><strong><?= htmlspecialchars($typ['name']) ?></strong></a></td>
+                                        <td class="text-[var(--text-3)]">
+                                            <?= htmlspecialchars(mb_substr($beschreibung, 0, 80)) ?><?= mb_strlen($beschreibung) > 80 ? '…' : '' ?>
+                                        </td>
+                                        <td class="ignis-table__num"><?= (int)$typ['anzahl_felder'] ?></td>
+                                        <td class="ignis-table__num"><?= (int)$typ['anzahl_antraege'] ?></td>
+                                        <td>
+                                            <?php if ($typ['aktiv']): ?>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Aktiv</span>
+                                            <?php else: ?>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--secondary">Inaktiv</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="ignis-table__actions">
+                                            <div class="ignis-row-actions">
+                                                <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Bearbeiten" aria-label="Bearbeiten">
+                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                </a>
+                                                <form method="POST" action="<?= BASE_PATH ?>settings/forms/toggle" class="inline">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="id" value="<?= (int)$typ['id'] ?>">
+                                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>" aria-label="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
+                                                        <i class="fa-solid fa-power-off" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                                <?php if ((int)$typ['anzahl_antraege'] === 0): ?>
+                                                    <form method="POST" action="<?= BASE_PATH ?>settings/forms/delete" class="inline"
+                                                        onsubmit="<?= confirm_attr('Antragstyp wirklich löschen?') ?>">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="id" value="<?= (int)$typ['id'] ?>">
+                                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Löschen" aria-label="Löschen">
+                                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="ignis-list-footer">
+                        <p class="ignis-list-meta"><?= count($typen) ?> Antragstypen</p>
+                        <button type="submit" form="antragstyp-sortierung" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
+                            <i class="fa-solid fa-save" aria-hidden="true"></i> Sortierung speichern
+                        </button>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
     </div>
