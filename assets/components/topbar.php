@@ -108,15 +108,13 @@ foreach ($topGroups as $topGroup) {
 ?>
 <header class="ignis-topbar" data-base-path="<?= htmlspecialchars($topBasePath, ENT_QUOTES) ?>">
     <div class="ignis-topbar__identity">
-    <button type="button" class="ignis-topbar__toggle" data-ignis-sidebar-toggle aria-label="Navigation ein- oder ausklappen" title="Navigation ein- oder ausklappen ([)">
-        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    <button type="button" class="ignis-topbar__toggle" data-ignis-sidebar-toggle aria-expanded="true" aria-label="Navigation ein- oder ausklappen" title="Navigation ein- oder ausklappen ([)">
+        <span class="ignis-burger" aria-hidden="true"><span></span><span></span><span></span></span>
     </button>
-    <div class="ignis-topbar__identity-copy">
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
     </a>
-    <span class="ignis-topbar__organization"><?= htmlspecialchars((string) SYSTEM_NAME) ?></span>
-    </div></div>
+    </div>
 
     <?php if ($topLoggedIn): ?>
         <div class="ignis-topbar__search" role="search"

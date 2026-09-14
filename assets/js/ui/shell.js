@@ -40,18 +40,29 @@ function persist(collapsed) {
     try { localStorage.setItem(STORAGE_KEY, collapsed ? 'collapsed' : 'open'); } catch (e) { /* privater Modus, egal */ }
 }
 
+// Der Knopf ist ein Auf-/Zuklapper, also muss aria-expanded mitlaufen -
+// der animierte Hamburger sagt Sehenden, was der Zustand ist.
+function syncToggle(expanded) {
+    document.querySelectorAll('[data-ignis-sidebar-toggle]')
+        .forEach((btn) => btn.setAttribute('aria-expanded', expanded ? 'true' : 'false'));
+}
+
 function toggleSidebar() {
     if (isMobile()) {
         const open = root.classList.toggle('is-nav-open');
         document.querySelector('[data-ignis-nav-close]')?.toggleAttribute('hidden', !open);
+        syncToggle(open);
         return;
     }
-    persist(root.classList.toggle('is-collapsed'));
+    const collapsed = root.classList.toggle('is-collapsed');
+    persist(collapsed);
+    syncToggle(!collapsed);
 }
 
 function closeNav() {
     root.classList.remove('is-nav-open');
     document.querySelector('[data-ignis-nav-close]')?.setAttribute('hidden', '');
+    syncToggle(false);
 }
 
 function closeMenus(except) {
@@ -143,6 +154,9 @@ function init() {
     if (!document.body.classList.contains('ignis-app')) return;
 
     document.querySelectorAll('[data-ignis-sidebar-toggle]').forEach((btn) => btn.addEventListener('click', toggleSidebar));
+    syncToggle(isMobile()
+        ? root.classList.contains('is-nav-open')
+        : !root.classList.contains('is-collapsed'));
     document.querySelector('[data-ignis-nav-close]')?.addEventListener('click', closeNav);
 
     // Nur ein Menü offen; Klick daneben schließt. Schnellaktionen laufen
