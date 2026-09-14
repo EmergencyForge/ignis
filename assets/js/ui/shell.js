@@ -1,3 +1,4 @@
+import '@emergencyforge/ui/preferences.js';
 /**
  * ignis UI — App-Hülle: Sidebar ein- und ausklappen, Navigations-Drawer
  * auf schmalen Bildschirmen, Menüs in der Topbar, Schnellaktionen,
@@ -164,6 +165,7 @@ function init() {
     document.addEventListener('keydown', (e) => {
         const inField = e.target.matches('input, textarea, select, [contenteditable]');
         if (e.key === 'Escape') {
+            document.querySelector('details[data-ignis-menu][open] > summary')?.focus();
             closeMenus();
             closeNav();
             return;
@@ -171,7 +173,7 @@ function init() {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
             // Ins Suchfeld; die Palette (palette.js) öffnet beim Tippen.
             const search = document.querySelector('[data-ignis-global-search]');
-            if (search) { e.preventDefault(); search.focus(); search.select(); }
+            if (search) { e.preventDefault(); window.ignis?.palette?.open ? window.ignis.palette.open() : search.focus(); }
             return;
         }
         if (inField) return;
@@ -202,3 +204,5 @@ window.ignis = window.ignis || {};
 window.ignis.shell = { toggleSidebar, closeNav, closeMenus, runQuickAction };
 
 export { toggleSidebar, closeNav, closeMenus, runQuickAction };
+
+document.addEventListener('click', event => { const action = event.target.closest('.ignis-menu__item'); if (action && !action.closest('.ignis-theme-options')) action.closest('details')?.removeAttribute('open'); });

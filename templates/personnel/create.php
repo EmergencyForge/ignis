@@ -15,6 +15,19 @@ $SITE_TITLE = 'Mitarbeiter anlegen';
 
 // Über constant(), damit PHPStan den Wert nicht aus config.php rät.
 $charIdRequired = defined('CHAR_ID') ? (bool) constant('CHAR_ID') : false;
+
+$formErrors = \App\Support\FormErrors::pull('personnel.create');
+$formFields = [
+    'fullname' => ['cm_fullname', 'Vor- und Zuname'],
+    'gebdatum' => ['cm_gebdatum', 'Geburtsdatum'],
+    'dienstgrad' => ['cm_dienstgrad', 'Dienstgrad'],
+    'geschlecht' => ['cm_geschlecht', 'Geschlecht'],
+    'charakterid' => ['cm_charakterid', 'Charakter-ID'],
+    'discordtag' => ['cm_discordtag', 'Discord-ID'],
+    'telefonnr' => ['cm_telefonnr', 'Telefonnummer'],
+    'dienstnr' => ['dienstnr', 'Dienstnummer'],
+    'einstdatum' => ['cm_einstdatum', 'Einstellungsdatum']
+];
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -23,58 +36,68 @@ $charIdRequired = defined('CHAR_ID') ? (bool) constant('CHAR_ID') : false;
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personal</p><h1>Mitarbeiter anlegen</h1><p class="twplus-page-header__description">Stammdaten, Dienstgrad und Dienstnummer; Qualifikationen kommen danach im Profil.</p></div>
             </div>
 
-            <form method="POST" action="<?= BASE_PATH ?>personnel/create" class="ignis-card ignis-form-card" data-ignis-form="personnel-create">
+            <form method="POST" action="<?= BASE_PATH ?>personnel/create" class="ignis-card ignis-form-card" data-ignis-form="personnel-create" data-ignis-validate>
+            <?= \App\Support\FormErrors::summary($formErrors, $formFields, 'ignis') ?>
                 <div class="ignis-card__body">
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
                             <label for="cm_fullname" class="ignis-field__label">Vor- und Zuname</label>
-                            <input class="ignis-input" type="text" name="fullname" id="cm_fullname" value="<?= htmlspecialchars((string) old('fullname')) ?>" placeholder="Max Mustermann" required autofocus>
+                            <input class="ignis-input" type="text" name="fullname" id="cm_fullname"<?= \App\Support\FormErrors::attributes($formErrors, 'fullname', 'cm_fullname') ?> value="<?= htmlspecialchars((string) old('fullname')) ?>" placeholder="Max Mustermann" required autofocus>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'fullname', 'cm_fullname', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_gebdatum" class="ignis-field__label">Geburtsdatum</label>
-                            <input class="ignis-input" type="date" name="gebdatum" id="cm_gebdatum" min="1900-01-01" value="<?= htmlspecialchars((string) old('gebdatum')) ?>" required>
+                            <input class="ignis-input" type="date" name="gebdatum" id="cm_gebdatum"<?= \App\Support\FormErrors::attributes($formErrors, 'gebdatum', 'cm_gebdatum') ?> min="1900-01-01" value="<?= htmlspecialchars((string) old('gebdatum')) ?>" required>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'gebdatum', 'cm_gebdatum', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_dienstgrad" class="ignis-field__label">Dienstgrad</label>
-                            <select class="ignis-input" name="dienstgrad" id="cm_dienstgrad" required>
+                            <select class="ignis-input" name="dienstgrad" id="cm_dienstgrad"<?= \App\Support\FormErrors::attributes($formErrors, 'dienstgrad', 'cm_dienstgrad') ?> required>
                                 <option value="" hidden<?= old('dienstgrad', '') === '' ? ' selected' : '' ?>>Bitte wählen</option>
                                 <?php foreach ($dienstgrade as $dg): ?>
                                     <option value="<?= (int) $dg->id ?>"<?= (string) old('dienstgrad', '') === (string) $dg->id ? ' selected' : '' ?>><?= htmlspecialchars((string) $dg->name) ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'dienstgrad', 'cm_dienstgrad', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_geschlecht" class="ignis-field__label">Geschlecht</label>
-                            <select name="geschlecht" id="cm_geschlecht" class="ignis-input" required>
+                            <select name="geschlecht" id="cm_geschlecht"<?= \App\Support\FormErrors::attributes($formErrors, 'geschlecht', 'cm_geschlecht') ?> class="ignis-input" required>
                                 <option value="" hidden<?= old('geschlecht', '') === '' ? ' selected' : '' ?>>Bitte wählen</option>
                                 <?php foreach (['Männlich', 'Weiblich', 'Divers'] as $genderKey => $genderLabel): ?>
                                     <option value="<?= $genderKey ?>"<?= (string) old('geschlecht', '') === (string) $genderKey ? ' selected' : '' ?>><?= $genderLabel ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'geschlecht', 'cm_geschlecht', 'ignis') ?>
                         </div>
                         <?php if ($charIdRequired): ?>
                             <div>
                                 <label for="cm_charakterid" class="ignis-field__label">Charakter-ID <small class="form-hint">(Format ABC12345)</small></label>
-                                <input class="ignis-input ignis-mono" type="text" name="charakterid" id="cm_charakterid" placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" value="<?= htmlspecialchars((string) old('charakterid')) ?>" required>
+                                <input class="ignis-input ignis-mono" type="text" name="charakterid" id="cm_charakterid"<?= \App\Support\FormErrors::attributes($formErrors, 'charakterid', 'cm_charakterid') ?> placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" value="<?= htmlspecialchars((string) old('charakterid')) ?>" required>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'charakterid', 'cm_charakterid', 'ignis') ?>
                             </div>
                         <?php endif; ?>
                         <div>
                             <label for="cm_discordtag" class="ignis-field__label">Discord-ID <small class="form-hint">(17 bis 20 Ziffern)</small></label>
-                            <input class="ignis-input ignis-mono" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,20}" maxlength="20" value="<?= htmlspecialchars((string) old('discordtag')) ?>" placeholder="123456789012345678" required>
+                            <input class="ignis-input ignis-mono" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag"<?= \App\Support\FormErrors::attributes($formErrors, 'discordtag', 'cm_discordtag') ?> pattern="[0-9]{17,20}" maxlength="20" value="<?= htmlspecialchars((string) old('discordtag')) ?>" placeholder="123456789012345678" required>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'discordtag', 'cm_discordtag', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_telefonnr" class="ignis-field__label">Telefonnummer</label>
-                            <input class="ignis-input" type="text" name="telefonnr" id="cm_telefonnr" value="<?= htmlspecialchars((string) old('telefonnr', '0176 00 00 00 0')) ?>">
+                            <input class="ignis-input" type="text" name="telefonnr" id="cm_telefonnr"<?= \App\Support\FormErrors::attributes($formErrors, 'telefonnr', 'cm_telefonnr') ?> value="<?= htmlspecialchars((string) old('telefonnr', '0176 00 00 00 0')) ?>">
+                            <?= \App\Support\FormErrors::hint($formErrors, 'telefonnr', 'cm_telefonnr', 'ignis') ?>
                         </div>
                         <div class="dienstnr-container">
                             <label for="dienstnr" class="ignis-field__label">Dienstnummer <small class="form-hint">(z.B. RD-001, BF01)</small></label>
-                            <input class="ignis-input ignis-mono" type="text" name="dienstnr" id="dienstnr" pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="z.B. RD-001, BF01" placeholder="RD-001" value="<?= htmlspecialchars((string) old('dienstnr')) ?>" required>
+                            <input class="ignis-input ignis-mono" type="text" name="dienstnr" id="dienstnr"<?= \App\Support\FormErrors::attributes($formErrors, 'dienstnr', 'dienstnr') ?> pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="z.B. RD-001, BF01" placeholder="RD-001" value="<?= htmlspecialchars((string) old('dienstnr')) ?>" required>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'dienstnr', 'dienstnr', 'ignis') ?>
                             <div id="dienstnr-status" class="dienstnr-status"></div>
                             <div id="dienstnr-feedback" class="ignis-field__error" style="display: none;"></div>
                         </div>
                         <div>
                             <label for="cm_einstdatum" class="ignis-field__label">Einstellungsdatum</label>
-                            <input class="ignis-input" type="date" name="einstdatum" id="cm_einstdatum" min="2022-01-01" value="<?= htmlspecialchars((string) old('einstdatum', date('Y-m-d'))) ?>" required>
+                            <input class="ignis-input" type="date" name="einstdatum" id="cm_einstdatum"<?= \App\Support\FormErrors::attributes($formErrors, 'einstdatum', 'cm_einstdatum') ?> min="2022-01-01" value="<?= htmlspecialchars((string) old('einstdatum', date('Y-m-d'))) ?>" required>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'einstdatum', 'cm_einstdatum', 'ignis') ?>
                         </div>
                     </div>
                 </div>

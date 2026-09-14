@@ -50,14 +50,14 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                     <a
                         href="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
                         class="ignis-sidebar__link"
-                        title="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>"
+                        aria-label="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>" data-ignis-tooltip="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>"
                         <?= $navItem['active'] ? 'aria-current="page"' : '' ?>
                         <?= $navExternal ? 'target="_blank" rel="noopener"' : '' ?>
                     >
                         <i class="<?= htmlspecialchars((string) $navItem['icon']) ?>" aria-hidden="true"></i>
                         <span class="ignis-sidebar__label"><?= htmlspecialchars((string) $navItem['label']) ?></span>
                         <?php if ($navCounter !== null): ?>
-                            <span class="ignis-sidebar__count<?= $navCounter === 'inbox' ? ' notification-poll-badge' : '' ?>"<?= $navCount === null ? ' hidden' : '' ?>><?= (int) $navCount ?></span>
+                            <span class="ignis-sidebar__count<?= $navCounter === 'inbox' ? ' notification-poll-badge' : '' ?>"<?= $navCount === null ? ' hidden' : '' ?>><?= (int) $navCount > 99 ? '99+' : (int) $navCount ?></span>
                         <?php endif; ?>
                         <?php if ($navExternal): ?>
                             <i class="fa-solid fa-arrow-up-right-from-square ignis-sidebar__external" aria-hidden="true"></i>

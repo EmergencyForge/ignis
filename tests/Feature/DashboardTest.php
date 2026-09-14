@@ -67,7 +67,7 @@ final class DashboardTest extends FeatureTestCase
     }
 
     #[Test]
-    public function ohne_recht_bleibt_die_kennzahl_eine_zahl(): void
+    public function ohne_recht_entfallen_kennzahlen_und_aufgabenbereich(): void
     {
         $this->login(['calendar.view']);
 
@@ -75,7 +75,8 @@ final class DashboardTest extends FeatureTestCase
 
         $this->assertOk($page);
         $this->assertBodyNotContains('href="/users/list" class="twplus-stats__item"', $page);
-        $this->assertBodyContains('<div class="twplus-stats__item">', $page);
+        $this->assertBodyNotContains('class="twplus-stats__item"', $page);
+        $this->assertBodyNotContains('Für dich offen', $page);
         $this->assertBodyContains('Noch keine Anträge', $page);
     }
 

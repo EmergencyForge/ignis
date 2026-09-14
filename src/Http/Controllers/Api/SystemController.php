@@ -336,7 +336,8 @@ final class SystemController
         try {
             return Response::json([
                 'q'       => $query,
-                'results' => $this->search->run($query),
+                'results' => $this->search->run($query, scope: is_string($request->query['scope'] ?? null) ? $request->query['scope'] : 'all'),
+                'scopes' => $this->search->scopes(),
             ]);
         } catch (\Throwable $e) {
             Logger::error('System: global-search Fehler', ['error' => $e->getMessage(), 'query' => $query]);

@@ -29,7 +29,8 @@ ob_start();
                     <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
                 </div>
             </div>
-            <?php include __DIR__ . '/assets/components/index/stats.php' ?>
+            <?php include __DIR__ . '/assets/components/index/open-tasks.php' ?>
+            <div class="ignis-dashboard-totals"><?php include __DIR__ . '/assets/components/index/stats.php' ?></div>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-10">
                 <?php include __DIR__ . '/assets/components/index/changelog.php' ?>

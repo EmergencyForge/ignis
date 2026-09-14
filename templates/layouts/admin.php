@@ -48,7 +48,7 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutP
     <?= $layoutHead ?>
 </head>
 
-<body id="<?= htmlspecialchars($layoutBodyId) ?>" class="ignis-app" data-page="<?= htmlspecialchars($layoutBodyPage) ?>">
+<body id="<?= htmlspecialchars($layoutBodyId) ?>" class="ignis-app" data-ui-skin="core" data-preference-key="<?= htmlspecialchars((string) ($_SESSION['userid'] ?? 'local'), ENT_QUOTES) ?>" data-page="<?= htmlspecialchars($layoutBodyPage) ?>">
     <?php require dirname(__DIR__, 2) . '/assets/components/topbar.php'; ?>
     <?php require dirname(__DIR__, 2) . '/assets/components/navbar-sidebar.php'; ?>
     <?php include dirname(__DIR__, 2) . '/assets/components/global-announcements.php'; ?>
