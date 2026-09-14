@@ -33,7 +33,8 @@ final class OpenTasks
                 if (!Gate::allows('forms.view', $form)) {
                     continue;
                 }
-                $tasks[] = ['label' => ($form->typ?->name ?? 'Antrag') . ' · ' . $form->uniqueid,
+                // typ ist per Fremdschluessel und NOT NULL garantiert.
+                $tasks[] = ['label' => $form->typ->name . ' · ' . $form->uniqueid,
                     'reason' => 'Eigener Antrag · Bearbeitung möglich',
                     'href' => $base . 'forms/admin/view?antrag=' . rawurlencode($form->uniqueid)];
             }

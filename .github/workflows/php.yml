@@ -324,6 +324,10 @@ jobs:
       TEST_DB_PASS: root
       TEST_DB_NAME: irp_testdb
       TEST_DB_SKIP_CREATE: '1'
+      # Ohne diesen Schalter ist eine uebersprungene Suite gruen — hier
+      # soll sie scheitern, sonst faellt ein kaputter DB-Zugang erst
+      # jemandem in Produktion auf.
+      IGNIS_REQUIRE_DB: '1'
       DB_HOST: 127.0.0.1
       DB_PORT: '3306'
       DB_USER: root
@@ -611,6 +615,17 @@ jobs:
         with:
           name: phpstan-result
           path: ignis/phpstan-result.json
+
+      # Erst hochladen, dann scheitern: der PR-Kommentar soll die Fundstellen
+      # auch dann nennen, wenn der Job rot ist. Bis hierher hat PHPStan nur
+      # berichtet — zwei echte Meldungen lagen deshalb wochenlang unbemerkt
+      # im Baum. Die Baseline haelt den Altbestand, alles darueber hinaus
+      # blockiert.
+      - name: PHPStan – Ergebnis durchreichen
+        if: steps.phpstan.outputs.exit_code != '0'
+        run: |
+          echo "::error::PHPStan meldet Fehler — siehe Annotationen oben."
+          exit 1
           retention-days: 1
 
   # ─────────────────────────────────────────────

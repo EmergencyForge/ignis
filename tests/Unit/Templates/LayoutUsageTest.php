@@ -26,12 +26,13 @@ final class LayoutUsageTest extends TestCase
 {
     /**
      * Ansichten mit eigener Hülle, relativ zur Repo-Wurzel:
-     * die Fehlerseite ohne Sidebar, zwei Vollbildansichten (Dokument zum
+     * die gemeinsame Huelle der Fehlerseiten (403 und 404 fuellen sie nur
+     * mit Text), zwei Vollbildansichten (Dokument zum
      * Drucken, der Vorlagen-Editor) und die fireTab-App, die wie eNOTF
      * als eigenständige Anwendung mit Fahrzeug-Login läuft.
      */
     private const OWN_SHELL = [
-        'templates/errors/404.php',
+        'templates/errors/_shell.php',
         'templates/personnel/document-view.php',
         'plugins/firetab/templates/firetab/asu.php',
         'plugins/firetab/templates/firetab/create.php',

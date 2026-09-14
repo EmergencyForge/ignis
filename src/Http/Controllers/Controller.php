@@ -35,16 +35,39 @@ abstract class Controller
     }
 
     /**
-     * Wrapper um Gate::allows: bei Denial wird Flash + Redirect gemacht.
-     * Aktionen, die spezifischere Flash-Messages brauchen (z.B. "edit-self"),
-     * machen den Gate-Check inline statt diesen Helper zu nutzen.
+     * Wrapper um Gate::allows: bei Ablehnung endet der Aufruf mit der
+     * 403-Seite.
+     *
+     * Vorher war das eine Hinweis-Blase plus Weiterleitung aufs Dashboard.
+     * Wer einem geteilten Link folgte, den er nicht öffnen darf, landete
+     * damit wortlos auf der Startseite und erfuhr nicht, was abgelehnt
+     * wurde. `$redirectTo` ist deshalb kein Weiterleitungsziel mehr,
+     * sondern das Ziel des Zurück-Knopfes.
+     *
+     * Aktionen, die eine eigene Begründung brauchen, prüfen weiterhin
+     * inline und rufen forbidden() selbst.
      */
     protected function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index'): void
     {
         if (Gate::denies($ability, $resource)) {
-            Flash::set('error', 'no-permissions');
-            $this->redirect($redirectTo);
+            $this->forbidden('Dazu fehlt deinem Konto die Berechtigung.', $redirectTo);
         }
+    }
+
+    /**
+     * Bricht mit der 403-Seite ab. `$backTo` ist ein Pfad relativ zum
+     * BASE_PATH, genau wie bei redirect().
+     */
+    protected function forbidden(string $reason, string $backTo = 'index', string $backLabel = 'Zurück'): never
+    {
+        $translated = \App\Http\UrlMap::translateRelative($backTo);
+
+        throw new \App\Http\ForbiddenException(
+            $reason,
+            BASE_PATH . ($translated ?? $backTo),
+            $backLabel,
+            $_SERVER['REQUEST_URI'] ?? null,
+        );
     }
 
     /**

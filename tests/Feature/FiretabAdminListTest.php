@@ -144,9 +144,10 @@ final class FiretabAdminListTest extends FeatureTestCase
 
         $this->login(['personnel.view']);
         $denied = $this->post('/firetab/admin/list/delete', ['ids' => [(string) $id], 'csrf_token' => CsrfProtection::getToken()]);
-        $this->assertRedirect($denied);
+        // Ohne Recht die 403-Seite, nicht wortlos aufs Dashboard.
+        $this->assertForbidden($denied);
         $this->assertSame(0, (int) Capsule::table('intra_fire_incidents')->where('id', $id)->value('archived'));
-        $this->assertRedirect($this->get(self::LIST));
+        $this->assertForbidden($this->get(self::LIST));
     }
 
     /**
