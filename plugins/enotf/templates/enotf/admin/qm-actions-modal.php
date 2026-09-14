@@ -136,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="edivi__box">
     <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=<?= $_GET['id'] ?>" method="post">
+        <?= csrf_field() ?>
         <div class="mb-1 mt-2 grid grid-cols-[120px_1fr] align-items-center gap-3">
             <div class="fw-bold">Gesichtet von</div>
             <input type="text" name="bearbeiter" id="bearbeiter" class="ignis-input w-100" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>

@@ -37,6 +37,28 @@ class SystemUpdater
         $this->cleanupOldTempDirectories();
     }
 
+    private function validateSharedPackages(string $sourceDir, string $appRoot, bool $release): void
+    {
+        $composer = json_decode((string) file_get_contents($sourceDir . '/composer.json'), true, 512, JSON_THROW_ON_ERROR);
+        $repositories = $composer['repositories'] ?? [];
+        foreach ($repositories as $repository) {
+            if (!is_array($repository) || ($repository['type'] ?? '') !== 'path') {
+                continue;
+            }
+            if ($release) {
+                if (!is_file($sourceDir . '/vendor/autoload.php')) {
+                    throw new Exception('Das Release-Paket enthält keine gebündelten Composer-Abhängigkeiten. Bitte ein vollständiges Release-Paket verwenden.');
+                }
+                continue;
+            }
+            $url = $repository['url'] ?? '';
+            $paths = is_string($url) && $url !== '' ? glob($appRoot . '/' . $url . '/composer.json') : [];
+            if (!$paths) {
+                throw new Exception('Dieses Quellupdate benötigt die benachbarten WebPackages-Pakete. Bitte WebPackages bereitstellen oder das fertige Release-Paket mit Abhängigkeiten verwenden. Es wurden keine Anwendungsdateien geändert.');
+            }
+        }
+    }
+
     /**
      * Einmalige Migration: /system/updates/* → /storage/*.
      * Das alte Verzeichnis wird anschließend entfernt, damit es nicht als
@@ -673,6 +695,8 @@ class SystemUpdater
                 $itemsList = $allItems ? implode(', ', array_map('basename', $allItems)) : 'keine';
                 throw new Exception('Konnte Update-Dateien nicht finden. Extrahierte Inhalte: ' . $itemsList);
             }
+
+            $this->validateSharedPackages($sourceDir, $appRoot, $isReleaseAsset);
 
             // Release assets include vendor/ — source zipballs do not.
             $excludeDirs = $isReleaseAsset

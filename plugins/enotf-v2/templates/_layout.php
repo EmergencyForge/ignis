@@ -71,6 +71,7 @@ $__initials = static function (string $name): string {
 <html lang="de" data-theme="light">
 
 <head>
+    <?= csrf_head() ?>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?= $__e($__title) ?> &rsaquo; eNOTF v2</title>

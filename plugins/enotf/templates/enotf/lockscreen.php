@@ -136,6 +136,7 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
                 </p>
 
                 <form method="post" id="pinForm">
+                    <?= csrf_field() ?>
                     <div class="pin-display <?= !empty($error) ? 'error' : '' ?>" id="pinDisplay">
 
                     </div>

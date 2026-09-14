@@ -119,6 +119,7 @@ $bodyPage = 'edivi';
             </div>
 
             <form method="POST" action="">
+                <?= csrf_field() ?>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <div class="twplus-section-card mb-4">

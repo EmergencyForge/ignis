@@ -35,6 +35,11 @@ final class StorageFileController
         if (!isset(self::AREAS[$area])) {
             return Response::text('Not Found', 404);
         }
+
+        // Auch vor dem privaten Editor-Unterordner ausgestellte PDFs schützen.
+        if ($area === 'documents' && preg_match('/^[0-9]{7}\.pdf$/iD', $file) === 1) {
+            return Response::text('Not Found', 404);
+        }
         [$extensions, $cacheControl] = self::AREAS[$area];
         $dir = dirname(__DIR__, 3) . '/storage/' . $area;
 

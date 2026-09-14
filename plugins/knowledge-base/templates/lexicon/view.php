@@ -557,6 +557,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                         </a>
                                         
                                         <form method="POST" action="<?= BASE_PATH ?>lexicon/pin" style="margin: 0; display: inline;">
+                                            <?= csrf_field() ?>
                                             <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                             <input type="hidden" name="action" value="<?= !empty($entry['is_pinned']) ? 'unpin' : 'pin' ?>">
                                             <button type="submit" class="action-btn">
@@ -569,6 +570,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                     <?php if (Permissions::check(['admin', 'kb.archive'])): ?>
                                         <?php if ($entry['is_archived']): ?>
                                             <form method="POST" action="<?= BASE_PATH ?>lexicon/archive" style="margin: 0; display: inline;">
+                                                <?= csrf_field() ?>
                                                 <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                 <input type="hidden" name="action" value="restore">
                                                 <button type="submit" class="action-btn">
@@ -578,6 +580,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                             </form>
                                         <?php else: ?>
                                             <form method="POST" action="<?= BASE_PATH ?>lexicon/archive" style="margin: 0; display: inline;">
+                                                <?= csrf_field() ?>
                                                 <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                 <input type="hidden" name="action" value="archive">
                                                 <button type="submit" class="action-btn">

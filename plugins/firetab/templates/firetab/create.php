@@ -33,6 +33,7 @@ use App\Helpers\Flash;
                 <?php endif; ?>
 
                 <form method="post" class="intra__tile p-3">
+                    <?= csrf_field() ?>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
                         <div class="md:col-span-6">
                             <label class="ignis-field__label">Einsatznummer*</label>

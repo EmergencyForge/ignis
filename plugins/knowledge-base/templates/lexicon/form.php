@@ -176,6 +176,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                     <?php endif; ?>
 
                     <form method="POST" class="needs-validation" novalidate>
+                        <?= csrf_field() ?>
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3">Grunddaten</h4>
                             

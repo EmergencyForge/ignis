@@ -70,6 +70,7 @@
                             <td class="ignis-table__actions">
                                 <?php if (!$incident['finalized']): ?>
                                     <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
+                                        <?= csrf_field() ?>
                                         <input type="hidden" name="action" value="remove_vehicle">
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                                         <input type="hidden" name="return_tab" value="fahrzeuge">
@@ -92,6 +93,7 @@
         <hr class="my-4">
         <h5>Fahrzeug hinzufügen</h5>
         <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="mt-3">
+            <?= csrf_field() ?>
             <input type="hidden" name="action" value="add_vehicle">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="fahrzeuge">

@@ -149,6 +149,7 @@ $currentDateTime = date('Y-m-d\TH:i');
                 <?php endif; ?>
 
                 <form id="vitalsForm" method="post" action="">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="save_vitals" value="1" />
                     <input type="hidden" name="zeitpunkt" id="zeitpunkt" value="<?= $currentDateTime ?>" required>
                     <div class="row">

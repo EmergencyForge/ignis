@@ -259,7 +259,7 @@ class TelemetryManager
 
             // Dokument-Templates gesamt
             try {
-                $stats['documents_total'] = Capsule::table('intra_dokument_templates')->count();
+                $stats['documents_total'] = Capsule::table('intra_document_templates')->count();
             } catch (\PDOException $e) {
             }
 
@@ -325,7 +325,7 @@ class TelemetryManager
 
             // Dokumente - Templates oder Mitarbeiter-Dokumente
             try {
-                $modules['documents'] = Capsule::table('intra_dokument_templates')->count() > 0;
+                $modules['documents'] = Capsule::table('intra_document_templates')->count() > 0;
             } catch (\PDOException $e) {
             }
 

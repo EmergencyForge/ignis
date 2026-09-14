@@ -156,12 +156,14 @@ $statusMap = [
                                                     <a class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" href="<?= htmlspecialchars($viewUrl, ENT_QUOTES) ?>" data-ignis-tooltip="Öffnen" aria-label="Öffnen"><i class="fa-solid fa-arrow-right"></i></a>
                                                     <?php if ($showArchived): ?>
                                                         <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
+                                                            <?= csrf_field() ?>
                                                             <input type="hidden" name="action" value="unarchive_incident">
                                                             <input type="hidden" name="incident_id" value="<?= (int) $i['id'] ?>">
                                                             <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Wiederherstellen" aria-label="Wiederherstellen"><i class="fa-solid fa-box-open"></i></button>
                                                         </form>
                                                     <?php else: ?>
                                                         <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
+                                                            <?= csrf_field() ?>
                                                             <input type="hidden" name="action" value="archive_incident">
                                                             <input type="hidden" name="incident_id" value="<?= (int) $i['id'] ?>">
                                                             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Archivieren" aria-label="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });"><i class="fa-solid fa-archive"></i></button>

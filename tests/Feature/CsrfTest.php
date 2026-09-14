@@ -106,6 +106,11 @@ final class CsrfTest extends FeatureTestCase
             '/api/character/identify',
             '/api/emd/sync',
             '/api/emd-sync.php',
+            '/api/asu/sync',
+            '/api/asu-sync.php',
+            '/api/telemetry/heartbeat',
+            '/api/telemetry-heartbeat.php',
+            '/api/emd/status-poll',
         ], $exempt);
     }
 }

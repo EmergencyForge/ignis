@@ -101,6 +101,7 @@ use App\Helpers\Flash;
         </template>
 
         <form id="delete-medikament-form" action="<?= BASE_PATH ?>settings/medications/delete" method="POST" style="display:none;">
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="medikament-delete-id">
         </form>
     <?php endif; ?>

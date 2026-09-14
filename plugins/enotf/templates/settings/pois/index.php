@@ -129,6 +129,7 @@ use App\Helpers\Flash;
         </template>
 
         <form id="delete-poi-form" action="<?= BASE_PATH ?>settings/pois/delete" method="POST" style="display:none;">
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="poi-delete-id">
         </form>
     <?php endif; ?>

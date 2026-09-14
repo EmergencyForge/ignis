@@ -350,6 +350,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                                 <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
                                                     <div class="kb-card-footer-actions">
                                                         <form method="POST" action="<?= BASE_PATH ?>lexicon/pin" style="margin: 0; display: inline;" onclick="event.stopPropagation();">
+                                                            <?= csrf_field() ?>
                                                             <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                             <input type="hidden" name="action" value="<?= !empty($entry['is_pinned']) ? 'unpin' : 'pin' ?>">
                                                             <button type="submit" class="kb-quick-btn">

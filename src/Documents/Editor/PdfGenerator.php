@@ -22,9 +22,8 @@ use RuntimeException;
  * nicht ausgestellt — ein halb verstandenes Dokument darf keine Urkunde
  * werden.
  *
- * Die Dateien liegen unter `storage/documents/<docid>.pdf`, wo auch die
- * des alten Systems liegen. Die Kennungen kollidieren nicht: die alten
- * sind zwölfstellig mit Bindestrichen, die neuen siebenstellig numerisch.
+ * Editor-PDFs liegen unter `storage/private/editor-documents/` und werden nur
+ * vom berechtigten Dokument-Endpunkt ausgeliefert.
  */
 final class PdfGenerator
 {
@@ -58,7 +57,7 @@ final class PdfGenerator
             throw new RuntimeException('PDF-Verzeichnis konnte nicht angelegt werden.');
         }
 
-        $relativePath = 'storage/documents/' . $document->docid . '.pdf';
+        $relativePath = 'storage/private/editor-documents/' . $document->docid . '.pdf';
 
         // Bricht der Vorgang zwischen dem Schreiben und dem Commit der
         // umgebenden Transaktion ab, bleibt eine PDF-Datei liegen, auf die
@@ -79,18 +78,26 @@ final class PdfGenerator
      */
     public function read(EditorDocument $document): ?string
     {
-        if ($document->pdf_path === null) {
+        if (!$document->isIssued() || $document->pdf_path === null) {
             return null;
         }
 
-        $dir       = $this->documentsDir();
-        $candidate = $dir . '/' . basename($document->pdf_path);
+        $name = $document->docid . '.pdf';
+        if (!in_array($document->pdf_path, [
+            'storage/private/editor-documents/' . $name,
+            'storage/documents/' . $name,
+        ], true)) {
+            return null;
+        }
 
-        // basename() allein reicht nicht: ein Symlink im Ordner könnte
-        // weiterhin nach draußen zeigen.
+        $candidate = dirname(__DIR__, 3) . '/' . $document->pdf_path;
+        $dir = dirname($candidate);
+
+        // Symlinks dürfen nicht aus dem erlaubten Ordner herausführen.
         $real    = realpath($candidate);
         $realDir = realpath($dir);
-        if ($real === false || $realDir === false || !str_starts_with($real, $realDir)) {
+        if ($real === false || $realDir === false || !is_file($real)
+            || !str_starts_with($real, $realDir . DIRECTORY_SEPARATOR)) {
             return null;
         }
 
@@ -141,6 +148,6 @@ final class PdfGenerator
 
     private function documentsDir(): string
     {
-        return dirname(__DIR__, 3) . '/storage/documents';
+        return dirname(__DIR__, 3) . '/storage/private/editor-documents';
     }
 }

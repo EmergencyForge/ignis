@@ -140,7 +140,7 @@ if (!function_exists('csrf_field')) {
 if (!function_exists('csrf_head')) {
     /**
      * Der Kopfteil des CSRF-Schutzes: der Token als Meta-Tag und der
-     * Aufsatz, der ihn an jede schreibende fetch()-Anfrage haengt.
+     * Aufsatz für schreibende fetch()- und XMLHttpRequest-Anfragen.
      *
      * Der Aufsatz steht bewusst inline und nicht in einem Modul: er muss
      * stehen, bevor irgendein Modul das erste Mal fetch() ruft, und die
@@ -159,33 +159,64 @@ if (!function_exists('csrf_head')) {
             <script>
             (function () {
                 var meta = document.querySelector('meta[name="csrf-token"]');
-                if (!meta || typeof window.fetch !== 'function') { return; }
+                if (!meta) { return; }
 
                 var write = /^(POST|PUT|PATCH|DELETE)$/i;
                 var original = window.fetch;
 
-                window.fetch = function (input, init) {
-                    var opts = init || {};
-                    var method = opts.method || (input && input.method) || 'GET';
-                    var url = typeof input === 'string' ? input : (input && input.url) || '';
-
-                    var sameOrigin;
+                function isSameOrigin(url) {
                     try {
-                        sameOrigin = new URL(url, location.href).origin === location.origin;
+                        return new URL(url, location.href).origin === location.origin;
                     } catch (e) {
-                        sameOrigin = false;
+                        return false;
                     }
+                }
 
-                    if (write.test(method) && sameOrigin) {
-                        var headers = new Headers(opts.headers || (input && input.headers) || {});
-                        if (!headers.has('X-CSRF-Token')) {
-                            headers.set('X-CSRF-Token', meta.content);
+                if (typeof original === 'function') {
+                    window.fetch = function (input, init) {
+                        var opts = init || {};
+                        var method = opts.method || (input && input.method) || 'GET';
+                        var url = input && typeof input.url === 'string' ? input.url : String(input);
+
+                        if (write.test(method) && isSameOrigin(url)) {
+                            var headers = new Headers(opts.headers || (input && input.headers) || {});
+                            if (!headers.has('X-CSRF-Token')) {
+                                headers.set('X-CSRF-Token', meta.content);
+                            }
+                            opts = Object.assign({}, opts, { headers: headers });
                         }
-                        opts = Object.assign({}, opts, { headers: headers });
-                    }
 
-                    return original.call(this, input, opts);
-                };
+                        return original.call(this, input, opts);
+                    };
+                }
+
+                if (typeof window.XMLHttpRequest === 'function') {
+                    var proto = window.XMLHttpRequest.prototype;
+                    var open = proto.open;
+                    var send = proto.send;
+                    var setHeader = proto.setRequestHeader;
+                    var requests = new WeakMap();
+
+                    proto.open = function (method, url) {
+                        requests.set(this, { needsToken: write.test(method) && isSameOrigin(url), hasToken: false });
+                        return open.apply(this, arguments);
+                    };
+                    proto.setRequestHeader = function (name, value) {
+                        var state = requests.get(this);
+                        if (state && String(name).toLowerCase() === 'x-csrf-token') {
+                            state.hasToken = true;
+                        }
+                        return setHeader.apply(this, arguments);
+                    };
+                    proto.send = function () {
+                        var state = requests.get(this);
+                        if (state && state.needsToken && !state.hasToken) {
+                            setHeader.call(this, 'X-CSRF-Token', meta.content);
+                            state.hasToken = true;
+                        }
+                        return send.apply(this, arguments);
+                    };
+                }
             })();
             </script>
             HTML;

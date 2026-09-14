@@ -59,6 +59,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
     include dirname(__DIR__, 7) . '/assets/components/enotf/topbar.php';
     ?>
     <form name="form" method="post" action="">
+        <?= csrf_field() ?>
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
             <div class="row h-full">

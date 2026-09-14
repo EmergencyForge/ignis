@@ -56,6 +56,7 @@ $currentDate = date('d.m.Y');
                         <div id="createFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
                             <h5 class="text-light mb-3">Neuer Eintrag</h5>
                             <form method="POST" action="<?= BASE_PATH ?>logbook/actions">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="create">
                                 <input type="hidden" name="return_to" value="enotf">
                                 <input type="hidden" name="source" value="enotf">
@@ -76,6 +77,7 @@ $currentDate = date('d.m.Y');
                         <div id="editFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
                             <h5 class="text-light mb-3">Eintrag bearbeiten</h5>
                             <form method="POST" action="<?= BASE_PATH ?>logbook/actions" id="editForm">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="id" id="edit_id" value="">
                                 <input type="hidden" name="return_to" value="enotf">

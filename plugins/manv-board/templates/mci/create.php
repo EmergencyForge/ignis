@@ -31,6 +31,7 @@ $bodyPage = 'edivi';
             <?php endif; ?>
 
             <form method="POST" action="">
+                <?= csrf_field() ?>
                 <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Grunddaten</h5>
