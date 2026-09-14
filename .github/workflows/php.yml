@@ -1,5 +1,17 @@
 name: PHP CI
 
+# ignis braucht das Nachbar-Repo WebPackages: composer.json bindet
+# ../WebPackages/packages/* als Pfad-Repository ein, und vite.config.js holt
+# das UI-Plugin von dort. Beide Checkouts liegen deshalb nebeneinander unter
+# dem Workspace - ignis/ und WebPackages/ - und jeder Job, der composer oder
+# npm anwirft, laeuft mit working-directory: ignis. Denselben Aufbau hat Lex.
+#
+# Das Paket-Repo ist privat; den Lesezugriff holt sich jeder Job ueber ein
+# Installations-Token der App ef-package-read (Secrets PACKAGES_APP_ID und
+# PACKAGES_APP_KEY). Kein Rueckfall auf GITHUB_TOKEN: der kann ein fremdes
+# privates Repo nicht lesen und wuerde den Fehler nur bis zum Checkout
+# verschleppen, wo er als "gibt es nicht" ankommt statt als "darf ich nicht".
+
 on:
   push:
     branches: ["main"]
@@ -23,8 +35,34 @@ jobs:
         php-version: ['8.3', '8.4']
       fail-fast: false
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
@@ -39,8 +77,8 @@ jobs:
       - name: Cache Composer packages
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+          path: ignis/vendor
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('ignis/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-version }}-
 
@@ -62,8 +100,34 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Setup PHP 8.5
         uses: shivammathur/setup-php@v2
@@ -78,8 +142,8 @@ jobs:
       - name: Cache Composer packages
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-8.5-${{ hashFiles('**/composer.lock') }}
+          path: ignis/vendor
+          key: ${{ runner.os }}-php-8.5-${{ hashFiles('ignis/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-8.5-
 
@@ -98,8 +162,34 @@ jobs:
   security-audit:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -121,7 +211,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: audit-result
-          path: audit-output.txt
+          path: ignis/audit-output.txt
           retention-days: 1
 
   # ─────────────────────────────────────────────
@@ -136,8 +226,34 @@ jobs:
         php-version: ['8.3', '8.4']
       fail-fast: false
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
@@ -149,8 +265,8 @@ jobs:
       - name: Cache Composer packages
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+          path: ignis/vendor
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('ignis/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ matrix.php-version }}-
 
@@ -171,8 +287,8 @@ jobs:
         with:
           name: phpunit-unit-${{ matrix.php-version }}
           path: |
-            phpunit-unit-${{ matrix.php-version }}.xml
-            phpunit-unit-${{ matrix.php-version }}.log
+            ignis/phpunit-unit-${{ matrix.php-version }}.xml
+            ignis/phpunit-unit-${{ matrix.php-version }}.log
           retention-days: 3
 
   # ─────────────────────────────────────────────
@@ -214,8 +330,34 @@ jobs:
       DB_PASS: root
       DB_NAME: irp_testdb
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
@@ -229,8 +371,8 @@ jobs:
       - name: Cache Composer packages
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-8.4-${{ hashFiles('**/composer.lock') }}
+          path: ignis/vendor
+          key: ${{ runner.os }}-php-8.4-${{ hashFiles('ignis/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-8.4-
 
@@ -291,13 +433,13 @@ jobs:
         with:
           name: phpunit-integration
           path: |
-            phpunit-integration.xml
-            phpunit-integration.log
-            phpunit-feature.xml
-            phpunit-feature.log
-            coverage/cobertura.xml
-            coverage/clover.xml
-            coverage/summary.txt
+            ignis/phpunit-integration.xml
+            ignis/phpunit-integration.log
+            ignis/phpunit-feature.xml
+            ignis/phpunit-feature.log
+            ignis/coverage/cobertura.xml
+            ignis/coverage/clover.xml
+            ignis/coverage/summary.txt
           retention-days: 7
 
   # ─────────────────────────────────────────────
@@ -405,8 +547,34 @@ jobs:
     needs: build
     if: ${{ !cancelled() }}
 
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: ignis
+
+      # Ein Installations-Token der App ef-package-read statt eines
+      # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
+      # an einem Konto, und die App darf nur Contents lesen, und das nur auf
+      # WebPackages.
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -417,8 +585,8 @@ jobs:
       - name: Cache Composer packages
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-8.4-${{ hashFiles('**/composer.lock') }}
+          path: ignis/vendor
+          key: ${{ runner.os }}-php-8.4-${{ hashFiles('ignis/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-8.4-
 
@@ -442,7 +610,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: phpstan-result
-          path: phpstan-result.json
+          path: ignis/phpstan-result.json
           retention-days: 1
 
   # ─────────────────────────────────────────────
