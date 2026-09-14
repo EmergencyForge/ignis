@@ -32,26 +32,13 @@ final class RouterFactory
             cacheFile: $cache ? dirname(__DIR__, 2) . '/storage/cache/routes.php' : null,
         );
 
-        // Die 404-Seite gehört dem Produkt, nicht dem Paket. Fällt auf
-        // Plain-Text zurück, wenn das Template fehlt - eine kaputte
-        // Installation soll einen 404 liefern und nicht still einen 500.
-        $router->setNotFoundHandler(static function (): Response {
-            $template = dirname(__DIR__, 2) . '/templates/errors/404.php';
-            if (!is_file($template)) {
-                return Response::text('Not Found', 404);
-            }
-
-            ob_start();
-            try {
-                require $template;
-                $body = (string) ob_get_clean();
-            } catch (\Throwable) {
-                ob_end_clean();
-                return Response::text('Not Found', 404);
-            }
-
-            return Response::html($body, 404);
-        });
+        // Die 404-Seite gehört dem Produkt, nicht dem Paket. ErrorPage
+        // liefert für /api/-Pfade JSON statt HTML und fällt auf Plain-Text
+        // zurück, wenn das Template fehlt - eine kaputte Installation soll
+        // einen 404 liefern und nicht still einen 500.
+        $router->setNotFoundHandler(
+            static fn (Request $request): Response => ErrorPage::notFound($request->path),
+        );
 
         // dispatch() ist der einzige Ort, an dem sowohl ein echter
         // Produktions-Request als auch ein simulierter Test-Request eindeutig

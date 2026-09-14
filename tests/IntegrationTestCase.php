@@ -50,17 +50,38 @@ abstract class IntegrationTestCase extends TestCase
     private static ?string $skipReason = null;
     private bool $transactionOpen = false;
 
+    /**
+     * Ohne Datenbank überspringen — oder scheitern, wenn
+     * `IGNIS_REQUIRE_DB=1` gesetzt ist.
+     *
+     * Ein übersprungener Test ist grün. Ohne diesen Schalter meldet
+     * `composer test` auf einem Rechner ohne Test-Datenbank also Erfolg,
+     * nachdem es die Integrations- und Feature-Suite komplett übersprungen
+     * hat — rund zweihundert Tests, die niemand vermisst, bis etwas in
+     * Produktion auffällt. In CI steht der Schalter, dort ist ein Skip ein
+     * Fehler.
+     *
+     * `getenv()` statt `$_ENV`, weil die CLI je nach `variables_order` das
+     * Superglobal gar nicht füllt.
+     */
+    private function skipOrFail(string $grund): never
+    {
+        $required = getenv('IGNIS_REQUIRE_DB');
+        if ($required !== false && $required !== '' && $required !== '0') {
+            $this->fail('IGNIS_REQUIRE_DB ist gesetzt, aber: ' . $grund);
+        }
+
+        $this->markTestSkipped('Übersprungen: ' . $grund);
+    }
+
     protected function setUp(): void
     {
         if (empty($_ENV['DB_HOST']) || empty($_ENV['DB_NAME'])) {
-            $this->markTestSkipped(
-                'Integration-Test übersprungen: keine Test-DB konfiguriert. '
-                . 'Lege .env.test mit TEST_DB_* Credentials an.'
-            );
+            $this->skipOrFail('keine Test-DB konfiguriert. Lege .env.test mit TEST_DB_*-Zugangsdaten an.');
         }
 
         if (self::$skipReason !== null) {
-            $this->markTestSkipped(self::$skipReason);
+            $this->skipOrFail(self::$skipReason);
         }
 
         if (!self::$dbReady) {
@@ -68,8 +89,8 @@ abstract class IntegrationTestCase extends TestCase
                 $this->ensureTestDbReady();
                 self::$dbReady = true;
             } catch (\Throwable $e) {
-                self::$skipReason = 'Test-DB Setup fehlgeschlagen: ' . $e->getMessage();
-                $this->markTestSkipped(self::$skipReason);
+                self::$skipReason = 'Test-DB-Aufbau fehlgeschlagen: ' . $e->getMessage();
+                $this->skipOrFail(self::$skipReason);
             }
         }
 
