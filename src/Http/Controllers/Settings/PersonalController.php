@@ -7,465 +7,339 @@ namespace App\Http\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Personnel\SaveFireSkillRequest;
+use App\Http\Requests\Personnel\SaveMedicSkillRequest;
+use App\Http\Requests\Personnel\SaveRankRequest;
+use App\Http\Requests\Personnel\SaveSpecialtyRequest;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * PersonalController — Stammdaten-Verwaltung für Personal:
- * Dienstgrade, Feuerwehr-Qualis (FW), Rettungsdienst-Qualis (RD),
- * Fachdienste (FD).
+ * Die vier Stammdaten-Kataloge des Personals: Dienstgrade,
+ * Feuerwehr-Qualifikationen, Rettungsdienst-Qualifikationen, Fachdienste.
  *
- * Alle 4 Bereiche folgen demselben CRUD-Pattern: Liste mit Modal-Edit,
- * separate POST-Endpoints für create/update/delete. Per Bereich gibt es
- * eine `*Index()`-Methode für die View und 3 Action-Methoden.
+ * Alle vier sind dasselbe: eine Liste mit Modal, dazu drei POST-Ziele für
+ * Anlegen, Ändern und Löschen. Deshalb steht das Gemeinsame in
+ * {@see store()}, {@see update()} und {@see destroy()}, und die zwölf
+ * öffentlichen Methoden sagen nur noch, um welchen Katalog es geht — die
+ * Routen sind fest verdrahtet, sonst wären es drei Methoden mit einem
+ * Parameter.
+ *
+ * Geprüft wird über FormRequests. Vorher las jede Methode ihre Felder
+ * einzeln aus `$_POST` und fragte, ob drei davon nicht leer sind; die
+ * Länge fragte niemand. Ein Name über 255 Zeichen lief damit in eine
+ * PDOException, die als „exception" im Hinweis landete — oder, je nach
+ * SQL-Modus, wurde stumm abgeschnitten.
  */
 class PersonalController extends Controller
 {
+    /**
+     * Die vier Kataloge: Tabelle, Regelmenge, Spalte für die Sortierung,
+     * Seite, Modul im Prüfprotokoll und die Bezeichnung für dessen Text.
+     *
+     * @var array<string,array{
+     *     table: string,
+     *     request: class-string<\App\Http\Requests\FormRequest>,
+     *     order: string,
+     *     view: string,
+     *     path: string,
+     *     module: string,
+     *     label: string,
+     *     flash: string,
+     * }>
+     *
+     * `flash` ist der Schlüssel in der Meldungstabelle von
+     * {@see \App\Helpers\Flash}. Die drei Qualifikationskataloge standen
+     * dort auf `quali` — ein Schlüssel, den die Tabelle nicht kennt, und
+     * `Flash::set()` gibt bei einem unbekannten stillschweigend auf.
+     * Anlegen und Löschen meldeten deshalb nie etwas, weder Erfolg noch
+     * Fehler. Der richtige Schlüssel heißt `qualification`.
+     */
+    private const KATALOGE = [
+        'ranks' => [
+            'table'   => 'intra_mitarbeiter_dienstgrade',
+            'request' => SaveRankRequest::class,
+            'order'   => 'priority',
+            'view'    => 'settings/personnel/ranks',
+            'path'    => 'settings/personnel/ranks',
+            'module'  => 'Dienstgrade',
+            'label'   => 'Rank',
+            'flash'   => 'rank',
+        ],
+        'fireSkills' => [
+            'table'   => 'intra_mitarbeiter_fwquali',
+            'request' => SaveFireSkillRequest::class,
+            'order'   => 'priority',
+            'view'    => 'settings/personnel/fdskills',
+            'path'    => 'settings/personnel/fdskills',
+            'module'  => 'FW-Qualifikationen',
+            'label'   => 'FW-Qualifikation',
+            'flash'   => 'qualification',
+        ],
+        'medicSkills' => [
+            'table'   => 'intra_mitarbeiter_rdquali',
+            'request' => SaveMedicSkillRequest::class,
+            'order'   => 'priority',
+            'view'    => 'settings/personnel/ambskills',
+            'path'    => 'settings/personnel/ambskills',
+            'module'  => 'RD-Qualifikationen',
+            'label'   => 'RD-Qualifikation',
+            'flash'   => 'qualification',
+        ],
+        'specialties' => [
+            'table'   => 'intra_mitarbeiter_fdquali',
+            'request' => SaveSpecialtyRequest::class,
+            'order'   => 'sgnr',
+            'view'    => 'settings/personnel/specialties',
+            'path'    => 'settings/personnel/specialties',
+            'module'  => 'Fachdienste',
+            'label'   => 'Fachdienst',
+            'flash'   => 'qualification',
+        ],
+    ];
+
     // ── Dienstgrade ─────────────────────────────────────────────
 
     public function dienstgradeIndex(): void
     {
-        $this->requireAuth();
-        $this->ensureView();
-
-        $ranks = Capsule::table('intra_mitarbeiter_dienstgrade')
-            ->orderBy('priority')
-            ->get()
-            ->map(fn ($r) => (array) $r)
-            ->all();
-
-        $this->renderView('settings/personnel/ranks', ['ranks' => $ranks]);
+        $this->index('ranks', 'ranks');
     }
 
     public function dienstgradStore(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/ranks/index.php');
-
-        $name     = trim($_POST['name'] ?? '');
-        $name_m   = trim($_POST['name_m'] ?? '');
-        $name_w   = trim($_POST['name_w'] ?? '');
-        $priority = (int) ($_POST['priority'] ?? 0);
-        $badge    = trim($_POST['badge'] ?? '') !== '' ? trim($_POST['badge']) : null;
-        $archive  = isset($_POST['archive']) ? 1 : 0;
-
-        if ($name === '' || $name_m === '' || $name_w === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/ranks/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_dienstgrade')->insert([
-                'name'     => $name,
-                'name_m'   => $name_m,
-                'name_w'   => $name_w,
-                'priority' => $priority,
-                'badge'    => $badge,
-                'archive'  => $archive,
-            ]);
-            Flash::set('rank', 'created');
-            $this->audit('Rank erstellt', 'Name: ' . $name, 'Dienstgrade');
-        } catch (PDOException $e) {
-            error_log('PDO Error (create dienstgrad): ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/ranks/index');
+        $this->store('ranks');
     }
 
     public function dienstgradUpdate(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/ranks/index.php');
-
-        $id       = (int) ($_POST['id'] ?? 0);
-        $name     = trim($_POST['name'] ?? '');
-        $name_m   = trim($_POST['name_m'] ?? '');
-        $name_w   = trim($_POST['name_w'] ?? '');
-        $priority = (int) ($_POST['priority'] ?? 0);
-        $badge    = trim($_POST['badge'] ?? '') !== '' ? trim($_POST['badge']) : null;
-        $archive  = isset($_POST['archive']) ? 1 : 0;
-
-        if ($id <= 0 || $name === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/ranks/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_dienstgrade')->where('id', $id)->update([
-                'name'     => $name,
-                'name_m'   => $name_m,
-                'name_w'   => $name_w,
-                'priority' => $priority,
-                'badge'    => $badge,
-                'archive'  => $archive,
-            ]);
-            Flash::set('success', 'updated');
-            $this->audit('Rank aktualisiert [ID: ' . $id . ']', null, 'Dienstgrade');
-        } catch (PDOException $e) {
-            error_log('PDO Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/ranks/index');
+        $this->update('ranks');
     }
 
     public function dienstgradDelete(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/ranks/index.php');
-
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
-            Flash::set('rank', 'invalid-id');
-            $this->redirect('settings/personnel/ranks/index');
-        }
-
-        $exists = Capsule::table('intra_mitarbeiter_dienstgrade')->where('id', $id)->exists();
-        if (!$exists) {
-            Flash::set('rank', 'not-found');
-            $this->redirect('settings/personnel/ranks/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_dienstgrade')->where('id', $id)->delete();
-            Flash::set('rank', 'deleted');
-            $this->audit('Rank gelöscht [ID: ' . $id . ']', null, 'Dienstgrade');
-        } catch (PDOException $e) {
-            error_log('PDO Delete Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/ranks/index');
+        $this->destroy('ranks');
     }
 
     // ── FW-Qualifikationen ──────────────────────────────────────
 
     public function fwQualiIndex(): void
     {
-        $this->requireAuth();
-        $this->ensureView();
-
-        $qualis = Capsule::table('intra_mitarbeiter_fwquali')
-            ->orderBy('priority')
-            ->get()
-            ->map(fn ($r) => (array) $r)
-            ->all();
-
-        $this->renderView('settings/personnel/fdskills', ['qualis' => $qualis]);
+        $this->index('fireSkills', 'qualis');
     }
 
     public function fwQualiStore(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/fdskills/index.php');
-
-        $shortname = trim($_POST['shortname'] ?? '');
-        $name      = trim($_POST['name'] ?? '');
-        $name_m    = trim($_POST['name_m'] ?? '');
-        $name_w    = trim($_POST['name_w'] ?? '');
-        $priority  = (int) ($_POST['priority'] ?? 0);
-        $none      = isset($_POST['none']) ? 1 : 0;
-
-        if ($shortname === '' || $name === '' || $name_m === '' || $name_w === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/fdskills/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_fwquali')->insert([
-                'shortname' => $shortname,
-                'name'      => $name,
-                'name_m'    => $name_m,
-                'name_w'    => $name_w,
-                'priority'  => $priority,
-                'none'      => $none,
-            ]);
-            Flash::set('quali', 'created');
-            $this->audit('FW-Qualifikation erstellt', 'Name: ' . $name, 'FW-Qualifikationen');
-        } catch (PDOException $e) {
-            error_log('PDO Error (create fwquali): ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/fdskills/index');
+        $this->store('fireSkills');
     }
 
     public function fwQualiUpdate(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/fdskills/index.php');
-
-        $id        = (int) ($_POST['id'] ?? 0);
-        $shortname = trim($_POST['shortname'] ?? '');
-        $name      = trim($_POST['name'] ?? '');
-        $name_m    = trim($_POST['name_m'] ?? '');
-        $name_w    = trim($_POST['name_w'] ?? '');
-        $priority  = (int) ($_POST['priority'] ?? 0);
-        $none      = isset($_POST['none']) ? 1 : 0;
-
-        if ($id <= 0 || $name === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/fdskills/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_fwquali')->where('id', $id)->update([
-                'shortname' => $shortname,
-                'name'      => $name,
-                'name_m'    => $name_m,
-                'name_w'    => $name_w,
-                'priority'  => $priority,
-                'none'      => $none,
-            ]);
-            Flash::set('success', 'updated');
-            $this->audit('FW-Qualifikation aktualisiert [ID: ' . $id . ']', null, 'FW-Qualifikationen');
-        } catch (PDOException $e) {
-            error_log('PDO Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/fdskills/index');
+        $this->update('fireSkills');
     }
 
     public function fwQualiDelete(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/fdskills/index.php');
-
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
-            Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personnel/fdskills/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_fwquali')->where('id', $id)->delete();
-            Flash::set('quali', 'deleted');
-            $this->audit('FW-Qualifikation gelöscht [ID: ' . $id . ']', null, 'FW-Qualifikationen');
-        } catch (PDOException $e) {
-            error_log('PDO Delete Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/fdskills/index');
+        $this->destroy('fireSkills');
     }
 
     // ── RD-Qualifikationen ──────────────────────────────────────
 
     public function rdQualiIndex(): void
     {
-        $this->requireAuth();
-        $this->ensureView();
-
-        $qualis = Capsule::table('intra_mitarbeiter_rdquali')
-            ->orderBy('priority')
-            ->get()
-            ->map(fn ($r) => (array) $r)
-            ->all();
-
-        $this->renderView('settings/personnel/ambskills', ['qualis' => $qualis]);
+        $this->index('medicSkills', 'qualis');
     }
 
     public function rdQualiStore(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/ambskills/index.php');
-
-        $name       = trim($_POST['name'] ?? '');
-        $name_m     = trim($_POST['name_m'] ?? '');
-        $name_w     = trim($_POST['name_w'] ?? '');
-        $abkuerzung = trim($_POST['abkuerzung'] ?? '') !== '' ? trim($_POST['abkuerzung']) : null;
-        $priority   = (int) ($_POST['priority'] ?? 0);
-        $none       = isset($_POST['none']) ? 1 : 0;
-        $trainable  = isset($_POST['trainable']) ? 1 : 0;
-
-        if ($name === '' || $name_m === '' || $name_w === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/ambskills/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_rdquali')->insert([
-                'name'       => $name,
-                'name_m'     => $name_m,
-                'name_w'     => $name_w,
-                'abkuerzung' => $abkuerzung,
-                'priority'   => $priority,
-                'none'       => $none,
-                'trainable'  => $trainable,
-            ]);
-            Flash::set('quali', 'created');
-            $this->audit('RD-Qualifikation erstellt', 'Name: ' . $name, 'RD-Qualifikationen');
-        } catch (PDOException $e) {
-            error_log('PDO Error (create rdquali): ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/ambskills/index');
+        $this->store('medicSkills');
     }
 
     public function rdQualiUpdate(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/ambskills/index.php');
-
-        $id         = (int) ($_POST['id'] ?? 0);
-        $name       = trim($_POST['name'] ?? '');
-        $name_m     = trim($_POST['name_m'] ?? '');
-        $name_w     = trim($_POST['name_w'] ?? '');
-        $abkuerzung = trim($_POST['abkuerzung'] ?? '') !== '' ? trim($_POST['abkuerzung']) : null;
-        $priority   = (int) ($_POST['priority'] ?? 0);
-        $none       = isset($_POST['none']) ? 1 : 0;
-        $trainable  = isset($_POST['trainable']) ? 1 : 0;
-
-        if ($id <= 0 || $name === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/ambskills/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_rdquali')->where('id', $id)->update([
-                'name'       => $name,
-                'name_m'     => $name_m,
-                'name_w'     => $name_w,
-                'abkuerzung' => $abkuerzung,
-                'priority'   => $priority,
-                'none'       => $none,
-                'trainable'  => $trainable,
-            ]);
-            Flash::set('success', 'updated');
-            $this->audit('RD-Qualifikation aktualisiert [ID: ' . $id . ']', null, 'RD-Qualifikationen');
-        } catch (PDOException $e) {
-            error_log('PDO Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/ambskills/index');
+        $this->update('medicSkills');
     }
 
     public function rdQualiDelete(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/ambskills/index.php');
-
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
-            Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personnel/ambskills/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_rdquali')->where('id', $id)->delete();
-            Flash::set('quali', 'deleted');
-            $this->audit('RD-Qualifikation gelöscht [ID: ' . $id . ']', null, 'RD-Qualifikationen');
-        } catch (PDOException $e) {
-            error_log('PDO Delete Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/ambskills/index');
+        $this->destroy('medicSkills');
     }
 
     // ── Fachdienste (FD) ────────────────────────────────────────
 
     public function fdQualiIndex(): void
     {
-        $this->requireAuth();
-        $this->ensureView();
-
-        $qualis = Capsule::table('intra_mitarbeiter_fdquali')
-            ->orderBy('sgnr')
-            ->get()
-            ->map(fn ($r) => (array) $r)
-            ->all();
-
-        $this->renderView('settings/personnel/specialties', ['qualis' => $qualis]);
+        $this->index('specialties', 'qualis');
     }
 
     public function fdQualiStore(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/specialties/index.php');
-
-        $sgnr     = (int) ($_POST['sgnr'] ?? 0);
-        $sgname   = trim($_POST['sgname'] ?? '');
-        $disabled = isset($_POST['disabled']) ? 1 : 0;
-
-        if ($sgnr <= 0 || $sgname === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/specialties/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_fdquali')->insert([
-                'sgnr'     => $sgnr,
-                'sgname'   => $sgname,
-                'disabled' => $disabled,
-            ]);
-            Flash::set('quali', 'created');
-            $this->audit('Fachdienst erstellt', 'Name: ' . $sgname, 'Fachdienste');
-        } catch (PDOException $e) {
-            error_log('PDO Error (create fdquali): ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/specialties/index');
+        $this->store('specialties');
     }
 
     public function fdQualiUpdate(): void
     {
-        $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/specialties/index.php');
-
-        $id       = (int) ($_POST['id'] ?? 0);
-        $sgnr     = (int) ($_POST['sgnr'] ?? 0);
-        $sgname   = trim($_POST['sgname'] ?? '');
-        $disabled = isset($_POST['disabled']) ? 1 : 0;
-
-        if ($id <= 0 || $sgname === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personnel/specialties/index');
-        }
-
-        try {
-            Capsule::table('intra_mitarbeiter_fdquali')->where('id', $id)->update([
-                'sgnr'     => $sgnr,
-                'sgname'   => $sgname,
-                'disabled' => $disabled,
-            ]);
-            Flash::set('success', 'updated');
-            $this->audit('Fachdienst aktualisiert [ID: ' . $id . ']', null, 'Fachdienste');
-        } catch (PDOException $e) {
-            error_log('PDO Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/personnel/specialties/index');
+        $this->update('specialties');
     }
 
     public function fdQualiDelete(): void
     {
+        $this->destroy('specialties');
+    }
+
+    // ── Das Gemeinsame ──────────────────────────────────────────
+
+    /** @param non-empty-string $variable Name der Liste in der Ansicht */
+    private function index(string $katalog, string $variable): void
+    {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personnel/specialties/index.php');
+        $this->ensureView();
+
+        $k    = self::KATALOGE[$katalog];
+        $rows = Capsule::table($k['table'])
+            ->orderBy($k['order'])
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->all();
+
+        $this->renderView($k['view'], [$variable => $rows]);
+    }
+
+    private function store(string $katalog): void
+    {
+        $k    = self::KATALOGE[$katalog];
+        $data = $this->validated($k);
+        unset($data['id']);
+
+        $this->write(
+            $k,
+            static fn () => Capsule::table($k['table'])->insert($data),
+            $k['flash'],
+            'created',
+            $k['label'] . ' erstellt',
+            $this->beschreibung($data),
+        );
+    }
+
+    private function update(string $katalog): void
+    {
+        $k    = self::KATALOGE[$katalog];
+        $data = $this->validated($k);
+        $id   = (int) $data['id'];
+        unset($data['id']);
+
+        if ($id <= 0) {
+            Flash::set('error', 'missing-fields');
+            $this->redirect($k['path'] . '/index');
+        }
+
+        // „updated" steht in der Meldungstabelle unter `success`, nicht
+        // unter dem Katalog.
+        $this->write(
+            $k,
+            static fn () => Capsule::table($k['table'])->where('id', $id)->update($data),
+            'success',
+            'updated',
+            $k['label'] . ' aktualisiert [ID: ' . $id . ']',
+            null,
+            $id,
+        );
+    }
+
+    private function destroy(string $katalog): void
+    {
+        $k = self::KATALOGE[$katalog];
+        $this->requireAuth();
+        $this->ensureAdmin($k['path'] . '/index.php');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
-            Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personnel/specialties/index');
+            Flash::set($k['flash'], 'invalid-id');
+            $this->redirect($k['path'] . '/index');
         }
 
+        // Der Dienstgrad meldete „nicht gefunden", die drei anderen
+        // löschten stillschweigend nichts. Jetzt alle gleich.
+        if (!Capsule::table($k['table'])->where('id', $id)->exists()) {
+            Flash::set($k['flash'], 'not-found');
+            $this->redirect($k['path'] . '/index');
+        }
+
+        $this->write(
+            $k,
+            static fn () => Capsule::table($k['table'])->where('id', $id)->delete(),
+            $k['flash'],
+            'deleted',
+            $k['label'] . ' gelöscht [ID: ' . $id . ']',
+            null,
+            $id,
+        );
+    }
+
+    /**
+     * Rechte prüfen und den Post durch die Regelmenge des Katalogs
+     * schicken. Beides gehört zusammen: ohne Rechte wird gar nicht erst
+     * gelesen.
+     *
+     * @param  array<string,mixed> $k
+     * @return array<string,mixed>
+     */
+    private function validated(array $k): array
+    {
+        $this->requireAuth();
+        $this->ensureAdmin($k['path'] . '/index.php');
+
+        /** @var class-string<\App\Http\Requests\FormRequest> $request */
+        $request = $k['request'];
+
         try {
-            Capsule::table('intra_mitarbeiter_fdquali')->where('id', $id)->delete();
-            Flash::set('quali', 'deleted');
-            $this->audit('Fachdienst gelöscht [ID: ' . $id . ']', null, 'Fachdienste');
+            return $request::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect($k['path'] . '/index');
+        }
+    }
+
+    /**
+     * Schreiben, melden, protokollieren — und bei einem Datenbankfehler
+     * dasselbe wie vorher: ins Fehlerprotokoll, „exception" für den Nutzer.
+     *
+     * @param array<string,mixed> $k
+     * @param callable():mixed    $schreiben
+     */
+    private function write(
+        array $k,
+        callable $schreiben,
+        string $flashTyp,
+        string $flashSchluessel,
+        string $aktion,
+        ?string $details = null,
+        ?int $id = null,
+    ): void {
+        try {
+            $schreiben();
+            Flash::set($flashTyp, $flashSchluessel);
+            $this->audit($aktion, $details, $k['module'], $id);
         } catch (PDOException $e) {
-            error_log('PDO Delete Error: ' . $e->getMessage());
+            error_log('PDO Error (' . $k['table'] . '): ' . $e->getMessage());
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personnel/specialties/index');
+        $this->redirect($k['path'] . '/index');
+    }
+
+    /**
+     * Die Zeile im Prüfprotokoll: der Name, wenn der Katalog einen hat,
+     * sonst nichts.
+     *
+     * @param array<string,mixed> $data
+     */
+    private function beschreibung(array $data): ?string
+    {
+        $name = $data['name'] ?? $data['sgname'] ?? null;
+
+        return is_string($name) ? 'Name: ' . $name : null;
     }
 
     // ── Helpers ─────────────────────────────────────────────────
@@ -494,14 +368,25 @@ class PersonalController extends Controller
     }
 
     /**
-     * Schreibt einen Audit-Log-Eintrag, sofern ein User-Login vorliegt.
+     * Schreibt ins Prüfprotokoll, sofern jemand angemeldet ist.
+     *
+     * Die Kennung geht als `context.id` mit — darüber findet
+     * {@see \App\Support\Activity} den Eintrag, ohne sie aus dem
+     * Meldungstext klauben zu müssen.
      */
-    private function audit(string $action, ?string $details, string $category): void
+    private function audit(string $action, ?string $details, string $category, ?int $id = null): void
     {
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger();
-        $logger->log($_SESSION['userid'], $action, $details, $category, 1);
+
+        (new AuditLogger())->log(
+            $_SESSION['userid'],
+            $action,
+            $details,
+            $category,
+            1,
+            $id === null ? [] : ['id' => $id],
+        );
     }
 }
