@@ -11,6 +11,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Wie in php.yml: ignis und das Paket-Repo WebPackages liegen
+    # nebeneinander, composer.json bindet ../WebPackages/packages/* als
+    # Pfad-Repository ein.
+    defaults:
+      run:
+        working-directory: ignis
+
     steps:
       - name: Generate bot token
         id: bot
@@ -25,6 +32,23 @@ jobs:
         with:
           ref: main
           token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
+          path: ignis
+
+      - name: Token fuer die Pakete
+        id: packages
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.PACKAGES_APP_ID }}
+          private-key: ${{ secrets.PACKAGES_APP_KEY }}
+          owner: EmergencyForge
+          repositories: WebPackages
+
+      - name: Paket-Repo daneben auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: EmergencyForge/WebPackages
+          token: ${{ steps.packages.outputs.token }}
+          path: WebPackages
 
       - name: Extract version
         run: |
@@ -59,7 +83,15 @@ jobs:
           tools: composer
 
       - name: Install production dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+          # composer verlinkt die Pfad-Pakete nur. Im Archiv zeigen solche
+          # Links ins Leere, also die Dateien selbst hineinkopieren.
+          cp -rL vendor/emergencyforge vendor/emergencyforge.kopie
+          rm -rf vendor/emergencyforge
+          mv vendor/emergencyforge.kopie vendor/emergencyforge
+          test -z "$(find vendor/emergencyforge -maxdepth 1 -type l)" \
+            || { echo "vendor/emergencyforge enthaelt Symlinks"; exit 1; }
 
       - name: Create .env.example if missing
         run: |
@@ -241,12 +273,12 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            ${{ env.archive_name }}
-            ${{ env.archive_name }}.sha256
-            ${{ env.archive_legacy }}
-            ${{ env.archive_legacy }}.sha256
-            ${{ env.install_name }}
-            ${{ env.install_name }}.sha256
+            ignis/${{ env.archive_name }}
+            ignis/${{ env.archive_name }}.sha256
+            ignis/${{ env.archive_legacy }}
+            ignis/${{ env.archive_legacy }}.sha256
+            ignis/${{ env.install_name }}
+            ignis/${{ env.install_name }}.sha256
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
 
