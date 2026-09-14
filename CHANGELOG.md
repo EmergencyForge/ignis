@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.4-beta
+
+Der zentrale Login heißt jetzt „Mit Sync anmelden“ und zeigt das EmergencyForge-Logo. Die direkte Discord-Anmeldung eigenständiger Installationen bleibt unverändert.
+
 ## 2026.0.3-beta
 
 Der interne EmergencyForge-Login ist für unsere Fabrica-Instanzen verfügbar.

@@ -106,18 +106,18 @@ if (!$centralLogin && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reg
                     ?>
 
                     <div class="mb-4 text-center">
-                        <a href="<?= BASE_PATH ?><?= $centralLogin ? 'auth/fabrica' : 'auth/discord' ?>" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><i class="<?= $centralLogin ? 'fa-solid fa-right-to-bracket' : 'fa-brands fa-discord' ?>" aria-hidden="true"></i> Mit <?= $centralLogin ? 'EmergencyForge' : 'Discord' ?> anmelden</a>
+                        <a href="<?= BASE_PATH ?><?= $centralLogin ? 'auth/fabrica' : 'auth/discord' ?>" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><?php if ($centralLogin): ?><span aria-hidden="true" style="display:inline-flex;align-self:center;flex-shrink:0;"><?= str_replace('<svg ', '<svg width="28" height="16" ', (string) file_get_contents(__DIR__ . '/assets/img/ef-mark.svg')) ?></span><?php else: ?><i class="fa-brands fa-discord" aria-hidden="true"></i><?php endif; ?> Mit <?= $centralLogin ? 'Sync' : 'Discord' ?> anmelden</a>
                     </div>
                 </div>
         <?php
         // Dieselbe Quelle wie die Versionszeile der Sidebar.
         $loginVersionFile = __DIR__ . '/storage/version.json';
-        $loginVersionInfo = is_file($loginVersionFile) ? json_decode((string) file_get_contents($loginVersionFile), true) : null;
+        $loginVersionInfo = is_file($loginVersionFile) ? json_decode((string) (string) file_get_contents($loginVersionFile), true) : null;
         $loginVersion = is_array($loginVersionInfo) && !empty($loginVersionInfo['version']) ? (string) $loginVersionInfo['version'] : null;
         ?>
         <p class="twplus-login__foot">
             <span>&#305;gn&#305;s<?= $loginVersion !== null ? ' ' . htmlspecialchars($loginVersion) : '' ?> by</span>
-            <?= file_get_contents(__DIR__ . '/assets/img/ef-mark.svg') ?>
+            <?= (string) file_get_contents(__DIR__ . '/assets/img/ef-mark.svg') ?>
             <span>EmergencyForge</span>
         </p>
         <p class="mt-4 text-center text-xs">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
