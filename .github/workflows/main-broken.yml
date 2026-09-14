@@ -308,6 +308,16 @@ jobs:
                 repo: context.repo.repo,
                 title,
                 body,
+              });
+              // Labels kommen als eigener Aufruf. Beim Anlegen nimmt die
+              // API sie mit dem App-Token zwar entgegen, setzt sie aber
+              // nicht: saemtliche Incidents lagen bisher ohne Label da,
+              // und damit fand weder die Dedup-Suche noch der
+              // Schliess-Schritt sie je wieder.
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: created.number,
                 labels: allLabels,
               });
               core.info(`Created incident #${created.number}`);
