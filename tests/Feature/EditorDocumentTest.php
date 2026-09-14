@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Documents\Editor\PdfGenerator;
 use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
 use App\Security\CsrfProtection;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Events\Dispatcher;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -28,6 +31,19 @@ final class EditorDocumentTest extends FeatureTestCase
     private const SECTION_FREE   = '22222222-2222-4222-8222-222222222222';
 
     private int $mitarbeiterId = 0;
+
+    /** @var list<string> */
+    private array $pdfFiles = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->pdfFiles as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        parent::tearDown();
+    }
 
     protected function setUp(): void
     {
@@ -250,11 +266,122 @@ final class EditorDocumentTest extends FeatureTestCase
         $this->assertNotNull($issued->issued_at);
         $this->assertSame('Testperson', $issued->frozen_values['mitarbeiter.name'] ?? null);
         $this->assertSame($document->docid, $issued->frozen_values['dokument.kennung'] ?? null);
-        $this->assertSame('storage/documents/' . $document->docid . '.pdf', $issued->pdf_path);
+        $this->assertSame('storage/private/editor-documents/' . $document->docid . '.pdf', $issued->pdf_path);
 
         $pdf = dirname(__DIR__, 2) . '/' . $issued->pdf_path;
+        $this->pdfFiles[] = $pdf;
         $this->assertFileExists($pdf);
         $this->assertStringStartsWith('%PDF', (string) file_get_contents($pdf));
-        @unlink($pdf);
+
+        $response = $this->get('/documents/' . $document->id . '/pdf');
+        $this->assertOk($response);
+        $this->assertStringStartsWith('%PDF', $response->body);
+        $this->assertNotFound($this->get('/' . $issued->pdf_path));
+
+        $_SESSION['permissions'] = [];
+        $this->assertStatus(403, $this->get('/documents/' . $document->id . '/pdf'));
+        $_SESSION = [];
+        $this->assertRedirect($this->get('/documents/' . $document->id . '/pdf'), '/login');
+    }
+
+    #[Test]
+    public function bereits_im_alten_ordner_ausgestellte_editor_pdfs_sind_geschuetzt(): void
+    {
+        $document = $this->draft($this->template());
+        $path = 'storage/documents/' . $document->docid . '.pdf';
+        $this->pdfFixture($path);
+        $document->update(['status' => EditorDocument::STATUS_ISSUED, 'pdf_path' => $path]);
+
+        $this->assertSame('%PDF-test', $this->get('/documents/' . $document->id . '/pdf')->body);
+        $this->assertNotFound($this->get('/' . $path));
+
+        $_SESSION['permissions'] = [];
+        $this->assertStatus(403, $this->get('/documents/' . $document->id . '/pdf'));
+        $this->assertNotFound($this->get('/' . $path));
+        $_SESSION = [];
+        $this->assertRedirect($this->get('/documents/' . $document->id . '/pdf'), '/login');
+        $this->assertNotFound($this->get('/' . $path));
+    }
+
+    #[Test]
+    public function alte_personaldokumente_bleiben_ueber_ihren_bisherigen_link_erreichbar(): void
+    {
+        $name = implode('-', str_split(strtoupper(bin2hex(random_bytes(6))), 4)) . '.pdf';
+        $path = 'storage/documents/' . $name;
+        $this->pdfFixture($path);
+        $_SESSION = [];
+
+        $response = $this->get('/' . $path);
+        $this->assertOk($response);
+        $this->assertSame('%PDF-test', $response->body);
+    }
+
+    #[Test]
+    public function ein_entwurf_und_ein_fremder_pdf_pfad_werden_nicht_ausgeliefert(): void
+    {
+        $document = $this->draft($this->template());
+        $path = 'storage/private/editor-documents/' . $document->docid . '.pdf';
+        $this->pdfFixture($path);
+        $document->update(['pdf_path' => $path]);
+
+        $this->assertNull((new PdfGenerator())->read($document));
+        $this->assertRedirect($this->get('/documents/' . $document->id . '/pdf'));
+
+        $document->status = EditorDocument::STATUS_ISSUED;
+        $document->pdf_path = 'storage/documents/../private/editor-documents/' . $document->docid . '.pdf';
+        $this->assertNull((new PdfGenerator())->read($document));
+    }
+
+    #[Test]
+    public function ausstellen_prueft_den_nach_einem_autosave_aktuellen_inhalt(): void
+    {
+        $document = $this->draft($this->template());
+        $changed = $this->templateContent();
+        $changed['content'][1]['content'][0]['content'] = [[
+            'type' => 'docField',
+            'attrs' => ['fieldId' => 'required', 'label' => 'Unterschrift', 'required' => true, 'value' => ''],
+        ]];
+
+        $connection = Capsule::connection();
+        $previousEvents = $connection->getEventDispatcher();
+        $events = new Dispatcher();
+        $connection->setEventDispatcher($events);
+        $autosaved = false;
+        $events->listen(TransactionBeginning::class, function () use ($document, $changed, &$autosaved): void {
+            if ($autosaved) {
+                return;
+            }
+            $autosaved = true;
+            // Autosave zwischen dem ersten Lesen und der Ausstellung.
+            Capsule::table('intra_documents')->where('id', $document->id)->update([
+                'content' => json_encode($changed, JSON_UNESCAPED_UNICODE),
+            ]);
+        });
+
+        $path = 'storage/private/editor-documents/' . $document->docid . '.pdf';
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/' . $path;
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/storage/documents/' . $document->docid . '.pdf';
+        try {
+            $response = $this->postWithToken('/documents/' . $document->id . '/issue', []);
+        } finally {
+            $connection->setEventDispatcher($previousEvents);
+        }
+
+        $this->assertTrue($autosaved);
+        $this->assertRedirect($response, '/documents/' . $document->id . '/edit');
+        $saved = $document->fresh();
+        $this->assertSame(EditorDocument::STATUS_DRAFT, $saved->status);
+        $this->assertNull($saved->pdf_path);
+        $this->assertFileDoesNotExist(dirname(__DIR__, 2) . '/' . $path);
+    }
+
+    private function pdfFixture(string $relativePath): void
+    {
+        $file = dirname(__DIR__, 2) . '/' . $relativePath;
+        if (!is_dir(dirname($file))) {
+            mkdir(dirname($file), 0755, true);
+        }
+        $this->pdfFiles[] = $file;
+        file_put_contents($file, '%PDF-test');
     }
 }

@@ -259,20 +259,27 @@ final class EditorDocumentController extends Controller
             $this->redirect($showUrl);
         }
 
-        $frozen  = VariableCatalog::resolve($this->variableContext($document));
-        $missing = $this->emptyRequiredFields($document, $frozen);
-        if ($missing !== []) {
-            Flash::error(
-                'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden — diese '
-                . 'Pflichtfelder sind leer: ' . implode(', ', $missing) . '.',
-            );
-            $this->redirect($editUrl);
-        }
-
         $userId = SessionManager::userId();
 
         try {
-            $issued = Capsule::connection()->transaction(static function () use ($document, $frozen, $userId): bool {
+            $issued = Capsule::connection()->transaction(function () use (&$document, $userId, $editUrl): bool {
+                // Inhalt, Pflichtfelder und PDF bleiben bis zum Commit derselbe Stand.
+                $locked = EditorDocument::query()->with('mitarbeiter')->lockForUpdate()->find($document->id);
+                if ($locked === null || $locked->isIssued()) {
+                    return false;
+                }
+                $document = $locked;
+
+                $frozen = VariableCatalog::resolve($this->variableContext($document));
+                $missing = $this->emptyRequiredFields($document, $frozen);
+                if ($missing !== []) {
+                    Flash::error(
+                        'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden — diese '
+                        . 'Pflichtfelder sind leer: ' . implode(', ', $missing) . '.',
+                    );
+                    $this->redirect($editUrl);
+                }
+
                 $now = date('Y-m-d H:i:s');
 
                 $affected = Capsule::table('intra_documents')

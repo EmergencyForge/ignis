@@ -334,6 +334,7 @@ $status_config = [
                 <?php endif; ?>
 
                 <form method="POST">
+                    <?= csrf_field() ?>
                     <div class="mb-4">
                         <label for="code" class="ignis-field__label">
                             Bitte geben Sie Ihren Zugangscode ein
@@ -391,6 +392,7 @@ $status_config = [
                     </div>
                 <?php else: ?>
                     <form method="POST">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="update_availability" value="1">
 
                         <?php foreach ($departments as $dept): ?>

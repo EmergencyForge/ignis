@@ -73,6 +73,7 @@ $currentDateTime = date('Y-m-d\TH:i');
         <div class="row h-full">
             <div class="col" id="edivi__content">
                 <form name="form" id="vitalsForm" method="post" action="">
+                    <?= csrf_field() ?>
                     <div class="row">
                         <div class="col position-relative">
                             <div class="row my-3">

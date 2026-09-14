@@ -102,6 +102,7 @@ use App\Helpers\Flash;
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/enotf/update" method="POST">
+                        <?= csrf_field() ?>
                         <div class="modal-header">
                             <h5 class="modal-title" id="editQuicklinkModalLabel">Link bearbeiten</h5>
                             <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
@@ -163,6 +164,7 @@ use App\Helpers\Flash;
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/enotf/create" method="POST">
+                        <?= csrf_field() ?>
                         <div class="modal-header">
                             <h5 class="modal-title" id="createQuicklinkModalLabel">Neuen Link erstellen</h5>
                             <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>

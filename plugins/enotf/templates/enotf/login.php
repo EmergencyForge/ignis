@@ -117,6 +117,7 @@ $hasPrefill = !empty($prefill);
 <body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>">
     <!-- Normales Anmeldeformular -->
     <form name="form" method="post" action="" id="login-form-new">
+        <?= csrf_field() ?>
         <input type="hidden" name="login_mode" value="new" />
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
@@ -310,6 +311,7 @@ $hasPrefill = !empty($prefill);
 
     <!-- Verstecktes Beitritts-Formular -->
     <form id="login-form-join" method="post" action="" style="display:none;">
+        <?= csrf_field() ?>
         <input type="hidden" name="login_mode" value="join" />
         <input type="hidden" name="protfzg" id="join-protfzg" value="" />
         <input type="hidden" name="join_position" id="join-position-hidden" value="" />

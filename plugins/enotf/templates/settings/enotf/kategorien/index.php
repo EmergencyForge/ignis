@@ -81,6 +81,7 @@ use App\Helpers\Flash;
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/enotf/kategorien/update" method="POST">
+                        <?= csrf_field() ?>
                         <div class="modal-header">
                             <h5 class="modal-title" id="editCategoryModalLabel">Kategorie bearbeiten</h5>
                             <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
@@ -119,6 +120,7 @@ use App\Helpers\Flash;
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/enotf/kategorien/create" method="POST">
+                        <?= csrf_field() ?>
                         <div class="modal-header">
                             <h5 class="modal-title" id="createCategoryModalLabel">Neue Kategorie erstellen</h5>
                             <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>

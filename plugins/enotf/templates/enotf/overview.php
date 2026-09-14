@@ -30,6 +30,7 @@ $currentDate = date('d.m.Y');
 
 <body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
+        <?= csrf_field() ?>
         <input type="hidden" name="new" value="1" />
         <?php
         $topbar_left_html = '

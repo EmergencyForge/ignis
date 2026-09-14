@@ -9,6 +9,7 @@ use App\Plugins\PluginLoader;
 use App\Search\SearchRegistry;
 use EmergencyForge\Plugins\Plugin;
 use EmergencyForge\Plugins\PluginManifest;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -23,6 +24,47 @@ use Tests\FixtureFactory;
 final class GlobalSearchTest extends FeatureTestCase
 {
     private const PATH = '/api/system/global-search';
+
+    #[Test]
+    public function document_search_uses_current_schema_and_filters_drafts_by_permission(): void
+    {
+        $this->login(['personnel.documents.manage']);
+        $person = Capsule::table('intra_mitarbeiter')->insertGetId([
+            'fullname' => 'Dokumentsuchtest Person', 'dienstnr' => 'DS-01',
+            'gebdatum' => '1990-01-01', 'einstdatum' => '2024-01-01', 'geschlecht' => 0,
+            'charakterid' => 'DS00001',
+            'dienstgrad' => Capsule::table('intra_mitarbeiter_dienstgrade')->min('id'),
+            'qualifw2' => Capsule::table('intra_mitarbeiter_fwquali')->min('id'),
+            'qualird' => Capsule::table('intra_mitarbeiter_rdquali')->min('id'),
+        ]);
+        foreach (['entwurf' => '9876541', 'ausgestellt' => '9876542'] as $status => $docid) {
+            Capsule::table('intra_documents')->insert([
+                'docid' => $docid, 'mitarbeiter_id' => $person, 'title' => 'Dokumentsuchtest ' . $status,
+                'content' => '{}', 'status' => $status,
+            ]);
+        }
+        Capsule::table('intra_mitarbeiter_dokumente')->insert([
+            'docid' => 'DSAA-BBBB-CCCC', 'type' => 1, 'anrede' => 0,
+            'erhalter' => 'Dokumentsuchtest Alt', 'ausstellerid' => 'test', 'is_archived' => 0,
+        ]);
+        Capsule::table('intra_mitarbeiter_dokumente')->insert([
+            'docid' => 'DSBB-BBBB-CCCC', 'type' => 1, 'anrede' => 0,
+            'erhalter' => 'Dokumentsuchtest Archiv', 'ausstellerid' => 'test', 'is_archived' => 1,
+        ]);
+        $source = new \App\Search\Sources\DocumentSource();
+        $managed = $source->search('Dokumentsuchtest', 10);
+        self::assertCount(3, $managed);
+        self::assertContains('Dokumentsuchtest entwurf', array_column($managed, 'label'));
+        self::assertNotContains('Dokumentsuchtest Archiv', array_column($managed, 'label'));
+        self::assertCount(1, $source->search('Dokumentsuchtest', 1));
+        $this->login(['personnel.documents.view']);
+        $viewed = $source->search('Dokumentsuchtest', 10);
+        self::assertCount(2, $viewed);
+        self::assertNotContains('Dokumentsuchtest entwurf', array_column($viewed, 'label'));
+        $this->login(['personnel.view']);
+        self::assertFalse($source->allowed());
+        self::assertSame([], $source->search('Dokumentsuchtest', 10));
+    }
 
     /**
      * @param list<string> $permissions

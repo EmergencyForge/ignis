@@ -101,6 +101,7 @@ use App\Helpers\Flash;
                             </div>
                         <?php else: ?>
                             <form method="post">
+                                <?= csrf_field() ?>
                                 <div class="mb-4">
                                     <label class="ignis-field__label">
                                         <i class="fa-solid fa-truck mr-1"></i>

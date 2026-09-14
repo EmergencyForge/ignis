@@ -26,6 +26,7 @@ $currentDate = date('d.m.Y');
 
 <body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
+        <?= csrf_field() ?>
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
             <div class="h-full">

@@ -42,6 +42,7 @@ use App\Helpers\Flash;
                 <div id="createFormWrap" style="display:none;" class="intra__tile p-4 mb-3">
                     <h5 class="mb-3">Neuer Eintrag</h5>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="action" value="create">
                         <input type="hidden" name="return_to" value="firetab">
                         <input type="hidden" name="source" value="firetab">
@@ -63,6 +64,7 @@ use App\Helpers\Flash;
                 <div id="editFormWrap" style="display:none;" class="intra__tile p-4 mb-3">
                     <h5 class="mb-3">Eintrag bearbeiten</h5>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions" id="editForm">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="id" id="edit_id" value="">
                         <input type="hidden" name="return_to" value="firetab">

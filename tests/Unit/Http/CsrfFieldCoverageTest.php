@@ -37,7 +37,8 @@ final class CsrfFieldCoverageTest extends TestCase
             }
 
             foreach ($this->postFormulare($inhalt) as $nr => $rumpf) {
-                if (preg_match('~csrf_field\(\)|name\s*=\s*["\']csrf_token["\']~i', $rumpf) !== 1) {
+                $feldname = str_starts_with($pfad, 'plugins/enotf-v2/') ? '(?:csrf_token|_csrf)' : 'csrf_token';
+                if (preg_match('~csrf_field\(\)|name\s*=\s*["\']' . $feldname . '["\']~i', $rumpf) !== 1) {
                     $ohne[] = $pfad . ' (Formular ' . ($nr + 1) . ')';
                 }
             }
@@ -67,6 +68,9 @@ final class CsrfFieldCoverageTest extends TestCase
             if (preg_match('~method\s*=\s*["\']post~i', $tag) !== 1) {
                 continue;
             }
+            if (preg_match('~onsubmit\s*=\s*["\']\s*return\s+false\s*;?\s*["\']~i', $tag) === 1) {
+                continue;
+            }
 
             $start = $offset + strlen($tag);
             $ende  = stripos($maskiert, '</form', $start);
@@ -90,18 +94,20 @@ final class CsrfFieldCoverageTest extends TestCase
     private function templates(): array
     {
         $wurzel = dirname(__DIR__, 3);
-        $iter   = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($wurzel . '/templates', \FilesystemIterator::SKIP_DOTS),
-        );
-
+        $verzeichnisse = [$wurzel . '/templates', ...(glob($wurzel . '/plugins/*/templates', GLOB_ONLYDIR) ?: [])];
         $out = [];
-        foreach ($iter as $datei) {
-            /** @var \SplFileInfo $datei */
-            if ($datei->getExtension() !== 'php') {
-                continue;
+        foreach ($verzeichnisse as $verzeichnis) {
+            $iter = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($verzeichnis, \FilesystemIterator::SKIP_DOTS),
+            );
+            foreach ($iter as $datei) {
+                /** @var \SplFileInfo $datei */
+                if ($datei->getExtension() !== 'php') {
+                    continue;
+                }
+                $relativ = str_replace('\\', '/', substr($datei->getPathname(), strlen($wurzel) + 1));
+                $out[$relativ] = (string) file_get_contents($datei->getPathname());
             }
-            $relativ = str_replace('\\', '/', substr($datei->getPathname(), strlen($wurzel) + 1));
-            $out[$relativ] = (string) file_get_contents($datei->getPathname());
         }
 
         return $out;

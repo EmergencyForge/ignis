@@ -113,11 +113,13 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
     <form id="delete-dept-form" action="<?= BASE_PATH ?>settings/pois/departments-delete" method="POST" style="display:none;">
+        <?= csrf_field() ?>
         <input type="hidden" name="id" id="dept-delete-id">
         <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
     </form>
 
     <form id="reset-availability-form" action="<?= BASE_PATH ?>settings/pois/departments-reset-availability" method="POST" style="display:none;">
+        <?= csrf_field() ?>
         <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
     </form>
 

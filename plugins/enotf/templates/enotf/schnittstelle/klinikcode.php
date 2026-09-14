@@ -227,6 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                     <?php endif; ?>
 
                     <form method="POST" action="">
+                        <?= csrf_field() ?>
                         <div class="mb-4">
                             <label for="code" class="ignis-field__label">
                                 Bitte geben Sie den 6-stelligen Code ein

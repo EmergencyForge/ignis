@@ -9,47 +9,23 @@ use App\Security\CsrfProtection;
 use EmergencyForge\Http\Middleware\MiddlewareInterface;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use Plugin\EnotfV2\Http\Csrf as EnotfCsrf;
 
-/**
- * Erzwingt einen gültigen CSRF-Token für jede schreibende Anfrage.
- *
- * Hängt global am Router (`public/index.php`) und nicht mehr an einzelnen
- * Routen. Der Grund steht in der Ausnahmeliste weiter unten: solange der
- * Schutz pro Route angemeldet werden musste, trugen ihn elf von
- * vierundsechzig schreibenden Routen — darunter weder die Rollenverwaltung
- * noch der Auslöser des Systemupdates. Was überall gelten muss, darf nicht
- * davon abhängen, dass jemand daran denkt.
- *
- * Token-Quellen, in dieser Reihenfolge:
- *   1. JSON-Body `csrf_token`
- *   2. POST-Parameter `csrf_token`
- *   3. Header `X-CSRF-Token`
- */
+/** Globale CSRF-Prüfung; eNOTF-v2 behält seinen eigenen Sitzungstoken. */
 final class CsrfMiddleware implements MiddlewareInterface
 {
     private const WRITE_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
-    /**
-     * Pfade ohne CSRF-Prüfung.
-     *
-     * Der Schutz sichert eine Sitzung gegen fremde Seiten ab, die im Namen
-     * des angemeldeten Browsers schreiben. Wo gar keine Sitzung im Spiel
-     * ist, sichert er nichts und sperrt nur aus:
-     *
-     *   - Die FiveM-Endpunkte sprechen Maschine zu Maschine und weisen sich
-     *     über `ApiKeyMiddleware` mit einem API-Key aus. Ein Browser kommt
-     *     dort nicht an.
-     *
-     * `/login` steht bewusst nicht hier: das Anmeldeformular bekommt seinen
-     * Token wie jedes andere, und die Sitzung dafür gibt es auch ohne
-     * Anmeldung.
-     *
-     * @var array<int,string>
-     */
+    /** @var list<string> Ausschließlich Routen mit ApiKeyMiddleware. */
     private const EXEMPT = [
         '/api/character/identify',
         '/api/emd/sync',
         '/api/emd-sync.php',
+        '/api/asu/sync',
+        '/api/asu-sync.php',
+        '/api/telemetry/heartbeat',
+        '/api/telemetry-heartbeat.php',
+        '/api/emd/status-poll',
     ];
 
     public function process(Request $request, callable $next): Response
@@ -64,7 +40,7 @@ final class CsrfMiddleware implements MiddlewareInterface
 
         $token = $this->extractToken($request);
 
-        if ($token === null || !CsrfProtection::validateToken($token)) {
+        if (!(($token !== null && CsrfProtection::validateToken($token)) || $this->validEnotfToken($request))) {
             return ErrorPage::forbidden(
                 'Das Formular ist abgelaufen. Lade die Seite neu und versuche es noch einmal.',
                 $request->path,
@@ -72,6 +48,25 @@ final class CsrfMiddleware implements MiddlewareInterface
         }
 
         return $next($request);
+    }
+
+    private function validEnotfToken(Request $request): bool
+    {
+        if (!str_starts_with($request->path, '/enotf-v2/')
+            && !str_starts_with($request->path, '/api/enotf-v2/')) {
+            return false;
+        }
+        if (!class_exists(EnotfCsrf::class)) {
+            return false;
+        }
+
+        // Bestehende Plugin-Formulare und QM senden ihren eigenen Sitzungstoken.
+        $token = $request->post[EnotfCsrf::FIELD_NAME] ?? null;
+        if (!is_string($token) || $token === '') {
+            $token = $request->header(EnotfCsrf::HEADER_NAME);
+        }
+
+        return is_string($token) && EnotfCsrf::isValid($token);
     }
 
     private function extractToken(Request $request): ?string

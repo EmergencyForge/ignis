@@ -95,6 +95,7 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
                                     <?php if ($canDelete): ?>
                                         <form method="POST" action="<?= htmlspecialchars($actionsUrl) ?>" class="inline"
                                               onsubmit="<?= confirm_attr('Eintrag wirklich löschen?') ?>">
+                                            <?= csrf_field() ?>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?= $e['id'] ?>">
                                             <input type="hidden" name="return_to" value="<?= htmlspecialchars($context) ?>">

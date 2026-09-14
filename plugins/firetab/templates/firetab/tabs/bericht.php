@@ -22,6 +22,7 @@
     <?php else: ?>
         <!-- Editable form -->
         <form method="post" action="<?= BASE_PATH ?>firetab/actions">
+            <?= csrf_field() ?>
             <input type="hidden" name="action" value="update_notes">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="bericht">

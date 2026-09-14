@@ -123,6 +123,7 @@ date_default_timezone_set('Europe/Berlin');
 <html lang="de">
 
 <head>
+    <?= csrf_head() ?>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>[#<?= $__e($__enr) ?>] &rsaquo; eNOTF</title>

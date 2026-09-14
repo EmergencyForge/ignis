@@ -24,6 +24,7 @@
 $__v1Title = $__v1Title ?? 'eNOTF';
 ?>
 <meta charset="UTF-8" />
+<?= csrf_head() ?>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= htmlspecialchars($__v1Title, ENT_QUOTES) ?> &rsaquo; <?= SYSTEM_NAME ?></title>

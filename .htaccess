@@ -69,6 +69,8 @@ Options -Indexes
     RewriteRule ^docker/ - [F,L]
     RewriteRule ^routes/ - [F,L]
     RewriteRule ^vendor/ - [F,L]
+    RewriteRule ^storage/private/ - [F,L]
+    RewriteRule ^storage/documents/[0-9]{7}\.pdf$ - [F,L,NC]
     RewriteRule ^\.github/ - [F,L]
 
     # Alles nach public/ durchreichen — es sei denn, die Anfrage zeigt

@@ -123,6 +123,7 @@ $bodyPage = 'edivi';
             <div class="modal-dialog modal-lg">
                 <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                     <form method="POST" action="">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="action" value="create">
                         <div class="modal-header">
                             <h5 class="modal-title"><i class="fas fa-ambulance mr-2"></i>Fahrzeug hinzufügen</h5>
