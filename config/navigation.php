@@ -269,7 +269,7 @@ return [
                 ],
                 [
                     'label'       => 'Dokumente',
-                    'href'        => BASE_PATH . 'settings/documents/templates',
+                    'href'        => BASE_PATH . 'settings/documents/editor-templates',
                     'icon'        => 'fa-solid fa-file-lines',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/documents'],

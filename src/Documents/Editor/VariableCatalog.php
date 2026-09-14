@@ -45,6 +45,7 @@ final class VariableCatalog
             'mitarbeiter.briefanrede'      => 'Briefanrede (Sehr geehrter Herr …)',
             'mitarbeiter.ihm_ihr'          => 'ihm / ihr',
             'mitarbeiter.seine_ihre'       => 'seine / ihre',
+            'mitarbeiter.zum_zur'          => 'zum / zur',
             'aussteller.name'              => 'Aussteller: Name',
             'aussteller.dienstgrad'        => 'Aussteller: Dienstgrad',
             'aussteller.zusatz'            => 'Aussteller: Zusatz',
@@ -115,6 +116,7 @@ final class VariableCatalog
             "{$prefix}.briefanrede" => $weiblich ? 'Sehr geehrte Frau' : 'Sehr geehrter Herr',
             "{$prefix}.ihm_ihr"     => $weiblich ? 'ihr' : 'ihm',
             "{$prefix}.seine_ihre"  => $weiblich ? 'ihre' : 'seine',
+            "{$prefix}.zum_zur"     => $weiblich ? 'zur' : 'zum',
         ];
 
         if (($p->zusatz ?? '') !== '') {
