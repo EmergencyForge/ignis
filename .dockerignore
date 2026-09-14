@@ -5,7 +5,9 @@
 .idea
 .qodo
 node_modules
-vendor
+# vendor/ gehoert ins Image: seit die gemeinsamen Pakete aus dem
+# Nachbar-Repo kommen, baut der Workflow es auf dem Runner, nicht
+# mehr das Dockerfile.
 storage/logs/*
 storage/cache/*
 storage/temp/*

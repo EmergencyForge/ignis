@@ -37,15 +37,20 @@ COPY docker/php.ini "$PHP_INI_DIR/conf.d/99-intrarp.ini"
 # Apache VirtualHost
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
-# Composer
+# Composer bleibt im Image: die Update-Routine und tools/db-migrate.php
+# rufen ihn zur Laufzeit auf.
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Application
+#
+# vendor/ kommt fertig mit hinein und wird hier nicht mehr gebaut: seit die
+# gemeinsamen Pakete als Pfad-Repository aus dem Nachbar-Repo WebPackages
+# kommen, braeuchte ein composer install im Image einen Build-Context, der
+# beide Repos umfasst. Stattdessen installiert der Workflow (image.yml) die
+# Abhaengigkeiten auf dem Runner und loest die Symlinks vorher auf; im
+# Compose-Setup liegt vendor/ ohnehin im Bind-Mount vom Host.
 WORKDIR /var/www/html
 COPY . .
-
-# Install dependencies (no dev in production)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Storage directories
 RUN mkdir -p storage/logs storage/cache storage/documents storage/temp uploads \
