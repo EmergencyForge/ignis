@@ -28,7 +28,7 @@
     "symfony/console": "^7.0",
     "dragonmantank/cron-expression": "^3.6",
     "emergencyforge/editor-php": "^0.2",
-    "emergencyforge/http-kernel": "^0.1.1",
+    "emergencyforge/http-kernel": "^0.1.2",
     "emergencyforge/plugin-system": "^0.1",
     "emergencyforge/health-check": "^0.1",
     "emergencyforge/cron-scheduler": "^0.1"
