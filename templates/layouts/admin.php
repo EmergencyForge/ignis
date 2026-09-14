@@ -29,14 +29,16 @@
  * hat, und lässt ihr Inline-Script weg.
  */
 
+$layoutMotion = preg_match('~/settings/vehicles/vehicles(?:/\d+)?$~', \App\Helpers\Navigation::currentPath()) === 1 ? 'record' : '';
 $layoutTheme = \App\Helpers\Theme::mode();
 $layoutPath  = \App\Helpers\Navigation::currentPath();
 $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutPath !== '/settings/system/index';
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>">
+<html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-page-motion="<?= $layoutMotion ?>">
 
 <head>
+    <?php if ($layoutMotion !== ''): ?><style>@view-transition { navigation: auto; }</style><?php endif; ?>
     <?= \App\Helpers\Theme::systemScript() ?>
     <script>try { if (localStorage.getItem('ignis.sidebar') === 'collapsed') document.documentElement.classList.add('is-collapsed'); } catch (e) {}</script>
     <?php require dirname(__DIR__, 2) . '/assets/components/_base/admin/head.php'; ?>

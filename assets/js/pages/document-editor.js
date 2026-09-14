@@ -165,18 +165,18 @@
             templateMode: false,
             onBlocked: createBlockedNotifier(),
             onUpdate: function () {
-                dirty = true;
+                dirty = true; setStatus('Ungespeicherte Änderungen', 'changed');
             },
         });
 
         titleInput.addEventListener('input', function () {
-            dirty = true;
+            dirty = true; setStatus('Ungespeicherte Änderungen', 'changed');
         });
 
-        function setStatus(text) {
-            if (statusEl) {
-                statusEl.textContent = text;
-            }
+        function setStatus(text, state = 'error', emphasis = false) {
+            if (!statusEl) return;
+            if (window.ignis?.status) window.ignis.status.set(statusEl, state, text, { emphasis });
+            else statusEl.textContent = text;
         }
 
         // Der CSRF-Token rotiert bei JEDER erfolgreichen Prüfung serverseitig
@@ -243,7 +243,8 @@
                 contentJson = JSON.stringify(editor.getJSON());
             }
 
-            setStatus(isAutosave ? 'Speichere automatisch …' : 'Speichere …');
+            var titleAtSave = titleInput.value;
+            setStatus(isAutosave ? 'Speichere automatisch …' : 'Speichere …', 'busy');
 
             return postSave(isAutosave, contentJson)
                 .then(function (result) {
@@ -257,10 +258,10 @@
                         // (dirty stuende ja schon auf false). Ein simpler
                         // String-Vergleich der serialisierten JSONs reicht,
                         // weil identischer Inhalt immer denselben String ergibt.
-                        if (JSON.stringify(editor.getJSON()) === contentJson) {
+                        if (JSON.stringify(editor.getJSON()) === contentJson && titleInput.value === titleAtSave) {
                             dirty = false;
                         }
-                        setStatus('Gespeichert ' + formatTime(new Date()));
+                        setStatus(dirty ? 'Ungespeicherte Änderungen' : 'Gespeichert ' + formatTime(new Date()), dirty ? 'changed' : 'saved', !isAutosave);
                         return true;
                     }
 

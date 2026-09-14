@@ -43,11 +43,25 @@ import { bindEventForm } from './calendar-form.js';
         try { localStorage.setItem(viewKey, view); } catch { /* Storage is optional. */ }
     });
 
+    let previousRange = null;
+    let motionRevision = 0;
+
     // ── FullCalendar-Instance ───────────────────────────────────────────
     const calendar = new window.FullCalendar.Calendar(root, {
         locale: 'de',
         firstDay: 1,
         initialView,
+        datesSet: info => {
+            const next = { start: info.start.getTime(), type: info.view.type };
+            const old = previousRange; previousRange = next;
+            if (!old || (old.start === next.start && old.type === next.type)) return;
+            const revision = ++motionRevision;
+            requestAnimationFrame(() => {
+                if (revision !== motionRevision) return;
+                const direction = old.type === next.type ? Math.sign(next.start - old.start) * 12 : 0;
+                window.ignis?.motion?.fadeIn(root.querySelector('.fc-view-harness'), 180, direction);
+            });
+        },
         height: 'auto',
         nowIndicator: true,
         eventDisplay: 'block',
