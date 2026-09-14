@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Plugin\Enotf\Controllers\Api;
 
-use App\Http\Request;
-use Plugin\Enotf\Requests\PoiDepartmentsSortRequest;
-use App\Http\Response;
 use App\Logging\Logger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use PDOException;
 use Plugin\Enotf\Models\HospitalDepartment;
+use Plugin\Enotf\Requests\PoiDepartmentsSortRequest;
 
 /**
  * POI-Departments-Admin-Endpoints.

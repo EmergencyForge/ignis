@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Http;
 
-use App\Http\Pipeline;
-use App\Http\RedirectException;
-use App\Http\Request;
 use App\Http\Requests\FormRequest;
-use App\Http\Response;
-use App\Http\Router;
 use App\Http\RouterFactory;
+use EmergencyForge\Http\Exceptions\RedirectException;
+use EmergencyForge\Http\Pipeline;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
+use EmergencyForge\Http\Router;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -18,8 +18,10 @@ use Tests\TestCase;
  * Der Router aus der Factory trägt die Haken, die ignis braucht: eine
  * RedirectException aus dem Handler wird zur Weiterleitung, Fragment-
  * Aufrufer (X-Requested-With: fragment) bekommen statt 3xx eine leere
- * 200-Antwort mit dem Ziel in X-Ignis-Location, und der Old-Input-
- * Zwischenspeicher beginnt mit jedem Dispatch frisch.
+ * 200-Antwort mit dem Ziel in X-Ignis-Location, der Old-Input-
+ * Zwischenspeicher beginnt mit jedem Dispatch frisch, und ein unbekannter
+ * Pfad landet auf der 404-Seite von ignis statt auf dem Plain-Text-
+ * Rueckfall des Pakets.
  */
 final class RouterFactoryTest extends TestCase
 {
@@ -100,5 +102,15 @@ final class RouterFactoryTest extends TestCase
         } finally {
             $_SESSION = $sessionBefore;
         }
+    }
+
+    #[Test]
+    public function unbekannte_pfade_rendern_die_404_seite(): void
+    {
+        $res = $this->router->dispatch(new Request('GET', '/gibt-es-nicht'));
+
+        $this->assertSame(404, $res->status);
+        $this->assertStringContainsString('text/html', $res->headers['Content-Type'] ?? '');
+        $this->assertNotSame('Not Found', $res->body, 'Der Plain-Text-Rueckfall des Pakets greift nur ohne Template.');
     }
 }

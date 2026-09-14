@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Plugin\EnotfV2\Controllers\Api;
 
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\EnotfV2\Models\Edivi;
 use Plugin\EnotfV2\Models\EnotfSession;

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Plugins;
 
 use App\Logging\Logger;
+use EmergencyForge\Plugins\Plugin;
+use EmergencyForge\Plugins\PluginRegistry;
 
 /**
  * Verbindet die entdeckten Plugins mit den Registern der Anwendung.

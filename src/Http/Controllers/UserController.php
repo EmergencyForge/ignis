@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Gate;
-use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
 use App\Models\RegistrationCode;
@@ -13,6 +12,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -39,14 +39,14 @@ class UserController extends Controller
      * Mitarbeiter-Card gerendert; sonst ein Minimal-Fragment mit Username
      * und Discord-ID.
      */
-    public function card(\App\Http\Request $request, string $id): \App\Http\Response
+    public function card(\EmergencyForge\Http\Request $request, string $id): \EmergencyForge\Http\Response
     {
         $this->requireAuth();
         Gate::authorize('user.viewList');
 
         $user = User::query()->with(['userRole', 'personnel.dienstgradModel', 'personnel.rdQualiModel', 'personnel.fwQualiModel'])->find((int) $id);
         if ($user === null) {
-            return \App\Http\Response::html('Benutzer nicht gefunden.', 404);
+            return \EmergencyForge\Http\Response::html('Benutzer nicht gefunden.', 404);
         }
 
         // Mitarbeiter-Linking läuft an zwei Stellen unterschiedlich:
@@ -66,7 +66,7 @@ class UserController extends Controller
         // verbundenen Mitarbeiter. Nicht die Mitarbeiter-Card selbst rendern
         // — das ist ein separates `data-mitarbeiter-card`-Trigger.
         include __DIR__ . '/../../../assets/components/profiles/_user-hover-card.php';
-        return \App\Http\Response::html((string) ob_get_clean());
+        return \EmergencyForge\Http\Response::html((string) ob_get_clean());
     }
 
     /**

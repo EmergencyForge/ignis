@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Controllers;
 
 use App\Http\Middleware\PinLockscreenMiddleware;
-use App\Http\Request;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Request;
 use Plugin\EnotfV2\Helpers\EnotfV2Url;
 use Plugin\EnotfV2\Policies\EnotfV2Policy;
 

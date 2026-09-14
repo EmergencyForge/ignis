@@ -9,12 +9,12 @@ declare(strict_types=1);
  * (POST/DELETE categories, POST/DELETE tags) erfordern Session + kb.edit
  * und werden intern im Controller geprüft.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\JsonExceptionMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
+use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
 use Plugin\KnowledgeBase\Controllers\Api\KnowledgebaseController;
 
 $kbReadAuth  = [JsonExceptionMiddleware::class, new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\EnotfV2\Controllers;
 
-use App\Http\Request;
+use EmergencyForge\Http\Request;
 use Plugin\EnotfV2\Support\ProtokollService;
 
 /**

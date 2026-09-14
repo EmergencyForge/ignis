@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Plugin\EnotfV2\Http;
 
-use App\Http\Middleware\MiddlewareInterface;
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Middleware\MiddlewareInterface;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * CsrfMiddleware — Cross-Site-Schutz für die v2-Web-Form-POSTs

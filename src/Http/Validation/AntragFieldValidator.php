@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Validation;
 
-use App\Exceptions\ValidationException;
 use App\Models\FormField;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Respect\Validation\Exceptions\ValidationException as RespectValidationException;
 use Respect\Validation\Validator as v;
 

@@ -17,7 +17,7 @@ declare(strict_types=1);
  *   - FiveM-Server-Endpoints laufen unter `/api/fivem/...` und nutzen
  *     ApiKeyMiddleware statt AuthMiddleware.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\ApiKeyMiddleware;
@@ -30,7 +30,7 @@ use App\Http\Middleware\PermissionMiddleware;
 // ----------------------------------------------------------------------------
 
 $router->get('/api/_router/ping', function ($request) {
-    return \App\Http\Response::json([
+    return \EmergencyForge\Http\Response::json([
         'success' => true,
         'message' => 'pong',
         'scope'   => 'api',
@@ -38,7 +38,7 @@ $router->get('/api/_router/ping', function ($request) {
 });
 
 $router->get('/api/_router/whoami', function ($request) {
-    return \App\Http\Response::json([
+    return \EmergencyForge\Http\Response::json([
         'success' => true,
         'user_id' => $_SESSION['userid'] ?? null,
         'perms'   => $_SESSION['permissions'] ?? [],

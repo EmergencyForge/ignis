@@ -23,7 +23,7 @@ declare(strict_types=1);
  * auf die kanonischen `/api/fire/...`-Routes umgeleitet, damit Legacy-JS
  * mit alten URLs weiter funktioniert.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
@@ -62,11 +62,11 @@ $router->post('/firetab/admin/list/delete', [FiretabController::class, 'adminBul
 // Legacy-API-URL-Kompatibilität: alte JS-POSTs auf die neuen Endpoints
 // weiterreichen. 308 bewahrt Methode + Body.
 $einsatzApiRedirect = function (string $target): \Closure {
-    return function (\App\Http\Request $request) use ($target): \App\Http\Response {
+    return function (\EmergencyForge\Http\Request $request) use ($target): \EmergencyForge\Http\Response {
         $qs = $request->server['QUERY_STRING'] ?? '';
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         $url = rtrim($base, '/') . $target . ($qs !== '' ? '?' . $qs : '');
-        return \App\Http\Response::redirect($url, 308);
+        return \EmergencyForge\Http\Response::redirect($url, 308);
     };
 };
 $router->match(['GET', 'POST'], '/firetab/lagekarte-api.php', $einsatzApiRedirect('/api/fire/lagekarte'));

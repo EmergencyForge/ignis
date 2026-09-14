@@ -11,9 +11,9 @@ use App\Http\Controllers\Controller;
 use App\Plugins\CatalogClient;
 use App\Plugins\CatalogInstaller;
 use App\Plugins\PluginLoader;
-use App\Plugins\PluginRegistry;
 use App\Plugins\PluginRepository;
 use App\Security\CsrfProtection;
+use EmergencyForge\Plugins\PluginRegistry;
 
 /**
  * Plugin-Verwaltung — Liste der installierten Plugins mit Aktiv-Schalter.

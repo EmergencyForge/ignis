@@ -18,7 +18,7 @@ declare(strict_types=1);
  * iframe-Cookie-Handling (SameSite=None, Secure) kommt vom SessionManager,
  * der `/enotf/` in REQUEST_URI automatisch erkennt.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
@@ -86,11 +86,11 @@ $router->get('/enotf/admin/qm-log-modal',     [EnotfAdminController::class, 'qmL
 // bulk-delete-empty: 308-Redirect auf /api/enotf/bulk-delete-empty (Ziel-Route
 // kommt aus routes.api.php dieses Plugins)
 $enotfApiRedirect = function (string $target): \Closure {
-    return function (\App\Http\Request $request) use ($target): \App\Http\Response {
+    return function (\EmergencyForge\Http\Request $request) use ($target): \EmergencyForge\Http\Response {
         $qs   = $request->server['QUERY_STRING'] ?? '';
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         $url  = rtrim($base, '/') . $target . ($qs !== '' ? '?' . $qs : '');
-        return \App\Http\Response::redirect($url, 308);
+        return \EmergencyForge\Http\Response::redirect($url, 308);
     };
 };
 $router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty.php', $enotfApiRedirect('/api/enotf/bulk-delete-empty'));
@@ -99,9 +99,9 @@ $router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty.php', $enotfApiR
 // dauerhaft auf `/settings/pois` um, bis externe Bookmarks aktualisiert
 // sind. Controller + Template gibt's noch im Repo, sind aber nicht mehr
 // erreichbar.
-$zielverwaltungRedirect = static function (\App\Http\Request $request) {
+$zielverwaltungRedirect = static function (\EmergencyForge\Http\Request $request) {
     $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-    return \App\Http\Response::redirect($base . 'settings/pois', 301);
+    return \EmergencyForge\Http\Response::redirect($base . 'settings/pois', 301);
 };
 $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung',           $zielverwaltungRedirect);
 $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/',          $zielverwaltungRedirect);
@@ -127,14 +127,14 @@ $router->get('/enotf/print',            [EnotfPrintController::class, 'show'], $
 $router->get('/enotf/print/',           [EnotfPrintController::class, 'show'], $enotfCrew);
 $router->get('/enotf/print/index',      [EnotfPrintController::class, 'show'], $enotfCrew);
 // Clean-URL: Parameter über $_GET reichen, damit show() weiterhin ?enr= liest.
-$router->get('/enotf/print/{enr:[\w._-]+}', function (\App\Http\Request $request, string $enr) {
+$router->get('/enotf/print/{enr:[\w._-]+}', function (\EmergencyForge\Http\Request $request, string $enr) {
     // Legacy-Aufruf /enotf/print/index.php?enr=… landet hier mit
     // enr="index.php" — dann gilt der Query-Parameter, nicht das Segment.
     if ($enr !== 'index.php') {
         $_GET['enr'] = $enr;
     }
     app(EnotfPrintController::class)->show();
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfCrew);
 
 // Schnittstelle — public
@@ -210,7 +210,7 @@ $protokollResolveTemplate = static function (?string $section, ?string $subsecti
 };
 
 // Direct-Path-Handler: URL matched `/enotf/protokoll/<irgendwas>` — ohne `.php`
-$protokollDirectHandler = function (\App\Http\Request $request) use ($protokollResolveTemplate): \App\Http\Response {
+$protokollDirectHandler = function (\EmergencyForge\Http\Request $request) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $path   = $request->path;
     $suffix = '';
     if (preg_match('#^/enotf/protokoll/?(.*)$#', $path, $m)) {
@@ -239,7 +239,7 @@ $protokollDirectHandler = function (\App\Http\Request $request) use ($protokollR
     }
 
     app(EnotfProtokollController::class)->serve($templatePath);
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 };
 
 $router->match(['GET', 'POST'], '/enotf/protokoll',                    $protokollDirectHandler, $enotfCrew);
@@ -247,28 +247,28 @@ $router->match(['GET', 'POST'], '/enotf/protokoll/',                   $protokol
 $router->match(['GET', 'POST'], '/enotf/protokoll/{path:[\w./_-]+}',   $protokollDirectHandler, $enotfCrew);
 
 // Clean-URL-Routen `/enotf/p/{enr}/...` — replicieren die Root-htaccess-Rewrites
-$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}', function (\App\Http\Request $request, string $enr) use ($protokollResolveTemplate): \App\Http\Response {
+$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}', function (\EmergencyForge\Http\Request $request, string $enr) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $_GET['enr'] = $enr;
     app(EnotfProtokollController::class)->serve($protokollResolveTemplate(null, null, null));
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfCrew);
 
-$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}', function (\App\Http\Request $request, string $enr, string $section) use ($protokollResolveTemplate): \App\Http\Response {
+$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}', function (\EmergencyForge\Http\Request $request, string $enr, string $section) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $_GET['enr'] = $enr;
     app(EnotfProtokollController::class)->serve($protokollResolveTemplate($section, null, null));
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfCrew);
 
-$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}/{subsection:[\w_-]+}', function (\App\Http\Request $request, string $enr, string $section, string $subsection) use ($protokollResolveTemplate): \App\Http\Response {
+$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}/{subsection:[\w_-]+}', function (\EmergencyForge\Http\Request $request, string $enr, string $section, string $subsection) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $_GET['enr'] = $enr;
     app(EnotfProtokollController::class)->serve($protokollResolveTemplate($section, $subsection, null));
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfCrew);
 
-$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}/{subsection:[\w-]+}/{page:[\w_-]+}', function (\App\Http\Request $request, string $enr, string $section, string $subsection, string $page) use ($protokollResolveTemplate): \App\Http\Response {
+$router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}/{subsection:[\w-]+}/{page:[\w_-]+}', function (\EmergencyForge\Http\Request $request, string $enr, string $section, string $subsection, string $page) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $_GET['enr'] = $enr;
     app(EnotfProtokollController::class)->serve($protokollResolveTemplate($section, $subsection, $page));
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 }, $enotfCrew);
 
 // ----------------------------------------------------------------------------

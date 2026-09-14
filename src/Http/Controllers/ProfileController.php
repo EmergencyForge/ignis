@@ -6,11 +6,11 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Flash;
 use App\Helpers\Theme;
-use App\Http\Request;
-use App\Http\Response;
 use App\Models\User;
 use App\Security\CsrfProtection;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * Einstellungen des eigenen Kontos. Vorerst nur der Darstellungsmodus;

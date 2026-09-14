@@ -65,7 +65,7 @@ abstract class Controller
     protected function redirect(string $relativePath): never
     {
         $translated = \App\Http\UrlMap::translateRelative($relativePath);
-        throw new \App\Http\RedirectException(BASE_PATH . ($translated ?? $relativePath));
+        throw new \EmergencyForge\Http\Exceptions\RedirectException(BASE_PATH . ($translated ?? $relativePath));
     }
 
     /**

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Cron\CronScheduler;
-use App\Cron\JobHandler\ConsoleHandler;
 use App\Auth\Gate;
+use App\Cron\JobHandler\ConsoleHandler;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use App\Models\CronJob;
+use EmergencyForge\Cron\CronScheduler;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -114,10 +114,17 @@ final class CronController extends Controller
             $this->jsonError('Kein Job angegeben', 400);
         }
 
-        $result = $this->scheduler->runJobById($jobId);
+        $result = $this->scheduler->runNow($jobId);
 
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($result);
+        echo json_encode($result === null
+            ? ['ok' => false, 'error' => 'Job nicht gefunden']
+            : [
+                'ok'          => $result->isSuccess(),
+                'status'      => $result->status,
+                'duration_ms' => $result->durationMs,
+                'output'      => $result->output,
+            ]);
         exit;
     }
 

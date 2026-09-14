@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Plugin\Enotf\Requests;
 
-use App\Http\Request;
 use App\Http\Validation\FormRequest;
+use EmergencyForge\Http\Request;
 use Respect\Validation\Validator as v;
 
 /**

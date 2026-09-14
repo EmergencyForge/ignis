@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Plugin\Firetab\Controllers\Api;
 
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 use Plugin\Firetab\Models\FireIncidentLogEntry;

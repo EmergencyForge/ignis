@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Http\Request;
-use App\Http\Response;
+use App\Http\FiveMSupport;
+use EmergencyForge\Http\Middleware\MiddlewareInterface;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * FiveM-CEF-Integration: Entfernt CSP- und X-Frame-Options-Header für
@@ -29,7 +31,7 @@ final class FiveMCspMiddleware implements MiddlewareInterface
     {
         $response = $next($request);
 
-        if ($request->isFiveM()) {
+        if (FiveMSupport::isFiveM($request)) {
             // FiveM-Embed: Security-Header entfernen, damit die Seite
             // im CEF-Overlay rendern kann.
             return $response

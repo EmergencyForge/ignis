@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use App\Http\Pipeline;
-use App\Http\Request;
-use App\Http\Response;
-use App\Http\Router;
 use App\Http\RouterFactory;
+use EmergencyForge\Http\Pipeline;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
+use EmergencyForge\Http\Router;
 
 /**
  * Base für Feature-Tests, die den echten Router + Middleware-Pipeline

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Plugin\Firetab\Controllers\Api;
 
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
 use DateTime;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use PDOException;
 use Plugin\Firetab\Models\FireStatusQueueEntry;
 

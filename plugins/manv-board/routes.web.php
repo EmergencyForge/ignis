@@ -10,7 +10,7 @@ declare(strict_types=1);
  * benutzerfreundliche Redirects statt 403. Deshalb hier nur AuthMiddleware,
  * keine PolicyMiddleware (analog zu FormsController::view).
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;
@@ -42,16 +42,16 @@ $router->post('/mci/patient-view',   [MciController::class, 'patientUpdate'], $m
 //   GET                 → ressourcen()      (View)
 //   POST action=create  → ressourceStore()
 //   POST action=edit    → ressourceUpdate()
-$manvRessourcenGet = function (\App\Http\Request $request) {
+$manvRessourcenGet = function (\EmergencyForge\Http\Request $request) {
     $controller = app(MciController::class);
     if (isset($request->query['delete_id'])) {
         $controller->ressourceDelete();
     } else {
         $controller->ressourcen();
     }
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 };
-$manvRessourcenPost = function (\App\Http\Request $request) {
+$manvRessourcenPost = function (\EmergencyForge\Http\Request $request) {
     $controller = app(MciController::class);
     $action     = (string) ($request->post['action'] ?? '');
     if ($action === 'create') {
@@ -61,7 +61,7 @@ $manvRessourcenPost = function (\App\Http\Request $request) {
     } else {
         $controller->ressourcen();
     }
-    return \App\Http\Response::empty();
+    return \EmergencyForge\Http\Response::empty();
 };
 $router->get('/mci/resources',  $manvRessourcenGet,  $manvAuth);
 $router->post('/mci/resources', $manvRessourcenPost, $manvAuth);

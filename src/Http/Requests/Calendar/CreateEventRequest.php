@@ -76,7 +76,7 @@ class CreateEventRequest extends FormRequest
         // Respect/Validation (kein eingebauter "field-comparison"-Validator),
         // sondern werfen via Exception aus dem cast().
         if (strtotime($endsAt) < strtotime($startsAt)) {
-            throw new \App\Exceptions\ValidationException(
+            throw new \EmergencyForge\Http\Exceptions\ValidationException(
                 ['ends_at' => 'Ende muss nach dem Start liegen.'],
                 'Ungültiger Zeitraum.'
             );

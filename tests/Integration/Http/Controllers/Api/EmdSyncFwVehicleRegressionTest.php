@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\EmdSyncController;
-use App\Http\Request;
+use EmergencyForge\Http\Request;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FixtureFactory;

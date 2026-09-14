@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Plugins;
 
+use EmergencyForge\Plugins\Plugin;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**

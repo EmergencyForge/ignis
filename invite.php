@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/assets/config/config.php';
 
-use App\Http\Response;
 use App\Models\RegistrationCode;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Response;
 
 // Bereits eingeloggte Benutzer zum Dashboard weiterleiten
 if (SessionManager::isLoggedIn() && SessionManager::has('permissions')) {

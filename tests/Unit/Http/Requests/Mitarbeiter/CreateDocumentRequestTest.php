@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Http\Requests\Mitarbeiter;
 
-use App\Exceptions\ValidationException;
 use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

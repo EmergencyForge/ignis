@@ -6,9 +6,9 @@ namespace Plugin\Firetab\Controllers\Api;
 
 use App\Auth\Gate;
 use App\Helpers\MapCoordinates;
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 use Plugin\Firetab\Models\FireIncident;

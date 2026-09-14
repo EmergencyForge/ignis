@@ -156,11 +156,11 @@ return [
     //  pro Route direkt instanziiert.
     // -----------------------------------------------------------------------
 
-    \App\Http\Pipeline::class => \DI\autowire(),
+    \EmergencyForge\Http\Pipeline::class => \DI\autowire(),
     // Über die Factory, damit der Router seine Haken bekommt (Old-Input-
     // Reset, Fragment-Redirects); FeatureTestCase baut ihn genauso.
-    \App\Http\Router::class   => \DI\factory(static fn (\Psr\Container\ContainerInterface $c): \App\Http\Router
-        => \App\Http\RouterFactory::create($c, $c->get(\App\Http\Pipeline::class))),
+    \EmergencyForge\Http\Router::class   => \DI\factory(static fn (\Psr\Container\ContainerInterface $c): \EmergencyForge\Http\Router
+        => \App\Http\RouterFactory::create($c, $c->get(\EmergencyForge\Http\Pipeline::class))),
 
     // Plugin-Loader — einmal pro Request, cached das aktive Plugin-Set.
     \App\Plugins\PluginLoader::class => \DI\autowire(),
@@ -170,7 +170,7 @@ return [
     \App\Http\Middleware\ApiKeyMiddleware::class       => \DI\autowire(),
     \App\Http\Middleware\CsrfMiddleware::class         => \DI\autowire(),
     \App\Http\Middleware\FiveMCspMiddleware::class     => \DI\autowire(),
-    \App\Http\Middleware\JsonExceptionMiddleware::class => \DI\autowire(),
+    \EmergencyForge\Http\Middleware\JsonExceptionMiddleware::class => \DI\autowire(),
     \App\Http\Middleware\PinLockscreenMiddleware::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
@@ -343,10 +343,44 @@ return [
     //  Cron-System
     // -----------------------------------------------------------------------
 
-    \App\Cron\CronScheduler::class                   => \DI\autowire(),
+    \App\Cron\EloquentJobStore::class                => \DI\autowire(),
     \App\Cron\JobHandler\ConsoleHandler::class       => \DI\autowire(),
-    \App\Cron\JobHandler\WebhookHandler::class       => \DI\autowire(),
     \App\Cron\JobHandler\JobDispatchHandler::class   => \DI\autowire(),
+
+    // Der Scheduler kommt aus emergencyforge/cron-scheduler und bekommt
+    // von hier, was ignis beisteuert: den Bestand und die Handler je
+    // handler_type. Die Webhook-Platzhalter stehen als Konstanten im
+    // Bootstrap, deshalb erst hier und nicht im Handler selbst.
+    \EmergencyForge\Cron\CronScheduler::class => \DI\factory(
+        static fn (\Psr\Container\ContainerInterface $c): \EmergencyForge\Cron\CronScheduler
+            => new \EmergencyForge\Cron\CronScheduler(
+                $c->get(\App\Cron\EloquentJobStore::class),
+                [
+                    'console' => $c->get(\App\Cron\JobHandler\ConsoleHandler::class),
+                    'webhook' => new \EmergencyForge\Cron\Handler\WebhookHandler(
+                        variables: [
+                            'SERVER_NAME' => defined('SERVER_NAME') ? (string) SERVER_NAME : '',
+                            'SERVER_CITY' => defined('SERVER_CITY') ? (string) SERVER_CITY : '',
+                            'SYSTEM_NAME' => defined('SYSTEM_NAME') ? (string) SYSTEM_NAME : 'ignis',
+                        ],
+                        timezone: new \DateTimeZone('Europe/Berlin'),
+                    ),
+                    'job'     => $c->get(\App\Cron\JobHandler\JobDispatchHandler::class),
+                ],
+                logger: \App\Logging\Logger::getInstance(),
+            )
+    ),
+
+    // Piggyback-Tick am Ende eines Seitenaufrufs, gedeckelt auf einen
+    // pro Minute.
+    \EmergencyForge\Cron\CronTickMiddleware::class => \DI\factory(
+        static fn (\Psr\Container\ContainerInterface $c): \EmergencyForge\Cron\CronTickMiddleware
+            => new \EmergencyForge\Cron\CronTickMiddleware(
+                $c->get(\EmergencyForge\Cron\CronScheduler::class),
+                new \EmergencyForge\Cron\TickGate(dirname(__DIR__) . '/storage/cron-lock.txt'),
+                \App\Logging\Logger::getInstance(),
+            )
+    ),
 
     \App\Http\Controllers\Settings\CronController::class => \DI\autowire(),
 

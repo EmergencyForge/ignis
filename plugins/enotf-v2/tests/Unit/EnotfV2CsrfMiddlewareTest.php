@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Plugin\EnotfV2\Tests\Unit;
 
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use PHPUnit\Framework\Attributes\Test;
 use Plugin\EnotfV2\Http\Csrf;
 use Plugin\EnotfV2\Http\CsrfMiddleware;

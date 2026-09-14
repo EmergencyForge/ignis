@@ -18,11 +18,11 @@ declare(strict_types=1);
  * die Fallback-Regel greift.
  */
 
-use App\Exceptions\AuthorizationException;
-use App\Exceptions\ValidationException;
-use App\Http\Request;
-use App\Http\Response;
-use App\Http\Router;
+use EmergencyForge\Http\Exceptions\AuthorizationException;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
+use EmergencyForge\Http\Router;
 
 require_once __DIR__ . '/../assets/config/config.php';
 
@@ -111,7 +111,7 @@ if (preg_match('~^/api/v1(/.*)?$~', $rawPath, $m)) {
 }
 
 try {
-    $request  = Request::fromGlobals();
+    $request  = Request::fromGlobals(BASE_PATH);
     $response = $router->dispatch($request);
 
     // Deprecation-Header für unversionierte API-Aufrufe (RFC 8594, RFC 9745).
@@ -133,15 +133,15 @@ try {
     $response->send();
 
     // Piggyback-Cron — Response ist bereits geflusht, jetzt fällige Jobs
-    // abarbeiten. Eligibility-Check + 60s-Lock sind in der Middleware gekapselt.
-    if (App\Http\Middleware\CronTickMiddleware::isEligible($request)) {
+    // abarbeiten. Eignung des Requests und der 60s-Deckel stecken in
+    // runIfDue(); fastcgi_finish_request() trennt vorher die Verbindung,
+    // damit der Besucher nicht auf den Tick wartet.
+    $tick = app(\EmergencyForge\Cron\CronTickMiddleware::class);
+    if ($tick->isEligible($request)) {
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
-        App\Http\Middleware\CronTickMiddleware::runIfDue(
-            $request,
-            app(App\Cron\CronScheduler::class)
-        );
+        $tick->runIfDue($request);
     }
 } catch (ValidationException $e) {
     // Declarative Validation aus einem FormRequest — immer als

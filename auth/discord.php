@@ -12,4 +12,4 @@ $authorizationUrl = $provider->getAuthorizationUrl([
 ]);
 SessionManager::setOAuth2State($provider->getState());
 
-return \App\Http\Response::redirect($authorizationUrl);
+return \EmergencyForge\Http\Response::redirect($authorizationUrl);

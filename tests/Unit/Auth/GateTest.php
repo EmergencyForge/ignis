@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Auth;
 
 use App\Auth\Gate;
-use App\Exceptions\AuthorizationException;
+use EmergencyForge\Http\Exceptions\AuthorizationException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

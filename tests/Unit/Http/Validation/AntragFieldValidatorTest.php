@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Http\Validation;
 
-use App\Exceptions\ValidationException;
 use App\Http\Validation\AntragFieldValidator;
 use App\Models\FormField;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

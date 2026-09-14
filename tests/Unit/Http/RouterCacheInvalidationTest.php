@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Http;
 
-use App\Http\Pipeline;
-use App\Http\Request;
-use App\Http\Response;
-use App\Http\Router;
+use EmergencyForge\Http\Pipeline;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
+use EmergencyForge\Http\Router;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -151,7 +151,6 @@ final class RouterCacheInvalidationTest extends TestCase
         $router = new Router(
             $this->container,
             new Pipeline($this->container),
-            enableCache: true,
             cacheFile: $this->cachePath(),
         );
         foreach ($sources as $s) {

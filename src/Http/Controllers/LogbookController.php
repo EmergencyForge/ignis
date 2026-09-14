@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Gate;
-use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Fahrtenbuch\CreateFahrtRequest;
 use App\Http\Requests\Fahrtenbuch\UpdateFahrtRequest;
 use App\Models\LogbookEntry;
 use App\Models\Vehicle;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**

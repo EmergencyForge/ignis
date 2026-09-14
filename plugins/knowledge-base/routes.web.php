@@ -10,7 +10,7 @@ declare(strict_types=1);
  * Edit-/Manage-Permissions werden im Controller via Permissions::check()
  * pro Aktion geprüft.
  *
- * @var \App\Http\Router $router
+ * @var \EmergencyForge\Http\Router $router
  */
 
 use App\Http\Middleware\AuthMiddleware;

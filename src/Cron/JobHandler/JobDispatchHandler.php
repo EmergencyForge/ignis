@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Cron\JobHandler;
 
-use App\Cron\JobResult;
+use EmergencyForge\Cron\Handler\JobHandlerInterface;
+use EmergencyForge\Cron\JobResult;
 use Illuminate\Queue\QueueManager;
 
 /**

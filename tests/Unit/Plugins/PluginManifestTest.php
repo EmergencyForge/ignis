@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Plugins;
 
-use App\Plugins\PluginManifest;
+use EmergencyForge\Plugins\PluginManifest;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +38,7 @@ class PluginManifestTest extends TestCase
         $this->assertSame('eNOTF – Notfallprotokolle', $m->name);
         $this->assertSame('1.0.0', $m->version);
         $this->assertSame('EmergencyForge', $m->vendor);
-        $this->assertSame('>=1.2 <2.0', $m->ignisRequire);
+        $this->assertSame('>=1.2 <2.0', $m->hostRequire);
         $this->assertSame(['vehicles'], $m->depends);
         $this->assertSame(['enotf.view', 'enotf.edit'], $m->permissions);
         $this->assertTrue($m->defaultEnabled);
@@ -55,7 +55,7 @@ class PluginManifestTest extends TestCase
         ]);
 
         $this->assertSame('Unbekannt', $m->vendor);
-        $this->assertSame('*', $m->ignisRequire);
+        $this->assertSame('*', $m->hostRequire);
         $this->assertSame([], $m->depends);
         $this->assertSame([], $m->permissions);
         $this->assertSame([], $m->search);

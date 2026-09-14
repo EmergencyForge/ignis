@@ -15,8 +15,6 @@ use App\Documents\TwigToCanvasConverter;
 use App\Documents\VisualTemplateRenderer;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
 use App\Models\AmbSkill;
 use App\Models\DocumentCategory;
@@ -28,6 +26,8 @@ use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
 use App\Security\CsrfProtection;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 

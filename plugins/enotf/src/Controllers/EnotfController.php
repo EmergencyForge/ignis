@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Plugin\Enotf\Controllers;
 
-use App\Http\Controllers\Controller;
-
-use Plugin\Enotf\EnotfSession;
 use App\Federation\FederatedPersonnel;
-use Plugin\Enotf\Helpers\EnotfUrl;
+use App\Http\Controllers\Controller;
 use App\Http\FiveMSupport;
 use App\Http\Middleware\PinLockscreenMiddleware;
-use App\Http\Request;
-use Plugin\Enotf\Policies\EnotfPolicy;
+use EmergencyForge\Http\Request;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\EnotfSession;
+use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Policies\EnotfPolicy;
 
 /**
  * EnotfController — eNOTF Root-Pages (Login, Overview, Lockscreen, Logout).

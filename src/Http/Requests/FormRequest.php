@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Exceptions\ValidationException;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validatable;
 

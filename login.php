@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/assets/config/config.php';
 
-use App\Http\Response;
 use App\Models\RegistrationCode;
+use EmergencyForge\Http\Response;
 
 // Session wird bereits durch config.php gestartet (SessionManager)
 

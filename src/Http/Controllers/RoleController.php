@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Roles\CreateRoleRequest;
 use App\Http\Requests\Roles\UpdateRoleRequest;
 use App\Models\Role;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 
 /**
  * RoleController — Pilot-Migration für das benutzer/rollen/-Modul.

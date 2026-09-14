@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Controllers\Api;
 
 use App\Auth\Gate;
-use Plugin\Enotf\Events\EnotfProtocolReleased;
 use App\Events\EventDispatcher;
 use App\Helpers\Flash;
-use App\Http\Request;
-use App\Http\Response;
 use App\Logging\Logger;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as DB;
 use PDOException;
+use Plugin\Enotf\Events\EnotfProtocolReleased;
 use Plugin\Enotf\Models\Edivi;
 
 /**
@@ -945,7 +945,7 @@ final class EnotfController
         // fangen wir die ValidationException hier manuell und übersetzen sie.)
         try {
             $data = \Plugin\Enotf\Requests\SaveFieldRequest::validate($request->post);
-        } catch (\App\Exceptions\ValidationException $e) {
+        } catch (\EmergencyForge\Http\Exceptions\ValidationException $e) {
             return Response::text($e->firstError() ?? 'Missing data', 400);
         }
 

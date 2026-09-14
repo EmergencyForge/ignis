@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Plugin\EnotfV2\Controllers\Api;
 
-use App\Http\Request;
-use App\Http\Response;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Plugin\EnotfV2\Policies\EnotfV2Policy;
 use Plugin\EnotfV2\Support\ConditionsService;
 use Plugin\EnotfV2\Support\ProtokollAccessGuard;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Plugins;
 
-use App\Plugins\VersionConstraint;
+use EmergencyForge\Plugins\VersionConstraint;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

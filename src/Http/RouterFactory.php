@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Http;
 
 use App\Http\Requests\FormRequest;
+use EmergencyForge\Http\Pipeline;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
+use EmergencyForge\Http\Router;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -15,9 +19,39 @@ use Psr\Container\ContainerInterface;
  */
 final class RouterFactory
 {
+    /**
+     * @param bool $cache  false baut den Dispatcher bei jedem Aufruf frisch;
+     *                     Tests nutzen das, damit das Cache-File aus dem
+     *                     Betrieb ihre Routen nicht verfälscht.
+     */
     public static function create(ContainerInterface $container, Pipeline $pipeline, bool $cache = true): Router
     {
-        $router = new Router($container, $pipeline, enableCache: $cache);
+        $router = new Router(
+            $container,
+            $pipeline,
+            cacheFile: $cache ? dirname(__DIR__, 2) . '/storage/cache/routes.php' : null,
+        );
+
+        // Die 404-Seite gehört dem Produkt, nicht dem Paket. Fällt auf
+        // Plain-Text zurück, wenn das Template fehlt - eine kaputte
+        // Installation soll einen 404 liefern und nicht still einen 500.
+        $router->setNotFoundHandler(static function (): Response {
+            $template = dirname(__DIR__, 2) . '/templates/errors/404.php';
+            if (!is_file($template)) {
+                return Response::text('Not Found', 404);
+            }
+
+            ob_start();
+            try {
+                require $template;
+                $body = (string) ob_get_clean();
+            } catch (\Throwable) {
+                ob_end_clean();
+                return Response::text('Not Found', 404);
+            }
+
+            return Response::html($body, 404);
+        });
 
         // dispatch() ist der einzige Ort, an dem sowohl ein echter
         // Produktions-Request als auch ein simulierter Test-Request eindeutig
