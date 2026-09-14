@@ -4,18 +4,54 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Helpers\Flash;
 use App\Auth\Gate;
+use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\SaveDashboardCategoryRequest;
+use App\Http\Requests\Settings\SaveDashboardTileRequest;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * DashboardController — Dashboard-Konfiguration (Kategorien + Tiles).
+ * Die Dashboard-Konfiguration: Kategorien und die Verlinkungen darin.
+ *
+ * Beide sind derselbe Ablauf, deshalb steht das Gemeinsame in
+ * {@see store()}, {@see update()} und {@see destroy()}.
+ *
+ * Geprüft wird über FormRequests. Am Ziel einer Verlinkung hängt mehr
+ * daran, als es aussieht — siehe {@see SaveDashboardTileRequest}: es
+ * landet auf dem Dashboard in einem `href`, und bis hierher nahm der
+ * Controller jeden Wert, `javascript:` eingeschlossen.
  */
 class DashboardController extends Controller
 {
+    private const SEITE = 'settings/dashboard/index';
+
+    /**
+     * @var array<string,array{
+     *     table: string,
+     *     request: class-string<\App\Http\Requests\FormRequest>,
+     *     flash: string,
+     *     label: string,
+     * }>
+     */
+    private const BEREICHE = [
+        'category' => [
+            'table'   => 'intra_dashboard_categories',
+            'request' => SaveDashboardCategoryRequest::class,
+            'flash'   => 'dashboard.category',
+            'label'   => 'Kategorie',
+        ],
+        'tile' => [
+            'table'   => 'intra_dashboard_tiles',
+            'request' => SaveDashboardTileRequest::class,
+            'flash'   => 'dashboard.tile',
+            'label'   => 'Verlinkung',
+        ],
+    ];
+
     public function index(): void
     {
         $this->requireAuth();
@@ -33,7 +69,6 @@ class DashboardController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        // Group tiles by category
         $tilesByCategory = [];
         foreach ($tiles as $tile) {
             $tilesByCategory[(int) $tile['category']][] = $tile;
@@ -45,186 +80,151 @@ class DashboardController extends Controller
         ]);
     }
 
-    // ── Categories ─────────────────────────────────────────
+    // ── Kategorien ─────────────────────────────────────────
 
     public function categoryStore(): void
     {
-        $this->ensureManage('settings/dashboard/index.php');
-
-        $title    = trim($_POST['title'] ?? '');
-        $priority = (int) ($_POST['priority'] ?? 0);
-
-        if ($title === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index');
-        }
-
-        try {
-            Capsule::table('intra_dashboard_categories')->insert([
-                'title'    => $title,
-                'priority' => $priority,
-            ]);
-            Flash::set('dashboard.category', 'created');
-            $this->audit('Kategorie erstellt', 'Titel: ' . $title);
-        } catch (PDOException $e) {
-            error_log('Category creation failed: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/dashboard/index');
+        $this->store('category');
     }
 
     public function categoryUpdate(): void
     {
-        $this->ensureManage('settings/dashboard/index.php');
-
-        $id       = (int) ($_POST['id'] ?? 0);
-        $title    = trim($_POST['title'] ?? '');
-        $priority = (int) ($_POST['priority'] ?? 0);
-
-        if ($id <= 0 || $title === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index');
-        }
-
-        try {
-            Capsule::table('intra_dashboard_categories')->where('id', $id)->update([
-                'title'    => $title,
-                'priority' => $priority,
-            ]);
-            Flash::set('success', 'updated');
-            $this->audit('Kategorie aktualisiert [ID: ' . $id . ']', null);
-        } catch (PDOException $e) {
-            error_log('Category update failed: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/dashboard/index');
+        $this->update('category');
     }
 
     public function categoryDestroy(): void
     {
-        $this->ensureManage('settings/dashboard/index.php');
-
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
-            Flash::set('dashboard.category', 'invalid-id');
-            $this->redirect('settings/dashboard/index');
-        }
-
-        $exists = Capsule::table('intra_dashboard_categories')->where('id', $id)->exists();
-        if (!$exists) {
-            Flash::set('dashboard.category', 'not-found');
-            $this->redirect('settings/dashboard/index');
-        }
-
-        try {
-            Capsule::table('intra_dashboard_categories')->where('id', $id)->delete();
-            Flash::set('dashboard.category', 'deleted');
-            $this->audit('Kategorie gelöscht [ID: ' . $id . ']', null);
-        } catch (PDOException $e) {
-            error_log('PDO Delete Error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/dashboard/index');
+        $this->destroy('category');
     }
 
-    // ── Tiles ──────────────────────────────────────────────
+    // ── Verlinkungen ───────────────────────────────────────
 
     public function tileStore(): void
     {
-        $this->ensureManage('settings/dashboard/index.php');
-
-        $category = (int) ($_POST['category'] ?? 0);
-        $title    = trim($_POST['title'] ?? '');
-        $url      = trim($_POST['url'] ?? '#');
-        $icon     = trim($_POST['icon'] ?? 'external-link-alt');
-        $priority = (int) ($_POST['priority'] ?? 0);
-
-        if ($category <= 0 || $title === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index');
-        }
-
-        try {
-            Capsule::table('intra_dashboard_tiles')->insert([
-                'category' => $category,
-                'title'    => $title,
-                'url'      => $url,
-                'icon'     => $icon,
-                'priority' => $priority,
-            ]);
-            Flash::set('dashboard.tile', 'created');
-            $this->audit('Verlinkung erstellt', 'Titel: ' . $title);
-        } catch (PDOException $e) {
-            error_log('Tile creation error: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/dashboard/index');
+        $this->store('tile');
     }
 
     public function tileUpdate(): void
     {
-        $this->ensureManage('settings/dashboard/index.php');
-
-        $id       = (int) ($_POST['id'] ?? 0);
-        $category = (int) ($_POST['category'] ?? 0);
-        $title    = trim($_POST['title'] ?? '');
-        $url      = trim($_POST['url'] ?? '#');
-        $icon     = trim($_POST['icon'] ?? 'external-link-alt');
-        $priority = (int) ($_POST['priority'] ?? 0);
-
-        if ($id <= 0 || $category <= 0 || $title === '') {
-            Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index');
-        }
-
-        try {
-            Capsule::table('intra_dashboard_tiles')->where('id', $id)->update([
-                'category' => $category,
-                'title'    => $title,
-                'url'      => $url,
-                'icon'     => $icon,
-                'priority' => $priority,
-            ]);
-            Flash::set('success', 'updated');
-            $this->audit('Verlinkung aktualisiert [ID: ' . $id . ']', null);
-        } catch (PDOException $e) {
-            error_log('Tile update failed: ' . $e->getMessage());
-            Flash::set('error', 'exception');
-        }
-
-        $this->redirect('settings/dashboard/index');
+        $this->update('tile');
     }
 
     public function tileDestroy(): void
     {
-        $this->ensureManage('settings/dashboard/index.php');
+        $this->destroy('tile');
+    }
+
+    // ── Das Gemeinsame ─────────────────────────────────────
+
+    private function store(string $bereich): void
+    {
+        $b    = self::BEREICHE[$bereich];
+        $data = $this->validated($b);
+        unset($data['id']);
+
+        $this->write(
+            $b,
+            static fn () => Capsule::table($b['table'])->insert($data),
+            $b['flash'],
+            'created',
+            $b['label'] . ' erstellt',
+            'Titel: ' . $data['title'],
+        );
+    }
+
+    private function update(string $bereich): void
+    {
+        $b    = self::BEREICHE[$bereich];
+        $data = $this->validated($b);
+        $id   = (int) $data['id'];
+        unset($data['id']);
+
+        if ($id <= 0) {
+            Flash::set('error', 'missing-fields');
+            $this->redirect(self::SEITE);
+        }
+
+        // „updated" steht in der Meldungstabelle unter `success`.
+        $this->write(
+            $b,
+            static fn () => Capsule::table($b['table'])->where('id', $id)->update($data),
+            'success',
+            'updated',
+            $b['label'] . ' aktualisiert [ID: ' . $id . ']',
+            null,
+            $id,
+        );
+    }
+
+    private function destroy(string $bereich): void
+    {
+        $b = self::BEREICHE[$bereich];
+        $this->ensureManage(self::SEITE . '.php');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
-            Flash::set('dashboard.tile', 'invalid-id');
-            $this->redirect('settings/dashboard/index');
+            Flash::set($b['flash'], 'invalid-id');
+            $this->redirect(self::SEITE);
         }
 
-        $exists = Capsule::table('intra_dashboard_tiles')->where('id', $id)->exists();
-        if (!$exists) {
-            Flash::set('dashboard.tile', 'not-found');
-            $this->redirect('settings/dashboard/index');
+        if (!Capsule::table($b['table'])->where('id', $id)->exists()) {
+            Flash::set($b['flash'], 'not-found');
+            $this->redirect(self::SEITE);
         }
+
+        $this->write(
+            $b,
+            static fn () => Capsule::table($b['table'])->where('id', $id)->delete(),
+            $b['flash'],
+            'deleted',
+            $b['label'] . ' gelöscht [ID: ' . $id . ']',
+            null,
+            $id,
+        );
+    }
+
+    /**
+     * @param  array<string,mixed> $b
+     * @return array<string,mixed>
+     */
+    private function validated(array $b): array
+    {
+        $this->ensureManage(self::SEITE . '.php');
+
+        /** @var class-string<\App\Http\Requests\FormRequest> $request */
+        $request = $b['request'];
 
         try {
-            Capsule::table('intra_dashboard_tiles')->where('id', $id)->delete();
-            Flash::set('dashboard.tile', 'deleted');
-            $this->audit('Verlinkung gelöscht [ID: ' . $id . ']', null);
+            return $request::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect(self::SEITE);
+        }
+    }
+
+    /**
+     * @param array<string,mixed> $b
+     * @param callable():mixed    $schreiben
+     */
+    private function write(
+        array $b,
+        callable $schreiben,
+        string $flashTyp,
+        string $flashSchluessel,
+        string $aktion,
+        ?string $details = null,
+        ?int $id = null,
+    ): void {
+        try {
+            $schreiben();
+            Flash::set($flashTyp, $flashSchluessel);
+            $this->audit($aktion, $details, $id);
         } catch (PDOException $e) {
-            error_log('PDO Delete Error: ' . $e->getMessage());
+            error_log('PDO Error (' . $b['table'] . '): ' . $e->getMessage());
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index');
+        $this->redirect(self::SEITE);
     }
 
     private function ensureManage(string $redirect): void
@@ -236,12 +236,24 @@ class DashboardController extends Controller
         }
     }
 
-    private function audit(string $action, ?string $details): void
+    /**
+     * Schreibt ins Prüfprotokoll. Die Kennung geht als `context.id` mit,
+     * damit {@see \App\Support\Activity} sie nicht aus dem Meldungstext
+     * klauben muss.
+     */
+    private function audit(string $action, ?string $details, ?int $id = null): void
     {
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger();
-        $logger->log($_SESSION['userid'], $action, $details, 'Dashboard', 1);
+
+        (new AuditLogger())->log(
+            $_SESSION['userid'],
+            $action,
+            $details,
+            'Dashboard',
+            1,
+            $id === null ? [] : ['id' => $id],
+        );
     }
 }
