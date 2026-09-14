@@ -119,9 +119,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
 
-            <span class="ignis-chip <?= \App\Models\DocumentCategory::chipClass($doc->category_color ?? null) ?>" style="font-size:0.7rem;">
-                <?= htmlspecialchars($doc->category_name ?? 'Dokument') ?>
-            </span>
+            <span class="ignis-chip ignis-chip--secondary" style="font-size:0.7rem;">Dokument</span>
 
             <h1 class="doc-title"><?= htmlspecialchars($typLabel) ?></h1>
 

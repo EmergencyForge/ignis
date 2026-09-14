@@ -33,7 +33,6 @@ final class LayoutUsageTest extends TestCase
     private const OWN_SHELL = [
         'templates/errors/404.php',
         'templates/personnel/document-view.php',
-        'templates/settings/documents/visual-editor.php',
         'plugins/firetab/templates/firetab/asu.php',
         'plugins/firetab/templates/firetab/create.php',
         'plugins/firetab/templates/firetab/list.php',

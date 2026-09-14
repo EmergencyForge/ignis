@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AsuSyncController;
-use App\Http\Controllers\Api\DocumentsController;
+use App\Http\Controllers\Api\PersonnelDocumentController;
 use App\Http\Controllers\Api\FederationController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PersonnelController;
@@ -53,40 +53,22 @@ $router->post('/api/asu/sync',     [AsuSyncController::class, 'sync'], $apiKey);
 $router->post('/api/asu-sync.php', [AsuSyncController::class, 'sync'], $apiKey);
 
 // ============================================================================
-//  Documents — refactored zum echten Controller (DocumentsController).
-//  Permission-Prüfung läuft im Controller selbst (meist
-//  `admin` + `personnel.documents.manage`).
+//  Dokumente des abgeloesten Canvas-Systems: ansehen und archivieren.
+//  Angelegt wird nichts mehr — das macht der Editor ueber die Routen in
+//  routes/web.php. Die Rechte prueft der Controller selbst.
 // ============================================================================
-$docHandler = fn (string $method) => [DocumentsController::class, $method];
-
-// Templates
-$router->match(['GET'],         '/api/documents/list',            $docHandler('listTemplates'),        $auth);
-$router->match(['GET'],         '/api/documents/get',             $docHandler('getTemplate'),          $auth);
-$router->match(['POST'],        '/api/documents/save',            $docHandler('saveTemplate'),         $auth);
-$router->match(['GET', 'POST', 'DELETE'], '/api/documents/delete',     $docHandler('deleteTemplate'), $auth);
-$router->match(['POST'],        '/api/documents/duplicate',       $docHandler('duplicateTemplate'),    $auth);
-$router->match(['POST'],        '/api/documents/regenerate',      $docHandler('regenerateTemplateFile'), $auth);
-$router->match(['POST'],        '/api/documents/create-custom',       $docHandler('createCustom'),     $auth);
-$router->match(['GET'],         '/api/documents/get-document',        $docHandler('getDocument'),      $auth);
-$router->match(['POST'],        '/api/documents/archive',             $docHandler('archiveDocument'),  $auth);
-
-// Assets
-$router->match(['GET'],             '/api/documents/asset-list',       $docHandler('assetList'),   $auth);
-$router->match(['POST'],            '/api/documents/asset-upload',     $docHandler('assetUpload'), $auth);
-$router->match(['POST', 'DELETE'],  '/api/documents/asset-delete',     $docHandler('assetDelete'), $auth);
-
-// Layouts
-$router->match(['GET'],         '/api/documents/layout-get',         $docHandler('layoutGet'),      $auth);
-$router->match(['POST'],        '/api/documents/layout-save',        $docHandler('layoutSave'),     $auth);
-$router->match(['GET', 'POST'], '/api/documents/layout-versions',     $docHandler('layoutVersions'), $auth);
-$router->match(['POST'],        '/api/documents/layout-preview',     $docHandler('layoutPreview'),  $auth);
-
-// Twig / Convert
-$router->match(['GET'],  '/api/documents/twig-preview',     $docHandler('twigPreview'),  $auth);
-$router->match(['POST'], '/api/documents/convert-twig',     $docHandler('convertTwig'),  $auth);
-
-// Kategorien (GET|POST|DELETE in einer Methode, interne Method-Weiche)
-$router->match(['GET', 'POST', 'DELETE'], '/api/documents/categories',     $docHandler('categories'), $auth);
+$router->match(
+    ['GET'],
+    '/api/documents/get-document',
+    [PersonnelDocumentController::class, 'getDocument'],
+    $auth,
+);
+$router->match(
+    ['POST'],
+    '/api/documents/archive',
+    [PersonnelDocumentController::class, 'archiveDocument'],
+    $auth,
+);
 
 // ============================================================================
 //  Federation (Server-to-Server) — refactored.

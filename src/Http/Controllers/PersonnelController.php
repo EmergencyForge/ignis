@@ -749,9 +749,10 @@ class PersonnelController extends Controller
     /**
      * GET /mitarbeiter/dokument-view.php?docid=X — PDF-Viewer mit Toolbar.
      *
-     * Joint das Dokument mit Template + Kategorie + Empfänger via Capsule.
-     * `intra_dokument_templates`/`intra_dokument_kategorien` haben (noch)
-     * kein eigenes Eloquent-Model.
+     * Joint das Dokument mit Aussteller und Empfänger. Vorlage und
+     * Kategorie kommen nicht mehr dazu: die Tabellen des alten
+     * Canvas-Systems sind weg, die Bezeichnung steht in
+     * PersonnelDocument::TYPE_LABELS.
      */
     public function showDocument(): void
     {
@@ -763,8 +764,6 @@ class PersonnelController extends Controller
         }
 
         $doc = Capsule::table('intra_mitarbeiter_dokumente as pd')
-            ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
-            ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
             ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
             ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
             ->leftJoin('intra_mitarbeiter as emp', 'pd.profileid', '=', 'emp.id')
@@ -772,11 +771,6 @@ class PersonnelController extends Controller
             ->select(
                 'pd.*',
                 Capsule::raw('IFNULL(pd.is_archived, 0) as is_archived'),
-                't.name as template_name',
-                't.category as template_category',
-                't.editor_type',
-                'dk.name as category_name',
-                'dk.color as category_color',
                 Capsule::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
                 'emp.fullname as empfaenger_fullname',
                 'emp.id as empfaenger_id'
@@ -796,10 +790,7 @@ class PersonnelController extends Controller
         }
 
         $canManage = \App\Auth\Gate::allows('personnel.manageDocs');
-        $typLabel  = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel(
-            (int) $doc->type,
-            $doc->template_name ?? null
-        );
+        $typLabel  = \App\Models\PersonnelDocument::typeLabel((int) $doc->type);
 
         $pdfRelativePath = BASE_PATH . 'storage/documents/' . $doc->docid . '.pdf';
         $pdfAbsolutePath = dirname(__DIR__, 3) . '/storage/documents/' . basename((string) $doc->docid) . '.pdf';

@@ -365,13 +365,7 @@ $router->post('/settings/dashboard/tiles/update',     [\App\Http\Controllers\Set
 $router->post('/settings/dashboard/tiles/delete',     [\App\Http\Controllers\Settings\DashboardController::class, 'tileDestroy'], $settingsAuth);
 
 // Documents-Settings
-$router->get('/settings/documents/categories',        [\App\Http\Controllers\Settings\DocumentController::class, 'categories'],   $settingsAuth);
-$router->get('/settings/documents/templates',         [\App\Http\Controllers\Settings\DocumentController::class, 'templates'],    $settingsAuth);
-$router->get('/settings/documents/visual-editor',     [\App\Http\Controllers\Settings\DocumentController::class, 'visualEditor'], $settingsAuth);
-
-// Vorlagen des Dokumenten-Editors (emergencyforge/editor). Eigene Pfade
-// neben den Canvas-Vorlagen oben, solange beide Systeme nebeneinander
-// stehen; die Rechte sind dieselben (DocumentPolicy).
+// Vorlagen des Dokumenten-Editors (emergencyforge/editor).
 $router->get(
     '/settings/documents/editor-templates',
     [\App\Http\Controllers\Settings\EditorTemplateController::class, 'index'],
@@ -534,12 +528,6 @@ $legacyApiPaths = [
     '/assets/functions/checkdienstnr2'           => '/api/personnel/check-dienstnr',
     '/assets/functions/checkdnr'                 => '/api/personnel/check-dienstnr-legacy',
     '/assets/functions/save_fields'              => '/api/enotf/save-fields',
-    '/assets/functions/documents/categories'     => '/api/documents/categories',
-    '/assets/functions/documents/create-custom'  => '/api/documents/create-custom',
-    '/assets/functions/documents/delete'         => '/api/documents/delete',
-    '/assets/functions/documents/get'            => '/api/documents/get',
-    '/assets/functions/documents/list'           => '/api/documents/list',
-    '/assets/functions/documents/save'           => '/api/documents/save',
     '/assets/functions/system/global-search-api' => '/api/system/global-search',
     '/assets/functions/system/performance-api'   => '/api/system/performance',
     '/assets/functions/system/theme-api'         => '/api/system/theme',

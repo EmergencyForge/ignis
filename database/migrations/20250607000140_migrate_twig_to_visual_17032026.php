@@ -2,34 +2,26 @@
 
 declare(strict_types=1);
 
-use App\Documents\TwigToVisualMigrator;
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Migriert alle bestehenden Twig-Templates zu visuellen JSON-Layouts.
- * Voraussetzung: intra_dokument_template_layouts und die editor_type-Spalte
- * aus den vorherigen Migrationen müssen bereits existieren.
+ * Hat die Twig-Vorlagen in visuelle Canvas-Layouts überführt.
+ *
+ * Ohne Wirkung, seit das Canvas-System abgelöst ist: `TwigToVisualMigrator`
+ * ist gelöscht, und die Tabellen, in die diese Migration geschrieben hat,
+ * wirft `20260914000003_drop_canvas_document_tables` ohnehin weg.
+ *
+ * Die Datei bleibt stehen, weil Phinx sie in `phinxlog` führt — wer sie
+ * löscht, bekommt bei jeder bestehenden Installation eine Lücke in der
+ * Migrationskette.
  */
 class MigrateTwigToVisual17032026 extends AbstractMigration
 {
     public function up(): void
     {
-        if (
-            !$this->hasTable('intra_dokument_template_layouts')
-            || !$this->table('intra_dokument_templates')->hasColumn('editor_type')
-        ) {
-            return;
-        }
-
-        $pdo = $this->getAdapter()->getConnection();
-        $migrator = new TwigToVisualMigrator($pdo);
-        $migrator->migrateAll();
     }
 
     public function down(): void
     {
-        // Nicht umkehrbar: die generierten Layouts sind nachträglich nicht von
-        // manuell erstellten zu unterscheiden, und die ursprünglichen
-        // Twig-Zuordnungen wären nur verlustbehaftet rekonstruierbar.
     }
 }

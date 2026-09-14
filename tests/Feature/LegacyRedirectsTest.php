@@ -15,12 +15,14 @@ use Tests\FeatureTestCase;
 final class LegacyRedirectsTest extends FeatureTestCase
 {
     #[Test]
-    public function post_auf_alte_dokumenten_api_bleibt_ein_308_mit_methode(): void
+    public function post_auf_eine_alte_api_bleibt_ein_308_mit_methode(): void
     {
-        $response = $this->post('/assets/functions/documents/list', ['x' => '1']);
+        // 308 statt 302, weil ein 302 die Methode auf GET kippen darf
+        // und der Aufrufer dann mit leerem Rumpf ankaeme.
+        $response = $this->post('/assets/functions/save_fields', ['x' => '1']);
 
         $this->assertStatus(308, $response);
-        $this->assertStringEndsWith('/api/documents/list', $response->headers['Location'] ?? '');
+        $this->assertStringEndsWith('/api/enotf/save-fields', $response->headers['Location'] ?? '');
     }
 
     #[Test]

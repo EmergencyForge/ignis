@@ -37,6 +37,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PersonnelDocument extends Model
 {
+    /**
+     * Die Bezeichnungen der Dokumenttypen aus dem abgeloesten
+     * Canvas-System. Die Spalte `type` traegt sie noch in jeder alten
+     * Zeile; ohne diese Tabelle stuende in der Liste nur eine Zahl.
+     * Typ 99 waren Dokumente aus einer eigenen Vorlage — deren Name stand
+     * in der Vorlagentabelle, die es nicht mehr gibt.
+     */
+    public const TYPE_LABELS = [
+        0  => 'Ernennungsurkunde',
+        1  => 'Beförderungsurkunde',
+        2  => 'Entlassungsurkunde',
+        3  => 'Ausbildungsvertrag',
+        5  => 'Ausbildungszertifikat',
+        6  => 'Lehrgangszertifikat',
+        7  => 'Lehrgangszertifikat (Fachdienste)',
+        10 => 'Schriftliche Abmahnung',
+        11 => 'Vorläufige Dienstenthebung',
+        12 => 'Dienstentfernung',
+        13 => 'Außerordentliche Kündigung',
+        99 => 'Eigenes Dokument',
+    ];
+
     protected $table = 'intra_mitarbeiter_dokumente';
 
     protected $casts = [
@@ -64,6 +86,11 @@ class PersonnelDocument extends Model
      * andere Code-Stellen schon `mitarbeiter`/`empfaenger` als Variablen-Namen
      * benutzen — wir bleiben bei der Standard-Eloquent-Konvention.
      */
+    public static function typeLabel(int $type): string
+    {
+        return self::TYPE_LABELS[$type] ?? 'Unbekannt';
+    }
+
     public function mitarbeiter(): BelongsTo
     {
         return $this->belongsTo(Personnel::class, 'profileid', 'id');

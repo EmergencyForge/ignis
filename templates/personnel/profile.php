@@ -114,7 +114,6 @@ $bodyId = 'mitarbeiter';
                                             <summary class="ignis-btn ignis-btn--secondary ignis-btn--sm">Mehr <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
                                             <div class="ignis-menu__panel" role="menu">
                                                 <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
-                                                    <button type="button" class="ignis-menu__item" role="menuitem" data-dialog-target="#modalDokuCreate">Dokument erstellen</button>
                                                 <?php endif; ?>
                                                 <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
                                                     <button type="button" class="ignis-menu__item" role="menuitem" onclick="openFDQualiModal()">Qualifikationen bearbeiten</button>

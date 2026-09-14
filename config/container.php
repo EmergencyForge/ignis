@@ -195,7 +195,7 @@ return [
     \App\Http\Controllers\Api\AsuSyncController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleTzTemplatesController::class  => \DI\autowire(),
     \App\Http\Controllers\Api\FederationController::class          => \DI\autowire(),
-    \App\Http\Controllers\Api\DocumentsController::class           => \DI\autowire(),
+    \App\Http\Controllers\Api\PersonnelDocumentController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleImportController::class       => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleDefectsController::class      => \DI\autowire(),
 
