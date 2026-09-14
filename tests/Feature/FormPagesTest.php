@@ -162,8 +162,13 @@ final class FormPagesTest extends FeatureTestCase
         $this->assertBodyContains('<table class="ignis-table" id="table-antragstypen">', $list);
         $this->assertBodyContains('name="sortierung[' . $this->typ->id . ']"', $list);
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--dot ignis-chip--ok">Aktiv</span>', $list);
-        $this->assertBodyContains('href="?delete=' . $this->typ->id . '" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon"', $list);
-        $this->assertBodyContains('name="update_sortierung" class="ignis-btn ignis-btn--sm ignis-btn--secondary"', $list);
+        // Loeschen und Umschalten sind Formulare, keine Links mehr: an einer
+        // GET-Adresse reicht ein <img src> oder das Vorabladen des Browsers.
+        $this->assertBodyContains('action="' . BASE_PATH . 'settings/forms/delete"', $list);
+        $this->assertBodyContains('action="' . BASE_PATH . 'settings/forms/toggle"', $list);
+        $this->assertBodyNotContains('href="?delete=', $list);
+        $this->assertBodyNotContains('href="?toggle=', $list);
+        $this->assertBodyContains('form="antragstyp-sortierung" class="ignis-btn ignis-btn--sm ignis-btn--secondary"', $list);
         $this->assertBodyNotContains('btn-group', $list);
 
         $create = $this->get('/settings/forms/create');

@@ -77,9 +77,11 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                     <?php if (empty($felder)): ?>
                         <div class="ignis-table-empty">Noch keine Felder definiert. Füge jetzt das erste Feld hinzu.</div>
                     <?php else: ?>
-                        <form method="post">
+                        <form method="POST" id="feld-sortierung">
                             <?= csrf_field() ?>
-                            <div class="twplus-table-card__scroll">
+                            <input type="hidden" name="update_felder_sortierung" value="1">
+                        </form>
+                        <div class="twplus-table-card__scroll">
                                 <table class="ignis-table" id="table-antragsfelder">
                                     <thead>
                                         <tr>
@@ -99,6 +101,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                                                 <td>
                                                     <label class="sr-only" for="feld-sort-<?= (int) $feld['id'] ?>">Sortierung <?= htmlspecialchars($feld['label']) ?></label>
                                                     <input type="number"
+                                                        form="feld-sortierung"
                                                         name="feld_sortierung[<?= (int)$feld['id'] ?>]"
                                                         id="feld-sort-<?= (int) $feld['id'] ?>"
                                                         value="<?= (int)$feld['sortierung'] ?>"
@@ -127,11 +130,15 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                                                 </td>
                                                 <td class="ignis-table__actions">
                                                     <div class="ignis-row-actions">
-                                                        <a href="?id=<?= (int)$id ?>&delete_feld=<?= (int)$feld['id'] ?>"
-                                                            class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Feld löschen" aria-label="Feld löschen"
-                                                            onclick="event.preventDefault(); showConfirm('Feld wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Feld löschen'}).then(result => { if(result) window.location.href = this.href; });">
-                                                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                                                        </a>
+                                                        <form method="POST" action="<?= BASE_PATH ?>settings/forms/fields/delete" class="inline"
+                                                            onsubmit="<?= confirm_attr('Feld wirklich löschen?') ?>">
+                                                            <?= csrf_field() ?>
+                                                            <input type="hidden" name="antragstyp_id" value="<?= (int)$id ?>">
+                                                            <input type="hidden" name="id" value="<?= (int)$feld['id'] ?>">
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Feld löschen" aria-label="Feld löschen">
+                                                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -139,13 +146,12 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="ignis-list-footer">
-                                <p class="ignis-list-meta"><?= count($felder) ?> Felder</p>
-                                <button type="submit" name="update_felder_sortierung" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
-                                    <i class="fa-solid fa-save" aria-hidden="true"></i> Sortierung speichern
-                                </button>
-                            </div>
-                        </form>
+                        <div class="ignis-list-footer">
+                            <p class="ignis-list-meta"><?= count($felder) ?> Felder</p>
+                            <button type="submit" form="feld-sortierung" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
+                                <i class="fa-solid fa-save" aria-hidden="true"></i> Sortierung speichern
+                            </button>
+                        </div>
                     <?php endif; ?>
                 </section>
             </div>

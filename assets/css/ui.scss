@@ -462,10 +462,19 @@ table.twplus-table {
   &__content { width: 100%; max-width: 25rem; }
   &__brand { width: min(18rem, 75%); margin-bottom: 2rem; }
   &__brand img { display: block; width: 100%; height: auto; }
-  // Der Absender sitzt eingerückt unter der Wortmarke: 36 % ist die
-  // Stelle, an der in der Kombination das i beginnt, die Zeile hängt
-  // damit an der Schrift und nicht am Bildzeichen.
-  &__byline { margin: .5rem 0 0; padding-left: 36%; color: var(--text-3); font-size: .68rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
+  // "ıgnıs 2026.1.0 by <Amboss> EmergencyForge" - das Bildzeichen steht als
+  // currentColor mitten im Satz, also auf Zeilenhöhe statt auf Grundlinie.
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    margin: 1.5rem 0 0;
+    color: var(--text-3);
+    font-size: 0.7rem;
+
+    svg { flex: none; width: auto; height: 1.4em; }
+  }
   &__card { padding: 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl, 10px); box-shadow: var(--shadow-lg, 0 18px 45px rgba(0,0,0,.32)); }
   &__visual { position: relative; display: none; overflow: hidden; background: var(--bg-2); }
   &__visual::after { position: absolute; inset: 0; background: radial-gradient(circle at 25% 30%, rgba(var(--accent-rgb),.28), transparent 38%), linear-gradient(145deg, transparent, var(--fill-1)); content: ''; }
@@ -1187,7 +1196,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  right: 0;
+  right: auto;
+  // Der Trigger gibt nur die Mindestbreite vor, laengere Optionen duerfen
+  // darueber hinausragen. War das Panel auf die Triggerbreite genagelt,
+  // brach eine Option in einem schmalen Select Buchstabe fuer Buchstabe um.
+  min-width: 100%;
+  width: max-content;
+  max-width: min(28rem, 92vw);
   z-index: 1500;
   // Im geschlossenen Zustand keine Bounding-Box: sonst zählt der Browser
   // das absolut positionierte Panel als Overflow-Descendant des Wrappers,
@@ -1218,6 +1233,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &--floating {
     position: fixed;
     right: auto;
+    // Mindest- und Hoechstbreite kommen im Floating-Mode inline aus dem JS,
+    // das 100%% der Basisregel bezoege sich hier auf den Viewport.
+    min-width: 0;
     z-index: 2000;
 
     &.is-active {

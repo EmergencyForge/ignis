@@ -65,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
             <div class="twplus-login__content">
                 <div class="twplus-login__brand">
                     <img src="<?= BASE_PATH ?>assets/img/ignis-lockup.svg" alt="ignis">
-                    <p class="twplus-login__byline">by EmergencyForge</p>
                 </div>
                 <div class="twplus-login__card">
                     <p class="twplus-login__organization"><?= htmlspecialchars((string) SYSTEM_NAME) ?></p>
@@ -109,6 +108,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         <a href="<?= BASE_PATH ?>auth/discord" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><i class="fa-brands fa-discord" aria-hidden="true"></i> Mit Discord anmelden</a>
                     </div>
                 </div>
+        <?php
+        // Dieselbe Quelle wie die Versionszeile der Sidebar.
+        $loginVersionFile = __DIR__ . '/storage/version.json';
+        $loginVersionInfo = is_file($loginVersionFile) ? json_decode((string) file_get_contents($loginVersionFile), true) : null;
+        $loginVersion = is_array($loginVersionInfo) && !empty($loginVersionInfo['version']) ? (string) $loginVersionInfo['version'] : null;
+        ?>
+        <p class="twplus-login__foot">
+            <span>&#305;gn&#305;s<?= $loginVersion !== null ? ' ' . htmlspecialchars($loginVersion) : '' ?> by</span>
+            <?= file_get_contents(__DIR__ . '/assets/img/ef-mark.svg') ?>
+            <span>EmergencyForge</span>
+        </p>
         <p class="mt-4 text-center text-xs">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
         <?php
         $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
