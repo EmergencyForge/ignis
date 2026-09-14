@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version, etwa 2026.3.1
+        description: Version, etwa v2026.3.1
         required: true
 
 permissions:
@@ -62,6 +62,7 @@ jobs:
           PRERELEASE: ${{ github.event.release.prerelease }}
         run: |
           IMAGE=ghcr.io/emergencyforge/ignis
+          VERSION="v${VERSION#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           {
             echo "value<<TAGLISTE"
