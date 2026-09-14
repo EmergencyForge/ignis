@@ -64,7 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
         <section class="twplus-login__panel">
             <div class="twplus-login__content">
                 <div class="twplus-login__brand">
-                    <img src="<?= BASE_PATH ?>assets/img/ignis-wordmark.svg" alt="ignis">
+                    <img src="<?= BASE_PATH ?>assets/img/ignis-lockup.svg" alt="ignis">
+                    <p class="twplus-login__byline">by EmergencyForge</p>
                 </div>
                 <div class="twplus-login__card">
                     <p class="twplus-login__organization"><?= htmlspecialchars((string) SYSTEM_NAME) ?></p>

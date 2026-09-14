@@ -62,14 +62,16 @@ $topThemes = [
 $topUnread = $topLoggedIn ? (int) (NavigationCounters::for('inbox') ?? 0) : 0;
 
 // Logo: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat; sonst die
-// Wortmarke als Text in currentColor, damit sie die Textfarbe des
-// Themes übernimmt (assets/img/ignis-wordmark.svg hat eine feste Farbe).
+// Wortmarke. Sie bringt ihr Orange mit und steht damit in beiden Themes;
+// die alten intraRP-Standardlogos zeigen ebenfalls auf sie.
 $topLogo = defined('SYSTEM_LOGO') ? trim((string) SYSTEM_LOGO) : '';
 $topLogoIsDefault = $topLogo === ''
     || str_ends_with($topLogo, '/ignis-wordmark.svg')
     || str_ends_with($topLogo, '/defaultLogo.webp')
     || str_ends_with($topLogo, '/defaultLogo.png');
-if (!$topLogoIsDefault && !preg_match('~^(https?:)?//~i', $topLogo)) {
+if ($topLogoIsDefault) {
+    $topLogo = rtrim($topBasePath, '/') . '/assets/img/ignis-wordmark.svg';
+} elseif (!preg_match('~^(https?:)?//~i', $topLogo)) {
     $topLogo = rtrim($topBasePath, '/') . '/' . ltrim($topLogo, '/');
 }
 
@@ -111,13 +113,7 @@ foreach ($topGroups as $topGroup) {
     </button>
     <div class="ignis-topbar__identity-copy">
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
-        <?php if ($topLogoIsDefault): ?>
-            <svg viewBox="0 0 160 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" focusable="false">
-                <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="Geist, system-ui, sans-serif" font-weight="800" font-style="italic" font-size="42" letter-spacing="-0.02em" fill="currentColor">ıgnıs</text>
-            </svg>
-        <?php else: ?>
-            <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
-        <?php endif; ?>
+        <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
     </a>
     <span class="ignis-topbar__organization"><?= htmlspecialchars((string) SYSTEM_NAME) ?></span>
     </div></div>
