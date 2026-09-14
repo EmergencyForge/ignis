@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string      $username
  * @property string|null $fullname
  * @property \DateTime   $created_at
- * @property string      $discord_id
+ * @property string|null $discord_id
  * @property int|null    $aktenid
  * @property int         $role
  * @property bool        $full_admin

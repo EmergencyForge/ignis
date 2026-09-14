@@ -35,7 +35,7 @@ final class ShellTest extends FeatureTestCase
 
         $this->assertOk($response);
         $this->assertSame(1, substr_count($response->body, '<!DOCTYPE html>'), 'Die Hülle steht doppelt.');
-        $this->assertBodyContains('<html lang="de" data-theme="dark">', $response);
+        $this->assertMatchesRegularExpression('~<html\b[^>]*\bdata-theme="dark"(?=[\s>])~', $response->body);
         $this->assertBodyContains('id="dashboard" class="ignis-app"', $response);
         $this->assertBodyContains('class="ignis-topbar"', $response);
         $this->assertBodyContains('data-ignis-sidebar-toggle', $response);

@@ -10,6 +10,12 @@ if (SessionManager::isLoggedIn() && SessionManager::has('permissions')) {
     return Response::redirect(BASE_PATH . 'index');
 }
 
+if (defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'closed') {
+    SessionManager::clearRegistrationCode();
+    SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bestehende Benutzer können sich weiterhin anmelden.');
+    return Response::redirect(BASE_PATH . 'login');
+}
+
 $code = isset($_GET['code']) ? trim($_GET['code']) : '';
 
 if (empty($code)) {
@@ -36,4 +42,4 @@ if ($codeRecord->expires_at !== null && $codeRecord->expires_at->isPast()) {
 
 // Code in Session speichern und direkt zu Discord OAuth weiterleiten
 SessionManager::setRegistrationCode($code);
-return Response::redirect(BASE_PATH . 'auth/discord');
+return Response::redirect(BASE_PATH . (\App\Auth\FabricaClient::enabled() ? 'auth/fabrica' : 'auth/discord'));

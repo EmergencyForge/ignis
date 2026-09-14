@@ -79,7 +79,7 @@ final class FabricaClient
 
     /** @param array<string,mixed> $session
      *  @param array<string,mixed> $query
-     *  @return array{subject:string,lease:string,expires:int,checked:int,context:string}
+     *  @return array{subject:string,username:?string,lease:string,expires:int,checked:int,context:string}
      */
     public function finish(array &$session, array $query): array
     {
@@ -96,7 +96,11 @@ final class FabricaClient
         if (!$this->validIdentity($result) || !self::opaque($result['lease'] ?? null)) {
             throw new RuntimeException('Die Anmeldung konnte nicht bestätigt werden.');
         }
-        return ['subject' => $result['subject'], 'lease' => $result['lease'], 'expires' => (int) strtotime($result['expiresAt']), 'checked' => $started, 'context' => $this->context()];
+        $username = $result['username'] ?? null;
+        if ($username !== null && (!is_string($username) || trim($username) === '' || mb_strlen($username) > 200)) {
+            throw new RuntimeException('Fabrica hat ein ungültiges Benutzerprofil geliefert.');
+        }
+        return ['subject' => $result['subject'], 'username' => $username, 'lease' => $result['lease'], 'expires' => (int) strtotime($result['expiresAt']), 'checked' => $started, 'context' => $this->context()];
     }
 
     /** @param array<string,mixed> $login */

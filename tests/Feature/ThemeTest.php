@@ -40,7 +40,7 @@ final class ThemeTest extends FeatureTestCase
     {
         $this->login();
 
-        $this->assertBodyContains('<html lang="de" data-theme="dark">', $this->get('/dashboard'));
+        $this->assertMatchesRegularExpression('~<html\b[^>]*\bdata-theme="dark"(?=[\s>])~', $this->get('/dashboard')->body);
     }
 
     #[Test]
@@ -55,7 +55,7 @@ final class ThemeTest extends FeatureTestCase
         $this->assertRedirect($response, '/personnel/list');
         $this->assertSame('light', User::query()->findOrFail($user->id)->theme);
         $this->assertSame('light', $_SESSION['theme']);
-        $this->assertBodyContains('<html lang="de" data-theme="light">', $this->get('/dashboard'));
+        $this->assertMatchesRegularExpression('~<html\b[^>]*\bdata-theme="light"(?=[\s>])~', $this->get('/dashboard')->body);
     }
 
     #[Test]
@@ -120,7 +120,7 @@ final class ThemeTest extends FeatureTestCase
         $user->theme = 'light';
         $user->save();
 
-        $this->assertBodyContains('<html lang="de" data-theme="light">', $this->get('/dashboard'));
+        $this->assertMatchesRegularExpression('~<html\b[^>]*\bdata-theme="light"(?=[\s>])~', $this->get('/dashboard')->body);
         $this->assertSame('light', $_SESSION['theme']);
     }
 

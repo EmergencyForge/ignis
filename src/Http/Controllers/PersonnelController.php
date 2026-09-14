@@ -783,7 +783,8 @@ class PersonnelController extends Controller
         }
 
         // Berechtigung: Eigenes Dokument oder personnel.documents.* Permission
-        $isOwnDoc = ((string) $doc->ausstellerid === ($_SESSION['discord_id'] ?? ''));
+        $discordId = $_SESSION['discordtag'] ?? null;
+        $isOwnDoc = is_string($discordId) && $discordId !== '' && (string) $doc->ausstellerid === $discordId;
         if (!$isOwnDoc && !\App\Auth\Gate::allows('personnel.viewDoc')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index');
