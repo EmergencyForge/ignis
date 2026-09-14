@@ -201,7 +201,7 @@ export default defineConfig(({ mode }) => {
         base: './',
         // Der styles-Pass läuft als letzter (siehe package.json) und
         // spiegelt danach die statischen Dateien nach public/assets.
-        plugins: [tailwindcss(), ...(stylesPass ? [dropStyleStubs(), publishStaticAssets()] : [])],
+        plugins: [emergencyForgeUi({ prefix: 'ignis', dir: uiSrc }), tailwindcss(), ...(stylesPass ? [dropStyleStubs(), publishStaticAssets()] : [])],
         build: {
             outDir: resolve(root, 'public/assets/dist'),
             emptyOutDir: false,

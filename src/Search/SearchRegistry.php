@@ -59,7 +59,7 @@ final class SearchRegistry
     /**
      * @return list<array{key: string, label: string, items: list<array{label: string, sub: string, href: string}>}>
      */
-    public function run(string $q, int $limit = self::LIMIT): array
+    public function run(string $q, int $limit = self::LIMIT, string $scope = 'all'): array
     {
         $q = trim($q);
         if (mb_strlen($q) < 2) {
@@ -68,7 +68,7 @@ final class SearchRegistry
 
         $groups = [];
         foreach ($this->sources() as $source) {
-            if (!$source->allowed()) {
+            if (!$source->allowed() || ($scope !== 'all' && $scope !== $source->key())) {
                 continue;
             }
             try {
@@ -89,4 +89,17 @@ final class SearchRegistry
 
         return $groups;
     }
+
+    /** @return list<array{key: string, label: string}> */
+    public function scopes(): array
+    {
+        $scopes = [];
+        foreach ($this->sources() as $source) {
+            if ($source->allowed()) {
+                $scopes[] = ['key' => $source->key(), 'label' => $source->label()];
+            }
+        }
+        return $scopes;
+    }
+
 }

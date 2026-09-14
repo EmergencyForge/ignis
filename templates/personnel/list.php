@@ -31,10 +31,10 @@ $pgLabel = 'Mitarbeiter';
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
-                    <div class="page-header twplus-page-header mb-4">
+                    <div class="page-header twplus-page-header twplus-page-header--list mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal</p>
-                            <h1><?= $showArchive ? 'Archivierte Mitarbeiter' : 'Mitarbeiterübersicht' ?></h1>
+                            <h1><?= $showArchive ? 'Archivierte Mitarbeiter' : 'Mitarbeiterübersicht' ?> <span class="ignis-chip ignis-chip--count"><?= $list->total() ?></span></h1>
                             <p class="twplus-page-header__description">Mitarbeiter, Dienstgrade und Qualifikationen zentral verwalten.</p>
                         </div>
                         <div class="header-actions twplus-page-header__actions">
@@ -108,7 +108,7 @@ $pgLabel = 'Mitarbeiter';
 
                     <div class="twplus-table-card">
                         <div class="twplus-table-card__scroll">
-                        <table class="ignis-table" id="mitarbeiterTable">
+                        <table data-ignis-mobile-table class="ignis-table" id="mitarbeiterTable">
                             <thead>
                                 <tr>
                                     <?= $list->th('dienstnr', 'Dienstnummer', $pgPath) ?>
@@ -122,7 +122,10 @@ $pgLabel = 'Mitarbeiter';
                             </thead>
                             <tbody>
                                 <?php if ($mitarbeiter->isEmpty()): ?>
-                                    <tr><td colspan="7" class="ignis-table-empty">Keine Mitarbeiter gefunden.</td></tr>
+                                    <tr><td colspan="7" class="ignis-table-empty"><?php if ($list->q !== '' || $list->filter('dg') !== '' || $list->filter('rd') !== '' || $list->filter('fw') !== ''): ?>
+                                        <strong>Keine Treffer für diese Ansicht</strong><p>Versuche andere Suchbegriffe oder setze die Filter zurück.</p><a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="<?= BASE_PATH ?>personnel/list<?= $showArchive ? '?archiv=1' : '' ?>">Filter zurücksetzen</a>
+                                        <?php elseif ($showArchive): ?><strong>Keine archivierten Mitarbeiter</strong>
+                                        <?php else: ?><strong>Noch keine Mitarbeiter</strong><p>Hier erscheinen die Mitarbeiter deiner Organisation.</p><?php if (Gate::allows('personnel.create')): ?><a class="ignis-btn ignis-btn--primary ignis-btn--sm" href="<?= BASE_PATH ?>personnel/create" data-ignis-drawer>Ersten Mitarbeiter anlegen</a><?php endif; ?><?php endif; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($mitarbeiter as $m):
                                     $einstellungsdatum = $m->einstdatum->format('d.m.Y');
@@ -136,34 +139,34 @@ $pgLabel = 'Mitarbeiter';
                                     $profileUrl = BASE_PATH . 'personnel/profile?id=' . (int) $m->id;
                                 ?>
                                     <tr>
-                                        <td><span class="ignis-mono"><?= htmlspecialchars($m->dienstnr) ?></span></td>
-                                        <td>
+                                        <td data-label="Dienstnummer" data-mobile-context><span class="ignis-mono"><?= htmlspecialchars($m->dienstnr) ?></span> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars($m->dienstnr, ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button></td>
+                                        <td data-label="Name" data-mobile-primary>
                                             <a href="<?= $profileUrl ?>" data-mitarbeiter-card="<?= (int) $m->id ?>" class="no-underline">
                                                 <?= htmlspecialchars($m->fullname) ?>
                                             </a>
                                         </td>
-                                        <td>
+                                        <td data-label="Dienstgrad" data-mobile-context>
                                             <?php if (!empty($badgeImg)): ?>
                                                 <img src="<?= htmlspecialchars($badgeImg) ?>" height="16" width="auto" style="padding-right:5px" alt="Dienstgrad" loading="lazy" />
                                             <?php endif; ?>
                                             <?= htmlspecialchars($m->dienstgradLabel()) ?>
                                         </td>
-                                        <td>
+                                        <td data-label="RD-Qualifikation">
                                             <?php if (!$isRdNone): ?>
-                                                <span class="ignis-chip ignis-chip--warn"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
+                                                <span class="ignis-chip ignis-chip--category"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
                                                 <span class="text-[var(--text-3)]">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
+                                        <td data-label="FW-Qualifikation">
                                             <?php if (!$isFwNone): ?>
-                                                <span class="ignis-chip ignis-chip--danger"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
+                                                <span class="ignis-chip ignis-chip--category"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
                                             <?php else: ?>
                                                 <span class="text-[var(--text-3)]">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td><?= htmlspecialchars($einstellungsdatum) ?></td>
-                                        <td class="ignis-table__actions">
+                                        <td data-label="Einstellung"><?= htmlspecialchars($einstellungsdatum) ?></td>
+                                        <td data-label="Aktionen" class="ignis-table__actions">
                                             <div class="ignis-row-actions">
                                                 <a href="<?= $profileUrl ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Profil ansehen" aria-label="Profil ansehen">
                                                     <i class="fa-solid fa-eye"></i>

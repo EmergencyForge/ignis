@@ -629,6 +629,7 @@ class PersonnelController extends Controller
         try {
             $data = CreateMitarbeiterRequest::validate($_POST);
         } catch (ValidationException $e) {
+            \App\Support\FormErrors::remember('personnel.create', $e->errors());
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
             $this->redirect('personnel/create');
         }
@@ -636,6 +637,7 @@ class PersonnelController extends Controller
         // Conditional Charakter-ID-Pflicht: nur wenn CHAR_ID-Konstante aktiv ist
         if (defined('CHAR_ID') && CHAR_ID && $data['charakterid'] === '') {
             FormRequest::rememberInput($_POST);
+            \App\Support\FormErrors::remember('personnel.create', ['charakterid' => 'Bitte die Charakter-ID angeben.']);
             Flash::error('Bitte alle erforderlichen Felder ausfüllen.');
             $this->redirect('personnel/create');
         }
@@ -643,6 +645,7 @@ class PersonnelController extends Controller
         // Dienstnummer-Eindeutigkeit prüfen
         if (Personnel::query()->where('dienstnr', $data['dienstnr'])->exists()) {
             FormRequest::rememberInput($_POST);
+            \App\Support\FormErrors::remember('personnel.create', ['dienstnr' => 'Diese Dienstnummer ist bereits vergeben.']);
             Flash::error('Diese Dienstnummer ist bereits vergeben.');
             $this->redirect('personnel/create');
         }

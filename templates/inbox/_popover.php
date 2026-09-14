@@ -23,6 +23,7 @@ $basePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
     <b>Posteingang</b>
     <a href="<?= htmlspecialchars($basePath . 'inbox', ENT_QUOTES) ?>" class="ignis-menu__link" role="menuitem">Alle anzeigen</a>
 </div>
+<div class="ignis-inbox-popover__body">
 <?php if ($entries === []): ?>
     <p class="ignis-inbox-popover__empty">Keine Benachrichtigungen.</p>
 <?php else: ?>
@@ -46,6 +47,9 @@ $basePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             </span>
         </<?= $entryTag ?>>
     <?php endforeach; ?>
+<?php endif; ?>
+</div>
+<?php if ($entries !== []): ?>
     <div class="ignis-menu__sep"></div>
     <div class="ignis-inbox-popover__foot">
         <?php if ($unread > 0): ?>

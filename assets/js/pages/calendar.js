@@ -33,11 +33,21 @@ import { bindEventForm } from './calendar-form.js';
         if (cb.checked) filterState.categories.add(cb.dataset.category);
     });
 
+    const viewKey = `ignis.calendar.view.${document.body.dataset.preferenceKey || 'local'}`;
+    let initialView = window.matchMedia('(max-width: 640px)').matches ? 'listWeek' : 'dayGridMonth';
+    try { const stored = localStorage.getItem(viewKey); if (['dayGridMonth', 'timeGridWeek', 'timeGridDay', 'listWeek'].includes(stored)) initialView = stored; } catch { /* Storage is optional. */ }
+    root.addEventListener('click', event => {
+        const button = event.target.closest('.fc-dayGridMonth-button, .fc-timeGridWeek-button, .fc-timeGridDay-button, .fc-listWeek-button');
+        if (!button) return;
+        const view = ['dayGridMonth', 'timeGridWeek', 'timeGridDay', 'listWeek'].find(name => button.classList.contains(`fc-${name}-button`));
+        try { localStorage.setItem(viewKey, view); } catch { /* Storage is optional. */ }
+    });
+
     // ── FullCalendar-Instance ───────────────────────────────────────────
     const calendar = new window.FullCalendar.Calendar(root, {
         locale: 'de',
         firstDay: 1,
-        initialView: 'dayGridMonth',
+        initialView,
         height: 'auto',
         nowIndicator: true,
         eventDisplay: 'block',
@@ -47,7 +57,7 @@ import { bindEventForm } from './calendar-form.js';
             right:  'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
         },
         buttonText: {
-            today: 'Heute', month: 'Monat', week: 'Woche', day: 'Tag', list: 'Liste',
+            today: 'Heute', month: 'Monat', week: 'Woche', day: 'Tag', list: 'Agenda',
         },
         events: (info, success, failure) => {
             const url = CFG.eventsApiUrl

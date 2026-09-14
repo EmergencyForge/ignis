@@ -58,6 +58,26 @@ final class SearchRegistryTest extends TestCase
         return new Plugin($manifest, $dir);
     }
 
+    #[Test]
+    public function scopes_respect_permissions_and_filter_before_searching(): void
+    {
+        $hit = ['label' => 'Treffer', 'sub' => '', 'href' => '/x'];
+        $selected = $this->createMock(SearchSourceInterface::class);
+        $selected->method('key')->willReturn('selected');
+        $selected->method('label')->willReturn('Selected');
+        $selected->method('allowed')->willReturn(true);
+        $selected->expects($this->once())->method('search')->with('term', 5)->willReturn([$hit]);
+        $other = $this->createMock(SearchSourceInterface::class);
+        $other->method('key')->willReturn('other');
+        $other->method('allowed')->willReturn(true);
+        $other->expects($this->never())->method('search');
+        $registry = $this->registry($this->loaderWith([]), [$selected, $other, $this->source('secret', false, [$hit])]);
+        $this->assertSame(['selected', 'other'], array_column($registry->scopes(), 'key'));
+        $this->assertSame(['selected'], array_column($registry->run('term', scope: 'selected'), 'key'));
+        $this->assertSame([], $registry->run('term', scope: 'secret'));
+        $this->assertSame([], $registry->run('term', scope: 'unknown'));
+    }
+
     /**
      * @param list<array{label: string, sub: string, href: string}> $items
      */

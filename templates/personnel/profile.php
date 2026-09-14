@@ -48,11 +48,11 @@ $bodyId = 'mitarbeiter';
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <header class="twplus-page-header mb-4">
+                    <header class="twplus-page-header twplus-page-header--detail mb-4">
                         <div class="twplus-page-header__copy">
-                            <p class="twplus-page-header__eyebrow">Personalakte</p>
-                            <h1>Mitarbeiterprofil</h1>
-                            <p class="twplus-page-header__description"><?= htmlspecialchars($row['fullname']) ?> · Akten-ID <?= (int) $row['id'] ?></p>
+                            <p class="twplus-page-header__eyebrow">Personal / <a href="<?= BASE_PATH ?>personnel/list">Mitarbeiter</a></p>
+                            <h1><?= htmlspecialchars($row['fullname']) ?></h1>
+                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '—')) ?> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars((string) ($row['dienstnr'] ?? ''), ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button> · <?= htmlspecialchars($dienstgradText) ?></p>
                         </div>
                     </header>
 
@@ -108,15 +108,22 @@ $bodyId = 'mitarbeiter';
                             <form id="profil" method="post">
                                 <div class="flex flex-wrap -mx-3">
                                     <div class="flex-1 px-3">
-                                        <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" onclick="openNewCommentModal()" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
-                                        <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
-                                            <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" data-dialog-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
-                                        <?php endif; ?>
-                                        <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
-                                            <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" onclick="openFDQualiModal()" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
-                                            <?php if (Permissions::check(['admin', 'personnel.delete'])): ?>
-                                                <div class="ignis-btn ignis-btn--outline-danger ignis-btn--sm ignis-btn--icon" id="personal-delete" onclick="confirmPersoDelete()"><i class="fa-solid fa-trash"></i></div>
-                                            <?php endif; ?>
+                                        <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" onclick="openNewCommentModal()"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Notiz anlegen</button>
+                                        <?php if (Permissions::check(['admin', 'personnel.documents.manage', 'personnel.edit'])): ?>
+                                        <details class="ignis-menu" data-ignis-menu style="display:inline-block">
+                                            <summary class="ignis-btn ignis-btn--secondary ignis-btn--sm">Mehr <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                                            <div class="ignis-menu__panel" role="menu">
+                                                <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
+                                                    <button type="button" class="ignis-menu__item" role="menuitem" data-dialog-target="#modalDokuCreate">Dokument erstellen</button>
+                                                <?php endif; ?>
+                                                <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
+                                                    <button type="button" class="ignis-menu__item" role="menuitem" onclick="openFDQualiModal()">Qualifikationen bearbeiten</button>
+                                                    <?php if (Permissions::check(['admin', 'personnel.delete'])): ?>
+                                                        <button type="button" class="ignis-menu__item" role="menuitem" id="personal-delete" onclick="confirmPersoDelete()">Mitarbeiter löschen</button>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        </details>
                                         <?php endif; ?>
                                     </div>
                                     <div class="flex-1 text-right px-3" style="color:var(--tag-color)">Akten-ID: <?= (int) $row['id'] ?></div>

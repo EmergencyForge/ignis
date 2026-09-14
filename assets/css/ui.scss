@@ -1,3 +1,4 @@
+@use '@emergencyforge/ui-styles/system' as ef;
 @use 'sass:meta';
 @use 'tokens';
 @use 'shell';
@@ -4882,3 +4883,15 @@ body:has(.ignis-dialog-backdrop.is-open) {
 // eNOTF-Skin der Komponenten: eigene Datei, wird an dieser Stelle geladen,
 // damit die Reihenfolge im gebauten CSS gleich bleibt.
 @include meta.load-css('enotf-skin');
+
+body[data-ui-skin="core"] {
+  @include ef.tokens('ignis');
+  @include ef.components('ignis');
+  @include ef.dashboard('ignis');
+  @include ef.shell('ignis');
+  @include ef.auth;
+}
+[data-theme="light"] body[data-ui-skin="core"] {
+  --accent-text: color-mix(in srgb, var(--accent-base) 75%, black);
+  --accent-focus: color-mix(in srgb, var(--accent-base) 75%, black);
+}

@@ -54,7 +54,7 @@ $topTheme  = Theme::mode();
 $topThemes = [
     'dark'   => ['Dunkel', 'moon'],
     'light'  => ['Hell', 'sun'],
-    'system' => ['Wie das System', 'circle-half-stroke'],
+    'system' => ['System', 'circle-half-stroke'],
 ];
 
 // Glocke: ungelesene Benachrichtigungen, derselbe Zähler wie in der
@@ -105,9 +105,11 @@ foreach ($topGroups as $topGroup) {
 }
 ?>
 <header class="ignis-topbar" data-base-path="<?= htmlspecialchars($topBasePath, ENT_QUOTES) ?>">
+    <div class="ignis-topbar__identity">
     <button type="button" class="ignis-topbar__toggle" data-ignis-sidebar-toggle aria-label="Navigation ein- oder ausklappen" title="Navigation ein- oder ausklappen ([)">
         <i class="fa-solid fa-bars" aria-hidden="true"></i>
     </button>
+    <div class="ignis-topbar__identity-copy">
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <?php if ($topLogoIsDefault): ?>
             <svg viewBox="0 0 160 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" focusable="false">
@@ -117,6 +119,8 @@ foreach ($topGroups as $topGroup) {
             <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <?php endif; ?>
     </a>
+    <span class="ignis-topbar__organization"><?= htmlspecialchars((string) SYSTEM_NAME) ?></span>
+    </div></div>
 
     <?php if ($topLoggedIn): ?>
         <div class="ignis-topbar__search" role="search"
@@ -128,7 +132,8 @@ foreach ($topGroups as $topGroup) {
         </div>
     <?php endif; ?>
 
-    <div class="ignis-topbar__spacer"></div>
+    <button type="button" class="ignis-btn ignis-btn--ghost ignis-topbar__search-open" data-ignis-search-open aria-label="Suche öffnen"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+    <div class="ignis-topbar__actions">
 
     <?php if ($topActions !== []): ?>
         <details class="ignis-menu ignis-menu--right" data-ignis-menu>
@@ -155,7 +160,7 @@ foreach ($topGroups as $topGroup) {
                 <i class="fa-solid fa-bell" aria-hidden="true"></i>
                 <span class="ignis-topbar__badge notification-poll-badge"<?= $topUnread > 0 ? '' : ' hidden' ?>><?= $topUnread > 99 ? '99+' : $topUnread ?></span>
             </summary>
-            <div class="ignis-menu__panel ignis-inbox-popover" role="menu">
+            <div class="ignis-menu__panel ignis-inbox-popover" role="region" aria-label="Posteingang">
                 <div class="ignis-inbox-popover__loading" aria-hidden="true"><span class="ignis-skeleton" style="width:50%"></span><span class="ignis-skeleton"></span><span class="ignis-skeleton" style="width:70%"></span></div>
                 <noscript><a href="<?= htmlspecialchars($topBasePath . 'inbox', ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Posteingang öffnen</a></noscript>
             </div>
@@ -167,7 +172,7 @@ foreach ($topGroups as $topGroup) {
                 <span class="ignis-topbar__username"><?= htmlspecialchars($topUsername) ?></span>
                 <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i>
             </summary>
-            <div class="ignis-menu__panel" role="menu">
+            <div class="ignis-menu__panel ignis-menu__panel--account" role="group" aria-label="Konto und Darstellung">
                 <div class="ignis-menu__identity">
                     <span class="ignis-topbar__avatar" aria-hidden="true"><?= htmlspecialchars($topInitials) ?></span>
                     <span class="ignis-menu__identity-text">
@@ -178,15 +183,20 @@ foreach ($topGroups as $topGroup) {
                 <div class="ignis-menu__sep"></div>
                 <div class="ignis-menu__heading">Darstellung</div>
                 <?php // ProfileController::theme() speichert und leitet hierher zurück. ?>
-                <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/theme', ENT_QUOTES) ?>" class="ignis-menu__form">
+                <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/theme', ENT_QUOTES) ?>" class="ignis-menu__form ignis-theme-options">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken(), ENT_QUOTES) ?>">
                     <?php foreach ($topThemes as $topThemeKey => [$topThemeLabel, $topThemeIcon]): ?>
-                        <button type="submit" name="theme" value="<?= $topThemeKey ?>" class="ignis-menu__item<?= $topTheme === $topThemeKey ? ' is-current' : '' ?>" role="menuitemradio" aria-checked="<?= $topTheme === $topThemeKey ? 'true' : 'false' ?>">
+                        <button type="submit" name="theme" value="<?= $topThemeKey ?>" class="ignis-menu__item<?= $topTheme === $topThemeKey ? ' is-current' : '' ?>" aria-pressed="<?= $topTheme === $topThemeKey ? 'true' : 'false' ?>">
                             <i class="fa-solid fa-<?= $topThemeIcon ?>" aria-hidden="true"></i> <?= htmlspecialchars($topThemeLabel) ?>
                             <?php if ($topTheme === $topThemeKey): ?><i class="fa-solid fa-check ignis-menu__check" aria-hidden="true"></i><?php endif; ?>
                         </button>
                     <?php endforeach; ?>
                 </form>
+                <div class="ignis-menu__heading">Ansichtsdichte</div>
+                <div class="ignis-density" role="group" aria-label="Ansichtsdichte">
+                    <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-density="compact" aria-pressed="true">Kompakt</button>
+                    <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-density="comfortable" aria-pressed="false">Komfortabel</button>
+                </div>
                 <div class="ignis-menu__sep"></div>
                 <a href="<?= htmlspecialchars($topBasePath . 'logout', ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Abmelden</a>
             </div>
@@ -194,4 +204,5 @@ foreach ($topGroups as $topGroup) {
     <?php else: ?>
         <a href="<?= htmlspecialchars($topBasePath . 'login', ENT_QUOTES) ?>" class="ignis-btn ignis-btn--sm"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Anmelden</a>
     <?php endif; ?>
+    </div>
 </header>
