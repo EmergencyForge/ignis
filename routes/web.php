@@ -369,6 +369,73 @@ $router->get('/settings/documents/categories',        [\App\Http\Controllers\Set
 $router->get('/settings/documents/templates',         [\App\Http\Controllers\Settings\DocumentController::class, 'templates'],    $settingsAuth);
 $router->get('/settings/documents/visual-editor',     [\App\Http\Controllers\Settings\DocumentController::class, 'visualEditor'], $settingsAuth);
 
+// Vorlagen des Dokumenten-Editors (emergencyforge/editor). Eigene Pfade
+// neben den Canvas-Vorlagen oben, solange beide Systeme nebeneinander
+// stehen; die Rechte sind dieselben (DocumentPolicy).
+$router->get(
+    '/settings/documents/editor-templates',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'index'],
+    $settingsAuth,
+);
+$router->get(
+    '/settings/documents/editor-templates/create',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'createView'],
+    $settingsAuth,
+);
+$router->post(
+    '/settings/documents/editor-templates/create',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'store'],
+    [new AuthMiddleware(), new CsrfMiddleware()],
+);
+$router->get(
+    '/settings/documents/editor-templates/{id:\d+}',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'editView'],
+    $settingsAuth,
+);
+$router->post(
+    '/settings/documents/editor-templates/{id:\d+}',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'update'],
+    [new AuthMiddleware(), new CsrfMiddleware()],
+);
+$router->post(
+    '/settings/documents/editor-templates/{id:\d+}/deactivate',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'deactivate'],
+    [new AuthMiddleware(), new CsrfMiddleware()],
+);
+
+// Dokumente aus dem Editor. Anlegen haengt am Mitarbeiter, alles Weitere
+// am Dokument selbst.
+$router->post(
+    '/personnel/{id:\d+}/documents',
+    [\App\Http\Controllers\EditorDocumentController::class, 'create'],
+    [new AuthMiddleware(), new CsrfMiddleware()],
+);
+$router->get(
+    '/documents/{id:\d+}',
+    [\App\Http\Controllers\EditorDocumentController::class, 'show'],
+    [new AuthMiddleware()],
+);
+$router->get(
+    '/documents/{id:\d+}/edit',
+    [\App\Http\Controllers\EditorDocumentController::class, 'editView'],
+    [new AuthMiddleware()],
+);
+$router->post(
+    '/documents/{id:\d+}/save',
+    [\App\Http\Controllers\EditorDocumentController::class, 'save'],
+    [new AuthMiddleware(), new CsrfMiddleware()],
+);
+$router->post(
+    '/documents/{id:\d+}/issue',
+    [\App\Http\Controllers\EditorDocumentController::class, 'issue'],
+    [new AuthMiddleware(), new CsrfMiddleware()],
+);
+$router->get(
+    '/documents/{id:\d+}/pdf',
+    [\App\Http\Controllers\EditorDocumentController::class, 'pdf'],
+    [new AuthMiddleware()],
+);
+
 // Fahrzeuge-Settings (Fahrzeuge + Beladelisten + Defekte)
 $router->get('/settings/vehicles/vehicles/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'index'],   $settingsAuth);
 // Anlage-Formulare (Fahrzeug, Mangel): Seite oder Fragment im Drawer (drawer-form.js)

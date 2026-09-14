@@ -20,6 +20,7 @@ services:
       # vendor/ nur als Symlink. Unter Windows sind das absolute Pfade auf
       # das Host-Laufwerk, die im Container ins Leere zeigen - deshalb
       # jedes Paket zusaetzlich direkt an seinen Platz im vendor/.
+      - ../WebPackages/packages/editor/php:/var/www/html/vendor/emergencyforge/editor-php
       - ../WebPackages/packages/http-kernel:/var/www/html/vendor/emergencyforge/http-kernel
       - ../WebPackages/packages/plugin-system:/var/www/html/vendor/emergencyforge/plugin-system
       - ../WebPackages/packages/health-check:/var/www/html/vendor/emergencyforge/health-check
