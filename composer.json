@@ -12,7 +12,7 @@
   "require": {
     "php": ">=8.3",
     "vlucas/phpdotenv": "^5.6",
-    "enyo/dropzone": "^5.9",
+    "enyo/dropzone": "^6.2",
     "league/oauth2-client": "^2.8",
     "twig/twig": "^3.14",
     "dompdf/dompdf": "^3.1",
