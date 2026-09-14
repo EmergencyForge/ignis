@@ -108,6 +108,7 @@ $SITE_TITLE = 'System-Konfiguration';
                     </div>
 
                     <form method="post" id="configForm">
+                        <?= csrf_field() ?>
                         <?php foreach ($configByCategory as $category => $configs): ?>
                             <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>">
                                 <div class="ignis-card mb-4">

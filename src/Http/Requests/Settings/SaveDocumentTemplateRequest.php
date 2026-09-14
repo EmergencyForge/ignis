@@ -24,7 +24,6 @@ class SaveDocumentTemplateRequest extends FormRequest
             v::key('content', v::stringType()->notBlank()),
             // Der Token steht im selben Formular; keySet weist sonst den
             // ganzen Satz als unbekannten Schluessel zurueck.
-            v::key('csrf_token', v::optional(v::stringType()), false),
         );
     }
 

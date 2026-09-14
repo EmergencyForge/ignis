@@ -134,6 +134,7 @@ $SITE_TITLE = 'Rollen';
         </template>
 
         <form id="delete-role-form" action="<?= BASE_PATH ?>users/rollen/delete" method="POST" style="display:none;">
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="role-delete-id">
         </form>
     <?php endif; ?>

@@ -32,6 +32,13 @@ final class RouterFactory
             cacheFile: $cache ? dirname(__DIR__, 2) . '/storage/cache/routes.php' : null,
         );
 
+        // CSRF vor dem Stack jeder Route, statt an jeder einzeln. Solange
+        // der Schutz pro Route angemeldet werden musste, trugen ihn elf von
+        // vierundsechzig schreibenden Routen — weder die Rollenverwaltung
+        // noch der Auslöser des Systemupdates gehörten dazu. Die Ausnahmen
+        // stehen in der Middleware.
+        $router->middleware(new Middleware\CsrfMiddleware());
+
         // Die 404-Seite gehört dem Produkt, nicht dem Paket. ErrorPage
         // liefert für /api/-Pfade JSON statt HTML und fällt auf Plain-Text
         // zurück, wenn das Template fehlt - eine kaputte Installation soll

@@ -78,6 +78,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                 <div id="createFormWrap" hidden class="twplus-section-card twplus-slide-over mb-4 p-4">
                     <h2 class="mb-4 text-lg">Neuer Eintrag</h2>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="action" value="create">
                         <input type="hidden" name="return_to" value="admin">
                         <input type="hidden" name="source" value="admin">
@@ -103,6 +104,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                 <div id="editFormWrap" hidden class="twplus-section-card twplus-slide-over mb-4 p-4">
                     <h2 class="mb-4 text-lg">Eintrag bearbeiten</h2>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions" id="editForm">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="id" id="edit_id" value="">
                         <input type="hidden" name="return_to" value="admin">
@@ -237,6 +239,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                                         </button>
                                                         <form method="POST" action="<?= BASE_PATH ?>logbook/actions" class="inline"
                                                               onsubmit="<?= confirm_attr('Eintrag wirklich löschen?') ?>">
+                                                            <?= csrf_field() ?>
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
                                                             <input type="hidden" name="return_to" value="admin">

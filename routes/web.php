@@ -42,7 +42,6 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\CsrfMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
 
 // Smoke-Test-Route — hilft beim Verifizieren, dass die Pipeline steht.
@@ -174,7 +173,7 @@ $router->post('/forms/admin/view',     [FormsController::class, 'decide'],    $a
 $router->get('/inbox',                 [InboxController::class, 'index'],   [new AuthMiddleware()]);
 $router->get('/inbox/popover',         [InboxController::class, 'popover'], [new AuthMiddleware()]);
 $router->get('/inbox/{id:\d+}/open',   [InboxController::class, 'open'],    [new AuthMiddleware()]);
-$router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware(), new CsrfMiddleware()]);
+$router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware()]);
 
 $notifRedirect = static fn (): \EmergencyForge\Http\Response => \EmergencyForge\Http\Response::redirect(BASE_PATH . 'inbox', 301);
 foreach (['/notifications', '/notifications/', '/notifications/index', '/notifications/index.php'] as $notifPath) {
@@ -379,7 +378,7 @@ $router->get(
 $router->post(
     '/settings/documents/editor-templates/create',
     [\App\Http\Controllers\Settings\EditorTemplateController::class, 'store'],
-    [new AuthMiddleware(), new CsrfMiddleware()],
+    [new AuthMiddleware()],
 );
 $router->get(
     '/settings/documents/editor-templates/{id:\d+}',
@@ -389,12 +388,12 @@ $router->get(
 $router->post(
     '/settings/documents/editor-templates/{id:\d+}',
     [\App\Http\Controllers\Settings\EditorTemplateController::class, 'update'],
-    [new AuthMiddleware(), new CsrfMiddleware()],
+    [new AuthMiddleware()],
 );
 $router->post(
     '/settings/documents/editor-templates/{id:\d+}/deactivate',
     [\App\Http\Controllers\Settings\EditorTemplateController::class, 'deactivate'],
-    [new AuthMiddleware(), new CsrfMiddleware()],
+    [new AuthMiddleware()],
 );
 
 // Dokumente aus dem Editor. Anlegen haengt am Mitarbeiter, alles Weitere
@@ -402,7 +401,7 @@ $router->post(
 $router->post(
     '/personnel/{id:\d+}/documents',
     [\App\Http\Controllers\EditorDocumentController::class, 'create'],
-    [new AuthMiddleware(), new CsrfMiddleware()],
+    [new AuthMiddleware()],
 );
 $router->get(
     '/documents/{id:\d+}',
@@ -417,12 +416,12 @@ $router->get(
 $router->post(
     '/documents/{id:\d+}/save',
     [\App\Http\Controllers\EditorDocumentController::class, 'save'],
-    [new AuthMiddleware(), new CsrfMiddleware()],
+    [new AuthMiddleware()],
 );
 $router->post(
     '/documents/{id:\d+}/issue',
     [\App\Http\Controllers\EditorDocumentController::class, 'issue'],
-    [new AuthMiddleware(), new CsrfMiddleware()],
+    [new AuthMiddleware()],
 );
 $router->get(
     '/documents/{id:\d+}/pdf',
@@ -446,9 +445,9 @@ $router->get('/settings/vehicles/vehicles/{id:\d+}/preview', [\App\Http\Controll
 $router->get('/settings/vehicles/vehicles/{id:\d+}/edit',    [\App\Http\Controllers\Settings\FahrzeugeController::class, 'edit'],    $settingsAuth);
 // Fahrzeugseite (Detailmuster): Ziel von „Öffnen" in der Vorschau, Enter auf der Zeile und der Suche.
 $router->get('/settings/vehicles/vehicles/{id:\d+}',         [\App\Http\Controllers\Settings\FahrzeugeController::class, 'show'],    $settingsAuth);
-$router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
-$router->post('/settings/vehicles/vehicles/emd-status', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkEmdStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
-$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware(), new CsrfMiddleware()]);
+$router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkStatus'], [new AuthMiddleware()]);
+$router->post('/settings/vehicles/vehicles/emd-status', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkEmdStatus'], [new AuthMiddleware()]);
+$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware()]);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
 $router->post('/settings/vehicles/vehload/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
 $router->get('/settings/vehicles/defects/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);

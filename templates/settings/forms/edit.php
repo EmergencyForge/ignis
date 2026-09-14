@@ -31,6 +31,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
             <div class="ignis-detail__groups">
                 <!-- Grundeinstellungen -->
                 <form method="post" class="ignis-card ignis-form-card" data-ignis-form="antragstyp-edit">
+                    <?= csrf_field() ?>
                     <div class="ignis-card__header"><h2 class="ignis-card__title">Grundeinstellungen</h2></div>
                     <div class="ignis-card__body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -77,6 +78,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                         <div class="ignis-table-empty">Noch keine Felder definiert. Füge jetzt das erste Feld hinzu.</div>
                     <?php else: ?>
                         <form method="post">
+                            <?= csrf_field() ?>
                             <div class="twplus-table-card__scroll">
                                 <table class="ignis-table" id="table-antragsfelder">
                                     <thead>

@@ -109,6 +109,89 @@ if (!function_exists('confirm_attr')) {
     }
 }
 
+if (!function_exists('csrf_token')) {
+    /**
+     * Der CSRF-Token der Sitzung.
+     */
+    function csrf_token(): string
+    {
+        return \App\Security\CsrfProtection::getToken();
+    }
+}
+
+if (!function_exists('csrf_field')) {
+    /**
+     * Das versteckte Feld fuer ein Formular:
+     *
+     *     <form method="POST" action="...">
+     *         <?= csrf_field() ?>
+     *
+     * Jedes schreibende Formular braucht es, seit CsrfMiddleware global
+     * am Router haengt — ohne kommt die 403-Seite.
+     */
+    function csrf_field(): string
+    {
+        return '<input type="hidden" name="csrf_token" value="'
+            . htmlspecialchars(csrf_token(), ENT_QUOTES)
+            . '">';
+    }
+}
+
+if (!function_exists('csrf_head')) {
+    /**
+     * Der Kopfteil des CSRF-Schutzes: der Token als Meta-Tag und der
+     * Aufsatz, der ihn an jede schreibende fetch()-Anfrage haengt.
+     *
+     * Der Aufsatz steht bewusst inline und nicht in einem Modul: er muss
+     * stehen, bevor irgendein Modul das erste Mal fetch() ruft, und die
+     * Einstiegspunkte (Admin, Mitarbeiter, eNOTF) haben nicht denselben
+     * Import-Baum. Wer den Header selbst setzt, behaelt ihn.
+     *
+     * Fremde Ziele bekommen den Token nicht — sonst reicht ein fetch()
+     * auf eine andere Domain, um ihn dorthin zu tragen.
+     */
+    function csrf_head(): string
+    {
+        $token = htmlspecialchars(csrf_token(), ENT_QUOTES);
+
+        return <<<HTML
+            <meta name="csrf-token" content="{$token}">
+            <script>
+            (function () {
+                var meta = document.querySelector('meta[name="csrf-token"]');
+                if (!meta || typeof window.fetch !== 'function') { return; }
+
+                var write = /^(POST|PUT|PATCH|DELETE)$/i;
+                var original = window.fetch;
+
+                window.fetch = function (input, init) {
+                    var opts = init || {};
+                    var method = opts.method || (input && input.method) || 'GET';
+                    var url = typeof input === 'string' ? input : (input && input.url) || '';
+
+                    var sameOrigin;
+                    try {
+                        sameOrigin = new URL(url, location.href).origin === location.origin;
+                    } catch (e) {
+                        sameOrigin = false;
+                    }
+
+                    if (write.test(method) && sameOrigin) {
+                        var headers = new Headers(opts.headers || (input && input.headers) || {});
+                        if (!headers.has('X-CSRF-Token')) {
+                            headers.set('X-CSRF-Token', meta.content);
+                        }
+                        opts = Object.assign({}, opts, { headers: headers });
+                    }
+
+                    return original.call(this, input, opts);
+                };
+            })();
+            </script>
+            HTML;
+    }
+}
+
 if (!function_exists('ignis_like_prefix')) {
     /**
      * Escaped Nutzereingabe für ein LIKE-Muster: `%`, `_` und `\` werden

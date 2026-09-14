@@ -105,6 +105,7 @@ $SITE_TITLE = 'RD-Qualifikationen';
         </template>
 
         <form id="delete-qualird-form" action="<?= BASE_PATH ?>settings/personnel/ambskills/delete" method="POST" style="display:none;">
+            <?= csrf_field() ?>
             <input type="hidden" name="id" id="qualird-delete-id">
         </form>
     <?php endif; ?>

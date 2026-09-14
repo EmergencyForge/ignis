@@ -213,18 +213,28 @@ final class EditorDocumentTest extends FeatureTestCase
     }
 
     #[Test]
-    public function autosave_antwortet_als_json_und_reicht_den_token_nach(): void
+    public function autosave_antwortet_als_json_und_derselbe_token_traegt_den_naechsten(): void
     {
         $document = $this->draft($this->template());
+        $inhalt   = json_encode($this->templateContent(), JSON_UNESCAPED_UNICODE);
+        $json     = ['headers' => ['Accept' => 'application/json']];
 
-        $response = $this->postWithToken('/documents/' . $document->id . '/save', [
-            'content'  => json_encode($this->templateContent(), JSON_UNESCAPED_UNICODE),
+        $erste = $this->postWithToken('/documents/' . $document->id . '/save', [
+            'content'  => $inhalt,
             'autosave' => '1',
-        ], ['headers' => ['Accept' => 'application/json']]);
+        ], $json);
 
-        $payload = $this->assertJsonResponse($response);
-        $this->assertTrue($payload['success']);
-        $this->assertNotEmpty($payload['csrf_token'], 'Ohne frischen Token scheitert die naechste Autosave.');
+        $this->assertTrue($this->assertJsonResponse($erste)['success']);
+
+        // Der Token der Sitzung gilt weiter. Solange er bei jeder Pruefung
+        // rotierte, musste die Antwort den neuen mitliefern und der Editor
+        // ihn zurueckschreiben — sonst war schon die zweite Autosave tot.
+        $zweite = $this->postWithToken('/documents/' . $document->id . '/save', [
+            'content'  => $inhalt,
+            'autosave' => '1',
+        ], $json);
+
+        $this->assertTrue($this->assertJsonResponse($zweite)['success']);
     }
 
     #[Test]

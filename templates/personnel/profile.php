@@ -106,6 +106,7 @@ $bodyId = 'mitarbeiter';
                     <div class="flex flex-wrap -mx-3">
                         <div class="w-full p-3 shadow-sm border ma-basedata px-3 ignis-card lg:w-5/12">
                             <form id="profil" method="post">
+                                <?= csrf_field() ?>
                                 <div class="flex flex-wrap -mx-3">
                                     <div class="flex-1 px-3">
                                         <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" onclick="openNewCommentModal()"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Notiz anlegen</button>

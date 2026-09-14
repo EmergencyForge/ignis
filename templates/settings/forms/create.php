@@ -21,6 +21,7 @@ $SITE_TITLE = 'Neuer Antragstyp';
             </div>
 
             <form method="post" action="" class="ignis-card ignis-form-card" data-ignis-form="antragstyp-create">
+                <?= csrf_field() ?>
                 <div class="ignis-card__body">
                     <div class="mb-3">
                         <label for="name" class="ignis-field__label">Name des Antragstyps <span class="ignis-field__required">*</span></label>

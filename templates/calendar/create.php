@@ -32,6 +32,7 @@ $SITE_TITLE = 'Termin anlegen';
             </div>
 
             <form method="POST" action="<?= BASE_PATH ?>calendar/create" class="ignis-card ignis-form-card" data-calendar-event-form data-ignis-form="calendar-event-create">
+                <?= csrf_field() ?>
                 <div class="ignis-card__body">
                     <?php require __DIR__ . '/_event-form.php'; ?>
                 </div>

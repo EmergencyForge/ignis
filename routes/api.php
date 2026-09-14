@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\CsrfMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 
 // ----------------------------------------------------------------------------
@@ -177,10 +176,13 @@ $router->get('/api/calendar/ical/{token:[a-f0-9]{20,64}}',
 );
 
 /*
- * BEISPIEL — Admin-API-Endpoint (Session + Permission + CSRF)
+ * BEISPIEL — Admin-API-Endpoint (Session + Permission)
+ *
+ * CSRF steht nicht mehr im Stack: die Middleware haengt global am
+ * Router (public/index.php) und deckt jede schreibende Route ab.
  *
  * $router->post('/api/users/{id:\d+}',
  *     [\App\Http\Controllers\Api\UserApiController::class, 'update'],
- *     [new AuthMiddleware(), new PermissionMiddleware('personnel.edit'), CsrfMiddleware::class]
+ *     [new AuthMiddleware(), new PermissionMiddleware('personnel.edit')]
  * );
  */
