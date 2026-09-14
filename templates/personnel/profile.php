@@ -249,6 +249,7 @@ $bodyId = 'mitarbeiter';
                         <div class="flex-1 p-3 shadow-sm border ma-documents px-3 ignis-card">
                             <h4>Dokumente</h4>
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/main.php' ?>
+                            <?php include __DIR__ . '/../../assets/components/profiles/documents/editor.php' ?>
                         </div>
                     </div>
                 </div>

@@ -180,6 +180,10 @@ $SITE_TITLE = 'Dokumentvorlagen';
             <div class="twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Dokumente</p><h1>Dokumenten-Templates</h1><p class="twplus-page-header__description">Vorlagen erstellen, duplizieren, versionieren und visuell bearbeiten.</p></div>
                 <div class="twplus-page-header__actions">
+                    <a href="<?= BASE_PATH ?>settings/documents/editor-templates" class="ignis-btn ignis-btn--secondary ignis-btn--sm"
+                       title="Vorlagen des neuen Dokumenten-Editors">
+                        <i class="fa-solid fa-file-pen mr-1"></i> Editor-Vorlagen
+                    </a>
                     <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
                         <i class="fa-solid fa-arrows-rotate mr-1"></i> Aus Vorlagen neu generieren
                     </button>

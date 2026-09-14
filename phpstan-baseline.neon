@@ -6809,3 +6809,106 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Unit/Utils/SystemUpdaterManifestTest.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''1337''\|''Berufsfeuerwehr''\|''CHANGE_ME''\|''Musterstadt''\|''Musterweg 0815'' and '''' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Documents/Editor/VariableCatalog.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorTemplate\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/Settings/EditorTemplateController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Documents/SaveDocumentRequest.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Documents/SaveDocumentRequest.php
+
+		-
+			message: '#^Parameter \#3 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Documents/SaveDocumentRequest.php
+
+		-
+			message: '#^Parameter \#4 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Documents/SaveDocumentRequest.php
+
+		-
+			message: '#^Parameter \#5 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Documents/SaveDocumentRequest.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Settings/SaveDocumentTemplateRequest.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Settings/SaveDocumentTemplateRequest.php
+
+		-
+			message: '#^Parameter \#3 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Settings/SaveDocumentTemplateRequest.php
+
+		-
+			message: '#^Parameter \#4 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Http/Requests/Settings/SaveDocumentTemplateRequest.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/Feature/EditorDocumentTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: assets/components/profiles/documents/editor.php
+

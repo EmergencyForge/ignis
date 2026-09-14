@@ -3,6 +3,7 @@
   "description": "ıgnıs — Struktur für jeden Einsatz. Allround-Verwaltung für Roleplay-Feuerwehr und -Rettungsdienst (FiveM). Open-Source und kostenlos.",
   "license": "proprietary",
   "repositories": [
+    { "type": "path", "url": "../WebPackages/packages/editor/php",     "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/http-kernel",    "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/plugin-system",  "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/health-check",   "options": { "symlink": true } },
@@ -26,6 +27,7 @@
     "illuminate/queue": "^11.0",
     "symfony/console": "^7.0",
     "dragonmantank/cron-expression": "^3.6",
+    "emergencyforge/editor-php": "^0.2",
     "emergencyforge/http-kernel": "^0.1.1",
     "emergencyforge/plugin-system": "^0.1",
     "emergencyforge/health-check": "^0.1",

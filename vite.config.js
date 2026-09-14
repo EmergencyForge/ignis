@@ -56,6 +56,11 @@ const styleEntries = {
 // Node-ESM und die Module kommen als Quelle mit dem Platzhalter `__pfx__`.
 const packagesDir = process.env.EF_PACKAGES_DIR ?? resolve(root, '../WebPackages');
 const uiSrc = resolve(packagesDir, 'packages/ui/js/src');
+// Der Dokumenten-Editor liegt ebenfalls im Paket-Repo und bringt sein
+// gebautes Bundle committet mit. ignis baut ihn nicht selbst, sondern
+// kopiert das Ergebnis dorthin, wo die Editor-Seiten es per <script> und
+// <link> einbinden.
+const editorDist = resolve(packagesDir, 'packages/editor/js/dist');
 const { emergencyForgeUi } = await import(pathToFileURL(resolve(packagesDir, 'packages/ui/js/vite-plugin.js')).href);
 
 // UI-Pass (`--mode ui`): Warum kein Bundle wie lex.js in Lex? Die
@@ -132,6 +137,8 @@ function publishStaticAssets() {
         ['assets/json',    'public/assets/json'],
         ['assets/css',     'public/assets/css'],
         ['assets/js',      'public/assets/js'],
+        [resolve(editorDist, 'editor.iife.js'), 'public/assets/dist/editor.iife.js'],
+        [resolve(editorDist, 'editor.css'),     'public/assets/dist/editor.css'],
     ];
     const filter = (src) => {
         if (src === uiSourceDir || src.startsWith(uiSourceDir + sep)) return false;
@@ -146,7 +153,17 @@ function publishStaticAssets() {
         closeBundle() {
             for (const [from, to] of copies) {
                 const src = resolve(root, from);
-                if (!existsSync(src)) continue;
+                if (!existsSync(src)) {
+                    // Ein fehlender eigener Ordner ist harmlos, ein fehlendes
+                    // Editor-Dist nicht: dann faende der Dokumenten-Editor im
+                    // Browser nichts vor, und zwar erst zur Laufzeit.
+                    if (src.startsWith(editorDist)) {
+                        throw new Error(
+                            `Editor-Dist nicht gefunden: ${src}. Liegt WebPackages neben diesem Repo? Sonst EF_PACKAGES_DIR setzen.`
+                        );
+                    }
+                    continue;
+                }
                 cpSync(src, resolve(root, to), { recursive: true, filter });
             }
         },
