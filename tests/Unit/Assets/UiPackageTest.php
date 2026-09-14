@@ -28,6 +28,7 @@ final class UiPackageTest extends TestCase
     private const PRODUCT_FILES = [
         'dialog-compat.js'   => 'Paket-Dialog plus window.intraConfirm/intraAlert/intraPrompt',
         'dropdown-compat.js' => 'Paket-Dropdown plus window.eNOTFCustomDropdown',
+        'page-transition.js' => 'Ausgewählter Fahrzeuglisten-/Detailpfad für Navigationstransitionen',
         'palette.js'         => 'Suche unter dem Suchfeld, ruft /api/system/global-search',
         'shell.js'           => 'Sidebar, Menüs, Posteingang, Schnellaktionen',
     ];
