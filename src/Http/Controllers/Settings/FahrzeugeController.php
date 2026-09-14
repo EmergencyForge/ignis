@@ -315,7 +315,7 @@ class FahrzeugeController extends Controller
             Flash::set('vehicle', 'created');
             // Mit Kennung wie die anderen Aktionen, damit die Fahrzeugseite
             // den Eintrag in ihrer Aktivität findet (App\Support\Activity).
-            $this->audit('Fahrzeug erstellt [ID: ' . $newId . ']', 'Name: ' . $name . ' | Typ: ' . $vehType);
+            $this->audit('Fahrzeug erstellt [ID: ' . $newId . ']', 'Name: ' . $name . ' | Typ: ' . $vehType, $newId);
         } catch (PDOException $e) {
             error_log('PDO Insert Error: ' . $e->getMessage());
             Flash::set('error', 'exception');
@@ -349,7 +349,7 @@ class FahrzeugeController extends Controller
         try {
             Capsule::table('intra_fahrzeuge')->where('id', $id)->update($data);
             Flash::set('success', 'updated');
-            $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', null);
+            $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', null, (int) $id);
         } catch (PDOException $e) {
             error_log('PDO Error: ' . $e->getMessage());
             Flash::set('error', 'exception');
@@ -384,7 +384,7 @@ class FahrzeugeController extends Controller
         try {
             foreach ($existing as $id) {
                 Capsule::table('intra_fahrzeuge')->where('id', $id)->delete();
-                $this->audit('Fahrzeug gelöscht [ID: ' . $id . ']', null);
+                $this->audit('Fahrzeug gelöscht [ID: ' . $id . ']', null, (int) $id);
             }
             if (count($existing) === 1) {
                 Flash::set('vehicle', 'deleted');
@@ -427,7 +427,7 @@ class FahrzeugeController extends Controller
         try {
             foreach ($existing as $id) {
                 Capsule::table('intra_fahrzeuge')->where('id', $id)->update(['active' => $statuses[$status]]);
-                $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'Status: ' . $label . ' (Sammelaktion)');
+                $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'Status: ' . $label . ' (Sammelaktion)', (int) $id);
             }
             Flash::success(count($existing) === 1 ? "Fahrzeug auf „{$label}\" gesetzt." : count($existing) . " Fahrzeuge auf „{$label}\" gesetzt.");
         } catch (PDOException $e) {
@@ -471,7 +471,7 @@ class FahrzeugeController extends Controller
                     'status_updated_at' => date('Y-m-d H:i:s'),
                     'status_source'     => 'manual',
                 ]);
-                $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'EMD-Status: ' . $label . ' (Sammelaktion)');
+                $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'EMD-Status: ' . $label . ' (Sammelaktion)', (int) $id);
             }
             Flash::success(count($existing) === 1 ? "Fahrzeug auf Status {$label} gesetzt." : count($existing) . " Fahrzeuge auf Status {$label} gesetzt.");
         } catch (PDOException $e) {
@@ -702,7 +702,12 @@ class FahrzeugeController extends Controller
             false,
         );
 
-        $this->audit('Defekt gemeldet [ID: ' . $defectId . ']', 'Fahrzeug-ID: ' . $data['vehicle_id'] . ' | ' . $data['title']);
+        $this->audit(
+            'Defekt gemeldet [ID: ' . $defectId . ']',
+            'Fahrzeug-ID: ' . $data['vehicle_id'] . ' | ' . $data['title'],
+            (int) $data['vehicle_id'],
+            ['defect_id' => $defectId],
+        );
         Flash::success($data['vehicle_operable'] ? 'Mangel gemeldet.' : 'Mangel gemeldet, Fahrzeug außer Dienst.');
         $this->redirect('settings/vehicles/defects/index?vehicle=' . $data['vehicle_id']);
     }
@@ -792,12 +797,27 @@ class FahrzeugeController extends Controller
         }
     }
 
-    private function audit(string $action, ?string $details): void
+    /**
+     * Schreibt ins Prüfprotokoll.
+     *
+     * `$vehicleId` landet als `context.id` — darüber findet
+     * {@see \App\Support\Activity} die Einträge zu einem Fahrzeug, ohne die
+     * Kennung aus dem Meldungstext klauben zu müssen. Das `[ID: n]` in der
+     * Aktion bleibt trotzdem stehen: die Audit-Ansicht zeigt den Text, und
+     * Zeilen von vor der Kontextspalte werden weiterhin so gefunden.
+     *
+     * @param array<string,scalar|null> $context Weitere Kennungen
+     */
+    private function audit(string $action, ?string $details, ?int $vehicleId = null, array $context = []): void
     {
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger();
-        $logger->log($_SESSION['userid'], $action, $details, 'Fahrzeuge', 1);
+
+        if ($vehicleId !== null) {
+            $context = ['id' => $vehicleId] + $context;
+        }
+
+        (new AuditLogger())->log($_SESSION['userid'], $action, $details, 'Fahrzeuge', 1, $context);
     }
 }
