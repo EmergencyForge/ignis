@@ -61,6 +61,17 @@ parameters:
             path: auth/callback.php
             reportUnmatched: false
 
+        # v::key() liefert zur Laufzeit eine Rules\Key, im Typ aber die
+        # ChainedValidator der Fluent-Kette. keySet() nimmt nur die Key —
+        # PHPStan sieht deshalb bei jedem einzelnen Feld jedes FormRequests
+        # einen Fehler. Das waren 156 Eintraege in der Baseline, einer je
+        # Feld, und jedes neue Formular haette weitere gebraucht.
+        -
+            message: '#^Parameter \#\d+ \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
+            paths:
+                - src/Http/Requests/*
+            reportUnmatched: false
+
         # OAuth2 Library type mismatch (getAccessToken returns Interface, getResourceOwner expects concrete class)
         -
             message: '#Parameter \#1 \$token of method League\\OAuth2\\Client\\Provider\\AbstractProvider::getResourceOwner\(\) expects League\\OAuth2\\Client\\Token\\AccessToken#'
