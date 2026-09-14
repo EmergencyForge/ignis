@@ -47,7 +47,7 @@ final class FabricaLoginTest extends IntegrationTestCase
 
     private function account(): User
     {
-        return User::create(['username' => 'Local member', 'discord_id' => (string) random_int(10000000, 99999999), 'full_admin' => false, 'role' => (int) \App\Models\Role::query()->where('default', 1)->value('id')]);
+        return User::query()->create(['username' => 'Local member', 'discord_id' => (string) random_int(10000000, 99999999), 'full_admin' => false, 'role' => (int) \App\Models\Role::query()->where('default', 1)->value('id')]);
     }
 
     private function performCallback(): \EmergencyForge\Http\Response

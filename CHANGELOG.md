@@ -1,6 +1,6 @@
 # Changelog
 
-## 2026.0.2-beta
+## 2026.0.3-beta
 
 Der interne EmergencyForge-Login ist für unsere Fabrica-Instanzen verfügbar.
 Die Anmeldung läuft zentral über Fabrica und auth.emergencyforge.de;
@@ -26,3 +26,6 @@ Seit der vorherigen Beta sind außerdem die gemeinsame Oberfläche, der
 Dokumenteditor und die Paketmigration enthalten. Weitere Korrekturen betreffen
 CSRF-Prüfungen schreibender Routen, Dashboard-Links, Uploads, Fahrzeugstationierung
 und die Darstellung der eNOTF-v1-Module.
+
+Der neue Login-Integrationstest verwendet die von PHPStan erkannte Query-API
+für die Kontoanlage. Diese Fassung ersetzt den Release-Entwurf 2026.0.2-beta.
