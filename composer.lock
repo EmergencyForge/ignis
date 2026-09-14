@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdfaa5afce10112f4f7628885c9784c2",
+    "content-hash": "0912719418fb57c3d61e9a076d279bcd",
     "packages": [
         {
             "name": "brick/math",
@@ -879,11 +879,11 @@
         },
         {
             "name": "emergencyforge/http-kernel",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "1bc2dc5a0f8246becfcfaed9fbe8637cec4211cf"
+                "reference": "f7c115a82defc497b5034c08dea5bbcde6a7e333"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
