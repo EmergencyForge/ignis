@@ -77,9 +77,31 @@ jobs:
 
       - name: Handle workflow result
         uses: actions/github-script@v9
+        env:
+          LABEL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
+            // Labels setzt und Issues schliesst der GITHUB_TOKEN, nicht der
+            // Bot: dem Bot-App-Token antwortet addLabels mit 403 "Resource
+            // not accessible by integration", und beim Anlegen verwirft die
+            // API die Labels stillschweigend. Kein Incident trug deshalb je
+            // ein Label - und weil Dedup und Schliessen per Label suchten,
+            // blieb jedes offen (#374, #375).
+            const labeler = getOctokit(process.env.LABEL_TOKEN);
+
+            // Offene Incidents am Marker im Body erkennen, nicht am Label -
+            // so werden auch die gefunden, die noch ohne Label angelegt wurden.
+            async function openIncidents() {
+              const all = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: 100,
+              });
+              return all.filter(i => !i.pull_request && (i.body || '').includes('<!-- main-broken:'));
+            }
+
             const run = context.payload.workflow_run;
             const conclusion = run.conclusion;
             const runId = run.id;
@@ -89,13 +111,7 @@ jobs:
 
             // ── Success: offene Incidents schließen ──
             if (conclusion === 'success') {
-              const { data: issues } = await github.rest.issues.listForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: 'open',
-                labels: 'incident/main-broken',
-                per_page: 50,
-              });
+              const issues = await openIncidents();
               for (const issue of issues) {
                 // status/resolved nicht erneut verarbeiten (safety net falls close-API hakt)
                 if (issue.labels.some(l => (l.name || l) === 'status/resolved')) continue;
@@ -105,7 +121,7 @@ jobs:
                   issue_number: issue.number,
                   body: `✅ Main ist wieder grün in [${shortSha}](${run.head_repository.html_url}/commit/${sha}).\n\n*Run: [${runId}](${runUrl})*`,
                 });
-                await github.rest.issues.update({
+                await labeler.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
@@ -212,14 +228,7 @@ jobs:
             const signatureMarker = `<!-- main-broken:${signature} -->`;
 
             // ── Deduplication: bestehendes offenes Incident für gleiche Signature suchen ──
-            const { data: openIssues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'incident/main-broken',
-              per_page: 50,
-            });
-            const existing = openIssues.find(i => (i.body || '').includes(signatureMarker));
+            const existing = (await openIncidents()).find(i => (i.body || '').includes(signatureMarker));
 
             // ── Body zusammenbauen ──
             let body = signatureMarker + '\n';
@@ -289,7 +298,7 @@ jobs:
               if (existingSev && existingSev !== severityLabel) {
                 const existingNum = parseInt(existingSev.split('-').pop());
                 if (!isNaN(existingNum) && severity < existingNum) {
-                  await github.rest.issues.setLabels({
+                  await labeler.rest.issues.setLabels({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: existing.number,
@@ -309,12 +318,8 @@ jobs:
                 title,
                 body,
               });
-              // Labels kommen als eigener Aufruf. Beim Anlegen nimmt die
-              // API sie mit dem App-Token zwar entgegen, setzt sie aber
-              // nicht: saemtliche Incidents lagen bisher ohne Label da,
-              // und damit fand weder die Dedup-Suche noch der
-              // Schliess-Schritt sie je wieder.
-              await github.rest.issues.addLabels({
+              // Labels als eigener Aufruf ueber den GITHUB_TOKEN, siehe oben.
+              await labeler.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: created.number,
