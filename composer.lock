@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96d8ad00aa17fa7c938925a67b5daf67",
+    "content-hash": "ac8a2050cbb02cc3bce9ded97a11cdd6",
     "packages": [
         {
             "name": "brick/math",
@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "ec3088c3840751f2a56f8f41672c533bd0db94f8"
+                "reference": "881a4957dd814c90ca625bc3bf6e362e9cc42354"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -814,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "07643c601cf3f2f25e2c5ebe7a2c350088f43ba9"
+                "reference": "cd63c4f336ddfc40a9236579b9655b69f5241d1e"
             },
             "require": {
                 "php": ">=8.3",
@@ -849,7 +849,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "764aaa28937fd3d5bb2f8ed7dbb7870ffef7dc99"
+                "reference": "1e05775faae21a605d68a8069414807c6f44174c"
             },
             "require": {
                 "php": ">=8.3"
@@ -883,7 +883,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "146205fc151b2a485cbcbdb1254cedb3f58a8e90"
+                "reference": "1e1de13e22b9afd28e3a0eca17abaa38a0126d34"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
@@ -919,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "86d39abe912783f75a01293284400eb680c7721c"
+                "reference": "4281db9279cfbe006fbbb1566a613d9554e82efa"
             },
             "require": {
                 "ext-tokenizer": "*",
@@ -950,16 +950,16 @@
         },
         {
             "name": "enyo/dropzone",
-            "version": "v5.9.3",
+            "version": "v6.3.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/dropzone/dropzone-packagist.git",
-                "reference": "286b2dc1f1195bd12169e4c9d5f91cfbe46e245f"
+                "url": "https://github.com/enyo/dropzone-packagist",
+                "reference": "24be9778421bbfad2228b1dcd366da872f34c509"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dropzone/dropzone-packagist/zipball/286b2dc1f1195bd12169e4c9d5f91cfbe46e245f",
-                "reference": "286b2dc1f1195bd12169e4c9d5f91cfbe46e245f",
+                "url": "https://api.github.com/repos/enyo/dropzone-packagist/zipball/24be9778421bbfad2228b1dcd366da872f34c509",
+                "reference": "24be9778421bbfad2228b1dcd366da872f34c509",
                 "shasum": ""
             },
             "type": "library",
@@ -969,24 +969,20 @@
             ],
             "authors": [
                 {
-                    "name": "Matias Meno",
+                    "name": "Matias Simon",
                     "email": "m@tias.me",
-                    "homepage": "http://www.yesmeno.com"
+                    "homepage": "https://www.matsimon.dev"
                 }
             ],
             "description": "Handles drag and drop of files for you.",
-            "homepage": "http://www.dropzonejs.com",
+            "homepage": "https://www.dropzone.dev/",
             "keywords": [
                 "drag and drop",
                 "dragndrop",
                 "file upload",
                 "upload"
             ],
-            "support": {
-                "issues": "https://github.com/dropzone/dropzone-packagist/issues",
-                "source": "https://github.com/dropzone/dropzone-packagist/tree/v5.9.3"
-            },
-            "time": "2021-09-21T17:03:36+00:00"
+            "time": "2026-09-16T20:06:29+00:00"
         },
         {
             "name": "erusev/parsedown",
@@ -7742,15 +7738,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
