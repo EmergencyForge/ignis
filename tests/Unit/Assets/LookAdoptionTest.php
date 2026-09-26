@@ -160,4 +160,18 @@ final class LookAdoptionTest extends TestCase
         // lightningcss schreibt "transparent" als "#0000" um.
         self::assertMatchesRegularExpression('/background-color:\s*(transparent|#0000)\s*!important/', $footer[1]);
     }
+
+    /**
+     * .ignis-card (Paket) setzt overflow: hidden; im Formular-Drawer
+     * schneidet das sonst den Fokusring der Felder ab, weil
+     * .ignis-card__body dort padding: 0 hat.
+     */
+    public function testDrawerFormCardStaysVisibleForTheFocusRing(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+        self::assertMatchesRegularExpression(
+            '/\.ignis-drawer--form\s+\.ignis-fragment\s+\.ignis-form-card\s*\{[^}]*overflow:\s*visible[^}]*\}/',
+            $css,
+        );
+    }
 }
