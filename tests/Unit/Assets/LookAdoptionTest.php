@@ -72,4 +72,13 @@ final class LookAdoptionTest extends TestCase
         self::assertMatchesRegularExpression('/@media\s*\([^)]*901px[^)]*\)\s*\{[^@]*\.ignis-sidebar\s*\{[^}]*margin:\s*0 0 var\(--sidebar-inset\) var\(--sidebar-inset\)/', $css);
         self::assertMatchesRegularExpression('/body\.ignis-app\s*\{[^}]*grid-template-columns:\s*calc\(var\(--sidebar-w\) \+ var\(--sidebar-inset, ?0px\)\)/', $css);
     }
+
+    public function testTheWordmarkIsMaskedInTheAccentGradient(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+        self::assertMatchesRegularExpression(
+            '/\.ignis-wordmark\s*\{[^}]*background-image:\s*linear-gradient\([^}]*var\(--accent-fill\)[^}]*mask:[^}]*\}/',
+            $css,
+        );
+    }
 }

@@ -112,7 +112,12 @@ foreach ($topGroups as $topGroup) {
         <span class="ignis-burger" aria-hidden="true"><span></span><span></span><span></span></span>
     </button>
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
-        <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
+        <?php if ($topLogoIsDefault): ?>
+            <?php // Standardlogo: als Verlaufsschrift statt <img>, damit es den Akzent trägt. ?>
+            <span class="ignis-wordmark" role="img" aria-label="ignis" style="--wordmark: url('<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>')"></span>
+        <?php else: ?>
+            <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
+        <?php endif; ?>
     </a>
     </div>
 

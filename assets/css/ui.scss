@@ -438,6 +438,11 @@ table.twplus-table {
   &__visual-copy { position: relative; z-index: 1; align-self: end; max-width: 38rem; padding: 4rem; color: var(--white); }
   &__visual-copy h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.75rem); line-height: 1.05; letter-spacing: -.045em; }
   &__visual-copy p { max-width: 30rem; margin: 1rem 0 0; color: rgba(255,255,255,.68); font-size: .95rem; line-height: 1.6; }
+  // Große Marke über dem Fließtext: das Standardlogo im Akzentverlauf (bis
+  // 240px, Seitenverhältnis aus ignis-lockup.svg), ein hinterlegtes
+  // Betreiberlogo bleibt ein schlichtes Bild in derselben Box.
+  &__visual-copy .ignis-wordmark--login { display: block; width: min(240px, 100%); aspect-ratio: 251.161 / 100; margin-bottom: 1.5rem; }
+  &__visual-logo { display: block; width: min(240px, 100%); height: auto; margin-bottom: 1.5rem; object-fit: contain; }
   &__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
   &__steps li { display: grid; gap: 0.3rem; justify-items: center; color: var(--text-3); font-size: 0.64rem; text-align: center; }
   &__steps i { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; color: var(--accent); background: rgba(var(--accent-rgb),.1); border-radius: 50%; }

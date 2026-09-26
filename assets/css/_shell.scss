@@ -126,6 +126,9 @@ html.is-collapsed body.ignis-app--legacy {
 
     svg { height: 2.2rem; }
 
+    // Standardlogo: Seitenverhältnis aus der viewBox von ignis-wordmark.svg.
+    .ignis-wordmark { height: 1.5rem; aspect-ratio: 291.512 / 100; }
+
     &:hover { color: var(--accent); }
   }
 
@@ -225,6 +228,22 @@ html.is-collapsed body.ignis-app--legacy {
 
     &[hidden] { display: none; }
   }
+}
+
+// Wortmarke im Akzentverlauf: nur wenn das Standardlogo aktiv ist (Topbar
+// und Anmeldung), sonst bleibt ein hinterlegtes Betreiberlogo ein <img>.
+// Das SVG kommt als Maske herein, die Füllung ist der Verlauf; so trägt die
+// Marke den Akzent, statt fest orange eingefärbt zu sein.
+.ignis-wordmark {
+  display: inline-block;
+  background-image: linear-gradient(120deg, var(--content-text) 15%, var(--accent-fill) 55%, var(--accent-fill-2, var(--accent-fill)));
+  -webkit-mask: var(--wordmark) left center / contain no-repeat;
+  mask: var(--wordmark) left center / contain no-repeat;
+}
+
+@media print {
+  // Kein Verlauf im Ausdruck, nur die Textfarbe (siehe print ohne Schatten/Verläufe).
+  .ignis-wordmark { background: var(--content-text); }
 }
 
 // =====================================================
