@@ -9,15 +9,11 @@
 
   let lastActivity = Date.now();
 
-  const getBasePath = () => {
-    const baseElement = document.querySelector("base");
-    if (baseElement) {
-      return baseElement.href;
-    }
-    // Fallback: ROOT-Pfad ermitteln
-    const path = window.location.pathname;
-    const rootPath = path.substring(0, path.indexOf("/", 1) + 1);
-    return window.location.origin + rootPath;
+  // Sperrbildschirm des Plugins, zu dem die Seite gehört: <BASE_PATH>enotf/ oder <BASE_PATH>enotf-v2/.
+  // Gierig, damit ein BASE_PATH, der selbst "enotf" enthält, trotzdem stimmt.
+  const lockscreenUrl = () => {
+    const m = window.location.pathname.match(/^(.*\/enotf(?:-v2)?\/)/);
+    return m ? m[1] + "lockscreen" : (document.body.dataset.basePath || "/") + "enotf/lockscreen";
   };
 
   function registerActivity() {
@@ -36,8 +32,7 @@
 
     if (timeSinceActivity >= timeout) {
       console.log("🔒 User inactive for 5 minutes, redirecting to lockscreen");
-      const basePath = getBasePath();
-      window.location.href = basePath + "lockscreen";
+      window.location.href = lockscreenUrl();
     }
   }
 
