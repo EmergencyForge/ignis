@@ -215,18 +215,20 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
 
                     <!-- Defekt-Liste -->
                     <div class="twplus-stacked-list">
-                        <div id="defectNoResults" hidden>
-                            <?php
-                            $empty = [
-                                'variant' => 'sm',
-                                'icon'    => 'fa-magnifying-glass',
-                                'heading' => 2,
-                                'title'   => 'Keine Mängel gefunden',
-                                'text'    => 'Mit diesem Suchbegriff passt kein Mangel.',
-                                'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-defect-search-clear' => '']]],
-                            ];
-                            require dirname(__DIR__, 3) . '/partials/empty.php';
-                            ?>
+                        <div aria-live="polite">
+                            <div id="defectNoResults" hidden>
+                                <?php
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'icon'    => 'fa-magnifying-glass',
+                                    'heading' => 2,
+                                    'title'   => 'Keine Mängel gefunden',
+                                    'text'    => 'Mit diesem Suchbegriff passt kein Mangel.',
+                                    'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-defect-search-clear' => '']]],
+                                ];
+                                require dirname(__DIR__, 3) . '/partials/empty.php';
+                                ?>
+                            </div>
                         </div>
                         <?php if (empty($defects)): ?>
                             <?php

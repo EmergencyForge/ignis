@@ -187,31 +187,35 @@ $SITE_TITLE = 'Beladelisten';
                     require dirname(__DIR__, 3) . '/partials/empty.php';
                 }
                 ?>
-                <div id="no-results-message" style="display:none;">
-                    <?php
-                    $empty = [
-                        'variant' => 'sm',
-                        'icon'    => 'fa-magnifying-glass',
-                        'heading' => 2,
-                        'title'   => 'Keine Kategorien gefunden',
-                        'text'    => 'Mit den gesetzten Filtern passt keine Kategorie.',
-                        'actions' => [['label' => 'Filter zurücksetzen', 'style' => 'secondary', 'attrs' => ['data-beladung-reset' => '']]],
-                    ];
-                    require dirname(__DIR__, 3) . '/partials/empty.php';
-                    ?>
+                <div aria-live="polite">
+                    <div id="no-results-message" style="display:none;">
+                        <?php
+                        $empty = [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-magnifying-glass',
+                            'heading' => 2,
+                            'title'   => 'Keine Kategorien gefunden',
+                            'text'    => 'Mit den gesetzten Filtern passt keine Kategorie.',
+                            'actions' => [['label' => 'Filter zurücksetzen', 'style' => 'secondary', 'attrs' => ['data-beladung-reset' => '']]],
+                        ];
+                        require dirname(__DIR__, 3) . '/partials/empty.php';
+                        ?>
+                    </div>
                 </div>
-                <div data-beladung-empty style="display:none;">
-                    <?php
-                    $empty = [
-                        'variant' => 'sm',
-                        'icon'    => 'fa-magnifying-glass',
-                        'heading' => 2,
-                        'title'   => 'Keine Beladung gefunden',
-                        'text'    => 'Mit diesem Suchbegriff passt keine Kategorie und kein Gegenstand.',
-                        'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-beladung-search-clear' => '']]],
-                    ];
-                    require dirname(__DIR__, 3) . '/partials/empty.php';
-                    ?>
+                <div aria-live="polite">
+                    <div data-beladung-empty style="display:none;">
+                        <?php
+                        $empty = [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-magnifying-glass',
+                            'heading' => 2,
+                            'title'   => 'Keine Beladung gefunden',
+                            'text'    => 'Mit diesem Suchbegriff passt keine Kategorie und kein Gegenstand.',
+                            'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-beladung-search-clear' => '']]],
+                        ];
+                        require dirname(__DIR__, 3) . '/partials/empty.php';
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>

@@ -167,18 +167,20 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
 
                 <!-- Entries Table -->
                 <div class="twplus-table-card">
-                    <div id="fbNoResults" hidden>
-                        <?php
-                        $empty = [
-                            'variant' => 'sm',
-                            'icon'    => 'fa-magnifying-glass',
-                            'heading' => 2,
-                            'title'   => 'Keine Fahrten gefunden',
-                            'text'    => 'Mit diesem Suchbegriff passt keine Fahrt.',
-                            'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-logbook-search-clear' => '']]],
-                        ];
-                        require dirname(__DIR__) . '/partials/empty.php';
-                        ?>
+                    <div aria-live="polite">
+                        <div id="fbNoResults" hidden>
+                            <?php
+                            $empty = [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-magnifying-glass',
+                                'heading' => 2,
+                                'title'   => 'Keine Fahrten gefunden',
+                                'text'    => 'Mit diesem Suchbegriff passt keine Fahrt.',
+                                'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-logbook-search-clear' => '']]],
+                            ];
+                            require dirname(__DIR__) . '/partials/empty.php';
+                            ?>
+                        </div>
                     </div>
                     <?php if (empty($entries)): ?>
                         <?php

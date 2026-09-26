@@ -267,6 +267,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                             </div>
                         </div>
 
+                        <p id="inboxStatus" class="sr-only" role="status"></p>
                         <div id="inboxContainer">
                             <?php if (empty($groups)): ?>
                                 <?php
@@ -319,6 +320,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                         </div>
                         <div class="ignis-card__body">
 
+                        <p id="failedJobsStatus" class="sr-only" role="status"></p>
                         <div id="failedJobsList">
                             <?php if (empty($failedJobs)): ?>
                                 <?php

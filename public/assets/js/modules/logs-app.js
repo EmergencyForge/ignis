@@ -15,28 +15,34 @@
  *      die Error-ID-Lookup-Funktion an der Hero-Section.
  *   2. Failed-Jobs: Retry/Delete/Bulk-Delete für persistente Job-Fails.
  */
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+
+// Leerzustand im Markup von templates/partials/empty.php (Variante sm). Die
+// Liste ist keine Live-Region; vorgelesen wird nur der Text im kleinen
+// role="status"-Element daneben.
+function showEmpty(list, status, tone, icon, title, text, code) {
+    list.innerHTML = '<div class="ignis-empty ignis-empty--sm" data-tone="' + tone + '">'
+        + '<span class="ignis-empty__glyph" aria-hidden="true"><i class="fa-solid ' + icon + '"></i></span>'
+        + '<h3 class="ignis-empty__title">' + escapeHtml(title) + '</h3>'
+        + (text ? '<p class="ignis-empty__text">' + escapeHtml(text) + '</p>' : '')
+        + (code ? '<p class="ignis-empty__code">' + escapeHtml(code) + '</p>' : '')
+        + '</div>';
+    if (status) status.textContent = title + (text ? '. ' + text : '');
+}
+
 (function () {
     const apiUrl = window.LogsAppConfig.logsApiUrl;
     const initialGroups = window.LogsAppConfig.initialGroups;
     const inboxList = document.getElementById('inboxList');
 
-    function escapeHtml(text) {
-        if (text === null || text === undefined) return '';
-        const div = document.createElement('div');
-        div.textContent = String(text);
-        return div.innerHTML;
-    }
-    // Leerzustand im Markup von templates/partials/empty.php (Variante sm).
-    function emptyState(tone, icon, title, text, code) {
-        return '<div class="ignis-empty ignis-empty--sm" data-tone="' + tone + '">'
-            + '<span class="ignis-empty__glyph" aria-hidden="true"><i class="fa-solid ' + icon + '"></i></span>'
-            + '<h3 class="ignis-empty__title">' + escapeHtml(title) + '</h3>'
-            + (text ? '<p class="ignis-empty__text">' + escapeHtml(text) + '</p>' : '')
-            + (code ? '<p class="ignis-empty__code">' + escapeHtml(code) + '</p>' : '')
-            + '</div>';
-    }
-    const noHits = () => emptyState('neutral', 'fa-magnifying-glass', 'Keine Fehler gefunden', 'Mit dieser Suche passt kein Log-Eintrag. „Zurück zur Inbox“ zeigt wieder alle.');
-    const searchFailed = (e) => emptyState('danger', 'fa-triangle-exclamation', 'Suche fehlgeschlagen', 'Die Log-Dateien ließen sich nicht durchsuchen, an ihnen hat sich nichts geändert. Versuch es erneut.', e.message);
+    const inboxStatus = document.getElementById('inboxStatus');
+    const noHits = () => showEmpty(inboxList, inboxStatus, 'neutral', 'fa-magnifying-glass', 'Keine Fehler gefunden', 'Mit dieser Suche passt kein Log-Eintrag. „Zurück zur Inbox“ zeigt wieder alle.');
+    const searchFailed = (e) => showEmpty(inboxList, inboxStatus, 'danger', 'fa-triangle-exclamation', 'Suche fehlgeschlagen', 'Die Log-Dateien ließen sich nicht durchsuchen, an ihnen hat sich nichts geändert. Versuch es erneut.', e.message);
 
     // Escape für HTML-Attribute (escapeHtml reicht nicht — Quotes müssen auch ersetzt werden,
     // sonst bricht data-copy-text="..." wenn der Text Anführungszeichen enthält)
@@ -228,9 +234,10 @@
     function renderGroups(groups) {
         if (!inboxList) return;
         if (!groups || groups.length === 0) {
-            inboxList.innerHTML = noHits();
+            noHits();
             return;
         }
+        if (inboxStatus) inboxStatus.textContent = '';
         inboxList.innerHTML = groups.map((g, i) => renderGroup(g, i)).join('');
 
         // Toggle nur auf dem Header-Row — Klicks im Detail-Panel schließen nicht mehr
@@ -331,7 +338,7 @@
             const data = await res.json();
             if (!data.success) {
                 renderGroups([]);
-                inboxList.innerHTML = emptyState('neutral', 'fa-magnifying-glass', 'Keine Fehler zur ID „' + id + '“', 'Diese Error-ID steht in keiner verfügbaren Log-Datei. „Zurück zur Inbox“ zeigt wieder alle.');
+                showEmpty(inboxList, inboxStatus, 'neutral', 'fa-magnifying-glass', 'Keine Fehler zur ID „' + id + '“', 'Diese Error-ID steht in keiner verfügbaren Log-Datei. „Zurück zur Inbox“ zeigt wieder alle.');
                 return;
             }
             const fakeGroup = [{
@@ -348,7 +355,7 @@
                 if (first) first.click();
             }, 50);
         } catch (e) {
-            inboxList.innerHTML = searchFailed(e);
+            searchFailed(e);
         }
     }
 
@@ -376,7 +383,7 @@
             const res = await fetch(apiUrl + '?' + params.toString());
             const data = await res.json();
             if (!data.success || !data.results || data.results.length === 0) {
-                inboxList.innerHTML = noHits();
+                noHits();
                 return;
             }
             const groups = data.results.map(entry => ({
@@ -389,7 +396,7 @@
             }));
             renderGroups(groups);
         } catch (e) {
-            inboxList.innerHTML = searchFailed(e);
+            searchFailed(e);
         }
     }
 
@@ -474,6 +481,7 @@
 (function () {
     const apiUrl      = window.LogsAppConfig.logsApiUrl;
     const failedList  = document.getElementById('failedJobsList');
+    const failedStatus = document.getElementById('failedJobsStatus');
     if (!failedList) return;
 
     function toggleFailedRow(rowEl) {
@@ -517,12 +525,12 @@
             if (!data.success) return;
 
             if (!data.table_exists) {
-                failedList.innerHTML = emptyState('warn', 'fa-database', 'Job-Warteschlange fehlt', 'Die Tabelle der Warteschlange gibt es noch nicht. Nach composer db:migrate erscheinen fehlgeschlagene Jobs hier.');
+                showEmpty(failedList, failedStatus, 'warn', 'fa-database', 'Job-Warteschlange fehlt', 'Die Tabelle der Warteschlange gibt es noch nicht. Nach composer db:migrate erscheinen fehlgeschlagene Jobs hier.');
                 return;
             }
 
             if (!data.jobs || data.jobs.length === 0) {
-                failedList.innerHTML = emptyState('ok', 'fa-check', 'Keine fehlgeschlagenen Jobs', 'Alle Jobs der Warteschlange sind durchgelaufen.');
+                showEmpty(failedList, failedStatus, 'ok', 'fa-check', 'Keine fehlgeschlagenen Jobs', 'Alle Jobs der Warteschlange sind durchgelaufen.');
                 // Seite reloaden um den Zähler/Toolbar-State zu aktualisieren
                 setTimeout(() => window.location.reload(), 400);
                 return;

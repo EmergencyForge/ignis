@@ -35,6 +35,32 @@ final class EmptyStateUsageTest extends TestCase
         self::assertSame([], $hits);
     }
 
+    /**
+     * Leerzustände, die ein Live-Filter ein- und ausblendet, sitzen in einer
+     * dauerhaften Live-Region; sonst hört ein Screenreader nichts davon.
+     */
+    public function testLiveFilterEmptyStatesAreAnnounced(): void
+    {
+        $toggled = [
+            'templates/logbook/index.php' => ['id="fbNoResults"'],
+            'templates/settings/vehicles/defects/index.php' => ['id="defectNoResults"'],
+            'templates/settings/vehicles/vehload/index.php' => ['id="no-results-message"', 'data-beladung-empty'],
+        ];
+        foreach ($toggled as $file => $markers) {
+            $code = (string) file_get_contents(self::ROOT . '/' . $file);
+            foreach ($markers as $marker) {
+                self::assertMatchesRegularExpression('/<div aria-live="polite">\s*<div ' . preg_quote($marker, '/') . '/', $code, $file . ': ' . $marker);
+            }
+        }
+
+        $logs = (string) file_get_contents(self::ROOT . '/templates/settings/system/logs.php');
+        $js = (string) file_get_contents(self::ROOT . '/assets/js/modules/logs-app.js');
+        foreach (['inboxStatus', 'failedJobsStatus'] as $id) {
+            self::assertStringContainsString('<p id="' . $id . '" class="sr-only" role="status"></p>', $logs);
+            self::assertStringContainsString("getElementById('" . $id . "')", $js);
+        }
+    }
+
     /** @return list<string> */
     private function phpFiles(string $dir): array
     {
