@@ -4611,7 +4611,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    box-shadow: 0 0 0 1px var(--fill-3);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--black) 60%, transparent);
   }
 
   // ── Hue-Slider ──────────────────────────────────────────────────
@@ -4639,7 +4639,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transform: translate(-50%, -50%);
     pointer-events: none;
     background: var(--ignis-cp-hue, hsl(0 100% 50%));
-    box-shadow: 0 0 0 1px var(--fill-3);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--black) 60%, transparent);
   }
 
   // ── Hex-Input ───────────────────────────────────────────────────
