@@ -3,8 +3,8 @@
  *
  * Design-Tokens spiegeln die Brand-Richtlinien aus CLAUDE.md:
  * Orange-Accent, Dark-Palette (#2b2930/#232128), Schriftfamilien
- * (Poppins/Rubik/Maven Pro/PT Sans/Inconsolata), Border-Radius-Skala
- * 4/6/8/10px, Shadow-System in drei Tiers.
+ * (Poppins/Rubik/Maven Pro/PT Sans/Inconsolata). Radien und Schatten
+ * kommen aus den Tokens des gemeinsamen Looks.
  *
  * Content-Globs erfassen sowohl bestehende Bootstrap-Templates
  * (damit Tailwind-Klassen dort inkrementell verwendet werden können)
@@ -59,16 +59,21 @@ export default {
                 'sm':  ['0.82rem', { lineHeight: '1.2rem' }],
                 'md':  ['0.88rem', { lineHeight: '1.3rem' }],
             },
+            // Radien und Schatten des gemeinsamen Looks (_tokens.scss bzw.
+            // Skin-Block), damit Utilities denselben Ecken folgen.
             borderRadius: {
-                'sm':  '4px',
-                'md':  '6px',
-                'lg':  '8px',
-                'xl':  '10px',
+                DEFAULT: 'var(--radius-1)',
+                'sm':  'var(--radius-1)',
+                'md':  'var(--radius-2)',
+                'lg':  'var(--radius-3)',
+                'xl':  'var(--radius-3)',
             },
+            // Ohne DEFAULT und sm: mit diesen Schlüsseln erzeugt Tailwind 4 über
+            // @config shadow, shadow-sm und shadow-medium gar nicht mehr.
             boxShadow: {
-                'soft':   '0 1px 2px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)',
-                'medium': '0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15)',
-                'strong': '0 10px 20px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2)',
+                'soft':   'var(--shadow-card)',
+                'medium': 'var(--shadow-card)',
+                'strong': 'var(--shadow-pop)',
             },
         },
     },

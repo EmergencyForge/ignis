@@ -13,10 +13,36 @@
   --text-2: var(--secondary-text);
   --text-3: var(--tertiary-text);
   --input-bg: var(--surface);
+  --input-text: var(--text);
+  --input-placeholder: var(--text-3);
 
   --ok-soft: color-mix(in oklab, var(--ok) 14%, transparent);
   --warn-soft: color-mix(in oklab, var(--warn) 16%, transparent);
   --danger-soft: color-mix(in oklab, var(--danger) 14%, transparent);
+
+  // Dieselben Ableitungen wie auf :root. Dort sind sie mit den alten
+  // Neutral- und Bedeutungsfarben ausgerechnet; hier rechnen sie mit denen
+  // des Looks neu. Die rgb-Tripel kennt der Look nicht, deshalb color-mix.
+  --btn-secondary-bg: var(--fill-3);
+  --btn-success-bg: var(--ok);
+  --btn-success-hover: color-mix(in srgb, var(--ok) 88%, white);
+  --btn-success-active: color-mix(in srgb, var(--ok) 85%, black);
+  --btn-danger-bg: var(--danger);
+  --btn-danger-hover: color-mix(in srgb, var(--danger) 88%, white);
+  --btn-danger-active: color-mix(in srgb, var(--danger) 85%, black);
+  --btn-warning-bg: var(--warn);
+  --btn-warning-hover: color-mix(in srgb, var(--warn) 88%, white);
+  --btn-warning-active: color-mix(in srgb, var(--warn) 85%, black);
+  --comment-bg: var(--fill-2);
+  --comment-text: var(--text-2);
+  --comment-note-bg: var(--fill-3);
+  --comment-note-stripe: var(--text-3);
+  --comment-positive-bg: color-mix(in oklab, var(--ok) 10%, transparent);
+  --comment-positive-stripe: var(--ok);
+  --comment-negative-bg: color-mix(in oklab, var(--danger) 10%, transparent);
+  --comment-negative-stripe: var(--danger);
+  --comment-modify-bg: color-mix(in oklab, var(--warn) 10%, transparent);
+  --comment-modify-stripe: var(--warn);
 
   --radius-sm: var(--radius-1);
   --radius: var(--radius-2);

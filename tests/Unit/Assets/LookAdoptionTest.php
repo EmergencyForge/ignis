@@ -78,6 +78,45 @@ final class LookAdoptionTest extends TestCase
         }
     }
 
+    /**
+     * Was auf :root aus --text, --fill-3 oder --ok abgeleitet ist, steht dort
+     * mit den alten Werten fest. Im Skin muss es neu gerechnet werden.
+     */
+    public function testDerivedTokensFollowTheNewPalette(): void
+    {
+        $skin = $this->skinBlock('body[data-ui-skin=core]') + $this->skinBlock('body[data-ui-skin="core"]');
+        $expected = [
+            '--input-text' => 'var(--text)',
+            '--input-placeholder' => 'var(--text-3)',
+            '--btn-secondary-bg' => 'var(--fill-3)',
+            '--btn-success-bg' => 'var(--ok)',
+            '--btn-danger-bg' => 'var(--danger)',
+            '--btn-warning-bg' => 'var(--warn)',
+            '--comment-positive-stripe' => 'var(--ok)',
+        ];
+        foreach ($expected as $name => $value) {
+            self::assertSame($value, $skin[$name] ?? null, $name);
+        }
+        self::assertStringContainsString('var(--ok)', $skin['--btn-success-hover'] ?? '');
+        self::assertStringContainsString('var(--ok)', $skin['--comment-positive-bg'] ?? '');
+    }
+
+    public function testLightSkinKeepsTheDarkAccentText(): void
+    {
+        $light = $this->skinBlock('[data-theme=light] body[data-ui-skin=core]') + $this->skinBlock('[data-theme="light"] body[data-ui-skin="core"]');
+        self::assertMatchesRegularExpression('/^color-mix\(in srgb,\s*var\(--accent-base\) 75%,\s*(black|#000)\)$/', $light['--accent-text'] ?? '');
+        self::assertMatchesRegularExpression('/^color-mix\(in srgb,\s*var\(--accent-base\) 75%,\s*(black|#000)\)$/', $light['--accent-focus'] ?? '');
+    }
+
+    public function testTailwindRadiiAndShadowsComeFromTheLook(): void
+    {
+        $css = (string) file_get_contents(dirname(self::CSS) . '/tailwind.css');
+        self::assertMatchesRegularExpression('/\.rounded-md\{border-radius:var\(--radius-2\)\}/', $css);
+        self::assertMatchesRegularExpression('/\.rounded-xl\{border-radius:var\(--radius-3\)\}/', $css);
+        self::assertMatchesRegularExpression('/\.shadow-strong\{[^}]*var\(--shadow-pop\)/', $css);
+        self::assertMatchesRegularExpression('/\.shadow-soft\{[^}]*var\(--shadow-card\)/', $css);
+    }
+
     public function testEmptyStatesAreBuilt(): void
     {
         self::assertStringContainsString('.ignis-empty', (string) file_get_contents(self::CSS));
