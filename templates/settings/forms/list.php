@@ -30,12 +30,18 @@ $SITE_TITLE = 'Antragstypen';
 
 
             <?php if (empty($typen)): ?>
-                <div class="twplus-empty">
-                    <i class="fa-solid fa-file-circle-plus twplus-empty__icon" aria-hidden="true"></i>
-                    <h2 class="twplus-empty__title">Noch keine Antragstypen vorhanden</h2>
-                    <p class="twplus-empty__description">Erstelle den ersten Antragstyp und füge anschließend die benötigten Felder hinzu.</p>
-                    <a href="<?= BASE_PATH ?>settings/forms/create" class="ignis-btn ignis-btn--primary twplus-empty__action"><i class="fa-solid fa-plus" aria-hidden="true"></i> Neuer Antragstyp</a>
-                </div>
+                <?php
+                $empty = [
+                    'variant' => 'sm',
+                    'tone'    => 'info',
+                    'icon'    => 'fa-file-signature',
+                    'heading' => 2,
+                    'title'   => 'Noch keine Antragstypen',
+                    'text'    => 'Antragstypen legen fest, welche Anträge Mitarbeitende stellen können.',
+                    'actions' => [['label' => 'Neuer Antragstyp', 'href' => BASE_PATH . 'settings/forms/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                ];
+                require dirname(__DIR__, 2) . '/partials/empty.php';
+                ?>
             <?php else: ?>
                 <form method="POST" action="<?= BASE_PATH ?>settings/forms/sort" id="antragstyp-sortierung">
                     <?= csrf_field() ?>

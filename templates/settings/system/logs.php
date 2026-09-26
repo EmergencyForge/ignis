@@ -145,27 +145,6 @@ $SITE_TITLE = 'Fehlerprotokoll';
         }
         .logs-id-pill:hover { background: var(--fill-3); }
 
-        .logs-empty {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2.5rem 1rem;
-            opacity: 0.55;
-        }
-        .logs-empty > i {
-            font-size: 2rem !important;
-            margin: 0 0 0.75rem 0 !important;
-            padding: 0 !important;
-            background: none !important;
-            display: block !important;
-            width: auto !important;
-            height: auto !important;
-        }
-        .logs-empty > h6 { margin-bottom: 0.5rem; }
-        .logs-empty > small { max-width: 560px; line-height: 1.5; }
-
         .copy-btn {
             cursor: pointer;
             opacity: 0.4;
@@ -290,11 +269,16 @@ $SITE_TITLE = 'Fehlerprotokoll';
 
                         <div id="inboxContainer">
                             <?php if (empty($groups)): ?>
-                                <div class="logs-empty">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                    <h6>Keine Fehler vorhanden</h6>
-                                    <small>Es liegen aktuell keine Errors in den Log-Dateien vor.</small>
-                                </div>
+                                <?php
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'tone'    => 'ok',
+                                    'icon'    => 'fa-check',
+                                    'title'   => 'Keine Fehler',
+                                    'text'    => 'In den Log-Dateien steht aktuell kein Fehler.',
+                                ];
+                                require dirname(__DIR__, 2) . '/partials/empty.php';
+                                ?>
                             <?php else: ?>
                                 <div id="inboxList"></div>
                             <?php endif; ?>
@@ -337,14 +321,16 @@ $SITE_TITLE = 'Fehlerprotokoll';
 
                         <div id="failedJobsList">
                             <?php if (empty($failedJobs)): ?>
-                                <div class="logs-empty">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                    <h6>Keine fehlgeschlagenen Jobs</h6>
-                                    <small>
-                                        Hintergrund-Jobs, die nach allen Retries nicht erfolgreich durchgelaufen sind,
-                                        erscheinen hier und können manuell nachverfolgt oder neu gestartet werden.
-                                    </small>
-                                </div>
+                                <?php
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'tone'    => 'ok',
+                                    'icon'    => 'fa-check',
+                                    'title'   => 'Keine fehlgeschlagenen Jobs',
+                                    'text'    => 'Alle Jobs der Warteschlange sind durchgelaufen.',
+                                ];
+                                require dirname(__DIR__, 2) . '/partials/empty.php';
+                                ?>
                             <?php else: ?>
                                 <?php foreach ($failedJobs as $fj): ?>
                                     <div class="logs-group" data-failed-id="<?= (int) $fj['id'] ?>">

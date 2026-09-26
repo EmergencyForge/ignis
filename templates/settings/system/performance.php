@@ -286,7 +286,11 @@ $SITE_TITLE = 'Performance';
                     </tr>`;
             });
 
-            tbody.innerHTML = html || '<tr><td colspan="4" class="ignis-table-empty">Keine Daten</td></tr>';
+            // Leerzustand im Markup von templates/partials/empty.php (Variante sm).
+            tbody.innerHTML = html || '<tr><td colspan="4"><div class="ignis-empty ignis-empty--sm" data-tone="neutral">'
+                + '<span class="ignis-empty__glyph" aria-hidden="true"><i class="fa-solid fa-database"></i></span>'
+                + '<h3 class="ignis-empty__title">Keine Tabellengrößen</h3>'
+                + '<p class="ignis-empty__text">Die Datenbank hat keine Größenangaben geliefert. Neu laden fragt sie erneut ab.</p></div></td></tr>';
         }
 
         function renderConnections(server) {

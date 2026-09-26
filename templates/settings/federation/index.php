@@ -369,9 +369,17 @@ $SITE_TITLE = 'Instanzvernetzung';
                             <h5 class="mb-0">Verbundene Instanzen <span class="ignis-chip"><?= count($links) ?></span></h5>
                         </div>
                         <?php if (empty($links)): ?>
-                            <div class="ignis-card__body flex flex-col items-center justify-center" style="color:var(--text-dimmed);font-size:var(--fs-sm);padding:2rem;">
-                                <i class="fa-solid fa-link-slash" style="font-size:1.5rem;margin-bottom:0.5rem;"></i>
-                                <span>Noch keine Verbindungen hergestellt.</span>
+                            <div class="ignis-card__body">
+                                <?php
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'icon'    => 'fa-link',
+                                    'heading' => 4,
+                                    'title'   => 'Noch keine Verbindungen',
+                                    'text'    => 'Verbindungen zu anderen Instanzen erscheinen hier.',
+                                ];
+                                require dirname(__DIR__, 2) . '/partials/empty.php';
+                                ?>
                             </div>
                         <?php else: ?>
                             <?php foreach ($links as $link): ?>

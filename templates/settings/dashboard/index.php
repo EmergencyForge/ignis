@@ -32,12 +32,17 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
             </div>
 
             <?php if (empty($categories)): ?>
-                <div class="twplus-empty">
-                    <i class="fa-solid fa-table-cells-large twplus-empty__icon" aria-hidden="true"></i>
-                    <h2 class="twplus-empty__title">Noch kein Dashboard konfiguriert</h2>
-                    <p class="twplus-empty__description">Erstelle zuerst eine Kategorie und füge anschließend Verlinkungen hinzu.</p>
-                    <button type="button" class="ignis-btn ignis-btn--primary twplus-empty__action" onclick="openCreateDashboardCategoryModal()"><i class="fa-solid fa-plus" aria-hidden="true"></i> Kategorie erstellen</button>
-                </div>
+                <?php
+                $empty = [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-table-cells-large',
+                    'heading' => 2,
+                    'title'   => 'Noch keine Schnellzugriffe',
+                    'text'    => 'Lege eine Kategorie an und füge ihr Verlinkungen hinzu. Sie erscheinen danach auf dem Dashboard.',
+                    'actions' => [['label' => 'Kategorie erstellen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-dashboard-create-category' => '']]],
+                ];
+                require dirname(__DIR__, 2) . '/partials/empty.php';
+                ?>
             <?php else: ?>
                 <div class="ignis-detail__groups">
                     <?php foreach ($categories as $row):
@@ -64,7 +69,15 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
                                 </div>
                             </div>
                             <?php if ($tiles === []): ?>
-                                <div class="ignis-table-empty">Noch keine Verlinkungen in dieser Kategorie.</div>
+                                <?php
+                                $empty = [
+                                    'variant' => 'inline',
+                                    'icon'    => 'fa-link',
+                                    'text'    => 'Noch keine Verlinkungen in dieser Kategorie.',
+                                    'actions' => [['label' => 'Verlinkung hinzufügen', 'style' => 'ghost', 'icon' => 'fa-plus', 'attrs' => ['data-dashboard-create-tile' => '', 'data-category' => (int) $row['id']]]],
+                                ];
+                                require dirname(__DIR__, 2) . '/partials/empty.php';
+                                ?>
                             <?php else: ?>
                                 <ol class="twplus-stacked-list">
                                     <?php foreach ($tiles as $tile): ?>
@@ -233,6 +246,13 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
                 },
             });
         }
+
+        document.querySelectorAll('[data-dashboard-create-tile]').forEach(function (btn) {
+            btn.addEventListener('click', function () { openCreateTileModal(btn); });
+        });
+        document.querySelectorAll('[data-dashboard-create-category]').forEach(function (btn) {
+            btn.addEventListener('click', function () { openCreateDashboardCategoryModal(); });
+        });
 
         function openCreateDashboardCategoryModal() {
             Dialog.form({

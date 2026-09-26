@@ -92,7 +92,18 @@ $SITE_TITLE = 'Dokumentvorlagen';
                     </tbody>
                 </table>
                 <?php if ($templates->isEmpty()): ?>
-                    <p class="ignis-table-empty">Noch keine Vorlagen angelegt.</p>
+                    <?php
+                    $empty = [
+                        'variant' => 'sm',
+                        'tone'    => 'info',
+                        'icon'    => 'fa-file-lines',
+                        'heading' => 2,
+                        'title'   => 'Noch keine Vorlagen',
+                        'text'    => 'Vorlagen legen Briefkopf und feste Abschnitte der Dokumente fest.',
+                        'actions' => [['label' => 'Neue Vorlage', 'href' => BASE_PATH . 'settings/documents/editor-templates/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                    ];
+                    require dirname(__DIR__, 2) . '/partials/empty.php';
+                    ?>
                 <?php endif; ?>
             </div>
         </div>

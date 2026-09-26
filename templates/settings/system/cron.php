@@ -82,7 +82,17 @@ $SITE_TITLE = 'Cron-Jobs';
                     </thead>
                     <tbody>
                         <?php if ($jobs === []): ?>
-                            <tr><td colspan="8" class="ignis-table-empty">Noch keine Cron-Jobs angelegt.</td></tr>
+                            <?php
+                            $empty = [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-clock',
+                                'heading' => 2,
+                                'title'   => 'Noch keine Cron-Jobs',
+                                'text'    => 'Wiederkehrende Aufgaben erscheinen hier, sobald eine angelegt ist.',
+                                'actions' => [['label' => 'Neuer Job', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-cron-create' => '']]],
+                            ];
+                            ?>
+                            <tr><td colspan="8"><?php require dirname(__DIR__, 2) . '/partials/empty.php'; ?></td></tr>
                         <?php endif; ?>
                         <?php foreach ($jobs as $job):
                             [$runText, $runChip] = $runStatus[$job['last_status']] ?? ['–', 'secondary'];
@@ -232,6 +242,10 @@ $SITE_TITLE = 'Cron-Jobs';
                 submitVariant:'primary',
             });
         }
+
+        document.querySelectorAll('[data-cron-create]').forEach(function (btn) {
+            btn.addEventListener('click', openCreateCronJobModal);
+        });
 
         function showCronHistory(id, name) {
             // Body als unbefuelltes Skelett aufbauen, Dialog sofort oeffnen,

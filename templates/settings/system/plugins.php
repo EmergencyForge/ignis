@@ -63,11 +63,17 @@ $SITE_TITLE = 'Plugins';
                 <?php endif; ?>
 
                 <?php if ($rows === []): ?>
-                    <div class="twplus-empty">
-                        <i class="fa-solid fa-puzzle-piece twplus-empty__icon" aria-hidden="true"></i>
-                        <h2 class="twplus-empty__title">Keine Plugins installiert</h2>
-                        <p class="twplus-empty__description">Installierte Erweiterungen und deren Status erscheinen hier.</p>
-                    </div>
+                    <?php
+                    $empty = [
+                        'variant' => 'sm',
+                        'icon'    => 'fa-puzzle-piece',
+                        'heading' => 2,
+                        'title'   => 'Noch keine Plugins installiert',
+                        'text'    => 'Plugins aus dem Katalog ergänzen ignis um weitere Module.',
+                        'actions' => [['label' => 'Katalog öffnen', 'href' => '#plugin-catalog-heading', 'style' => 'secondary']],
+                    ];
+                    require dirname(__DIR__, 2) . '/partials/empty.php';
+                    ?>
                 <?php endif; ?>
 
                 <?php if ($rows !== []): ?><div class="twplus-stacked-list"><?php endif; ?>
@@ -178,18 +184,32 @@ $SITE_TITLE = 'Plugins';
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($catalogError !== null): ?>
+                    <?php if ($catalogError !== null && $catalogRows !== []): ?>
                         <div class="ignis-alert ignis-alert--warning mb-4" role="status">
                             <?= htmlspecialchars($catalogError) ?>
                         </div>
                     <?php endif; ?>
 
                     <?php if ($catalogRows === []): ?>
-                        <div class="twplus-empty">
-                            <i class="fa-solid fa-cloud-arrow-down twplus-empty__icon" aria-hidden="true"></i>
-                            <h3 class="twplus-empty__title">Kein Katalog verfügbar</h3>
-                            <p class="twplus-empty__description">Die installierten Plugins lassen sich weiterhin normal verwalten.</p>
-                        </div>
+                        <?php
+                        $empty = $catalogError !== null
+                            ? [
+                                'variant' => 'sm',
+                                'tone'    => 'danger',
+                                'icon'    => 'fa-plug-circle-xmark',
+                                'title'   => 'Katalog nicht erreichbar',
+                                'text'    => 'Der Plugin-Katalog hat nicht geantwortet. Installierte Plugins laufen weiter.',
+                                'actions' => [['label' => 'Erneut versuchen', 'href' => BASE_PATH . 'settings/system/plugins', 'style' => 'secondary', 'icon' => 'fa-rotate-right']],
+                                'code'    => $catalogError,
+                            ]
+                            : [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-cloud-arrow-down',
+                                'title'   => 'Der Katalog ist leer',
+                                'text'    => 'Sobald im Hub Plugins veröffentlicht sind, erscheinen sie hier.',
+                            ];
+                        require dirname(__DIR__, 2) . '/partials/empty.php';
+                        ?>
                     <?php else: ?>
                         <div class="twplus-resource-grid">
                             <?php foreach ($catalogRows as $plugin): ?>

@@ -75,7 +75,16 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                     </div>
 
                     <?php if (empty($felder)): ?>
-                        <div class="ignis-table-empty">Noch keine Felder definiert. Füge jetzt das erste Feld hinzu.</div>
+                        <?php
+                        $empty = [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-list',
+                            'title'   => 'Noch keine Formularfelder',
+                            'text'    => 'Felder legen fest, was Mitarbeitende im Antrag ausfüllen.',
+                            'actions' => [['label' => 'Feld hinzufügen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-forms-add-field' => '']]],
+                        ];
+                        require dirname(__DIR__, 2) . '/partials/empty.php';
+                        ?>
                     <?php else: ?>
                         <form method="POST" id="feld-sortierung">
                             <?= csrf_field() ?>
@@ -235,6 +244,10 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
     </template>
 
     <script>
+        document.querySelectorAll('[data-forms-add-field]').forEach(function (btn) {
+            btn.addEventListener('click', function () { openAddFeldModal(); });
+        });
+
         function openAddFeldModal() {
             Dialog.form({
                 title:        'Neues Feld hinzufügen',

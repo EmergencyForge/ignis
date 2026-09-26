@@ -26,6 +26,18 @@
         div.textContent = String(text);
         return div.innerHTML;
     }
+    // Leerzustand im Markup von templates/partials/empty.php (Variante sm).
+    function emptyState(tone, icon, title, text, code) {
+        return '<div class="ignis-empty ignis-empty--sm" data-tone="' + tone + '">'
+            + '<span class="ignis-empty__glyph" aria-hidden="true"><i class="fa-solid ' + icon + '"></i></span>'
+            + '<h3 class="ignis-empty__title">' + escapeHtml(title) + '</h3>'
+            + (text ? '<p class="ignis-empty__text">' + escapeHtml(text) + '</p>' : '')
+            + (code ? '<p class="ignis-empty__code">' + escapeHtml(code) + '</p>' : '')
+            + '</div>';
+    }
+    const noHits = () => emptyState('neutral', 'fa-magnifying-glass', 'Keine Fehler gefunden', 'Mit dieser Suche passt kein Log-Eintrag. „Zurück zur Inbox“ zeigt wieder alle.');
+    const searchFailed = (e) => emptyState('danger', 'fa-triangle-exclamation', 'Suche fehlgeschlagen', 'Die Log-Dateien ließen sich nicht durchsuchen, an ihnen hat sich nichts geändert. Versuch es erneut.', e.message);
+
     // Escape für HTML-Attribute (escapeHtml reicht nicht — Quotes müssen auch ersetzt werden,
     // sonst bricht data-copy-text="..." wenn der Text Anführungszeichen enthält)
     function escapeAttr(text) {
@@ -216,7 +228,7 @@
     function renderGroups(groups) {
         if (!inboxList) return;
         if (!groups || groups.length === 0) {
-            inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-magnifying-glass"></i><h6>Keine Treffer</h6></div>';
+            inboxList.innerHTML = noHits();
             return;
         }
         inboxList.innerHTML = groups.map((g, i) => renderGroup(g, i)).join('');
@@ -319,7 +331,7 @@
             const data = await res.json();
             if (!data.success) {
                 renderGroups([]);
-                inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-magnifying-glass"></i><h6>Keine Treffer für ' + escapeHtml(id) + '</h6><small>Diese Error-ID existiert nicht in den verfügbaren Log-Dateien.</small></div>';
+                inboxList.innerHTML = emptyState('neutral', 'fa-magnifying-glass', 'Keine Fehler zur ID „' + id + '“', 'Diese Error-ID steht in keiner verfügbaren Log-Datei. „Zurück zur Inbox“ zeigt wieder alle.');
                 return;
             }
             const fakeGroup = [{
@@ -336,7 +348,7 @@
                 if (first) first.click();
             }, 50);
         } catch (e) {
-            inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-triangle-exclamation"></i><h6>Fehler: ' + escapeHtml(e.message) + '</h6></div>';
+            inboxList.innerHTML = searchFailed(e);
         }
     }
 
@@ -364,7 +376,7 @@
             const res = await fetch(apiUrl + '?' + params.toString());
             const data = await res.json();
             if (!data.success || !data.results || data.results.length === 0) {
-                inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-magnifying-glass"></i><h6>Keine Treffer</h6></div>';
+                inboxList.innerHTML = noHits();
                 return;
             }
             const groups = data.results.map(entry => ({
@@ -377,7 +389,7 @@
             }));
             renderGroups(groups);
         } catch (e) {
-            inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-triangle-exclamation"></i><h6>Fehler: ' + escapeHtml(e.message) + '</h6></div>';
+            inboxList.innerHTML = searchFailed(e);
         }
     }
 
@@ -505,12 +517,12 @@
             if (!data.success) return;
 
             if (!data.table_exists) {
-                failedList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-database"></i><h6>Queue-Tabelle nicht vorhanden</h6><small>Führe die Phinx-Migration aus, um die Job-Queue zu aktivieren.</small></div>';
+                failedList.innerHTML = emptyState('warn', 'fa-database', 'Job-Warteschlange fehlt', 'Die Tabelle der Warteschlange gibt es noch nicht. Nach composer db:migrate erscheinen fehlgeschlagene Jobs hier.');
                 return;
             }
 
             if (!data.jobs || data.jobs.length === 0) {
-                failedList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-circle-check"></i><h6>Keine fehlgeschlagenen Jobs</h6></div>';
+                failedList.innerHTML = emptyState('ok', 'fa-check', 'Keine fehlgeschlagenen Jobs', 'Alle Jobs der Warteschlange sind durchgelaufen.');
                 // Seite reloaden um den Zähler/Toolbar-State zu aktualisieren
                 setTimeout(() => window.location.reload(), 400);
                 return;
