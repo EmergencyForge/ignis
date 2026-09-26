@@ -21,7 +21,7 @@
 
 body.ignis-app {
   display: grid;
-  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-columns: calc(var(--sidebar-w) + var(--sidebar-inset, 0px)) minmax(0, 1fr);
   grid-template-rows: var(--topbar-h) minmax(0, 1fr);
   min-height: 100vh;
   margin: 0;
@@ -30,7 +30,7 @@ body.ignis-app {
 }
 
 html.is-collapsed body.ignis-app {
-  grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
+  grid-template-columns: calc(var(--sidebar-w-collapsed) + var(--sidebar-inset, 0px)) minmax(0, 1fr);
 }
 
 .ignis-main {
@@ -41,7 +41,7 @@ html.is-collapsed body.ignis-app {
 // Shim-Modus: Inhalt ohne <main>, deshalb feste Leisten und Padding.
 body.ignis-app--legacy {
   display: block;
-  padding: calc(var(--topbar-h) + var(--space-md)) var(--space-md) var(--space-md) calc(var(--sidebar-w) + var(--space-md));
+  padding: calc(var(--topbar-h) + var(--space-md)) var(--space-md) var(--space-md) calc(var(--sidebar-w) + var(--space-md) + var(--sidebar-inset, 0px));
   transition: padding-left 0.18s var(--ease-out-expo);
 
   .ignis-topbar {
@@ -62,7 +62,7 @@ body.ignis-app--legacy {
 }
 
 html.is-collapsed body.ignis-app--legacy {
-  padding-left: calc(var(--sidebar-w-collapsed) + var(--space-md));
+  padding-left: calc(var(--sidebar-w-collapsed) + var(--space-md) + var(--sidebar-inset, 0px));
 
   .ignis-sidebar { width: var(--sidebar-w-collapsed); }
 }
@@ -532,6 +532,15 @@ html.is-collapsed body.ignis-app--legacy {
 
 .ignis-sidebar-scrim { display: none; }
 
+// Schwebt frei über dem Grund: Abstand und Höhe kommen von hier, die
+// Fläche (Rand, Radius, Schatten) liefert ef.look() im Skin-Block.
+@media (min-width: 901px) {
+  .ignis-sidebar {
+    margin: 0 0 var(--sidebar-inset) var(--sidebar-inset);
+    height: calc(100vh - var(--topbar-h) - var(--sidebar-inset));
+  }
+}
+
 // Eingeklappt: nur Symbole, Tooltip über title.
 @media (min-width: 901px) {
   html.is-collapsed {
@@ -574,6 +583,7 @@ html.is-collapsed body.ignis-app--legacy {
     left: 0;
     width: var(--sidebar-w);
     height: auto;
+    margin: 0;
     z-index: 115;
     transform: translateX(-100%);
     transition: transform 0.18s var(--ease-out-expo);

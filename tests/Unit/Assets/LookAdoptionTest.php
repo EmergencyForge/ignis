@@ -63,4 +63,13 @@ final class LookAdoptionTest extends TestCase
     {
         self::assertStringContainsString('.ignis-empty', (string) file_get_contents(self::CSS));
     }
+
+    public function testTheSidebarFloatsOnDesktop(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+        // Der Minifier (lightningcss) schreibt "min-width: 901px" als
+        // "width>=901px" um; das Muster lässt beide Schreibweisen zu.
+        self::assertMatchesRegularExpression('/@media\s*\([^)]*901px[^)]*\)\s*\{[^@]*\.ignis-sidebar\s*\{[^}]*margin:\s*0 0 var\(--sidebar-inset\) var\(--sidebar-inset\)/', $css);
+        self::assertMatchesRegularExpression('/body\.ignis-app\s*\{[^}]*grid-template-columns:\s*calc\(var\(--sidebar-w\) \+ var\(--sidebar-inset, ?0px\)\)/', $css);
+    }
 }
