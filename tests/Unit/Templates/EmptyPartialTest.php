@@ -81,6 +81,16 @@ final class EmptyPartialTest extends TestCase
         self::assertStringContainsString('<li data-state="current">', $html);
     }
 
+    public function testStepNumbersIgnoreStringKeys(): void
+    {
+        $html = $this->render([
+            'title' => 'T',
+            'steps' => ['wache' => ['label' => 'Wache', 'state' => 'current'], 'fahrzeuge' => ['label' => 'Fahrzeuge']],
+        ]);
+        self::assertStringContainsString('<span class="ignis-empty__step-no">1</span><span>Wache</span>', $html);
+        self::assertStringContainsString('<span class="ignis-empty__step-no">2</span><span>Fahrzeuge</span>', $html);
+    }
+
     public function testInlineVariant(): void
     {
         $html = $this->render(['variant' => 'inline', 'icon' => 'fa-kit-medical', 'text' => 'Noch keine Maßnahmen dokumentiert.']);
@@ -93,6 +103,7 @@ final class EmptyPartialTest extends TestCase
             'title' => 'T',
             'query' => ['filters' => [
                 ['label' => 'Böse', 'removeHref' => '//evil.test'],
+                ['label' => 'Böse', 'removeHref' => '/\\evil.test'],
                 ['label' => 'Gut', 'removeHref' => '/personnel?x=1'],
             ]],
             'actions' => [['label' => 'Klick', 'href' => 'javascript:alert(1)']],

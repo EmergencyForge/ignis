@@ -18,8 +18,8 @@ final class EmptyStateUsageTest extends TestCase
     public function testNoTemplateUsesAnOldEmptyStateClass(): void
     {
         $hits = [];
-        foreach (['templates', 'assets/components', 'index.php', 'login.php'] as $path) {
-            $files = is_file(self::ROOT . '/' . $path) ? [self::ROOT . '/' . $path] : $this->phpFiles(self::ROOT . '/' . $path);
+        foreach (['templates', 'assets/components', 'assets/js', 'plugins', 'index.php', 'login.php'] as $path) {
+            $files = is_file(self::ROOT . '/' . $path) ? [self::ROOT . '/' . $path] : $this->sourceFiles(self::ROOT . '/' . $path);
             foreach ($files as $file) {
                 if (str_contains($file, 'enotf')) {
                     continue;
@@ -62,11 +62,11 @@ final class EmptyStateUsageTest extends TestCase
     }
 
     /** @return list<string> */
-    private function phpFiles(string $dir): array
+    private function sourceFiles(string $dir): array
     {
         $files = [];
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            if ($file->getExtension() === 'php') {
+            if (in_array($file->getExtension(), ['php', 'js'], true)) {
                 $files[] = str_replace('\\', '/', $file->getPathname());
             }
         }

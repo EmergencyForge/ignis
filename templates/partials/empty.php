@@ -17,10 +17,11 @@ $emptyHeading = in_array($empty['heading'] ?? 3, [2, 3, 4], true) ? (int) ($empt
 $emptyIcon = preg_match('/^fa-[a-z0-9-]+$/', (string) ($empty['icon'] ?? '')) ? (string) $empty['icon'] : '';
 $emptySmall = $emptyVariant !== 'default' && $emptyVariant !== 'first';
 
-// Nur interne oder ausdruecklich erlaubte Ziele: /pfad (kein //host), ?query,
+// Nur interne oder ausdruecklich erlaubte Ziele: /pfad (kein //host und kein
+// /\host, das Browser ebenfalls als fremden Host lesen), ?query,
 // #anker, https://, http://, mailto:. Alles andere (z.B. javascript:, data:)
 // gilt als unsicher und wird verworfen statt gerendert.
-$emptySafeUrl = static fn (string $url): bool => (bool) preg_match('~^(?:/(?!/)|\?|#|https://|http://|mailto:)~i', $url);
+$emptySafeUrl = static fn (string $url): bool => (bool) preg_match('~^(?:/(?![/\\\\])|\?|#|https://|http://|mailto:)~i', $url);
 
 $emptyAction = static function (array $action) use ($emptyE, $emptySmall, $emptySafeUrl): string {
     $emptyBtnStyle = in_array($action['style'] ?? 'secondary', ['primary', 'secondary', 'ghost'], true) ? ($action['style'] ?? 'secondary') : 'secondary';
@@ -99,7 +100,7 @@ if (($empty['steps'] ?? []) !== []) {
     $emptyTotal = count($empty['steps']);
     echo '<div class="ignis-empty__progress"><span>' . $emptyDone . ' von ' . $emptyTotal . ' erledigt</span><i style="--progress: ' . (int) round($emptyDone / $emptyTotal * 100) . '%"></i></div>';
     echo '<ol class="ignis-empty__steps">';
-    foreach ($empty['steps'] as $emptyIndex => $emptyItem) {
+    foreach (array_values($empty['steps']) as $emptyIndex => $emptyItem) {
         $emptyState = in_array($emptyItem['state'] ?? 'todo', ['done', 'current', 'todo'], true) ? ($emptyItem['state'] ?? 'todo') : 'todo';
         echo '<li data-state="' . $emptyState . '"><span class="ignis-empty__step-no">'
             . ($emptyState === 'done' ? '<i class="fa-solid fa-check" aria-hidden="true"></i><span class="ignis-sr-only">erledigt</span>' : (string) ($emptyIndex + 1))

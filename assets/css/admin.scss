@@ -513,18 +513,6 @@ div.btn.disabled {
   color: var(--warn);
 }
 
-.badge-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0 6px;
-}
-
 .btn-toolbar-group {
   display: inline-flex;
   gap: 2px;
