@@ -54,7 +54,7 @@
   color: var(--info);
 
   &:hover:not(:disabled):not(.is-loading) {
-    background: rgba(var(--info-rgb), 0.25);
+    background: color-mix(in oklab, var(--info) 25%, transparent);
     transform: none;
     box-shadow: none;
   }

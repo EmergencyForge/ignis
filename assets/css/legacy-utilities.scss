@@ -391,7 +391,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
-    border-radius: 0.25rem;
+    border-radius: var(--radius-2);
 }
 
 // ── Alerts ─────────────────────────────────────────────────────────
@@ -403,10 +403,10 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     border-radius: var(--radius-md, 6px);
 }
 
-.alert-info     { color: var(--info); background-color: rgba(var(--info-rgb), 0.12);  border-color: rgba(var(--info-rgb), 0.25); }
-.alert-success  { color: var(--ok); background-color: rgba(var(--ok-rgb), 0.12);   border-color: rgba(var(--ok-rgb), 0.25); }
-.alert-warning  { color: var(--warn); background-color: rgba(var(--warn-rgb), 0.12);   border-color: rgba(var(--warn-rgb), 0.25); }
-.alert-danger   { color: var(--danger); background-color: rgba(var(--danger-rgb), 0.12);   border-color: rgba(var(--danger-rgb), 0.25); }
+.alert-info     { color: var(--info); background-color: color-mix(in oklab, var(--info) 12%, transparent);  border-color: color-mix(in oklab, var(--info) 25%, transparent); }
+.alert-success  { color: var(--ok); background-color: color-mix(in oklab, var(--ok) 12%, transparent);   border-color: color-mix(in oklab, var(--ok) 25%, transparent); }
+.alert-warning  { color: var(--warn); background-color: color-mix(in oklab, var(--warn) 12%, transparent);   border-color: color-mix(in oklab, var(--warn) 25%, transparent); }
+.alert-danger   { color: var(--danger); background-color: color-mix(in oklab, var(--danger) 12%, transparent);   border-color: color-mix(in oklab, var(--danger) 25%, transparent); }
 .alert-secondary{ color: var(--text); background-color: var(--fill-3); border-color: var(--fill-4); }
 
 // ── Background-Utilities ────────────────────────────────────────────
@@ -521,7 +521,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     height: 1rem;
     background-color: var(--input-bg);
     border: 1px solid var(--border);
-    border-radius: 3px;
+    border-radius: var(--radius-2);
     appearance: none;
     -webkit-appearance: none;
     cursor: pointer;

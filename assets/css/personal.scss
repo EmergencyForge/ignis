@@ -4,7 +4,7 @@
 .ma-documents {
   background-color: var(--surface);
   box-shadow: var(--bs-box-shadow) !important;
-  border-radius: 12px;
+  border-radius: var(--radius-3);
   border: 1px solid var(--border) !important;
   position: relative;
 }

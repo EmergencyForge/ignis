@@ -337,7 +337,7 @@ body#alogin {
 body#alogin .card {
   background: var(--bg-2) !important;
   border: 1px solid var(--fill-2) !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-pop);
 }
 
 body#alogin p {
@@ -365,7 +365,7 @@ body#alogin p {
 
   &:hover {
     border: 1px solid var(--accent);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-pop);
     transform: translateY(-2px);
   }
 }

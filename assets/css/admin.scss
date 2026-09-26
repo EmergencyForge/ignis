@@ -14,7 +14,7 @@
 
 ::-webkit-scrollbar-thumb {
   background: var(--fill-3);
-  border-radius: 3px;
+  border-radius: var(--radius-2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -64,7 +64,7 @@ input.btn:hover,
 a.btn:hover,
 div.btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-card);
 }
 
 button.btn:active,
@@ -208,55 +208,55 @@ div.btn:active {
 }
 
 .btn-ghost-danger:hover {
-  background: rgba(var(--danger-rgb), 0.12);
+  background: color-mix(in oklab, var(--danger) 12%, transparent);
   color: var(--danger);
   transform: none;
   box-shadow: none;
 }
 
 .btn-soft-primary {
-  background: rgba(var(--info-rgb), 0.15) !important;
+  background: color-mix(in oklab, var(--info) 15%, transparent) !important;
   color: var(--info) !important;
   border: none !important;
 }
 
 .btn-soft-primary:hover {
-  background: rgba(var(--info-rgb), 0.25) !important;
+  background: color-mix(in oklab, var(--info) 25%, transparent) !important;
   color: var(--info) !important;
   transform: none;
   box-shadow: none;
 }
 
 .btn-soft-success {
-  background: rgba(var(--ok-rgb), 0.15) !important;
+  background: color-mix(in oklab, var(--ok) 15%, transparent) !important;
   color: var(--ok) !important;
   border: none !important;
 }
 
 .btn-soft-success:hover {
-  background: rgba(var(--ok-rgb), 0.25) !important;
+  background: color-mix(in oklab, var(--ok) 25%, transparent) !important;
   color: var(--ok) !important;
 }
 
 .btn-soft-danger {
-  background: rgba(var(--danger-rgb), 0.15) !important;
+  background: color-mix(in oklab, var(--danger) 15%, transparent) !important;
   color: var(--danger) !important;
   border: none !important;
 }
 
 .btn-soft-danger:hover {
-  background: rgba(var(--danger-rgb), 0.25) !important;
+  background: color-mix(in oklab, var(--danger) 25%, transparent) !important;
   color: var(--danger) !important;
 }
 
 .btn-soft-warning {
-  background: rgba(var(--warn-rgb), 0.15) !important;
+  background: color-mix(in oklab, var(--warn) 15%, transparent) !important;
   color: var(--warn) !important;
   border: none !important;
 }
 
 .btn-soft-warning:hover {
-  background: rgba(var(--warn-rgb), 0.25) !important;
+  background: color-mix(in oklab, var(--warn) 25%, transparent) !important;
   color: var(--warn) !important;
 }
 
@@ -352,25 +352,25 @@ div.btn.disabled {
 
 .badge.bg-success {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--ok-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--ok) 20%, transparent) !important;
   color: var(--ok) !important;
 }
 
 .badge.bg-danger {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--danger-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--danger) 20%, transparent) !important;
   color: var(--danger) !important;
 }
 
 .badge.bg-primary {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--info-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--info) 20%, transparent) !important;
   color: var(--info) !important;
 }
 
 .badge.bg-warning {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--warn-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--warn) 20%, transparent) !important;
   color: var(--warn) !important;
 }
 
@@ -389,27 +389,27 @@ div.btn.disabled {
 
 .badge.bg-info {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--info-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--info) 20%, transparent) !important;
   color: var(--info) !important;
 }
 
 .badge.text-bg-success {
-  background-color: rgba(var(--ok-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--ok) 20%, transparent) !important;
   color: var(--ok) !important;
 }
 
 .badge.text-bg-danger {
-  background-color: rgba(var(--danger-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--danger) 20%, transparent) !important;
   color: var(--danger) !important;
 }
 
 .badge.text-bg-primary {
-  background-color: rgba(var(--info-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--info) 20%, transparent) !important;
   color: var(--info) !important;
 }
 
 .badge.text-bg-warning {
-  background-color: rgba(var(--warn-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--warn) 20%, transparent) !important;
   color: var(--warn) !important;
 }
 
@@ -425,7 +425,7 @@ div.btn.disabled {
 }
 
 .badge.text-bg-info {
-  background-color: rgba(var(--info-rgb), 0.2) !important;
+  background-color: color-mix(in oklab, var(--info) 20%, transparent) !important;
   color: var(--info) !important;
 }
 
@@ -435,7 +435,7 @@ div.btn.disabled {
   gap: 6px;
   background: var(--fill-2);
   color: var(--text-2);
-  border-radius: 20px;
+  border-radius: 999px;
   padding: 0.3em 0.7em 0.3em 0.5em;
   font-size: 0.78em;
   font-weight: 500;
@@ -520,7 +520,7 @@ div.btn.disabled {
   justify-content: center;
   min-width: 22px;
   height: 22px;
-  border-radius: 11px;
+  border-radius: 50%;
   font-size: 0.7rem;
   font-weight: 600;
   padding: 0 6px;
@@ -725,7 +725,8 @@ select.form-select option {
 .card.bg-dark .card-header {
   background: var(--fill-1);
   border-bottom: 1px solid var(--border);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
 }
 
 #qmActionsModal .modal-content,
@@ -749,7 +750,7 @@ select.form-select option {
 #qmLogModal .edivi__box {
   background: var(--surface);
   margin: 10px 0;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-pop);
   border-radius: 0;
   padding: 1rem;
 }
@@ -767,7 +768,7 @@ select.form-select option {
 #qmActionsModal .edivi__box.edivi__log-comment i,
 #qmLogModal .edivi__box.edivi__log-comment i {
   padding: 6px 9px;
-  border-radius: 2px;
+  border-radius: var(--radius-1);
   background: var(--text-2);
   color: var(--surface);
   opacity: 0.6;
@@ -826,7 +827,7 @@ select.form-select option {
 #qmActionsModal .edivi__iconlink-button:focus-visible,
 #qmLogModal .edivi__iconlink-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--info-rgb), 0.3);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--info) 30%, transparent);
   border-radius: var(--radius-sm);
 }
 
@@ -834,7 +835,7 @@ select.form-select option {
   --bs-table-bg: transparent;
   --bs-table-color: var(--text-2);
   --bs-table-striped-bg: var(--fill-1);
-  --bs-table-hover-bg: rgba(var(--info-rgb), 0.06);
+  --bs-table-hover-bg: color-mix(in oklab, var(--info) 6%, transparent);
   --bs-table-hover-color: var(--white);
   width: 100%;
   margin-bottom: 1rem;
@@ -881,7 +882,7 @@ select.form-select option {
 }
 
 .table tbody tr.row-highlighted {
-  --bs-table-bg: rgba(var(--danger-rgb), 0.04);
+  --bs-table-bg: color-mix(in oklab, var(--danger) 4%, transparent);
 }
 
 // =====================================================
@@ -1050,7 +1051,7 @@ select.form-select option {
   border-radius: var(--radius-md);
   padding: 0.6rem 1rem;
   font-size: 0.85rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-pop);
 }
 
 // =====================================================
@@ -1346,7 +1347,7 @@ select.form-select option {
     &--drag {
         cursor: grabbing;
         opacity: 0.95;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        box-shadow: var(--shadow-pop);
     }
 }
 
@@ -1624,7 +1625,8 @@ td.dt-empty {
   gap: 0.65rem;
   border: none;
   border-left: 3px solid;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
@@ -1648,25 +1650,25 @@ td.dt-empty {
 }
 
 .alert-styled.alert-success {
-  background: rgba(var(--ok-rgb), 0.1);
+  background: color-mix(in oklab, var(--ok) 10%, transparent);
   border-left-color: var(--ok);
   color: var(--ok);
 }
 
 .alert-styled.alert-danger {
-  background: rgba(var(--danger-rgb), 0.1);
+  background: color-mix(in oklab, var(--danger) 10%, transparent);
   border-left-color: var(--danger);
   color: var(--danger);
 }
 
 .alert-styled.alert-warning {
-  background: rgba(var(--warn-rgb), 0.1);
+  background: color-mix(in oklab, var(--warn) 10%, transparent);
   border-left-color: var(--warn);
   color: var(--warn);
 }
 
 .alert-styled.alert-info {
-  background: rgba(var(--info-rgb), 0.1);
+  background: color-mix(in oklab, var(--info) 10%, transparent);
   border-left-color: var(--info);
   color: var(--info);
 }
@@ -1686,7 +1688,8 @@ td.dt-empty {
 .alert:not(.alert-styled) {
   border: none;
   border-left: 3px solid;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
   font-size: 0.85rem;
 }
 
@@ -1697,25 +1700,25 @@ td.dt-empty {
 }
 
 .alert-info:not(.alert-styled) {
-  background: rgba(var(--info-rgb), 0.1);
+  background: color-mix(in oklab, var(--info) 10%, transparent);
   border-left-color: var(--info);
   color: var(--info);
 }
 
 .alert-warning:not(.alert-styled) {
-  background: rgba(var(--warn-rgb), 0.1);
+  background: color-mix(in oklab, var(--warn) 10%, transparent);
   border-left-color: var(--warn);
   color: var(--warn);
 }
 
 .alert-success:not(.alert-styled) {
-  background: rgba(var(--ok-rgb), 0.1);
+  background: color-mix(in oklab, var(--ok) 10%, transparent);
   border-left-color: var(--ok);
   color: var(--ok);
 }
 
 .alert-danger:not(.alert-styled) {
-  background: rgba(var(--danger-rgb), 0.1);
+  background: color-mix(in oklab, var(--danger) 10%, transparent);
   border-left-color: var(--danger);
   color: var(--danger);
 }
@@ -1761,7 +1764,7 @@ td.dt-empty {
   position: absolute;
   inset: 0;
   background: var(--surface-2);
-  border-radius: 11px;
+  border-radius: 999px;
   transition: background 0.25s var(--spring-gentle);
   cursor: pointer;
 }
@@ -1909,7 +1912,7 @@ td.dt-empty {
   background: var(--bg-2);
   color: var(--text-2);
   padding: 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--radius-2);
   font-size: 0.78rem;
   margin: 0;
   max-height: 200px;
@@ -2190,7 +2193,7 @@ td.dt-empty {
 
 .einsatz-sidebar::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 2px;
+  border-radius: var(--radius-1);
 }
 
 .einsatz-sidebar-logo {
@@ -2209,7 +2212,7 @@ td.dt-empty {
   padding: 0.45rem 0.75rem;
   margin: 0.4rem 0.6rem 0.6rem;
   background: var(--bg-2);
-  border-radius: 10px;
+  border-radius: var(--radius-3);
   flex-shrink: 0;
 }
 
@@ -2265,7 +2268,7 @@ td.dt-empty {
   text-decoration: none;
   transition: background 0.15s ease;
   margin: 0.2rem 0.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-3);
   font-size: 0.9rem;
 }
 
@@ -2504,7 +2507,8 @@ td.dt-empty {
   }
 
   .card.bg-dark .card-header {
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
     padding: 0.6rem 0.85rem;
   }
 
@@ -2568,7 +2572,7 @@ td.dt-empty {
     left: 0;
     top: 0;
     bottom: 0;
-    box-shadow: var(--shadow-lg, 0 6px 20px rgba(0, 0, 0, 0.2));
+    box-shadow: var(--shadow-pop);
   }
 
 

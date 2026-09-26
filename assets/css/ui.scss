@@ -94,7 +94,7 @@
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.24));
+  box-shadow: var(--shadow-card);
 
   @media (min-width: 768px) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
@@ -157,7 +157,7 @@
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg, 8px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow-card);
   text-decoration: none;
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 
@@ -196,7 +196,7 @@
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow-card);
 
   &__toolbar {
     display: flex;
@@ -476,7 +476,7 @@ table.twplus-table {
 
     svg { flex: none; width: auto; height: 1.4em; }
   }
-  &__card { padding: 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl, 10px); box-shadow: var(--shadow-lg, 0 18px 45px rgba(0,0,0,.32)); }
+  &__card { padding: 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl, 10px); box-shadow: var(--shadow-pop); }
   &__visual { position: relative; display: none; overflow: hidden; background: var(--bg-2); }
   &__visual::after { position: absolute; inset: 0; background: radial-gradient(circle at 25% 30%, rgba(var(--accent-rgb),.28), transparent 38%), linear-gradient(145deg, transparent, var(--fill-1)); content: ''; }
   &__visual-copy { position: relative; z-index: 1; align-self: end; max-width: 38rem; padding: 4rem; color: var(--white); }
@@ -493,7 +493,7 @@ table.twplus-table {
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow-card);
 
   &__header {
     display: flex;
@@ -599,7 +599,7 @@ table.twplus-table {
   background: rgba(20, 20, 22, 0.92);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-pop);
   backdrop-filter: blur(14px);
 }
 
@@ -616,8 +616,8 @@ table.twplus-table {
   background: var(--surface) !important;
   border: 0 !important;
   border-left: 1px solid var(--border) !important;
-  border-radius: 0 !important;
-  box-shadow: -24px 0 70px rgba(0, 0, 0, 0.5);
+  border-radius: 0;
+  box-shadow: var(--shadow-pop);
 }
 
 .twplus-resource-grid {
@@ -648,7 +648,7 @@ table.twplus-table {
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow-card);
 }
 
 .twplus-dashboard-widget > table,
@@ -674,7 +674,7 @@ table.twplus-table {
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow-card);
 
   &__field { grid-column: span 3; min-width: 0; }
   &__search { grid-column: span 5; min-width: 0; }
@@ -712,7 +712,7 @@ table.twplus-table {
   background: var(--surface, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow-card);
   transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
 
   &:hover, &:focus-within {
@@ -741,7 +741,7 @@ table.twplus-table {
     background: rgba(20, 20, 22, 0.94);
     border: 1px solid var(--border);
     border-radius: var(--radius-xl, 10px);
-    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.38);
+    box-shadow: var(--shadow-pop);
     backdrop-filter: blur(14px);
     > .ignis-btn { flex: 1 1 auto; justify-content: center; }
   }
@@ -760,7 +760,7 @@ table.twplus-table {
   border-radius: var(--radius-xl, 10px);
   font-size: 0.8rem;
 
-  &--error { color: var(--danger); border-color: rgba(var(--danger-rgb), 0.35); background: rgba(var(--danger-rgb), 0.06); }
+  &--error { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 35%, transparent); background: color-mix(in oklab, var(--danger) 6%, transparent); }
   &__spinner { width: 1.35rem; height: 1.35rem; border: 2px solid var(--fill-3); border-top-color: var(--accent); border-radius: 50%; animation: twplus-spin .75s linear infinite; }
 }
 
@@ -792,7 +792,7 @@ table.twplus-table {
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58);
+  box-shadow: var(--shadow-pop);
 }
 
 .twplus-dialog-surface .modal-header,
@@ -811,7 +811,7 @@ table.twplus-table {
   color: var(--text-2);
   border-radius: var(--radius-xl, 10px);
   border: 1px solid var(--fill-2);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--fill-1);
+  box-shadow: var(--shadow-pop), 0 0 0 1px var(--fill-1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1018,7 +1018,7 @@ table.twplus-table {
       color: var(--danger);
 
       &:hover {
-        background: rgba(var(--danger-rgb), 0.12);
+        background: color-mix(in oklab, var(--danger) 12%, transparent);
         color: var(--danger);
       }
     }
@@ -1215,7 +1215,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-pop);
   overflow: hidden;
   opacity: 0;
   transform: translateY(-4px);
@@ -1387,7 +1387,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border-color: var(--danger);
 
     &:focus {
-      box-shadow: 0 0 0 3px rgba(var(--danger-rgb), 0.18);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 18%, transparent);
     }
   }
 
@@ -1706,7 +1706,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       border-radius: 50%;
       background: var(--white);
       transition: transform 0.22s var(--spring, ease);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      box-shadow: var(--shadow-card);
     }
 
     &:checked {
@@ -1842,7 +1842,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
       outline: none;
       color: var(--text-2);
       background: var(--fill-1);
-      border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
+      border-top-left-radius: var(--radius-sm, 4px);
+      border-top-right-radius: var(--radius-sm, 4px);
     }
 
     &.is-active {
@@ -2106,7 +2107,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-pop);
   opacity: 0;
   transform: translateY(-4px);
   pointer-events: none;
@@ -2420,7 +2421,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-pop);
   opacity: 0;
   transform: translateY(-4px);
   pointer-events: none;
@@ -2631,7 +2632,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
     background: var(--border);
-    border-radius: 2px;
+    border-radius: var(--radius-1);
   }
 }
 
@@ -2784,14 +2785,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-pop);
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
     background: var(--border);
-    border-radius: 2px;
+    border-radius: var(--radius-1);
   }
 }
 
@@ -2881,7 +2882,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &:hover:not(:disabled):not(.is-loading) {
     background: var(--border);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-card);
   }
 
   &:active:not(:disabled):not(.is-loading) {
@@ -3119,7 +3120,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     color: var(--danger);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(var(--danger-rgb), 0.12);
+      background: color-mix(in oklab, var(--danger) 12%, transparent);
       color: var(--danger);
       transform: none;
       box-shadow: none;
@@ -3128,44 +3129,44 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   // ── Soft: dezent gefüllt mit Akzent-Farbe ────────────────────────
   &--soft-primary {
-    background: rgba(var(--info-rgb), 0.15);
+    background: color-mix(in oklab, var(--info) 15%, transparent);
     color: var(--info);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(var(--info-rgb), 0.25);
+      background: color-mix(in oklab, var(--info) 25%, transparent);
       transform: none;
       box-shadow: none;
     }
   }
 
   &--soft-success {
-    background: rgba(var(--ok-rgb), 0.15);
+    background: color-mix(in oklab, var(--ok) 15%, transparent);
     color: var(--ok);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(var(--ok-rgb), 0.25);
+      background: color-mix(in oklab, var(--ok) 25%, transparent);
       transform: none;
       box-shadow: none;
     }
   }
 
   &--soft-danger {
-    background: rgba(var(--danger-rgb), 0.15);
+    background: color-mix(in oklab, var(--danger) 15%, transparent);
     color: var(--danger);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(var(--danger-rgb), 0.25);
+      background: color-mix(in oklab, var(--danger) 25%, transparent);
       transform: none;
       box-shadow: none;
     }
   }
 
   &--soft-warning {
-    background: rgba(var(--warn-rgb), 0.15);
+    background: color-mix(in oklab, var(--warn) 15%, transparent);
     color: var(--warn);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(var(--warn-rgb), 0.25);
+      background: color-mix(in oklab, var(--warn) 25%, transparent);
       transform: none;
       box-shadow: none;
     }
@@ -3278,27 +3279,27 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   // ── Variants — Farb-Stack matcht admin.scss:382+ ──────────────────
   &--primary {
-    background: rgba(var(--info-rgb), 0.2);
+    background: color-mix(in oklab, var(--info) 20%, transparent);
     color: var(--info);
   }
 
   &--success {
-    background: rgba(var(--ok-rgb), 0.2);
+    background: color-mix(in oklab, var(--ok) 20%, transparent);
     color: var(--ok);
   }
 
   &--warning {
-    background: rgba(var(--warn-rgb), 0.2);
+    background: color-mix(in oklab, var(--warn) 20%, transparent);
     color: var(--warn);
   }
 
   &--danger {
-    background: rgba(var(--danger-rgb), 0.2);
+    background: color-mix(in oklab, var(--danger) 20%, transparent);
     color: var(--danger);
   }
 
   &--info {
-    background: rgba(var(--info-rgb), 0.2);
+    background: color-mix(in oklab, var(--info) 20%, transparent);
     color: var(--info);
   }
 
@@ -3330,7 +3331,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 2px;
+    border-radius: var(--radius-1);
     font-size: 1.1em;
     line-height: 1;
     padding: 0;
@@ -3430,7 +3431,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border: 1px solid var(--fill-2);
   z-index: 1085;
   transition: transform 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
-  box-shadow: 0 0 32px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-pop);
 
   // ── Placement ────────────────────────────────────────────────
   &--right {
@@ -3933,7 +3934,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   // der Fließtext bleibt neutral hell, sonst ist er auf dunklem
   // Grund kaum lesbar (getönte Farbe auf getönter Fläche).
   &--success {
-    background: rgba(var(--ok-rgb), 0.1);
+    background: color-mix(in oklab, var(--ok) 10%, transparent);
     border-left-color: var(--btn-success-bg);
     color: var(--text-2);
 
@@ -3941,7 +3942,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &--danger {
-    background: rgba(var(--danger-rgb), 0.1);
+    background: color-mix(in oklab, var(--danger) 10%, transparent);
     border-left-color: var(--btn-danger-bg);
     color: var(--text-2);
 
@@ -3949,7 +3950,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &--warning {
-    background: rgba(var(--warn-rgb), 0.1);
+    background: color-mix(in oklab, var(--warn) 10%, transparent);
     border-left-color: var(--btn-warning-bg);
     color: var(--text-2);
 
@@ -3957,7 +3958,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &--info {
-    background: rgba(var(--info-rgb), 0.1);
+    background: color-mix(in oklab, var(--info) 10%, transparent);
     border-left-color: var(--info);
     color: var(--text-2);
 
@@ -4143,7 +4144,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border: 1px solid var(--fill-2);
     border-left: 3px solid var(--text-3);
     border-radius: var(--radius-md, 6px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-pop);
     font-size: 0.85rem;
     line-height: 1.4;
     opacity: 0;
@@ -4364,7 +4365,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   max-width: 240px;
   text-align: center;
   white-space: normal;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-pop);
 }
 
 // ── Popover: Title + reicher Body, klick-aktiv ───────────────────
@@ -4373,7 +4374,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   color: var(--text-2);
   border: 1px solid var(--fill-2);
   border-radius: var(--radius-md, 6px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-pop);
   width: 280px;
   pointer-events: auto;
 
@@ -4523,7 +4524,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &:hover {
       border-color: var(--fill-4);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-pop);
     }
 
     &:focus-visible {
@@ -4615,7 +4616,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     background: var(--surface);
     border: 1px solid var(--fill-2);
     border-radius: var(--radius-md, 6px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    box-shadow: var(--shadow-pop);
     opacity: 0;
     transform: translateY(-4px);
     pointer-events: none;
@@ -4649,7 +4650,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px var(--fill-3);
   }
 
   // ── Hue-Slider ──────────────────────────────────────────────────
@@ -4677,7 +4678,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transform: translate(-50%, -50%);
     pointer-events: none;
     background: var(--ignis-cp-hue, hsl(0 100% 50%));
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px var(--fill-3);
   }
 
   // ── Hex-Input ───────────────────────────────────────────────────
@@ -4848,7 +4849,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     background: var(--surface);
     border: 1px solid var(--fill-2);
     border-radius: var(--radius-md, 6px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    box-shadow: var(--shadow-pop);
     max-height: 16rem;
     overflow-y: auto;
     opacity: 0;
@@ -4893,7 +4894,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &__option mark {
     background: rgba(var(--accent-rgb), 0.25);
     color: inherit;
-    border-radius: 2px;
+    border-radius: var(--radius-1);
     padding: 0 1px;
   }
 }

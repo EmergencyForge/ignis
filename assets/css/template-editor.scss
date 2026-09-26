@@ -18,7 +18,7 @@
 }
 .editor-sidebar::-webkit-scrollbar-thumb {
   background: var(--bs-border-color);
-  border-radius: 3px;
+  border-radius: var(--radius-2);
 }
 
 .editor-canvas-area {
@@ -44,11 +44,11 @@
 }
 .editor-properties::-webkit-scrollbar-thumb {
   background: var(--bs-border-color);
-  border-radius: 3px;
+  border-radius: var(--radius-2);
 }
 
 .canvas-container-wrapper {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-pop);
   background: var(--white);
   position: relative;
 }
@@ -89,7 +89,7 @@
 
 .element-item {
   padding: 0.4rem 0.6rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-2);
   cursor: grab;
   font-size: 0.85rem;
   transition: background 0.15s;
@@ -120,8 +120,8 @@
   padding: 4px 6px;
   background: var(--bs-body-bg);
   border: 1px solid var(--bs-border-color);
-  border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-2);
+  box-shadow: var(--shadow-pop);
 }
 .text-floating-toolbar .tft-btn {
   width: 28px;
@@ -129,7 +129,7 @@
   border: none;
   background: transparent;
   color: var(--bs-body-color);
-  border-radius: 4px;
+  border-radius: var(--radius-2);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -155,7 +155,7 @@
   font-size: 0.72rem;
   padding: 2px 4px;
   border: 1px solid var(--bs-border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-2);
   background: var(--bs-body-bg);
   color: var(--bs-body-color);
   cursor: pointer;
@@ -185,7 +185,8 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--bs-secondary-color);
-  border-radius: 0.25rem 0.25rem 0 0;
+  border-top-left-radius: var(--radius-2);
+  border-top-right-radius: var(--radius-2);
   padding: 0.35rem 0.5rem;
   transition:
     background 0.15s,
@@ -217,7 +218,7 @@
 .layer-item .layer-type-badge {
   font-size: 0.6rem;
   padding: 0.1rem 0.3rem;
-  border-radius: 2px;
+  border-radius: var(--radius-1);
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -260,7 +261,7 @@
   font-size: 0.72rem;
   font-weight: 500;
   color: var(--bs-secondary-color);
-  border-radius: 0.25rem;
+  border-radius: var(--radius-2);
   padding: 0.25rem 0.5rem;
 }
 #prop-tabs .nav-link.active {
@@ -315,7 +316,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-2);
   user-select: none;
 }
 .layer-item:hover {
@@ -339,7 +340,7 @@
 
 .layer-item-chosen {
   background: var(--bs-primary-bg-subtle);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-card);
 }
 
 .layer-item-drag {
