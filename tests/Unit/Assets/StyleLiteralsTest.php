@@ -67,6 +67,38 @@ final class StyleLiteralsTest extends TestCase
         self::assertSame([], $bad);
     }
 
+    /**
+     * Hover färbt, bewegt aber nichts. transform: none darf stehen (hebt nur
+     * auf), ebenso ein ::before/::after, das es erst beim Hover gibt: dessen
+     * transform setzt es an seinen Platz, verschiebt aber nichts Sichtbares.
+     */
+    public function testHoverMovesNothing(): void
+    {
+        $bad = [];
+        foreach ($this->sources() as $name => $code) {
+            preg_match_all('/:hover[^{};]*\{/', $code, $openers, PREG_OFFSET_CAPTURE);
+            foreach ($openers[0] as [$selector, $offset]) {
+                if (preg_match('/::?(?:before|after)\s*\{$/', $selector)) {
+                    continue;
+                }
+                $start = $offset + strlen($selector);
+                $end = $start;
+                for ($depth = 1; $depth > 0 && $end < strlen($code); $end++) {
+                    $depth += ['{' => 1, '}' => -1][$code[$end]] ?? 0;
+                }
+                $body = substr($code, $start, $end - $start);
+                if (preg_match_all('/(?<![-\w])transform\s*:\s*([^;{}]+)/', $body, $m)) {
+                    foreach ($m[1] as $value) {
+                        if (trim($value) !== 'none') {
+                            $bad[] = $name . ': ' . trim($selector) . ' ' . trim($value);
+                        }
+                    }
+                }
+            }
+        }
+        self::assertSame([], $bad);
+    }
+
     public function testSemanticColoursAreNotRgbTriples(): void
     {
         $bad = [];

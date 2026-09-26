@@ -159,7 +159,7 @@
   border-radius: var(--radius-lg, 8px);
   box-shadow: var(--shadow-card);
   text-decoration: none;
-  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  transition: border-color 150ms ease, background 150ms ease;
 
   &:hover,
   &:focus-visible {
@@ -168,7 +168,6 @@
     border-color: rgba(var(--accent-rgb), 0.7);
     outline: none;
     text-decoration: none;
-    transform: translateY(-1px);
   }
 
   &__icon {
@@ -599,8 +598,8 @@ table.twplus-table {
   border-radius: var(--radius-xl, 10px);
   color: inherit;
   text-decoration: none;
-  transition: border-color 140ms ease, transform 140ms ease;
-  &:hover { border-color: rgba(var(--accent-rgb), 0.55); transform: translateY(-1px); }
+  transition: border-color 140ms ease;
+  &:hover { border-color: rgba(var(--accent-rgb), 0.55); }
 }
 
 .twplus-dashboard-widget {
@@ -674,12 +673,11 @@ table.twplus-table {
   border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
   box-shadow: var(--shadow-card);
-  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+  transition: border-color 140ms ease, background 140ms ease;
 
   &:hover, &:focus-within {
     background: rgba(var(--accent-rgb), 0.035);
     border-color: rgba(var(--accent-rgb), 0.55);
-    transform: translateY(-1px);
   }
   &__body { min-width: 0; flex: 1; padding: 1rem; }
   &__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; }
@@ -2838,11 +2836,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
   text-decoration: none;
   white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
-              transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+              box-shadow 0.15s ease, opacity 0.15s ease;
 
   &:hover:not(:disabled):not(.is-loading) {
     background: var(--border);
-    transform: translateY(-1px);
     box-shadow: var(--shadow-card);
   }
 
@@ -3773,7 +3770,6 @@ body:has(.ignis-dialog-backdrop.is-open) {
     cursor: pointer;
   }
 
-  &:hover::-webkit-slider-thumb,
   &:focus-visible::-webkit-slider-thumb {
     transform: scale(1.15);
   }
@@ -4693,10 +4689,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border-radius: var(--radius-sm, 4px);
     border: 1px solid var(--fill-2);
     cursor: pointer;
-    transition: transform 0.1s ease, border-color 0.15s ease;
+    transition: border-color 0.15s ease;
 
     &:hover {
-      transform: scale(1.1);
       border-color: var(--fill-5);
     }
 

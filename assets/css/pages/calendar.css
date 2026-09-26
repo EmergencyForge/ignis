@@ -104,11 +104,10 @@
     padding: 1px 4px;
     font-size: 0.72rem;
     cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transition: box-shadow 0.1s ease;
 }
 
 .fc-event:hover {
-    transform: translateY(-1px);
     box-shadow: var(--shadow-card);
 }
 

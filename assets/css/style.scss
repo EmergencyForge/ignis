@@ -360,13 +360,12 @@ body#alogin p {
 }
 
 #cards .card {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid transparent;
 
   &:hover {
     border: 1px solid var(--accent);
     box-shadow: var(--shadow-pop);
-    transform: translateY(-2px);
   }
 }
 
