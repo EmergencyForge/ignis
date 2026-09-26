@@ -51,7 +51,11 @@ final class StyleLiteralsTest extends TestCase
 
     public function testRadiiComeFromTokens(): void
     {
-        $bad = array_values(array_filter($this->values('border-radius'), static fn (string $entry): bool =>
+        // border-radius als Kurzform sowie die Langformen je Ecke (border-top-left-radius
+        // usw., dazu die logischen border-start-start-radius usw.) — sonst schlüpft ein
+        // fester Wert am Wächter vorbei, indem er nur eine Ecke direkt benennt.
+        $property = '(?:border-radius|border-(?:top|bottom)-(?:left|right)-radius|border-(?:start|end)-(?:start|end)-radius)';
+        $bad = array_values(array_filter($this->values($property), static fn (string $entry): bool =>
             ! preg_match('/: (var\(--[\w-]+(?:, *[^)]+)?\)|0|50%|999px|inherit)$/', $entry)));
         self::assertSame([], $bad);
     }

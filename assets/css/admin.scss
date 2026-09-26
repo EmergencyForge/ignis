@@ -435,7 +435,7 @@ div.btn.disabled {
   gap: 6px;
   background: var(--fill-2);
   color: var(--text-2);
-  border-radius: 999px;
+  border-radius: var(--radius-1);
   padding: 0.3em 0.7em 0.3em 0.5em;
   font-size: 0.78em;
   font-weight: 500;
