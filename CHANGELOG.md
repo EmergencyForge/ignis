@@ -2,7 +2,9 @@
 
 ## Unveröffentlicht
 
-ignis übernimmt den gemeinsamen Look „Temper" aus dem UI-Paket: die Sidebar schwebt jetzt frei über dem Hintergrund statt am Rand zu kleben, Leerzustände sehen in der ganzen Anwendung gleich aus, und ein Wechsel zwischen hell und dunkel blendet über statt hart umzuschalten. Neue Konten starten in der Dichte „Luftig"; wer vorher „Kompakt" gewählt hat, behält diese Einstellung.
+ignis übernimmt den gemeinsamen Look „Temper" aus dem UI-Paket: die Sidebar schwebt jetzt frei über dem Hintergrund statt am Rand zu kleben, Leerzustände sehen in der ganzen Anwendung gleich aus, und ein Wechsel zwischen hell und dunkel blendet über statt hart umzuschalten. Wer noch nie eine Dichte gewählt hat, sieht jetzt „Luftig“, auch in bestehenden Konten; wer „Kompakt“ gewählt hat, behält es. Die Wahl liegt pro Browser und Konto im Browser, auf einem neuen Gerät gilt deshalb zuerst „Luftig“.
+
+Die mitgelieferten Plugins firetab, knowledge-base und manv-board (jetzt 1.1.0) brauchen diese ignis-Version, weil ihre Leerzustände den gemeinsamen Baustein `templates/partials/empty.php` nutzen.
 
 Bei einer eigenen Systemfarbe leitet ignis den zweiten Verlaufston für Wortmarke, Primärknöpfe und die aktive Sidebar-Marke automatisch daraus ab, ohne zusätzliche Einstellung.
 
