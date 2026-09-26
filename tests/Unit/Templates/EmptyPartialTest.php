@@ -77,10 +77,35 @@ final class EmptyPartialTest extends TestCase
         self::assertStringContainsString('<div class="ignis-empty ignis-empty--inline"><i class="fa-solid fa-kit-medical" aria-hidden="true"></i><span>Noch keine Maßnahmen dokumentiert.</span>', $html);
     }
 
+    public function testRejectsUnsafeLinkTargets(): void
+    {
+        $html = $this->render([
+            'title' => 'T',
+            'query' => ['filters' => [
+                ['label' => 'Böse', 'removeHref' => '//evil.test'],
+                ['label' => 'Gut', 'removeHref' => '/personnel?x=1'],
+            ]],
+            'actions' => [['label' => 'Klick', 'href' => 'javascript:alert(1)']],
+        ]);
+        self::assertStringNotContainsString('javascript:', $html);
+        self::assertStringContainsString('<button type="button" class="ignis-btn ignis-btn--secondary">Klick</button>', $html);
+        self::assertStringNotContainsString('evil.test', $html);
+        self::assertStringNotContainsString('Böse', $html);
+        self::assertStringContainsString('href="/personnel?x=1"', $html);
+    }
+
     public function testOnlyAssignsPrefixedVariables(): void
     {
-        preg_match_all('/\$(\w+)\s*(?:=(?!=)|\.=)/', (string) file_get_contents(self::PARTIAL), $m);
-        foreach (array_unique($m[1]) as $name) {
+        $source = (string) file_get_contents(self::PARTIAL);
+
+        // Zuweisungen ($x = …, $x .= …) …
+        preg_match_all('/\$(\w+)\s*(?:=(?!=)|\.=)/', $source, $assignments);
+        // … und foreach-Schleifenvariablen (as $x) sowie (as $k => $v).
+        preg_match_all('/\bas\s+\$(\w+)\s*\)/', $source, $simpleLoopVars);
+        preg_match_all('/\bas\s+\$(\w+)\s*=>\s*\$(\w+)\s*\)/', $source, $pairLoopVars);
+
+        $names = array_merge($assignments[1], $simpleLoopVars[1], $pairLoopVars[1], $pairLoopVars[2]);
+        foreach (array_unique($names) as $name) {
             self::assertStringStartsWith('empty', $name, "Partial weist \$$name zu");
         }
     }

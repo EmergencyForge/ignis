@@ -17,19 +17,28 @@ $emptyHeading = in_array($empty['heading'] ?? 3, [2, 3, 4], true) ? (int) ($empt
 $emptyIcon = preg_match('/^fa-[a-z0-9-]+$/', (string) ($empty['icon'] ?? '')) ? (string) $empty['icon'] : '';
 $emptySmall = $emptyVariant !== 'default' && $emptyVariant !== 'first';
 
-$emptyAction = static function (array $action) use ($emptyE, $emptySmall): string {
+// Nur interne oder ausdruecklich erlaubte Ziele: /pfad (kein //host), ?query,
+// #anker, https://, http://, mailto:. Alles andere (z.B. javascript:, data:)
+// gilt als unsicher und wird verworfen statt gerendert.
+$emptySafeUrl = static fn (string $url): bool => (bool) preg_match('~^(?:/(?!/)|\?|#|https://|http://|mailto:)~i', $url);
+
+$emptyAction = static function (array $action) use ($emptyE, $emptySmall, $emptySafeUrl): string {
     $emptyBtnStyle = in_array($action['style'] ?? 'secondary', ['primary', 'secondary', 'ghost'], true) ? ($action['style'] ?? 'secondary') : 'secondary';
     $emptyBtnClass = 'ignis-btn ignis-btn--' . $emptyBtnStyle . ($emptySmall ? ' ignis-btn--sm' : '');
     $emptyBtnAttrs = '';
     foreach ($action['attrs'] ?? [] as $emptyAttrName => $emptyAttrValue) {
+        if (!is_scalar($emptyAttrValue)) {
+            continue;
+        }
         if (preg_match('/^data-[a-z0-9-]+$/', (string) $emptyAttrName)) {
             $emptyBtnAttrs .= ' ' . $emptyAttrName . '="' . $emptyE($emptyAttrValue) . '"';
         }
     }
     $emptyBtnIcon = preg_match('/^fa-[a-z0-9-]+$/', (string) ($action['icon'] ?? '')) ? '<i class="fa-solid ' . $action['icon'] . '" aria-hidden="true"></i> ' : '';
     $emptyBtnLabel = $emptyBtnIcon . $emptyE($action['label'] ?? '');
-    return isset($action['href'])
-        ? '<a class="' . $emptyBtnClass . '" href="' . $emptyE($action['href']) . '"' . $emptyBtnAttrs . '>' . $emptyBtnLabel . '</a>'
+    $emptyBtnHref = isset($action['href']) && $emptySafeUrl((string) $action['href']) ? (string) $action['href'] : null;
+    return $emptyBtnHref !== null
+        ? '<a class="' . $emptyBtnClass . '" href="' . $emptyE($emptyBtnHref) . '"' . $emptyBtnAttrs . '>' . $emptyBtnLabel . '</a>'
         : '<button type="button" class="' . $emptyBtnClass . '"' . $emptyBtnAttrs . '>' . $emptyBtnLabel . '</button>';
 };
 
@@ -68,7 +77,11 @@ if (isset($empty['query'])) {
         echo '<span class="ignis-empty__term">„' . $emptyE($empty['query']['term']) . '“</span>';
     }
     foreach ($empty['query']['filters'] ?? [] as $emptyItem) {
-        echo '<a class="ignis-empty__filter" href="' . $emptyE($emptyItem['removeHref'] ?? '') . '">' . $emptyE($emptyItem['label'] ?? '')
+        $emptyFilterHref = (string) ($emptyItem['removeHref'] ?? '');
+        if (!$emptySafeUrl($emptyFilterHref)) {
+            continue;
+        }
+        echo '<a class="ignis-empty__filter" href="' . $emptyE($emptyFilterHref) . '">' . $emptyE($emptyItem['label'] ?? '')
             . ' <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="ignis-sr-only">entfernen</span></a>';
     }
     echo '</div>';
