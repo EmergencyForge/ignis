@@ -208,7 +208,7 @@ $SITE_TITLE = 'Beladelisten';
                         'heading' => 2,
                         'title'   => 'Keine Beladung gefunden',
                         'text'    => 'Mit diesem Suchbegriff passt keine Kategorie und kein Gegenstand.',
-                        'actions' => [['label' => 'Filter zurücksetzen', 'style' => 'secondary', 'attrs' => ['data-beladung-reset' => '']]],
+                        'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-beladung-search-clear' => '']]],
                     ];
                     require dirname(__DIR__, 3) . '/partials/empty.php';
                     ?>
@@ -337,6 +337,15 @@ $SITE_TITLE = 'Beladelisten';
 
             document.querySelectorAll('[data-beladung-reset]').forEach(function(btn) {
                 btn.addEventListener('click', function() { resetFilterBtn.click(); });
+            });
+            document.querySelectorAll('[data-beladung-search-clear]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const searchInput = document.querySelector('[data-beladung-search]');
+                    if (!searchInput) return;
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    searchInput.focus();
+                });
             });
             document.querySelectorAll('[data-beladung-add-category]').forEach(function(btn) {
                 btn.addEventListener('click', function() { openAddBeladungCategoryModal(); });

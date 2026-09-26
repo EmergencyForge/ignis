@@ -128,7 +128,7 @@ final class InboxTest extends FeatureTestCase
 
         // Ungelesen-Filter zeigt nichts mehr, die Seite alles.
         $unread = $this->get('/inbox', ['query' => ['filter' => 'unread']]);
-        $this->assertBodyContains('Nichts gefunden', $unread);
+        $this->assertBodyContains('<h2 class="ignis-empty__title">Keine Benachrichtigungen gefunden</h2>', $unread);
         $all = $this->get('/inbox');
         $this->assertBodyContains('Dokument B', $all);
         $this->assertBodyNotContains('is-unread', $all);

@@ -23,7 +23,7 @@ $tzJson  = (string) json_encode($tz, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLA
         'title'   => 'Kein taktisches Zeichen',
         'text'    => $canManage
             ? 'Das Zeichen legst du im Formular des Fahrzeugs an.'
-            : 'Das Zeichen hinterlegt, wer Fahrzeuge verwalten darf.',
+            : 'Das Zeichen hinterlegt, wer die Fahrzeugverwaltung von der Administration bekommen hat.',
         'actions' => $canManage
             ? [['label' => 'Zeichen anlegen', 'href' => $basePath . 'settings/vehicles/vehicles/' . $vehicleId . '/edit', 'style' => 'secondary', 'icon' => 'fa-pen', 'attrs' => ['data-ignis-drawer' => '']]]
             : [],

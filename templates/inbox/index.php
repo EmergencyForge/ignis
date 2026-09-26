@@ -88,6 +88,10 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
                             'heading' => 2,
                             'title'   => 'Keine Benachrichtigungen gefunden',
                             'text'    => 'Mit diesem Filter gibt es keine Benachrichtigungen.',
+                            'query'   => ['filters' => array_merge(
+                                $unreadOnly ? [['label' => 'Ungelesen', 'removeHref' => $list->url($pgPath, ['filter' => null, 'page' => null])]] : [],
+                                $type !== '' ? [['label' => 'Typ: ' . (isset($types[$type]) ? $types[$type]->label() : $type), 'removeHref' => $list->url($pgPath, ['type' => null, 'page' => null])]] : [],
+                            )],
                             'actions' => [['label' => 'Alle anzeigen', 'href' => $list->url($pgPath, ['filter' => null, 'type' => null, 'page' => null]), 'style' => 'secondary']],
                         ]
                         : [

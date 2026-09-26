@@ -182,6 +182,31 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                     </div>
                     <?php if (empty($entries)): ?>
                         <?php
+                        // Aktive Filter als Chips; jeder Link ist die aktuelle URL ohne genau diesen Parameter.
+                        $filterParams = array_filter([
+                            'vehicle'   => $filterVehicle > 0 ? (string) $filterVehicle : '',
+                            'fahrttyp'  => $filterFahrttyp,
+                            'date_from' => $filterDateFrom,
+                            'date_to'   => $filterDateTo,
+                        ], static fn (string $value): bool => $value !== '');
+                        $filterDate = static function (string $value): string {
+                            $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+                            return $date !== false ? $date->format('d.m.Y') : $value;
+                        };
+                        $filterLabels = [
+                            'vehicle'   => 'Fahrzeug: ' . (array_column($vehicles, 'name', 'id')[$filterVehicle] ?? '#' . $filterVehicle),
+                            'fahrttyp'  => 'Fahrttyp: ' . ($fahrttypen[$filterFahrttyp] ?? $filterFahrttyp),
+                            'date_from' => 'Von: ' . $filterDate($filterDateFrom),
+                            'date_to'   => 'Bis: ' . $filterDate($filterDateTo),
+                        ];
+                        $activeFilters = [];
+                        foreach ($filterParams as $filterKey => $filterValue) {
+                            $filterRest = array_diff_key($filterParams, [$filterKey => true]);
+                            $activeFilters[] = [
+                                'label'      => $filterLabels[$filterKey],
+                                'removeHref' => BASE_PATH . 'logbook/index' . ($filterRest === [] ? '' : '?' . http_build_query($filterRest)),
+                            ];
+                        }
                         $empty = $hasFilter
                             ? [
                                 'variant' => 'sm',
@@ -189,6 +214,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                 'heading' => 2,
                                 'title'   => 'Keine Fahrten gefunden',
                                 'text'    => 'Mit den gesetzten Filtern passt keine Fahrt.',
+                                'query'   => ['filters' => $activeFilters],
                                 'actions' => [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'logbook/index', 'style' => 'secondary']],
                             ]
                             : [

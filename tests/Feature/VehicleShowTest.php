@@ -129,9 +129,9 @@ final class VehicleShowTest extends FeatureTestCase
         $page = $this->get('/settings/vehicles/vehicles/' . $vehicle['id']);
         $this->assertOk($page);
         $this->assertBodyContains('data-tab="maengel">Mängel</button>', $page);
-        $this->assertBodyContains('Keine Mängel gemeldet.', $page);
-        $this->assertBodyContains('Keine Beladeliste für den Typ OHNE-LISTE.', $page);
-        $this->assertBodyContains('Kein taktisches Zeichen hinterlegt.', $page);
+        $this->assertBodyContains('<h3 class="ignis-empty__title">Keine Mängel gemeldet</h3>', $page);
+        $this->assertBodyContains('<h3 class="ignis-empty__title">Keine Beladeliste für den Typ OHNE-LISTE</h3>', $page);
+        $this->assertBodyContains('<h3 class="ignis-empty__title">Kein taktisches Zeichen</h3>', $page);
         $this->assertBodyContains('Noch keine Aktivität.', $page);
         $this->assertBodyContains('<span class="ignis-breadcrumb__item is-active">Leer 1</span>', $page);
     }

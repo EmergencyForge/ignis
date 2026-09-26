@@ -69,7 +69,7 @@ $bodyPage = 'edivi';
                 if ($statusFilter === 'abgeschlossen') {
                     $empty = ['title' => 'Keine abgeschlossenen MANV-Lagen', 'text' => 'Lagen erscheinen hier, sobald sie abgeschlossen sind.', 'icon' => 'fa-flag-checkered'];
                 } elseif ($statusFilter === 'archiviert') {
-                    $empty = ['title' => 'Keine archivierten MANV-Lagen', 'text' => 'Archivierte Lagen erscheinen hier.', 'icon' => 'fa-box-archive'];
+                    $empty = ['title' => 'Keine archivierten MANV-Lagen', 'text' => 'Abgeschlossene Lagen erscheinen hier, sobald sie archiviert werden.', 'icon' => 'fa-box-archive'];
                 } else {
                     $empty = [
                         'title'   => 'Keine aktive MANV-Lage',

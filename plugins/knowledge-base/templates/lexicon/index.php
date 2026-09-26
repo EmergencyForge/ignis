@@ -267,6 +267,27 @@ $SITE_TITLE = 'Wissensdatenbank';
                     <?php if (empty($entries)): ?>
                         <?php
                         $canCreateEntry = $isLoggedIn && Permissions::check(['admin', 'kb.edit']);
+                        // Aktive Filter als Chips; jeder Link ist die aktuelle URL ohne genau diesen Parameter.
+                        $kbParams = array_filter([
+                            'type'     => $typeFilter !== 'all' ? (string) $typeFilter : '',
+                            'category' => $categoryFilter > 0 ? (string) $categoryFilter : '',
+                            'tag'      => $tagFilter > 0 ? (string) $tagFilter : '',
+                            'search'   => (string) $searchQuery,
+                            'archived' => $showArchived ? '1' : '',
+                        ], static fn (string $value): bool => $value !== '');
+                        $kbLabels = [
+                            'type'     => 'Typ: ' . (['general' => 'Allgemein', 'medication' => 'Medikamente', 'measure' => 'Maßnahmen'][$typeFilter] ?? $typeFilter),
+                            'category' => 'Kategorie: ' . (array_column($allCategories, 'name', 'id')[$categoryFilter] ?? '#' . $categoryFilter),
+                            'tag'      => 'Tag: ' . (array_column($allTags, 'name', 'id')[$tagFilter] ?? '#' . $tagFilter),
+                        ];
+                        $kbFilters = [];
+                        foreach (array_intersect_key($kbParams, $kbLabels) as $kbKey => $kbValue) {
+                            $kbRest = array_diff_key($kbParams, [$kbKey => true]);
+                            $kbFilters[] = [
+                                'label'      => $kbLabels[$kbKey],
+                                'removeHref' => BASE_PATH . 'lexicon' . ($kbRest === [] ? '' : '?' . http_build_query($kbRest)),
+                            ];
+                        }
                         $empty = $typeFilter !== 'all' || $categoryFilter > 0 || $tagFilter > 0 || $searchQuery !== ''
                             ? [
                                 'variant' => 'sm',
@@ -274,7 +295,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                 'heading' => 2,
                                 'title'   => 'Keine Einträge gefunden',
                                 'text'    => 'Mit den gesetzten Filtern passt kein Eintrag.',
-                                'query'   => ['term' => $searchQuery],
+                                'query'   => ['term' => $searchQuery, 'filters' => $kbFilters],
                                 'actions' => array_merge(
                                     [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'lexicon', 'style' => 'secondary']],
                                     $canCreateEntry ? [['label' => 'Eintrag erstellen', 'href' => BASE_PATH . 'lexicon/create', 'style' => 'ghost', 'icon' => 'fa-plus']] : [],

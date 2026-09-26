@@ -122,7 +122,7 @@ $statusMap = [
                                             'variant' => 'sm',
                                             'icon'    => 'fa-box-archive',
                                             'title'   => 'Keine archivierten Protokolle',
-                                            'text'    => 'Archivierte Einsätze erscheinen hier.',
+                                            'text'    => 'Gelöschte Einsätze werden archiviert und erscheinen dann hier.',
                                         ];
                                     } else {
                                         $empty = [

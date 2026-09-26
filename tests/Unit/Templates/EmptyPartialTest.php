@@ -61,6 +61,16 @@ final class EmptyPartialTest extends TestCase
         self::assertStringNotContainsString('onclick', $html);
     }
 
+    public function testSkipsTheQueryRowWithoutTermOrSafeFilter(): void
+    {
+        $html = $this->render([
+            'variant' => 'sm', 'title' => 'Keine Treffer',
+            'query' => ['term' => '', 'filters' => [['label' => 'Böse', 'removeHref' => 'javascript:alert(1)']]],
+        ]);
+        self::assertStringNotContainsString('ignis-empty__query', $html);
+        self::assertStringNotContainsString('ignis-empty__query', $this->render(['title' => 'T', 'query' => []]));
+    }
+
     public function testStepsCarryStateAndProgress(): void
     {
         $html = $this->render([

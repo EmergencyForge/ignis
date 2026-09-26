@@ -71,20 +71,21 @@ echo '<h' . $emptyHeading . ' class="ignis-empty__title">' . $emptyE($empty['tit
 if (($empty['text'] ?? '') !== '') {
     echo '<p class="ignis-empty__text">' . $emptyE($empty['text']) . '</p>';
 }
-if (isset($empty['query'])) {
-    echo '<div class="ignis-empty__query">';
-    if (($empty['query']['term'] ?? '') !== '') {
-        echo '<span class="ignis-empty__term">„' . $emptyE($empty['query']['term']) . '“</span>';
+// Die Zeile erscheint nur, wenn es einen Suchbegriff oder einen Filter mit sicherem Ziel gibt.
+$emptyQuery = '';
+if (($empty['query']['term'] ?? '') !== '') {
+    $emptyQuery .= '<span class="ignis-empty__term">„' . $emptyE($empty['query']['term']) . '“</span>';
+}
+foreach ($empty['query']['filters'] ?? [] as $emptyItem) {
+    $emptyFilterHref = (string) ($emptyItem['removeHref'] ?? '');
+    if (!$emptySafeUrl($emptyFilterHref)) {
+        continue;
     }
-    foreach ($empty['query']['filters'] ?? [] as $emptyItem) {
-        $emptyFilterHref = (string) ($emptyItem['removeHref'] ?? '');
-        if (!$emptySafeUrl($emptyFilterHref)) {
-            continue;
-        }
-        echo '<a class="ignis-empty__filter" href="' . $emptyE($emptyFilterHref) . '">' . $emptyE($emptyItem['label'] ?? '')
-            . ' <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="ignis-sr-only">entfernen</span></a>';
-    }
-    echo '</div>';
+    $emptyQuery .= '<a class="ignis-empty__filter" href="' . $emptyE($emptyFilterHref) . '">' . $emptyE($emptyItem['label'] ?? '')
+        . ' <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="ignis-sr-only">entfernen</span></a>';
+}
+if ($emptyQuery !== '') {
+    echo '<div class="ignis-empty__query">' . $emptyQuery . '</div>';
 }
 if (($empty['tips'] ?? []) !== []) {
     echo '<ul class="ignis-empty__tips">';
