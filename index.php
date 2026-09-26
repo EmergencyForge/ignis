@@ -37,7 +37,7 @@ ob_start();
                 <?php include __DIR__ . '/assets/components/index/blog.php' ?>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 mt-10">
+            <div class="grid grid-cols-1 gap-6 mt-10" data-ignis-enter>
                 <section class="ignis-card" data-section="documents" aria-labelledby="dashboard-documents-title">
                     <div class="ignis-card__header">
                         <h2 class="ignis-card__title" id="dashboard-documents-title">Eigene Dokumente</h2>

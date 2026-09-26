@@ -30,6 +30,7 @@
  */
 
 $layoutMotion = preg_match('~/settings/vehicles/vehicles(?:/\d+)?$~', \App\Helpers\Navigation::currentPath()) === 1 ? 'record' : '';
+$layoutThemeFade = \App\Helpers\Theme::consumeTransition();
 $layoutTheme = \App\Helpers\Theme::mode();
 $layoutPath  = \App\Helpers\Navigation::currentPath();
 $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutPath !== '/settings/system/index';
@@ -38,7 +39,7 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutP
 <html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-page-motion="<?= $layoutMotion ?>">
 
 <head>
-    <?php if ($layoutMotion !== ''): ?><style>@view-transition { navigation: auto; }</style><?php endif; ?>
+    <?php if ($layoutMotion !== '' || $layoutThemeFade): ?><style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style><?php endif; ?>
     <?= \App\Helpers\Theme::systemScript() ?>
     <script>try { if (localStorage.getItem('ignis.sidebar') === 'collapsed') document.documentElement.classList.add('is-collapsed'); } catch (e) {}</script>
     <?php require dirname(__DIR__, 2) . '/assets/components/_base/admin/head.php'; ?>

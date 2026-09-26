@@ -4107,6 +4107,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transform: translateX(20px);
     transition: opacity 0.25s ease, transform 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
 
+    @media (prefers-reduced-motion: no-preference) {
+        transition: opacity 0.25s ease, transform 460ms var(--motion-spring);
+    }
+
     &.is-visible {
         opacity: 1;
         transform: translateX(0);

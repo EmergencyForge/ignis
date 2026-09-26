@@ -29,7 +29,7 @@ foreach ($statDefinitions as [$key, $label, $table, $href, $permissions]) {
     <?php foreach ($statTiles as [$statLabel, $statValue, $statHref]): ?>
         <<?= $statHref !== null ? 'a href="' . htmlspecialchars(BASE_PATH . $statHref, ENT_QUOTES) . '"' : 'div' ?> class="twplus-stats__item">
             <span class="twplus-stats__label"><?= htmlspecialchars($statLabel) ?></span>
-            <span class="twplus-stats__value"><?= $statValue === null ? 'Nicht verfügbar' : (int) $statValue ?></span>
+            <span class="twplus-stats__value"<?= $statValue === null ? '' : ' data-ignis-count' ?>><?= $statValue === null ? 'Nicht verfügbar' : (int) $statValue ?></span>
         </<?= $statHref !== null ? 'a' : 'div' ?>>
     <?php endforeach; ?>
 </div>

@@ -45,6 +45,7 @@ final class ProfileController extends Controller
             $user->save();
         }
         SessionManager::set('theme', $theme);
+        Theme::flagTransition();
 
         return Response::redirect($back);
     }

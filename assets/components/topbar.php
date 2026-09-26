@@ -176,8 +176,8 @@ foreach ($topGroups as $topGroup) {
                 </div>
                 <div class="ignis-menu__sep"></div>
                 <div class="ignis-menu__heading">Darstellung</div>
-                <?php // ProfileController::theme() speichert und leitet hierher zurück. ?>
-                <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/theme', ENT_QUOTES) ?>" class="ignis-menu__form ignis-theme-options">
+                <?php // ProfileController::theme() speichert und leitet hierher zurück; die alte Seite blendet den Wechsel noch selbst über, bevor die neue Antwort ihr eigenes <style> mitbringt. ?>
+                <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/theme', ENT_QUOTES) ?>" class="ignis-menu__form ignis-theme-options" onsubmit="document.head.insertAdjacentHTML('beforeend','<style>@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto}}</style>')">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken(), ENT_QUOTES) ?>">
                     <?php foreach ($topThemes as $topThemeKey => [$topThemeLabel, $topThemeIcon]): ?>
                         <button type="submit" name="theme" value="<?= $topThemeKey ?>" class="ignis-menu__item<?= $topTheme === $topThemeKey ? ' is-current' : '' ?>" aria-pressed="<?= $topTheme === $topThemeKey ? 'true' : 'false' ?>">

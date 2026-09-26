@@ -31,6 +31,23 @@ final class Theme
     /** Erlaubte Werte für intra_users.theme. */
     public const MODES = ['dark', 'light', 'system'];
 
+    /** Session-Schlüssel der Einmalmarke für die Theme-Überblendung. */
+    private const TRANSITION_KEY = 'theme_transition';
+
+    /** Merkt vor, dass der nächste Seitenaufruf den Theme-Wechsel überblendet. */
+    public static function flagTransition(): void
+    {
+        $_SESSION[self::TRANSITION_KEY] = true;
+    }
+
+    /** Liefert die Marke einmal und löscht sie dabei. */
+    public static function consumeTransition(): bool
+    {
+        $flag = ! empty($_SESSION[self::TRANSITION_KEY]);
+        unset($_SESSION[self::TRANSITION_KEY]);
+        return $flag;
+    }
+
     /**
      * Modus des angemeldeten Kontos. Aus der Session; eine Session von vor
      * dieser Spalte liest ihn einmal aus intra_users und merkt ihn sich.
