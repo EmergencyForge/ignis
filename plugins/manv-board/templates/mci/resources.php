@@ -40,11 +40,17 @@ $bodyPage = 'edivi';
                 </div>
                 <div class="twplus-table-card__scroll">
                     <?php if (empty($fahrzeuge)): ?>
-                        <div class="twplus-empty">
-                            <i class="fas fa-truck-medical twplus-empty__icon"></i>
-                            <h2 class="twplus-empty__title">Keine Fahrzeuge vorhanden</h2>
-                            <p class="twplus-empty__description">Füge das erste Fahrzeug hinzu, um Ressourcen der Lage zuzuordnen.</p>
-                        </div>
+                        <?php
+                        $empty = [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-truck-medical',
+                            'heading' => 2,
+                            'title'   => 'Noch keine Fahrzeuge',
+                            'text'    => 'Füge das erste Fahrzeug hinzu, um Ressourcen der Lage zuzuordnen.',
+                            'actions' => [['label' => 'Fahrzeug hinzufügen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-dialog-target' => '#createModal']]],
+                        ];
+                        require dirname(__DIR__, 4) . '/templates/partials/empty.php';
+                        ?>
                     <?php else: ?>
                         <div>
                             <table class="twplus-table">

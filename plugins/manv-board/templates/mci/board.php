@@ -100,7 +100,15 @@ $pgPath = 'mci/board';
                             </thead>
                             <tbody>
                                 <?php if ($patienten === []): ?>
-                                    <tr><td colspan="8" class="ignis-table-empty">Keine Patienten an der Einsatzstelle.</td></tr>
+                                    <?php
+                                    $empty = [
+                                        'variant' => 'sm',
+                                        'icon'    => 'fa-user-injured',
+                                        'title'   => 'Noch keine Patienten',
+                                        'text'    => 'Patienten erscheinen hier, sobald sie an der Einsatzstelle gesichtet sind.',
+                                    ];
+                                    ?>
+                                    <tr><td colspan="8"><?php require dirname(__DIR__, 4) . '/templates/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($patienten as $patient):
                                     $skChipClass = 'ignis-chip--' . strtolower((string) $patient['sichtungskategorie']);

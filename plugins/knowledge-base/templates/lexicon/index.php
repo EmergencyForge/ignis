@@ -265,14 +265,35 @@ $SITE_TITLE = 'Wissensdatenbank';
 
                     <!-- Entries Grid -->
                     <?php if (empty($entries)): ?>
-                        <div class="twplus-empty">
-                            <i class="fa-solid fa-book-open twplus-empty__icon"></i>
-                            <h2 class="twplus-empty__title">Keine Einträge gefunden</h2>
-                            <p class="twplus-empty__description">Passe Suche oder Filter an, um weitere Inhalte anzuzeigen.</p>
-                            <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
-                                <a class="ignis-btn ignis-btn--soft-primary twplus-empty__action" href="<?= BASE_PATH ?>lexicon/create"><i class="fa-solid fa-plus"></i> Ersten Eintrag erstellen</a>
-                            <?php endif; ?>
-                        </div>
+                        <?php
+                        $canCreateEntry = $isLoggedIn && Permissions::check(['admin', 'kb.edit']);
+                        $empty = $typeFilter !== 'all' || $categoryFilter > 0 || $tagFilter > 0 || $searchQuery !== ''
+                            ? [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-magnifying-glass',
+                                'heading' => 2,
+                                'title'   => 'Keine Einträge gefunden',
+                                'text'    => 'Mit den gesetzten Filtern passt kein Eintrag.',
+                                'query'   => ['term' => $searchQuery],
+                                'actions' => array_merge(
+                                    [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'lexicon', 'style' => 'secondary']],
+                                    $canCreateEntry ? [['label' => 'Eintrag erstellen', 'href' => BASE_PATH . 'lexicon/create', 'style' => 'ghost', 'icon' => 'fa-plus']] : [],
+                                ),
+                            ]
+                            : [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-book-open',
+                                'heading' => 2,
+                                'title'   => 'Noch keine Einträge',
+                                'text'    => $canCreateEntry
+                                    ? 'Einträge zu Medikamenten, Maßnahmen und allgemeinem Wissen erscheinen hier.'
+                                    : 'Einträge erscheinen hier, sobald die Redaktion der Wissensdatenbank welche anlegt.',
+                                'actions' => $canCreateEntry
+                                    ? [['label' => 'Ersten Eintrag erstellen', 'href' => BASE_PATH . 'lexicon/create', 'style' => 'primary', 'icon' => 'fa-plus']]
+                                    : [],
+                            ];
+                        require dirname(__DIR__, 4) . '/templates/partials/empty.php';
+                        ?>
                     <?php else: ?>
                         <div class="twplus-content-grid">
                             <?php foreach ($entries as $entry): 

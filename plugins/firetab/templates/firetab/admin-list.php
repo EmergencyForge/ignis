@@ -107,7 +107,33 @@ $statusMap = [
                             </thead>
                             <tbody>
                                 <?php if ($incidents === []): ?>
-                                    <tr><td colspan="<?= $showArchived ? 7 : 8 ?>" class="ignis-table-empty">Keine Protokolle gefunden.</td></tr>
+                                    <?php
+                                    if ($list->q !== '') {
+                                        $empty = [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-magnifying-glass',
+                                            'title'   => 'Keine Protokolle gefunden',
+                                            'text'    => 'Mit dieser Suche passt kein Einsatz.',
+                                            'query'   => ['term' => $list->q],
+                                            'actions' => [['label' => 'Suche zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'page' => null]), 'style' => 'secondary']],
+                                        ];
+                                    } elseif ($showArchived) {
+                                        $empty = [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-box-archive',
+                                            'title'   => 'Keine archivierten Protokolle',
+                                            'text'    => 'Archivierte Einsätze erscheinen hier.',
+                                        ];
+                                    } else {
+                                        $empty = [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-fire',
+                                            'title'   => 'Noch keine Protokolle',
+                                            'text'    => 'Einsätze aus dem fireTab erscheinen hier, sobald jemand einen anlegt.',
+                                        ];
+                                    }
+                                    ?>
+                                    <tr><td colspan="<?= $showArchived ? 7 : 8 ?>"><?php require dirname(__DIR__, 4) . '/templates/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($incidents as $i): ?>
                                     <?php

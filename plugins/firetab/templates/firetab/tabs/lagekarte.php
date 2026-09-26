@@ -507,11 +507,16 @@ try {
                     </thead>
                     <tbody id="markerTableBody">
                         <?php if (empty($markers)): ?>
-                            <tr>
-                                <td colspan="6" class="ignis-table-empty">
-                                    Noch keine Marker platziert
-                                </td>
-                            </tr>
+                            <?php
+                            $empty = [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-location-dot',
+                                'heading' => 4,
+                                'title'   => 'Noch keine Marker',
+                                'text'    => 'Marker, die auf der Karte gesetzt werden, erscheinen hier.',
+                            ];
+                            ?>
+                            <tr><td colspan="6"><?php require dirname(__DIR__, 5) . '/templates/partials/empty.php'; ?></td></tr>
                         <?php else: ?>
                             <?php foreach ($markers as $marker): ?>
                                 <tr data-marker-id="<?= $marker['id'] ?>">
@@ -556,11 +561,16 @@ try {
                     </thead>
                     <tbody id="zoneTableBody">
                         <?php if (empty($zones)): ?>
-                            <tr>
-                                <td colspan="7" class="ignis-table-empty">
-                                    Noch keine Zonen erstellt
-                                </td>
-                            </tr>
+                            <?php
+                            $empty = [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-draw-polygon',
+                                'heading' => 4,
+                                'title'   => 'Noch keine Zonen',
+                                'text'    => 'Zonen, die auf der Karte gezeichnet werden, erscheinen hier.',
+                            ];
+                            ?>
+                            <tr><td colspan="7"><?php require dirname(__DIR__, 5) . '/templates/partials/empty.php'; ?></td></tr>
                         <?php else: ?>
                             <?php foreach ($zones as $zone): ?>
                                 <tr data-zone-id="<?= $zone['id'] ?>">

@@ -31,11 +31,16 @@ $bodyPage = 'edivi';
             <div class="twplus-section-card">
                 <div class="twplus-section-card__body">
                     <?php if (empty($logEntries)): ?>
-                        <div class="twplus-empty">
-                            <i class="fas fa-clock-rotate-left twplus-empty__icon"></i>
-                            <h2 class="twplus-empty__title">Noch keine Logeinträge</h2>
-                            <p class="twplus-empty__description">Aktionen an dieser Lage erscheinen hier chronologisch.</p>
-                        </div>
+                        <?php
+                        $empty = [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-clock-rotate-left',
+                            'heading' => 2,
+                            'title'   => 'Noch keine Logeinträge',
+                            'text'    => 'Aktionen an dieser Lage erscheinen hier chronologisch.',
+                        ];
+                        require dirname(__DIR__, 4) . '/templates/partials/empty.php';
+                        ?>
                     <?php else: ?>
                         <div class="twplus-feed">
                             <?php foreach ($logEntries as $entry): ?>

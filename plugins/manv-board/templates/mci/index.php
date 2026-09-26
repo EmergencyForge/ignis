@@ -65,24 +65,22 @@ $bodyPage = 'edivi';
             </header>
 
             <?php if (empty($lagen)): ?>
-                <div class="twplus-empty">
-                    <i class="fas fa-truck-medical twplus-empty__icon"></i>
-                    <h2 class="twplus-empty__title">Keine MANV-Lagen vorhanden</h2>
-                    <p class="twplus-empty__description">
-                    <?php
-                    if ($statusFilter === 'abgeschlossen') {
-                        echo 'Derzeit sind keine abgeschlossenen MANV-Lagen vorhanden.';
-                    } elseif ($statusFilter === 'archiviert') {
-                        echo 'Derzeit sind keine archivierten MANV-Lagen vorhanden.';
-                    } else {
-                        echo 'Derzeit sind keine aktiven MANV-Lagen vorhanden.';
-                    }
-                    ?>
-                    </p>
-                    <?php if ($statusFilter === 'aktiv'): ?>
-                        <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--soft-primary twplus-empty__action"><i class="fas fa-plus"></i> Lage anlegen</a>
-                    <?php endif; ?>
-                </div>
+                <?php
+                if ($statusFilter === 'abgeschlossen') {
+                    $empty = ['title' => 'Keine abgeschlossenen MANV-Lagen', 'text' => 'Lagen erscheinen hier, sobald sie abgeschlossen sind.', 'icon' => 'fa-flag-checkered'];
+                } elseif ($statusFilter === 'archiviert') {
+                    $empty = ['title' => 'Keine archivierten MANV-Lagen', 'text' => 'Archivierte Lagen erscheinen hier.', 'icon' => 'fa-box-archive'];
+                } else {
+                    $empty = [
+                        'title'   => 'Keine aktive MANV-Lage',
+                        'text'    => 'Bei einem Massenanfall von Verletzten legst du hier die Lage an und sichtest die Patienten.',
+                        'icon'    => 'fa-truck-medical',
+                        'actions' => [['label' => 'Lage anlegen', 'href' => BASE_PATH . 'mci/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                    ];
+                }
+                $empty += ['variant' => 'sm', 'heading' => 2];
+                require dirname(__DIR__, 4) . '/templates/partials/empty.php';
+                ?>
             <?php else: ?>
                 <div class="twplus-content-grid">
                     <?php foreach ($lagen as $lage):
