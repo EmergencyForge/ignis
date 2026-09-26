@@ -579,7 +579,8 @@ html.is-collapsed body.ignis-app--legacy {
   }
 }
 
-// Eingeklappt: nur Symbole, Tooltip über title.
+// Eingeklappt: nur Symbole, Tooltip über data-ignis-tooltip (Paket-Tooltip
+// aus tooltip.js zeigt an .ignis-sidebar__link nur in diesem Zustand).
 @media (min-width: 901px) {
   html.is-collapsed {
     .ignis-sidebar__label,

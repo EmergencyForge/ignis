@@ -15,10 +15,11 @@ declare(strict_types=1);
  * App\Support\NavigationCounters an die Zeile; er steht auch bei 0 im
  * Markup (versteckt), weil notifications.js ihn per Polling nachführt.
  *
- * 240 px breit, eingeklappt 56 px: dann bleiben die Symbole mit Tooltip
- * (title), Labels und Gruppen verschwinden (CSS über html.is-collapsed,
- * Zustand hält shell.js in localStorage). Unter 900 px ist sie ein
- * Drawer hinter dem Menü-Knopf der Topbar, mit Scrim.
+ * 240 px breit, eingeklappt 64 px: dann bleiben die Symbole mit Tooltip
+ * (data-ignis-tooltip, das Paket zeigt ihn dort nur eingeklappt), Labels
+ * und Gruppen verschwinden (CSS über html.is-collapsed, Zustand hält
+ * shell.js in localStorage). Unter 900 px ist sie ein Drawer hinter dem
+ * Menü-Knopf der Topbar, mit Scrim.
  *
  * Läuft per `require` im Scope des Layouts (oder des Shims navbar.php) und
  * teilt dessen Variablen. Alle lokalen Variablen tragen darum das Präfix
@@ -50,7 +51,7 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                     <a
                         href="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
                         class="ignis-sidebar__link"
-                        aria-label="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>" data-ignis-tooltip="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>"
+                        aria-label="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>" data-ignis-tooltip="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>" data-placement="right"
                         <?= $navItem['active'] ? 'aria-current="page"' : '' ?>
                         <?= $navExternal ? 'target="_blank" rel="noopener"' : '' ?>
                     >
@@ -71,7 +72,7 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                                 class="ignis-sidebar__quick"
                                 <?= $navQuick['type'] === 'drawer' ? 'data-ignis-drawer' : '' ?>
                                 aria-label="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
-                                title="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                                data-ignis-tooltip="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>" data-placement="right"
                             >
                                 <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             </a>
@@ -83,7 +84,7 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                                 data-quick-action-target="<?= htmlspecialchars((string) $navQuick['target'], ENT_QUOTES) ?>"
                                 data-quick-action-parent="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
                                 aria-label="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
-                                title="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                                data-ignis-tooltip="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>" data-placement="right"
                             >
                                 <i class="fa-solid fa-plus" aria-hidden="true"></i>
                             </button>
@@ -95,7 +96,7 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
     </nav>
 
     <?php if ($navVersion !== null): ?>
-        <div class="ignis-sidebar__version" title="ıgnıs <?= htmlspecialchars($navVersion, ENT_QUOTES) ?>">
+        <div class="ignis-sidebar__version" data-ignis-tooltip="ıgnıs <?= htmlspecialchars($navVersion, ENT_QUOTES) ?>" data-placement="right">
             <span class="ignis-sidebar__version-mark" aria-hidden="true">ı</span>
             <span class="ignis-sidebar__label">ıgnıs <?= htmlspecialchars($navVersion) ?></span>
         </div>
