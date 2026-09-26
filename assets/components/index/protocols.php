@@ -52,7 +52,15 @@ $protokollStatus = [
     </thead>
     <tbody>
         <?php if (empty($ediviRows)): ?>
-            <tr><td colspan="5" class="ignis-table-empty">Noch keine eNOTF-Protokolle. Abgeschlossene Einsatzprotokolle erscheinen hier von selbst.</td></tr>
+            <?php
+            $empty = [
+                'variant' => 'sm',
+                'icon'    => 'fa-file-medical',
+                'title'   => 'Noch keine eNOTF-Protokolle',
+                'text'    => 'Abgeschlossene Einsatzprotokolle erscheinen hier von selbst.',
+            ];
+            ?>
+            <tr><td colspan="5"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
         <?php foreach ($ediviRows as $row):
             [$stateText, $stateChip] = $protokollStatus[(int) $row['protokoll_status']] ?? ['Ungenügend', 'danger'];

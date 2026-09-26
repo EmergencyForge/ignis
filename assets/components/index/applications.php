@@ -40,7 +40,15 @@ $appStatus = [
     </thead>
     <tbody>
         <?php if (empty($appresult)): ?>
-            <tr><td colspan="6" class="ignis-table-empty">Noch keine Anträge. Der erste geht über „Antrag einreichen" oben rechts.</td></tr>
+            <?php
+            $empty = [
+                'variant' => 'sm',
+                'icon'    => 'fa-clipboard-list',
+                'title'   => 'Noch keine Anträge',
+                'text'    => 'Den ersten stellst du über „Antrag einreichen“. Danach siehst du hier seinen Stand.',
+            ];
+            ?>
+            <tr><td colspan="6"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
         <?php foreach ($appresult as $row):
             [$stateText, $stateChip] = $appStatus[(int) $row['cirs_status']] ?? ['Unbekannt', 'secondary'];

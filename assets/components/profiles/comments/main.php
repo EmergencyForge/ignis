@@ -17,12 +17,15 @@ $typeIcons = [
     'negative' => 'fa-circle-xmark',
 ];
 
-if (empty($comments)): ?>
-    <div class="twplus-empty">
-        <i class="fa-solid fa-comments twplus-empty__icon"></i>
-        <h3 class="twplus-empty__title">Keine Kommentare vorhanden</h3>
-        <p class="twplus-empty__description">Neue Notizen und Rückmeldungen erscheinen hier chronologisch.</p>
-    </div>
+if (empty($comments)):
+    $empty = [
+        'variant' => 'sm',
+        'icon'    => 'fa-comments',
+        'title'   => 'Noch keine Kommentare',
+        'text'    => 'Notizen und Rückmeldungen zu diesem Profil erscheinen hier, neueste zuerst.',
+    ];
+    require dirname(__DIR__, 4) . '/templates/partials/empty.php';
+?>
 <?php else: ?>
     <?php foreach ($comments as $comment):
         $commentType = PersonalLogManager::getTypeName($comment['type']);

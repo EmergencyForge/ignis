@@ -54,9 +54,26 @@ $documentChip = static function (array $doc): string {
     </thead>
     <tbody>
         <?php if (!$userData): ?>
-            <tr><td colspan="5" class="ignis-table-empty">Kein Mitarbeiterprofil verknüpft. Dokumente erscheinen, sobald ein Profil mit deinem Konto verbunden ist.</td></tr>
+            <?php
+            $empty = [
+                'variant' => 'sm',
+                'tone'    => 'warn',
+                'icon'    => 'fa-id-badge',
+                'title'   => 'Kein Mitarbeiterprofil verknüpft',
+                'text'    => 'Dokumente erscheinen, sobald die Personalverwaltung ein Profil mit deinem Konto verbindet.',
+            ];
+            ?>
+            <tr><td colspan="5"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php elseif (empty($dokuresult)): ?>
-            <tr><td colspan="5" class="ignis-table-empty">Noch keine Dokumente. Hier erscheinen deine Urkunden und Zertifikate.</td></tr>
+            <?php
+            $empty = [
+                'variant' => 'sm',
+                'icon'    => 'fa-file-lines',
+                'title'   => 'Noch keine Dokumente',
+                'text'    => 'Urkunden und Zertifikate aus deiner Personalakte erscheinen hier.',
+            ];
+            ?>
+            <tr><td colspan="5"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
         <?php foreach ($dokuresult as $doks):
             $docart  = \App\Models\PersonnelDocument::typeLabel((int) $doks['type']);

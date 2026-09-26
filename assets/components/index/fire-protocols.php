@@ -47,7 +47,15 @@ $fireStatus = [
     </thead>
     <tbody>
         <?php if (empty($fireRows)): ?>
-            <tr><td colspan="6" class="ignis-table-empty">Noch keine fireTab-Protokolle. Abgeschlossene Einsätze aus dem fireTab erscheinen hier.</td></tr>
+            <?php
+            $empty = [
+                'variant' => 'sm',
+                'icon'    => 'fa-fire',
+                'title'   => 'Noch keine fireTab-Protokolle',
+                'text'    => 'Einsätze, die du im fireTab leitest, erscheinen hier von selbst.',
+            ];
+            ?>
+            <tr><td colspan="6"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
         <?php foreach ($fireRows as $row):
             [$stateText, $stateChip] = $row['finalized']

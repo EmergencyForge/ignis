@@ -74,7 +74,15 @@ $profileDocumentChip = static function (array $doc): string {
     </thead>
     <tbody>
         <?php if ($dokuresult === []): ?>
-            <tr><td colspan="5" class="ignis-table-empty">Noch keine Dokumente in dieser Akte.</td></tr>
+            <?php
+            $empty = [
+                'variant' => 'sm',
+                'icon'    => 'fa-file-lines',
+                'title'   => 'Noch keine Dokumente',
+                'text'    => 'Urkunden und Zertifikate dieser Akte erscheinen hier, sobald eines ausgestellt ist.',
+            ];
+            ?>
+            <tr><td colspan="5"><?php require dirname(__DIR__, 4) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
         <?php foreach ($dokuresult as $doks):
             $docart     = \App\Models\PersonnelDocument::typeLabel((int) $doks['type']);
