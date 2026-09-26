@@ -34,9 +34,15 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
 ?>
 
 <?php if (empty($entries)): ?>
-    <div class="ignis-table-empty">
-        <i class="fa-solid fa-book" aria-hidden="true"></i> Keine Fahrtenbuch-Einträge vorhanden
-    </div>
+    <?php
+    $empty = [
+        'variant' => 'sm',
+        'icon'    => 'fa-road',
+        'title'   => 'Noch keine Fahrten eingetragen',
+        'text'    => 'Fahrten erscheinen hier, sobald jemand eine einträgt.',
+    ];
+    require dirname(__DIR__, 3) . '/templates/partials/empty.php';
+    ?>
 <?php else: ?>
     <div class="twplus-table-card__scroll">
         <table class="ignis-table" id="fahrtenbuchTable">

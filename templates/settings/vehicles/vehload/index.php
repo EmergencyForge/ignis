@@ -170,9 +170,48 @@ $SITE_TITLE = 'Beladelisten';
                         ?>
                     <?php endforeach; ?>
                 </div>
-                <div data-beladung-empty class="beladung-no-results" style="display:none;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <p>Kein Treffer für deine Suche.</p>
+                <?php
+                if ($categories === []) {
+                    $empty = [
+                        'variant' => 'sm',
+                        'icon'    => 'fa-boxes-stacked',
+                        'heading' => 2,
+                        'title'   => 'Noch keine Beladungskategorien',
+                        'text'    => Permissions::check(['admin', 'vehicles.manage'])
+                            ? 'Kategorien ordnen die Beladung der Fahrzeuge. Lege die erste an und ergänze danach die Gegenstände.'
+                            : 'Kategorien ordnen die Beladung der Fahrzeuge. Anlegen darf, wer die Fahrzeugverwaltung von der Administration bekommen hat.',
+                        'actions' => Permissions::check(['admin', 'vehicles.manage'])
+                            ? [['label' => 'Neue Kategorie', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-beladung-add-category' => '']]]
+                            : [],
+                    ];
+                    require dirname(__DIR__, 3) . '/partials/empty.php';
+                }
+                ?>
+                <div id="no-results-message" style="display:none;">
+                    <?php
+                    $empty = [
+                        'variant' => 'sm',
+                        'icon'    => 'fa-magnifying-glass',
+                        'heading' => 2,
+                        'title'   => 'Keine Kategorien gefunden',
+                        'text'    => 'Mit den gesetzten Filtern passt keine Kategorie.',
+                        'actions' => [['label' => 'Filter zurücksetzen', 'style' => 'secondary', 'attrs' => ['data-beladung-reset' => '']]],
+                    ];
+                    require dirname(__DIR__, 3) . '/partials/empty.php';
+                    ?>
+                </div>
+                <div data-beladung-empty style="display:none;">
+                    <?php
+                    $empty = [
+                        'variant' => 'sm',
+                        'icon'    => 'fa-magnifying-glass',
+                        'heading' => 2,
+                        'title'   => 'Keine Beladung gefunden',
+                        'text'    => 'Mit diesem Suchbegriff passt keine Kategorie und kein Gegenstand.',
+                        'actions' => [['label' => 'Filter zurücksetzen', 'style' => 'secondary', 'attrs' => ['data-beladung-reset' => '']]],
+                    ];
+                    require dirname(__DIR__, 3) . '/partials/empty.php';
+                    ?>
                 </div>
             </div>
         </div>
@@ -274,30 +313,9 @@ $SITE_TITLE = 'Beladelisten';
             }
 
             function updateNoResultsMessage(visibleCount) {
-                let noResultsMsg = document.getElementById('no-results-message');
-
-                if (visibleCount === 0) {
-                    if (!noResultsMsg) {
-                        noResultsMsg = document.createElement('div');
-                        noResultsMsg.id = 'no-results-message';
-                        noResultsMsg.className = '';
-                        noResultsMsg.innerHTML = `
-                            <div class="ignis-card">
-                                <div class="ignis-card__body text-center py-5">
-                                    <i class="fa-solid fa-magnifying-glass text-gray-400" style="font-size: 3rem;"></i>
-                                    <h5 class="text-gray-400 mt-3">Keine Kategorien gefunden</h5>
-                                    <p class="text-gray-400">Passen Sie Ihre Filter an oder erstellen Sie eine neue Kategorie.</p>
-                                </div>
-                            </div>
-                        `;
-                        document.getElementById('categories-container').appendChild(noResultsMsg);
-                    }
-                    noResultsMsg.style.display = 'block';
-                } else {
-                    if (noResultsMsg) {
-                        noResultsMsg.style.display = 'none';
-                    }
-                }
+                // Ohne Kategorien steht schon der Leerzustand „Noch keine Beladungskategorien“ da.
+                const noResultsMsg = document.getElementById('no-results-message');
+                noResultsMsg.style.display = visibleCount === 0 && document.querySelector('.category-item') ? 'block' : 'none';
             }
 
             fahrzeugtypFilter.addEventListener('change', applyFilters);
@@ -315,6 +333,13 @@ $SITE_TITLE = 'Beladelisten';
                     searchInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 applyFilters();
+            });
+
+            document.querySelectorAll('[data-beladung-reset]').forEach(function(btn) {
+                btn.addEventListener('click', function() { resetFilterBtn.click(); });
+            });
+            document.querySelectorAll('[data-beladung-add-category]').forEach(function(btn) {
+                btn.addEventListener('click', function() { openAddBeladungCategoryModal(); });
             });
 
             toggleEmptyBtn.addEventListener('click', function() {

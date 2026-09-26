@@ -133,7 +133,38 @@ $SITE_TITLE = 'Fahrzeuge';
                             </thead>
                             <tbody>
                                 <?php if ($vehicles->isEmpty()): ?>
-                                    <tr><td colspan="<?= $canManage ? 8 : 7 ?>" class="ignis-table-empty">Keine Fahrzeuge gefunden.</td></tr>
+                                    <?php
+                                    if ($list->q !== '' || $list->filter('active') !== '') {
+                                        $empty = [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-magnifying-glass',
+                                            'title'   => 'Keine Fahrzeuge gefunden',
+                                            'text'    => 'Mit den gesetzten Filtern passt kein Fahrzeug.',
+                                            'query'   => [
+                                                'term'    => $list->q,
+                                                'filters' => $list->filter('active') !== ''
+                                                    ? [['label' => $list->filter('active') === '1' ? 'Aktiv' : 'Inaktiv', 'removeHref' => $list->url($pgPath, ['active' => null, 'page' => null])]]
+                                                    : [],
+                                            ],
+                                            'actions' => [['label' => 'Filter zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'active' => null, 'page' => null]), 'style' => 'secondary']],
+                                        ];
+                                    } else {
+                                        $empty = [
+                                            'variant'      => 'first',
+                                            'tone'         => 'info',
+                                            'icon'         => 'fa-truck-medical',
+                                            'ghostColumns' => 6,
+                                            'title'        => 'Noch keine Fahrzeuge',
+                                            'text'         => $canManage
+                                                ? 'Fahrzeuge brauchst du für Protokolle, Mängel und das Fahrtenbuch.'
+                                                : 'Fahrzeuge braucht ignis für Protokolle, Mängel und das Fahrtenbuch. Anlegen darf, wer die Fahrzeugverwaltung von der Administration bekommen hat.',
+                                            'actions'      => $canManage
+                                                ? [['label' => 'Fahrzeug erstellen', 'href' => BASE_PATH . 'settings/vehicles/vehicles/create', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
+                                                : [],
+                                        ];
+                                    }
+                                    ?>
+                                    <tr><td colspan="<?= $canManage ? 8 : 7 ?>"><?php require dirname(__DIR__, 3) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($vehicles as $row):
                                     [$rdChip, $rdLabel] = $rdTypes[(int) $row['rd_type']] ?? ['secondary', 'Andere'];

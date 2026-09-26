@@ -16,12 +16,20 @@ $tzParts = array_values(array_filter([$tz['grundzeichen'] ?? '', $tz['organisati
 $tzJson  = (string) json_encode($tz, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 ?>
 <?php if ($tz === []): ?>
-    <div class="ignis-table-empty">
-        <p class="mb-2">Kein taktisches Zeichen hinterlegt.</p>
-        <?php if ($canManage): ?>
-            <a href="<?= htmlspecialchars($basePath . 'settings/vehicles/vehicles/' . $vehicleId . '/edit') ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer><i class="fa-solid fa-pen" aria-hidden="true"></i> Zeichen anlegen</a>
-        <?php endif; ?>
-    </div>
+    <?php
+    $empty = [
+        'variant' => 'sm',
+        'icon'    => 'fa-shapes',
+        'title'   => 'Kein taktisches Zeichen',
+        'text'    => $canManage
+            ? 'Das Zeichen legst du im Formular des Fahrzeugs an.'
+            : 'Das Zeichen hinterlegt, wer Fahrzeuge verwalten darf.',
+        'actions' => $canManage
+            ? [['label' => 'Zeichen anlegen', 'href' => $basePath . 'settings/vehicles/vehicles/' . $vehicleId . '/edit', 'style' => 'secondary', 'icon' => 'fa-pen', 'attrs' => ['data-ignis-drawer' => '']]]
+            : [],
+    ];
+    require dirname(__DIR__, 3) . '/partials/empty.php';
+    ?>
 <?php else: ?>
     <div class="ignis-detail__tz" data-ignis-tz="<?= htmlspecialchars((string) json_encode($tz, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES) ?>" data-ignis-tz-class="ignis-detail__tz-svg">
         <div>

@@ -11,10 +11,16 @@
  */
 ?>
 <?php if ($loadout === []): ?>
-    <div class="ignis-table-empty">
-        <p class="mb-2">Keine Beladeliste für den Typ <?= htmlspecialchars((string) $vehicle['veh_type']) ?>.</p>
-        <a href="<?= htmlspecialchars($basePath . 'settings/vehicles/vehload/index') ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary">Beladelisten öffnen</a>
-    </div>
+    <?php
+    $empty = [
+        'variant' => 'sm',
+        'icon'    => 'fa-boxes-stacked',
+        'title'   => 'Keine Beladeliste für den Typ ' . $vehicle['veh_type'],
+        'text'    => 'Beladelisten gelten je Fahrzeugtyp und werden unter Beladelisten gepflegt.',
+        'actions' => [['label' => 'Beladelisten öffnen', 'href' => $basePath . 'settings/vehicles/vehload/index', 'style' => 'secondary']],
+    ];
+    require dirname(__DIR__, 3) . '/partials/empty.php';
+    ?>
 <?php else: ?>
     <?php
     $positions = array_sum(array_map(static fn (array $group): int => count($group['tiles']), $loadout));
@@ -26,7 +32,10 @@
             <section class="twplus-table-card">
                 <h4 class="ignis-detail__group-title"><?= htmlspecialchars((string) $group['category']['title']) ?> <span class="ignis-detail__muted"><?= count($group['tiles']) ?> Positionen</span></h4>
                 <?php if ($group['tiles'] === []): ?>
-                    <p class="ignis-table-empty">Keine Positionen.</p>
+                    <?php
+                    $empty = ['variant' => 'inline', 'icon' => 'fa-box-open', 'text' => 'Keine Positionen in dieser Kategorie.'];
+                    require dirname(__DIR__, 3) . '/partials/empty.php';
+                    ?>
                 <?php else: ?>
                     <table class="ignis-table">
                         <thead>

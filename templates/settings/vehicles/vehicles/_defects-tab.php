@@ -16,12 +16,18 @@ use App\Helpers\DateTimeHelper;
 use App\Models\VehicleDefect;
 ?>
 <?php if ($defects === []): ?>
-    <div class="ignis-table-empty">
-        <p class="mb-2">Keine Mängel gemeldet.</p>
-        <?php if ($canReport): ?>
-            <a href="<?= htmlspecialchars($basePath . 'settings/vehicles/defects/create?vehicle=' . $vehicleId) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer><i class="fa-solid fa-wrench" aria-hidden="true"></i> Mangel melden</a>
-        <?php endif; ?>
-    </div>
+    <?php
+    $empty = [
+        'variant' => 'sm',
+        'icon'    => 'fa-screwdriver-wrench',
+        'title'   => 'Keine Mängel gemeldet',
+        'text'    => 'Gemeldete Mängel dieses Fahrzeugs erscheinen hier mit ihrem Stand.',
+        'actions' => $canReport
+            ? [['label' => 'Mangel melden', 'href' => $basePath . 'settings/vehicles/defects/create?vehicle=' . $vehicleId, 'style' => 'secondary', 'icon' => 'fa-wrench', 'attrs' => ['data-ignis-drawer' => '']]]
+            : [],
+    ];
+    require dirname(__DIR__, 3) . '/partials/empty.php';
+    ?>
 <?php else: ?>
     <p class="ignis-list-meta mb-2"><?= $openDefects === 0 ? 'Keine offenen Mängel' : ($openDefects === 1 ? '1 offener Mangel' : $openDefects . ' offene Mängel') ?>, <?= count($defects) ?> insgesamt · <a href="<?= htmlspecialchars($defectsUrl) ?>">Mängelliste des Fahrzeugs</a></p>
     <div class="twplus-table-card">

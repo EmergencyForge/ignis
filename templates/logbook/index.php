@@ -167,15 +167,42 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
 
                 <!-- Entries Table -->
                 <div class="twplus-table-card">
-                    <div id="fbNoResults" class="ignis-table-empty" hidden>
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Keine Treffer
+                    <div id="fbNoResults" hidden>
+                        <?php
+                        $empty = [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-magnifying-glass',
+                            'heading' => 2,
+                            'title'   => 'Keine Fahrten gefunden',
+                            'text'    => 'Mit diesem Suchbegriff passt keine Fahrt.',
+                            'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-logbook-search-clear' => '']]],
+                        ];
+                        require dirname(__DIR__) . '/partials/empty.php';
+                        ?>
                     </div>
                     <?php if (empty($entries)): ?>
-                        <div class="twplus-empty">
-                            <i class="fa-solid fa-book twplus-empty__icon" aria-hidden="true"></i>
-                            <h2 class="twplus-empty__title">Keine Fahrten gefunden</h2>
-                            <p class="twplus-empty__description">Passe die Filter an oder erfasse den ersten Fahrtenbucheintrag.</p>
-                        </div>
+                        <?php
+                        $empty = $hasFilter
+                            ? [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-magnifying-glass',
+                                'heading' => 2,
+                                'title'   => 'Keine Fahrten gefunden',
+                                'text'    => 'Mit den gesetzten Filtern passt keine Fahrt.',
+                                'actions' => [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'logbook/index', 'style' => 'secondary']],
+                            ]
+                            : [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-road',
+                                'heading' => 2,
+                                'title'   => 'Noch keine Fahrten eingetragen',
+                                'text'    => 'Fahrten erscheinen hier, sobald jemand eine einträgt.',
+                                'actions' => $canManage
+                                    ? [['label' => 'Fahrt eintragen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-logbook-create' => '']]]
+                                    : [],
+                            ];
+                        require dirname(__DIR__) . '/partials/empty.php';
+                        ?>
                     <?php else: ?>
                         <div class="twplus-table-card__scroll">
                             <table class="ignis-table" id="fahrtenbuchAdminTable">
@@ -276,6 +303,9 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                 if (editWrap) editWrap.hidden = true;
                 createWrap.hidden = !createWrap.hidden;
             });
+            document.querySelectorAll('[data-logbook-create]').forEach(function(btn) {
+                btn.addEventListener('click', function() { toggleBtn.click(); });
+            });
         }
         if (cancelCreate) {
             cancelCreate.addEventListener('click', function() {
@@ -353,6 +383,14 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                 });
                 if (noResults) noResults.hidden = visible > 0 || rows.length === 0;
             });
+            var clearSearch = document.querySelector('[data-logbook-search-clear]');
+            if (clearSearch) {
+                clearSearch.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.focus();
+                });
+            }
         }
     });
     </script>

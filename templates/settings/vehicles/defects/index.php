@@ -215,15 +215,61 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
 
                     <!-- Defekt-Liste -->
                     <div class="twplus-stacked-list">
-                        <div id="defectNoResults" class="ignis-table-empty" hidden>
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Keine Treffer
+                        <div id="defectNoResults" hidden>
+                            <?php
+                            $empty = [
+                                'variant' => 'sm',
+                                'icon'    => 'fa-magnifying-glass',
+                                'heading' => 2,
+                                'title'   => 'Keine Mängel gefunden',
+                                'text'    => 'Mit diesem Suchbegriff passt kein Mangel.',
+                                'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-defect-search-clear' => '']]],
+                            ];
+                            require dirname(__DIR__, 3) . '/partials/empty.php';
+                            ?>
                         </div>
                         <?php if (empty($defects)): ?>
-                            <div class="twplus-empty">
-                                <i class="fa-solid fa-circle-check twplus-empty__icon" aria-hidden="true"></i>
-                                <h2 class="twplus-empty__title">Keine Defekte gefunden</h2>
-                                <p class="twplus-empty__description">Für die gewählten Filter liegen keine offenen oder archivierten Meldungen vor.</p>
-                            </div>
+                            <?php
+                            if ($filterVehicle === 0 && $filterStatus === '') {
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'icon'    => 'fa-screwdriver-wrench',
+                                    'heading' => 2,
+                                    'title'   => 'Noch keine Mängel gemeldet',
+                                    'text'    => 'Gemeldete Mängel erscheinen hier mit Fahrzeug und Stand.',
+                                ];
+                            } elseif ($filterStatus === 'open') {
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'tone'    => 'ok',
+                                    'icon'    => 'fa-check',
+                                    'heading' => 2,
+                                    'title'   => 'Keine offenen Mängel',
+                                    'text'    => $filterVehicle === 0 && (int) $stats['not_operable_open'] === 0
+                                        ? 'Alle Fahrzeuge sind ohne Einschränkung einsatzbereit.'
+                                        : 'Neu gemeldete Mängel erscheinen hier, bis jemand sie bearbeitet.',
+                                ];
+                            } else {
+                                $activeFilters = [];
+                                if ($filterVehicle > 0) {
+                                    $vehicleName = array_column($vehicles, 'name', 'id')[$filterVehicle] ?? '#' . $filterVehicle;
+                                    $activeFilters[] = ['label' => 'Fahrzeug: ' . $vehicleName, 'removeHref' => $listUrl(['vehicle' => null])];
+                                }
+                                if ($filterStatus !== '') {
+                                    $activeFilters[] = ['label' => 'Status: ' . $statusLabels[$filterStatus][0], 'removeHref' => $listUrl(['status' => null])];
+                                }
+                                $empty = [
+                                    'variant' => 'sm',
+                                    'icon'    => 'fa-magnifying-glass',
+                                    'heading' => 2,
+                                    'title'   => 'Keine Mängel gefunden',
+                                    'text'    => 'Mit den gesetzten Filtern passt kein Mangel.',
+                                    'query'   => ['filters' => $activeFilters],
+                                    'actions' => [['label' => 'Filter zurücksetzen', 'href' => $listUrl(['vehicle' => null, 'status' => null]), 'style' => 'secondary']],
+                                ];
+                            }
+                            require dirname(__DIR__, 3) . '/partials/empty.php';
+                            ?>
                         <?php else: ?>
                             <?php foreach ($defects as $d):
                                 [$statLabel, $statChip] = $statusLabels[$d['status']] ?? ['?', 'secondary'];
@@ -669,6 +715,14 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                 var noResults = document.getElementById('defectNoResults');
                 if (noResults) noResults.hidden = visibleCount !== 0;
             });
+            var clearSearch = document.querySelector('[data-defect-search-clear]');
+            if (clearSearch) {
+                clearSearch.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.focus();
+                });
+            }
         }
     });
     </script>
