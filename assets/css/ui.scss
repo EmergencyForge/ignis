@@ -2,6 +2,7 @@
 @use 'sass:meta';
 @use 'tokens';
 @use 'shell';
+@use 'look-aliases';
 
 // =====================================================
 // ıgnıs UI — Dialog
@@ -4908,12 +4909,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
 body[data-ui-skin="core"] {
   @include ef.tokens('ignis');
+  @include ef.look-tokens('ignis');
+  @include look-aliases.aliases;
   @include ef.components('ignis');
   @include ef.dashboard('ignis');
   @include ef.shell('ignis');
   @include ef.auth;
-}
-[data-theme="light"] body[data-ui-skin="core"] {
-  --accent-text: color-mix(in srgb, var(--accent-base) 75%, black);
-  --accent-focus: color-mix(in srgb, var(--accent-base) 75%, black);
+  @include ef.look('ignis');
+  @include ef.empty('ignis');
 }

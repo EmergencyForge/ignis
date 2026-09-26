@@ -122,6 +122,14 @@
   --radius-xl: 10px;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  // Namen des gemeinsamen Looks. Im Skin-Block überschreibt ihn der Look;
+  // hier gelten sie für Seiten ohne Skin (Fehlerseiten, eNOTF).
+  --radius-1: var(--radius-sm);
+  --radius-2: var(--radius);
+  --radius-3: var(--radius-lg);
+  --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-lg);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

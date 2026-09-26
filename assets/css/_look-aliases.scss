@@ -1,0 +1,37 @@
+// Leitet die eigenen Namen von ignis auf die Rollen des gemeinsamen Looks
+// um. Gehört in den Skin-Block direkt hinter ef.look-tokens(): nur dort
+// gibt es die Rollen. Auf :root blieben die Aliase leer oder veraltet.
+@mixin aliases {
+  --accent-hue: 40;
+  --accent-shift: 20deg;
+
+  --bg: var(--canvas);
+  --bg-2: var(--surface);
+  --border: var(--border-subtle);
+  --border-strong: var(--border-control);
+  --text: var(--content-text);
+  --text-2: var(--secondary-text);
+  --text-3: var(--tertiary-text);
+  --input-bg: var(--surface);
+
+  --ok-soft: color-mix(in oklab, var(--ok) 14%, transparent);
+  --warn-soft: color-mix(in oklab, var(--warn) 16%, transparent);
+  --danger-soft: color-mix(in oklab, var(--danger) 14%, transparent);
+
+  --radius-sm: var(--radius-1);
+  --radius: var(--radius-2);
+  --radius-md: var(--radius-2);
+  --radius-lg: var(--radius-3);
+  --radius-xl: var(--radius-3);
+  --shadow: var(--shadow-card);
+  --shadow-lg: var(--shadow-pop);
+
+  // Nur zwei Kurven im System: Standard und Feder.
+  --ease: var(--motion-ease);
+  --ease-out-quint: var(--motion-ease);
+  --ease-out-expo: var(--motion-ease);
+  --spring: var(--motion-spring);
+  --spring-gentle: var(--motion-spring);
+
+  --sidebar-w: 256px;
+}
