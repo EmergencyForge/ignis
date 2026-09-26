@@ -71,7 +71,29 @@ $pgLabel = 'Einträge';
                             </thead>
                             <tbody>
                                 <?php if ($entries->isEmpty()): ?>
-                                    <tr><td colspan="5" class="ignis-table-empty">Keine Einträge gefunden.</td></tr>
+                                    <?php
+                                    $empty = $list->q !== '' || $list->filter('modul') !== ''
+                                        ? [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-clock-rotate-left',
+                                            'title'   => 'Keine Einträge gefunden',
+                                            'text'    => 'Mit den gesetzten Filtern passt kein Eintrag.',
+                                            'query'   => [
+                                                'term'    => $list->q,
+                                                'filters' => $list->filter('modul') !== ''
+                                                    ? [['label' => 'Modul: ' . $list->filter('modul'), 'removeHref' => $list->url($pgPath, ['modul' => null, 'page' => null])]]
+                                                    : [],
+                                            ],
+                                            'actions' => [['label' => 'Filter zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'modul' => null, 'page' => null]), 'style' => 'secondary']],
+                                        ]
+                                        : [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-clock-rotate-left',
+                                            'title'   => 'Noch keine Einträge',
+                                            'text'    => 'Änderungen erscheinen hier, sobald jemand etwas ändert.',
+                                        ];
+                                    ?>
+                                    <tr><td colspan="5"><?php require dirname(__DIR__) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($entries as $entry):
                                     $userId   = (int) ($entry->user ?? 0);

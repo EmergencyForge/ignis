@@ -23,11 +23,16 @@ $bodyId = 'antrag-select';
 
 
             <?php if ($typen->isEmpty()): ?>
-                <div class="twplus-empty">
-                    <i class="fa-solid fa-clipboard-list twplus-empty__icon" aria-hidden="true"></i>
-                    <h2 class="twplus-empty__title">Keine Antragstypen verfügbar</h2>
-                    <p class="twplus-empty__description">Sobald ein Formular für dich freigegeben ist, erscheint es an dieser Stelle.</p>
-                </div>
+                <?php
+                $empty = [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-clipboard-list',
+                    'heading' => 2,
+                    'title'   => 'Keine Antragstypen verfügbar',
+                    'text'    => 'Sobald die Verwaltung einen Antragstyp für dich freigibt, erscheint er hier.',
+                ];
+                require dirname(__DIR__) . '/partials/empty.php';
+                ?>
             <?php else: ?>
                 <div class="twplus-resource-grid">
                     <?php foreach ($typen as $typ): ?>

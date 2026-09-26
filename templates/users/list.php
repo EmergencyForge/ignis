@@ -77,7 +77,29 @@ $pgLabel = 'Benutzer';
                             </thead>
                             <tbody>
                                 <?php if ($users->isEmpty()): ?>
-                                    <tr><td colspan="6" class="ignis-table-empty">Keine Benutzer gefunden.</td></tr>
+                                    <?php
+                                    $empty = $list->q !== '' || $list->filter('status') !== ''
+                                        ? [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-magnifying-glass',
+                                            'title'   => 'Keine Benutzer gefunden',
+                                            'text'    => $list->q !== '' ? 'Mit dieser Suche passt kein Konto.' : 'Mit diesem Filter passt kein Konto.',
+                                            'query'   => [
+                                                'term'    => $list->q,
+                                                'filters' => $list->filter('status') !== ''
+                                                    ? [['label' => 'Status: ' . ($list->filter('status') === 'active' ? 'Aktiv' : 'Deaktiviert'), 'removeHref' => $list->url($pgPath, ['status' => null, 'page' => null])]]
+                                                    : [],
+                                            ],
+                                            'actions' => [['label' => 'Suche zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'status' => null, 'page' => null]), 'style' => 'secondary']],
+                                        ]
+                                        : [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-users',
+                                            'title'   => 'Noch keine Benutzer',
+                                            'text'    => 'Konten entstehen bei der ersten Anmeldung per Discord.',
+                                        ];
+                                    ?>
+                                    <tr><td colspan="6"><?php require dirname(__DIR__) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($users as $user): ?>
                                     <?php

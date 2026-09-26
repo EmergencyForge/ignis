@@ -122,10 +122,55 @@ $pgLabel = 'Mitarbeiter';
                             </thead>
                             <tbody>
                                 <?php if ($mitarbeiter->isEmpty()): ?>
-                                    <tr><td colspan="7" class="ignis-table-empty"><?php if ($list->q !== '' || $list->filter('dg') !== '' || $list->filter('rd') !== '' || $list->filter('fw') !== ''): ?>
-                                        <strong>Keine Treffer für diese Ansicht</strong><p>Versuche andere Suchbegriffe oder setze die Filter zurück.</p><a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="<?= BASE_PATH ?>personnel/list<?= $showArchive ? '?archiv=1' : '' ?>">Filter zurücksetzen</a>
-                                        <?php elseif ($showArchive): ?><strong>Keine archivierten Mitarbeiter</strong>
-                                        <?php else: ?><strong>Noch keine Mitarbeiter</strong><p>Hier erscheinen die Mitarbeiter deiner Organisation.</p><?php if (Gate::allows('personnel.create')): ?><a class="ignis-btn ignis-btn--primary ignis-btn--sm" href="<?= BASE_PATH ?>personnel/create" data-ignis-drawer>Ersten Mitarbeiter anlegen</a><?php endif; ?><?php endif; ?></td></tr>
+                                    <?php
+                                    if ($list->q !== '' || $list->filter('dg') !== '' || $list->filter('rd') !== '' || $list->filter('fw') !== '') {
+                                        $filterLabels = [
+                                            'dg' => ['Dienstgrad', $dienstgrade],
+                                            'rd' => ['RD-Qualifikation', $rdQualis],
+                                            'fw' => ['FW-Qualifikation', $fwQualis],
+                                        ];
+                                        $activeFilters = [];
+                                        foreach ($filterLabels as $key => [$label, $options]) {
+                                            if ($list->filter($key) !== '') {
+                                                $activeFilters[] = [
+                                                    'label'      => $label . ': ' . ($options->find((int) $list->filter($key))->name ?? $list->filter($key)),
+                                                    'removeHref' => $list->url($pgPath, [$key => null, 'page' => null]),
+                                                ];
+                                            }
+                                        }
+                                        $empty = [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-magnifying-glass',
+                                            'title'   => 'Keine Mitarbeitenden in dieser Ansicht',
+                                            'text'    => 'Mit den gesetzten Filtern passt niemand.',
+                                            'query'   => ['term' => $list->q, 'filters' => $activeFilters],
+                                            'actions' => [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'personnel/list' . ($showArchive ? '?archiv=1' : ''), 'style' => 'secondary']],
+                                        ];
+                                    } elseif ($showArchive) {
+                                        $empty = [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-box-archive',
+                                            'title'   => 'Keine archivierten Mitarbeitenden',
+                                            'text'    => 'Archivierte Profile erscheinen hier, sobald jemand ausscheidet.',
+                                        ];
+                                    } else {
+                                        $canCreate = Gate::allows('personnel.create');
+                                        $empty = [
+                                            'variant'      => 'first',
+                                            'tone'         => 'info',
+                                            'icon'         => 'fa-id-badge',
+                                            'ghostColumns' => 6,
+                                            'title'        => 'Noch keine Mitarbeitenden',
+                                            'text'         => $canCreate
+                                                ? 'Lege Mitarbeitende an oder lass sie sich per Discord anmelden. Qualifikationen und Dienstzeiten hängen danach am Profil.'
+                                                : 'Mitarbeitende erscheinen hier, sobald sie sich per Discord anmelden oder angelegt werden. Das Recht zum Anlegen vergibt die Administration.',
+                                            'actions'      => $canCreate
+                                                ? [['label' => 'Mitarbeitende anlegen', 'href' => BASE_PATH . 'personnel/create', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
+                                                : [],
+                                        ];
+                                    }
+                                    ?>
+                                    <tr><td colspan="7"><?php require dirname(__DIR__) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($mitarbeiter as $m):
                                     $einstellungsdatum = $m->einstdatum->format('d.m.Y');

@@ -19,9 +19,8 @@ declare(strict_types=1);
 ?>
 <div class="ignis-list-footer">
     <p class="ignis-list-meta">
-        <?php if ($list->total() === 0): ?>
-            Keine <?= htmlspecialchars($pgLabel) ?> gefunden
-        <?php else: ?>
+        <?php // Ohne Treffer zeigt die Liste selbst ihren Leerzustand. ?>
+        <?php if ($list->total() > 0): ?>
             <?= $list->from() ?>–<?= $list->to() ?> von <?= $list->total() ?> <?= htmlspecialchars($pgLabel) ?>
         <?php endif; ?>
     </p>

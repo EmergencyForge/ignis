@@ -78,7 +78,29 @@ $chipFor = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'succes
                             </thead>
                             <tbody>
                                 <?php if ($antraege->isEmpty()): ?>
-                                    <tr><td colspan="6" class="ignis-table-empty">Keine Anträge gefunden.</td></tr>
+                                    <?php
+                                    $empty = $list->q !== '' || $list->filter('status') !== ''
+                                        ? [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-magnifying-glass',
+                                            'title'   => 'Keine Anträge gefunden',
+                                            'text'    => 'Mit den gesetzten Filtern passt kein Antrag.',
+                                            'query'   => [
+                                                'term'    => $list->q,
+                                                'filters' => $list->filter('status') !== ''
+                                                    ? [['label' => 'Status: ' . ($statusDisplay[(int) $list->filter('status')]['text'] ?? $list->filter('status')), 'removeHref' => $list->url($pgPath, ['status' => null, 'page' => null])]]
+                                                    : [],
+                                            ],
+                                            'actions' => [['label' => 'Filter zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'status' => null, 'page' => null]), 'style' => 'secondary']],
+                                        ]
+                                        : [
+                                            'variant' => 'sm',
+                                            'icon'    => 'fa-clipboard-list',
+                                            'title'   => 'Noch keine Anträge',
+                                            'text'    => 'Eingereichte Anträge erscheinen hier zur Prüfung.',
+                                        ];
+                                    ?>
+                                    <tr><td colspan="6"><?php require dirname(__DIR__, 2) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($antraege as $antrag):
                                     $status  = $statusDisplay[$antrag->cirs_status] ?? ['class' => 'secondary', 'text' => 'Unbekannt', 'icon' => ''];

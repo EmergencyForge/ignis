@@ -80,11 +80,25 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
 
             <div class="twplus-table-card ignis-inbox">
                 <?php if ($entries === []): ?>
-                    <div class="twplus-empty m-4">
-                        <i class="fa-solid fa-inbox twplus-empty__icon" aria-hidden="true"></i>
-                        <h2 class="twplus-empty__title"><?= $unreadOnly || $type !== '' ? 'Nichts gefunden' : 'Keine Benachrichtigungen' ?></h2>
-                        <p class="twplus-empty__description"><?= $unreadOnly || $type !== '' ? 'Mit diesem Filter gibt es keine Einträge.' : 'Neue Meldungen erscheinen hier und an der Glocke.' ?></p>
-                    </div>
+                    <?php
+                    $empty = $unreadOnly || $type !== ''
+                        ? [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-magnifying-glass',
+                            'heading' => 2,
+                            'title'   => 'Keine Benachrichtigungen gefunden',
+                            'text'    => 'Mit diesem Filter gibt es keine Benachrichtigungen.',
+                            'actions' => [['label' => 'Alle anzeigen', 'href' => $list->url($pgPath, ['filter' => null, 'type' => null, 'page' => null]), 'style' => 'secondary']],
+                        ]
+                        : [
+                            'variant' => 'sm',
+                            'icon'    => 'fa-inbox',
+                            'heading' => 2,
+                            'title'   => 'Noch keine Benachrichtigungen',
+                            'text'    => 'Anträge, Freigaben und Rückfragen landen hier.',
+                        ];
+                    require dirname(__DIR__) . '/partials/empty.php';
+                    ?>
                 <?php endif; ?>
                 <?php foreach ($groups as $heading => $groupEntries): ?>
                     <section class="ignis-inbox__group" aria-label="<?= htmlspecialchars((string) $heading, ENT_QUOTES) ?>">
