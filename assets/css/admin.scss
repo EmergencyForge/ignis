@@ -1579,40 +1579,6 @@ td.dt-empty {
   font-size: 0.7rem;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.empty-state h6 {
-  color: var(--text-2);
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.empty-state p {
-  color: var(--text-3);
-  font-size: 0.82rem;
-  margin: 0;
-}
-
-.empty-state-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-xl);
-  background: rgba(var(--accent-rgb), 0.08);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.empty-state-icon i {
-  font-size: 1.5rem;
-  color: var(--accent);
-  opacity: 0.6;
-}
-
 .form-hint {
   font-size: 0.75rem;
   color: var(--text-3);
@@ -2092,83 +2058,6 @@ td.dt-empty {
   color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-}
-
-.intra__setup-checklist {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
-  margin-bottom: var(--space-md);
-  animation: tile-enter 0.4s var(--ease-out-quint) both;
-}
-
-.setup-steps {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.setup-step {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  color: var(--text-2);
-  transition: background 0.15s ease;
-}
-
-.setup-step:hover {
-  background: var(--fill-1);
-  color: var(--text);
-  text-decoration: none;
-}
-
-.setup-step.done {
-  opacity: 0.5;
-}
-
-.setup-step.done .setup-step-icon {
-  background: var(--btn-success-bg);
-  color: var(--white);
-}
-
-.setup-step.done strong {
-  text-decoration: line-through;
-}
-
-.setup-step-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(var(--accent-rgb), 0.12);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.setup-step-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.setup-step-text strong {
-  font-size: var(--fs-base);
-  font-weight: 500;
-  color: var(--text);
-}
-
-.setup-step-text small {
-  font-size: var(--fs-xs);
-  color: var(--text-3);
 }
 
 .einsatz-sidebar {

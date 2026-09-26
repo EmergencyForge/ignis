@@ -268,13 +268,6 @@ table.ignis-table {
   letter-spacing: 0.01em;
 }
 
-.ignis-table-empty {
-  padding: 2rem 1rem;
-  color: var(--text-3);
-  font-size: 0.82rem;
-  text-align: center;
-}
-
 // Werkzeugleiste über der Tabelle: Suchfeld als GET-Formular, Filter als Links.
 .ignis-list-toolbar {
   display: flex;
