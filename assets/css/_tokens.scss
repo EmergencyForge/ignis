@@ -135,6 +135,14 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --spring-gentle: cubic-bezier(0.22, 1.2, 0.36, 1);
+  // Rollen des Looks, die Regeln außerhalb des Skin-Blocks benutzen
+  // (Wortmarke, Toast, schwebende Sidebar). Im Skin setzt look-tokens sie
+  // am body als feste Werte, die Aliase zeigen dort umgekehrt darauf.
+  --content-text: var(--text);
+  --accent-fill: var(--accent);
+  --motion-ease: var(--ease);
+  --motion-spring: var(--spring);
+  --sidebar-inset: 0px;
   --fs-xs: 0.72rem;
   --fs-sm: 0.78rem;
   --fs-base: 0.82rem;

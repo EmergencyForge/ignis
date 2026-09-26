@@ -59,6 +59,25 @@ final class LookAdoptionTest extends TestCase
         }
     }
 
+    /**
+     * Die alte Hülle (navbar.php) läuft auf eNOTF-Adminseiten ohne Skin. Dort
+     * brauchen Wortmarke und Toast die Rollen des Looks als Standard auf :root.
+     */
+    public function testRolesUsedOutsideTheSkinHaveRootDefaults(): void
+    {
+        $root = $this->skinBlock(':root');
+        $expected = [
+            '--content-text' => 'var(--text)',
+            '--accent-fill' => 'var(--accent)',
+            '--motion-ease' => 'var(--ease)',
+            '--motion-spring' => 'var(--spring)',
+            '--sidebar-inset' => '0px',
+        ];
+        foreach ($expected as $name => $value) {
+            self::assertSame($value, $root[$name] ?? null, $name);
+        }
+    }
+
     public function testEmptyStatesAreBuilt(): void
     {
         self::assertStringContainsString('.ignis-empty', (string) file_get_contents(self::CSS));
