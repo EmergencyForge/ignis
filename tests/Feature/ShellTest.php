@@ -120,6 +120,7 @@ final class ShellTest extends FeatureTestCase
         $this->assertOk($response);
         $this->assertBodyContains('<!DOCTYPE html>', $response);
         $this->assertBodyContains("classList.add('ignis-app', 'ignis-app--legacy')", $response);
+        $this->assertBodyContains("document.body.dataset.uiSkin = 'core'", $response);
         $this->assertBodyContains('class="ignis-topbar"', $response);
         $this->assertBodyContains('id="ignisSidebar"', $response);
         $this->assertBodyContains('documentElement.dataset.theme = "dark"', $response);
