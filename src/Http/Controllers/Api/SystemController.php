@@ -331,15 +331,32 @@ final class SystemController
         ]);
     }
 
+    /** Name, den FileUpload::store() erzeugt: 32 Hex-Zeichen + erlaubte Endung. */
+    private const LOGO_NAME_PATTERN = '/^[0-9a-f]{32}\.(?:png|jpe?g|webp)$/';
+
+    /**
+     * SYSTEM_LOGO ist auch ein frei editierbares Textfeld — ein Wert wie
+     * "/storage/branding/../../.env" darf hier nicht blind zu unlink()
+     * durchgereicht werden, sonst loescht ein Ersetzen oder Entfernen eine
+     * Datei ausserhalb von storage/branding. Deshalb: nur loeschen, wenn
+     * der Name genau unserem eigenen Upload-Schema entspricht UND der Wert
+     * exakt "Prefix + Name" ist (kein "..", kein zusaetzliches Segment).
+     */
     private function deleteOldLogoFile(string $oldValue): void
     {
         $prefix = '/storage/' . self::LOGO_DIR . '/';
         if (!str_starts_with($oldValue, $prefix)) {
             return;
         }
-        $oldFile = dirname(__DIR__, 4) . $oldValue;
-        if (is_file($oldFile)) {
-            @unlink($oldFile);
+
+        $name = basename($oldValue);
+        if ($oldValue !== $prefix . $name || preg_match(self::LOGO_NAME_PATTERN, $name) !== 1) {
+            return;
+        }
+
+        $oldFile = dirname(__DIR__, 4) . '/storage/' . self::LOGO_DIR . '/' . $name;
+        if (is_file($oldFile) && !@unlink($oldFile)) {
+            Logger::warning('System: Alte Logo-Datei konnte nicht geloescht werden', ['pfad' => $oldFile]);
         }
     }
 

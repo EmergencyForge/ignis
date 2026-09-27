@@ -194,4 +194,35 @@ final class SystemLogoUploadTest extends FeatureTestCase
         $this->assertNotNull($entry);
         $this->assertStringContainsString($stored, (string) $entry->details);
     }
+
+    /**
+     * SYSTEM_LOGO ist ein normales Textfeld — ein Admin kann dort per Hand
+     * einen Pfad mit `..` eintragen. Ersetzt oder entfernt er das Logo
+     * danach ueber die Dropzone, darf deleteOldLogoFile() diesem Pfad nicht
+     * blind folgen: sonst loescht ein Wert wie
+     * "/storage/branding/../../evil-marker.txt" eine Datei ausserhalb von
+     * storage/branding.
+     */
+    #[Test]
+    public function ein_manipulierter_alter_pfad_loescht_keine_datei_ausserhalb_von_branding(): void
+    {
+        $this->actingAsAdmin();
+
+        $projectRoot = dirname(__DIR__, 2);
+        $marker = $projectRoot . '/evil-marker-' . bin2hex(random_bytes(6)) . '.txt';
+        file_put_contents($marker, 'sollte ueberleben');
+        $this->cleanupFiles[] = $marker;
+
+        // Loest sich beim alten Code in $projectRoot . 'storage/branding/../../' . basename
+        // = $projectRoot . basename auf.
+        $traversal = '/storage/branding/../../' . basename($marker);
+        Capsule::table('intra_config')->where('config_key', 'SYSTEM_LOGO')->update(['config_value' => $traversal]);
+
+        $response = $this->post('/api/system/logo/remove');
+        $body = $this->assertJsonResponse($response);
+
+        $this->assertTrue($body['success']);
+        $this->assertFileExists($marker, 'Traversal-Pfad hat eine Datei ausserhalb von storage/branding geloescht');
+        $this->assertTrue(systemLogoIsDefault($this->currentSystemLogo()));
+    }
 }
