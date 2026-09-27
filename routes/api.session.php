@@ -122,6 +122,10 @@ $router->get('/api/system/performance',     [SystemApiController::class, 'perfor
 // API-Key-Regeneration
 $router->post('/api/system/regenerate-api-key',     [SystemApiController::class, 'regenerateApiKey'], $adminAuth);
 
+// System-Logo-Upload (Package-Dropzone auf /settings/system/config)
+$router->post('/api/system/logo',            [SystemApiController::class, 'uploadLogo'], $adminAuth);
+$router->post('/api/system/logo/remove',     [SystemApiController::class, 'removeLogo'], $adminAuth);
+
 // Theme (user-specific, nur Session-Auth reicht)
 $router->get( '/api/system/theme',     [SystemApiController::class, 'getTheme'], $auth);
 $router->post('/api/system/theme',     [SystemApiController::class, 'setTheme'], $auth);

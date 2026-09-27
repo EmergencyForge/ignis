@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Config\ConfigManager;
+use App\Exceptions\UploadException;
 use App\Logging\Logger;
 use App\Search\SearchRegistry;
+use App\Support\FileUpload;
 use App\Utils\AuditLogger;
 use App\Utils\SystemUpdater;
 use EmergencyForge\Http\Request;
@@ -251,6 +254,109 @@ final class SystemController
         } catch (\Throwable $e) {
             Logger::error('System: regenerate-api-key Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'message' => 'Interner Serverfehler'], 500);
+        }
+    }
+
+    // ── System-Logo ───────────────────────────────────────────────────
+
+    /** Ordner unter storage/, MIME-Whitelist ohne SVG (kann Skript tragen). */
+    private const LOGO_DIR     = 'branding';
+    private const LOGO_ERLAUBT = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp'];
+
+    /**
+     * POST /api/system/logo (multipart/form-data, Feld "logo")
+     *
+     * Ersetzt SYSTEM_LOGO durch die hochgeladene Datei und loescht die
+     * zuvor hochgeladene, falls vorhanden. Der Pfad wird ohne BASE_PATH
+     * abgelegt — systemLogoUrl() haengt es beim Ausliefern an, mit
+     * gebackenem Pfad haenge es unter einem Unterpfad-Install doppelt dran.
+     */
+    public function uploadLogo(Request $request): Response
+    {
+        $fileInfo = $request->files['logo'] ?? null;
+        if (!is_array($fileInfo)) {
+            return Response::json(['success' => false, 'message' => 'Keine Datei hochgeladen'], 400);
+        }
+
+        try {
+            $gespeichert = FileUpload::store(
+                $fileInfo,
+                dirname(__DIR__, 4) . '/storage/' . self::LOGO_DIR,
+                2 * 1024 * 1024,
+                self::LOGO_ERLAUBT,
+            );
+        } catch (UploadException $e) {
+            return Response::json(['success' => false, 'message' => $e->getMessage()], $e->status);
+        }
+
+        $relativePath = '/storage/' . self::LOGO_DIR . '/' . $gespeichert['name'];
+
+        return $this->saveLogoConfig($relativePath);
+    }
+
+    /**
+     * POST /api/system/logo/remove — setzt SYSTEM_LOGO auf den Standard
+     * zurueck (leerer Wert, systemLogoIsDefault() zeigt dann die Wortmarke).
+     */
+    public function removeLogo(Request $request): Response
+    {
+        return $this->saveLogoConfig('');
+    }
+
+    /**
+     * Schreibt den neuen SYSTEM_LOGO-Wert, loescht eine zuvor hochgeladene
+     * Datei (falls vorhanden) und protokolliert die Aenderung — dieselbe
+     * Audit-Zeile wie beim Speichern der grossen Config-Form.
+     */
+    private function saveLogoConfig(string $newValue): Response
+    {
+        $configManager = new ConfigManager();
+        $oldValue      = (string) $configManager->get('SYSTEM_LOGO', '');
+
+        $configManager->update('SYSTEM_LOGO', $newValue, $_SESSION['userid'] ?? null);
+        $this->deleteOldLogoFile($oldValue);
+
+        (new AuditLogger())->log(
+            (int) ($_SESSION['userid'] ?? 0),
+            'Config SYSTEM_LOGO bearbeitet',
+            'Alter Wert: ' . $oldValue . ', Neuer Wert: ' . $newValue,
+            'System',
+            1,
+        );
+
+        return Response::json([
+            'success' => true,
+            'message' => $newValue === '' ? 'Logo zurückgesetzt' : 'Logo aktualisiert',
+            'url'     => systemLogoUrl($newValue),
+        ]);
+    }
+
+    /** Name, den FileUpload::store() erzeugt: 32 Hex-Zeichen + erlaubte Endung. */
+    private const LOGO_NAME_PATTERN = '/^[0-9a-f]{32}\.(?:png|jpe?g|webp)$/';
+
+    /**
+     * SYSTEM_LOGO ist auch ein frei editierbares Textfeld — ein Wert wie
+     * "/storage/branding/../../.env" darf hier nicht blind zu unlink()
+     * durchgereicht werden, sonst loescht ein Ersetzen oder Entfernen eine
+     * Datei ausserhalb von storage/branding. Deshalb: nur loeschen, wenn
+     * der Name genau unserem eigenen Upload-Schema entspricht UND der Wert
+     * exakt "Prefix + Name" ist (kein "..", kein zusaetzliches Segment).
+     */
+    private function deleteOldLogoFile(string $oldValue): void
+    {
+        $prefix = '/storage/' . self::LOGO_DIR . '/';
+        if (!str_starts_with($oldValue, $prefix)) {
+            return;
+        }
+
+        $name = basename($oldValue);
+        if ($oldValue !== $prefix . $name || preg_match(self::LOGO_NAME_PATTERN, $name) !== 1) {
+            return;
+        }
+
+        $oldFile = dirname(__DIR__, 4) . '/storage/' . self::LOGO_DIR . '/' . $name;
+        if (is_file($oldFile) && !@unlink($oldFile)) {
+            Logger::warning('System: Alte Logo-Datei konnte nicht geloescht werden', ['pfad' => $oldFile]);
         }
     }
 

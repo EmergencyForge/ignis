@@ -74,6 +74,28 @@ final class SystemPagesTest extends FeatureTestCase
         $this->assertBodyNotContains('btn-toolbar-group', $page);
     }
 
+    /**
+     * SYSTEM_LOGO bekommt die Package-Dropzone statt nur des Textfelds; das
+     * Textfeld bleibt als Alternative hinter einer Disclosure erhalten. Die
+     * grosse Config-Form selbst (id="configForm") bleibt unveraendert —
+     * die Dropzone laedt per eigenem fetch()-Aufruf, nicht ueber ein
+     * verschachteltes <form>.
+     */
+    #[Test]
+    public function system_logo_zeigt_die_dropzone_und_die_textfeld_disclosure(): void
+    {
+        $page = $this->get('/settings/system/config');
+
+        $this->assertOk($page);
+        $this->assertBodyContains('id="system-logo-dropzone" data-ignis-file data-max-bytes="2097152"', $page);
+        $this->assertBodyContains('accept="image/png,image/jpeg,image/webp" class="ignis-file__input"', $page);
+        $this->assertBodyContains('<summary>Stattdessen Pfad oder URL angeben</summary>', $page);
+        $this->assertBodyContains('name="SYSTEM_LOGO"', $page);
+        $this->assertBodyContains('id="logo_preview"', $page);
+        // Standard-Logo aktiv: kein Entfernen-Knopf.
+        $this->assertBodyContains('id="system-logo-remove" hidden', $page);
+    }
+
     #[Test]
     public function cron_jobs_als_tabelle(): void
     {

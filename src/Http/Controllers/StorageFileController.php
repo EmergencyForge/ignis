@@ -28,6 +28,10 @@ final class StorageFileController
         'profile-pictures' => [['png', 'jpg', 'jpeg', 'webp'], 'public, max-age=604800'],
         'template-assets'  => [['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'], 'public, max-age=604800'],
         'documents'        => [['pdf'], 'private, no-cache'],
+        // Kein SVG: eine hochgeladene SVG-Datei kann Skript tragen, das mit
+        // Origin des System-Logos liefe (siehe FileUpload-Aufruf in
+        // Api\SystemController::uploadLogo()).
+        'branding'         => [['png', 'jpg', 'jpeg', 'webp'], 'public, max-age=604800'],
     ];
 
     public function serve(Request $request, string $area, string $file): Response

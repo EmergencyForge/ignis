@@ -17,11 +17,15 @@ final class StaticFileRoutesTest extends FeatureTestCase
     private const PLUGIN_ASSET = 'plugins/enotf-v2/assets/wizard.js';
 
     private ?string $picture = null;
+    private ?string $brandingFile = null;
 
     protected function tearDown(): void
     {
         if ($this->picture !== null && is_file($this->picture)) {
             unlink($this->picture);
+        }
+        if ($this->brandingFile !== null && is_file($this->brandingFile)) {
+            unlink($this->brandingFile);
         }
         parent::tearDown();
     }
@@ -86,5 +90,42 @@ final class StaticFileRoutesTest extends FeatureTestCase
         $this->assertNotFound($this->get('/storage/logs/app.log'));
         $this->assertNotFound($this->get('/storage/documents/../version.json'));
         $this->assertNotFound($this->get('/storage/profile-pictures/x.php'));
+    }
+
+    #[Test]
+    public function liefert_hochgeladene_logos_aus_storage(): void
+    {
+        $dir = dirname(__DIR__, 2) . '/storage/branding';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $name = 'test-' . bin2hex(random_bytes(6)) . '.webp';
+        $this->brandingFile = $dir . '/' . $name;
+        file_put_contents($this->brandingFile, 'RIFF-test-webp');
+
+        $response = $this->get('/storage/branding/' . $name);
+
+        $this->assertOk($response);
+        $this->assertSame('image/webp', $response->headers['Content-Type'] ?? '');
+        $this->assertSame('RIFF-test-webp', $response->body);
+        $this->assertSame('nosniff', $response->headers['X-Content-Type-Options'] ?? '');
+    }
+
+    #[Test]
+    public function branding_liefert_kein_svg_aus(): void
+    {
+        // Kein SVG erlaubt: eine hochgeladene SVG-Datei koennte Skript tragen
+        // und wird von FileUpload::store() schon gar nicht angenommen — das
+        // hier prueft zusaetzlich, dass die Ausliefer-Route den Typ selbst
+        // auch nicht durchlaesst, falls doch eine Datei dorthin gelangt.
+        $dir = dirname(__DIR__, 2) . '/storage/branding';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $name = 'test-' . bin2hex(random_bytes(6)) . '.svg';
+        $this->brandingFile = $dir . '/' . $name;
+        file_put_contents($this->brandingFile, '<svg onload="alert(1)"></svg>');
+
+        $this->assertNotFound($this->get('/storage/branding/' . $name));
     }
 }

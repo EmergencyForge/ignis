@@ -505,6 +505,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Lockscreen-Weiterleitung unter Unterpfad und globaler CSRF-Patch für fetch/XHR.
+      - name: Frontend tests
+        run: node --test tests/frontend/*.test.mjs
+
       - name: Build assets (SCSS + Vite)
         env:
           EF_PACKAGES_DIR: ${{ github.workspace }}/WebPackages
