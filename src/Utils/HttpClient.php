@@ -9,7 +9,7 @@ namespace App\Utils;
  *
  * Shared-Hosting-Umgebungen deaktivieren häufig `allow_url_fopen` — dann
  * liefert file_get_contents() für http(s)-URLs nur false und alle
- * Hub-Features (Telemetrie, Announcements, Changelogs, Blog) scheitern mit
+ * Hub-Features (Telemetrie, Announcements, Changelogs) scheitern mit
  * nichtssagenden Verbindungsfehlern, obwohl cURL fast immer verfügbar wäre.
  * Deshalb: Streams zuerst, cURL als Fallback. TLS-Verifikation ist auf
  * beiden Wegen aktiv.

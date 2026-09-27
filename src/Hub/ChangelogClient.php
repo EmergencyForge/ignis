@@ -168,7 +168,12 @@ final class ChangelogClient
 
     public function getForumUrl(): string
     {
-        $url = (string) ($this->config->get('FORUM_URL') ?: self::DEFAULT_FORUM_URL);
+        // Nur http(s): die Adresse landet als Link im Dashboard und als Abrufziel,
+        // javascript:, file:// oder protokoll-relative Werte fallen auf die Vorgabe zurück.
+        $url = trim((string) $this->config->get('FORUM_URL'));
+        if (!preg_match('~^https?://~i', $url)) {
+            $url = self::DEFAULT_FORUM_URL;
+        }
         return rtrim($url, '/');
     }
 
@@ -202,7 +207,7 @@ final class ChangelogClient
                 continue;
             }
             $excerpt = is_string($t['excerpt'] ?? null) ? $t['excerpt'] : '';
-            $preview = trim(strip_tags(html_entity_decode($excerpt, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+            $preview = trim(html_entity_decode(strip_tags($excerpt), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
             $rows[] = [
                 'id'           => (string) $t['id'],
                 'title'        => $t['title'],
