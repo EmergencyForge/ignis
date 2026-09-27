@@ -330,14 +330,12 @@ return [
     \App\Console\Commands\UpdatesCheckCommand::class      => \DI\autowire(),
     \App\Console\Commands\CalendarBackfillAbsencesCommand::class => \DI\autowire(),
     \App\Console\Commands\ChangelogRefreshCommand::class => \DI\autowire(),
-    \App\Console\Commands\BlogRefreshCommand::class      => \DI\autowire(),
     \App\Console\Commands\BootstrapAdminCommand::class    => \DI\autowire(),
 
     // Service-Klassen für Commands
     \App\Jobs\FailedJobsReader::class     => \DI\autowire(),
     \App\Telemetry\TelemetryManager::class => \DI\autowire(),
     \App\Hub\ChangelogClient::class       => \DI\autowire(),
-    \App\Hub\BlogClient::class            => \DI\autowire(),
 
     // -----------------------------------------------------------------------
     //  Cron-System
