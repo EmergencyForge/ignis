@@ -168,10 +168,14 @@ final class ChangelogClient
 
     public function getForumUrl(): string
     {
-        // Nur http(s): die Adresse landet als Link im Dashboard und als Abrufziel,
-        // javascript:, file:// oder protokoll-relative Werte fallen auf die Vorgabe zurück.
-        $url = trim((string) $this->config->get('FORUM_URL'));
-        if (!preg_match('~^https?://~i', $url)) {
+        // Nur http(s) mit Host: die Adresse landet als Link im Dashboard und als
+        // Abrufziel, javascript:, file://, protokoll-relative oder hostlose Werte
+        // (z. B. bloßes "https://") fallen auf die Vorgabe zurück.
+        $url    = trim((string) $this->config->get('FORUM_URL'));
+        $parts  = parse_url($url) ?: [];
+        $scheme = $parts['scheme'] ?? '';
+        $host   = $parts['host'] ?? '';
+        if (!preg_match('~^https?$~i', $scheme) || $host === '') {
             $url = self::DEFAULT_FORUM_URL;
         }
         return rtrim($url, '/');
