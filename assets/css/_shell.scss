@@ -146,7 +146,8 @@ html.is-collapsed body.ignis-app--legacy {
     svg { height: 2.2rem; }
 
     // Standardlogo: Seitenverhältnis aus der viewBox von ignis-wordmark.svg.
-    .ignis-wordmark { height: 1.5rem; aspect-ratio: 188 / 97.5; }
+    // 2rem: die Kleinbuchstaben der Wortmarke werden so rund 17px hoch, wie bei der alten.
+    .ignis-wordmark { height: 2rem; aspect-ratio: 188 / 97.5; }
 
     &:hover { color: var(--accent); }
   }
