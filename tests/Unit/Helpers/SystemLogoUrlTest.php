@@ -49,6 +49,23 @@ final class SystemLogoUrlTest extends TestCase
         $this->assertFalse(systemLogoIsDefault('/uploads/logo.png'));
     }
 
+    /**
+     * Api\SystemController::uploadLogo() legt SYSTEM_LOGO ohne BASE_PATH ab
+     * (`/storage/branding/<datei>`) — genau wie jeder andere relative Pfad.
+     * Ein gebackenes BASE_PATH im Config-Wert wuerde hier doppelt landen.
+     */
+    #[Test]
+    public function hochgeladene_logos_bekommen_base_path_genau_einmal(): void
+    {
+        $uploaded = '/storage/branding/' . bin2hex(random_bytes(16)) . '.png';
+
+        $url = systemLogoUrl($uploaded);
+
+        $this->assertSame($this->base() . $uploaded, $url);
+        $this->assertSame(1, substr_count($url, $this->base() . '/storage/branding/'));
+        $this->assertFalse(systemLogoIsDefault($uploaded));
+    }
+
     #[Test]
     public function absolute_urls_bleiben_unveraendert(): void
     {
