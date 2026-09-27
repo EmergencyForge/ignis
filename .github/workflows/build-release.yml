@@ -172,7 +172,8 @@ jobs:
             `#   von der Platte liest: die Kartenkacheln (nur per URL in der` \
             `#   Lagekarte, ~50 MB), die Fremdbibliotheken (~33 MB) und die Fonts.` \
             `#   assets/img selbst bleibt: DocumentRenderer liest wappen_small.png` \
-            `#   und schrift_fw_schwarz.png für DomPDF von dort.` \
+            `#   und schrift_fw_schwarz.png für DomPDF von dort, login.php liest` \
+            `#   assets/img/ignis-lockup.svg direkt von der Platte.` \
             -x "assets/img/map/*" \
             -x "assets/_ext/*" \
             -x "assets/fonts/*" \

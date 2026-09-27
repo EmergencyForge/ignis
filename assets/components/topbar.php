@@ -62,8 +62,9 @@ $topThemes = [
 $topUnread = $topLoggedIn ? (int) (NavigationCounters::for('inbox') ?? 0) : 0;
 
 // Logo: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat; sonst die
-// Wortmarke. Sie bringt ihr Orange mit und steht damit in beiden Themes;
-// die alten intraRP-Standardlogos zeigen ebenfalls auf sie.
+// Wortmarke. Die Standardwortmarke ist eine Maske mit dem Akzent-Verlauf
+// und passt sich so beiden Themes an; die alten intraRP-Standardlogos
+// zeigen ebenfalls auf sie.
 $topLogo = defined('SYSTEM_LOGO') ? trim((string) SYSTEM_LOGO) : '';
 $topLogoIsDefault = $topLogo === ''
     || str_ends_with($topLogo, '/ignis-wordmark.svg')
