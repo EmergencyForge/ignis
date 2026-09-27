@@ -197,24 +197,42 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     </div>
                                                     <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
 
-                                                <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'SYSTEM_LOGO'): ?>
-                                                    <input
-                                                        type="text"
-                                                        class="ignis-input mb-2"
-                                                        id="<?= htmlspecialchars($config['config_key']) ?>"
-                                                        name="<?= htmlspecialchars($config['config_key']) ?>"
-                                                        value="<?= htmlspecialchars($config['config_value']) ?>"
-                                                        oninput="updateLogoPreview(this.value)">
-                                                    <div class="ignis-field__hint">Relativer Pfad oder vollständige URL zum Logo.</div>
-                                                    <div class="mt-2">
-                                                        <span class="ignis-field__label block mb-1">Vorschau</span>
-                                                        <img
-                                                            src="<?= systemLogoUrl((string) $config['config_value']) ?>"
-                                                            alt="Vorschau des Logos"
-                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
-                                                            id="logo_preview"
-                                                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
+                                                <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'SYSTEM_LOGO'):
+                                                    $logoIsDefault = systemLogoIsDefault((string) $config['config_value']);
+                                                    $logoCurrent   = $logoIsDefault ? '' : systemLogoUrl((string) $config['config_value']);
+                                                ?>
+                                                    <div class="ignis-file ignis-file--dropzone ignis-file--photo mb-2" id="system-logo-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars($logoCurrent, ENT_QUOTES) ?>">
+                                                        <input type="file" id="system-logo-upload" accept="image/png,image/jpeg,image/webp" class="ignis-file__input">
+                                                        <label for="system-logo-upload" class="ignis-file__zone">
+                                                            <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-image"></i></span>
+                                                            <span class="ignis-file__title">Logo hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                                                            <span class="ignis-file__hint">PNG, JPEG oder WebP, max. 2 MB</span>
+                                                        </label>
+                                                        <div class="ignis-file__selected" hidden></div>
+                                                        <p class="ignis-file__error" role="alert" hidden></p>
                                                     </div>
+                                                    <button type="button" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm mb-2" id="system-logo-remove" <?= $logoIsDefault ? 'hidden' : '' ?>>
+                                                        <i class="fa-solid fa-trash" aria-hidden="true"></i> Logo entfernen
+                                                    </button>
+                                                    <details class="ignis-field__hint">
+                                                        <summary>Stattdessen Pfad oder URL angeben</summary>
+                                                        <input
+                                                            type="text"
+                                                            class="ignis-input mb-2 mt-2"
+                                                            id="<?= htmlspecialchars($config['config_key']) ?>"
+                                                            name="<?= htmlspecialchars($config['config_key']) ?>"
+                                                            value="<?= htmlspecialchars($config['config_value']) ?>"
+                                                            oninput="updateLogoPreview(this.value)">
+                                                        <div class="mt-2">
+                                                            <span class="ignis-field__label block mb-1">Vorschau</span>
+                                                            <img
+                                                                src="<?= systemLogoUrl((string) $config['config_value']) ?>"
+                                                                alt="Vorschau des Logos"
+                                                                class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
+                                                                id="logo_preview"
+                                                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
+                                                        </div>
+                                                    </details>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'META_IMAGE_URL'): ?>
                                                     <input
@@ -313,6 +331,100 @@ $SITE_TITLE = 'System-Konfiguration';
         function updateMetaImagePreview(value) {
             document.getElementById('meta_image_preview').src = value;
         }
+
+        // System-Logo-Dropzone: eigener fetch()-Upload statt Teil der grossen
+        // Config-Form (die bleibt unveraendert) — gleiches Muster wie die
+        // Profilbild-Dropzone in mitarbeiter-profile.js.
+        (function () {
+            var wrap      = document.getElementById('system-logo-dropzone');
+            var input     = document.getElementById('system-logo-upload');
+            var removeBtn = document.getElementById('system-logo-remove');
+            if (!wrap || !input) return;
+
+            var basePath = <?= json_encode(BASE_PATH) ?>;
+            var apiUrl   = basePath + (basePath.endsWith('/') ? '' : '/') + 'api/system/logo';
+
+            function showDropzoneError(message) {
+                var error = wrap.querySelector('.ignis-file__error');
+                if (error) {
+                    error.hidden = false;
+                    error.textContent = message;
+                }
+                input.setAttribute('aria-invalid', 'true');
+            }
+
+            function resetInput() {
+                input.value = '';
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            input.addEventListener('change', function () {
+                // file.js prueft Typ/Groesse im selben change-Event; der
+                // Timeout schiebt den Upload dahinter (siehe mitarbeiter-profile.js).
+                setTimeout(function () {
+                    var file = input.files && input.files[0];
+                    if (!file || input.getAttribute('aria-invalid') === 'true') return;
+
+                    var formData = new FormData();
+                    formData.append('logo', file);
+
+                    input.disabled = true;
+                    wrap.style.opacity = '0.6';
+
+                    fetch(apiUrl, { method: 'POST', body: formData })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            input.disabled = false;
+                            wrap.style.opacity = '1';
+                            if (data.success) {
+                                wrap.dataset.ignisFileCurrent = data.url + '?t=' + Date.now();
+                                document.getElementById('logo_preview').src = data.url;
+                                if (removeBtn) removeBtn.hidden = false;
+                                showToast('Logo aktualisiert', 'success');
+                            } else {
+                                resetInput();
+                                showDropzoneError(data.message || 'Upload fehlgeschlagen');
+                            }
+                        })
+                        .catch(function () {
+                            input.disabled = false;
+                            wrap.style.opacity = '1';
+                            resetInput();
+                            showDropzoneError('Upload fehlgeschlagen');
+                        });
+                }, 0);
+            });
+
+            if (removeBtn) {
+                removeBtn.addEventListener('click', async function () {
+                    var confirmed = await showConfirm(
+                        'Logo wirklich entfernen? Danach erscheint wieder die Standard-Wortmarke.', {
+                            title: 'Logo entfernen',
+                            confirmText: 'Entfernen',
+                            cancelText: 'Abbrechen',
+                            danger: true,
+                        }
+                    );
+                    if (!confirmed) return;
+
+                    fetch(apiUrl + '/remove', { method: 'POST' })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (data.success) {
+                                wrap.dataset.ignisFileCurrent = '';
+                                document.getElementById('logo_preview').src = data.url;
+                                removeBtn.hidden = true;
+                                showToast('Logo zurückgesetzt', 'success');
+                            } else {
+                                showToast(data.message || 'Fehler beim Entfernen', 'danger');
+                            }
+                        })
+                        .catch(function () {
+                            showToast('Fehler beim Entfernen', 'danger');
+                        });
+                });
+            }
+        })();
 
         function toggleApiKeyVisibility() {
             const input = document.getElementById('API_KEY');
