@@ -12,20 +12,20 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Holt die letzten Changelog-Eintraege vom Hub (emergencyforge.de) und legt
- * sie im lokalen intra_changelog_cache ab. Das Admin-Dashboard liest danach
- * ausschliesslich aus dem Cache — dieser Command ist die einzige Stelle,
- * an der wir den Hub kontaktieren.
+ * Holt die Ankündigungen aus dem Forum (Discourse-Kategorie Ankündigungen)
+ * und legt sie im lokalen intra_changelog_cache ab. Das Admin-Dashboard liest
+ * danach ausschliesslich aus dem Cache — dieser Command ist die einzige Stelle,
+ * an der wir das Forum kontaktieren. Der Name changelog:refresh ist historisch
+ * und bleibt, damit bestehende Cron-Einträge weiterlaufen.
  *
- * Empfohlene Cron-Frequenz: alle 15-30 Minuten. Hub setzt Cache-Control
- * max-age=600 + ETag, also bekommt jeder zweite/dritte Refresh nur ein 304.
+ * Cron-Frequenz: alle 30 Minuten (Seed-Migration 20260505000002).
  *
  *   php cli/intra.php changelog:refresh
  *   php cli/intra.php changelog:refresh --limit=10
  */
 #[AsCommand(
     name: 'changelog:refresh',
-    description: 'Aktualisiert den lokalen Changelog-Cache vom Hub',
+    description: 'Aktualisiert die Forum-Ankündigungen fürs Dashboard',
 )]
 final class ChangelogRefreshCommand extends Command
 {
@@ -41,7 +41,7 @@ final class ChangelogRefreshCommand extends Command
             'limit',
             null,
             InputOption::VALUE_REQUIRED,
-            'Anzahl Eintraege die der Hub liefern soll (Hard-Cap 25)',
+            'Anzahl Themen, die gespeichert werden (Hard-Cap 25)',
             '10'
         );
     }
@@ -53,7 +53,7 @@ final class ChangelogRefreshCommand extends Command
             $limit = 10;
         }
 
-        $output->writeln(sprintf('<info>Refresh Changelog-Cache (limit=%d) …</info>', $limit));
+        $output->writeln(sprintf('<info>Refresh Forum-Ankündigungen (limit=%d) …</info>', $limit));
         $result = $this->client->refresh($limit);
 
         $status = (int) $result['status'];
@@ -71,17 +71,17 @@ final class ChangelogRefreshCommand extends Command
             return Command::SUCCESS;
         }
 
-        // Transiente Hub-Probleme sind KEIN Cron-Fehler — Stale-Cache bleibt
+        // Transiente Forum-Probleme sind KEIN Cron-Fehler — Stale-Cache bleibt
         // gemaess Spec stehen, beim naechsten Tick wird erneut probiert. Dafuer
         // den Cron-Job nicht roten Toast werfen lassen.
         //   - 0   = Verbindung/Timeout
         //   - 429 = Rate-Limit
-        //   - 5xx = Hub-Server-Fehler / Hub noch nicht deployed
+        //   - 5xx = Forum-Server-Fehler
         if ($status === 0 || $status === 429 || $status >= 500) {
             return Command::SUCCESS;
         }
 
-        // Permanente Fehler (401 falscher Token, 404 Endpoint, 4xx allgemein)
+        // Permanente Fehler (403, 404 falsche Kategorie, 4xx allgemein)
         // werden weiterhin als Fehler gemeldet — die brauchen Admin-Aufmerksamkeit.
         return Command::FAILURE;
     }

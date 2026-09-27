@@ -9,40 +9,42 @@ use App\Logging\Logger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * ChangelogClient — Bridge zur public Changelog-API von emergencyforge.de.
+ * ChangelogClient — Ankündigungen aus dem Forum (Discourse-Kategorie
+ * "Ankündigungen" auf forum.emergencyforge.de) fürs Admin-Dashboard.
+ * Der Name stammt aus der Zeit der Hub-Changelog-API; Tabelle
+ * intra_changelog_cache und Befehl changelog:refresh sind geblieben.
  *
  * Trennung der Belange:
  *   - get(): liest aus dem lokalen Cache (intra_changelog_cache). Synchron,
  *     schnell, nie blockierend. Wenn Cache leer ist → leeres Array; das
- *     Dashboard-Widget rendert dann nichts.
- *   - refresh(): kontaktiert den Hub. Wird ausschliesslich vom Console-
- *     Command (Cron, alle 10-30 Min.) aufgerufen — NIE im Web-Request-Pfad.
+ *     Dashboard-Widget zeigt dann seinen Leerzustand.
+ *   - refresh(): kontaktiert das Forum. Wird ausschliesslich vom Console-
+ *     Command (Cron, alle 30 Min.) aufgerufen — NIE im Web-Request-Pfad.
  *     Sendet If-None-Match/If-Modified-Since (gespeichert in
  *     intra_changelog_meta), respektiert 304/429/5xx als "alter Cache bleibt
  *     stehen".
  *
- * Diese Strikt-Trennung sorgt dafuer, dass ein down-Hub das Admin-Dashboard
+ * Diese Strikt-Trennung sorgt dafuer, dass ein down-Forum das Admin-Dashboard
  * NIE bremst oder Fehler wirft.
  */
 final class ChangelogClient
 {
-    private const DEFAULT_HUB_URL = 'https://emergencyforge.de';
-    private const ENDPOINT_PATH   = '/api/changelogs.json';
-    private const TIMEOUT_SECONDS = 5;
-    private const HARD_CAP        = 25;
+    private const DEFAULT_FORUM_URL = 'https://forum.emergencyforge.de';
+    public const CATEGORY_PATH      = '/c/ankuendigungen/5';
+    private const TIMEOUT_SECONDS   = 5;
+    private const HARD_CAP          = 25;
 
     public function __construct(
         private readonly ConfigManager $config,
     ) {}
 
     /**
-     * Liest die letzten X Changelog-Eintraege aus dem lokalen Cache.
-     * Sortiert absteigend nach published_at — neueste zuerst.
+     * Liest die letzten X Ankündigungen aus dem lokalen Cache. Angepinnte
+     * zuerst (wie im Forum), danach absteigend nach published_at.
      *
      * @return list<array{
-     *     id:string, version:?string, product:?string,
-     *     title:string, preview:?string, url:string,
-     *     tags:array<int,string>, published_at:string, is_new:bool
+     *     id:string, title:string, preview:?string, url:string,
+     *     tags:array<int,string>, published_at:string, pinned:bool
      * }>
      */
     public function get(int $limit = 5): array
@@ -51,9 +53,10 @@ final class ChangelogClient
 
         try {
             $rows = Capsule::table('intra_changelog_cache')
+                ->orderByDesc('pinned')
                 ->orderByDesc('published_at')
                 ->limit($limit)
-                ->get(['id', 'version', 'product', 'title', 'preview', 'url', 'tags', 'published_at'])
+                ->get(['id', 'title', 'preview', 'url', 'tags', 'published_at', 'pinned'])
                 ->map(fn ($row) => (array) $row)
                 ->all();
         } catch (\PDOException $e) {
@@ -61,10 +64,7 @@ final class ChangelogClient
             return [];
         }
 
-        $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->getTimestamp();
-
-        return array_map(static function (array $row) use ($sevenDaysAgo): array {
-            $publishedTs = strtotime((string) $row['published_at']) ?: 0;
+        return array_map(static function (array $row): array {
             $tags = [];
             if (!empty($row['tags'])) {
                 $decoded = json_decode((string) $row['tags'], true);
@@ -74,20 +74,18 @@ final class ChangelogClient
             }
             return [
                 'id'           => (string) $row['id'],
-                'version'      => $row['version'] !== null ? (string) $row['version'] : null,
-                'product'      => $row['product'] !== null ? (string) $row['product'] : null,
                 'title'        => (string) $row['title'],
                 'preview'      => $row['preview'] !== null ? (string) $row['preview'] : null,
                 'url'          => (string) $row['url'],
                 'tags'         => $tags,
                 'published_at' => (string) $row['published_at'],
-                'is_new'       => $publishedTs >= $sevenDaysAgo,
+                'pinned'       => (bool) $row['pinned'],
             ];
         }, $rows);
     }
 
     /**
-     * Holt die aktuellen Changelog-Eintraege vom Hub und persistiert sie im
+     * Holt die Themen der Kategorie aus dem Forum und persistiert sie im
      * Cache. Bei 304/429/5xx/Timeout bleibt der existierende Cache unberuehrt.
      *
      * @return array{success:bool, status:int, message:string, count:int}
@@ -95,16 +93,12 @@ final class ChangelogClient
     public function refresh(int $limit = 10): array
     {
         $limit = max(1, min(self::HARD_CAP, $limit));
-        $endpoint = $this->buildEndpoint($limit);
+        $endpoint = $this->getForumUrl() . self::CATEGORY_PATH . '.json';
 
         $headers = [
             'Accept: application/json',
             'User-Agent: ignis-Changelog/1.0',
         ];
-        $token = $this->getToken();
-        if ($token !== '') {
-            $headers[] = 'X-Hub-Token: ' . $token;
-        }
 
         $meta = $this->loadMeta();
         if (!empty($meta['etag'])) {
@@ -119,10 +113,10 @@ final class ChangelogClient
             'timeout' => self::TIMEOUT_SECONDS,
         ]);
 
-        // Hub konnte nicht erreicht werden (Timeout / DNS / TLS) — alter Cache bleibt.
+        // Forum konnte nicht erreicht werden (Timeout / DNS / TLS) — alter Cache bleibt.
         if ($result === null) {
-            Logger::info('ChangelogClient: hub unreachable, keeping stale cache');
-            return ['success' => false, 'status' => 0, 'message' => 'Hub nicht erreichbar', 'count' => 0];
+            Logger::info('ChangelogClient: forum unreachable, keeping stale cache');
+            return ['success' => false, 'status' => 0, 'message' => 'Forum nicht erreichbar', 'count' => 0];
         }
 
         $status = $result['status'];
@@ -133,25 +127,26 @@ final class ChangelogClient
             return ['success' => true, 'status' => 304, 'message' => 'Cache aktuell', 'count' => 0];
         }
 
-        // 429/5xx — alter Cache stays. Loggen, fuer naechsten Refresh.
+        // 429/5xx — alter Cache bleibt. Loggen, fuer naechsten Refresh.
         if ($status === 429 || $status >= 500) {
-            Logger::warning(sprintf('ChangelogClient: hub returned %d, keeping stale cache', $status));
-            return ['success' => false, 'status' => $status, 'message' => "Hub-Fehler ($status)", 'count' => 0];
+            Logger::warning(sprintf('ChangelogClient: forum returned %d, keeping stale cache', $status));
+            return ['success' => false, 'status' => $status, 'message' => "Forum-Fehler ($status)", 'count' => 0];
         }
 
-        // Sonstige nicht-200-Statuscodes (z.B. 401 wegen falschem Token, 404)
+        // Sonstige nicht-200-Statuscodes (z.B. 403, 404 wegen falscher Kategorie)
         if ($status !== 200 || !is_string($body) || $body === '') {
             Logger::warning(sprintf('ChangelogClient: unexpected response status=%d', $status));
             return ['success' => false, 'status' => $status, 'message' => "HTTP $status", 'count' => 0];
         }
 
-        $data = json_decode($body, true);
-        if (!is_array($data) || !isset($data['items']) || !is_array($data['items'])) {
+        // Ohne topic_list (z.B. 200 mit {"errors": [...]}) bleibt der alte Cache,
+        // statt ihn durch eine leere Liste zu ersetzen.
+        $items = self::mapTopics(json_decode($body, true), $this->getForumUrl(), $limit);
+        if ($items === null) {
             Logger::warning('ChangelogClient: malformed response payload');
             return ['success' => false, 'status' => $status, 'message' => 'Antwort unlesbar', 'count' => 0];
         }
 
-        $items = array_values(array_filter($data['items'], 'is_array'));
         $written = $this->persist($items);
 
         // ETag/Last-Modified fuer naechsten conditional Request merken.
@@ -171,32 +166,62 @@ final class ChangelogClient
         ];
     }
 
-    public function getHubUrl(): string
+    public function getForumUrl(): string
     {
-        $url = (string) ($this->config->get('HUB_CHANGELOG_URL') ?: self::DEFAULT_HUB_URL);
+        $url = (string) ($this->config->get('FORUM_URL') ?: self::DEFAULT_FORUM_URL);
         return rtrim($url, '/');
     }
 
-    private function getToken(): string
+    /**
+     * Discourse-Kategorie-JSON → Cache-Zeilen. Gleiche Filterregel wie
+     * emergencyforge.de (src/lib/discourse.ts): unsichtbare Themen und das
+     * Beschreibungsthema "Über die Kategorie …" fallen weg. Angepinnte
+     * bleiben (anders als auf der Website). `excerpt` liefert Discourse nur
+     * bei angepinnten Themen, als HTML mit Entities.
+     *
+     * @return list<array{id:string, title:string, url:string, published_at:string,
+     *     preview:?string, tags:list<string>, pinned:bool}>|null null = keine topic_list
+     */
+    public static function mapTopics(mixed $payload, string $baseUrl, int $limit): ?array
     {
-        return trim((string) ($this->config->get('HUB_CHANGELOG_TOKEN') ?? ''));
-    }
+        $topics = is_array($payload) && is_array($payload['topic_list'] ?? null)
+            ? ($payload['topic_list']['topics'] ?? null)
+            : null;
+        if (!is_array($topics)) {
+            return null;
+        }
 
-    private function buildEndpoint(int $limit): string
-    {
-        // Hub-Filter ist Rebrand-aware: 'ignis' matcht implizit auch alte
-        // intraRP-Eintraege. Wir nehmen den kanonischen neuen Brand-Namen,
-        // damit zukuenftige Hub-Aenderungen (z.B. ein striktes 'all' fuer
-        // strict-mode) sauber bleiben.
-        $query = http_build_query([
-            'limit'   => $limit,
-            'product' => 'ignis',
-        ]);
-        return $this->getHubUrl() . self::ENDPOINT_PATH . '?' . $query;
+        $base = rtrim($baseUrl, '/');
+        $rows = [];
+        foreach ($topics as $t) {
+            if (!is_array($t) || !is_int($t['id'] ?? null) || !is_string($t['title'] ?? null)
+                || !is_string($t['slug'] ?? null) || !is_string($t['created_at'] ?? null)) {
+                continue;
+            }
+            if (($t['visible'] ?? true) === false || preg_match('/^(über die kategorie|about the)/iu', $t['title'])) {
+                continue;
+            }
+            $excerpt = is_string($t['excerpt'] ?? null) ? $t['excerpt'] : '';
+            $preview = trim(strip_tags(html_entity_decode($excerpt, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+            $rows[] = [
+                'id'           => (string) $t['id'],
+                'title'        => $t['title'],
+                'url'          => $base . '/t/' . rawurlencode($t['slug']) . '/' . $t['id'],
+                'published_at' => $t['created_at'],
+                'preview'      => $preview === '' ? null : $preview,
+                'tags'         => is_array($t['tags'] ?? null) ? array_values(array_filter($t['tags'], 'is_string')) : [],
+                'pinned'       => ($t['pinned'] ?? false) === true,
+            ];
+            if (count($rows) >= $limit) {
+                break;
+            }
+        }
+        return $rows;
     }
 
     /**
-     * @param array<int, array<string,mixed>> $items
+     * @param list<array{id:string, title:string, url:string, published_at:string,
+     *     preview:?string, tags:list<string>, pinned:bool}> $items
      */
     private function persist(array $items): int
     {
@@ -207,38 +232,20 @@ final class ChangelogClient
         try {
             $connection->table('intra_changelog_cache')->delete();
 
-            $written = 0;
             foreach ($items as $item) {
-                $id    = $this->stringField($item, 'id');
-                $title = $this->stringField($item, 'title');
-                $url   = $this->stringField($item, 'url');
-                $pubAt = $this->stringField($item, 'published_at');
-                if ($id === '' || $title === '' || $url === '' || $pubAt === '') {
-                    continue;
-                }
-
-                $tags = [];
-                if (isset($item['tags']) && is_array($item['tags'])) {
-                    $tags = array_values(array_filter($item['tags'], 'is_string'));
-                }
-
-                $publishedDateTime = $this->normalizeDate($pubAt);
-
                 $connection->table('intra_changelog_cache')->insert([
-                    'id'           => $id,
-                    'version'      => $this->stringField($item, 'version') !== '' ? $this->stringField($item, 'version') : null,
-                    'product'      => $this->stringField($item, 'product') !== '' ? $this->stringField($item, 'product') : null,
-                    'title'        => $title,
-                    'preview'      => $this->stringField($item, 'preview') !== '' ? $this->stringField($item, 'preview') : null,
-                    'url'          => $url,
-                    'tags'         => $tags === [] ? null : json_encode($tags, JSON_UNESCAPED_UNICODE),
-                    'published_at' => $publishedDateTime,
+                    'id'           => $item['id'],
+                    'title'        => mb_substr($item['title'], 0, 255),
+                    'preview'      => $item['preview'],
+                    'url'          => $item['url'],
+                    'tags'         => $item['tags'] === [] ? null : json_encode($item['tags'], JSON_UNESCAPED_UNICODE),
+                    'pinned'       => $item['pinned'] ? 1 : 0,
+                    'published_at' => $this->normalizeDate($item['published_at']),
                     'fetched_at'   => Capsule::raw('NOW()'),
                 ]);
-                $written++;
             }
             $connection->commit();
-            return $written;
+            return count($items);
         } catch (\Throwable $e) {
             $connection->rollBack();
             Logger::warning('ChangelogClient: persist failed: ' . $e->getMessage());
@@ -290,17 +297,11 @@ final class ChangelogClient
         return '';
     }
 
-    /** @param array<string,mixed> $item */
-    private function stringField(array $item, string $key): string
-    {
-        return isset($item[$key]) && is_scalar($item[$key]) ? trim((string) $item[$key]) : '';
-    }
-
     /**
-     * Hub liefert ISO-8601 mit Timezone (z.B. "2026-05-04T14:00:00+02:00").
-     * MySQL DATETIME hat keine TZ — wir konvertieren in UTC und speichern
-     * "Y-m-d H:i:s". Beim Lesen interpretiert PHP das wieder als lokal,
-     * was fuer "vor 3 Tagen"-Anzeige ausreichend genau ist.
+     * Discourse liefert ISO-8601 in UTC (z.B. "2026-09-10T14:40:00.000Z").
+     * MySQL DATETIME hat keine TZ — wir speichern UTC als "Y-m-d H:i:s".
+     * Beim Lesen interpretiert PHP das wieder als lokal, was fuer
+     * "vor 3 Tagen"-Anzeige ausreichend genau ist.
      */
     private function normalizeDate(string $iso): string
     {
