@@ -75,7 +75,7 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
                         <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                         <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>
                         <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float)$e['kilometer'], 1, ',', '.') : '—' ?></td>
-                        <td class="max-w-[200px] truncate" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
+                        <td class="max-w-[200px] truncate"<?= ($e['grund'] ?? '') !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($e['grund']) . '"' : '' ?>>
                             <?= htmlspecialchars($e['grund'] ?? '') ?: '<span class="text-[var(--text-3)]">—</span>' ?>
                         </td>
                         <?php if ($canEdit || $canDelete): ?>
@@ -94,7 +94,7 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
                                                 data-kilometer="<?= htmlspecialchars($e['kilometer'] ?? '') ?>"
                                                 data-stationierungsort="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>"
                                                 data-grund="<?= htmlspecialchars($e['grund'] ?? '') ?>"
-                                                title="Bearbeiten" aria-label="Eintrag bearbeiten">
+                                                data-ignis-tooltip="Bearbeiten" aria-label="Eintrag bearbeiten">
                                             <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                         </button>
                                     <?php endif; ?>
@@ -105,7 +105,7 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?= $e['id'] ?>">
                                             <input type="hidden" name="return_to" value="<?= htmlspecialchars($context) ?>">
-                                            <button type="submit" class="ignis-btn<?= $actionSize ?> ignis-btn--ghost-danger ignis-btn--icon" title="Löschen" aria-label="Eintrag löschen">
+                                            <button type="submit" class="ignis-btn<?= $actionSize ?> ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Löschen" aria-label="Eintrag löschen">
                                                 <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </form>

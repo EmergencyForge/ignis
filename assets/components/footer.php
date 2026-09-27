@@ -17,7 +17,7 @@ $__footerBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             <div class="text-center">
                 <p class="text-sm">&copy; 2024-<?php echo date("Y") ?> <em><strong>ıgnıs</strong></em> by <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
                 <?php if ($__footerVersion !== null): ?>
-                    <button type="button" class="footer-version-btn" onclick="document.getElementById('ignis-about-dialog').showModal()" title="Über ıgnıs">
+                    <button type="button" class="footer-version-btn" onclick="document.getElementById('ignis-about-dialog').showModal()" data-ignis-tooltip="Über ıgnıs">
                         <?= htmlspecialchars($__footerVersion) ?>
                     </button>
                 <?php endif; ?>

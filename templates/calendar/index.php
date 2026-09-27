@@ -38,7 +38,7 @@ $bodyId = 'kalender';
                         <p class="twplus-page-header__description">Termine, Abwesenheiten und Einladungen in einer gemeinsamen Ansicht.</p>
                     </div>
                     <div class="header-actions twplus-page-header__actions">
-                        <button type="button" class="ignis-btn ignis-btn--secondary" id="btn-subscribe" title="Diesen Kalender abonnieren">
+                        <button type="button" class="ignis-btn ignis-btn--secondary" id="btn-subscribe" data-ignis-tooltip="Diesen Kalender abonnieren">
                             <i class="fa-solid fa-rss"></i> Abonnieren
                         </button>
                         <a href="<?= BASE_PATH ?>calendar/create" class="ignis-btn ignis-btn--primary" id="btn-new-event" data-ignis-drawer>

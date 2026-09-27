@@ -136,7 +136,7 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
                                             <input type="hidden" name="id" value="<?= (int) $entry['id'] ?>">
                                             <input type="hidden" name="return" value="<?= htmlspecialchars($pgReturn, ENT_QUOTES) ?>">
-                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" title="Als gelesen markieren" aria-label="Als gelesen markieren"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Als gelesen markieren" aria-label="Als gelesen markieren"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
                                         </form>
                                     <?php endif; ?>
                                 </li>

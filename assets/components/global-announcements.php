@@ -178,7 +178,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 <div id="efAnnouncementsTrigger" class="fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
     <button type="button"
         class="ef-announce-fab ef-announce-fab--<?= $hasCritical ? 'critical' : ($hasWarning ? 'warning' : 'info') ?>"
-        title="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?>"
+        data-ignis-tooltip="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?>"
         aria-label="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?> anzeigen">
         <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
         <span class="ef-announce-fab__count"><?= count($announcements) ?></span>

@@ -69,11 +69,11 @@ $protokollStatus = [
             $viewUrl   = \Plugin\Enotf\Helpers\EnotfUrl::protokoll((string) $row['enr']);
         ?>
             <tr>
-                <td><span class="ignis-chip ignis-chip--dot ignis-chip--<?= $stateChip ?>"<?= $pruefer !== '' ? ' title="' . htmlspecialchars($pruefer) . '"' : '' ?>><?= $stateText ?></span></td>
+                <td><span class="ignis-chip ignis-chip--dot ignis-chip--<?= $stateChip ?>"<?= $pruefer !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($pruefer) . '"' : '' ?>><?= $stateText ?></span></td>
                 <td>
                     <a class="ignis-mono" href="<?= htmlspecialchars($viewUrl) ?>"><?= htmlspecialchars((string) $row['enr']) ?></a>
                     <?php if ($released): ?>
-                        <span class="ignis-chip ignis-chip--sm ignis-chip--ok" title="Freigegeben von: <?= htmlspecialchars((string) $row['freigeber_name']) ?>">F</span>
+                        <span class="ignis-chip ignis-chip--sm ignis-chip--ok" data-ignis-tooltip="Freigegeben von: <?= htmlspecialchars((string) $row['freigeber_name']) ?>">F</span>
                     <?php endif; ?>
                 </td>
                 <td><?= !empty($row['bearbeiter']) ? htmlspecialchars((string) $row['bearbeiter']) : '<span class="text-[var(--text-3)]">—</span>' ?></td>

@@ -91,15 +91,15 @@ $SITE_TITLE = 'Plugins';
                                     <?php elseif ($row['active']): ?>
                                         <span class="ignis-chip ignis-chip--success">Aktiv</span>
                                     <?php elseif ($row['enabled'] && $row['skipReason'] !== null): ?>
-                                        <span class="ignis-chip ignis-chip--warning" title="<?= htmlspecialchars($row['skipReason']) ?>">Übersprungen</span>
+                                        <span class="ignis-chip ignis-chip--warning" data-ignis-tooltip="<?= htmlspecialchars($row['skipReason']) ?>">Übersprungen</span>
                                     <?php else: ?>
                                         <span class="ignis-chip">Inaktiv</span>
                                     <?php endif; ?>
                                     <?php if ($row['bundled']): ?>
-                                        <span class="ignis-chip ignis-chip--info" title="Offiziell mit ıgnıs ausgeliefert.">Offiziell</span>
+                                        <span class="ignis-chip ignis-chip--info" data-ignis-tooltip="Offiziell mit ıgnıs ausgeliefert.">Offiziell</span>
                                     <?php endif; ?>
                                     <?php if (!$m->removable): ?>
-                                        <span class="ignis-chip ignis-chip--info" title="Dieses Plugin ist fester Bestandteil und kann nicht deaktiviert werden.">Erforderlich</span>
+                                        <span class="ignis-chip ignis-chip--info" data-ignis-tooltip="Dieses Plugin ist fester Bestandteil und kann nicht deaktiviert werden.">Erforderlich</span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="text-gray-400 mt-1" style="font-size: 0.82rem;">
@@ -142,7 +142,7 @@ $SITE_TITLE = 'Plugins';
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-danger" <?= $blocked ? 'disabled' : '' ?>
-                                            <?php if (!$m->removable): ?>title="Fester Bestandteil — nicht deaktivierbar"<?php elseif ($row['requiredBy'] !== []): ?>title="Wird von anderen aktiven Plugins benötigt"<?php endif; ?>>
+                                            <?php if (!$m->removable): ?>data-ignis-tooltip="Fester Bestandteil — nicht deaktivierbar"<?php elseif ($row['requiredBy'] !== []): ?>data-ignis-tooltip="Wird von anderen aktiven Plugins benötigt"<?php endif; ?>>
                                             Deaktivieren
                                         </button>
                                     </form>
@@ -241,7 +241,7 @@ $SITE_TITLE = 'Plugins';
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <input type="hidden" name="plugin_action" value="catalog_stage">
                                                 <input type="hidden" name="plugin_id" value="<?= htmlspecialchars((string) $plugin['slug']) ?>">
-                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" <?= !$plugin['installable'] ? 'disabled title="Kein SHA256-Digest oder Download hinterlegt"' : '' ?>>
+                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" <?= !$plugin['installable'] ? 'disabled data-ignis-tooltip="Kein SHA256-Digest oder Download hinterlegt"' : '' ?>>
                                                     Installieren
                                                 </button>
                                             </form>

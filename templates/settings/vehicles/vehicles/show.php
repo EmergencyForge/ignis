@@ -65,7 +65,7 @@ $bodyId = 'fahrzeuge';
                         <?php endif; ?>
                         <span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span>
                         <?php if (!empty($vehicle['current_status'])): ?>
-                            <span class="ignis-chip ignis-chip--secondary" title="Status aus <?= htmlspecialchars((string) ($vehicle['status_source'] ?? 'EMD'), ENT_QUOTES) ?>">Status <?= htmlspecialchars((string) $vehicle['current_status']) ?></span>
+                            <span class="ignis-chip ignis-chip--secondary" data-ignis-tooltip="Status aus <?= htmlspecialchars((string) ($vehicle['status_source'] ?? 'EMD'), ENT_QUOTES) ?>">Status <?= htmlspecialchars((string) $vehicle['current_status']) ?></span>
                         <?php endif; ?>
                     </h1>
                     <p class="twplus-page-header__description">

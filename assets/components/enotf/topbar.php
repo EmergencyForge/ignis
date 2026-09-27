@@ -114,29 +114,29 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                     <?php if (in_array('pat_sync', $topbar_sync)): ?>
                         <div class="flex align-items-center" style="gap: 8px;">
                             <?php if (in_array('leitstelle', $topbar_sync)): ?>
-                                <span id="leitstelle-conn-icon" title="Verbindung zur Leitstelle">
+                                <span id="leitstelle-conn-icon" data-ignis-tooltip="Verbindung zur Leitstelle" role="img" aria-label="Verbindung zur Leitstelle">
                                     <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
                                 </span>
                             <?php endif; ?>
                             <?php if (in_array('session', $topbar_sync)): ?>
-                                <span id="session-conn-icon" title="Session-Verbindung">
+                                <span id="session-conn-icon" data-ignis-tooltip="Session-Verbindung" role="img" aria-label="Session-Verbindung">
                                     <i class="fa-solid fa-network-wired" style="color: #ffffff;"></i>
                                 </span>
                             <?php endif; ?>
                         </div>
                         <div class="flex align-items-center">
-                            <span id="pat-sync-icon" title="Patientendaten-Sync">
+                            <span id="pat-sync-icon" data-ignis-tooltip="Patientendaten-Sync" role="img" aria-label="Patientendaten-Sync">
                                 <i class="fa-solid fa-up-down" style="color: <?= $patSyncColor ?>;"></i>
                             </span>
                         </div>
                     <?php else: ?>
                         <?php if (in_array('leitstelle', $topbar_sync)): ?>
-                            <span id="leitstelle-conn-icon" title="Verbindung zur Leitstelle">
+                            <span id="leitstelle-conn-icon" data-ignis-tooltip="Verbindung zur Leitstelle" role="img" aria-label="Verbindung zur Leitstelle">
                                 <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
                             </span>
                         <?php endif; ?>
                         <?php if (in_array('session', $topbar_sync)): ?>
-                            <span id="session-conn-icon" title="Session-Verbindung">
+                            <span id="session-conn-icon" data-ignis-tooltip="Session-Verbindung" role="img" aria-label="Session-Verbindung">
                                 <i class="fa-solid fa-network-wired" style="color: #ffffff;"></i>
                             </span>
                         <?php endif; ?>
@@ -178,6 +178,11 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
         const POLL_INTERVAL = 10000; // alle 10 Sekunden prüfen
         const enr = '<?= $enr ?>';
 
+        function setStatusLabel(el, text) {
+            el.dataset.ignisTooltip = text;
+            el.setAttribute('aria-label', text);
+        }
+
         function updateSyncIcons() {
             fetch('<?= BASE_PATH ?>api/enotf/sync-status?enr=' + encodeURIComponent(enr))
                 .then(r => r.json())
@@ -200,14 +205,14 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
 
                             if (diffSeconds <= SYNC_TIMEOUT) {
                                 towerIcon.style.color = '#28a745';
-                                towerIcon.parentElement.title = 'Verbindung zur Leitstelle aktiv';
+                                setStatusLabel(towerIcon.parentElement, 'Verbindung zur Leitstelle aktiv');
                             } else {
                                 towerIcon.style.color = '#dc3545';
-                                towerIcon.parentElement.title = 'Keine Verbindung zur Leitstelle';
+                                setStatusLabel(towerIcon.parentElement, 'Keine Verbindung zur Leitstelle');
                             }
                         } else {
                             towerIcon.style.color = '#ffffff';
-                            towerIcon.parentElement.title = 'Verbindung zur Leitstelle unbekannt';
+                            setStatusLabel(towerIcon.parentElement, 'Verbindung zur Leitstelle unbekannt');
                         }
                     }
                 })

@@ -267,10 +267,10 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                             <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                                             <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>
                                             <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
-                                            <td class="max-w-[150px] truncate" title="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>">
+                                            <td class="max-w-[150px] truncate"<?= ($e['stationierungsort'] ?? '') !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($e['stationierungsort']) . '"' : '' ?>>
                                                 <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
                                             </td>
-                                            <td class="max-w-[150px] truncate" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
+                                            <td class="max-w-[150px] truncate"<?= ($e['grund'] ?? '') !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($e['grund']) . '"' : '' ?>>
                                                 <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
                                             </td>
                                             <td><span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>

@@ -74,14 +74,14 @@ $SITE_TITLE = 'Dokumentvorlagen';
                                 <td>
                                     <div class="flex gap-1 items-center">
                                         <a href="<?= BASE_PATH ?>settings/documents/editor-templates/<?= (int) $template->id ?>"
-                                           class="ignis-btn ignis-btn--secondary" title="Bearbeiten">
+                                           class="ignis-btn ignis-btn--secondary" data-ignis-tooltip="Bearbeiten" aria-label="Bearbeiten">
                                             <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                         </a>
                                         <form method="POST"
                                               action="<?= BASE_PATH ?>settings/documents/editor-templates/<?= (int) $template->id ?>/deactivate"
                                               onsubmit="<?= confirm_attr($confirm) ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                                            <button type="submit" class="ignis-btn ignis-btn--ghost" title="Löschen">
+                                            <button type="submit" class="ignis-btn ignis-btn--ghost" data-ignis-tooltip="Löschen" aria-label="Löschen">
                                                 <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </form>

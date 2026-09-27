@@ -108,7 +108,7 @@ foreach ($topGroups as $topGroup) {
 ?>
 <header class="ignis-topbar" data-base-path="<?= htmlspecialchars($topBasePath, ENT_QUOTES) ?>">
     <div class="ignis-topbar__identity">
-    <button type="button" class="ignis-topbar__toggle" data-ignis-sidebar-toggle aria-expanded="true" aria-label="Navigation ein- oder ausklappen" title="Navigation ein- oder ausklappen ([)">
+    <button type="button" class="ignis-topbar__toggle" data-ignis-sidebar-toggle aria-expanded="true" aria-label="Navigation ein- oder ausklappen" data-ignis-tooltip="Navigation ein- oder ausklappen ([)" data-placement="bottom">
         <span class="ignis-burger" aria-hidden="true"><span></span><span></span><span></span></span>
     </button>
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
@@ -155,7 +155,7 @@ foreach ($topGroups as $topGroup) {
 
     <?php if ($topLoggedIn): ?>
         <details class="ignis-menu ignis-menu--right ignis-topbar__bell" data-ignis-menu data-ignis-inbox="<?= htmlspecialchars($topBasePath . 'inbox/popover', ENT_QUOTES) ?>">
-            <summary class="ignis-topbar__toggle" aria-label="Posteingang<?= $topUnread > 0 ? ', ' . $topUnread . ' ungelesen' : '' ?>" title="Posteingang">
+            <summary class="ignis-topbar__toggle" aria-label="Posteingang<?= $topUnread > 0 ? ', ' . $topUnread . ' ungelesen' : '' ?>" data-ignis-tooltip="Posteingang" data-placement="bottom">
                 <i class="fa-solid fa-bell" aria-hidden="true"></i>
                 <span class="ignis-topbar__badge notification-poll-badge"<?= $topUnread > 0 ? '' : ' hidden' ?>><?= $topUnread > 99 ? '99+' : $topUnread ?></span>
             </summary>

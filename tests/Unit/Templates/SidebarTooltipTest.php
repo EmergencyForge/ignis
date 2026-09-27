@@ -12,10 +12,7 @@ use PHPUnit\Framework\TestCase;
  * Sidebar darf also kein natives title mehr tragen, jedes Element mit
  * Tooltip braucht data-ignis-tooltip.
  *
- * Der Guard bleibt auf die Sidebar beschränkt: templates/ und die übrigen
- * assets/components/ nutzen title="…" an zu vielen Stellen (Chips,
- * Icon-Buttons, dynamisch gebautes Markup), um das ohne größeren Umbau
- * mit auf einmal grün zu bekommen — siehe Bericht für die Fundstellen.
+ * Das Verbot von title gilt inzwischen überall, siehe NativeTitleTooltipTest.
  */
 final class SidebarTooltipTest extends TestCase
 {
