@@ -70,7 +70,7 @@ final class ChangelogClientTest extends TestCase
         );
         self::assertSame('https://forum.example.test', $client('https://forum.example.test/')->getForumUrl());
         self::assertSame('HTTP://localhost:4200', $client('HTTP://localhost:4200')->getForumUrl());
-        foreach (['javascript:alert(1)', 'file:///etc/passwd', '//evil.test', '', null] as $bad) {
+        foreach (['javascript:alert(1)', 'file:///etc/passwd', '//evil.test', 'https://', '', null] as $bad) {
             self::assertSame('https://forum.emergencyforge.de', $client($bad)->getForumUrl(), var_export($bad, true));
         }
     }

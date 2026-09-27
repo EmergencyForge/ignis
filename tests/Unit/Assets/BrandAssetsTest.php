@@ -91,4 +91,47 @@ final class BrandAssetsTest extends TestCase
         $login = (string) file_get_contents(self::ROOT . '/login.php');
         self::assertDoesNotMatchRegularExpression('/<img\s[^\n]*ignis-(lockup|mark|wordmark)\.svg/', $login);
     }
+
+    public function testPngPixelsMatchTheBrandPalette(): void
+    {
+        if (!function_exists('imagecreatefrompng')) {
+            self::markTestSkipped('GD (imagecreatefrompng) ist nicht verfügbar.');
+        }
+        foreach (['assets/favicon', 'public/assets/favicon'] as $dir) {
+            $apple = imagecreatefrompng(self::ROOT . '/' . $dir . '/apple-touch-icon.png');
+            self::assertNotFalse($apple, $dir);
+            $rgb = imagecolorsforindex($apple, imagecolorat($apple, 2, 2));
+            self::assertSame('161616', sprintf('%02x%02x%02x', $rgb['red'], $rgb['green'], $rgb['blue']), $dir . '/apple-touch-icon.png');
+
+            $manifest512 = imagecreatefrompng(self::ROOT . '/' . $dir . '/web-app-manifest-512x512.png');
+            self::assertNotFalse($manifest512, $dir);
+            $rgb = imagecolorsforindex($manifest512, imagecolorat($manifest512, 2, 2));
+            self::assertSame('161616', sprintf('%02x%02x%02x', $rgb['red'], $rgb['green'], $rgb['blue']), $dir . '/web-app-manifest-512x512.png');
+
+            // Bildmitte fällt auf den Micro-Motiv-Ausschnitt, nicht den Rand: opak.
+            $favicon96 = imagecreatefrompng(self::ROOT . '/' . $dir . '/favicon-96x96.png');
+            self::assertNotFalse($favicon96, $dir);
+            $centre = intdiv(imagesx($favicon96), 2) - 1;
+            $rgb = imagecolorsforindex($favicon96, imagecolorat($favicon96, $centre, $centre));
+            self::assertSame(0, $rgb['alpha'], $dir . '/favicon-96x96.png Mitte');
+        }
+    }
+
+    public function testWebmanifestHasThemeColorAndAnyPurposeIcon(): void
+    {
+        foreach (['assets/favicon', 'public/assets/favicon'] as $dir) {
+            $manifest = json_decode((string) file_get_contents(self::ROOT . '/' . $dir . '/site.webmanifest'), true);
+            self::assertIsArray($manifest, $dir);
+            self::assertSame('#161616', $manifest['theme_color'] ?? null, $dir);
+
+            $hasAnyPurpose = false;
+            foreach ($manifest['icons'] ?? [] as $icon) {
+                if (str_contains((string) ($icon['purpose'] ?? ''), 'any')) {
+                    $hasAnyPurpose = true;
+                    break;
+                }
+            }
+            self::assertTrue($hasAnyPurpose, $dir . ': kein Icon mit purpose "any"');
+        }
+    }
 }
