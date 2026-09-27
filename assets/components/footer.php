@@ -7,11 +7,12 @@ $__footerVersionInfo = is_file($__footerVersionFile) ? json_decode((string) file
 $__footerVersion = is_array($__footerVersionInfo) && !empty($__footerVersionInfo['version']) ? (string) $__footerVersionInfo['version'] : null;
 $__footerBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
-<footer class="footer mt-auto py-3 text-white">
+<footer class="footer mt-auto py-3">
     <div class="container mx-auto">
         <div class="grid grid-cols-1 gap-3 items-end md:grid-cols-3">
             <div>
-                <img src="<?= htmlspecialchars($__footerBasePath . 'assets/img/defaultLogo.webp') ?>" alt="Logo" height="48px" width="auto">
+                <?php // Wortmarke als Maske im Akzentverlauf (siehe _shell.scss), damit sie in beiden Themes steht. ?>
+                <span class="ignis-wordmark" role="img" aria-label="ignis" style="--wordmark: url('<?= htmlspecialchars(rtrim($__footerBasePath, '/') . '/assets/img/ignis-wordmark.svg', ENT_QUOTES) ?>')"></span>
                 <p class="text-sm">Verwaltungsportal der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?></p>
             </div>
             <div class="text-center">
@@ -28,13 +29,13 @@ $__footerBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
                 ?>
                 <?php if ($impressumUrl !== ''): ?>
-                    <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-white text-sm">Impressum</a>
+                    <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-sm">Impressum</a>
                 <?php endif; ?>
                 <?php if ($datenschutzUrl !== ''): ?>
                     <?php if ($impressumUrl !== ''): ?>
-                        <span class="text-white text-sm mx-1">|</span>
+                        <span class="text-sm mx-1">|</span>
                     <?php endif; ?>
-                    <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-white text-sm">Datenschutz</a>
+                    <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-sm">Datenschutz</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -93,13 +94,13 @@ $__footerBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             border: none;
             padding: 0;
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.55);
+            color: var(--text-3);
             cursor: pointer;
             text-decoration: underline dotted;
         }
 
         .footer-version-btn:hover {
-            color: #fff;
+            color: var(--text);
         }
 
         .ignis-about-dialog {

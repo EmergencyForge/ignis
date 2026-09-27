@@ -268,6 +268,46 @@ if (!function_exists('search_base_path')) {
     }
 }
 
+if (!function_exists('systemLogoIsDefault')) {
+    /**
+     * Ob SYSTEM_LOGO (oder $logo) auf ein mitgeliefertes Logo zeigt: leer,
+     * die Wortmarke, Lockup oder Bildmarke, oder eines der alten
+     * intraRP-Standardlogos. Topbar und Anmeldung zeigen dann die Wortmarke
+     * im Akzentverlauf statt eines <img>.
+     */
+    function systemLogoIsDefault(?string $logo = null): bool
+    {
+        $logo = trim($logo ?? (defined('SYSTEM_LOGO') ? (string) SYSTEM_LOGO : ''));
+        if ($logo === '') {
+            return true;
+        }
+        return in_array(basename($logo), ['ignis-wordmark.svg', 'ignis-lockup.svg', 'ignis-mark.svg', 'defaultLogo.webp', 'defaultLogo.png'], true);
+    }
+}
+
+if (!function_exists('systemLogoUrl')) {
+    /**
+     * URL zu SYSTEM_LOGO (oder $logo) für ein src-Attribut, bereits escaped.
+     *
+     * Mitgelieferte Logos werden zur Wortmarke: sie trägt ihr Orange fest,
+     * Lockup und Bildmarke füllen mit currentColor und wären als <img>
+     * schwarz. Relative Pfade bekommen BASE_PATH, sonst zeigen sie unter
+     * einem Unterpfad wie /intra/ ins Leere; http(s):// und // bleiben.
+     */
+    function systemLogoUrl(?string $logo = null): string
+    {
+        $logo = trim($logo ?? (defined('SYSTEM_LOGO') ? (string) SYSTEM_LOGO : ''));
+        $base = rtrim(defined('BASE_PATH') ? (string) BASE_PATH : '/', '/');
+        if (systemLogoIsDefault($logo)) {
+            $logo = $base . '/assets/img/ignis-wordmark.svg';
+        } elseif (!preg_match('~^(https?:)?//~i', $logo)) {
+            $logo = $base . '/' . ltrim($logo, '/');
+        }
+
+        return htmlspecialchars($logo, ENT_QUOTES);
+    }
+}
+
 if (!function_exists('env_value')) {
     /**
      * Liest eine Umgebungsvariable aus $_ENV, $_SERVER, getenv().

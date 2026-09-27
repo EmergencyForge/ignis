@@ -283,7 +283,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
         <nav class="mb-4">
             <div class="mx-auto flex items-center justify-between px-4 py-3">
                 <a href="<?= BASE_PATH ?>">
-                    <img src="<?php echo SYSTEM_LOGO ?>" alt="<?php echo SYSTEM_NAME ?>" style="height:48px;width:auto">
+                    <img src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>" style="height:48px;width:auto">
                 </a>
                 <a class="ignis-btn ignis-btn--ghost" href="<?= BASE_PATH ?>login.php">Anmelden</a>
             </div>

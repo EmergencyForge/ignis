@@ -16,7 +16,7 @@ $einsatzExtraNav = $einsatzExtraNav ?? '';
 ?>
 <div class="einsatz-sidebar">
     <div class="einsatz-sidebar-logo">
-        <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
+        <img src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
     </div>
 
     <?php if (isset($_SESSION['einsatz_vehicle_name'])): ?>

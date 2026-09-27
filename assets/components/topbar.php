@@ -64,17 +64,9 @@ $topUnread = $topLoggedIn ? (int) (NavigationCounters::for('inbox') ?? 0) : 0;
 // Logo: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat; sonst die
 // Wortmarke. Die Standardwortmarke ist eine Maske mit dem Akzent-Verlauf
 // und passt sich so beiden Themes an; die alten intraRP-Standardlogos
-// zeigen ebenfalls auf sie.
-$topLogo = defined('SYSTEM_LOGO') ? trim((string) SYSTEM_LOGO) : '';
-$topLogoIsDefault = $topLogo === ''
-    || str_ends_with($topLogo, '/ignis-wordmark.svg')
-    || str_ends_with($topLogo, '/defaultLogo.webp')
-    || str_ends_with($topLogo, '/defaultLogo.png');
-if ($topLogoIsDefault) {
-    $topLogo = rtrim($topBasePath, '/') . '/assets/img/ignis-wordmark.svg';
-} elseif (!preg_match('~^(https?:)?//~i', $topLogo)) {
-    $topLogo = rtrim($topBasePath, '/') . '/' . ltrim($topLogo, '/');
-}
+// zeigen ebenfalls auf sie. Die URL kommt escaped aus systemLogoUrl().
+$topLogo = systemLogoUrl();
+$topLogoIsDefault = systemLogoIsDefault();
 
 $topGroups  = $topLoggedIn ? Navigation::groups() : [];
 $topActions = Navigation::quickActions($topGroups);
@@ -115,9 +107,9 @@ foreach ($topGroups as $topGroup) {
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <?php if ($topLogoIsDefault): ?>
             <?php // Standardlogo: als Verlaufsschrift statt <img>, damit es den Akzent trägt. ?>
-            <span class="ignis-wordmark" role="img" aria-label="ignis" style="--wordmark: url('<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>')"></span>
+            <span class="ignis-wordmark" role="img" aria-label="ignis" style="--wordmark: url('<?= $topLogo ?>')"></span>
         <?php else: ?>
-            <img src="<?= htmlspecialchars($topLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
+            <img src="<?= $topLogo ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <?php endif; ?>
     </a>
     </div>

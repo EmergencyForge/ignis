@@ -406,10 +406,17 @@ body {
   margin-top: auto;
   background-color: var(--bg) !important;
   border-top: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+// Seitenverhältnis aus der viewBox von ignis-wordmark.svg.
+.footer .ignis-wordmark {
+  height: 48px;
+  aspect-ratio: 188 / 97.5;
 }
 
 .footer a {
-  color: var(--white);
+  color: inherit;
   text-decoration: none;
 }
 

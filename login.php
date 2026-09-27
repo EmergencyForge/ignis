@@ -27,15 +27,8 @@ $error = \App\Session\SessionManager::pullRegistrationError();
 
 // Große Marke im Sichtfeld rechts: SYSTEM_LOGO, wenn der Betreiber eines
 // hinterlegt hat (dann als schlichtes <img>), sonst die ignis-Wortmarke im
-// Akzentverlauf. Dieselbe Logik wie in topbar.php.
-$loginLogo = defined('SYSTEM_LOGO') ? trim((string) SYSTEM_LOGO) : '';
-$loginLogoIsDefault = $loginLogo === ''
-    || str_ends_with($loginLogo, '/ignis-wordmark.svg')
-    || str_ends_with($loginLogo, '/defaultLogo.webp')
-    || str_ends_with($loginLogo, '/defaultLogo.png');
-if (!$loginLogoIsDefault && !preg_match('~^(https?:)?//~i', $loginLogo)) {
-    $loginLogo = rtrim((string) BASE_PATH, '/') . '/' . ltrim($loginLogo, '/');
-}
+// Akzentverlauf. Dieselbe Logik wie in topbar.php (systemLogoUrl()).
+$loginLogoIsDefault = systemLogoIsDefault();
 
 // Handle code submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
@@ -163,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                 <?php if ($loginLogoIsDefault): ?>
                     <span class="ignis-wordmark ignis-wordmark--login" role="img" aria-label="ignis" style="--wordmark: url('<?= htmlspecialchars(rtrim((string) BASE_PATH, '/') . '/assets/img/ignis-lockup.svg', ENT_QUOTES) ?>')"></span>
                 <?php else: ?>
-                    <img class="twplus-login__visual-logo" src="<?= htmlspecialchars($loginLogo, ENT_QUOTES) ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
+                    <img class="twplus-login__visual-logo" src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
                 <?php endif; ?>
                 <p class="twplus-page-header__eyebrow">EmergencyForge</p>
                 <h2>Alles, was deine Organisation im Einsatz zusammenhält.</h2>

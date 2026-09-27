@@ -209,7 +209,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     <div class="mt-2">
                                                         <span class="ignis-field__label block mb-1">Vorschau</span>
                                                         <img
-                                                            src="<?= htmlspecialchars($config['config_value']) ?>"
+                                                            src="<?= systemLogoUrl((string) $config['config_value']) ?>"
                                                             alt="Vorschau des Logos"
                                                             class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
                                                             id="logo_preview"
