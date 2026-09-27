@@ -14,10 +14,14 @@
  *       id: string,                   Anker für merge_into der Plugins
  *       label: string|null,           Überschrift; null = ohne Überschrift
  *       permissions?: string[],       Permissions::check, ANY-Match
+ *       placement?: 'settings',       Gruppe erscheint nicht in der Sidebar,
+ *                                     sondern als Abschnitt auf /settings/index
+ *                                     (App\Helpers\Navigation::sidebarGroups())
  *       items: array<array{
  *           label: string,
  *           href: string,             absoluter Pfad mit BASE_PATH oder externe URL
  *           icon: string,             Font-Awesome-Klasse, z.B. 'fa-solid fa-users'
+ *           description?: string,     Ein Satz für die Kachel auf /settings/index
  *           permissions?: string[],   ANY-Match; fehlt: jeder Eingeloggte
  *           match?: string[],         Pfadpräfixe (ohne BASE_PATH), unter denen der
  *                                     Eintrag als aktiv gilt, zusätzlich zum href
@@ -52,6 +56,13 @@
  * Das ältere Rail-Schema (sections mit items, oder href als Einzellink)
  * wird weiterhin gelesen. Eine Gruppe ohne Einträge, etwa „Protokolle"
  * ohne aktives Protokoll-Plugin, erscheint nicht.
+ *
+ * Gruppen mit `placement => 'settings'` bündeln sich statt in der Sidebar
+ * auf der Übersicht /settings/index (SettingsController::index), je eine
+ * als Abschnitt mit Kachel pro Eintrag; das hält die Sidebar auf die
+ * täglich genutzten Einträge beschränkt. Die Gruppe „Verwaltung" (id
+ * `admin`) bleibt sichtbar und bekommt dort den Einstellungen-Eintrag
+ * synthetisch dazu (Navigation::sidebarGroups()).
  */
 
 declare(strict_types=1);
@@ -99,42 +110,6 @@ return [
             'id'    => 'personal',
             'label' => 'Personal',
             'items' => [
-                [
-                    'label'       => 'Benutzer',
-                    'href'        => BASE_PATH . 'users/list',
-                    'icon'        => 'fa-solid fa-users',
-                    'permissions' => ['admin', 'users.view'],
-                    'match'       => ['/users/list', '/users/edit'],
-                ],
-                [
-                    'label'        => 'Registrierungscodes',
-                    'href'         => BASE_PATH . 'users/registration-codes',
-                    'icon'         => 'fa-solid fa-ticket',
-                    'permissions'  => ['admin', 'users.create'],
-                    'quick_action' => [
-                        'type'   => 'modal',
-                        'target' => 'registration-invite-create',
-                        'label'  => 'Neue Einladung erstellen',
-                    ],
-                ],
-                [
-                    'label'        => 'Rollen',
-                    'href'         => BASE_PATH . 'users/roles/index',
-                    'icon'         => 'fa-solid fa-user-shield',
-                    'permissions'  => ['admin', 'users.view'],
-                    'match'        => ['/users/roles'],
-                    'quick_action' => [
-                        'type'   => 'modal',
-                        'target' => 'role-create',
-                        'label'  => 'Neue Rolle anlegen',
-                    ],
-                ],
-                [
-                    'label'       => 'Audit-Log',
-                    'href'        => BASE_PATH . 'users/audit-log',
-                    'icon'        => 'fa-solid fa-clock-rotate-left',
-                    'permissions' => ['admin', 'audit.view'],
-                ],
                 [
                     'label'        => 'Mitarbeiter',
                     'href'         => BASE_PATH . 'personnel/list',
@@ -202,27 +177,37 @@ return [
                     'permissions' => ['admin', 'logbook.view', 'logbook.manage'],
                     'match'       => ['/logbook'],
                 ],
+            ],
+        ],
+
+        // Verwaltung: bleibt in der Sidebar. „Einstellungen" kommt nicht von
+        // hier, sondern synthetisch aus Navigation::sidebarGroups() dazu,
+        // weil sie nur erscheint, wenn mindestens eine placement=settings-
+        // Gruppe nach der Rechteprüfung noch einen Eintrag hat.
+        [
+            'id'    => 'admin',
+            'label' => 'Verwaltung',
+            'items' => [
                 [
-                    'label'       => 'Beladelisten',
-                    'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
-                    'icon'        => 'fa-solid fa-boxes-stacked',
-                    'permissions' => ['admin', 'vehicles.manage'],
-                    'match'       => ['/settings/vehicles/vehload'],
+                    'label'       => 'Benutzer',
+                    'href'        => BASE_PATH . 'users/list',
+                    'icon'        => 'fa-solid fa-users',
+                    'permissions' => ['admin', 'users.view'],
+                    'match'       => ['/users/list', '/users/edit'],
                 ],
             ],
         ],
 
-        // Die eNOTF-Einstellungen (POIs, Medikamente, Schnellzugriff) hängen
-        // sich hier ein. Die acht Systemseiten teilen sich den Eintrag
-        // „System"; ihre eigene Unternavigation steht auf den Seiten.
         [
-            'id'    => 'settings',
-            'label' => 'Einstellungen',
-            'items' => [
+            'id'        => 'personnel-quals',
+            'label'     => 'Personal & Qualifikationen',
+            'placement' => 'settings',
+            'items'     => [
                 [
                     'label'        => 'Dienstgrade',
                     'href'         => BASE_PATH . 'settings/personnel/ranks/index',
                     'icon'         => 'fa-solid fa-medal',
+                    'description'  => 'Dienstgradstufen für Mitarbeiter pflegen.',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/ranks'],
                     'quick_action' => [
@@ -235,6 +220,7 @@ return [
                     'label'        => 'FW-Qualifikationen',
                     'href'         => BASE_PATH . 'settings/personnel/fdskills/index',
                     'icon'         => 'fa-solid fa-fire',
+                    'description'  => 'Qualifikationen für den Feuerwehrdienst verwalten.',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/fdskills'],
                     'quick_action' => [
@@ -247,6 +233,7 @@ return [
                     'label'        => 'RD-Qualifikationen',
                     'href'         => BASE_PATH . 'settings/personnel/ambskills/index',
                     'icon'         => 'fa-solid fa-kit-medical',
+                    'description'  => 'Qualifikationen für den Rettungsdienst verwalten.',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/ambskills'],
                     'quick_action' => [
@@ -259,6 +246,7 @@ return [
                     'label'        => 'Fachdienste',
                     'href'         => BASE_PATH . 'settings/personnel/specialties/index',
                     'icon'         => 'fa-solid fa-layer-group',
+                    'description'  => 'Fachdienste und ihre Zuordnungen verwalten.',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/specialties'],
                     'quick_action' => [
@@ -267,17 +255,93 @@ return [
                         'label'  => 'Neuen Fachdienst anlegen',
                     ],
                 ],
+            ],
+        ],
+
+        [
+            'id'        => 'access',
+            'label'     => 'Zugang & Rechte',
+            'placement' => 'settings',
+            'items'     => [
+                [
+                    'label'        => 'Rollen',
+                    'href'         => BASE_PATH . 'users/roles/index',
+                    'icon'         => 'fa-solid fa-user-shield',
+                    'description'  => 'Rollen und ihre Berechtigungen verwalten.',
+                    'permissions'  => ['admin', 'users.view'],
+                    'match'        => ['/users/roles'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'role-create',
+                        'label'  => 'Neue Rolle anlegen',
+                    ],
+                ],
+                [
+                    'label'        => 'Registrierungscodes',
+                    'href'         => BASE_PATH . 'users/registration-codes',
+                    'icon'         => 'fa-solid fa-ticket',
+                    'description'  => 'Einladungscodes für neue Mitarbeiter verwalten.',
+                    'permissions'  => ['admin', 'users.create'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'registration-invite-create',
+                        'label'  => 'Neue Einladung erstellen',
+                    ],
+                ],
+                [
+                    'label'       => 'Audit-Log',
+                    'href'        => BASE_PATH . 'users/audit-log',
+                    'icon'        => 'fa-solid fa-clock-rotate-left',
+                    'description' => 'Änderungen im System nachvollziehen.',
+                    'permissions' => ['admin', 'audit.view'],
+                ],
+            ],
+        ],
+
+        [
+            'id'        => 'vehicles-settings',
+            'label'     => 'Fahrzeuge',
+            'placement' => 'settings',
+            'items'     => [
+                [
+                    'label'       => 'Beladelisten',
+                    'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
+                    'icon'        => 'fa-solid fa-boxes-stacked',
+                    'description' => 'Beladelisten für Fahrzeuge pflegen.',
+                    'permissions' => ['admin', 'vehicles.manage'],
+                    'match'       => ['/settings/vehicles/vehload'],
+                ],
+            ],
+        ],
+
+        // Anker für die eNOTF-Einstellungen (POIs, Medikamente, Schnell-
+        // zugriff); ohne das Plugin bleibt die Gruppe leer und verschwindet
+        // wie „Protokolle" oben.
+        [
+            'id'        => 'enotf',
+            'label'     => 'eNOTF / Rettungsdienst',
+            'placement' => 'settings',
+            'items'     => [],
+        ],
+
+        [
+            'id'        => 'templates-forms',
+            'label'     => 'Vorlagen & Formulare',
+            'placement' => 'settings',
+            'items'     => [
                 [
                     'label'       => 'Dokumente',
                     'href'        => BASE_PATH . 'settings/documents/editor-templates',
                     'icon'        => 'fa-solid fa-file-lines',
-                    'permissions' => ['admin'],
+                    'description' => 'Vorlagen für Mitarbeiter-Dokumente verwalten.',
+                    'permissions' => ['admin', 'personnel.documents.manage'],
                     'match'       => ['/settings/documents'],
                 ],
                 [
                     'label'        => 'Antragstypen',
                     'href'         => BASE_PATH . 'settings/forms/list',
                     'icon'         => 'fa-solid fa-list-check',
+                    'description'  => 'Antragstypen für das Formularsystem verwalten.',
                     'permissions'  => ['admin'],
                     'match'        => ['/settings/forms'],
                     'quick_action' => [
@@ -290,13 +354,26 @@ return [
                     'label'       => 'Dashboard',
                     'href'        => BASE_PATH . 'settings/dashboard/index',
                     'icon'        => 'fa-solid fa-table-cells-large',
+                    'description' => 'Kacheln und Layout des Dashboards konfigurieren.',
                     'permissions' => ['admin', 'dashboard.manage'],
                     'match'       => ['/settings/dashboard'],
                 ],
+            ],
+        ],
+
+        // Bleibt Anker für Plugins, die noch in die alte Gruppe „settings"
+        // mergen: unbekannte Fremd-Plugins landen so hier statt zu
+        // verschwinden.
+        [
+            'id'        => 'settings',
+            'label'     => 'System & Integrationen',
+            'placement' => 'settings',
+            'items'     => [
                 [
                     'label'       => 'System',
                     'href'        => BASE_PATH . 'settings/system/index',
                     'icon'        => 'fa-solid fa-sliders',
+                    'description' => 'Wartung, Konfiguration und Diagnostik des Systems.',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/system'],
                 ],
@@ -304,6 +381,7 @@ return [
                     'label'       => 'Instanzvernetzung',
                     'href'        => BASE_PATH . 'settings/federation/index',
                     'icon'        => 'fa-solid fa-diagram-project',
+                    'description' => 'Verbindungen zu anderen ıgnıs-Instanzen verwalten.',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/federation'],
                 ],

@@ -21,7 +21,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Medikamente</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Medikamente</span></nav>
                     <div class="page-header mb-4">
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">

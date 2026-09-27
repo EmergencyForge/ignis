@@ -29,7 +29,7 @@ declare(strict_types=1);
 use App\Helpers\Navigation;
 use App\Support\NavigationCounters;
 
-$navGroups = Navigation::groups();
+$navGroups = Navigation::sidebarGroups(Navigation::groups());
 
 $navVersionFile = dirname(__DIR__, 2) . '/storage/version.json';
 $navVersionInfo = is_file($navVersionFile) ? json_decode((string) file_get_contents($navVersionFile), true) : null;

@@ -26,6 +26,7 @@ $navbarSystemNav = str_starts_with($navbarPath, '/settings/system/') && $navbarP
 ?>
 <script>
     document.body.classList.add('ignis-app', 'ignis-app--legacy');
+    document.body.dataset.uiSkin = 'core';
     try { if (localStorage.getItem('ignis.sidebar') === 'collapsed') document.documentElement.classList.add('is-collapsed'); } catch (e) {}
 </script>
 <?php require __DIR__ . '/topbar.php'; ?>

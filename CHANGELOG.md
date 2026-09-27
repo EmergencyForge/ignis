@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.8-beta
+
+Die eNOTF-Admin-Seiten (POIs, Medikamente, Registrierungscodes, Prüfliste) hatten seit dem letzten Umbau der Topleiste eine unformatierte Bar, weil ihre Shell den neuen Skin nie gesetzt hat. Die Sidebar hatte sich mit rund zwanzig „Einstellungen“-Zeilen vollgestellt, die man selten braucht; die meisten davon ziehen jetzt auf eine eigene Übersichtsseite mit gruppierten Kacheln um, erreichbar über eine neue „Verwaltung“-Gruppe. Das Profilbild im Mitarbeiter-Profil lässt sich jetzt per Drag & Drop oder Dateiauswahl ändern statt nur über den kleinen Kamera-Knopf.
+
 ## 2026.0.7-beta
 
 Läuft ignis unter einem Unterpfad wie `/intra/`, leitet die eNOTF-Sperre nach Inaktivität wieder auf den Sperrbildschirm des Plugins weiter statt auf eine nicht vorhandene Seite. Der Footer steht wieder am unteren Rand und in derselben Spalte wie der Inhalt; sein Logo lädt auch unter einem Unterpfad.

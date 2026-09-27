@@ -138,12 +138,17 @@ $bodyId = 'mitarbeiter';
 
                                 <div class="w-full text-center">
                                     <?php if ($canEdit): ?>
-                                        <div class="mb-3 relative inline-block">
-                                            <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" id="pfp-preview" class="border" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;" data-ignis-tooltip="Klicken zum Ändern">
-                                            <label for="pfp-upload" class="absolute bottom-0 end-0 ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" data-ignis-tooltip="Bild hochladen">
-                                                <i class="fa-solid fa-camera"></i>
-                                            </label>
-                                            <input type="file" id="pfp-upload" accept="image/png,image/jpeg,image/webp" class="hidden">
+                                        <div class="mb-3 mx-auto" style="max-width: 260px;">
+                                            <div class="ignis-file ignis-file--dropzone ignis-file--photo" id="pfp-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars($profileImage, ENT_QUOTES) ?>">
+                                                <input type="file" id="pfp-upload" name="pfp" accept="image/png,image/jpeg,image/webp" class="ignis-file__input">
+                                                <label for="pfp-upload" class="ignis-file__zone">
+                                                    <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+                                                    <span class="ignis-file__title">Foto hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                                                    <span class="ignis-file__hint">JPEG, PNG oder WebP, max. 2 MB</span>
+                                                </label>
+                                                <div class="ignis-file__selected" hidden></div>
+                                                <p class="ignis-file__error" role="alert" hidden></p>
+                                            </div>
                                         </div>
                                     <?php else: ?>
                                         <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" class="border" style="width: 120px; height: 120px; object-fit: cover;">

@@ -43,8 +43,9 @@ final class ShellTest extends FeatureTestCase
         $this->assertBodyContains('id="ignisSidebar"', $response);
         $this->assertBodyContains('<main class="ignis-main">', $response);
         $this->assertBodyContains('class="ignis-sidebar__group">Personal<', $response);
-        $this->assertBodyContains('class="ignis-sidebar__group">Einstellungen<', $response);
+        $this->assertBodyContains('class="ignis-sidebar__group">Verwaltung<', $response);
         $this->assertBodyContains('href="/users/list"', $response);
+        $this->assertBodyContains('href="/settings/index"', $response);
         $this->assertBodyContains('action="/profile/theme"', $response);
         $this->assertBodyContains('href="/logout"', $response);
         $this->assertBodyContains('id="hosting-self-test"', $this->get('/dashboard'));
@@ -120,6 +121,7 @@ final class ShellTest extends FeatureTestCase
         $this->assertOk($response);
         $this->assertBodyContains('<!DOCTYPE html>', $response);
         $this->assertBodyContains("classList.add('ignis-app', 'ignis-app--legacy')", $response);
+        $this->assertBodyContains("document.body.dataset.uiSkin = 'core'", $response);
         $this->assertBodyContains('class="ignis-topbar"', $response);
         $this->assertBodyContains('id="ignisSidebar"', $response);
         $this->assertBodyContains('documentElement.dataset.theme = "dark"', $response);

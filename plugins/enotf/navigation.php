@@ -34,7 +34,7 @@ return [
         ],
     ],
     [
-        'merge_into' => 'settings',
+        'merge_into' => 'enotf',
         'id'         => 'enotf-settings',
         'label'      => 'eNOTF-Einstellungen',
         'icon'       => 'fa-solid fa-file-medical',
@@ -46,6 +46,9 @@ return [
                     [
                         'label'        => 'POIs',
                         'href'         => BASE_PATH . 'settings/pois/index',
+                        // Abteilungen und Zugangscodes hängen unter /settings/pois/.
+                        'match'        => ['/settings/pois'],
+                        'description'  => 'Points of Interest für Einsätze verwalten.',
                         'permissions'  => ['admin', 'pois.view'],
                         'quick_action' => [
                             'type'   => 'modal',
@@ -56,6 +59,7 @@ return [
                     [
                         'label'        => 'Medikamente',
                         'href'         => BASE_PATH . 'settings/medications/index',
+                        'description'  => 'Medikamentenliste für eNOTF verwalten.',
                         'permissions'  => ['admin', 'edivi.view'],
                         'quick_action' => [
                             'type'   => 'modal',
@@ -66,6 +70,9 @@ return [
                     [
                         'label'        => 'Schnellzugriff',
                         'href'         => BASE_PATH . 'settings/enotf/index',
+                        // Die Kategorien liegen unter /settings/enotf/kategorien/.
+                        'match'        => ['/settings/enotf'],
+                        'description'  => 'Schnellzugriffs-Links im eNOTF pflegen.',
                         'permissions'  => ['admin', 'edivi.view'],
                         'quick_action' => [
                             'type'   => 'modal',

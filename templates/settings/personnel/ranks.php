@@ -15,7 +15,7 @@ $SITE_TITLE = 'Dienstgrade';
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Dienstgrade</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dienstgrade</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>Dienstgrade verwalten</h1><p class="twplus-page-header__description">Bezeichnungen, Badges und Sortierung der Dienstgrade pflegen.</p></div>
                         <div class="header-actions twplus-page-header__actions">

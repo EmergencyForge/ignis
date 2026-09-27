@@ -16,7 +16,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/forms/list">Antragstypen</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($typ['name']) ?></span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/forms/list">Antragstypen</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($typ['name']) ?></span></nav>
 
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1><p class="twplus-page-header__description">Grundeinstellungen und Formularfelder des Antragstyps verwalten.</p></div>

@@ -165,7 +165,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Fehlerprotokoll</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Fehlerprotokoll</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Fehlerprotokoll</h1><p class="twplus-page-header__description">Fehler suchen, gruppierte Ereignisse untersuchen und fehlgeschlagene Jobs behandeln.</p></div>
                         <div class="header-actions twplus-page-header__actions">
