@@ -5,7 +5,7 @@ return [
     'name'            => 'MANV-Board',
     'version'         => '1.1.0',
     'vendor'          => 'EmergencyForge',
-    'requires'        => ['ignis' => '>=1.1'],
+    'requires'        => ['ignis' => '>=2026.0.6-beta'],
     'depends'         => [],
     'permissions'     => ['mci.manage'],
     'autoload'        => ['Plugin\\ManvBoard\\' => 'src/'],

@@ -5,7 +5,7 @@ return [
     'name'            => 'fireTab',
     'version'         => '1.1.0',
     'vendor'          => 'EmergencyForge',
-    'requires'        => ['ignis' => '>=1.1'],
+    'requires'        => ['ignis' => '>=2026.0.6-beta'],
     'depends'         => [],
     'permissions'     => ['fire.incident.qm'],
     'autoload'        => ['Plugin\\Firetab\\' => 'src/'],
