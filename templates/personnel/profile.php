@@ -139,7 +139,7 @@ $bodyId = 'mitarbeiter';
                                 <div class="w-full text-center">
                                     <?php if ($canEdit): ?>
                                         <div class="mb-3 mx-auto" style="max-width: 260px;">
-                                            <div class="ignis-file ignis-file--dropzone" id="pfp-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars($profileImage, ENT_QUOTES) ?>">
+                                            <div class="ignis-file ignis-file--dropzone ignis-file--photo" id="pfp-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars($profileImage, ENT_QUOTES) ?>">
                                                 <input type="file" id="pfp-upload" name="pfp" accept="image/png,image/jpeg,image/webp" class="ignis-file__input">
                                                 <label for="pfp-upload" class="ignis-file__zone">
                                                     <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>

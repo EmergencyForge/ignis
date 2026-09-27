@@ -89,6 +89,18 @@ final class SettingsOverviewTest extends FeatureTestCase
     }
 
     #[Test]
+    public function enotf_unterseiten_markieren_einstellungen_als_aktuell(): void
+    {
+        $this->login();
+
+        foreach (['/settings/enotf/kategorien/index'] as $path) {
+            $response = $this->get($path);
+            $this->assertOk($response);
+            $this->assertMatchesRegularExpression('~href="/settings/index"[^>]*aria-current="page"~', $response->body, $path);
+        }
+    }
+
+    #[Test]
     public function das_neu_menue_behaelt_seine_ziele_aus_den_verschobenen_gruppen(): void
     {
         $this->login();
