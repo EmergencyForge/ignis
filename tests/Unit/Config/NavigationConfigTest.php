@@ -76,8 +76,9 @@ final class NavigationConfigTest extends TestCase
     {
         $ids = array_column($this->navigationGroups(), 'id');
 
-        // start: Lexikon; protokolle: eNOTF, fireTab, MANV-Board; settings: eNOTF-Einstellungen
-        foreach (['start', 'protokolle', 'settings'] as $anchor) {
+        // start: Lexikon; protokolle: eNOTF, fireTab, MANV-Board; settings:
+        // unbekannte Fremd-Plugins; enotf: eNOTF-Einstellungen (POIs, Medikamente, Schnellzugriff)
+        foreach (['start', 'protokolle', 'settings', 'enotf'] as $anchor) {
             $this->assertContains($anchor, $ids, "Gruppe '$anchor' fehlt, die Plugin-Fragmente hängen sich dort ein.");
         }
         $this->assertSame('start', $ids[0]);

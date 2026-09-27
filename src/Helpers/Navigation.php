@@ -92,6 +92,72 @@ final class Navigation
     }
 
     /**
+     * Gruppen für die Sidebar: die `placement => 'settings'`-Gruppen aus
+     * groups() bleiben dort ungerendert, stattdessen bekommt „Verwaltung"
+     * (id `admin`) einen synthetischen Eintrag „Einstellungen" dazu — nur,
+     * wenn nach der Rechteprüfung noch mindestens eine Settings-Gruppe
+     * einen Eintrag hat. Aktiv ist er, wenn irgendein Settings-Eintrag es
+     * ist (z.B. Rollen unter /users/roles) oder die Übersicht selbst
+     * offen ist; das deckt automatisch jede Unterseite ab, ohne die Liste
+     * ihrer Pfade hier zu pflegen.
+     *
+     * @param list<array<string, mixed>> $groups Ergebnis von groups()
+     * @return list<array<string, mixed>>
+     */
+    public static function sidebarGroups(array $groups): array
+    {
+        $visible = [];
+        $hasSettingsItem = false;
+        $settingsActive = false;
+
+        foreach ($groups as $group) {
+            if (($group['placement'] ?? null) === 'settings') {
+                foreach ((array) ($group['items'] ?? []) as $item) {
+                    $hasSettingsItem = true;
+                    if (!empty($item['active'])) {
+                        $settingsActive = true;
+                    }
+                }
+                continue;
+            }
+            $visible[] = $group;
+        }
+
+        if (!$hasSettingsItem) {
+            return $visible;
+        }
+
+        $current = self::currentPath();
+        $overviewOpen = $current === '/settings' || $current === '/settings/index';
+        $einstellungen = [
+            'label'  => 'Einstellungen',
+            'href'   => (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'settings/index',
+            'icon'   => 'fa-solid fa-gear',
+            'active' => $settingsActive || $overviewOpen,
+        ];
+
+        $foundAdmin = false;
+        foreach ($visible as &$group) {
+            if (($group['id'] ?? null) === 'admin') {
+                $group['items'][] = $einstellungen;
+                $foundAdmin = true;
+                break;
+            }
+        }
+        unset($group);
+
+        // „Verwaltung" selbst kann leer und damit aus groups() gefallen sein,
+        // z.B. wenn Benutzer sehen fehlt, aber ein anderes Recht für einen
+        // Settings-Bereich reicht — dann bekommt die Sidebar die Gruppe hier
+        // wieder, nur mit dem Einstellungen-Eintrag.
+        if (!$foundAdmin) {
+            $visible[] = ['id' => 'admin', 'label' => 'Verwaltung', 'items' => [$einstellungen]];
+        }
+
+        return $visible;
+    }
+
+    /**
      * Die Schnellaktionen der sichtbaren Einträge, in Sidebar-Reihenfolge.
      *
      * @param list<array<string, mixed>> $groups
