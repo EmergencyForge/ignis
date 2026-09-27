@@ -331,7 +331,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                                             data-status="in_progress"
                                                             data-label="In Bearbeitung"
                                                             data-variant="warning"
-                                                            title="In Bearbeitung setzen">
+                                                            data-ignis-tooltip="In Bearbeitung setzen">
                                                         <i class="fa-solid fa-wrench"></i> In Bearbeitung
                                                     </button>
                                                 <?php endif; ?>
@@ -342,14 +342,14 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                                             data-status="deferred"
                                                             data-label="Aufgeschoben"
                                                             data-variant="primary"
-                                                            title="Aufgeschoben">
+                                                            data-ignis-tooltip="Aufgeschoben">
                                                         <i class="fa-solid fa-clock"></i> Aufschieben
                                                     </button>
                                                 <?php endif; ?>
                                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary defect-resolve-btn"
                                                         data-id="<?= $d['id'] ?>"
                                                         data-title="<?= htmlspecialchars($d['title']) ?>"
-                                                        title="Als gelöst markieren">
+                                                        data-ignis-tooltip="Als gelöst markieren">
                                                     <i class="fa-solid fa-check"></i> Lösen
                                                 </button>
                                             </div>

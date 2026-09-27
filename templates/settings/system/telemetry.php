@@ -166,7 +166,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
                                     <i class="fa-regular fa-eye mr-1"></i>Einblenden
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" data-ignis-tooltip="UUID kopieren" aria-label="UUID kopieren">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                             </div>
@@ -277,7 +277,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                         <tr>
                                             <td class="text-gray-400">Installation-ID:</td>
                                             <td>
-                                                <code class="text-sm uuid-blur" title="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
+                                                <code class="text-sm uuid-blur" data-ignis-tooltip="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
                                             </td>
                                         </tr>
                                         <tr>

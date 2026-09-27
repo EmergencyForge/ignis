@@ -355,7 +355,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                                 <button type="button" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen
                                                 </button>
-                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" data-ignis-tooltip="UUID kopieren">
                                                     <i class="fa-regular fa-copy"></i> UUID
                                                 </button>
                                             </div>

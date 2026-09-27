@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.0.7-beta
+
+Läuft ignis unter einem Unterpfad wie `/intra/`, leitet die eNOTF-Sperre nach Inaktivität wieder auf den Sperrbildschirm des Plugins weiter statt auf eine nicht vorhandene Seite. Der Footer steht wieder am unteren Rand und in derselben Spalte wie der Inhalt; sein Logo lädt auch unter einem Unterpfad.
+
+Die Sidebar zeigt Tooltips nur noch, wenn sie eingeklappt ist. Die Schnellaktionen haben dort eigene Tooltips statt des Browser-Titels, und die eingeklappte Leiste ist etwas breiter und ohne Scrollbalken. Mit dem UI-Paket 0.4.1 hat das Suchfeld der Befehlspalette keinen zusätzlichen Fokusring mehr, seine Fokuslinie ist deutlicher, und die Bereichs-Chips behalten ihre Unterkante. In Formularen in Seitenleisten wird der Fokusring der Felder nicht mehr abgeschnitten.
+
+Das Dashboard zeigt statt der Neuigkeiten und des Blogs die Ankündigungen aus dem Forum (forum.emergencyforge.de), angepinnte Themen zuerst. Der Blog-Abruf ist entfernt: das Blog-Widget entfällt, eine Migration löscht seinen Cron-Eintrag und die Blog-Cache-Tabellen. Eine zweite Migration leert den bisherigen Neuigkeiten-Cache, der nächste Abruf füllt ihn mit den Ankündigungen. Die Forum-Adresse lässt sich optional über den Konfigurationsschlüssel `FORUM_URL` ändern, Vorgabe ist `https://forum.emergencyforge.de`.
+
+Logo, Wortmarke und Favicons sind durch die neue Punze-Marke ersetzt.
+
 ## 2026.0.6-beta
 
 ignis übernimmt den gemeinsamen Look „Temper" aus dem UI-Paket: die Sidebar schwebt jetzt frei über dem Hintergrund statt am Rand zu kleben, Leerzustände sehen in der ganzen Anwendung gleich aus, und ein Wechsel zwischen hell und dunkel blendet über statt hart umzuschalten. Wer noch nie eine Dichte gewählt hat, sieht jetzt „Luftig“, auch in bestehenden Konten; wer „Kompakt“ gewählt hat, behält es. Die Wahl liegt pro Browser und Konto im Browser, auf einem neuen Gerät gilt deshalb zuerst „Luftig“.

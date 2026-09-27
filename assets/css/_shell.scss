@@ -34,8 +34,27 @@ html.is-collapsed body.ignis-app {
 }
 
 .ignis-main {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   padding: var(--space-md) 0 var(--space-xl);
+}
+
+// Footer auf dem Grund von .ignis-main (dank flex-direction: column) und in
+// derselben Inhaltsspalte wie .twplus-page. !important nötig, weil
+// style.scss den Footer mit fester Hintergrundfarbe deklariert, die hier
+// sonst gegen die transparente Hülle gewinnt.
+.ignis-main > .footer {
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  background-color: transparent !important;
+
+  @media (min-width: 640px) { padding-inline: 1.5rem; }
+  @media (min-width: 1024px) { padding-inline: 2rem; }
+
+  > .container { max-width: none; padding-inline: 0; }
 }
 
 // Shim-Modus: Inhalt ohne <main>, deshalb feste Leisten und Padding.
@@ -127,7 +146,7 @@ html.is-collapsed body.ignis-app--legacy {
     svg { height: 2.2rem; }
 
     // Standardlogo: Seitenverhältnis aus der viewBox von ignis-wordmark.svg.
-    .ignis-wordmark { height: 1.5rem; aspect-ratio: 291.512 / 100; }
+    .ignis-wordmark { height: 1.5rem; aspect-ratio: 188 / 97.5; }
 
     &:hover { color: var(--accent); }
   }
@@ -560,7 +579,8 @@ html.is-collapsed body.ignis-app--legacy {
   }
 }
 
-// Eingeklappt: nur Symbole, Tooltip über title.
+// Eingeklappt: nur Symbole, Tooltip über data-ignis-tooltip (Paket-Tooltip
+// aus tooltip.js zeigt an .ignis-sidebar__link nur in diesem Zustand).
 @media (min-width: 901px) {
   html.is-collapsed {
     .ignis-sidebar__label,

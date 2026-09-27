@@ -47,7 +47,7 @@ $SITE_TITLE = 'FW-Qualifikationen';
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' title='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualifwModal(this)' data-id='{$row['id']}' data-shortname='" . htmlspecialchars($row['shortname']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' data-ignis-tooltip='Qualifikation bearbeiten' aria-label='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualifwModal(this)' data-id='{$row['id']}' data-shortname='" . htmlspecialchars($row['shortname']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>

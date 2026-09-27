@@ -31,7 +31,6 @@ final class ConsoleHandler implements JobHandlerInterface
         'telemetry:send',
         'announcements:refresh',
         'changelog:refresh',
-        'blog:refresh',
         'cron:tick',
         'federation:sync',
         'storage:cleanup',

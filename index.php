@@ -32,10 +32,7 @@ ob_start();
             <?php include __DIR__ . '/assets/components/index/open-tasks.php' ?>
             <div class="ignis-dashboard-totals"><?php include __DIR__ . '/assets/components/index/stats.php' ?></div>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-10">
-                <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
-                <?php include __DIR__ . '/assets/components/index/blog.php' ?>
-            </div>
+            <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
 
             <div class="grid grid-cols-1 gap-6 mt-10" data-ignis-enter>
                 <section class="ignis-card" data-section="documents" aria-labelledby="dashboard-documents-title">

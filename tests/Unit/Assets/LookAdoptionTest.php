@@ -139,4 +139,39 @@ final class LookAdoptionTest extends TestCase
             $css,
         );
     }
+
+    /**
+     * .ignis-main ist ein Block, sonst wirkt margin-top:auto am Footer
+     * nicht. Der Footer bleibt außerdem in der Inhaltsspalte von
+     * .twplus-page statt über die volle Breite zu laufen.
+     */
+    public function testTheFooterSitsAtTheBottomOfTheContentColumn(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+
+        preg_match('/\.ignis-main\{([^}]*)\}/', $css, $main);
+        self::assertNotEmpty($main, '.ignis-main fehlt im gebauten CSS.');
+        self::assertStringContainsString('display:flex', $main[1]);
+        self::assertStringContainsString('flex-direction:column', $main[1]);
+
+        preg_match('/\.ignis-main>\.footer\{([^}]*)\}/', $css, $footer);
+        self::assertNotEmpty($footer, '.ignis-main>.footer fehlt im gebauten CSS.');
+        self::assertStringContainsString('max-width:88rem', $footer[1]);
+        // lightningcss schreibt "transparent" als "#0000" um.
+        self::assertMatchesRegularExpression('/background-color:\s*(transparent|#0000)\s*!important/', $footer[1]);
+    }
+
+    /**
+     * .ignis-card (Paket) setzt overflow: hidden; im Formular-Drawer
+     * schneidet das sonst den Fokusring der Felder ab, weil
+     * .ignis-card__body dort padding: 0 hat.
+     */
+    public function testDrawerFormCardStaysVisibleForTheFocusRing(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+        self::assertMatchesRegularExpression(
+            '/\.ignis-drawer--form\s+\.ignis-fragment\s+\.ignis-form-card\s*\{[^}]*overflow:\s*visible[^}]*\}/',
+            $css,
+        );
+    }
 }

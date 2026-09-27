@@ -82,7 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
         <section class="twplus-login__panel">
             <div class="twplus-login__content">
                 <div class="twplus-login__brand">
-                    <img src="<?= BASE_PATH ?>assets/img/ignis-lockup.svg" alt="ignis">
+                    <?php // Inline, damit das Lockup über currentColor die Textfarbe des Themes trägt. ?>
+                    <?= file_get_contents(__DIR__ . '/assets/img/ignis-lockup.svg') ?>
                 </div>
                 <div class="twplus-login__card">
                     <p class="twplus-login__organization"><?= htmlspecialchars((string) SYSTEM_NAME) ?></p>

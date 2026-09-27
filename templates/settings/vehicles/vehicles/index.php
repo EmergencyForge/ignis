@@ -213,7 +213,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <td><span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>
-                                                <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" title="Offene Defekte anzeigen"><?= $openDefects ?></a>
+                                                <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" data-ignis-tooltip="Offene Defekte anzeigen" aria-label="<?= $openDefects ?> offene Defekte anzeigen"><?= $openDefects ?></a>
                                             <?php else: ?>
                                                 <span class="text-[var(--text-3)]">—</span>
                                             <?php endif; ?>

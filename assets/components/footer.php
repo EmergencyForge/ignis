@@ -5,18 +5,19 @@
 $__footerVersionFile = dirname(__DIR__, 2) . '/storage/version.json';
 $__footerVersionInfo = is_file($__footerVersionFile) ? json_decode((string) file_get_contents($__footerVersionFile), true) : null;
 $__footerVersion = is_array($__footerVersionInfo) && !empty($__footerVersionInfo['version']) ? (string) $__footerVersionInfo['version'] : null;
+$__footerBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
 <footer class="footer mt-auto py-3 text-white">
     <div class="container mx-auto">
         <div class="grid grid-cols-1 gap-3 items-end md:grid-cols-3">
             <div>
-                <img src="/assets/img/defaultLogo.webp" alt="Logo" height="48px" width="auto">
+                <img src="<?= htmlspecialchars($__footerBasePath . 'assets/img/defaultLogo.webp') ?>" alt="Logo" height="48px" width="auto">
                 <p class="text-sm">Verwaltungsportal der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?></p>
             </div>
             <div class="text-center">
                 <p class="text-sm">&copy; 2024-<?php echo date("Y") ?> <em><strong>ıgnıs</strong></em> by <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
                 <?php if ($__footerVersion !== null): ?>
-                    <button type="button" class="footer-version-btn" onclick="document.getElementById('ignis-about-dialog').showModal()" title="Über ıgnıs">
+                    <button type="button" class="footer-version-btn" onclick="document.getElementById('ignis-about-dialog').showModal()" data-ignis-tooltip="Über ıgnıs">
                         <?= htmlspecialchars($__footerVersion) ?>
                     </button>
                 <?php endif; ?>

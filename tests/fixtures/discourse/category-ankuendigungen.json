@@ -1,0 +1,60 @@
+{
+  "users": [],
+  "primary_groups": [],
+  "flair_groups": [],
+  "topic_list": {
+    "can_create_topic": false,
+    "per_page": 30,
+    "top_tags": [],
+    "topics": [
+      {
+        "id": 12,
+        "title": "Über die Kategorie Ankündigungen",
+        "slug": "ueber-die-kategorie-ankuendigungen",
+        "created_at": "2026-08-01T10:00:00.000Z",
+        "pinned": true,
+        "visible": true,
+        "excerpt": "Hier kündigen wir Neuigkeiten an.",
+        "tags": []
+      },
+      {
+        "id": 15,
+        "title": "Geschlossene Beta für Lex | Tester gesucht",
+        "slug": "geschlossene-beta-fuer-lex-tester-gesucht",
+        "created_at": "2026-09-10T14:40:00.000Z",
+        "pinned": true,
+        "visible": true,
+        "excerpt": "Wir öffnen eine <b>geschlossene Beta</b> für Lex &amp; suchen Tester. \nPersonen, Akten,&hellip;",
+        "tags": ["lex"]
+      },
+      {
+        "id": 18,
+        "title": "Der EmergencyForge Discord ist zurück",
+        "slug": "der-emergencyforge-discord-ist-zurueck",
+        "created_at": "2026-09-10T14:36:44.371Z",
+        "pinned": false,
+        "visible": true,
+        "tags": []
+      },
+      {
+        "id": 20,
+        "title": "Wartung am Wochenende",
+        "slug": "wartung-am-wochenende",
+        "created_at": "2026-09-01T08:00:00.000Z",
+        "pinned": false,
+        "visible": true,
+        "excerpt": null,
+        "tags": ["wartung"]
+      },
+      {
+        "id": 29,
+        "title": "Versteckter Entwurf",
+        "slug": "versteckter-entwurf",
+        "created_at": "2026-08-11T12:00:00.000Z",
+        "pinned": false,
+        "visible": false,
+        "tags": []
+      }
+    ]
+  }
+}

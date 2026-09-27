@@ -98,7 +98,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                         <div class="flex items-center gap-2" style="margin-left: auto;">
                             <span id="document-save-status" class="text-sm"></span>
                             <button type="button" id="document-save-button" class="ignis-btn ignis-btn--primary"
-                                    <?= $readOnly ? 'disabled title="Kein Speichern möglich — Vorlage fehlt."' : '' ?>>
+                                    <?= $readOnly ? 'disabled data-ignis-tooltip="Kein Speichern möglich — Vorlage fehlt."' : '' ?>>
                                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern
                             </button>
                             <button type="submit" form="document-issue-form" id="document-issue-button"

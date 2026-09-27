@@ -17,7 +17,7 @@ use App\Security\CsrfProtection;
                         <h6 class="mb-0 truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
-                        <a href="#" id="docViewer-detailLink" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
+                        <a href="#" id="docViewer-detailLink" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-ignis-tooltip="Detailseite" aria-label="Detailseite"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></a>
                         <button type="button" class="btn-close" data-dialog-dismiss></button>
                     </div>
                 </div>
@@ -99,15 +99,15 @@ function openDocumentViewer(docid) {
             // Aktions-Buttons (rechts im Footer, als Icon-Buttons)
             let btns = '';
             if (doc.pdf_exists) {
-                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
-                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" data-ignis-tooltip="PDF herunterladen" aria-label="PDF herunterladen"><i class="fa-solid fa-download" aria-hidden="true"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" data-ignis-tooltip="PDF in neuem Tab" aria-label="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></a>';
             }
-            btns += '<a href="<?= BASE_PATH ?>personnel/document-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
+            btns += '<a href="<?= BASE_PATH ?>personnel/document-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" data-ignis-tooltip="Detailseite" aria-label="Detailseite"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></a>';
 
             <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
             const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
             const archTitle = doc.is_archived ? 'Wiederherstellen' : 'Archivieren';
-            btns += '<button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '"></i></button>';
+            btns += '<button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" data-ignis-tooltip="' + archTitle + '" aria-label="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '" aria-hidden="true"></i></button>';
             <?php endif; ?>
 
             buttonsEl.innerHTML = btns;

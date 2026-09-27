@@ -417,7 +417,11 @@ a.twplus-stats__item {
     .ignis-breadcrumb,
     .twplus-page-header { display: none; }
     .twplus-page { padding: 0; }
-    .ignis-form-card { max-width: none; border: 0; background: transparent; box-shadow: none; }
+    // .ignis-card (Paket) setzt overflow: hidden für den abgerundeten Rand;
+    // im Drawer schneidet das den Fokusring der Felder ab, weil
+    // .ignis-card__body hier padding: 0 hat und die Felder bis an den Rand
+    // reichen. overflow: visible zurücksetzen, der Rahmen fällt hier eh weg.
+    .ignis-form-card { max-width: none; border: 0; background: transparent; box-shadow: none; overflow: visible; }
     .ignis-card__body { padding: 0; }
     .ignis-form-card__footer { padding: 1rem 0 0; background: transparent; }
   }

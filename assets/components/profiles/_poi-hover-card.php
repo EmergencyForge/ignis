@@ -66,13 +66,13 @@ foreach ($departments as $d) {
             <dt>Verfügbarkeit</dt>
             <dd>
                 <?php if ($available > 0): ?>
-                    <span class="ignis-chip ignis-chip--success" title="Verfügbare Abteilungen"><?= $available ?> verfügbar</span>
+                    <span class="ignis-chip ignis-chip--success" data-ignis-tooltip="Verfügbare Abteilungen"><?= $available ?> verfügbar</span>
                 <?php endif; ?>
                 <?php if ($busy > 0): ?>
-                    <span class="ignis-chip ignis-chip--warning" title="Belegte Abteilungen"><?= $busy ?> belegt</span>
+                    <span class="ignis-chip ignis-chip--warning" data-ignis-tooltip="Belegte Abteilungen"><?= $busy ?> belegt</span>
                 <?php endif; ?>
                 <?php if ($notStaffed > 0): ?>
-                    <span class="ignis-chip ignis-chip--dark" title="Nicht besetzt"><?= $notStaffed ?> nicht besetzt</span>
+                    <span class="ignis-chip ignis-chip--dark" data-ignis-tooltip="Nicht besetzt"><?= $notStaffed ?> nicht besetzt</span>
                 <?php endif; ?>
             </dd>
         <?php endif; ?>

@@ -36,7 +36,7 @@ if (!isset($useGlobalBind)) {
             <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
-            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
+            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" data-ignis-tooltip="Aktuelle TZ-Konfiguration als Vorlage speichern" aria-label="Aktuelle TZ-Konfiguration als Vorlage speichern">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
         </div>

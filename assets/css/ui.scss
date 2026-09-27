@@ -418,6 +418,8 @@ table.twplus-table {
   &__content { width: 100%; max-width: 25rem; }
   &__brand { width: min(18rem, 75%); margin-bottom: 2rem; }
   &__brand img { display: block; width: 100%; height: auto; }
+  // Lockup inline, damit currentColor greift (als <img> wäre es schwarz).
+  &__brand svg { color: var(--content-text); }
   // "ıgnıs 2026.1.0 by <Amboss> EmergencyForge" - das Bildzeichen steht als
   // currentColor mitten im Satz, also auf Zeilenhöhe statt auf Grundlinie.
   &__foot {
@@ -440,7 +442,7 @@ table.twplus-table {
   // Große Marke über dem Fließtext: das Standardlogo im Akzentverlauf (bis
   // 240px, Seitenverhältnis aus ignis-lockup.svg), ein hinterlegtes
   // Betreiberlogo bleibt ein schlichtes Bild in derselben Box.
-  &__visual-copy .ignis-wordmark--login { display: block; width: min(240px, 100%); aspect-ratio: 251.161 / 100; margin-bottom: 1.5rem; }
+  &__visual-copy .ignis-wordmark--login { display: block; width: min(240px, 100%); aspect-ratio: 283 / 98; margin-bottom: 1.5rem; }
   &__visual-logo { display: block; width: min(240px, 100%); height: auto; margin-bottom: 1.5rem; object-fit: contain; }
   &__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
   &__steps li { display: grid; gap: 0.3rem; justify-items: center; color: var(--text-3); font-size: 0.64rem; text-align: center; }

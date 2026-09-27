@@ -121,7 +121,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                                                 <td>
                                                     <span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($feld['feldtyp']) ?></span>
                                                     <?php if ($feld['auto_fill']): ?>
-                                                        <span class="ignis-chip ignis-chip--info" title="Auto-Fill: <?= htmlspecialchars($feld['auto_fill']) ?>">
+                                                        <span class="ignis-chip ignis-chip--info" data-ignis-tooltip="Auto-Fill: <?= htmlspecialchars($feld['auto_fill']) ?>">
                                                             <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Auto
                                                         </span>
                                                     <?php endif; ?>

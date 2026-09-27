@@ -43,7 +43,7 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
         <dt>Status</dt>
         <dd>
             <?php if ($blocking > 0): ?>
-                <span class="ignis-chip ignis-chip--danger" title="Blockierende Defekte machen das Fahrzeug nicht einsatzbereit.">
+                <span class="ignis-chip ignis-chip--danger" data-ignis-tooltip="Blockierende Defekte machen das Fahrzeug nicht einsatzbereit.">
                     <?= $blocking ?> blockierend<?= $blocking === 1 ? '' : 'e' ?> Defekt<?= $blocking === 1 ? '' : 'e' ?>
                 </span>
             <?php elseif (!$active): ?>
@@ -52,7 +52,7 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
                 <span class="ignis-chip ignis-chip--success">Einsatzbereit</span>
             <?php endif; ?>
             <?php if ($informational > 0): ?>
-                <span class="ignis-chip ignis-chip--warning" title="Nicht-blockierende Defekte sind dokumentiert, beeinträchtigen aber die Einsatzbereitschaft nicht.">
+                <span class="ignis-chip ignis-chip--warning" data-ignis-tooltip="Nicht-blockierende Defekte sind dokumentiert, beeinträchtigen aber die Einsatzbereitschaft nicht.">
                     <?= $informational ?> Hinweis<?= $informational === 1 ? '' : 'e' ?>
                 </span>
             <?php endif; ?>

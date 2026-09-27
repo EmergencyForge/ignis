@@ -139,8 +139,8 @@ $bodyId = 'mitarbeiter';
                                 <div class="w-full text-center">
                                     <?php if ($canEdit): ?>
                                         <div class="mb-3 relative inline-block">
-                                            <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" id="pfp-preview" class="border" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;" title="Klicken zum Ändern">
-                                            <label for="pfp-upload" class="absolute bottom-0 end-0 ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" title="Bild hochladen">
+                                            <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" id="pfp-preview" class="border" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;" data-ignis-tooltip="Klicken zum Ändern">
+                                            <label for="pfp-upload" class="absolute bottom-0 end-0 ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" data-ignis-tooltip="Bild hochladen">
                                                 <i class="fa-solid fa-camera"></i>
                                             </label>
                                             <input type="file" id="pfp-upload" accept="image/png,image/jpeg,image/webp" class="hidden">

@@ -140,8 +140,9 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             type="button"
                                                             class="ignis-btn ignis-btn--secondary ignis-btn--icon"
                                                             onclick="toggleApiKeyVisibility()"
-                                                            title="API-Schlüssel anzeigen"
+                                                            data-ignis-tooltip="API-Schlüssel anzeigen oder verbergen"
                                                             aria-label="API-Schlüssel anzeigen oder verbergen"
+                                                            aria-pressed="false"
                                                             id="toggleApiKeyBtn">
                                                             <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                                         </button>
@@ -149,7 +150,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             type="button"
                                                             class="ignis-btn ignis-btn--secondary ignis-btn--icon"
                                                             onclick="copyApiKey()"
-                                                            title="API-Schlüssel kopieren"
+                                                            data-ignis-tooltip="API-Schlüssel kopieren"
                                                             aria-label="API-Schlüssel kopieren">
                                                             <i class="fa-solid fa-copy" aria-hidden="true"></i>
                                                         </button>
@@ -157,7 +158,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             type="button"
                                                             class="ignis-btn ignis-btn--ghost-danger ignis-btn--icon"
                                                             onclick="regenerateApiKey(event)"
-                                                            title="API-Schlüssel neu generieren"
+                                                            data-ignis-tooltip="API-Schlüssel neu generieren"
                                                             aria-label="API-Schlüssel neu generieren">
                                                             <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                                         </button>
@@ -191,7 +192,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
                                                             pattern="^#[0-9A-Fa-f]{6}$"
                                                             placeholder="#000000"
-                                                            title="6-stelliger Hex-Farbcode (z.B. #ff0000)"
+                                                            data-ignis-tooltip="6-stelliger Hex-Farbcode (z.B. #ff0000)"
                                                             oninput="updateColorPicker('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
                                                     </div>
                                                     <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
@@ -322,12 +323,12 @@ $SITE_TITLE = 'System-Konfiguration';
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
-                button.title = 'API-Schlüssel verbergen';
+                button.setAttribute('aria-pressed', 'true');
             } else {
                 input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
-                button.title = 'API-Schlüssel anzeigen';
+                button.setAttribute('aria-pressed', 'false');
             }
         }
 
@@ -382,7 +383,7 @@ $SITE_TITLE = 'System-Konfiguration';
                         input.type = 'password';
                         icon.classList.remove('fa-eye-slash');
                         icon.classList.add('fa-eye');
-                        button.title = 'API-Schlüssel anzeigen';
+                        button.setAttribute('aria-pressed', 'false');
 
                         showAlert('API-Schlüssel wurde erfolgreich neu generiert!', {
                             title: 'Erfolg',

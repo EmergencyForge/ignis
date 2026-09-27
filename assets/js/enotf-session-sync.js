@@ -180,21 +180,24 @@
     if (!iconEl) return;
 
     var parentEl = iconEl.parentElement;
+    var label;
 
     switch (status) {
       case "connected":
         iconEl.style.color = "#28a745";
-        parentEl.title = "Session aktiv";
+        label = "Session aktiv";
         break;
       case "disconnected":
         iconEl.style.color = "#dc3545";
-        parentEl.title = "Session-Verbindung unterbrochen";
+        label = "Session-Verbindung unterbrochen";
         break;
       default:
         iconEl.style.color = "#ffffff";
-        parentEl.title = "Session-Status unbekannt";
+        label = "Session-Status unbekannt";
         break;
     }
+    parentEl.dataset.ignisTooltip = label;
+    parentEl.setAttribute("aria-label", label);
   }
 
   // Initialize when DOM is ready

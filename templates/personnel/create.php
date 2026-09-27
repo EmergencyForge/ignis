@@ -90,7 +90,7 @@ $formFields = [
                         </div>
                         <div class="dienstnr-container">
                             <label for="dienstnr" class="ignis-field__label">Dienstnummer <small class="form-hint">(z.B. RD-001, BF01)</small></label>
-                            <input class="ignis-input ignis-mono" type="text" name="dienstnr" id="dienstnr"<?= \App\Support\FormErrors::attributes($formErrors, 'dienstnr', 'dienstnr') ?> pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="z.B. RD-001, BF01" placeholder="RD-001" value="<?= htmlspecialchars((string) old('dienstnr')) ?>" required>
+                            <input class="ignis-input ignis-mono" type="text" name="dienstnr" id="dienstnr"<?= \App\Support\FormErrors::attributes($formErrors, 'dienstnr', 'dienstnr') ?> pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" placeholder="RD-001" value="<?= htmlspecialchars((string) old('dienstnr')) ?>" required>
                             <?= \App\Support\FormErrors::hint($formErrors, 'dienstnr', 'dienstnr', 'ignis') ?>
                             <div id="dienstnr-status" class="dienstnr-status"></div>
                             <div id="dienstnr-feedback" class="ignis-field__error" style="display: none;"></div>

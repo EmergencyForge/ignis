@@ -109,7 +109,7 @@ $SITE_TITLE = 'Cron-Jobs';
                                 <td>
                                     <span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($job['handler_type']) ?></span>
                                     <?php if (!($job['handler_available'] ?? true)): ?>
-                                        <span class="ignis-chip ignis-chip--warn" title="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
+                                        <span class="ignis-chip ignis-chip--warn" data-ignis-tooltip="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
                                     <?php endif; ?>
                                     <div class="max-w-[220px] break-all text-xs text-[var(--text-3)]"><?= htmlspecialchars($job['handler']) ?></div>
                                 </td>

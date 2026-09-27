@@ -147,13 +147,13 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                                         <span class="attendee-list__name">
                                             <?= htmlspecialchars($name . $dnr) ?>
                                             <?php if (!empty($att['is_organizer'])): ?>
-                                                <span class="attendee-list__organizer" title="Organisator">
+                                                <span class="attendee-list__organizer" data-ignis-tooltip="Organisator">
                                                     <i class="fa-solid fa-star"></i>
                                                 </span>
                                             <?php endif; ?>
                                         </span>
                                         <?php if ($meta !== null): ?>
-                                            <span class="attendee-status <?= $meta['class'] ?>" title="<?= htmlspecialchars($meta['label']) ?>">
+                                            <span class="attendee-status <?= $meta['class'] ?>" data-ignis-tooltip="<?= htmlspecialchars($meta['label']) ?>">
                                                 <i class="fa-solid <?= $meta['icon'] ?>"></i>
                                                 <span class="attendee-status__label"><?= htmlspecialchars($meta['label']) ?></span>
                                             </span>

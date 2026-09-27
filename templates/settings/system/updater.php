@@ -397,10 +397,10 @@ $SITE_TITLE = 'System Updates';
                                             <?php endif; ?>
                                             <span class="ignis-chip ignis-chip--<?= $alertClass ?> ml-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
                                             <?php if (isset($updateInfo['cached']) && $updateInfo['cached']): ?>
-                                                <span class="ignis-chip ml-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
+                                                <span class="ignis-chip ml-1" data-ignis-tooltip="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
                                             <?php endif; ?>
                                             <?php if (!empty($updateInfo['checksum_sha256'])): ?>
-                                                <span class="ignis-chip ignis-chip--success ml-1" title="GitHub SHA-256-Digest wird vor der Installation geprüft"><i class="fa-solid fa-shield-halved"></i> Integrität geprüft</span>
+                                                <span class="ignis-chip ignis-chip--success ml-1" data-ignis-tooltip="GitHub SHA-256-Digest wird vor der Installation geprüft"><i class="fa-solid fa-shield-halved"></i> Integrität geprüft</span>
                                             <?php endif; ?>
                                         </p>
                                     </div>

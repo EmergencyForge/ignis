@@ -177,7 +177,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
             html += '<div class="logs-detail-label">Error-IDs dieser Gruppe</div>';
             html += '<div class="logs-id-list">';
             group.error_ids.forEach(id => {
-                html += '<span class="logs-id-pill copy-btn" data-copy="' + escapeAttr(id) + '" title="Klick zum Kopieren">' + escapeHtml(id) + '</span>';
+                html += '<span class="logs-id-pill copy-btn" data-copy="' + escapeAttr(id) + '" data-ignis-tooltip="Klick zum Kopieren">' + escapeHtml(id) + '</span>';
             });
             if (group.count > group.error_ids.length) {
                 html += '<span class="logs-id-pill" style="cursor:default;opacity:0.55">+ ' + (group.count - group.error_ids.length) + ' weitere</span>';

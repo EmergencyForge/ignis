@@ -33,7 +33,7 @@ if (empty($logs)): ?>
             $icon = $typeIcons[$logType] ?? 'fa-circle-info';
         ?>
             <div class="twplus-feed__item">
-                <span class="twplus-feed__icon" title="<?= ucfirst($logType) ?>">
+                <span class="twplus-feed__icon" data-ignis-tooltip="<?= ucfirst($logType) ?>">
                     <i class="fa-solid <?= $icon ?>" aria-hidden="true"></i>
                 </span>
                 <div class="twplus-feed__body">

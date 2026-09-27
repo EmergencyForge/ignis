@@ -186,10 +186,10 @@
                                     <div class="flex flex-wrap gap-1">${fieldSummary}</div>
                                 </div>
                                 <div class="flex gap-1 shrink-0">
-                                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" title="Auf alle Fahrzeuge eines Typs anwenden">
+                                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" data-ignis-tooltip="Auf alle Fahrzeuge eines Typs anwenden">
                                         <i class="fa-solid fa-layer-group mr-1"></i>Anwenden
                                     </button>
-                                    <button class="ignis-btn ignis-btn--ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" title="Vorlage löschen">
+                                    <button class="ignis-btn ignis-btn--ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" data-ignis-tooltip="Vorlage löschen" aria-label="Vorlage löschen">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -411,7 +411,7 @@
                 <span class="text-[var(--text-dimmed,#818189)]">${vehicles.length} Fahrzeuge empfangen</span>
                 <div class="flex items-center gap-2">
                     <span class="text-[var(--text-dimmed,#818189)]" id="importProgress"></span>
-                    <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="ignoreAllRemaining()" title="Alle verbleibenden Fahrzeuge ignorieren">
+                    <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="ignoreAllRemaining()" data-ignis-tooltip="Alle verbleibenden Fahrzeuge ignorieren">
                         <i class="fa-solid fa-forward-fast mr-1"></i>Alle ignorieren
                     </button>
                 </div>
@@ -465,13 +465,13 @@
             if (hasExisting && e) {
                 actions = `
                     <div class="flex gap-1 shrink-0">
-                        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
+                        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" data-ignis-tooltip="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="ignis-btn ignis-btn--soft-warning ignis-btn--sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" title="Zusammenführen (nur leere Felder füllen)">
+                        <button class="ignis-btn ignis-btn--soft-warning ignis-btn--sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" data-ignis-tooltip="Zusammenführen (nur leere Felder füllen)" aria-label="Zusammenführen">
                             <i class="fa-solid fa-code-merge"></i>
                         </button>
-                        <button class="ignis-btn ignis-btn--soft-danger ignis-btn--sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" title="Überschreiben">
+                        <button class="ignis-btn ignis-btn--soft-danger ignis-btn--sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" data-ignis-tooltip="Überschreiben" aria-label="Überschreiben">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
                     </div>
@@ -479,10 +479,10 @@
             } else {
                 actions = `
                     <div class="flex gap-1 shrink-0">
-                        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
+                        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" data-ignis-tooltip="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="ignis-btn ignis-btn--success ignis-btn--sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" title="Importieren">
+                        <button class="ignis-btn ignis-btn--success ignis-btn--sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" data-ignis-tooltip="Importieren">
                             <i class="fa-solid fa-check"></i> Import
                         </button>
                     </div>

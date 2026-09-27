@@ -13,18 +13,6 @@ parameters:
 			path: assets/components/error-page.php
 
 		-
-			message: '#^Offset ''author_name'' on array\{id\: string, slug\: string, title\: string, subtitle\: string\|null, preview\: string\|null, cover_image\: string\|null, author_name\: string, author_avatar\: string\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: assets/components/index/blog.php
-
-		-
-			message: '#^Offset ''category_label'' on array\{id\: string, slug\: string, title\: string, subtitle\: string\|null, preview\: string\|null, cover_image\: string\|null, author_name\: string, author_avatar\: string\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: assets/components/index/blog.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -3539,18 +3527,6 @@ parameters:
 			identifier: new.static
 			count: 1
 			path: src/Http/Validation/FormRequest.php
-
-		-
-			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Hub/BlogClient.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Hub/BlogClient.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'

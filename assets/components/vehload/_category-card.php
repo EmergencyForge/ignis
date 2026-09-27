@@ -43,7 +43,7 @@ foreach ($tiles as $t) {
 >
     <header class="beladung-category-card__header">
         <div class="beladung-category-card__title">
-            <span class="ignis-chip" title="Priorität"><?= (int) ($category['priority'] ?? 0) ?></span>
+            <span class="ignis-chip" data-ignis-tooltip="Priorität"><?= (int) ($category['priority'] ?? 0) ?></span>
             <h3 class="beladung-category-card__name"><?= htmlspecialchars($category['title'] ?? '') ?></h3>
         </div>
         <div class="beladung-category-card__meta">
