@@ -76,4 +76,41 @@ final class BootstrapAdminCommandTest extends FeatureTestCase
         self::assertSame(1, $code);
         self::assertSame(0, User::query()->where('username', 'Leer')->count());
     }
+
+    public function test_hebt_ein_konto_ohne_discord_id_ueber_die_lokale_id(): void
+    {
+        $tester = $this->commandTester('bootstrap:admin');
+        self::assertSame(0, $tester->execute(['--discord-id' => '777', '--username' => 'Sync']));
+
+        // Wie ein Konto aus dem Sync: keine Discord-ID, gesperrt.
+        $user = User::query()->where('discord_id', '777')->first();
+        self::assertNotNull($user);
+        User::query()->whereKey($user->id)->update(['discord_id' => null, 'full_admin' => 0, 'is_active' => 0]);
+
+        self::assertSame(0, $tester->execute(['--id' => (string) $user->id]));
+
+        $user = User::query()->find($user->id);
+        self::assertNotNull($user);
+        self::assertTrue($user->full_admin);
+        self::assertTrue((bool) $user->is_active);
+        self::assertSame('Sync', $user->username, 'Ohne --username bleibt der Name.');
+    }
+
+    public function test_legt_ueber_die_lokale_id_nichts_an(): void
+    {
+        $tester = $this->commandTester('bootstrap:admin');
+
+        self::assertSame(1, $tester->execute(['--id' => '999999999']));
+        self::assertStringContainsString('999999999', $tester->getDisplay());
+    }
+
+    public function test_verweigert_id_und_discord_id_zusammen(): void
+    {
+        $tester = $this->commandTester('bootstrap:admin');
+
+        $code = $tester->execute(['--id' => '1', '--discord-id' => '999', '--username' => 'Beides']);
+
+        self::assertSame(1, $code);
+        self::assertSame(0, User::query()->where('username', 'Beides')->count());
+    }
 }

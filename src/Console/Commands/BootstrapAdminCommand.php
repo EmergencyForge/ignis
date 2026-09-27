@@ -29,7 +29,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `intra_users.role` ist NOT NULL mit Fremdschlüssel auf
  * `intra_users_roles.id`, ein Konto ohne Rolle lässt sich nicht anlegen.
  *
+ * Konten aus dem Sync haben keine Discord-ID. Die findet `--id` über die
+ * lokale ID; angelegt wird dabei nichts, und der Name bleibt, wenn keiner
+ * mitkommt.
+ *
  *   php cli/intra.php bootstrap:admin --discord-id=123 --username=Josua
+ *   php cli/intra.php bootstrap:admin --id=7
  */
 #[AsCommand(
     name: 'bootstrap:admin',
@@ -40,22 +45,35 @@ final class BootstrapAdminCommand extends Command
     protected function configure(): void
     {
         $this
+            ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Lokale ID eines bestehenden Kontos')
             ->addOption('discord-id', null, InputOption::VALUE_REQUIRED, 'Discord-ID des Kontos')
             ->addOption('username', null, InputOption::VALUE_REQUIRED, 'Anzeigename');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $id        = trim((string) $input->getOption('id'));
         $discordId = trim((string) $input->getOption('discord-id'));
         $username  = trim((string) $input->getOption('username'));
 
-        if ($discordId === '') {
-            $output->writeln('<error>--discord-id fehlt.</error>');
-            return Command::FAILURE;
-        }
-        if ($username === '') {
-            $output->writeln('<error>--username fehlt.</error>');
-            return Command::FAILURE;
+        if ($id !== '') {
+            if ($discordId !== '') {
+                $output->writeln('<error>--id und --discord-id schließen sich aus.</error>');
+                return Command::FAILURE;
+            }
+            if (!ctype_digit($id)) {
+                $output->writeln('<error>--id muss eine Zahl sein.</error>');
+                return Command::FAILURE;
+            }
+        } else {
+            if ($discordId === '') {
+                $output->writeln('<error>--discord-id fehlt.</error>');
+                return Command::FAILURE;
+            }
+            if ($username === '') {
+                $output->writeln('<error>--username fehlt.</error>');
+                return Command::FAILURE;
+            }
         }
 
         $adminRole = Role::query()->where('admin', 1)->first();
@@ -65,10 +83,20 @@ final class BootstrapAdminCommand extends Command
             return Command::FAILURE;
         }
 
-        $user = User::query()->firstOrNew(['discord_id' => $discordId]);
-        $neu  = !$user->exists;
+        if ($id !== '') {
+            $user = User::query()->find((int) $id);
+            if ($user === null) {
+                $output->writeln("<error>Kein Konto mit der ID $id.</error>");
+                return Command::FAILURE;
+            }
+        } else {
+            $user = User::query()->firstOrNew(['discord_id' => $discordId]);
+        }
+        $neu = !$user->exists;
 
-        $user->username   = $username;
+        if ($username !== '') {
+            $user->username = $username;
+        }
         $user->role       = $adminRole->id;
         $user->full_admin = true;
         $user->is_active  = true;
@@ -80,8 +108,8 @@ final class BootstrapAdminCommand extends Command
         $user->save();
 
         $output->writeln($neu
-            ? "<info>Konto angelegt:</info> $username ($discordId)"
-            : "<info>Konto aktualisiert:</info> $username ($discordId)");
+            ? "<info>Konto angelegt:</info> {$user->username} ($discordId)"
+            : "<info>Konto aktualisiert:</info> {$user->username} (" . ($id !== '' ? "ID $id" : $discordId) . ')');
 
         return Command::SUCCESS;
     }
