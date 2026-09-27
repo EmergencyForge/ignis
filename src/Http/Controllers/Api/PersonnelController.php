@@ -367,8 +367,8 @@ final class PersonnelController
                 'url'     => $relativePath,
             ]);
         } catch (\Throwable $e) {
-            if (file_exists($targetPath)) {
-                @unlink($targetPath);
+            if (file_exists($gespeichert['pfad'])) {
+                @unlink($gespeichert['pfad']);
             }
             Logger::error('Personnel: upload-pfp DB-Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'message' => 'Datenbankfehler'], 500);
