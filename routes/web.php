@@ -350,6 +350,11 @@ $router->get('/personnel/comment-delete',     [PersonnelController::class, 'dele
 
 $settingsAuth = [new AuthMiddleware()];
 
+// Übersicht: bündelt die placement=settings-Gruppen aus config/navigation.php
+// als Kacheln; /settings ist ein Alias für /settings/index.
+$router->get('/settings/index', [\App\Http\Controllers\Settings\SettingsController::class, 'index'], $settingsAuth);
+$router->get('/settings',       [\App\Http\Controllers\Settings\SettingsController::class, 'index'], $settingsAuth);
+
 // Antrag-Settings
 $router->get('/settings/forms/list',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'listAction'],  $settingsAuth);
 $router->get('/settings/forms/create',     [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
