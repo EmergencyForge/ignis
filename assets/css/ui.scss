@@ -3675,71 +3675,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
 }
 
 // =====================================================
-// ıgnıs UI — File Input + Range
-// Custom-Styling für native `<input type="file">` und `<input type="range">`.
+// ıgnıs UI — Range
+// Custom-Styling für natives `<input type="range">`.
+// (Die Datei-Dropzone kommt seit 0.4.2 fertig aus dem Paket, siehe
+// @emergencyforge/ui-styles/system.)
 // =====================================================
-
-// File-Input: Wrap in label, hide native input
-.ignis-file {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  background: var(--input-bg);
-  color: var(--text-2);
-  border: 1px dashed var(--fill-4);
-  border-radius: var(--radius-md, 6px);
-  font-size: var(--fs-sm, 0.88rem);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-
-  &:hover {
-    border-color: var(--accent);
-    background: rgba(var(--accent-rgb), 0.04);
-  }
-
-  &.is-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  input[type="file"] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  &__icon {
-    color: var(--text-3);
-    font-size: 0.95rem;
-  }
-
-  &__label {
-    flex: 1;
-    color: var(--text-3);
-  }
-
-  &.has-file .ignis-file__label {
-    color: var(--text-2);
-  }
-
-  // Drop-Zone-Variant (wider, mit zentriertem Inhalt)
-  &--dropzone {
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    padding: 1.5rem;
-    width: 100%;
-    gap: 0.3rem;
-
-    .ignis-file__icon {
-      font-size: 1.4rem;
-    }
-  }
-}
 
 // Range Slider
 .ignis-range {

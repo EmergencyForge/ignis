@@ -73,48 +73,64 @@
     if (bannerBtn) bannerBtn.addEventListener('click', function () { handleClick(this); });
   }
 
+  // Zeigt eine Server-Fehlermeldung im Fehler-Slot der Paket-Dropzone
+  // (gleiche Stelle, die file.js selbst für Client-Validierung nutzt).
+  function showDropzoneError(wrap, input, message) {
+    const error = wrap.querySelector('.ignis-file__error');
+    if (error) {
+      error.hidden = false;
+      error.textContent = message;
+    }
+    input.setAttribute('aria-invalid', 'true');
+  }
+
   function bindPfpUpload(config) {
     const toast = getToastFn(config);
-    const pfpUpload  = document.getElementById('pfp-upload');
-    const pfpPreview = document.getElementById('pfp-preview');
-    if (!pfpUpload || !pfpPreview) return;
+    const wrap  = document.getElementById('pfp-dropzone');
+    const input = document.getElementById('pfp-upload');
+    if (!wrap || !input) return;
 
-    pfpPreview.addEventListener('click', () => pfpUpload.click());
+    input.addEventListener('change', function () {
+      // file.js hängt seinen eigenen change-Listener erst beim eigenen
+      // Init an (dieses Script läuft als klassisches Script davor und
+      // damit früher) - setTimeout schiebt den Upload hinter die
+      // Paket-eigene Typ-/Größenprüfung, die im selben change-Event läuft.
+      setTimeout(function () {
+        const file = input.files && input.files[0];
+        if (!file || input.getAttribute('aria-invalid') === 'true') return;
 
-    pfpUpload.addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
+        const formData = new FormData();
+        formData.append('pfp', file);
+        formData.append('id', String(config.profileId));
 
-      if (file.size > 2 * 1024 * 1024) {
-        toast('Datei zu groß (max. 2 MB)', 'danger');
-        this.value = '';
-        return;
-      }
+        input.disabled = true;
+        wrap.style.opacity = '0.6';
 
-      const formData = new FormData();
-      formData.append('pfp', file);
-      formData.append('id', String(config.profileId));
-
-      pfpPreview.style.opacity = '0.5';
-
-      fetch(config.basePath + 'api/personnel/upload-pfp', {
-        method: 'POST',
-        body: formData
-      })
-      .then(r => r.json())
-      .then(data => {
-        pfpPreview.style.opacity = '1';
-        if (data.success) {
-          pfpPreview.src = data.url + '?t=' + Date.now();
-          toast('Profilbild aktualisiert', 'success');
-        } else {
-          toast(data.message || 'Upload fehlgeschlagen', 'danger');
-        }
-      })
-      .catch(() => {
-        pfpPreview.style.opacity = '1';
-        toast('Upload fehlgeschlagen', 'danger');
-      });
+        fetch(config.basePath + 'api/personnel/upload-pfp', {
+          method: 'POST',
+          body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+          input.disabled = false;
+          wrap.style.opacity = '1';
+          if (data.success) {
+            wrap.dataset.ignisFileCurrent = data.url + '?t=' + Date.now();
+            toast('Profilbild aktualisiert', 'success');
+          } else {
+            input.value = '';
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            showDropzoneError(wrap, input, data.message || 'Upload fehlgeschlagen');
+          }
+        })
+        .catch(() => {
+          input.disabled = false;
+          wrap.style.opacity = '1';
+          input.value = '';
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+          showDropzoneError(wrap, input, 'Upload fehlgeschlagen');
+        });
+      }, 0);
     });
   }
 
