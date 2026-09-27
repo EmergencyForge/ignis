@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.9-beta
+
+Das System-Logo auf der System-Konfiguration lässt sich jetzt per Drag & Drop oder Dateiauswahl hochladen, statt nur über einen Pfad oder eine URL im Textfeld gepflegt zu werden. Erlaubt sind PNG, JPEG und WebP bis 2 MB; SVG nimmt der Upload bewusst nicht an, weil eine hochgeladene SVG-Datei Skript enthalten könnte. Ein neuer Upload löscht die vorher hochgeladene Datei, „Logo entfernen" setzt wieder auf die ignis-Wortmarke zurück. Das Textfeld für Pfad oder URL bleibt als Alternative hinter einer Ausklapp-Zeile erhalten, bestehende Installationen mit eigenem Pfad laufen unverändert weiter.
+
 ## 2026.0.8-beta
 
 Die eNOTF-Verwaltungsseiten (POIs, Medikamente, Schnellzugriff, Kategorien, Prüfliste) hatten seit dem letzten Umbau der Topleiste eine unformatierte Bar, weil ihre Shell den neuen Skin nie gesetzt hat. Die Sidebar hatte sich mit rund zwanzig „Einstellungen“-Zeilen vollgestellt, die man selten braucht; die meisten davon ziehen jetzt auf eine eigene Übersichtsseite mit gruppierten Kacheln um, erreichbar über eine neue „Verwaltung“-Gruppe. Das Profilbild im Mitarbeiter-Profil lässt sich jetzt per Drag & Drop oder Dateiauswahl ändern statt nur über den kleinen Kamera-Knopf.
