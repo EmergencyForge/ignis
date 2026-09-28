@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Search\Sources;
 
 use App\Policies\VehiclePolicy;
+use App\Search\FuzzySearchSource;
 use App\Search\SearchSourceInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
@@ -13,7 +14,7 @@ use PDOException;
  * Fahrzeuge nach Kennung, Funkrufname oder Kennzeichen; das Ziel ist die
  * Fahrzeugliste, auf die Kennung gefiltert.
  */
-final class VehicleSource implements SearchSourceInterface
+final class VehicleSource implements FuzzySearchSource
 {
     public function key(): string
     {
@@ -60,5 +61,19 @@ final class VehicleSource implements SearchSourceInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Nur der Funkrufname, nie Kennung oder Kennzeichen.
+     *
+     * @return iterable<string>
+     */
+    public function vocabulary(): iterable
+    {
+        try {
+            return Capsule::table('intra_fahrzeuge')->pluck('name');
+        } catch (PDOException) {
+            return [];
+        }
     }
 }
