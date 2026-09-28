@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Search\Sources;
 
 use App\Policies\VehiclePolicy;
+use App\Search\FuzzySearchSource;
 use App\Search\SearchSourceInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
@@ -13,7 +14,7 @@ use PDOException;
  * Mängel nach Titel, Beschreibung oder Fahrzeug; das Ziel ist die
  * Mängelliste, auf das Fahrzeug gefiltert.
  */
-final class DefectSource implements SearchSourceInterface
+final class DefectSource implements FuzzySearchSource
 {
     private const STATUS = [
         'open'        => 'Offen',
@@ -73,5 +74,19 @@ final class DefectSource implements SearchSourceInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Nur der Titel des Mangels.
+     *
+     * @return iterable<string>
+     */
+    public function vocabulary(): iterable
+    {
+        try {
+            return Capsule::table('intra_fahrzeuge_defects')->distinct()->pluck('title');
+        } catch (PDOException) {
+            return [];
+        }
     }
 }

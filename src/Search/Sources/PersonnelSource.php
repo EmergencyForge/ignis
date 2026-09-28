@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Search\Sources;
 
 use App\Policies\PersonnelPolicy;
+use App\Search\FuzzySearchSource;
 use App\Search\SearchSourceInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PDOException;
 
 /**
  * Mitarbeiter nach Name oder Dienstnummer.
  */
-final class PersonnelSource implements SearchSourceInterface
+final class PersonnelSource implements FuzzySearchSource
 {
     public function key(): string
     {
@@ -53,5 +55,19 @@ final class PersonnelSource implements SearchSourceInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Vor- und Nachnamen, nie die Dienstnummer.
+     *
+     * @return iterable<string>
+     */
+    public function vocabulary(): iterable
+    {
+        try {
+            return Capsule::table('intra_mitarbeiter')->distinct()->pluck('fullname');
+        } catch (PDOException) {
+            return [];
+        }
     }
 }

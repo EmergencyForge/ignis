@@ -19,7 +19,9 @@ use Tests\FixtureFactory;
  * Gruppe je Quelle mit Beschriftung, Nebenzeile und Ziel, Quellen ohne
  * Recht fehlen, Plugin-Quellen aus dem Manifest erscheinen neben den
  * Kern-Quellen, unter zwei Zeichen nichts. Die Topbar gibt der Palette
- * die Aktionen mit, die der Betrachter darf.
+ * die Aktionen mit, die der Betrachter darf. Die unscharfe Suche für
+ * Mitarbeiternamen (PersonnelSource ist FuzzySearchSource) steht weiter
+ * unten; die Mechanik selbst steht in Tests\Unit\Search\SearchRegistryTest.
  */
 final class GlobalSearchTest extends FeatureTestCase
 {
@@ -73,6 +75,15 @@ final class GlobalSearchTest extends FeatureTestCase
     {
         $user = FixtureFactory::user();
         $this->actingAs($user->id, ['permissions' => $permissions, 'cirs_username' => $user->username]);
+    }
+
+    private function insertPerson(string $fullname, string $dienstnr, string $discordtag, string $charakterid): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO intra_mitarbeiter (fullname, dienstnr, gebdatum, einstdatum, geschlecht, discordtag, charakterid, dienstgrad, qualifw2, qualird) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT MIN(id) FROM intra_mitarbeiter_dienstgrade), (SELECT MIN(id) FROM intra_mitarbeiter_fwquali), (SELECT MIN(id) FROM intra_mitarbeiter_rdquali))'
+        );
+        $stmt->execute([$fullname, $dienstnr, '1990-01-01', '2024-01-01', 0, $discordtag, $charakterid]);
     }
 
     /**
@@ -216,5 +227,43 @@ final class GlobalSearchTest extends FeatureTestCase
 
         $this->assertStringNotContainsString('globalSearchOverlay', $page);
         $this->assertStringContainsString('assets/js/ui/palette.js', $page);
+    }
+
+    #[Test]
+    public function ein_tippfehler_im_mitarbeiternamen_findet_die_richtige_schreibweise(): void
+    {
+        $this->login();
+        $this->insertPerson('Hans Müller', 'FUZ-01', '900000000000000001', 'FUZ00001');
+        $this->insertPerson('Petra Schmidt', 'FUZ-02', '900000000000000002', 'FUZ00002');
+
+        try {
+            $mueller = $this->search('Mueller');
+            $this->assertSame(['personnel'], array_column($mueller['results'], 'key'));
+            $muellerItems = $mueller['results'][0]['items'];
+            $this->assertSame('Hans Müller', $muellerItems[0]['label']);
+            $this->assertTrue($muellerItems[0]['approx'] ?? false, 'Treffer über den Tippfehler muss als „ähnlich" markiert sein.');
+
+            $schmidt = $this->search('Schmit');
+            $schmidtItems = $schmidt['results'][0]['items'];
+            $this->assertSame('Petra Schmidt', $schmidtItems[0]['label']);
+            $this->assertTrue($schmidtItems[0]['approx'] ?? false);
+        } finally {
+            $this->pdo->exec("DELETE FROM intra_mitarbeiter WHERE dienstnr IN ('FUZ-01', 'FUZ-02')");
+        }
+    }
+
+    #[Test]
+    public function ein_tippfehler_in_der_dienstnummer_findet_nichts(): void
+    {
+        $this->login();
+        $this->insertPerson('Kennungs Testperson', 'FUZ-KE-12345', '900000000000000003', 'FUZ00003');
+
+        try {
+            // Kennungen sind vom Nicht-Ziel der unscharfen Suche ausgenommen: die
+            // Dienstnummer landet nie im Vokabular, ein Tippfehler findet nichts.
+            $this->assertSame([], $this->search('FUZ-KE-12346')['results']);
+        } finally {
+            $this->pdo->exec("DELETE FROM intra_mitarbeiter WHERE dienstnr = 'FUZ-KE-12345'");
+        }
     }
 }

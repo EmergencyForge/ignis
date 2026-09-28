@@ -7,13 +7,15 @@ namespace App\Search\Sources;
 use App\Models\EditorDocument;
 use App\Models\PersonnelDocument;
 use App\Policies\DocumentPolicy;
+use App\Search\FuzzySearchSource;
 use App\Search\SearchSourceInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PDOException;
 
 /**
  * Aktuelle und ältere Dokumente innerhalb der Dokumentenrechte.
  */
-final class DocumentSource implements SearchSourceInterface
+final class DocumentSource implements FuzzySearchSource
 {
     public function key(): string
     {
@@ -81,5 +83,23 @@ final class DocumentSource implements SearchSourceInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Titel der aktuellen Dokumente und Empfänger der älteren, nie die
+     * docid.
+     *
+     * @return iterable<string>
+     */
+    public function vocabulary(): iterable
+    {
+        try {
+            return [
+                ...Capsule::table('intra_documents')->distinct()->pluck('title')->all(),
+                ...Capsule::table('intra_mitarbeiter_dokumente')->distinct()->pluck('erhalter')->all(),
+            ];
+        } catch (PDOException) {
+            return [];
+        }
     }
 }

@@ -66,3 +66,32 @@ return [
 Controller in Plugins erben von `App\Http\Controllers\Controller` und
 überschreiben `viewBasePath()`, damit `renderView()` die Views aus dem
 eigenen `templates/`-Verzeichnis lädt.
+
+## Eigene Quelle für die globale Suche
+
+Das Manifest-Feld `search` trägt eine Liste voll qualifizierter
+Klassennamen ein, die `App\Search\SearchSourceInterface` implementieren:
+
+```php
+'search' => ['Plugin\\Firetab\\Search\\IncidentSource'],
+```
+
+`SearchRegistry` fragt jede Quelle, die `allowed()` bejaht, mit demselben
+Suchwort ab (Palette in der Topbar, `GET /api/system/global-search`) und
+zeigt höchstens fünf Treffer je Quelle. Eine Klasse, die nicht existiert
+oder das Interface nicht implementiert, wird beim Laden übersprungen statt
+den Boot abzubrechen.
+
+Geht es um Namen oder Titel statt um Kennungen, kann die Quelle zusätzlich
+`App\Search\FuzzySearchSource` implementieren (`extends
+SearchSourceInterface`, eine Methode `vocabulary(): iterable<string>`).
+Liefert `search()` dann weniger als das Limit, erweitert die Registry die
+Suchworte über ein aus `vocabulary()` gebautes, gecachtes Vokabular
+(Tippfehler- und Umlauttoleranz über `emergencyforge/fuzzy-search`) und
+fragt dieselbe `search()` erneut ab — Rechte und Zeilenfilter der Quelle
+bleiben dabei unverändert, weil sie sich selbst wieder abfragt. Treffer aus
+dieser zweiten Runde tragen `approx: true`, die Palette zeigt dafür den
+Zusatz „ähnlich". Kennungen (IDs, Aktenzeichen, Einsatznummern) gehören nie
+ins Vokabular — ein Tippfehler dort soll keinen falschen Treffer erzeugen.
+Das Opt-in ist rein additiv: eine Quelle ohne `FuzzySearchSource` bleibt
+unverändert bei der scharfen Suche.

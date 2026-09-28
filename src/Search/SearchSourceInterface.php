@@ -15,6 +15,10 @@ namespace App\Search;
  * Suchwort ab und liefert je Quelle eine Gruppe mit höchstens $limit
  * Treffern. Jeder Treffer ist ein Link: label (erste Zeile), sub (zweite
  * Zeile, darf leer sein), href (absoluter Pfad mit BASE_PATH).
+ *
+ * Eine Quelle für Namen oder Titel (nie Kennungen) kann zusätzlich
+ * FuzzySearchSource implementieren, um bei Tippfehlern nachzulegen; die
+ * Registry setzt auf solche Nachtreffer `approx: true` (siehe dort).
  */
 interface SearchSourceInterface
 {

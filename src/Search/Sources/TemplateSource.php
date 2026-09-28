@@ -6,6 +6,7 @@ namespace App\Search\Sources;
 
 use App\Models\EditorTemplate;
 use App\Policies\DocumentPolicy;
+use App\Search\FuzzySearchSource;
 use App\Search\SearchSourceInterface;
 use PDOException;
 
@@ -13,7 +14,7 @@ use PDOException;
  * Dokumentvorlagen nach Name oder Kategorie; das Ziel ist die
  * Vorlagenverwaltung des Editors.
  */
-final class TemplateSource implements SearchSourceInterface
+final class TemplateSource implements FuzzySearchSource
 {
     public function key(): string
     {
@@ -67,5 +68,19 @@ final class TemplateSource implements SearchSourceInterface
         }
 
         return $items;
+    }
+
+    /**
+     * Nur der Name der Vorlage, nie die Kategorie.
+     *
+     * @return iterable<string>
+     */
+    public function vocabulary(): iterable
+    {
+        try {
+            return EditorTemplate::query()->distinct()->pluck('name');
+        } catch (PDOException) {
+            return [];
+        }
     }
 }
