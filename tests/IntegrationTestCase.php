@@ -74,8 +74,29 @@ abstract class IntegrationTestCase extends TestCase
         $this->markTestSkipped('Übersprungen: ' . $grund);
     }
 
+    /**
+     * Die globale Suche cacht ihr Vokabular je Quelle dateibasiert
+     * (App\Search\VocabularyCache, 10 Minuten TTL, storage/cache/search-
+     * <key>.php) — außerhalb jeder Transaction, weil eine Datei nicht mit
+     * zurückrollt. Ohne Aufräumen sieht ein Test später im selben Lauf noch
+     * das Vokabular, das ein früherer Test aus seinen (dann längst wieder
+     * gelöschten) Zeilen gebaut hat, solange beide innerhalb der TTL laufen
+     * — bei einem Testlauf von Sekunden praktisch immer. Deshalb vor jedem
+     * Integration-/Feature-Test löschen, nicht nur in Tests der Suche
+     * selbst. Die Produktions-TTL bleibt unverändert, das betrifft nur den
+     * Zustand, mit dem ein Test startet.
+     */
+    private function clearSearchVocabularyCache(): void
+    {
+        foreach (glob(dirname(__DIR__) . '/storage/cache/search-*.php') ?: [] as $file) {
+            @unlink($file);
+        }
+    }
+
     protected function setUp(): void
     {
+        $this->clearSearchVocabularyCache();
+
         if (empty($_ENV['DB_HOST']) || empty($_ENV['DB_NAME'])) {
             $this->skipOrFail('keine Test-DB konfiguriert. Lege .env.test mit TEST_DB_*-Zugangsdaten an.');
         }
