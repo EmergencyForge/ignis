@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eNOTF UI-Konzept — Variante 3: Kacheln (Touch)</title>
+  <link rel="stylesheet" href="enotf-mock.css">
+</head>
+<body>
+  <div id="chrome"></div>
+  <div class="layout">
+    <nav class="sectionnav" id="sectionnav"></nav>
+    <main style="flex: 1;">
+      <div class="crumb-chips" id="crumbs"></div>
+      <div class="tile-grid" id="grid"></div>
+    </main>
+  </div>
+  <div class="save-toast" id="save-toast"></div>
+
+  <script src="tree-data.js"></script>
+  <script>
+    renderChrome("Variante 3");
+
+    // path: Array der Labels unterhalb von "Diagnose (führend)"
+    const state = {
+      path: [],
+      selected: "Verbrennung / Verbrühung",
+    };
+
+    function resolvePath(path) {
+      let list = DIAGNOSE_TREE;
+      let node = null;
+      for (const label of path) {
+        node = (list || []).find((n) => n.label === label) || null;
+        if (!node) return null;
+        list = node.children;
+      }
+      return node;
+    }
+
+    function currentLevel() {
+      if (state.path.length === 0) return { nodes: DIAGNOSE_TREE };
+      const node = resolvePath(state.path);
+      if (!node) return { nodes: DIAGNOSE_TREE };
+      if (node.children) return { nodes: node.children };
+      if (node.options) return { options: node.options };
+      return { empty: true };
+    }
+
+    function render() {
+      const level = currentLevel();
+      const grid = document.getElementById("grid");
+
+      let tiles = "";
+      if (state.path.length > 0) {
+        tiles += `<button class="tile tile-back" data-back="1">‹ zurück</button>`;
+      }
+
+      if (level.nodes) {
+        tiles += level.nodes.map((n) => {
+          const count = n.children
+            ? n.children.length + " Unterkategorien"
+            : n.options
+              ? n.options.length + " Auswahlmöglichkeiten"
+              : "";
+          return `<button class="tile" data-node="${n.label}">` +
+            `<span>${n.label}</span>` +
+            (count ? `<span class="tile-meta">${count} ›</span>` : `<span class="tile-meta">›</span>`) +
+            `</button>`;
+        }).join("");
+      } else if (level.options) {
+        tiles += level.options.map(
+          (o) =>
+            `<button class="tile ${state.selected === o ? "selected" : ""}" data-option="${o}">` +
+            `<span>${o}</span>` +
+            `<span class="tile-meta">${state.selected === o ? "ausgewählt" : ""}</span>` +
+            `</button>`
+        ).join("");
+      }
+
+      grid.innerHTML = tiles;
+      if (level.empty) {
+        grid.innerHTML = `<button class="tile tile-back" data-back="1">‹ zurück</button>`;
+        grid.insertAdjacentHTML("beforeend", `<div class="mock-note" style="margin:0">${MOCK_NOTE}</div>`);
+      }
+
+      renderCrumbs();
+      bindEvents();
+    }
+
+    function renderCrumbs() {
+      const crumbs = [`<button data-jump="-1" class="${state.path.length === 0 ? "current" : ""}">Diagnose (führend)</button>`];
+      state.path.forEach((label, i) => {
+        crumbs.push(
+          `<button data-jump="${i}" class="${i === state.path.length - 1 ? "current" : ""}">${label}</button>`
+        );
+      });
+      if (state.selected) {
+        crumbs.push(`<span style="color:#a2a2a2; font-size:0.85rem; align-self:center">→ ${state.selected}</span>`);
+      }
+      document.getElementById("crumbs").innerHTML = crumbs.join('<span style="color:#424242; align-self:center">›</span>');
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-node]").forEach((el) =>
+        el.addEventListener("click", () => {
+          state.path.push(el.dataset.node);
+          render();
+        })
+      );
+      document.querySelectorAll("[data-option]").forEach((el) =>
+        el.addEventListener("click", () => {
+          state.selected = el.dataset.option;
+          render();
+          showSaveToast(state.selected);
+        })
+      );
+      document.querySelectorAll("[data-back]").forEach((el) =>
+        el.addEventListener("click", () => {
+          state.path.pop();
+          render();
+        })
+      );
+      document.querySelectorAll("[data-jump]").forEach((el) =>
+        el.addEventListener("click", () => {
+          const idx = parseInt(el.dataset.jump, 10);
+          state.path = idx < 0 ? [] : state.path.slice(0, idx + 1);
+          render();
+        })
+      );
+    }
+
+    render();
+  </script>
+</body>
+</html>

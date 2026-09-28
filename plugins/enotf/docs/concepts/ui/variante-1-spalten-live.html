@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eNOTF UI-Konzept — Variante 1: Spalten (live)</title>
+  <link rel="stylesheet" href="enotf-mock.css">
+</head>
+<body>
+  <div id="chrome"></div>
+  <div class="layout">
+    <nav class="sectionnav" id="sectionnav"></nav>
+    <main style="flex: 1;">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <div style="display: flex;" id="columns"></div>
+    </main>
+  </div>
+  <div class="save-toast" id="save-toast"></div>
+
+  <script src="tree-data.js"></script>
+  <script>
+    renderChrome("Variante 1");
+
+    // Zustand: Pfad durch den Baum + gewählte Option
+    const state = {
+      root: "haupt",
+      category: "Trauma",
+      sub: "spezielle",
+      selected: "Verbrennung / Verbrühung",
+    };
+
+    function findCategory(label) {
+      return DIAGNOSE_TREE.find((c) => c.label === label) || null;
+    }
+
+    function findSub(category, label) {
+      if (!category || !category.children) return null;
+      return category.children.find((c) => c.label === label) || null;
+    }
+
+    function render() {
+      const columns = [];
+      const category = findCategory(state.category);
+      const sub = findSub(category, state.sub);
+
+      // Spalte 1: Diagnose-Wurzel
+      columns.push(
+        `<div class="ibtn-col">` +
+          DIAGNOSE_ROOT.map(
+            (r) =>
+              `<a href="#" data-root="${r.key}" class="${state.root === r.key ? "active" : ""}"><span>${r.label}</span></a>`
+          ).join("") +
+        `</div>`
+      );
+
+      if (state.root !== "haupt") {
+        columns.push(`<div class="mock-note">${MOCK_NOTE}</div>`);
+      } else {
+        // Spalte 2: Kategorien
+        columns.push(
+          `<div class="ibtn-col">` +
+            DIAGNOSE_TREE.map(
+              (c) =>
+                `<a href="#" data-category="${c.label}" class="${state.category === c.label ? "active" : ""}"><span>${c.label}</span></a>`
+            ).join("") +
+          `</div>`
+        );
+
+        if (category && category.children) {
+          // Spalte 3: Unterkategorien (z. B. Trauma)
+          columns.push(
+            `<div class="ibtn-col">` +
+              category.children.map(
+                (c) =>
+                  `<a href="#" data-sub="${c.label}" class="${state.sub === c.label ? "active" : ""}"><span>${c.label}</span></a>`
+              ).join("") +
+            `</div>`
+          );
+          if (sub && sub.options) {
+            columns.push(renderOptions(sub.options));
+          } else if (state.sub) {
+            columns.push(`<div class="mock-note">${MOCK_NOTE}</div>`);
+          }
+        } else if (category && category.options) {
+          // Kategorie mit direkten Optionen (z. B. ZNS)
+          columns.push(renderOptions(category.options));
+        } else if (category) {
+          columns.push(`<div class="mock-note">${MOCK_NOTE}</div>`);
+        }
+      }
+
+      document.getElementById("columns").innerHTML = columns.join("");
+      renderBreadcrumb();
+      bindEvents();
+    }
+
+    function renderOptions(options) {
+      return (
+        `<div class="ibtn-col">` +
+        options.map(
+          (o) =>
+            `<label class="option ${state.selected === o ? "selected" : ""}" data-option="${o}"><span>${o}</span></label>`
+        ).join("") +
+        `</div>`
+      );
+    }
+
+    function renderBreadcrumb() {
+      const parts = ["Diagnose"];
+      if (state.root === "haupt") parts.push("führend");
+      const category = findCategory(state.category);
+      if (category) parts.push(category.label);
+      if (category && category.children && state.sub) parts.push(state.sub);
+      if (state.selected) parts.push(`<strong style="color:#fff">${state.selected}</strong>`);
+      document.getElementById("breadcrumb").innerHTML = parts.join('<span class="sep">›</span>');
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-root]").forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          state.root = el.dataset.root;
+          render();
+        })
+      );
+      document.querySelectorAll("[data-category]").forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          state.category = el.dataset.category;
+          state.sub = null;
+          render();
+        })
+      );
+      document.querySelectorAll("[data-sub]").forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          state.sub = el.dataset.sub;
+          render();
+        })
+      );
+      document.querySelectorAll("[data-option]").forEach((el) =>
+        el.addEventListener("click", () => {
+          state.selected = el.dataset.option;
+          render();
+          showSaveToast(state.selected);
+        })
+      );
+    }
+
+    render();
+  </script>
+</body>
+</html>
