@@ -84,9 +84,9 @@ final class SearchRegistryTest extends TestCase
      * @param list<string> $vocabulary
      * @return FuzzySearchSource&object{searchCalls: list<string>, vocabularyCalls: int}
      */
-    private function fuzzySource(string $key, bool $allowed, array $itemsByQuery, array $vocabulary): FuzzySearchSource
+    private function fuzzySource(string $key, bool $allowed, array $itemsByQuery, array $vocabulary, ?\Throwable $vocabularyThrows = null): FuzzySearchSource
     {
-        return new class($key, $allowed, $itemsByQuery, $vocabulary) implements FuzzySearchSource {
+        return new class($key, $allowed, $itemsByQuery, $vocabulary, $vocabularyThrows) implements FuzzySearchSource {
             /** @var list<string> */
             public array $searchCalls = [];
             public int $vocabularyCalls = 0;
@@ -100,6 +100,7 @@ final class SearchRegistryTest extends TestCase
                 private bool $allowed,
                 private array $itemsByQuery,
                 private array $vocabulary,
+                private ?\Throwable $vocabularyThrows,
             ) {
             }
 
@@ -127,6 +128,9 @@ final class SearchRegistryTest extends TestCase
             public function vocabulary(): iterable
             {
                 $this->vocabularyCalls++;
+                if ($this->vocabularyThrows !== null) {
+                    throw $this->vocabularyThrows;
+                }
                 return $this->vocabulary;
             }
         };
@@ -381,5 +385,22 @@ final class SearchRegistryTest extends TestCase
         touch($file, time() - 601);
         $this->registry($this->loaderWith([]), [$source], $cache)->run('mueller');
         $this->assertSame(2, $source->vocabularyCalls);
+    }
+
+    #[Test]
+    public function ein_scheiterndes_nachlegen_reisst_die_bereits_gefundenen_treffer_nicht_mit(): void
+    {
+        $exact = ['label' => 'Hans Meier', 'sub' => '', 'href' => '/1'];
+        $source = $this->fuzzySource(
+            'personnel',
+            true,
+            ['mueller' => [$exact]],
+            [],
+            new \RuntimeException('Vokabular-Aufbau kaputt'),
+        );
+
+        $groups = $this->registry($this->loaderWith([]), [$source], $this->tmpCache())->run('mueller');
+
+        $this->assertSame([$exact], $groups[0]['items']);
     }
 }
