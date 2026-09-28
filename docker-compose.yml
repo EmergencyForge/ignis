@@ -25,6 +25,7 @@ services:
       - ../WebPackages/packages/plugin-system:/var/www/html/vendor/emergencyforge/plugin-system
       - ../WebPackages/packages/health-check:/var/www/html/vendor/emergencyforge/health-check
       - ../WebPackages/packages/cron-scheduler:/var/www/html/vendor/emergencyforge/cron-scheduler
+      - ../WebPackages/packages/fuzzy-search:/var/www/html/vendor/emergencyforge/fuzzy-search
       # Persist storage data
       - intrarp-storage:/var/www/html/storage
       - intrarp-uploads:/var/www/html/uploads

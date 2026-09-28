@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "99269f7b5fc26e2c2ce638b59e56ef30",
+    "content-hash": "6dfee4748b22a166449761ea68249943",
     "packages": [
         {
             "name": "brick/math",
@@ -838,6 +838,41 @@
                 "MIT"
             ],
             "description": "Produktneutraler PHP-Renderer fuer das EmergencyForge-Editor-Dokumentmodell (TipTap/ProseMirror-JSON).",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/fuzzy-search",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/fuzzy-search",
+                "reference": "4427f102cd2ffc856e50b9b584f401e1d1bdd277"
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\FuzzySearch\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\FuzzySearch\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Tippfehler-tolerante Suche über Vor- und Nachnamen sowie Titel: Faltung (Umlaute, Diakritika) und ein Trie mit Levenshtein-Distanz 1 für Lex und ignis.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
