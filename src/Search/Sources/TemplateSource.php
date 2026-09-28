@@ -78,7 +78,7 @@ final class TemplateSource implements FuzzySearchSource
     public function vocabulary(): iterable
     {
         try {
-            return EditorTemplate::query()->pluck('name');
+            return EditorTemplate::query()->distinct()->pluck('name');
         } catch (PDOException) {
             return [];
         }

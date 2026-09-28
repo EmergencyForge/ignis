@@ -8,6 +8,7 @@ use App\Policies\PersonnelPolicy;
 use App\Search\FuzzySearchSource;
 use App\Search\SearchSourceInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PDOException;
 
 /**
  * Mitarbeiter nach Name oder Dienstnummer.
@@ -63,6 +64,10 @@ final class PersonnelSource implements FuzzySearchSource
      */
     public function vocabulary(): iterable
     {
-        return Capsule::table('intra_mitarbeiter')->pluck('fullname');
+        try {
+            return Capsule::table('intra_mitarbeiter')->distinct()->pluck('fullname');
+        } catch (PDOException) {
+            return [];
+        }
     }
 }

@@ -29,7 +29,9 @@ use EmergencyForge\FuzzySearch\Vocabulary;
  * Anfragen, die erneut über dieselbe search() laufen — Rechte und
  * Zeilenfilter bleiben also unverändert. Neue Treffer werden ohne
  * Duplikate (nach href) hinten angehängt und mit `approx: true`
- * markiert.
+ * markiert. Das Nachlegen hat einen eigenen try/catch: scheitert nur der
+ * Fuzzy-Anteil (z.B. ein kaputtes Vokabular), bleiben die schon
+ * gefundenen exakten Treffer erhalten statt mit ausgefallen.
  */
 final class SearchRegistry
 {
@@ -86,12 +88,19 @@ final class SearchRegistry
             }
             try {
                 $items = array_slice($source->search($q, $limit), 0, $limit);
-                if ($source instanceof FuzzySearchSource && count($items) < $limit) {
-                    $items = $this->withFuzzyMatches($source, $q, $limit, $items);
-                }
             } catch (\Throwable $e) {
                 Logger::error('Suche: Quelle ' . $source->key() . ' ausgefallen', ['error' => $e->getMessage()]);
                 continue;
+            }
+            // Eigener try/catch: ein Fehler beim Nachlegen (Vokabular-Aufbau
+            // oder die zweite search()) darf die bereits gefundenen exakten
+            // Treffer nicht mitreißen — nur der Fuzzy-Anteil fällt aus.
+            if ($source instanceof FuzzySearchSource && count($items) < $limit) {
+                try {
+                    $items = $this->withFuzzyMatches($source, $q, $limit, $items);
+                } catch (\Throwable $e) {
+                    Logger::error('Suche: unscharfes Nachlegen für ' . $source->key() . ' ausgefallen', ['error' => $e->getMessage()]);
+                }
             }
             if ($items === []) {
                 continue;

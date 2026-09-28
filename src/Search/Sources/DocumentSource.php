@@ -95,8 +95,8 @@ final class DocumentSource implements FuzzySearchSource
     {
         try {
             return [
-                ...Capsule::table('intra_documents')->pluck('title')->all(),
-                ...Capsule::table('intra_mitarbeiter_dokumente')->pluck('erhalter')->all(),
+                ...Capsule::table('intra_documents')->distinct()->pluck('title')->all(),
+                ...Capsule::table('intra_mitarbeiter_dokumente')->distinct()->pluck('erhalter')->all(),
             ];
         } catch (PDOException) {
             return [];

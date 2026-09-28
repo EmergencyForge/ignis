@@ -31,7 +31,7 @@ final class VocabularyCache
      */
     public function remember(string $key, callable $build): Vocabulary
     {
-        $file = $this->dir . '/search-' . $key . '.php';
+        $file = $this->dir . '/search-' . $this->sanitizeKey($key) . '.php';
 
         $cached = $this->read($file);
         if ($cached !== null) {
@@ -62,6 +62,19 @@ final class VocabularyCache
 
         /** @var array{root: array<string, mixed>, count: int} $data */
         return Vocabulary::fromArray($data);
+    }
+
+    /**
+     * $key kommt von SearchSourceInterface::key() — heute feste Strings im
+     * Code, aber der Dateiname bleibt auch dann im Cache-Verzeichnis, wenn
+     * ein Plugin (dessen Quellen genauso hier reinkommen) dort einmal
+     * etwas anderes einträgt.
+     */
+    private function sanitizeKey(string $key): string
+    {
+        $sanitized = preg_replace('/[^a-z0-9_-]+/', '-', strtolower($key)) ?? '';
+
+        return $sanitized !== '' ? $sanitized : 'default';
     }
 
     private function write(string $file, Vocabulary $vocabulary): void

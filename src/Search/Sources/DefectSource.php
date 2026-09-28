@@ -84,7 +84,7 @@ final class DefectSource implements FuzzySearchSource
     public function vocabulary(): iterable
     {
         try {
-            return Capsule::table('intra_fahrzeuge_defects')->pluck('title');
+            return Capsule::table('intra_fahrzeuge_defects')->distinct()->pluck('title');
         } catch (PDOException) {
             return [];
         }

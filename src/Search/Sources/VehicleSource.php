@@ -71,7 +71,7 @@ final class VehicleSource implements FuzzySearchSource
     public function vocabulary(): iterable
     {
         try {
-            return Capsule::table('intra_fahrzeuge')->pluck('name');
+            return Capsule::table('intra_fahrzeuge')->distinct()->pluck('name');
         } catch (PDOException) {
             return [];
         }
