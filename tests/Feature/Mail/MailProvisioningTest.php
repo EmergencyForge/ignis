@@ -137,7 +137,7 @@ final class MailProvisioningTest extends FeatureTestCase
         $person  = $this->mitarbeiter('Gerd Weg');
         $mailbox = $this->provision($person);
 
-        $this->assertRedirect($this->get('/personnel/delete', ['query' => ['id' => (string) $person->id]]));
+        $this->assertRedirect($this->post('/personnel/delete', ['id' => (string) $person->id]));
 
         $mailbox->refresh();
         $this->assertNull($mailbox->mitarbeiter_id);

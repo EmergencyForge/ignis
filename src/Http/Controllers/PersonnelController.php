@@ -697,12 +697,12 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /mitarbeiter/delete.php?id=X — Mitarbeiter komplett löschen.
+     * POST /personnel/delete (id) — Mitarbeiter komplett löschen.
      */
     public function destroy(): void
     {
 
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'invalid-id');
             $this->redirect('mitarbeiter/list');
@@ -726,12 +726,12 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /mitarbeiter/comment-delete.php?id=X&pid=Y — Personal-Log-Eintrag löschen.
+     * POST /personnel/comment-delete (id) — Personal-Log-Eintrag löschen.
      */
     public function deleteComment(): void
     {
 
-        $logId = (int) ($_GET['id'] ?? 0);
+        $logId = (int) ($_POST['id'] ?? 0);
         if ($logId <= 0) {
             Flash::set('error', 'invalid-id');
             $this->redirectBackOrIndex();

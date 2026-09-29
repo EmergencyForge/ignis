@@ -43,10 +43,14 @@ if (empty($comments)):
                 </div>
             </div>
             <?php if ($canDelete): ?>
-                <button type="button" class="comment-item__delete" data-ignis-tooltip="Löschen" aria-label="Kommentar löschen"
-                    onclick="showConfirm('Kommentar wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Kommentar löschen'}).then(function(ok) { if(ok) window.location.href='<?= BASE_PATH ?>personnel/comment-delete?id=<?= $comment['logid'] ?>&pid=<?= $comment['profilid'] ?>'; });">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <form method="POST" action="<?= BASE_PATH ?>personnel/comment-delete" class="comment-item__delete-form"
+                    onsubmit="event.preventDefault(); var f = this; showConfirm('Kommentar wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Kommentar löschen'}).then(function(ok) { if (ok) f.submit(); });">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id" value="<?= (int) $comment['logid'] ?>">
+                    <button type="submit" class="comment-item__delete" data-ignis-tooltip="Löschen" aria-label="Kommentar löschen">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
             <?php endif; ?>
         </div>
     <?php endforeach; ?>
