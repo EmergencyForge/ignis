@@ -82,7 +82,8 @@ $pgLabel    = 'Postfächer';
                                         <td class="ignis-table__actions">
                                             <div class="ignis-row-actions">
                                                 <a href="<?= $base ?>settings/mail/mailboxes/<?= (int) $row->id ?>/edit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Adresse ändern" aria-label="Adresse von <?= htmlspecialchars($row->address) ?> ändern"><i class="fa-solid fa-pen" aria-hidden="true"></i></a>
-                                                <?php if ((int) $row->locked === 1): ?>
+                                                <?php if ((int) $row->id === $ownId): /* das eigene Postfach sperrt eine andere Person */ ?>
+                                                <?php elseif ((int) $row->locked === 1): ?>
                                                     <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $row->id ?>/unlock" class="inline">
                                                         <?= csrf_field() ?>
                                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Entsperren" aria-label="Postfach <?= htmlspecialchars($row->address) ?> entsperren"><i class="fa-solid fa-lock-open" aria-hidden="true"></i></button>

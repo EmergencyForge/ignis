@@ -91,6 +91,15 @@ final class MailAdminTest extends FeatureTestCase
         $this->assertRedirect($this->post('/settings/mail/mailboxes/' . $this->admin['mailbox']->id, ['local' => 'chef']));
         $this->assertSame('a.admin@ignis.ef', $this->admin['mailbox']->refresh()->address);
 
+        // Sperren und Entsperren gilt auch nur für fremde Postfächer.
+        $this->assertRedirect($this->post('/settings/mail/mailboxes/' . $this->admin['mailbox']->id . '/lock'));
+        $this->assertFalse($this->admin['mailbox']->refresh()->locked);
+        $this->admin['mailbox']->update(['locked' => 1]);
+        $this->assertRedirect($this->post('/settings/mail/mailboxes/' . $this->admin['mailbox']->id . '/unlock'));
+        $this->assertTrue($this->admin['mailbox']->refresh()->locked);
+        $this->assertBodyNotContains('/settings/mail/mailboxes/' . $this->admin['mailbox']->id . '/unlock', $this->get('/settings/mail/mailboxes'));
+        $this->admin['mailbox']->update(['locked' => 0]);
+
         $bob = $this->member('Bob Empfang')['mailbox'];
         $this->assertStatus(422, $this->post('/settings/mail/mailboxes/' . $bob->id, ['local' => ['x']]));
         $this->assertStatus(422, $this->post('/settings/mail/mailboxes/' . $bob->id, ['local' => 'Böse Adresse']));

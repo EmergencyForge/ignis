@@ -297,6 +297,12 @@ final class MailAdminController extends Controller
         if ($mailbox === null) {
             return $this->mailboxNotFound();
         }
+        // Wie bei der Adresse: das eigene Postfach sperrt und entsperrt eine andere Person.
+        if ($mailbox->id === $this->ownMailboxId()) {
+            Flash::error('Dein eigenes Postfach sperrt oder entsperrt eine andere Person mit Postfachverwaltung.');
+
+            return Response::redirect(MailController::basePath() . 'settings/mail/mailboxes');
+        }
         if ($mailbox->locked !== $locked) {
             $mailbox->locked = $locked;
             $mailbox->setAttribute('updated_at', date('Y-m-d H:i:s'));
