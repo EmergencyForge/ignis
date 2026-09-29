@@ -140,8 +140,21 @@
   // am body als feste Werte, die Aliase zeigen dort umgekehrt darauf.
   --content-text: var(--text);
   --accent-fill: var(--accent);
+  --accent-base: var(--accent);
   --motion-ease: var(--ease);
   --motion-spring: var(--spring);
+  // Rollen, die nur ef.base() (Paket) benutzt: einmal hier auf die
+  // bestehenden ignis-Namen abgebildet, wandert der Wert per var() auch in
+  // den hellen Satz mit, ohne dort erneut gesetzt werden zu muessen.
+  // ef.base-tokens() liefert Ersatzwerte (Lex' Farbskala), ohne diese Aliase
+  // saehen Formular, Dialog, Karte und Tabelle also in Lex-Grau statt in
+  // ignis-Grau aus.
+  --secondary-text: var(--text-2);
+  --tertiary-text: var(--text-3);
+  --overlay: var(--surface);
+  --border-subtle: var(--border);
+  --border-control: var(--border);
+  --canvas: var(--bg);
   --sidebar-inset: 0px;
   --fs-xs: 0.72rem;
   --fs-sm: 0.78rem;
