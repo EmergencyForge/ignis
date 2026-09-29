@@ -28,8 +28,23 @@ $layoutHead = '<link rel="stylesheet" href="' . htmlspecialchars(asset('assets/d
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $json       = static fn (mixed $value): string => htmlspecialchars((string) json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES);
 $values     = static fn (array $options): string => htmlspecialchars(implode(',', array_column($options, 'value')), ENT_QUOTES);
+// Als eigene Seite mit Kopf und Karte wie andere Formularseiten; im
+// Drawer bringt der Drawer Titel und Rahmen selbst mit.
+$fullPage   = !\App\Helpers\Layout::wantsFragment();
 ?>
 <link rel="stylesheet" href="<?= htmlspecialchars(asset('assets/dist/editor.css')) ?>">
+<?php if ($fullPage): ?>
+<div class="container-full relative" id="mainpageContainer">
+    <div class="twplus-page">
+        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= htmlspecialchars($base) ?>mail">Mail</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($title) ?></span></nav>
+        <div class="page-header twplus-page-header mb-4">
+            <div class="twplus-page-header__copy">
+                <h1><?= htmlspecialchars($title) ?></h1>
+            </div>
+        </div>
+        <div class="ignis-card">
+            <div class="ignis-card__body">
+<?php endif; ?>
 <form id="mail-compose-form" class="ignis-mail-compose" data-ignis-drawer-native
       data-draft-id="<?= $draftId !== null ? (int) $draftId : '' ?>"
       data-in-reply-to="<?= $inReplyTo !== null ? (int) $inReplyTo : '' ?>"
@@ -97,5 +112,11 @@ $values     = static fn (array $options): string => htmlspecialchars(implode(','
         </button>
     </div>
 </form>
+<?php if ($fullPage): ?>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 <script type="module" src="<?= htmlspecialchars($base) ?>assets/js/ui/multi-select.js"></script>
 <script src="<?= htmlspecialchars(asset('plugins/mail/assets/mail-compose.js')) ?>"></script>
