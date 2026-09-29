@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Session\SessionManager;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 /**
  * Eloquent-Model für `intra_mail_mailboxes` — das Postfach eines
@@ -18,8 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Zustellbar ist ein Postfach nur, wenn es aktiv UND nicht gesperrt ist.
  *
+ * Wem es gehört, sagt allein `user_id`. Die Discord-ID am Mitarbeiter
+ * pflegt die Personalverwaltung; sie entscheidet nur, welches Konto ein
+ * noch freies Postfach bekommt (autoBind()), danach nie wieder.
+ * Umhängen geht nur in der Postfachverwaltung („Konto zuordnen“).
+ *
  * @property int         $id
  * @property int|null    $mitarbeiter_id
+ * @property int|null    $user_id
  * @property string      $address
  * @property string      $display_name
  * @property string      $domain
@@ -35,6 +42,7 @@ class Mailbox extends Model
     protected $casts = [
         'id'             => 'integer',
         'mitarbeiter_id' => 'integer',
+        'user_id'        => 'integer',
         'active'         => 'boolean',
         'locked'         => 'boolean',
     ];
@@ -51,9 +59,6 @@ class Mailbox extends Model
     /**
      * Das Postfach des angemeldeten Nutzers, nur wenn es zustellbar ist.
      * Ein gesperrtes oder stillgelegtes Postfach öffnet niemand.
-     *
-     * Der Mitarbeiter hinter dem Konto kommt wie überall in ignis über
-     * `discordtag = discord_id`, ersatzweise über `intra_users.aktenid`.
      * Je Request gecacht; Tests leeren den Cache mit forget().
      */
     public static function current(): ?self
@@ -66,12 +71,9 @@ class Mailbox extends Model
             return self::$current[$userId];
         }
 
-        $mitarbeiterId = self::mitarbeiterIdForUser($userId);
-        $mailbox = $mitarbeiterId === null
-            ? null
-            : self::query()->where('mitarbeiter_id', $mitarbeiterId)->where('active', true)->where('locked', false)->first();
+        $mailbox = self::ownedBy($userId);
 
-        return self::$current[$userId] = $mailbox;
+        return self::$current[$userId] = $mailbox !== null && $mailbox->active && !$mailbox->locked ? $mailbox : null;
     }
 
     public static function forget(): void
@@ -79,7 +81,83 @@ class Mailbox extends Model
         self::$current = [];
     }
 
-    /** Mitarbeiter-ID eines Kontos: erst über die Discord-ID, dann über aktenid. */
+    /**
+     * Das Postfach dieses Kontos, in jedem Zustand. Gebunden zählt nur
+     * `user_id`. Ist das Postfach des eigenen Mitarbeiters noch frei, wird
+     * es hier gebunden, sofern dieses Konto das einzige passende ist.
+     */
+    public static function ownedBy(int $userId): ?self
+    {
+        $bound = self::query()->where('user_id', $userId)->first();
+        if ($bound !== null) {
+            return $bound;
+        }
+
+        $mitarbeiterId = self::mitarbeiterIdForUser($userId);
+        $free = $mitarbeiterId === null ? null : self::query()->where('mitarbeiter_id', $mitarbeiterId)->whereNull('user_id')->first();
+
+        return $free !== null && $free->autoBind() === $userId ? $free : null;
+    }
+
+    /**
+     * Bindet ein freies Postfach an das Konto seines Mitarbeiters, wenn
+     * genau ein aktives Konto passt und dieses noch kein Postfach hat. Ein
+     * gebundenes Postfach bleibt, wie es ist. Liefert das Konto, an dem
+     * das Postfach danach hängt, oder null.
+     */
+    public function autoBind(): ?int
+    {
+        if ($this->user_id !== null) {
+            return $this->user_id;
+        }
+        $accounts = $this->mitarbeiter_id !== null ? self::accountsFor($this->mitarbeiter_id) : [];
+        if (count($accounts) !== 1 || self::query()->where('user_id', $accounts[0])->exists()) {
+            return null;
+        }
+
+        try {
+            // Nur solange frei: sonst hat ein paralleler Request gewonnen.
+            $bound = self::query()->whereKey($this->id)->whereNull('user_id')->update(['user_id' => $accounts[0]]);
+        } catch (UniqueConstraintViolationException) {
+            return null;
+        }
+        if ($bound !== 1) {
+            return null;
+        }
+        $this->user_id = $accounts[0];
+        $this->syncOriginalAttribute('user_id');
+
+        return $this->user_id;
+    }
+
+    /**
+     * Aktive Konten, die zum Mitarbeiter passen: Discord-ID gleich
+     * `discordtag`, oder `intra_users.aktenid` zeigt auf ihn.
+     *
+     * @return list<int>
+     */
+    public static function accountsFor(int $mitarbeiterId): array
+    {
+        $tag = trim((string) Personnel::query()->whereKey($mitarbeiterId)->value('discordtag'));
+
+        $ids = Capsule::table('intra_users')->where('is_active', 1)
+            ->where(static function ($q) use ($mitarbeiterId, $tag): void {
+                $q->where('aktenid', $mitarbeiterId);
+                if ($tag !== '') {
+                    $q->orWhere('discord_id', $tag);
+                }
+            })
+            ->pluck('id')
+            ->all();
+
+        return array_values(array_map('intval', $ids));
+    }
+
+    /**
+     * Mitarbeiter-ID eines Kontos: erst über die Discord-ID, dann über
+     * aktenid. Nur für noch freie Postfächer und Hinweise, nie für den
+     * Zugriff auf ein gebundenes.
+     */
     public static function mitarbeiterIdForUser(int $userId): ?int
     {
         $user = User::query()->find($userId, ['id', 'discord_id', 'aktenid']);
@@ -100,8 +178,8 @@ class Mailbox extends Model
     }
 
     /**
-     * Die Konten hinter Postfächern, dieselbe Zuordnung rückwärts: für die
-     * Benachrichtigung bei Zustellung.
+     * Die aktiven Konten hinter Postfächern, für die Benachrichtigung bei
+     * Zustellung. Ein noch freies Postfach hat keins.
      *
      * @param list<int> $mailboxIds
      * @return list<int>
@@ -113,10 +191,7 @@ class Mailbox extends Model
         }
 
         $rows = Capsule::table('intra_mail_mailboxes as mb')
-            ->join('intra_mitarbeiter as m', 'm.id', '=', 'mb.mitarbeiter_id')
-            ->join('intra_users as u', static function ($join): void {
-                $join->on('u.discord_id', '=', 'm.discordtag')->orOn('u.aktenid', '=', 'm.id');
-            })
+            ->join('intra_users as u', 'u.id', '=', 'mb.user_id')
             ->whereIn('mb.id', $mailboxIds)
             ->where('u.is_active', 1)
             ->distinct()

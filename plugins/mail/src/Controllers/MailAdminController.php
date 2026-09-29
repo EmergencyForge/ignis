@@ -7,6 +7,7 @@ namespace Plugin\Mail\Controllers;
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Notifications\NotificationManager;
 use App\Session\SessionManager;
 use App\Support\ListQuery;
 use EmergencyForge\Http\Request;
@@ -26,6 +27,9 @@ use Plugin\Mail\SignatureText;
  * keinen Betreff und keine Zustellung, nicht einmal Zähler dazu. Das
  * Audit-Log bekommt Postfach-Id und Adressen, nie Inhalte.
  *
+ * Das Konto eines Postfachs (`user_id`) hängt hier nur um, wer es
+ * ausdrücklich tut („Konto zuordnen“), und nie auf das eigene Konto.
+ *
  * Eine geänderte Adresse bleibt dem Postfach vorbehalten
  * (intra_mail_address_history). Die eigene Adresse ändert hier niemand:
  * sich selbst eine Adresse aussuchen und die alte freigeben, das macht
@@ -37,7 +41,10 @@ final class MailAdminController extends Controller
 
     private const PATTERNS = ['initial_dot_last', 'first_dot_last'];
 
-    public function __construct(private readonly MailAddressRules $rules) {}
+    public function __construct(
+        private readonly MailAddressRules $rules,
+        private readonly NotificationManager $notifications,
+    ) {}
 
     /** GET /settings/mail/mailboxes */
     public function mailboxes(Request $request): Response
@@ -50,7 +57,7 @@ final class MailAdminController extends Controller
 
         $query = Capsule::table('intra_mail_mailboxes as mb')
             ->leftJoin('intra_mitarbeiter as m', 'm.id', '=', 'mb.mitarbeiter_id')
-            ->select('mb.id', 'mb.address', 'mb.display_name', 'mb.domain', 'mb.active', 'mb.locked', 'mb.mitarbeiter_id', 'm.fullname as owner');
+            ->select('mb.id', 'mb.address', 'mb.display_name', 'mb.domain', 'mb.active', 'mb.locked', 'mb.mitarbeiter_id', 'mb.user_id', 'm.fullname as owner');
         if ($list->q !== '') {
             $like = $list->like();
             $query->where(static fn ($w) => $w->where('mb.address', 'like', $like)->orWhere('mb.display_name', 'like', $like));
@@ -135,6 +142,74 @@ final class MailAdminController extends Controller
     public function unlockMailbox(Request $request, string $id): Response
     {
         return $this->setLocked((int) $id, false);
+    }
+
+    /**
+     * POST /settings/mail/mailboxes/{id}/account — „Konto zuordnen“: das
+     * Postfach an ein anderes Konto hängen (`user_id`) oder die Zuordnung
+     * lösen (leer). Ziel darf nur ein aktives Konto sein, dessen
+     * Discord-ID zum Mitarbeiter passt und das noch kein Postfach hat, nie
+     * das eigene; das eigene Postfach hängt hier niemand um. Ins
+     * Audit-Log kommen nur IDs, das bisherige Konto bekommt Bescheid.
+     */
+    public function assignAccount(Request $request, string $id): Response
+    {
+        $mailbox = Mailbox::query()->find((int) $id);
+        if ($mailbox === null) {
+            return $this->mailboxNotFound();
+        }
+        $back = MailController::basePath() . 'settings/mail/mailboxes/' . $mailbox->id . '/edit';
+        $me   = (int) SessionManager::userId();
+
+        $raw    = $request->post['user_id'] ?? null;
+        $target = is_string($raw) && preg_match('/^[1-9]\d{0,9}$/', $raw) === 1 ? (int) $raw : null;
+        $error  = match (true) {
+            $mailbox->user_id === $me => 'Die Zuordnung deines eigenen Postfachs ändert eine andere Person mit Postfachverwaltung.',
+            !is_string($raw) || ($raw !== '' && $target === null) => 'Ungültige Eingabe.',
+            $target === $me => 'Ein Postfach lässt sich nicht dem eigenen Konto zuordnen.',
+            $target !== null && $target !== $mailbox->user_id && !array_key_exists($target, $this->eligibleAccounts($mailbox)) => 'Dieses Konto passt nicht zur Discord-ID des Mitarbeiters oder hat schon ein Postfach.',
+            default => null,
+        };
+        if ($error !== null) {
+            Flash::error($error);
+
+            return Response::redirect($back);
+        }
+        if ($target === $mailbox->user_id) {
+            Flash::info('Keine Änderungen.');
+
+            return Response::redirect($back);
+        }
+
+        $before = $mailbox->user_id;
+        $mailbox->user_id = $target;
+        $mailbox->setAttribute('updated_at', date('Y-m-d H:i:s'));
+        try {
+            $mailbox->save();
+        } catch (UniqueConstraintViolationException) {
+            Flash::error('Dieses Konto hat inzwischen ein Postfach.');
+
+            return Response::redirect($back);
+        }
+        Mailbox::forget();
+
+        self::audit(
+            $target === null ? 'Postfach-Konto gelöst' : 'Postfach-Konto zugeordnet',
+            'Postfach #' . $mailbox->id . ': Konto #' . ($before ?? '–') . ' → #' . ($target ?? '–'),
+            ['mailbox_id' => $mailbox->id, 'von' => $before, 'auf' => $target],
+        );
+        if ($before !== null) {
+            $this->notifications->notify('system', [$before], [
+                'title'   => 'Dein Postfach wurde umgehängt',
+                'message' => 'Das Postfach ' . $mailbox->address . ' gehört nicht mehr zu deinem Konto. Fragen dazu beantwortet die Postfachverwaltung.',
+            ]);
+        }
+
+        Flash::success($target === null
+            ? 'Das Postfach ist keinem Konto mehr zugeordnet. Passt genau ein Konto zum Mitarbeiter, bindet es sich bei dessen nächster Anmeldung wieder.'
+            : 'Das Postfach gehört jetzt dem gewählten Konto.');
+
+        return Response::redirect($back);
     }
 
     /** GET /settings/mail */
@@ -241,10 +316,8 @@ final class MailAdminController extends Controller
     private function ownMailboxId(): ?int
     {
         $userId = SessionManager::userId();
-        $mitarbeiterId = $userId !== null ? Mailbox::mitarbeiterIdForUser($userId) : null;
-        $id = $mitarbeiterId !== null ? Mailbox::query()->where('mitarbeiter_id', $mitarbeiterId)->value('id') : null;
 
-        return $id !== null ? (int) $id : null;
+        return $userId !== null ? Mailbox::ownedBy($userId)?->id : null;
     }
 
     /** @param array{local:string, domain:string} $form */
@@ -254,16 +327,48 @@ final class MailAdminController extends Controller
         if (!in_array($mailbox->domain, $domains, true)) {
             array_unshift($domains, $mailbox->domain); // bisherige Domain bleibt wählbar
         }
-        $owner = $mailbox->mitarbeiter_id !== null ? Capsule::table('intra_mitarbeiter')->where('id', $mailbox->mitarbeiter_id)->value('fullname') : null;
+        $owner   = $mailbox->mitarbeiter_id !== null ? Capsule::table('intra_mitarbeiter')->where('id', $mailbox->mitarbeiter_id)->value('fullname') : null;
+        $account = $mailbox->user_id !== null ? Capsule::table('intra_users')->where('id', $mailbox->user_id)->value('username') : null;
 
         return $this->page('settings/mailbox-edit', [
-            'mailbox'   => $mailbox,
-            'owner'     => is_string($owner) ? $owner : null,
+            'mailbox'    => $mailbox,
+            'owner'      => is_string($owner) ? $owner : null,
+            'account'    => is_string($account) ? $account : null,
+            'candidates' => $this->eligibleAccounts($mailbox),
             'form'      => $form,
             'domains'   => $domains,
             'canChoose' => Permissions::check(['admin', 'mail.domain.choose']),
             'isOwn'     => $mailbox->id === $this->ownMailboxId(),
         ], $status);
+    }
+
+    /**
+     * Konten, denen das Postfach gehören darf: aktiv, Discord-ID gleich
+     * dem aktuellen `discordtag` des Mitarbeiters, ohne eigenes Postfach
+     * und nicht das Konto, das gerade verwaltet.
+     *
+     * @return array<int,string> Id => Benutzername
+     */
+    private function eligibleAccounts(Mailbox $mailbox): array
+    {
+        $tag = $mailbox->mitarbeiter_id !== null
+            ? trim((string) Capsule::table('intra_mitarbeiter')->where('id', $mailbox->mitarbeiter_id)->value('discordtag'))
+            : '';
+        if ($tag === '') {
+            return [];
+        }
+
+        return Capsule::table('intra_users as u')
+            ->where('u.is_active', 1)
+            ->where('u.discord_id', $tag)
+            ->where('u.id', '!=', (int) SessionManager::userId())
+            ->whereNotExists(static function ($q) use ($mailbox): void {
+                $q->selectRaw('1')->from('intra_mail_mailboxes as mb')->whereColumn('mb.user_id', 'u.id')->where('mb.id', '!=', $mailbox->id);
+            })
+            ->orderBy('u.username')
+            ->pluck('u.username', 'u.id')
+            ->mapWithKeys(static fn ($name, $id): array => [(int) $id => (string) $name])
+            ->all();
     }
 
     /** @return array{domain:string, pattern:string, allowed:string, signature:string} */

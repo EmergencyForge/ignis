@@ -9,6 +9,8 @@
  * @var list<string>                       $domains   wählbar, die bisherige eingeschlossen
  * @var bool                               $canChoose
  * @var bool                               $isOwn     das eigene Postfach: nur Hinweis, kein Speichern
+ * @var string|null                        $account   Benutzername des Kontos, dem das Postfach gehört
+ * @var array<int,string>                  $candidates Konten, denen es gehören darf (Id => Benutzername)
  */
 
 use Plugin\Mail\MailAddressRules;
@@ -65,6 +67,37 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 <div class="ignis-card__footer" data-form-actions>
                     <a href="<?= $base ?>settings/mail/mailboxes" class="ignis-btn ignis-btn--ghost">Abbrechen</a>
                     <button type="submit" class="ignis-btn ignis-btn--primary"<?= $isOwn ? ' disabled' : '' ?>><i class="fa-solid fa-check" aria-hidden="true"></i> Speichern</button>
+                </div>
+            </form>
+
+            <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $mailbox->id ?>/account" class="ignis-card mt-4">
+                <?= csrf_field() ?>
+                <div class="ignis-card__header">
+                    <h2 class="ignis-card__title">Konto zuordnen</h2>
+                </div>
+                <div class="ignis-card__body grid gap-3">
+                    <p class="ignis-field__hint">
+                        Das Postfach gehört fest einem Konto<?= $account !== null ? ', zurzeit <b>' . htmlspecialchars($account) . '</b>' : '; zurzeit keinem' ?>.
+                        Eine geänderte Discord-ID in der Personalakte hängt es nicht um. Zur Wahl stehen aktive Konten mit der Discord-ID des Mitarbeiters, die noch kein Postfach haben; das bisherige Konto bekommt eine Benachrichtigung.
+                    </p>
+                    <div>
+                        <label for="mailbox-account" class="ignis-field__label">Konto</label>
+                        <select id="mailbox-account" name="user_id" class="ignis-input"<?= $isOwn ? ' disabled' : '' ?>>
+                            <option value="">Keinem Konto zuordnen</option>
+                            <?php if ($mailbox->user_id !== null && !isset($candidates[$mailbox->user_id])): ?>
+                                <option value="<?= (int) $mailbox->user_id ?>" selected><?= htmlspecialchars($account ?? ('Konto #' . $mailbox->user_id)) ?> (bisher)</option>
+                            <?php endif; ?>
+                            <?php foreach ($candidates as $userId => $username): ?>
+                                <option value="<?= (int) $userId ?>"<?= $userId === $mailbox->user_id ? ' selected' : '' ?>><?= htmlspecialchars($username) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($candidates === []): ?>
+                            <p class="ignis-field__hint">Kein passendes Konto: die Discord-ID des Mitarbeiters gehört zu keinem aktiven Konto ohne Postfach.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="ignis-card__footer" data-form-actions>
+                    <button type="submit" class="ignis-btn ignis-btn--secondary"<?= $isOwn ? ' disabled' : '' ?>><i class="fa-solid fa-user-check" aria-hidden="true"></i> Zuordnung speichern</button>
                 </div>
             </form>
         </div>

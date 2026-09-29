@@ -3,7 +3,7 @@
  * View: Postfachverwaltung (`mail.admin`). Adresse, Inhaber und Zustand
  * eines Postfachs — nie etwas aus seinem Inhalt, auch keine Zähler.
  *
- * @var list<object{id:int, address:string, display_name:string, domain:string, active:int, locked:int, mitarbeiter_id:int|null, owner:string|null}> $rows
+ * @var list<object{id:int, address:string, display_name:string, domain:string, active:int, locked:int, mitarbeiter_id:int|null, user_id:int|null, owner:string|null}> $rows
  * @var \App\Support\ListQuery $list
  * @var int|null               $ownId  das eigene Postfach
  */
@@ -67,6 +67,7 @@ $pgLabel    = 'Postfächer';
                                         <td data-label="Inhaber" data-mobile-context>
                                             <?= htmlspecialchars($row->owner ?? $row->display_name) ?>
                                             <?php if ($row->mitarbeiter_id === null): ?><span class="ignis-chip ignis-chip--secondary">Mitarbeiter gelöscht</span><?php endif; ?>
+                                            <?php if ($row->user_id === null): ?><span class="ignis-chip ignis-chip--secondary">Kein Konto</span><?php endif; ?>
                                             <?php if ((int) $row->id === $ownId): ?><span class="ignis-chip ignis-chip--info">Du</span><?php endif; ?>
                                         </td>
                                         <td data-label="Zustand">

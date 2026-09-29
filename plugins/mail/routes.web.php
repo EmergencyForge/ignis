@@ -66,3 +66,4 @@ $router->get( '/settings/mail/mailboxes/{id:\d+}/edit',    [MailAdminController:
 $router->post('/settings/mail/mailboxes/{id:\d+}',         [MailAdminController::class, 'updateMailbox'], $adminAuth);
 $router->post('/settings/mail/mailboxes/{id:\d+}/lock',    [MailAdminController::class, 'lockMailbox'],   $adminAuth);
 $router->post('/settings/mail/mailboxes/{id:\d+}/unlock',  [MailAdminController::class, 'unlockMailbox'], $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}/account', [MailAdminController::class, 'assignAccount'], $adminAuth);

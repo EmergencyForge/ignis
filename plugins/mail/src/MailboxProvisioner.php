@@ -26,7 +26,8 @@ use Plugin\Mail\Models\Mailbox;
  *
  * Die Sperre der Administration (`locked`) fasst die Provisionierung nie
  * an: ein gesperrtes Postfach bleibt gesperrt, egal wie oft der
- * Mitarbeiter gespeichert wird.
+ * Mitarbeiter gespeichert wird. Ebenso das Konto (`user_id`): gebunden
+ * wird nur ein freies Postfach (Mailbox::autoBind()), nie umgehängt.
  *
  * Aufgerufen über die Events PersonnelSaved/PersonnelDeleted
  * (Listeners\SyncMailbox) und von `mail:backfill`. Ein Fehler bei der
@@ -64,17 +65,21 @@ final class MailboxProvisioner
         }
 
         if ($mailbox === null) {
-            return $this->create($mitarbeiter);
+            $mailbox = $this->create($mitarbeiter);
+        } else {
+            $name = $this->displayName($mitarbeiter);
+            if (!$mailbox->active || ($name !== '' && $mailbox->display_name !== $name)) {
+                $mailbox->active = true;
+                if ($name !== '') {
+                    $mailbox->display_name = $name;
+                }
+                $this->touch($mailbox)->save();
+            }
         }
 
-        $name = $this->displayName($mitarbeiter);
-        if (!$mailbox->active || ($name !== '' && $mailbox->display_name !== $name)) {
-            $mailbox->active = true;
-            if ($name !== '') {
-                $mailbox->display_name = $name;
-            }
-            $this->touch($mailbox)->save();
-        }
+        // Ein freies Postfach bekommt sein Konto, wenn genau eins passt; ein
+        // gebundenes behält seins, egal was an der Discord-ID geändert wurde.
+        $mailbox?->autoBind();
 
         return $mailbox;
     }

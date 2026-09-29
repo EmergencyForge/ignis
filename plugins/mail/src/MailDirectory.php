@@ -22,7 +22,7 @@ use Plugin\Mail\Models\MailList;
  * Dynamische Verteiler (`kind = dynamic`) tragen eine Regel aus vier
  * Listen, jede ein ODER-Kriterium auf den Mitarbeiter hinter dem Postfach:
  *
- *   role_ids      Rolle des verknüpften Kontos (intra_users.role)
+ *   role_ids      Rolle des Kontos, dem das Postfach gehört (intra_users.role)
  *   rank_ids      Dienstgrad (intra_mitarbeiter.dienstgrad)
  *   rd_quali_ids  RD-Qualifikation (intra_mitarbeiter.qualird)
  *   fw_quali_ids  FW-Qualifikation (intra_mitarbeiter.qualifw2)
@@ -100,14 +100,13 @@ final class MailDirectory implements DirectoryPort
                     $q->orWhereIn('m.qualifw2', $ids['fw_quali_ids']);
                 }
                 if ($ids['role_ids'] !== []) {
-                    // Das Konto hängt wie überall über die Discord-ID am
-                    // Mitarbeiter, ersatzweise über intra_users.aktenid.
+                    // Die Rolle des Kontos, dem das Postfach gehört (user_id),
+                    // nicht die eines Kontos mit passender Discord-ID.
                     $q->orWhereExists(static function ($sub) use ($ids): void {
-                        $sub->selectRaw('1')->from('intra_users as u')
-                            ->whereIn('u.role', $ids['role_ids'])
-                            ->where(static function ($link): void {
-                                $link->whereColumn('u.discord_id', 'm.discordtag')->orWhereColumn('u.aktenid', 'm.id');
-                            });
+                        $sub->selectRaw('1')->from('intra_mail_mailboxes as mb')
+                            ->join('intra_users as u', 'u.id', '=', 'mb.user_id')
+                            ->whereColumn('mb.mitarbeiter_id', 'm.id')
+                            ->whereIn('u.role', $ids['role_ids']);
                     });
                 }
             })

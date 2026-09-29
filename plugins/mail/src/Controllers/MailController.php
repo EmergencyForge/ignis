@@ -815,10 +815,14 @@ final class MailController extends Controller
     private function noMailboxPage(): Response
     {
         $userId = SessionManager::userId();
+        $state  = match (true) {
+            $userId === null => 'none',
+            Mailbox::ownedBy($userId) !== null => 'inactive',
+            Mailbox::mitarbeiterIdForUser($userId) !== null => 'unassigned',
+            default => 'none',
+        };
 
-        return $this->page('mail/no-mailbox', [
-            'hasMitarbeiter' => $userId !== null && Mailbox::mitarbeiterIdForUser($userId) !== null,
-        ]);
+        return $this->page('mail/no-mailbox', ['state' => $state]);
     }
 
     /**
