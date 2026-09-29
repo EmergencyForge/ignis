@@ -17,6 +17,23 @@ use App\Http\Middleware\PermissionMiddleware;
 use Plugin\Mail\Controllers\MailController;
 
 $mailAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.use'])];
+$folders  = '{folder:inbox|sent|drafts|archive|trash}';
+
+// Seiten (kein Schreiben auf GET: Entwürfe entstehen per POST, „gelesen“
+// setzt mail.js per POST).
+$router->get('/mail',                                  [MailController::class, 'index'],           $mailAuth);
+$router->get('/mail/' . $folders,                      [MailController::class, 'folder'],          $mailAuth);
+$router->get('/mail/' . $folders . '/{id:\d+}',        [MailController::class, 'messagePage'],     $mailAuth);
+$router->get('/mail/' . $folders . '/{id:\d+}/preview', [MailController::class, 'messagePreview'], $mailAuth);
+$router->get('/mail/compose',                          [MailController::class, 'composeNew'],      $mailAuth);
+$router->get('/mail/compose/reply/{id:\d+}',           [MailController::class, 'composeReply'],    $mailAuth);
+$router->get('/mail/compose/reply-all/{id:\d+}',       [MailController::class, 'composeReplyAll'], $mailAuth);
+$router->get('/mail/compose/forward/{id:\d+}',         [MailController::class, 'composeForward'],  $mailAuth);
+$router->get('/mail/compose/draft/{id:\d+}',           [MailController::class, 'composeDraft'],    $mailAuth);
+$router->get('/mail/signature',                        [MailController::class, 'signatureForm'],   $mailAuth);
+$router->post('/mail/signature',                       [MailController::class, 'saveSignature'],   $mailAuth);
+
+// JSON
 
 $router->post('/mail/drafts',                    [MailController::class, 'createDraft'],        $mailAuth);
 $router->post('/mail/drafts/{id:\d+}',           [MailController::class, 'updateDraft'],        $mailAuth);
