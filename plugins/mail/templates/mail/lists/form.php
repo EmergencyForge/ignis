@@ -1,7 +1,9 @@
 <?php
 /**
  * View: Verteiler anlegen oder bearbeiten. Beide Bereiche (Mitglieder,
- * Regel) stehen im Formular, gespeichert wird der zur gewählten Art.
+ * Regel) stehen im Formular, sichtbar ist nur der zur gewählten Art
+ * (`hidden`, serverseitig gesetzt und beim Wechsel der Art umgeschaltet);
+ * gespeichert wird ebenfalls nur dieser.
  *
  * @var \Plugin\Mail\Models\MailList|null $list      null = neu
  * @var array<string,mixed>               $form      name, local, domain, kind, senders, members, *_ids
@@ -16,6 +18,7 @@ use Plugin\Mail\Models\MailList;
 $layout     = 'admin';
 $bodyId     = 'mail';
 $SITE_TITLE = $list === null ? 'Verteiler anlegen' : 'Verteiler bearbeiten';
+$isDynamic  = $form['kind'] === 'dynamic';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 
 $options = array_map(static fn ($m): array => [
@@ -82,30 +85,33 @@ $groups = [
                         <p class="ignis-field__hint">Empfangen können die Mitglieder immer. Ein eingeschränkter Verteiler fehlt im Adressbuch aller anderen.</p>
                     </div>
 
-                    <div>
-                        <span class="ignis-field__label" id="list-members-label">Mitglieder (bei „Statisch“)</span>
+                    <div data-list-kind="static"<?= $isDynamic ? ' hidden' : '' ?>>
+                        <span class="ignis-field__label" id="list-members-label">Mitglieder</span>
                         <div data-ignis-multi-select data-name="members[]" aria-labelledby="list-members-label" data-placeholder="Postfach suchen"
                              data-options="<?= htmlspecialchars((string) json_encode($options, JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>"
                              data-value="<?= htmlspecialchars(implode(',', array_map('intval', (array) $form['members']))) ?>"></div>
                         <p class="ignis-field__hint">Neu hinzufügen lassen sich nur aktive, nicht gesperrte Postfächer. Ein gesperrtes Mitglied bleibt in der Liste, bekommt aber nichts.</p>
                     </div>
 
-                    <fieldset>
-                        <legend class="ignis-field__label">Regel (bei „Dynamisch“)</legend>
+                    <fieldset class="ignis-field" data-list-kind="dynamic"<?= $isDynamic ? '' : ' hidden' ?>>
+                        <legend class="ignis-field__label">Regel</legend>
                         <p class="ignis-field__hint mb-2">Mitglied ist, auf wen mindestens ein Kriterium zutrifft. Wer neu dazukommt oder wechselt, ist ab der nächsten Mail dabei.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div class="grid gap-4">
                             <?php foreach ($groups as $key => [$label, $emptyText]): ?>
                                 <div>
                                     <p class="ignis-field__label"><?= $label ?></p>
                                     <?php if (($criteria[$key] ?? []) === []): ?>
                                         <?php $empty = ['variant' => 'inline', 'icon' => 'fa-circle-info', 'text' => $emptyText]; require dirname(__DIR__, 5) . '/templates/partials/empty.php'; ?>
-                                    <?php endif; ?>
-                                    <?php foreach ($criteria[$key] ?? [] as $id => $name): ?>
-                                        <div class="ignis-checkbox">
-                                            <input type="checkbox" id="list-<?= $key ?>-<?= (int) $id ?>" name="<?= $key ?>[]" value="<?= (int) $id ?>"<?= in_array((int) $id, array_map('intval', (array) $form[$key]), true) ? ' checked' : '' ?>>
-                                            <label for="list-<?= $key ?>-<?= (int) $id ?>"><?= htmlspecialchars($name) ?></label>
+                                    <?php else: ?>
+                                        <div class="ignis-mail-rule__options">
+                                            <?php foreach ($criteria[$key] as $id => $name): ?>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" id="list-<?= $key ?>-<?= (int) $id ?>" name="<?= $key ?>[]" value="<?= (int) $id ?>"<?= in_array((int) $id, array_map('intval', (array) $form[$key]), true) ? ' checked' : '' ?>>
+                                                    <label for="list-<?= $key ?>-<?= (int) $id ?>"><?= htmlspecialchars($name) ?></label>
+                                                </div>
+                                            <?php endforeach; ?>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -119,3 +125,16 @@ $groups = [
         </div>
     </div>
     <script type="module" src="<?= $base ?>assets/js/ui/multi-select.js"></script>
+    <script>
+    (function () {
+        'use strict';
+        // Nur der Bereich der gewählten Art ist zu sehen.
+        var kind = document.getElementById('list-kind');
+        if (!kind) return;
+        kind.addEventListener('change', function () {
+            document.querySelectorAll('[data-list-kind]').forEach(function (block) {
+                block.hidden = block.getAttribute('data-list-kind') !== kind.value;
+            });
+        });
+    })();
+    </script>

@@ -105,6 +105,27 @@ final class MailListAdminTest extends FeatureTestCase
     }
 
     #[Test]
+    public function das_formular_zeigt_nur_den_bereich_der_gewaehlten_art(): void
+    {
+        $static  = '~<div[^>]*data-list-kind="static"(?![^>]*hidden)[^>]*>~';
+        $dynamic = '~<fieldset class="ignis-field[^"]*"[^>]*data-list-kind="dynamic"(?![^>]*hidden)[^>]*>~';
+
+        $create = $this->get('/mail/lists/create');
+        $this->assertMatchesRegularExpression($static, $create->body);
+        $this->assertMatchesRegularExpression('~<fieldset class="ignis-field[^"]*"[^>]*data-list-kind="dynamic"[^>]*hidden~', $create->body);
+        $this->assertDoesNotMatchRegularExpression($dynamic, $create->body);
+
+        // Fehler bei „Dynamisch“: das Formular kommt mit der Regel zurück.
+        $invalid = $this->post('/mail/lists', ['name' => 'Alle RD', 'local' => 'rd', 'domain' => 'ignis.ef', 'kind' => 'dynamic', 'senders' => 'all']);
+        $this->assertStatus(422, $invalid);
+        $this->assertMatchesRegularExpression($dynamic, $invalid->body);
+        $this->assertDoesNotMatchRegularExpression($static, $invalid->body);
+
+        $list = MailList::query()->create(['address' => 'rang@ignis.ef', 'name' => 'Rang', 'kind' => 'dynamic', 'rule' => ['rank_ids' => [(int) $this->rank()->id]], 'senders' => 'all']);
+        $this->assertMatchesRegularExpression($dynamic, $this->get('/mail/lists/' . $list->id . '/edit')->body);
+    }
+
+    #[Test]
     public function adresse_ist_ueber_postfaecher_verteiler_und_historie_eindeutig(): void
     {
         $bob = $this->member('Bob Empfang')['mailbox'];
