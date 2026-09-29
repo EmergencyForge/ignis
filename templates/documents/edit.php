@@ -75,7 +75,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
             </div>
 
             <?php if ($readOnly): ?>
-                <div class="ignis-alert ignis-alert--warning mb-4" id="document-readonly-notice" role="alert">
+                <div class="ignis-alert ignis-alert--warn mb-4" id="document-readonly-notice" role="alert">
                     <i class="fa-solid fa-triangle-exclamation ignis-alert__icon" aria-hidden="true"></i>
                     <div class="ignis-alert__body">
                         <strong>Schreibgeschützt</strong><br>
@@ -102,7 +102,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern
                             </button>
                             <button type="submit" form="document-issue-form" id="document-issue-button"
-                                    class="ignis-btn ignis-btn--accent">
+                                    class="ignis-btn ignis-btn--primary">
                                 <i class="fa-solid fa-file-export" aria-hidden="true"></i> Ausstellen
                             </button>
                         </div>

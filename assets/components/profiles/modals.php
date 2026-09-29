@@ -94,20 +94,20 @@ function openDocumentViewer(docid) {
             // Status (links im Footer)
             statusEl.innerHTML = doc.is_archived
                 ? '<span class="ignis-chip"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>'
-                : '<span class="ignis-chip ignis-chip--success" style="opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>';
+                : '<span class="ignis-chip ignis-chip--ok" style="opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>';
 
             // Aktions-Buttons (rechts im Footer, als Icon-Buttons)
             let btns = '';
             if (doc.pdf_exists) {
-                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" data-ignis-tooltip="PDF herunterladen" aria-label="PDF herunterladen"><i class="fa-solid fa-download" aria-hidden="true"></i></a>';
-                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" data-ignis-tooltip="PDF in neuem Tab" aria-label="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-tooltip="PDF herunterladen" aria-label="PDF herunterladen"><i class="fa-solid fa-download" aria-hidden="true"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-tooltip="PDF in neuem Tab" aria-label="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></a>';
             }
-            btns += '<a href="<?= BASE_PATH ?>personnel/document-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" data-ignis-tooltip="Detailseite" aria-label="Detailseite"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></a>';
+            btns += '<a href="<?= BASE_PATH ?>personnel/document-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-tooltip="Detailseite" aria-label="Detailseite"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></a>';
 
             <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
             const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
             const archTitle = doc.is_archived ? 'Wiederherstellen' : 'Archivieren';
-            btns += '<button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" data-ignis-tooltip="' + archTitle + '" aria-label="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '" aria-hidden="true"></i></button>';
+            btns += '<button class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-tooltip="' + archTitle + '" aria-label="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '" aria-hidden="true"></i></button>';
             <?php endif; ?>
 
             buttonsEl.innerHTML = btns;

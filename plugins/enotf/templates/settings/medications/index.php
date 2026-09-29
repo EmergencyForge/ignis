@@ -26,7 +26,7 @@ use App\Helpers\Flash;
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateMedikamentModal()">
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateMedikamentModal()">
                                     <i class="fa-solid fa-plus"></i> Medikament erstellen
                                 </button>
                             <?php endif; ?>
@@ -59,7 +59,7 @@ use App\Helpers\Flash;
                                     $wirkstoff = htmlspecialchars($row['wirkstoff']);
 
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' title='Medikament bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditMedikamentModal(this)' data-id='{$row['id']}' data-wirkstoff='{$wirkstoff}' data-herstellername='{$herstellername}' data-dosierungen='{$dosierungen}' data-priority='{$row['priority']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' title='Medikament bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon' onclick='openEditMedikamentModal(this)' data-id='{$row['id']}' data-wirkstoff='{$wirkstoff}' data-herstellername='{$herstellername}' data-dosierungen='{$dosierungen}' data-priority='{$row['priority']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>

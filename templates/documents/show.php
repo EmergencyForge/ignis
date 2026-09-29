@@ -50,7 +50,7 @@ $SITE_TITLE = $document->title;
             </div>
 
             <?php if ($document->pdf_path === null): ?>
-                <div class="ignis-alert ignis-alert--warning" role="alert">
+                <div class="ignis-alert ignis-alert--warn" role="alert">
                     <i class="fa-solid fa-triangle-exclamation ignis-alert__icon" aria-hidden="true"></i>
                     <div class="ignis-alert__body">
                         <strong>PDF fehlt</strong><br>

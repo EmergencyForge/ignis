@@ -164,7 +164,7 @@ $bodyPage = 'edivi';
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Patient anlegen
                     </button>
                 </div>

@@ -99,7 +99,7 @@ $SITE_TITLE = 'System-Konfiguration';
                     </div>
 
                     <div class="ignis-list-toolbar">
-                        <nav class="ignis-filter-links" id="categoryFilter" aria-label="Kategorie">
+                        <nav class="ignis-segmented" id="categoryFilter" aria-label="Kategorie">
                             <button type="button" class="is-active" data-category="">Alle</button>
                             <?php foreach ($configByCategory as $category => $configs): ?>
                                 <button type="button" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>

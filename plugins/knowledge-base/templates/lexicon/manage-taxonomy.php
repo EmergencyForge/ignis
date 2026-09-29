@@ -32,7 +32,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                         <div class="p-3">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-folder-tree"></i> Kategorien</h4>
-                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showCatModal()"><i class="fa-solid fa-plus"></i> Neue Kategorie</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--secondary" onclick="showCatModal()"><i class="fa-solid fa-plus"></i> Neue Kategorie</button>
                         </div>
                         </div>
                         <div class="twplus-table-card__scroll">
@@ -58,9 +58,9 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                                             <td><?= (int)$cat['entry_count'] ?></td>
                                             <td>
                                                 <div class="flex gap-1">
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editCat(<?= json_encode($cat) ?>)'><i class="fa-solid fa-pen"></i></button>
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editCat(<?= json_encode($cat) ?>)'><i class="fa-solid fa-pen"></i></button>
                                                     <?php if ($cat['entry_count'] == 0): ?>
-                                                        <button class="ignis-btn ignis-btn--sm ignis-btn--soft-danger ignis-btn--icon" data-tooltip="Löschen" onclick="deleteCat(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
+                                                        <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-tooltip="Löschen" onclick="deleteCat(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
                                                     <?php endif; ?>
                                                 </div>
                                             </td>
@@ -79,7 +79,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                         <div class="p-3">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-tags"></i> Tags</h4>
-                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showTagModal()"><i class="fa-solid fa-plus"></i> Neuer Tag</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--secondary" onclick="showTagModal()"><i class="fa-solid fa-plus"></i> Neuer Tag</button>
                         </div>
                         </div>
                         <div class="twplus-table-card__scroll">
@@ -101,8 +101,8 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                                             <td><?= (int)$tag['usage_count'] ?>x</td>
                                             <td>
                                                 <div class="flex gap-1">
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editTag(<?= json_encode($tag) ?>)'><i class="fa-solid fa-pen"></i></button>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-danger ignis-btn--icon" data-tooltip="Löschen" onclick="deleteTag(<?= $tag['id'] ?>, '<?= htmlspecialchars($tag['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editTag(<?= json_encode($tag) ?>)'><i class="fa-solid fa-pen"></i></button>
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-tooltip="Löschen" onclick="deleteTag(<?= $tag['id'] ?>, '<?= htmlspecialchars($tag['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>

@@ -66,7 +66,7 @@ final class SystemPagesTest extends FeatureTestCase
         $page = $this->get('/settings/system/config');
 
         $this->assertOk($page);
-        $this->assertBodyContains('<nav class="ignis-filter-links" id="categoryFilter" aria-label="Kategorie">', $page);
+        $this->assertBodyContains('<nav class="ignis-segmented" id="categoryFilter" aria-label="Kategorie">', $page);
         $this->assertBodyContains('<button type="button" class="is-active" data-category="">Alle</button>', $page);
         $this->assertBodyContains('name="save_config" class="ignis-btn ignis-btn--primary"', $page);
         $this->assertBodyNotContains('form-select', $page);
@@ -122,7 +122,7 @@ final class SystemPagesTest extends FeatureTestCase
         $logs = $this->get('/settings/system/logs');
         $this->assertOk($logs);
         $this->assertBodyContains('<title>Fehlerprotokoll', $logs);
-        $this->assertBodyContains('<nav class="ignis-filter-links" id="inboxScopeFilter" aria-label="Stufe">', $logs);
+        $this->assertBodyContains('<nav class="ignis-segmented" id="inboxScopeFilter" aria-label="Stufe">', $logs);
         $this->assertBodyContains('<select id="searchFile" class="ignis-input">', $logs);
         $this->assertBodyContains('<table class="ignis-table" id="table-log-files">', $logs);
         $this->assertBodyNotContains('input-group', $logs);

@@ -180,15 +180,15 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                                   data-event-id="<?= (int) $event->id ?>">
                                       <?= csrf_field() ?>
                                 <button name="response" value="accepted"
-                                        class="ignis-btn ignis-btn--soft-success ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
+                                        class="ignis-btn ignis-btn--secondary ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
                                     <i class="fa-solid fa-check"></i> Zusagen
                                 </button>
                                 <button name="response" value="tentative"
-                                        class="ignis-btn ignis-btn--soft-warning ignis-btn--sm <?= $myResponse === 'tentative' ? 'is-active' : '' ?>">
+                                        class="ignis-btn ignis-btn--secondary ignis-btn--sm <?= $myResponse === 'tentative' ? 'is-active' : '' ?>">
                                     <i class="fa-solid fa-question"></i> Vielleicht
                                 </button>
                                 <button name="response" value="declined"
-                                        class="ignis-btn ignis-btn--soft-danger ignis-btn--sm <?= $myResponse === 'declined' ? 'is-active' : '' ?>">
+                                        class="ignis-btn ignis-btn--secondary ignis-btn--sm <?= $myResponse === 'declined' ? 'is-active' : '' ?>">
                                     <i class="fa-solid fa-xmark"></i> Absagen
                                 </button>
                             </form>

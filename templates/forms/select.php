@@ -53,7 +53,7 @@ $bodyId = 'antrag-select';
 
                             <div class="mt-4 flex items-center justify-between">
                                 <span class="text-gray-500 text-xs">Formular öffnen</span>
-                                <span class="ignis-btn ignis-btn--soft-primary ignis-btn--sm">
+                                <span class="ignis-btn ignis-btn--secondary ignis-btn--sm">
                                     <i class="fa-solid fa-arrow-right mr-1"></i>
                                     Antrag stellen
                                 </span>

@@ -67,7 +67,7 @@ $currentDate = date('d.m.Y');
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
-                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
+                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--primary"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
                                     <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelCreateForm">Abbrechen</button>
                                 </div>
                             </form>
@@ -91,7 +91,7 @@ $currentDate = date('d.m.Y');
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
-                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
+                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--primary"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
                                     <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelEditForm">Abbrechen</button>
                                 </div>
                             </form>

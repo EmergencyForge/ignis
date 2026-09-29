@@ -28,10 +28,10 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
-                                    <button type="button" class="ignis-btn ignis-btn--success" data-dialog-target="#createQuicklinkModal">
+                                    <button type="button" class="ignis-btn ignis-btn--primary" data-dialog-target="#createQuicklinkModal">
                                         <i class="fa-solid fa-plus"></i> Link erstellen
                                     </button>
                                 </div>
@@ -75,7 +75,7 @@ use App\Helpers\Flash;
                                     $icon = htmlspecialchars($row['icon']);
                                     $colWidth = htmlspecialchars($row['col_width']);
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-dialog-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon edit-btn' data-dialog-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -151,7 +151,7 @@ use App\Helpers\Flash;
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-quicklink-btn">Löschen</button>
                             <div>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="submit" class="ignis-btn ignis-btn--secondary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -210,7 +210,7 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--primary">Erstellen</button>
                         </div>
                     </form>
                 </div>

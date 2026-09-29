@@ -27,10 +27,10 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-btn ignis-btn--soft-warning">
+                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-btn ignis-btn--secondary">
                                         <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
                                     </a>
-                                    <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreatePoiModal()">
+                                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreatePoiModal()">
                                         <i class="fa-solid fa-plus"></i> POI erstellen
                                     </button>
                                 </div>
@@ -76,9 +76,9 @@ use App\Helpers\Flash;
                                     $actions = '';
                                     if (Permissions::check(['admin', 'pois.manage'])) {
                                         if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
-                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments?poi_id={$row['id']}' class='ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
+                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments?poi_id={$row['id']}' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
                                         }
-                                        $actions .= "<button type='button' title='POI bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditPoiModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></button>";
+                                        $actions .= "<button type='button' title='POI bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon' onclick='openEditPoiModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></button>";
                                     }
                                 ?>
                                     <tr>

@@ -55,7 +55,7 @@ $pgLabel = 'Benutzer';
                             <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
-                        <nav class="ignis-filter-links" aria-label="Status">
+                        <nav class="ignis-segmented" aria-label="Status">
                             <?php foreach (['' => 'Alle', 'active' => 'Aktiv', 'inactive' => 'Deaktiviert'] as $statusKey => $statusLabel): ?>
                                 <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => $statusKey === '' ? null : $statusKey, 'page' => null])) ?>"<?= $list->filter('status') === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $statusLabel ?></a>
                             <?php endforeach; ?>
@@ -114,9 +114,13 @@ $pgLabel = 'Benutzer';
 
                                     $isActive = (bool) $user->is_active;
 
-                                    $chipVariants = ['primary', 'success', 'warning', 'danger', 'info', 'secondary'];
-                                    $roleChipMod  = in_array($roleColor, $chipVariants, true)
-                                        ? ' ignis-chip--' . $roleColor
+                                    // role.color speichert weiter die Bootstrap-Namen (bestehende
+                                    // Datensätze bleiben gültig); nur der CSS-Klassenname folgt dem
+                                    // neuen Chip-Vokabular (success→ok, warning→warn).
+                                    $chipVariants  = ['primary', 'success', 'warning', 'danger', 'info', 'secondary'];
+                                    $chipClassFor  = ['success' => 'ok', 'warning' => 'warn'];
+                                    $roleChipMod   = in_array($roleColor, $chipVariants, true)
+                                        ? ' ignis-chip--' . ($chipClassFor[$roleColor] ?? $roleColor)
                                         : '';
 
                                     $createdAt = $user->created_at;

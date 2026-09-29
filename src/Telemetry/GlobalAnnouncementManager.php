@@ -347,8 +347,8 @@ class GlobalAnnouncementManager
     {
         return match ($type) {
             'critical' => 'ignis-alert--danger',
-            'warning' => 'ignis-alert--warning',
-            'success' => 'ignis-alert--success',
+            'warning' => 'ignis-alert--warn',
+            'success' => 'ignis-alert--ok',
             'update' => 'ignis-alert--info',
             default => 'ignis-alert--info',
         };

@@ -34,10 +34,10 @@ use App\Helpers\Flash;
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="flex gap-2">
-                                <button type="button" class="ignis-btn ignis-btn--soft-warning" id="reset-availability-btn">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" id="reset-availability-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDepartmentModal()">
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateDepartmentModal()">
                                     <i class="fa-solid fa-plus"></i> Fachrichtung hinzufügen
                                 </button>
                             </div>
@@ -69,14 +69,14 @@ use App\Helpers\Flash;
                                             <td><?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['created_at']) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon mr-1"
                                                             onclick="openEditDepartmentModal(this)"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= (int)$dept['sort_order'] ?>">
                                                         <i class="fa-solid fa-pen"></i>
                                                     </button>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-dept-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon delete-dept-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>">
                                                         <i class="fa-solid fa-trash"></i>

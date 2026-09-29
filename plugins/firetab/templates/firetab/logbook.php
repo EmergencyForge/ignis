@@ -31,7 +31,7 @@ use App\Helpers\Flash;
             <div class="container mx-auto my-4">
                 <div class="mb-3 flex items-center justify-between">
                     <h1><i class="fa-solid fa-book mr-2"></i>Fahrtenbuch</h1>
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" id="toggleCreateForm">
+                    <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" id="toggleCreateForm">
                         <i class="fa-solid fa-plus mr-1"></i>Neuer Eintrag
                     </button>
                 </div>
@@ -54,7 +54,7 @@ use App\Helpers\Flash;
                         ?>
 
                         <div class="mt-3 flex gap-2">
-                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--primary"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
                             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelCreateForm">Abbrechen</button>
                         </div>
                     </form>
@@ -77,7 +77,7 @@ use App\Helpers\Flash;
                         ?>
 
                         <div class="mt-3 flex gap-2">
-                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--primary"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
                             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelEditForm">Abbrechen</button>
                         </div>
                     </form>

@@ -152,7 +152,7 @@
                                     <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>`;
@@ -232,7 +232,7 @@
                     }).join('');
 
                     document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="ignis-alert ignis-alert--warning">
+                        <div class="ignis-alert ignis-alert--warn">
                             <i class="fa-solid fa-exclamation-triangle"></i>
                             <strong>Achtung!</strong>
                             <p class="mb-0 mt-2">Es wurden <strong>${data.count} leere Protokolle</strong> gefunden.</p>
@@ -288,7 +288,7 @@
                 .then((data) => {
                     if (data.success) {
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--success">
+                            <div class="ignis-alert ignis-alert--ok">
                                 <i class="fa-solid fa-check-circle"></i>
                                 <strong>Erfolgreich!</strong>
                                 <p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich gelöscht.</p>

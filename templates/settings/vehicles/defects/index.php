@@ -206,7 +206,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                             <a href="<?= htmlspecialchars($listUrl(['vehicle' => null])) ?>" class="ignis-btn ignis-btn--ghost ignis-btn--sm">Zurücksetzen</a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
-                        <nav class="ignis-filter-links" aria-label="Status">
+                        <nav class="ignis-segmented" aria-label="Status">
                             <?php foreach (['' => 'Alle'] + array_map(static fn (array $s): string => $s[0], $statusLabels) as $statusKey => $statusLabel): ?>
                                 <a href="<?= htmlspecialchars($listUrl(['status' => $statusKey === '' ? null : $statusKey])) ?>"<?= $filterStatus === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= htmlspecialchars($statusLabel) ?></a>
                             <?php endforeach; ?>

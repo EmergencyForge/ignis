@@ -14,8 +14,8 @@
 
 $skColors = [
     'SK1' => 'danger',
-    'SK2' => 'warning',
-    'SK3' => 'success',
+    'SK2' => 'warn',
+    'SK3' => 'ok',
     'SK4' => 'info',
     'SK5' => 'sk5',
     'SK6' => 'sk6',
@@ -53,7 +53,7 @@ $bodyPage = 'edivi';
         <div class="twplus-page">
 
             <?php if (!empty($success)): ?>
-                <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
+                <div class="ignis-alert ignis-alert--ok alert-dismissible fade show">
                     <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
                     <button type="button" class="btn-close" data-dialog-dismiss="alert"></button>
                 </div>
@@ -100,13 +100,13 @@ $bodyPage = 'edivi';
                     <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--warning quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--secondary quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--success quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--primary quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--info quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--secondary quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK4 - Blau
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn quick-action-btn" style="background-color: #000; color: #fff; border-color: #fff;">
@@ -254,7 +254,7 @@ $bodyPage = 'edivi';
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

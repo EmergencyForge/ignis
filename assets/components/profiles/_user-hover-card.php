@@ -40,7 +40,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
         <dt>Mitarbeiter</dt>
         <dd>
             <?php if ($mitarbeiter !== null): ?>
-                <a href="<?= htmlspecialchars($mitarbeiterUrl) ?>" class="ignis-chip ignis-chip--accent" style="text-decoration:none">
+                <a href="<?= htmlspecialchars($mitarbeiterUrl) ?>" class="ignis-chip ignis-chip--primary" style="text-decoration:none">
                     <?= htmlspecialchars($mitarbeiter->fullname ?? ('#' . (int) $mitarbeiter->id)) ?>
                 </a>
             <?php else: ?>
@@ -49,7 +49,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
         </dd>
     </dl>
 
-    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> User bearbeiten
     </a>
 </div>

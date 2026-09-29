@@ -35,7 +35,7 @@ use App\Helpers\Flash;
                             <a href="?view=1" class="ignis-btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
                         </div>
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
-                            <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
+                            <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--secondary ignis-btn--sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
                             </button>
                         <?php } ?>
@@ -103,10 +103,10 @@ use App\Helpers\Flash;
                                             $status = "<span class='ignis-chip ignis-chip--secondary'>Ungesehen</span>";
                                             break;
                                         case 1:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--warning'>in Prüfung</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--warn'>in Prüfung</span>";
                                             break;
                                         case 2:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--success'>Geprüft</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--ok'>Geprüft</span>";
                                             break;
                                         case 4:
                                             $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--dark'>Ausgeblendet</span>";
@@ -122,7 +122,7 @@ use App\Helpers\Flash;
                                             break;
                                         case 1:
                                             if ($row['hidden_user'] != 1) {
-                                                $freigabe_status = "<span title='Freigeber: " . htmlspecialchars($row['freigeber_name']) . "' class='ignis-chip ignis-chip--success'>F</span>";
+                                                $freigabe_status = "<span title='Freigeber: " . htmlspecialchars($row['freigeber_name']) . "' class='ignis-chip ignis-chip--ok'>F</span>";
                                             } else {
                                                 $freigabe_status = "";
                                             }

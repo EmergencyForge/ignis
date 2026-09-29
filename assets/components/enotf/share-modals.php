@@ -30,7 +30,7 @@
             </div>
             <div class="modal-footer twplus-mobile-actions">
                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="confirmShareBtn" disabled>Teilen</button>
+                <button type="button" class="ignis-btn ignis-btn--secondary" id="confirmShareBtn" disabled>Teilen</button>
             </div>
         </div>
     </div>
@@ -94,7 +94,7 @@
             </div>
             <div class="modal-footer twplus-mobile-actions">
                 <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="rejectShareBtn">Ablehnen</button>
-                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
+                <button type="button" class="ignis-btn ignis-btn--secondary" id="acceptShareBtn" disabled>Annehmen</button>
             </div>
         </div>
     </div>

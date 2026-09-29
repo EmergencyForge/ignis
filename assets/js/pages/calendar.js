@@ -425,7 +425,7 @@ import { bindEventForm } from './calendar-form.js';
             </p>
             <div class="flex gap-2 mb-3">
                 <input type="text" class="ignis-input" data-subscribe-url readonly value="${escapeHtmlAttr(currentUrl)}">
-                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" data-subscribe-copy>
+                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-subscribe-copy>
                     <i class="fa-solid fa-copy"></i> Kopieren
                 </button>
             </div>

@@ -33,7 +33,7 @@ final class FlashRenderTest extends FeatureTestCase
 
         $this->assertOk($response);
         $this->assertBodyContains('<template data-ignis-flash data-variant="success" data-title="Erfolg!"><div>Rolle &lt;script&gt;alert(1)&lt;/script&gt; gespeichert</div></template>', $response);
-        $this->assertBodyContains('<noscript><div class="ignis-alert ignis-alert--success mb-4" id="flash-alert" role="status">', $response);
+        $this->assertBodyContains('<noscript><div class="ignis-alert ignis-alert--ok mb-4" id="flash-alert" role="status">', $response);
         $this->assertBodyNotContains('<script>alert(1)</script>', $response);
         $this->assertSame(1, substr_count($response->body, 'data-ignis-flash'), 'Die Meldung steht genau einmal auf der Seite.');
         $this->assertMatchesRegularExpression('~<main class="ignis-main">\s*<template data-ignis-flash~', $response->body);

@@ -52,7 +52,7 @@ final class ComponentClassTest extends TestCase
         'ignis-chip--dot',
         'ignis-alert--ok',
         'ignis-alert--warn',
-        'ignis-alert--error',
+        'ignis-alert--danger',
         'ignis-alert--info',
         'ignis-table',
         'ignis-table__sort',
@@ -64,6 +64,36 @@ final class ComponentClassTest extends TestCase
         'ignis-list-toolbar__field',
         'ignis-list-footer',
         'ignis-snack',
+        'ignis-segmented',
+    ];
+
+    /**
+     * Vokabular vor dem Redesign (docs/specs/2026-09-28-gemeinsames-css.md).
+     * ef.base-legacy-aliases('ignis') erzeugt diese Klassen noch eine Version
+     * lang als Sicherheitsnetz für übersehenes Markup — im Quellcode selbst
+     * haben sie nichts mehr zu suchen.
+     */
+    private const OLD_VOCABULARY = [
+        'ignis-btn--accent',
+        'ignis-btn--success',
+        'ignis-btn--info',
+        'ignis-btn--warning',
+        'ignis-btn--soft-primary',
+        'ignis-btn--soft-danger',
+        'ignis-btn--soft-warning',
+        'ignis-btn--soft-success',
+        'ignis-btn--outline-primary',
+        'ignis-btn--outline-danger',
+        'ignis-btn--outline-warning',
+        'ignis-btn--outline-success',
+        'ignis-btn--outline-secondary',
+        'ignis-btn--outline-info',
+        'ignis-alert--success',
+        'ignis-alert--warning',
+        'ignis-alert--error',
+        'ignis-chip--success',
+        'ignis-chip--warning',
+        'ignis-filter-links',
     ];
 
     private function cssDefines(string $css, string $class): bool
@@ -165,6 +195,40 @@ final class ComponentClassTest extends TestCase
         }
 
         $this->assertSame([], $missing, "Diese Bausteine fehlen im gebauten CSS:\n  " . implode("\n  ", $missing));
+    }
+
+    /**
+     * Die Migration auf das neue Vokabular (docs/specs/2026-09-28-gemeinsames-css.md)
+     * ist abgeschlossen; ef.base-legacy-aliases('ignis') bleibt nur eine
+     * Version lang als Netz für übersehenes Markup. Quellcode, der die alten
+     * Namen neu einführt, soll hier durchfallen statt sich auf den Alias zu
+     * verlassen.
+     *
+     * public/assets/js/ui ist gebautes Paket-Modul (WebPackages), kein
+     * ignis-Quellcode — ein altes Klassenliteral dort (z.B. datetimepicker.js'
+     * "Übernehmen"-Knopf) ist ein Paket-Befund, den dieses Repo nicht beheben
+     * kann, und läuft über denselben Alias weiter.
+     */
+    public function testNoOldVocabularyClassNamesInSource(): void
+    {
+        $hits = [];
+
+        foreach ($this->markupFiles() as $file) {
+            if (str_contains(str_replace('\\', '/', $file), '/public/assets/js/ui/')) {
+                continue;
+            }
+            $markup = (string) file_get_contents($file);
+            foreach (self::OLD_VOCABULARY as $class) {
+                if (preg_match('~[\s"\']' . preg_quote($class, '~') . '(?![a-zA-Z0-9_-])~', $markup)) {
+                    $hits[] = basename($file) . ': ' . $class;
+                }
+            }
+        }
+
+        $hits = array_values(array_unique($hits));
+        sort($hits);
+
+        $this->assertSame([], $hits, "Diese Dateien tragen noch altes Vokabular:\n  " . implode("\n  ", $hits));
     }
 
 }

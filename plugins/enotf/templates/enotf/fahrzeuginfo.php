@@ -73,7 +73,7 @@ $currentDate = date('d.m.Y');
                                                             echo '<span class="ignis-chip ignis-chip--danger ml-2 badge-vehicle-type">Notarztbesetzt</span>';
                                                             break;
                                                         case 2:
-                                                            echo '<span class="ignis-chip ignis-chip--warning ml-2 badge-vehicle-type">Transportmittel</span>';
+                                                            echo '<span class="ignis-chip ignis-chip--warn ml-2 badge-vehicle-type">Transportmittel</span>';
                                                             break;
                                                         default:
                                                             echo '<span class="ignis-chip ignis-chip--primary ml-2 badge-vehicle-type">Standard</span>';
@@ -102,7 +102,7 @@ $currentDate = date('d.m.Y');
                             <div class="vehicle-info-card p-4 mb-4">
                                 <div class="mb-3 flex align-items-center justify-content-between">
                                     <h5 class="text-light mb-0">Defekt-Meldungen</h5>
-                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-warning" id="toggleDefectForm">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="toggleDefectForm">
                                         <i class="fa-solid fa-triangle-exclamation"></i> Defekt melden
                                     </button>
                                 </div>
@@ -168,7 +168,7 @@ $currentDate = date('d.m.Y');
                                             </div>
                                         </div>
                                         <div class="flex gap-2">
-                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--warning"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
                                             <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelDefectForm">Abbrechen</button>
                                         </div>
                                     </form>

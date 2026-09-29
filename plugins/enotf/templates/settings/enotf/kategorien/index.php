@@ -27,7 +27,7 @@ use App\Helpers\Flash;
                             <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </a>
-                            <button type="button" class="ignis-btn ignis-btn--success" data-dialog-target="#createCategoryModal">
+                            <button type="button" class="ignis-btn ignis-btn--primary" data-dialog-target="#createCategoryModal">
                                 <i class="fa-solid fa-plus"></i> Kategorie erstellen
                             </button>
                         </div>
@@ -57,7 +57,7 @@ use App\Helpers\Flash;
                                     $name = htmlspecialchars($row['name']);
                                     $slug = htmlspecialchars($row['slug']);
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Kategorie bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-dialog-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Kategorie bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon edit-btn' data-dialog-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -107,7 +107,7 @@ use App\Helpers\Flash;
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-btn">Löschen</button>
                             <div>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="submit" class="ignis-btn ignis-btn--secondary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -143,7 +143,7 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--primary">Erstellen</button>
                         </div>
                     </form>
                 </div>

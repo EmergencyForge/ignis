@@ -49,10 +49,10 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
             <?php elseif (!$active): ?>
                 <span class="ignis-chip ignis-chip--dark">Inaktiv</span>
             <?php else: ?>
-                <span class="ignis-chip ignis-chip--success">Einsatzbereit</span>
+                <span class="ignis-chip ignis-chip--ok">Einsatzbereit</span>
             <?php endif; ?>
             <?php if ($informational > 0): ?>
-                <span class="ignis-chip ignis-chip--warning" data-ignis-tooltip="Nicht-blockierende Defekte sind dokumentiert, beeinträchtigen aber die Einsatzbereitschaft nicht.">
+                <span class="ignis-chip ignis-chip--warn" data-ignis-tooltip="Nicht-blockierende Defekte sind dokumentiert, beeinträchtigen aber die Einsatzbereitschaft nicht.">
                     <?= $informational ?> Hinweis<?= $informational === 1 ? '' : 'e' ?>
                 </span>
             <?php endif; ?>
@@ -60,7 +60,7 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
     </dl>
 
     <a href="<?= htmlspecialchars($base . 'settings/vehicles/defects/index?vehicle=' . (int) $vehicle->id) ?>"
-       class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+       class="ignis-btn ignis-btn--secondary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Defekte ansehen
     </a>
 </div>

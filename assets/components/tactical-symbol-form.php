@@ -50,7 +50,7 @@ if (!isset($useGlobalBind)) {
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
             </div>
-            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-full" id="<?= $prefix ?>preview-btn">
+            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary mt-2 w-full" id="<?= $prefix ?>preview-btn">
                 <i class="fa-solid fa-eye mr-1"></i>Vorschau aktualisieren
             </button>
         </div>

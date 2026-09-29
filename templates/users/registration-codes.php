@@ -33,7 +33,7 @@ $bodyId = 'benutzer';
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
                             <div class="twplus-page-header__actions">
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openCreateInviteModal()">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" onclick="openCreateInviteModal()">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
                             </div>
@@ -108,7 +108,7 @@ $bodyId = 'benutzer';
                                             <?php elseif ($isExpired): ?>
                                                 <span class="ignis-chip ignis-chip--dot ignis-chip--danger">Abgelaufen</span>
                                             <?php else: ?>
-                                                <span class="ignis-chip ignis-chip--dot ignis-chip--success">Verfügbar</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Verfügbar</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -122,7 +122,7 @@ $bodyId = 'benutzer';
                                         <td>
                                             <div class="flex gap-1">
                                                 <?php if (!$code->is_used && !$isExpired): ?>
-                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
+                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-ignis-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
                                                         <i class="fa-solid fa-copy"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -131,7 +131,7 @@ $bodyId = 'benutzer';
                                                         <?= csrf_field() ?> { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="code_id" value="<?= (int) $code->id ?>">
-                                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen">
+                                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-ignis-tooltip="Löschen">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </button>
                                                     </form>

@@ -77,7 +77,7 @@ $SITE_TITLE = 'Fahrzeuge';
                             <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
-                        <nav class="ignis-filter-links" aria-label="Aktiv">
+                        <nav class="ignis-segmented" aria-label="Aktiv">
                             <?php foreach (['' => 'Alle', '1' => 'Aktiv', '0' => 'Inaktiv'] as $activeKey => $activeLabel): ?>
                                 <a href="<?= htmlspecialchars($list->url($pgPath, ['active' => $activeKey === '' ? null : $activeKey, 'page' => null])) ?>"<?= $list->filter('active') === $activeKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $activeLabel ?></a>
                             <?php endforeach; ?>

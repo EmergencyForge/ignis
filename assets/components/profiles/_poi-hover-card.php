@@ -66,10 +66,10 @@ foreach ($departments as $d) {
             <dt>Verfügbarkeit</dt>
             <dd>
                 <?php if ($available > 0): ?>
-                    <span class="ignis-chip ignis-chip--success" data-ignis-tooltip="Verfügbare Abteilungen"><?= $available ?> verfügbar</span>
+                    <span class="ignis-chip ignis-chip--ok" data-ignis-tooltip="Verfügbare Abteilungen"><?= $available ?> verfügbar</span>
                 <?php endif; ?>
                 <?php if ($busy > 0): ?>
-                    <span class="ignis-chip ignis-chip--warning" data-ignis-tooltip="Belegte Abteilungen"><?= $busy ?> belegt</span>
+                    <span class="ignis-chip ignis-chip--warn" data-ignis-tooltip="Belegte Abteilungen"><?= $busy ?> belegt</span>
                 <?php endif; ?>
                 <?php if ($notStaffed > 0): ?>
                     <span class="ignis-chip ignis-chip--dark" data-ignis-tooltip="Nicht besetzt"><?= $notStaffed ?> nicht besetzt</span>
@@ -79,7 +79,7 @@ foreach ($departments as $d) {
     </dl>
 
     <a href="<?= htmlspecialchars($base . 'settings/pois/departments?poi_id=' . (int) $poi->id) ?>"
-       class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+       class="ignis-btn ignis-btn--secondary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Abteilungen verwalten
     </a>
 </div>

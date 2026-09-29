@@ -52,7 +52,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td><?= htmlspecialchars($hospital['ort']) ?></td>
                                         <td>
-                                            <span class="ignis-chip <?= (int)$hospital['dept_count'] > 0 ? 'ignis-chip--success' : 'ignis-chip--warning' ?>">
+                                            <span class="ignis-chip <?= (int)$hospital['dept_count'] > 0 ? 'ignis-chip--ok' : 'ignis-chip--warn' ?>">
                                                 <?= (int)$hospital['dept_count'] ?> Fachrichtung(en)
                                             </span>
                                         </td>
@@ -60,7 +60,7 @@ use App\Helpers\Flash;
                                             <?php if ($hospital['code']): ?>
                                                 <div class="flex items-center gap-2">
                                                     <code class="text-[#6abf76]"><?= htmlspecialchars($hospital['code']) ?></code>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary copy-code-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--secondary copy-code-btn"
                                                             data-code="<?= htmlspecialchars($hospital['code']) ?>"
                                                             title="Code kopieren">
                                                         <i class="fa-solid fa-copy"></i>
@@ -74,7 +74,7 @@ use App\Helpers\Flash;
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary generate-code-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--secondary generate-code-btn"
                                                     data-id="<?= (int)$hospital['id'] ?>"
                                                     data-name="<?= htmlspecialchars($hospital['name']) ?>">
                                                 <i class="fa-solid fa-key"></i>
@@ -109,7 +109,7 @@ use App\Helpers\Flash;
             <label for="new-code" class="ignis-field__label">Zugangscode</label>
             <div class="input-group">
                 <input type="text" class="ignis-input" name="new_code" id="new-code" required readonly>
-                <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="regenerate-btn">
+                <button type="button" class="ignis-btn ignis-btn--secondary" id="regenerate-btn">
                     <i class="fa-solid fa-rotate"></i> Neu generieren
                 </button>
             </div>
