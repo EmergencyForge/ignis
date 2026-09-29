@@ -485,7 +485,7 @@ final class MailController extends Controller
     /**
      * POST /mail/messages/{id}/delete — die eigene Kopie endgültig löschen
      * (weicher Vermerk, die anderen Beteiligten behalten ihre). Bei einem
-     * Entwurf gibt es niemanden sonst: Anhänge samt Dateien gehen gleich mit.
+     * Entwurf gibt es niemanden sonst: er geht samt Anhängen und Dateien ganz.
      */
     public function delete(Request $request, string $id): Response
     {
@@ -501,6 +501,15 @@ final class MailController extends Controller
         if ($message->status === 'draft') {
             foreach ($message->attachments as $attachment) {
                 $this->attachments->delete($attachment);
+            }
+            // Ein Entwurf hat nur die Kopie seines Absenders: Zeile und Text
+            // gehen sofort, nicht erst mit mail:cleanup. Hängt wider Erwarten
+            // eine fremde Zustellung dran, bleibt es beim weichen Vermerk.
+            $foreign = Delivery::query()->where('message_id', $message->id)->where('mailbox_id', '!=', $mailbox->id)->exists();
+            if ($message->sender_mailbox_id === $mailbox->id && !$foreign) {
+                $message->delete();
+
+                return self::json(['success' => true]);
             }
         }
         $this->store->delete($message->id, MailDirectory::ref($mailbox));

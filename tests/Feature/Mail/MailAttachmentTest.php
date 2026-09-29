@@ -140,6 +140,9 @@ final class MailAttachmentTest extends FeatureTestCase
         $this->assertTrue($this->assertJsonResponse($this->post('/mail/messages/' . $forward . '/delete'))['success']);
         $this->assertFileDoesNotExist($copyPath);
         $this->assertNotNull(app(AttachmentStorage::class)->absolutePath($original), 'Das Original bleibt.');
+        // Ein Entwurf hat nur die eigene Kopie: Zeile und Text gehen sofort, nicht erst mit mail:cleanup.
+        $this->assertNull(\Plugin\Mail\Models\Message::query()->find($forward));
+        $this->assertSame([], $this->deliveries($forward));
 
         // Fremde Mails lassen sich nicht weiterleiten.
         $eve = $this->member('Eve Fremd');
