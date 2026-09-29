@@ -134,7 +134,7 @@ use App\Helpers\Flash;
                                             $hu_status = "";
                                             break;
                                         case 1:
-                                            $hu_status = "<span title='Gelöscht: " . $row['freigeber_name'] . "' class='ignis-chip ignis-chip--danger'>G</span>";
+                                            $hu_status = "<span title='Gelöscht: " . htmlspecialchars((string) $row['freigeber_name'], ENT_QUOTES) . "' class='ignis-chip ignis-chip--danger'>G</span>";
                                             break;
                                     }
 
@@ -144,7 +144,9 @@ use App\Helpers\Flash;
                                         }
                                     }
 
-                                    $patname = $row['patname'] ?? "Unbekannt";
+                                    $patname = htmlspecialchars((string) ($row['patname'] ?? 'Unbekannt'), ENT_QUOTES);
+                                    // JS-Argumente fürs onclick: erst JSON (JS-String), dann für das Attribut escapen.
+                                    $jsArgs = htmlspecialchars((int) $row['id'] . ', ' . json_encode((string) ($row['enr'] ?? '')) . ', ' . json_encode((string) ($row['patname'] ?? 'Unbekannt')), ENT_QUOTES);
 
                                     $isFederated = !empty($row['_federation_readonly']);
                                     $fedBadge = $isFederated ? " <span class='ignis-chip' style='background:rgba(255,255,255,0.1);font-size:0.6rem;'>" . htmlspecialchars($row['_federation_source'] ?? '') . "</span>" : "";
@@ -153,7 +155,16 @@ use App\Helpers\Flash;
                                     if ($isFederated) {
                                         $actions = "<span style='font-size:var(--fs-xs);color:var(--text-dimmed);'>read-only</span>";
                                     } elseif (Permissions::check(['admin', 'edivi.edit'])) {
-                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='ignis-btn ignis-btn--sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='ignis-btn ignis-btn--sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . EnotfUrl::admin('delete', ['id' => $row['id']]) . "' class='ignis-btn ignis-btn--sm btn-outline-danger ignis-btn--icon'><i class='fa-solid fa-trash'></i></a>";
+                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$jsArgs})' class='ignis-btn ignis-btn--sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$jsArgs})' class='ignis-btn ignis-btn--sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> "
+                                            // Löschen per POST mit CSRF-Token und Rückfrage (vorher ein
+                                            // GET-Link ohne beides). Fester Pfad statt EnotfUrl::admin():
+                                            // dessen .php-Variante leitet per 301 um, und ein 301 macht aus
+                                            // dem POST ein GET.
+                                            . "<form method='POST' action='" . htmlspecialchars(BASE_PATH . 'enotf/admin/delete', ENT_QUOTES) . "' style='display:inline'"
+                                            . " onsubmit=\"event.preventDefault(); var f = this; showConfirm('Protokoll wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Protokoll löschen'}).then(function (ok) { if (ok) f.submit(); });\">"
+                                            . csrf_field()
+                                            . "<input type='hidden' name='id' value='" . (int) $row['id'] . "'>"
+                                            . "<button type='submit' title='Protokoll löschen' aria-label='Protokoll löschen' class='ignis-btn ignis-btn--sm btn-outline-danger ignis-btn--icon'><i class='fa-solid fa-trash'></i></button></form>";
                                     }
                                     echo "<tr" . ($isFederated ? " style='opacity:0.85;'" : "") . ">";
                                     echo "<td>" . htmlspecialchars($row['enr'] ?? '') . $fedBadge . "</td>";
