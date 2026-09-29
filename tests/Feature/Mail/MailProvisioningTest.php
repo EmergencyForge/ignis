@@ -160,4 +160,15 @@ final class MailProvisioningTest extends FeatureTestCase
         $this->assertSame(0, $this->commandTester('mail:backfill')->execute([]));
         $this->assertSame($count, Mailbox::query()->count());
     }
+
+    #[Test]
+    public function backfill_und_aufraeumen_laufen_naechtlich(): void
+    {
+        $jobs = Capsule::table('intra_cron_jobs')->whereIn('identifier', ['mail.backfill', 'mail.cleanup'])
+            ->where('active', 1)->where('handler_type', 'console')->pluck('handler', 'identifier')->all();
+
+        ksort($jobs);
+
+        $this->assertSame(['mail.backfill' => 'mail:backfill', 'mail.cleanup' => 'mail:cleanup'], $jobs);
+    }
 }

@@ -15,7 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Gleicht die Postfächer mit dem Mitarbeiter-Bestand ab: jeder Mitarbeiter
  * durchläuft dieselbe Regel wie beim Speichern (MailboxProvisioner::
  * sync()), Postfächer gelöschter Mitarbeiter werden stillgelegt.
- * Idempotent, ein zweiter Lauf ändert nichts.
+ * Idempotent, ein zweiter Lauf ändert nichts; ein gebundenes Postfach
+ * behält sein Konto (Mailbox::autoBind()). Läuft nächtlich über
+ * intra_cron_jobs (`mail.backfill`).
  *
  *   php cli/intra.php mail:backfill
  */
