@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.13-beta
+
+Löschen geht nur noch über einen Knopf mit Rückfrage und Sicherheitstoken, nicht mehr über einen einfachen Link. Das betrifft Mitarbeiter, Kommentare im Profil und eNOTF-Protokolle. Vorher reichte ein präparierter Link oder ein eingebettetes Bild auf einer beliebigen Seite, um als angemeldeter Admin unbemerkt etwas zu löschen. Protokolle ließen sich außerdem ohne Rückfrage löschen.
+
+In den eNOTF-Einstellungen funktionieren „Löschen“ bei Quicklinks und Kategorien wieder; die Knöpfe liefen bisher ins Leere. Die QM-Protokollliste zeigt Patientennamen und Freigeber jetzt sicher an, ein Name mit HTML darin konnte vorher Skript im Admin-Bereich ausführen.
+
 ## 2026.0.12-beta
 
 Neu ist das mitgelieferte Plugin „Mail“: ein internes Postfach für jeden Mitarbeiter, das wie ein Mailprogramm funktioniert, aber nichts nach außen schickt. Adressen entstehen aus dem Namen (`m.mueller@ignis.ef` oder `max.mueller@ignis.ef`, einstellbar), das Postfach mit dem Mitarbeiter. Im Archiv-Dienstgrad oder nach dem Löschen wird es stillgelegt, alte Mails bleiben lesbar. Für den Bestand legt `php cli/intra.php mail:backfill` die Postfächer an.
