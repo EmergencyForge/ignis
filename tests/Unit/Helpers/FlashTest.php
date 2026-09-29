@@ -177,7 +177,7 @@ class FlashTest extends TestCase
             '<template data-ignis-flash data-variant="success" data-title="Titel &quot;A&quot;"><div>Gespeichert &amp; fertig</div></template>',
             $html,
         );
-        $this->assertStringContainsString('<noscript><div class="ignis-alert ignis-alert--success mb-4" id="flash-alert" role="status">', $html);
+        $this->assertStringContainsString('<noscript><div class="ignis-alert ignis-alert--ok mb-4" id="flash-alert" role="status">', $html);
         $this->assertStringContainsString('<div class="ignis-alert__title">Titel &quot;A&quot;</div>Gespeichert &amp; fertig</div>', $html);
         $this->assertArrayNotHasKey('flash', $_SESSION, 'render() verbraucht die Meldung.');
     }
