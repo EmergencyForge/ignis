@@ -28,7 +28,7 @@ $bodyPage = 'edivi';
 
 
             <?php if (!empty($success)): ?>
-                <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
+                <div class="ignis-alert ignis-alert--ok alert-dismissible fade show">
                     <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
                     <button type="button" class="btn-close" data-dialog-dismiss="alert"></button>
                 </div>
@@ -139,7 +139,7 @@ $bodyPage = 'edivi';
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

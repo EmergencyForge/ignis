@@ -55,7 +55,7 @@ $chipFor = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'succes
                             <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
-                        <nav class="ignis-filter-links" aria-label="Status">
+                        <nav class="ignis-segmented" aria-label="Status">
                             <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => null, 'page' => null])) ?>"<?= $list->filter('status') === '' ? ' class="is-active" aria-current="true"' : '' ?>>Alle</a>
                             <?php foreach ($statusDisplay as $statusValue => $statusMeta): ?>
                                 <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => (string) $statusValue, 'page' => null])) ?>"<?= $list->filter('status') === (string) $statusValue ? ' class="is-active" aria-current="true"' : '' ?>><?= htmlspecialchars($statusMeta['text']) ?></a>

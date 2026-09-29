@@ -186,7 +186,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                 <a href="<?= BASE_PATH ?>lexicon/manage-taxonomy" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-tags"></i> Kategorien & Tags
                                 </a>
-                                <a href="<?= BASE_PATH ?>lexicon/create" class="ignis-btn ignis-btn--success">
+                                <a href="<?= BASE_PATH ?>lexicon/create" class="ignis-btn ignis-btn--primary">
                                     <i class="fa-solid fa-plus"></i> Neuer Eintrag
                                 </a>
                             <?php endif; ?>
@@ -257,7 +257,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                 </div>
                             <?php endif; ?>
                             <div class="twplus-filter-bar__actions">
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">
+                                <button type="submit" class="ignis-btn ignis-btn--secondary">
                                     <i class="fa-solid fa-search"></i> Filtern
                                 </button>
                             </div>
@@ -340,7 +340,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($entry['is_archived']): ?>
-                                                        <span class="ignis-chip ignis-chip--warning">Archiviert</span>
+                                                        <span class="ignis-chip ignis-chip--warn">Archiviert</span>
                                                     <?php endif; ?>
                                                 </div>
                                                 <h2 class="twplus-content-card__title"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['title']), $searchQuery) : htmlspecialchars($entry['title']) ?></h2>

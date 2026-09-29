@@ -19,7 +19,7 @@ if ($incident) {
     <h4 class="mb-4">Einsatz abschließen</h4>
 
     <?php if ($incident['finalized']): ?>
-        <div class="ignis-alert ignis-alert--success">
+        <div class="ignis-alert ignis-alert--ok">
             <i class="fa-solid fa-check-circle mr-2"></i>
             <strong>Dieser Einsatz wurde bereits abgeschlossen</strong>
         </div>
@@ -48,8 +48,8 @@ if ($incident) {
                         <?php
                         $statusMap = [
                             0 => ['ignis-chip--secondary', 'Ungesehen'],
-                            1 => ['ignis-chip--warning', 'In Prüfung'],
-                            2 => ['ignis-chip--success', 'Freigegeben'],
+                            1 => ['ignis-chip--warn', 'In Prüfung'],
+                            2 => ['ignis-chip--ok', 'Freigegeben'],
                             3 => ['ignis-chip--danger', 'Ungenügend'],
                             4 => ['ignis-chip--dark', 'Ausgeblendet'],
                         ];
@@ -71,7 +71,7 @@ if ($incident) {
         <!-- Not finalized yet -->
 
         <?php if (!$canFinalize): ?>
-            <div class="ignis-alert ignis-alert--warning">
+            <div class="ignis-alert ignis-alert--warn">
                 <h5 class="ignis-alert__title">
                     <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                     Abschluss nicht möglich
@@ -103,7 +103,7 @@ if ($incident) {
         </div>
 
         <div class="mt-4 flex justify-center">
-            <button type="button" class="ignis-btn ignis-btn--success ignis-btn--lg" onclick="finalizeEinsatz()" <?= $canFinalize ? '' : 'disabled' ?>>
+            <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--lg" onclick="finalizeEinsatz()" <?= $canFinalize ? '' : 'disabled' ?>>
                 <i class="fa-solid fa-check-circle mr-2"></i>
                 Einsatz jetzt abschließen
             </button>

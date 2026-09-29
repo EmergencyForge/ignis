@@ -59,7 +59,7 @@ $bodyId = 'mitarbeiter';
                     <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                         <span class="font-semibold" style="font-size: var(--fs-sm);">Konto-Status:</span>
                         <?php if ($accountStatus === 'active'): ?>
-                            <span class="ignis-chip ignis-chip--success"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
+                            <span class="ignis-chip ignis-chip--ok"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
                                 <a href="<?= BASE_PATH ?>users/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--fs-sm);">
                                     <?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)
@@ -75,14 +75,14 @@ $bodyId = 'mitarbeiter';
                                 </a>
                             <?php endif; ?>
                         <?php elseif ($accountStatus === 'pending'): ?>
-                            <span class="ignis-chip ignis-chip--warning"><i class="fa-solid fa-clock mr-1"></i>Einladung ausstehend</span>
+                            <span class="ignis-chip ignis-chip--warn"><i class="fa-solid fa-clock mr-1"></i>Einladung ausstehend</span>
                             <?php if ($pendingInvite && !empty($pendingInvite['expires_at'])): ?>
                                 <span style="font-size: var(--fs-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="ignis-chip ignis-chip--dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark mr-1"></i>Kein Konto</span>
                             <?php if (Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="generateInviteBtn" style="font-size: var(--fs-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="generateInviteBtn" style="font-size: var(--fs-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
                                     <i class="fa-solid fa-paper-plane mr-1"></i>Einladen
                                 </button>
                                 <span id="inviteResult" style="font-size: var(--fs-xs);"></span>
@@ -91,10 +91,10 @@ $bodyId = 'mitarbeiter';
                     </div>
 
                     <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
-                        <div class="ignis-alert ignis-alert--success alert-dismissible fade show mb-3" role="alert" id="newCreatedBanner">
+                        <div class="ignis-alert ignis-alert--ok alert-dismissible fade show mb-3" role="alert" id="newCreatedBanner">
                             <i class="fa-solid fa-circle-check mr-2"></i>
                             <strong>Mitarbeiter erfolgreich erstellt.</strong> Soll direkt ein Einladungslink für das Intranet generiert werden?
-                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--success ml-2" id="bannerInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--primary ml-2" id="bannerInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
                                 <i class="fa-solid fa-paper-plane mr-1"></i>Einladungslink erstellen
                             </button>
                             <button type="button" class="btn-close" data-dialog-dismiss="alert" aria-label="Schließen"></button>
@@ -161,7 +161,7 @@ $bodyId = 'mitarbeiter';
                                     <?php endif; ?>
                                     <span id="display-dgtext"><?= htmlspecialchars($dienstgradText) ?></span><br>
                                     <?php if (empty($rdginfo['none'])): ?>
-                                        <span style="text-transform:none" class="ignis-chip ignis-chip--warning" id="display-rdquali"><?= htmlspecialchars($rdqualtext) ?></span>
+                                        <span style="text-transform:none" class="ignis-chip ignis-chip--warn" id="display-rdquali"><?= htmlspecialchars($rdqualtext) ?></span>
                                     <?php endif; ?>
                                     <?php if (empty($fwginfo['none'])): ?>
                                         <span style="text-transform:none" class="ignis-chip ignis-chip--danger" id="display-fwquali"><?= htmlspecialchars($bfqualtext) ?></span>
@@ -169,7 +169,7 @@ $bodyId = 'mitarbeiter';
                                     </p>
 
                                     <?php if ($canEdit): ?>
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary mt-2" data-ignis-drawer-trigger="#profileQualificationDrawer">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary mt-2" data-ignis-drawer-trigger="#profileQualificationDrawer">
                                             <i class="fa-solid fa-sliders mr-1"></i>Rang &amp; Qualifikationen
                                         </button>
                                     <?php endif; ?>
@@ -282,7 +282,7 @@ $bodyId = 'mitarbeiter';
         </div>
         <div class="ignis-drawer__footer flex justify-end gap-2">
             <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-drawer-close>Abbrechen</button>
-            <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" id="qualiSaveBtn">
+            <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" id="qualiSaveBtn">
                 <i class="fa-solid fa-check mr-1"></i>Speichern
             </button>
         </div>

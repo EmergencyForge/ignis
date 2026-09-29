@@ -66,7 +66,7 @@ ob_start();
 ?>
 
 <?php if ($istGesperrt): ?>
-    <div class="ignis-alert ignis-alert--warning mb-4">
+    <div class="ignis-alert ignis-alert--warn mb-4">
         <i class="fa-solid fa-lock mr-2"></i>
         <?php if ($istUserGeloescht): ?>
             Dieses Protokoll wurde gelöscht und kann nicht mehr bearbeitet werden.

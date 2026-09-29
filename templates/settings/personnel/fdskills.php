@@ -19,7 +19,7 @@ $SITE_TITLE = 'FW-Qualifikationen';
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>FW-Qualifikationen</h1><p class="twplus-page-header__description">Feuerwehrtechnische Qualifikationen und ihre Sortierung verwalten.</p></div>
                         <div class="twplus-page-header__actions">
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateQualifwModal()">
+                            <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateQualifwModal()">
                                 <i class="fa-solid fa-plus"></i> Qualifikation erstellen
                             </button>
                         <?php endif; ?>
@@ -47,7 +47,7 @@ $SITE_TITLE = 'FW-Qualifikationen';
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' data-ignis-tooltip='Qualifikation bearbeiten' aria-label='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualifwModal(this)' data-id='{$row['id']}' data-shortname='" . htmlspecialchars($row['shortname']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' data-ignis-tooltip='Qualifikation bearbeiten' aria-label='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon' onclick='openEditQualifwModal(this)' data-id='{$row['id']}' data-shortname='" . htmlspecialchars($row['shortname']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>

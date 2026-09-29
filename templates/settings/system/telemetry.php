@@ -163,7 +163,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                 <code id="installationUuidValue" class="uuid-value" style="display: none;">
                                     <?= htmlspecialchars($installationId) ?>
                                 </code>
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
                                     <i class="fa-regular fa-eye mr-1"></i>Einblenden
                                 </button>
                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" data-ignis-tooltip="UUID kopieren" aria-label="UUID kopieren">
@@ -255,7 +255,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                             </button>
                                         </form>
 
-                                        <button type="button" class="ignis-btn ignis-btn--outline-info" onclick="openDatenschutzModal()">
+                                        <button type="button" class="ignis-btn ignis-btn--secondary" onclick="openDatenschutzModal()">
                                             <i class="fas fa-shield-alt mr-1"></i> Datenschutz
                                         </button>
 
@@ -263,7 +263,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                             <form method="POST" class="inline">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="action" value="send_heartbeat">
-                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary">
+                                                <button type="submit" class="ignis-btn ignis-btn--secondary">
                                                     <i class="fas fa-paper-plane mr-1"></i> Jetzt senden
                                                 </button>
                                             </form>
@@ -329,7 +329,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                             <form method="POST" class="inline">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="action" value="refresh_announcements">
-                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary">
+                                                <button type="submit" class="ignis-btn ignis-btn--secondary">
                                                     <i class="fas fa-sync mr-1"></i> Cache aktualisieren
                                                 </button>
                                             </form>
@@ -397,7 +397,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                             <?php endforeach; ?>
                                         </div>
                                     <?php elseif (!empty($allCached)): ?>
-                                        <div class="ignis-alert ignis-alert--warning text-sm">
+                                        <div class="ignis-alert ignis-alert--warn text-sm">
                                             <?= count($allCached) ?> im Cache, aber durch Filter ausgeblendet.
                                             <details class="mt-2">
                                                 <summary>Cache-Inhalt</summary>

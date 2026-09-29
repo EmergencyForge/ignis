@@ -126,19 +126,19 @@ $SITE_TITLE = htmlspecialchars($typLabel);
             <?php if ($isArchived): ?>
                 <span class="ignis-chip" style="font-size:0.65rem;"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>
             <?php else: ?>
-                <span class="ignis-chip ignis-chip--success" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>
+                <span class="ignis-chip ignis-chip--ok" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>
             <?php endif; ?>
 
             <div class="doc-actions ml-auto flex gap-1">
                 <?php if ($pdfExists): ?>
-                    <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="ignis-btn ignis-btn--outline-primary" data-ignis-tooltip="PDF herunterladen" aria-label="PDF herunterladen"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
+                    <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="ignis-btn ignis-btn--secondary" data-ignis-tooltip="PDF herunterladen" aria-label="PDF herunterladen"><i class="fa-solid fa-download" aria-hidden="true"></i></a>
                     <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" class="ignis-btn ignis-btn--ghost" data-ignis-tooltip="PDF in neuem Tab" aria-label="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></a>
                 <?php endif; ?>
                 <?php if ($canManage): ?>
-                    <button class="ignis-btn ignis-btn--outline-secondary" id="btn-toggle-archive" data-ignis-tooltip="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>" aria-label="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>">
+                    <button class="ignis-btn ignis-btn--secondary" id="btn-toggle-archive" data-ignis-tooltip="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>" aria-label="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>">
                         <i class="fa-solid <?= $isArchived ? 'fa-box-open' : 'fa-box-archive' ?>"></i>
                     </button>
-                    <button class="ignis-btn ignis-btn--outline-danger" id="btn-delete-doc" data-ignis-tooltip="Endgültig löschen" aria-label="Endgültig löschen">
+                    <button class="ignis-btn ignis-btn--secondary" id="btn-delete-doc" data-ignis-tooltip="Endgültig löschen" aria-label="Endgültig löschen">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 <?php endif; ?>

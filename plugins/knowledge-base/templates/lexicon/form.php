@@ -431,7 +431,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                             <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>
-                            <button type="submit" class="ignis-btn ignis-btn--success">
+                            <button type="submit" class="ignis-btn ignis-btn--primary">
                                 <i class="fa-solid fa-save"></i> <?= $isEdit ? 'Änderungen speichern' : 'Eintrag erstellen' ?>
                             </button>
                         </div>

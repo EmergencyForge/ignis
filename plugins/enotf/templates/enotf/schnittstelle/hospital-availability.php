@@ -379,7 +379,7 @@ $status_config = [
                 <?php endif; ?>
 
                 <?php if ($success_message): ?>
-                    <div class="ignis-alert ignis-alert--success">
+                    <div class="ignis-alert ignis-alert--ok">
                         <i class="fa-solid fa-circle-check mr-2"></i>
                         <?= htmlspecialchars($success_message) ?>
                     </div>

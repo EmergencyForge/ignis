@@ -10,6 +10,10 @@ use App\Auth\Gate;
 
 $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
 $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
+// role.color speichert weiter die Bootstrap-Namen von oben (bestehende
+// Datensätze bleiben gültig); nur der CSS-Klassenname folgt dem neuen
+// Chip-Vokabular (success→ok, warning→warn), analog zu Flash::getAlertClassSuffix().
+$chipClassFor = ['success' => 'ok', 'warning' => 'warn'];
 
 $layout = 'admin';
 $bodyId = 'benutzer';
@@ -31,7 +35,7 @@ $SITE_TITLE = 'Rollen';
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Zugriffsverwaltung</p><h1>Rollenverwaltung</h1><p class="twplus-page-header__description">Rollen, Prioritäten und Berechtigungen zentral pflegen.</p></div>
                         <div class="header-actions twplus-page-header__actions">
                             <?php if (Gate::allows('role.create')): ?>
-                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateRoleModal()">
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateRoleModal()">
                                     <i class="fa-solid fa-plus"></i> Rolle erstellen
                                 </button>
                             <?php endif; ?>
@@ -52,7 +56,7 @@ $SITE_TITLE = 'Rollen';
                                     $editable      = Gate::allows('role.update', $role);
                                     $permissionsJs = htmlspecialchars(json_encode($role->permissions ?? []), ENT_QUOTES);
                                     $color         = $role->color ?? 'secondary';
-                                    $chipMod       = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
+                                    $chipMod       = in_array($color, $chipMappable, true) ? ' ignis-chip--' . ($chipClassFor[$color] ?? $color) : '';
                                 ?>
                                     <tr>
                                         <td><?= (int) $role->id ?></td>
@@ -60,7 +64,7 @@ $SITE_TITLE = 'Rollen';
                                         <td><span class="ignis-chip<?= $chipMod ?>"><?= htmlspecialchars($role->name) ?></span></td>
                                         <td>
                                             <?php if ($editable): ?>
-                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon"
                                                         data-ignis-tooltip="Rolle bearbeiten"
                                                         onclick="openEditRoleModal(this)"
                                                         data-id="<?= (int) $role->id ?>"
@@ -120,7 +124,7 @@ $SITE_TITLE = 'Rollen';
                 <div class="ignis-field__label mb-2">Badge</div>
                 <div class="flex flex-wrap -mx-3">
                     <?php foreach ($badgeColors as $color):
-                        $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
+                        $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . ($chipClassFor[$color] ?? $color) : '';
                     ?>
                         <div class="w-6/12 mb-2 px-3">
                             <label class="ignis-radio w-full">

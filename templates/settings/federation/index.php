@@ -264,7 +264,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                             <form method="post" class="inline">
                                 <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                 <input type="hidden" name="action" value="toggle_federation">
-                                <button type="submit" class="ignis-btn ignis-btn--sm <?= $federationEnabled ? 'ignis-btn--outline-danger' : 'ignis-btn--outline-success' ?>">
+                                <button type="submit" class="ignis-btn ignis-btn--sm <?= $federationEnabled ? 'ignis-btn--secondary' : 'ignis-btn--secondary' ?>">
                                     <?= $federationEnabled ? '<i class="fa-solid fa-power-off"></i> Deaktivieren' : '<i class="fa-solid fa-power-off"></i> Aktivieren' ?>
                                 </button>
                             </form>
@@ -289,7 +289,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                                        value="<?= htmlspecialchars($instanceName) ?>"
                                                        placeholder="z.B. Berufsfeuerwehr Berlin">
                                             </div>
-                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary whitespace-nowrap">Speichern</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary whitespace-nowrap">Speichern</button>
                                         </form>
                                     </div>
                                 </div>
@@ -322,7 +322,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                                       style="font-family:var(--mono);font-size:var(--fs-xs);word-break:break-all;"
                                                       onclick="this.select()"><?= htmlspecialchars($generatedToken) ?></textarea>
                                         </div>
-                                        <div class="ignis-alert ignis-alert--warning" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
+                                        <div class="ignis-alert ignis-alert--warn" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
                                             <i class="fa-solid fa-triangle-exclamation"></i>
                                             Dieser Schlüssel wird nur einmal angezeigt. Kopiere ihn jetzt.
                                         </div>
@@ -330,7 +330,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                         <form method="post">
                                             <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                             <input type="hidden" name="action" value="generate_token">
-                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
                                                 <i class="fa-solid fa-wand-magic-sparkles"></i> Schlüssel generieren
                                             </button>
                                         </form>
@@ -354,7 +354,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                         <textarea name="connection_token" class="ignis-input ignis-input ignis-input--sm mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
                                                   style="font-family:var(--mono);font-size:var(--fs-xs);"></textarea>
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-success">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
                                             <i class="fa-solid fa-handshake"></i> Verbinden
                                         </button>
                                     </form>
@@ -390,7 +390,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                             <?= htmlspecialchars($link['instance_name']) ?>
                                             <?php if ($link['is_active']): ?>
                                                 <?php if ($link['last_sync_status'] === 'success'): ?>
-                                                    <span class="ignis-chip ignis-chip--success" style="font-size:0.65rem;">Online</span>
+                                                    <span class="ignis-chip ignis-chip--ok" style="font-size:0.65rem;">Online</span>
                                                 <?php elseif ($link['last_sync_status'] === 'error'): ?>
                                                     <span class="ignis-chip ignis-chip--danger" style="font-size:0.65rem;">Fehler</span>
                                                 <?php else: ?>
@@ -471,7 +471,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                             <input type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
                                             <label for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
                                         </div>
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
                                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                                         </button>
                                     </div>
@@ -483,7 +483,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                         <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="sync_now">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
                                             <i class="fa-solid fa-arrows-rotate"></i> Jetzt synchronisieren
                                         </button>
                                     </form>
@@ -492,7 +492,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                         <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="delete_link">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger"
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary"
                                                 onclick="showConfirm('Verbindung und alle gecachten Daten dieser Instanz wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Verbindung löschen'}).then(r => { if(r) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash"></i> Verbindung löschen
                                         </button>

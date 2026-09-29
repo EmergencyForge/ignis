@@ -115,7 +115,7 @@ $bodyPage = 'edivi';
                     <a href="<?= BASE_PATH ?>mci/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>MANV-Lage anlegen
                     </button>
                 </div>

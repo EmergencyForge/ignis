@@ -65,7 +65,7 @@ $statusMap = [
                     <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
                 <?php endif; ?>
                 <span class="ignis-list-toolbar__spacer"></span>
-                <nav class="ignis-filter-links" aria-label="Archiv">
+                <nav class="ignis-segmented" aria-label="Archiv">
                     <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => null, 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= !$showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Aktiv</a>
                     <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => '1', 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= $showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Archiv</a>
                 </nav>
@@ -299,11 +299,11 @@ $statusMap = [
                                 </button>
                             </form>`);
                     } else {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`);
                     }
                 })
                 .catch(error => {
-                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`);
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`);
                 });
         };
 
@@ -360,11 +360,11 @@ $statusMap = [
                             window.bulkDeleteStatusFilter = statusFilter;
                         }
                     } else {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                     }
                 })
                 .catch(error => {
-                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                 });
         };
 
@@ -393,13 +393,13 @@ $statusMap = [
                         setBulkDeleteContent(`<div class="ignis-alert ignis-alert--ok"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`);
                         setTimeout(() => { location.reload(); }, 2000);
                     } else {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`);
                         deleteButton.innerHTML = originalText;
                         deleteButton.disabled = false;
                     }
                 })
                 .catch(error => {
-                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`);
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`);
                     deleteButton.innerHTML = originalText;
                     deleteButton.disabled = false;
                 });

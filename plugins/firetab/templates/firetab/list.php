@@ -62,13 +62,13 @@ function einsatz_fmt_dt(?string $ts): string
                             // Status badge — bei nicht-finalisierten immer "In Bearbeitung",
                             // sonst der QM-Status aus Map
                             if (empty($inc['finalized'])) {
-                                $statusBadge = 'ignis-chip--warning';
+                                $statusBadge = 'ignis-chip--warn';
                                 $statusText  = 'In Bearbeitung';
                             } else {
                                 $statusMap = [
                                     0 => ['ignis-chip--secondary', 'Ungesehen'],
-                                    1 => ['ignis-chip--warning', 'In Prüfung'],
-                                    2 => ['ignis-chip--success', 'Freigegeben'],
+                                    1 => ['ignis-chip--warn', 'In Prüfung'],
+                                    2 => ['ignis-chip--ok', 'Freigegeben'],
                                     3 => ['ignis-chip--danger', 'Ungenügend'],
                                     4 => ['ignis-chip--dark', 'Ausgeblendet'],
                                 ];

@@ -61,7 +61,7 @@ use App\Helpers\Flash;
                             <i class="fa-solid fa-truck text-[var(--info)] mr-2" aria-hidden="true"></i>
                             Angemeldet
                         </h3>
-                        <div class="ignis-alert ignis-alert--success">
+                        <div class="ignis-alert ignis-alert--ok">
                             <strong>Fahrzeug:</strong> <?= htmlspecialchars($_SESSION['einsatz_vehicle_name']) ?><br>
                             <strong>Besatzung:</strong> <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
                         </div>
@@ -90,12 +90,12 @@ use App\Helpers\Flash;
                         <?php Flash::render(); ?>
 
                         <?php if (empty($vehicles)): ?>
-                            <div class="ignis-alert ignis-alert--warning">
+                            <div class="ignis-alert ignis-alert--warn">
                                 <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                 Keine Einsatzfahrzeuge verfügbar.
                             </div>
                         <?php elseif (empty($personnel)): ?>
-                            <div class="ignis-alert ignis-alert--warning">
+                            <div class="ignis-alert ignis-alert--warn">
                                 <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                 Keine Mitarbeiter hinterlegt.
                             </div>

@@ -229,7 +229,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <div class="ignis-card">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title"><i class="fa-solid fa-inbox mr-2" aria-hidden="true"></i>Letzte Fehler <span class="ignis-card__subtitle">Gruppiert nach Exception und Datei, Klick klappt auf.</span></h2>
-                            <nav class="ignis-filter-links" id="inboxScopeFilter" aria-label="Stufe">
+                            <nav class="ignis-segmented" id="inboxScopeFilter" aria-label="Stufe">
                                 <button type="button" class="is-active" data-scope="all">Alle</button>
                                 <button type="button" data-scope="CRITICAL">Critical</button>
                                 <button type="button" data-scope="ERROR">Error</button>

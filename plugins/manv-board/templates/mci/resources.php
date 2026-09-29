@@ -24,10 +24,10 @@ $bodyPage = 'edivi';
                     <p class="twplus-page-header__description">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="twplus-page-header__actions">
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" onclick="openQuickAddRessourceModal()" title="Schnell hinzufügen">
+                    <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--icon" onclick="openQuickAddRessourceModal()" title="Schnell hinzufügen">
                         <i class="fas fa-bolt"></i>
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-dialog-target="#createModal">
+                    <button type="button" class="ignis-btn ignis-btn--secondary" data-dialog-target="#createModal">
                         <i class="fas fa-plus mr-1"></i> Fahrzeug hinzufügen
                     </button>
                 </div>
@@ -69,7 +69,7 @@ $bodyPage = 'edivi';
                                             <td data-tw-priority="medium"><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
                                             <td data-tw-priority="low"><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon mr-1 edit-ressource-btn"
                                                     data-id="<?= (int) $fzg['id'] ?>"
                                                     data-typ="<?= htmlspecialchars($fzg['typ']) ?>"
                                                     data-bezeichnung="<?= htmlspecialchars($fzg['bezeichnung']) ?>"
@@ -80,7 +80,7 @@ $bodyPage = 'edivi';
                                                     onclick="openEditRessourceModal(this)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
+                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -193,7 +193,7 @@ $bodyPage = 'edivi';
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
                 </div>

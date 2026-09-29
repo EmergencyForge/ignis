@@ -36,12 +36,12 @@ $bodyId = 'benutzer';
                         <?php if (Gate::allows('user.delete', $target)): ?>
                             <div class="twplus-page-header__actions">
                                 <?php if ($target->is_active): ?>
-                                    <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
+                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
                                 <?php else: ?>
                                     <span class="ignis-chip">Deaktiviert</span>
-                                    <button class="ignis-btn ignis-btn--outline-success ignis-btn--sm" id="btnReactivate"><i class="fa-solid fa-user-check"></i> Reaktivieren</button>
+                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="btnReactivate"><i class="fa-solid fa-user-check"></i> Reaktivieren</button>
                                 <?php endif; ?>
-                                <button class="ignis-btn ignis-btn--outline-danger ignis-btn--sm" id="btnDeleteUser"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
+                                <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="btnDeleteUser"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -83,7 +83,7 @@ $bodyId = 'benutzer';
                         </div>
                         <div class="twplus-sticky-actions">
                             <div class="flex-1 mb-3 mx-auto px-3">
-                                <button type="submit" name="submit" class="ignis-btn ignis-btn--success ignis-btn--sm"><i class="fa-solid fa-floppy-disk mr-1"></i>Änderungen speichern</button>
+                                <button type="submit" name="submit" class="ignis-btn ignis-btn--primary ignis-btn--sm"><i class="fa-solid fa-floppy-disk mr-1"></i>Änderungen speichern</button>
                             </div>
                         </div>
                     </form>

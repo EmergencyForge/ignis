@@ -19,7 +19,7 @@ $SITE_TITLE = 'Fachdienste';
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>Fachdienste verwalten</h1><p class="twplus-page-header__description">Sachgebiete und Fachdienst-Zuordnungen zentral pflegen.</p></div>
                         <div class="twplus-page-header__actions">
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateQualifdModal()">
+                            <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateQualifdModal()">
                                 <i class="fa-solid fa-plus"></i> Fachdienst erstellen
                             </button>
                         <?php endif; ?>
@@ -45,7 +45,7 @@ $SITE_TITLE = 'Fachdienste';
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' data-ignis-tooltip='Fachdienst bearbeiten' aria-label='Fachdienst bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualifdModal(this)' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' data-ignis-tooltip='Fachdienst bearbeiten' aria-label='Fachdienst bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon' onclick='openEditQualifdModal(this)' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>

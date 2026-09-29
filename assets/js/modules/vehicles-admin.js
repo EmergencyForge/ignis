@@ -186,7 +186,7 @@
                                     <div class="flex flex-wrap gap-1">${fieldSummary}</div>
                                 </div>
                                 <div class="flex gap-1 shrink-0">
-                                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" data-ignis-tooltip="Auf alle Fahrzeuge eines Typs anwenden">
+                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" data-ignis-tooltip="Auf alle Fahrzeuge eines Typs anwenden">
                                         <i class="fa-solid fa-layer-group mr-1"></i>Anwenden
                                     </button>
                                     <button class="ignis-btn ignis-btn--ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" data-ignis-tooltip="Vorlage löschen" aria-label="Vorlage löschen">
@@ -267,7 +267,7 @@
     function bindVehicleImport(cfg) {
         const IMPORT_API   = cfg.importApi;
         const rdTypeLabels = { 0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr' };
-        const rdTypeBadges = { 0: 'dark',   1: 'warning',    2: 'success',     3: 'danger'    };
+        const rdTypeBadges = { 0: 'dark',   1: 'warn',       2: 'ok',          3: 'danger'    };
         const loadingSkeleton = (label) => `
             <div class="twplus-skeleton" role="status" aria-label="${label}">
                 <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
@@ -332,7 +332,7 @@
                         Beim nächsten EMD-Sync werden die Fahrzeugdaten der Leitstelle angefordert.<br>
                         Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug prüfen und importieren.
                     </p>
-                    <button class="ignis-btn ignis-btn--soft-primary btn-lg" onclick="requestVehicleImport()">
+                    <button class="ignis-btn ignis-btn--secondary btn-lg" onclick="requestVehicleImport()">
                         <i class="fa-solid fa-tower-broadcast mr-2"></i>Jetzt anfordern
                     </button>
                 </div>
@@ -468,10 +468,10 @@
                         <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" data-ignis-tooltip="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="ignis-btn ignis-btn--soft-warning ignis-btn--sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" data-ignis-tooltip="Zusammenführen (nur leere Felder füllen)" aria-label="Zusammenführen">
+                        <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" data-ignis-tooltip="Zusammenführen (nur leere Felder füllen)" aria-label="Zusammenführen">
                             <i class="fa-solid fa-code-merge"></i>
                         </button>
-                        <button class="ignis-btn ignis-btn--soft-danger ignis-btn--sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" data-ignis-tooltip="Überschreiben" aria-label="Überschreiben">
+                        <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" data-ignis-tooltip="Überschreiben" aria-label="Überschreiben">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
                     </div>
@@ -482,7 +482,7 @@
                         <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" data-ignis-tooltip="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="ignis-btn ignis-btn--success ignis-btn--sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" data-ignis-tooltip="Importieren">
+                        <button class="ignis-btn ignis-btn--primary ignis-btn--sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" data-ignis-tooltip="Importieren">
                             <i class="fa-solid fa-check"></i> Import
                         </button>
                     </div>
@@ -634,7 +634,7 @@
                         </div>
                         <h5>Import abgeschlossen</h5>
                         <p class="text-[var(--text-dimmed,#818189)]">Alle Fahrzeuge wurden verarbeitet.</p>
-                        <button class="ignis-btn ignis-btn--soft-primary" onclick="location.reload()">Seite neu laden</button>
+                        <button class="ignis-btn ignis-btn--secondary" onclick="location.reload()">Seite neu laden</button>
                     </div>
                 `;
                 const badge = document.getElementById('importBadge');

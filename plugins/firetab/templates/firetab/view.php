@@ -112,8 +112,8 @@ function fmt_elapsed(int|string $seconds): string
                                 } else {
                                     $statusMap = [
                                         0 => ['ignis-chip--secondary', 'Ungesehen'],
-                                        1 => ['ignis-chip--warning', 'In Prüfung'],
-                                        2 => ['ignis-chip--success', 'Freigegeben'],
+                                        1 => ['ignis-chip--warn', 'In Prüfung'],
+                                        2 => ['ignis-chip--ok', 'Freigegeben'],
                                         3 => ['ignis-chip--danger', 'Ungenügend'],
                                         4 => ['ignis-chip--dark', 'Ausgeblendet'],
                                     ];

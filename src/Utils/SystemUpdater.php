@@ -2948,9 +2948,9 @@ class SystemUpdater
     {
         $severityClass = match ($diagnostics['severity']) {
             'error' => 'danger',
-            'warning' => 'warning',
+            'warning' => 'warn',
             'info' => 'info',
-            'ok' => 'success',
+            'ok' => 'ok',
             default => 'secondary'
         };
 
@@ -3076,7 +3076,7 @@ class SystemUpdater
             $html[] = "    </div>";
             $html[] = "  </div>";
         } else {
-            $html[] = "  <div class='ignis-alert ignis-alert--success'>";
+            $html[] = "  <div class='ignis-alert ignis-alert--ok'>";
             $html[] = "    ✓ Keine kritischen Probleme erkannt.";
             $html[] = "  </div>";
         }
@@ -3200,9 +3200,9 @@ class SystemUpdater
     private function getStatusClass(string $status): string
     {
         return match ($status) {
-            'ok' => 'success',
+            'ok' => 'ok',
             'info' => 'info',
-            'warning' => 'warning',
+            'warning' => 'warn',
             'error' => 'danger',
             default => 'secondary'
         };

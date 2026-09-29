@@ -58,7 +58,7 @@ $bodyPage = 'edivi';
                     <p class="twplus-page-header__description">Massenanfall von Verletzten – aktive, abgeschlossene und archivierte Lagen im Überblick.</p>
                 </div>
                 <div class="twplus-page-header__actions">
-                    <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--secondary ignis-btn--lg no-underline hover:no-underline">
                         <i class="fas fa-plus mr-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
@@ -89,10 +89,10 @@ $bodyPage = 'edivi';
                             'transportiert' => 0, 'wartend' => 0,
                         ];
 
-                        $statusClass = 'ignis-chip--success';
+                        $statusClass = 'ignis-chip--ok';
                         $statusText  = 'Aktiv';
                         if ($lage['status'] === 'abgeschlossen') {
-                            $statusClass = 'ignis-chip--warning';
+                            $statusClass = 'ignis-chip--warn';
                             $statusText  = 'Abgeschlossen';
                         } elseif ($lage['status'] === 'archiviert') {
                             $statusClass = 'ignis-chip--secondary';
@@ -135,8 +135,8 @@ $bodyPage = 'edivi';
                                     </div>
                                     <div class="grid grid-cols-4 gap-1 text-center">
                                         <div class="ignis-chip ignis-chip--danger w-full">SK1: <?= (int) $stats['sk1'] ?></div>
-                                        <div class="ignis-chip ignis-chip--warning w-full">SK2: <?= (int) $stats['sk2'] ?></div>
-                                        <div class="ignis-chip ignis-chip--success w-full">SK3: <?= (int) $stats['sk3'] ?></div>
+                                        <div class="ignis-chip ignis-chip--warn w-full">SK2: <?= (int) $stats['sk2'] ?></div>
+                                        <div class="ignis-chip ignis-chip--ok w-full">SK3: <?= (int) $stats['sk3'] ?></div>
                                         <div class="ignis-chip ignis-chip--info w-full">SK4: <?= (int) $stats['sk4'] ?></div>
                                     </div>
                                     <div class="mt-2 text-xs text-gray-400">
@@ -160,10 +160,10 @@ $bodyPage = 'edivi';
                         <h5 class="mb-0">Archivierte Lagen</h5>
                     </div>
                     <div class="twplus-section-card__body flex flex-wrap gap-2">
-                        <a href="<?= BASE_PATH ?>mci/index?status=abgeschlossen" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>mci/index?status=abgeschlossen" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Abgeschlossene Lagen anzeigen
                         </a>
-                        <a href="<?= BASE_PATH ?>mci/index?status=archiviert" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>mci/index?status=archiviert" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Archivierte Lagen anzeigen
                         </a>
                     </div>

@@ -21,7 +21,7 @@
                             <div class="mb-2">
                                 <strong><i class="fa-solid fa-clock mr-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
                                 <?php if ($sr['vehicle_radio_name']): ?>
-                                    <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'ignis-chip--warning' : 'ignis-chip--primary'; ?>
+                                    <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'ignis-chip--warn' : 'ignis-chip--primary'; ?>
                                     <span class="ignis-chip <?= $badgeClass ?> ml-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
                                 <?php endif; ?>
                                 <?php if ($sr['sys_name']): ?>

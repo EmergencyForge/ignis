@@ -68,7 +68,7 @@
             <div class="ignis-card__header flex items-center justify-between">
                 <h3 class="ignis-card__title">1. Trupp</h3>
                 <div class="ignis-btn-group">
-                    <button type="button" class="ignis-btn ignis-btn--success" aria-label="Trupp starten" onclick="startTrupp(1)">
+                    <button type="button" class="ignis-btn ignis-btn--primary" aria-label="Trupp starten" onclick="startTrupp(1)">
                         <i class="fa-solid fa-play"></i>
                     </button>
                     <button type="button" class="ignis-btn ignis-btn--danger" aria-label="Trupp stoppen" onclick="stopTrupp(1)">
@@ -189,7 +189,7 @@
             <div class="ignis-card__header flex items-center justify-between">
                 <h3 class="ignis-card__title">2. Trupp</h3>
                 <div class="ignis-btn-group">
-                    <button type="button" class="ignis-btn ignis-btn--success" aria-label="Trupp starten" onclick="startTrupp(2)">
+                    <button type="button" class="ignis-btn ignis-btn--primary" aria-label="Trupp starten" onclick="startTrupp(2)">
                         <i class="fa-solid fa-play"></i>
                     </button>
                     <button type="button" class="ignis-btn ignis-btn--danger" aria-label="Trupp stoppen" onclick="stopTrupp(2)">
@@ -310,7 +310,7 @@
             <div class="ignis-card__header flex items-center justify-between">
                 <h3 class="ignis-card__title">Sicherheitstrupp</h3>
                 <div class="ignis-btn-group">
-                    <button type="button" class="ignis-btn ignis-btn--success" aria-label="Trupp starten" onclick="startTrupp(3)">
+                    <button type="button" class="ignis-btn ignis-btn--primary" aria-label="Trupp starten" onclick="startTrupp(3)">
                         <i class="fa-solid fa-play"></i>
                     </button>
                     <button type="button" class="ignis-btn ignis-btn--danger" aria-label="Trupp stoppen" onclick="stopTrupp(3)">

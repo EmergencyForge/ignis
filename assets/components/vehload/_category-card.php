@@ -20,7 +20,7 @@ $tiles   = $tiles   ?? [];
 $typeMap = [
     0 => ['label' => 'Notfallrucksack', 'chip' => 'primary'],
     1 => ['label' => 'Innenfach',       'chip' => 'danger'],
-    2 => ['label' => 'Außenfach',       'chip' => 'warning'],
+    2 => ['label' => 'Außenfach',       'chip' => 'warn'],
 ];
 $typeMeta = $typeMap[(int) ($category['type'] ?? -1)]
     ?? ['label' => 'Unbekannt', 'chip' => ''];
@@ -53,7 +53,7 @@ foreach ($tiles as $t) {
             <?php endif; ?>
             <span class="ignis-chip"><?= count($tiles) ?> Pos.</span>
             <?php if ($canEdit): ?>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-category-btn"
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon edit-category-btn"
                         data-id="<?= (int) ($category['id'] ?? 0) ?>"
                         data-title="<?= htmlspecialchars($category['title'] ?? '') ?>"
                         data-type="<?= (int) ($category['type'] ?? 0) ?>"
@@ -62,7 +62,7 @@ foreach ($tiles as $t) {
                         data-ignis-tooltip="Kategorie bearbeiten">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-category-btn"
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon delete-category-btn"
                         data-id="<?= (int) ($category['id'] ?? 0) ?>"
                         data-ignis-tooltip="Kategorie löschen">
                     <i class="fa-solid fa-trash"></i>

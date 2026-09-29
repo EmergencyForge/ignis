@@ -85,6 +85,19 @@ class Flash
     }
 
     /**
+     * Übersetzt nur den CSS-Klassennamen der <noscript>-Fassung auf das
+     * Alert-Vokabular der Bibliothek (success→ok, warning→warn). Typ,
+     * Session-Speicher und die öffentliche API (success()/error()/…) bleiben
+     * unverändert — snackbar.js normalisiert data-variant bereits selbst.
+     */
+    private static function getAlertClassSuffix(string $type): string
+    {
+        $suffixes = ['success' => 'ok', 'warning' => 'warn'];
+
+        return $suffixes[$type] ?? $type;
+    }
+
+    /**
      * Gibt die wartende Meldung aus und verbraucht sie.
      *
      * Das <template> trägt Typ und Titel als data-Attribute und den Text als
@@ -108,7 +121,7 @@ class Flash
         echo '</template>';
 
         echo '<noscript>';
-        echo '<div class="ignis-alert ignis-alert--' . $type . ' mb-4" id="flash-alert" role="' . ($alert['type'] === 'danger' ? 'alert' : 'status') . '">';
+        echo '<div class="ignis-alert ignis-alert--' . self::getAlertClassSuffix((string) $alert['type']) . ' mb-4" id="flash-alert" role="' . ($alert['type'] === 'danger' ? 'alert' : 'status') . '">';
         echo '<i class="' . $icon . ' ignis-alert__icon"></i>';
         echo '<div class="ignis-alert__body">';
         echo '<div class="ignis-alert__title">' . $title . '</div>';

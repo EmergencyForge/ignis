@@ -247,7 +247,7 @@ $textbloecke = [
             <?php if (!$istGesperrt): ?>
                 <div class="col">
                     <div class="flex justify-center align-items-center" style="margin: 10px 0; height: 80px;">
-                        <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
+                        <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--primary px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
                     </div>
                 </div>
             <?php endif; ?>
@@ -407,7 +407,7 @@ $textbloecke = [
                 <label for="symptombeginn_nf_1">nicht feststellbar</label>
             </div>
             <div class="col-2 d-flex flex-column edivi__interactbutton justify-center px-3">
-                <button type="button" id="save-symptombeginn-btn" class="ignis-btn ignis-btn--success w-100" <?= $dis ?>>
+                <button type="button" id="save-symptombeginn-btn" class="ignis-btn ignis-btn--primary w-100" <?= $dis ?>>
                     <i class="fa-solid fa-floppy-disk"></i> Speichern
                 </button>
             </div>

@@ -695,7 +695,7 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
         <?php if ($istGesperrt): ?>
             <div class="row mb-3" style="margin-left: 0">
                 <div class="col">
-                    <div class="ignis-alert ignis-alert--warning">
+                    <div class="ignis-alert ignis-alert--warn">
                         <i class="fa-solid fa-lock"></i> <strong>Hinweis:</strong> Diese Dokumentation ist freigegeben und kann nicht mehr bearbeitet werden.
                     </div>
                 </div>

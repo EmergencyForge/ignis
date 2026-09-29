@@ -47,11 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         case 1:
             $status_klar = "in Prüfung";
-            $statusstring = '<span class="ignis-chip ignis-chip--warning">in Prüfung</span>';
+            $statusstring = '<span class="ignis-chip ignis-chip--warn">in Prüfung</span>';
             break;
         case 2:
             $status_klar = "Freigegeben";
-            $statusstring = '<span class="ignis-chip ignis-chip--success">Freigegeben</span>';
+            $statusstring = '<span class="ignis-chip ignis-chip--ok">Freigegeben</span>';
             break;
         case 3:
             $status_klar = "Ungenügend";
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <textarea name="qmkommentar" id="qmkommentar" rows="8" class="ignis-input w-100" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
         </div>
         <div class="mb-2 mt-4 text-center">
-            <input class="ignis-btn ignis-btn--success" name="submit" type="submit" value="Speichern" />
+            <input class="ignis-btn ignis-btn--primary" name="submit" type="submit" value="Speichern" />
         </div>
     </form>
 </div>

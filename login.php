@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 
                     // Normal login view
                     if ($registrationMode === 'closed' && !$error) {
-                        echo '<div class="ignis-alert ignis-alert--warning mb-4" role="alert">';
+                        echo '<div class="ignis-alert ignis-alert--warn mb-4" role="alert">';
                         echo '<i class="fa-solid fa-lock ignis-alert__icon"></i><div class="ignis-alert__body">Registrierung für neue Benutzer ist derzeit geschlossen.</div>';
                         echo '</div>';
                     } elseif ($registrationMode === 'code') {

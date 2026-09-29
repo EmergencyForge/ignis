@@ -281,7 +281,7 @@ $SITE_TITLE = 'System Updates';
                         </div>
                         <div class="ignis-card__body">
                             <?php if ($isPreRelease): ?>
-                                <div class="ignis-alert ignis-alert--warning mb-3">
+                                <div class="ignis-alert ignis-alert--warn mb-3">
                                     <i class="fa-solid fa-flask"></i> <strong>Pre-Release Version:</strong>
                                     Sie verwenden eine Entwickler- oder Vorschau-Version.
                                 </div>
@@ -400,13 +400,13 @@ $SITE_TITLE = 'System Updates';
                                                 <span class="ignis-chip ml-1" data-ignis-tooltip="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
                                             <?php endif; ?>
                                             <?php if (!empty($updateInfo['checksum_sha256'])): ?>
-                                                <span class="ignis-chip ignis-chip--success ml-1" data-ignis-tooltip="GitHub SHA-256-Digest wird vor der Installation geprüft"><i class="fa-solid fa-shield-halved"></i> Integrität geprüft</span>
+                                                <span class="ignis-chip ignis-chip--ok ml-1" data-ignis-tooltip="GitHub SHA-256-Digest wird vor der Installation geprüft"><i class="fa-solid fa-shield-halved"></i> Integrität geprüft</span>
                                             <?php endif; ?>
                                         </p>
                                     </div>
 
                                     <?php if (!empty($updateInfo['stale'])): ?>
-                                        <div class="ignis-alert ignis-alert--warning mb-3">
+                                        <div class="ignis-alert ignis-alert--warn mb-3">
                                             <i class="fa-solid fa-cloud-arrow-down"></i>
                                             Der letzte automatische Abruf ist fehlgeschlagen. Angezeigt wird der zuletzt bekannte Stand.
                                             <?= !empty($updateInfo['refresh_error']) ? htmlspecialchars($updateInfo['refresh_error']) : '' ?>
@@ -414,14 +414,14 @@ $SITE_TITLE = 'System Updates';
                                     <?php endif; ?>
 
                                     <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] && $isPreRelease): ?>
-                                        <div class="ignis-alert ignis-alert--warning mb-3">
+                                        <div class="ignis-alert ignis-alert--warn mb-3">
                                             <i class="fa-solid fa-exclamation-triangle"></i>
                                             <strong>Pre-Release zu Pre-Release Update:</strong>
                                             Sie wechseln von einer Pre-Release zur nächsten Pre-Release Version.
                                             Diese Versionen können instabil sein und unerwartete Fehler enthalten.
                                         </div>
                                     <?php elseif (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] && !$isPreRelease): ?>
-                                        <div class="ignis-alert ignis-alert--warning mb-3">
+                                        <div class="ignis-alert ignis-alert--warn mb-3">
                                             <i class="fa-solid fa-exclamation-triangle"></i>
                                             <strong>Pre-Release Update:</strong>
                                             Diese Version ist eine Vorabversion und kann instabil sein oder unerwartete Fehler enthalten.
@@ -514,7 +514,7 @@ $SITE_TITLE = 'System Updates';
                                 <h2 class="ignis-card__title"><i class="fa-solid fa-code-branch mr-2" aria-hidden="true"></i>Entwickler-Modus: Branch-Update</h2>
                             </div>
                             <div class="ignis-card__body">
-                                <div class="ignis-alert ignis-alert--warning mb-3">
+                                <div class="ignis-alert ignis-alert--warn mb-3">
                                     <i class="fa-solid fa-exclamation-triangle"></i>
                                     <strong>Achtung:</strong> Branch-Updates installieren den neuesten Commit eines Branches.
                                     Diese Versionen sind möglicherweise instabil und nicht für den Produktiveinsatz geeignet.
@@ -574,7 +574,7 @@ $SITE_TITLE = 'System Updates';
                                                         <input type="hidden" name="dev_install_branch" value="1">
                                                         <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
                                                         <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
-                                                        <button type="button" id="dev-install-btn" class="ignis-btn ignis-btn--warning ignis-btn--block">
+                                                        <button type="button" id="dev-install-btn" class="ignis-btn ignis-btn--secondary ignis-btn--block">
                                                             <i class="fa-solid fa-download" aria-hidden="true"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
                                                         </button>
                                                     </form>

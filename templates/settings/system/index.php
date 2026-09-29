@@ -133,7 +133,7 @@ $bodyId = 'settings-system';
                                 <span class="twplus-link-card__body">
                                     <span class="twplus-link-card__title"><?= htmlspecialchars($card['title']) ?></span>
                                     <?php if (!empty($card['badge'])): ?>
-                                        <span class="ignis-chip ignis-chip--warning mt-1"><i class="fa-solid fa-arrow-up"></i> <?= htmlspecialchars($card['badge']) ?></span>
+                                        <span class="ignis-chip ignis-chip--warn mt-1"><i class="fa-solid fa-arrow-up"></i> <?= htmlspecialchars($card['badge']) ?></span>
                                     <?php endif; ?>
                                     <span class="twplus-link-card__description"><?= htmlspecialchars($card['desc']) ?></span>
                                 </span>

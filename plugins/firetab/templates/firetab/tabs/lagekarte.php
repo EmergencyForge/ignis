@@ -394,13 +394,13 @@ try {
                 <h4>Lagekarte</h4>
             </div>
             <div class="flex-1 text-right px-3">
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="toggleMarkerMode">
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="toggleMarkerMode">
                     <i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen
                 </button>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="toggleZoneMode">
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="toggleZoneMode">
                     <i class="fa-solid fa-draw-polygon mr-1"></i>Zone zeichnen
                 </button>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="refreshMap">
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="refreshMap">
                     <i class="fa-solid fa-sync-alt mr-1"></i>Aktualisieren
                 </button>
             </div>
@@ -408,7 +408,7 @@ try {
     </div>
     <div class="intra__tile-content">
         <?php if ($incident['finalized']): ?>
-            <div class="ignis-alert ignis-alert--warning">
+            <div class="ignis-alert ignis-alert--warn">
                 <i class="fa-solid fa-lock mr-2"></i>
                 Dieser Einsatz ist abgeschlossen. Die Lagekarte kann nicht mehr bearbeitet werden.
             </div>
@@ -814,7 +814,7 @@ try {
                         </div>
 
                         <div class="text-center mb-3">
-                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="previewCustomSymbol">
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="previewCustomSymbol">
                                 <i class="fa-solid fa-eye mr-1"></i>Vorschau
                             </button>
                         </div>
@@ -1527,8 +1527,8 @@ try {
             this.innerHTML = markerMode ?
                 '<i class="fa-solid fa-times mr-1"></i>Abbrechen' :
                 '<i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen';
-            this.classList.toggle('ignis-btn--outline-secondary');
-            this.classList.toggle('ignis-btn--warning');
+            this.classList.toggle('ignis-btn--secondary');
+            this.classList.toggle('ignis-btn--secondary');
 
             if (!markerMode) {
                 selectedMarkerType = null;
@@ -1589,8 +1589,8 @@ try {
             this.innerHTML = zoneMode ?
                 '<i class="fa-solid fa-times mr-1"></i>Abbrechen' :
                 '<i class="fa-solid fa-draw-polygon mr-1"></i>Zone zeichnen';
-            this.classList.toggle('ignis-btn--outline-info');
-            this.classList.toggle('ignis-btn--warning');
+            this.classList.toggle('ignis-btn--secondary');
+            this.classList.toggle('ignis-btn--secondary');
 
             if (zoneMode) {
                 // Disable marker mode
@@ -1611,7 +1611,7 @@ try {
                 if (!finishBtn) {
                     finishBtn = document.createElement('button');
                     finishBtn.id = 'finishZoneBtn';
-                    finishBtn.className = 'ignis-btn ignis-btn--success ignis-btn--sm';
+                    finishBtn.className = 'ignis-btn ignis-btn--primary ignis-btn--sm';
                     finishBtn.style.cssText = 'position:absolute;top:65px;left:20px;z-index:1050;background-color:rgba(25,135,84,0.6);border-color:rgba(25,135,84,0.6);backdrop-filter:blur(4px);';
                     finishBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Zone erstellen';
                     finishBtn.addEventListener('click', finishZoneDrawing);

@@ -88,10 +88,10 @@ $SITE_TITLE = 'Beladelisten';
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Beladelisten</h1><p class="twplus-page-header__description">Kategorien und Gegenstände nach Fahrzeugtyp organisieren.</p></div>
                         <div class="twplus-page-header__actions">
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button class="ignis-btn ignis-btn--success mr-2" onclick="openAddBeladungCategoryModal()">
+                                <button class="ignis-btn ignis-btn--primary mr-2" onclick="openAddBeladungCategoryModal()">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
-                                <button class="ignis-btn ignis-btn--soft-primary" onclick="openAddBeladungTileModal()">
+                                <button class="ignis-btn ignis-btn--secondary" onclick="openAddBeladungTileModal()">
                                     <i class="fa-solid fa-plus"></i> Neuer Gegenstand
                                 </button>
                             <?php endif; ?>
@@ -130,10 +130,10 @@ $SITE_TITLE = 'Beladelisten';
                                     </select>
                                 </div>
                                 <div class="md:col-span-2 flex flex-wrap gap-2">
-                                    <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
+                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
                                         <i class="fa-solid fa-undo"></i>
                                     </button>
-                                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
+                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
                                         <i class="fa-solid fa-eye-slash"></i> <span id="toggle-text">Leer</span>
                                     </button>
                                 </div>

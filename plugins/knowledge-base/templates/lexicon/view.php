@@ -306,7 +306,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                     <?php endif; ?>
 
                     <?php if ($entry['is_archived']): ?>
-                        <div class="ignis-alert ignis-alert--warning">
+                        <div class="ignis-alert ignis-alert--warn">
                             <i class="fa-solid fa-archive"></i> Dieser Eintrag ist archiviert.
                         </div>
                     <?php endif; ?>

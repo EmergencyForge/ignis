@@ -65,12 +65,12 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
             </header>
 
             <div class="ignis-list-toolbar">
-                <nav class="ignis-filter-links" aria-label="Gelesen">
+                <nav class="ignis-segmented" aria-label="Gelesen">
                     <a href="<?= htmlspecialchars($list->url($pgPath, ['filter' => null, 'page' => null])) ?>"<?= !$unreadOnly ? ' class="is-active" aria-current="true"' : '' ?>>Alle</a>
                     <a href="<?= htmlspecialchars($list->url($pgPath, ['filter' => 'unread', 'page' => null])) ?>"<?= $unreadOnly ? ' class="is-active" aria-current="true"' : '' ?>>Ungelesen<?= $unread > 0 ? ' (' . $unread . ')' : '' ?></a>
                 </nav>
                 <span class="ignis-list-toolbar__spacer"></span>
-                <nav class="ignis-filter-links" aria-label="Typ">
+                <nav class="ignis-segmented" aria-label="Typ">
                     <a href="<?= htmlspecialchars($list->url($pgPath, ['type' => null, 'page' => null])) ?>"<?= $type === '' ? ' class="is-active" aria-current="true"' : '' ?>>Alle Typen</a>
                     <?php foreach ($types as $typeKey => $typeHandler): ?>
                         <a href="<?= htmlspecialchars($list->url($pgPath, ['type' => $typeKey, 'page' => null])) ?>"<?= $type === $typeKey ? ' class="is-active" aria-current="true"' : '' ?>><i class="<?= htmlspecialchars($typeHandler->icon()) ?>" aria-hidden="true"></i> <?= htmlspecialchars($typeHandler->label()) ?></a>
