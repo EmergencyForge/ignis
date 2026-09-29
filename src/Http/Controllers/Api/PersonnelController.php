@@ -262,6 +262,10 @@ final class PersonnelController
                 $changes[] = 'basedata';
             }
 
+            if ($changes !== []) {
+                app(\App\Events\EventDispatcher::class)->fire(new \App\Events\PersonnelSaved($id));
+            }
+
             // Aktuelle Daten für die Response holen (mit Joins)
             $updated = (array) Capsule::table('intra_mitarbeiter as m')
                 ->leftJoin('intra_mitarbeiter_dienstgrade as dg', 'm.dienstgrad', '=', 'dg.id')

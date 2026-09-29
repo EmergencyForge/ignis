@@ -46,6 +46,12 @@ final class OldVocabularyRenderTest extends FeatureTestCase
         '/settings/vehicles/defects/index',
         '/logbook/index',
         '/mci/patient-view', // nur falls das Plugin in dieser Umgebung aktiv ist
+        '/mail',             // ohne Postfach: die Erklärseite; mit Postfach siehe MailPagesTest
+        '/mail/compose',
+        '/mail/lists',
+        '/mail/lists/create',
+        '/settings/mail',
+        '/settings/mail/mailboxes',
     ];
 
     /** Alte Suffixe je Komponentenfamilie — "info"/"warn" sind für Chip/Alert gültiges NEUES Vokabular, für Btn nicht, deshalb getrennte Listen. */

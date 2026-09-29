@@ -19,6 +19,7 @@ navigation.php       optional
 permissions.php      optional
 events.php           optional
 console.php          optional
+counters.php         optional
 migrations/          optional
 src/                 optional
 assets/plugin.css    optional, fertig kompiliert
@@ -44,6 +45,11 @@ Einträge über `notify($type, $userIds, ['title' => …, 'message' => …, 'lin
 an; Glocke, Posteingang und Zähler zeigen sie nur Nutzern, für die `allowed()`
 zutrifft. Einträge eines abgeschalteten Plugins bleiben lesbar (Rohtext, Link).
 fireTab (`Plugin\Firetab\Notifications\FireProtocolType`) ist die Vorlage.
+
+`counters.php` liefert Zähler für die Sidebar: eine Map Schlüssel =>
+`callable(): ?int`. Ein Navigationseintrag mit `'counter' => '<schlüssel>'`
+zeigt den Wert, `null` oder 0 blendet ihn aus. Das Mail-Plugin
+(`plugins/mail/counters.php`) ist die Vorlage.
 
 Ein heruntergeladenes Plugin bleibt vollständig inert. Erst die separate
 Installationsbestätigung in der Verwaltung legt den `.installed`-Marker an,

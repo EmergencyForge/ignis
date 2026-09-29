@@ -35,6 +35,7 @@ class PluginLoader
         'enotf',
         'enotf-v2',
         'firetab',
+        'mail',
     ];
 
     /**
@@ -469,6 +470,32 @@ class PluginLoader
             }
         }
         return $commands;
+    }
+
+    /**
+     * Zähler der aktiven Plugins für die Sidebar (Schlüssel `counter` eines
+     * Navigationseintrags). Ein Plugin liefert in counters.php eine Map
+     * Schlüssel => callable(): ?int; App\Support\NavigationCounters fragt
+     * hier nach, wenn der Kern den Schlüssel nicht kennt.
+     *
+     * @return array<string, callable(): ?int>
+     */
+    public function navigationCounters(): array
+    {
+        $counters = [];
+        foreach ($this->active() as $plugin) {
+            $file = $plugin->path('counters.php');
+            if ($file === null) {
+                continue;
+            }
+            $fragment = require $file;
+            foreach (is_array($fragment) ? $fragment : [] as $key => $counter) {
+                if (is_string($key) && is_callable($counter)) {
+                    $counters[$key] = $counter;
+                }
+            }
+        }
+        return $counters;
     }
 
     /**

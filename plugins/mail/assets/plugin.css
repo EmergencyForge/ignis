@@ -1,0 +1,73 @@
+/*
+ * Mail-Plugin — Fachbausteine auf der Workbench-Grundform des UI-Pakets.
+ * Handgeschrieben, kein Build: PluginLoader bindet die Datei auf allen
+ * Seiten ein, deshalb steht hier nur, was unter .ignis-mail hängt.
+ *
+ * Ab 1200px drei Spalten wie ein Mailprogramm: Ordner, Liste,
+ * Lesebereich. Der Selektor trägt Klasse UND Attribut, damit er die
+ * Skin-Regel `body[data-ui-skin] .ignis-workbench.has-preview` (0,3,1) sicher
+ * schlägt; darunter bleibt der normale Arbeitsbereich (Vorschau im
+ * Drawer).
+ */
+
+.ignis-mail__folders ul { display: grid; gap: 2px; margin: 0 0 12px; padding: 0; list-style: none; }
+.ignis-mail__folder {
+    display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--radius-2, 6px);
+    color: var(--secondary-text); text-decoration: none; font-size: var(--fs-sm, 13px);
+}
+.ignis-mail__folder i { width: 1.1em; text-align: center; color: var(--tertiary-text); }
+.ignis-mail__folder span:first-of-type { flex: 1 1 auto; }
+.ignis-mail__folder:hover { background: var(--fill-2); color: var(--content-text); }
+.ignis-mail__folder.is-active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+.ignis-mail__folder.is-active i { color: inherit; }
+.ignis-mail__tools { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+.ignis-mail__tool { display: flex; align-items: center; gap: 10px; padding: 6px 10px; color: var(--secondary-text); font-size: var(--fs-sm, 13px); text-decoration: none; }
+.ignis-mail__tool:hover { color: var(--content-text); }
+
+.ignis-mail__list .ignis-empty { margin: 24px 12px; }
+.ignis-mail tr.is-unread td { font-weight: 600; color: var(--content-text); }
+.ignis-mail tr.is-unread td:first-child { box-shadow: inset 3px 0 0 var(--accent-base); }
+.ignis-mail__snippet { display: block; overflow: hidden; color: var(--tertiary-text); font-size: var(--fs-sm, 13px); font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.ignis-mail__subject-line { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ignis-mail__subject-line i { flex: none; color: var(--tertiary-text); }
+.ignis-mail__flag { flex: none; }
+.ignis-mail__subject-line .ignis-mail__flag i { color: var(--warn-text); }
+.ignis-mail__reading [data-mail-action="flag"][aria-pressed="true"] { color: var(--warn-text); }
+.ignis-mail__subject-text { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
+.ignis-mail__date { white-space: nowrap; color: var(--secondary-text); font-variant-numeric: tabular-nums; }
+
+.ignis-mail__body { color: var(--content-text); line-height: 1.55; overflow-wrap: anywhere; }
+.ignis-mail__body p { margin: 0 0 .6em; }
+.ignis-mail__body blockquote { margin: .6em 0; padding-left: 12px; border-left: 3px solid var(--border-subtle); color: var(--secondary-text); }
+.ignis-mail__body a { color: var(--accent-text); text-decoration: underline; }
+
+@media (min-width: 1200px) {
+    body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench] { grid-template-columns: 12rem minmax(0, 1fr) minmax(320px, 26rem); }
+    body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench].is-preview-wide { grid-template-columns: 12rem minmax(0, 1fr) minmax(400px, 45%); }
+    body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench] .ignis-preview { display: block; }
+    /* Feste Spalten, der Betreff bekommt den Rest. Die Aktionsspalte
+       trägt den „Vorschau“-Knopf (~77px) plus Zellenabstand; darunter ragte
+       er bei 1440px über den Rand. Jede Zeile einzeilig mit Ellipse. */
+    .ignis-mail__list table { table-layout: fixed; width: 100%; }
+    .ignis-mail__list th:nth-child(1), .ignis-mail__list td:nth-child(1) { width: 10rem; }
+    .ignis-mail__list th:nth-child(3), .ignis-mail__list td:nth-child(3) { width: 8.5rem; }
+    .ignis-mail__list th:nth-child(4), .ignis-mail__list td:nth-child(4) { width: 7rem; }
+    .ignis-mail__party, .ignis-mail__subject { overflow: hidden; }
+    .ignis-mail__party a { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: 1199px) {
+    .ignis-mail__folders ul { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .ignis-mail__tools { display: flex; flex-wrap: wrap; border-top: 0; padding-top: 0; }
+}
+
+/* Verfassen und Signatur: der Editor im Mailmodus ohne A4-Blatt. */
+.ignis-mail-compose { display: grid; gap: 14px; }
+.ignis-mail-compose > .ignis-btn { justify-self: start; }
+.ignis-mail-compose__editor { border: 1px solid var(--border-control, var(--border-subtle)); border-radius: var(--radius-2, 6px); background: var(--surface); }
+.ignis-mail-compose__editor #mail-compose-toolbar, .ignis-mail-compose__editor #mail-signature-toolbar { border-bottom: 1px solid var(--border-subtle); }
+.ignis-mail__editor.efe-page { width: auto; min-height: 12rem; margin: 0; padding: 12px 14px; background: transparent; color: inherit; box-shadow: none; }
+.ignis-mail-compose__footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+.ignis-mail-compose__footer [role='status'] { flex: 1 1 auto; color: var(--secondary-text); font-size: var(--fs-sm, 13px); }
+
+/* Verteiler: die Kriterien der Regel als Raster, auch bei langen Listen. */
+.ignis-mail-rule__options { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 4px 16px; }

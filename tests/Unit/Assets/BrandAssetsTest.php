@@ -80,9 +80,11 @@ final class BrandAssetsTest extends TestCase
 
     public function testMaskAspectRatiosMatchTheViewBoxes(): void
     {
+        // .ignis-wordmark--login gehörte zur alten, großen Marke im rechten
+        // Bildpanel der Anmeldung; seit der Vorschau (0.5.1) zeigt dort die
+        // Produktvorschau, die Modifikator-Klasse hat keinen Verbraucher mehr.
         $css = (string) file_get_contents(self::ROOT . '/public/assets/dist/ui.css');
         self::assertMatchesRegularExpression('/\.ignis-wordmark\{[^}]*aspect-ratio:188\s*\/\s*97\.5/', $css);
-        self::assertMatchesRegularExpression('/\.ignis-wordmark--login\{[^}]*aspect-ratio:283\s*\/\s*98/', $css);
     }
 
     public function testLoginDoesNotLoadACurrentColorLogoAsImage(): void

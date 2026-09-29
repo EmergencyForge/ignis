@@ -14,54 +14,11 @@
 
 // =====================================================
 // ıgnıs UI — Produkt-Reste, die base() nicht mitbringt
-// Login-Bildseite (divergiert zwischen Lex und ignis), der eNOTF-Dialog-
-// Rahmen (Bootstrap-Modal: .btn-close, .modal-*) und natives
-// Formular-Feedback (.was-validated).
+// Der eNOTF-Dialog-Rahmen (Bootstrap-Modal: .btn-close, .modal-*) und
+// natives Formular-Feedback (.was-validated). Die Anmeldung
+// (.twplus-login, PREFIX-login-preview) kommt seit 0.5.1 komplett aus
+// ef.auth($p) im Paket, siehe dessen Skin-Block unten.
 // =====================================================
-
-.twplus-login {
-  display: grid;
-  min-height: 100vh;
-  grid-template-columns: minmax(0, 1fr);
-
-  @media (min-width: 960px) { grid-template-columns: minmax(24rem, 0.85fr) minmax(0, 1.15fr); }
-
-  &__panel { display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; background: var(--bg); }
-  &__content { width: 100%; max-width: 25rem; }
-  &__brand { width: min(18rem, 75%); margin-bottom: 2rem; }
-  &__brand img { display: block; width: 100%; height: auto; }
-  // Lockup inline, damit currentColor greift (als <img> wäre es schwarz).
-  &__brand svg { color: var(--content-text); }
-  // "ıgnıs 2026.1.0 by <Amboss> EmergencyForge" - das Bildzeichen steht als
-  // currentColor mitten im Satz, also auf Zeilenhöhe statt auf Grundlinie.
-  &__foot {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4em;
-    margin: 1.5rem 0 0;
-    color: var(--text-3);
-    font-size: 0.7rem;
-
-    svg { flex: none; width: auto; height: 1.4em; }
-  }
-  &__card { padding: 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl, 10px); box-shadow: var(--shadow-pop); }
-  &__visual { position: relative; display: none; overflow: hidden; background: var(--bg-2); }
-  &__visual::after { position: absolute; inset: 0; background: radial-gradient(circle at 25% 30%, rgba(var(--accent-rgb),.28), transparent 38%), linear-gradient(145deg, transparent, var(--fill-1)); content: ''; }
-  &__visual-copy { position: relative; z-index: 1; align-self: end; max-width: 38rem; padding: 4rem; color: var(--white); }
-  &__visual-copy h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.75rem); line-height: 1.05; letter-spacing: -.045em; }
-  &__visual-copy p { max-width: 30rem; margin: 1rem 0 0; color: rgba(255,255,255,.68); font-size: .95rem; line-height: 1.6; }
-  // Große Marke über dem Fließtext: das Standardlogo im Akzentverlauf (bis
-  // 240px, Seitenverhältnis aus ignis-lockup.svg), ein hinterlegtes
-  // Betreiberlogo bleibt ein schlichtes Bild in derselben Box.
-  &__visual-copy .ignis-wordmark--login { display: block; width: min(240px, 100%); aspect-ratio: 283 / 98; margin-bottom: 1.5rem; }
-  &__visual-logo { display: block; width: min(240px, 100%); height: auto; margin-bottom: 1.5rem; object-fit: contain; }
-  &__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
-  &__steps li { display: grid; gap: 0.3rem; justify-items: center; color: var(--text-3); font-size: 0.64rem; text-align: center; }
-  &__steps i { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; color: var(--accent); background: rgba(var(--accent-rgb),.1); border-radius: 50%; }
-  @media (min-width: 960px) { &__visual { display: flex; } }
-}
-
 
 .twplus-dialog-surface .modal-content {
   overflow: hidden;
@@ -127,7 +84,7 @@ body[data-ui-skin="core"] {
   @include ef.components('ignis');
   @include ef.dashboard('ignis');
   @include ef.shell('ignis');
-  @include ef.auth;
+  @include ef.auth('ignis');
   @include ef.look('ignis');
   @include ef.empty('ignis');
 }

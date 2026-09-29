@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Notifications\NotificationManager;
+use App\Plugins\PluginLoader;
 use App\Session\SessionManager;
 use Throwable;
 
@@ -13,7 +14,8 @@ use Throwable;
  * `counter`) und an der Glocke in der Topbar. Ein Zähler erscheint nur,
  * wo er eine Handlung bedeutet; `inbox` sind die ungelesenen
  * Benachrichtigungen des Betrachters (NotificationManager::count(), also
- * ohne die Typen, die er nicht sehen darf). Die Werte bleiben je Request
+ * ohne die Typen, die er nicht sehen darf). Schlüssel, die der Kern nicht
+ * kennt, kommen aus den Plugins (counters.php, z.B. `mail`). Die Werte bleiben je Request
  * gecacht, weil Topbar und Sidebar dieselben Schlüssel fragen; Tests
  * setzen den Cache mit reset() zurück.
  *
@@ -34,7 +36,7 @@ final class NavigationCounters
         try {
             $value = match ($key) {
                 'inbox'  => self::inbox(),
-                default  => null,
+                default  => self::plugin($key),
             };
         } catch (Throwable) {
             $value = null;
@@ -46,6 +48,14 @@ final class NavigationCounters
     public static function reset(): void
     {
         self::$cache = [];
+    }
+
+    /** Zähler aus einem Plugin (counters.php, PluginLoader::navigationCounters()). */
+    private static function plugin(string $key): ?int
+    {
+        $counter = app(PluginLoader::class)->navigationCounters()[$key] ?? null;
+
+        return $counter !== null ? $counter() : null;
     }
 
     private static function inbox(): ?int

@@ -424,6 +424,7 @@ class PersonnelController extends Controller
         } else {
             $mitarbeiter->save();
         }
+        app(\App\Events\EventDispatcher::class)->fire(new \App\Events\PersonnelSaved((int) $mitarbeiter->id));
 
         $this->redirect('mitarbeiter/profile?id=' . $mitarbeiter->id);
     }
@@ -682,6 +683,7 @@ class PersonnelController extends Controller
         $edituser   = $userHelper->getCurrentUserFullnameForAction();
 
         (new PersonalLogManager())->logProfileCreation((int) $mitarbeiter->id, $edituser);
+        app(\App\Events\EventDispatcher::class)->fire(new \App\Events\PersonnelSaved((int) $mitarbeiter->id));
         (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Mitarbeiter erstellt',
@@ -709,6 +711,7 @@ class PersonnelController extends Controller
         $deleted = Personnel::query()->where('id', $id)->delete();
 
         if ($deleted > 0) {
+            app(\App\Events\EventDispatcher::class)->fire(new \App\Events\PersonnelDeleted($id));
             Flash::set('personal', 'deleted');
             (new AuditLogger())->log(
                 (int) $_SESSION['userid'],
