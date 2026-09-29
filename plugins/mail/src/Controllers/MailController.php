@@ -789,15 +789,23 @@ final class MailController extends Controller
         return $this->page('mail/compose', $data);
     }
 
+    /**
+     * Beschriftung einer eingetragenen Adresse. Ein Verteiler, an den nur
+     * die Verwaltung schreiben darf, bleibt für alle anderen die bloße
+     * Adresse, wie im Adressbuch, wo er ganz fehlt.
+     */
     private function addressLabel(string $address): string
     {
         $mailbox = $this->directory->findMailbox($address);
         if ($mailbox !== null) {
             return ($mailbox->displayName ?? $address) . ' <' . $mailbox->address . '>';
         }
-        $list = $this->directory->findList($address);
+        $list = MailList::query()->where('address', MailAddressRules::normalize($address))->first();
+        if ($list === null || ($list->senders === MailList::SENDERS_MANAGERS && !self::canManageLists())) {
+            return $address;
+        }
 
-        return $list !== null ? ($list->displayName ?? $address) . ' <' . $list->address . '> · Verteiler' : $address;
+        return $list->name . ' <' . $list->address . '> · Verteiler';
     }
 
     /**
@@ -1003,7 +1011,8 @@ final class MailController extends Controller
 
         return self::json([
             'success' => false,
-            'message' => 'An den Verteiler „' . $restricted->name . '“ (' . $restricted->address . ') darf nur schreiben, wer Verteiler verwaltet.',
+            // Nur die Adresse: den Namen eines solchen Verteilers sieht nur die Verwaltung.
+            'message' => 'An den Verteiler ' . $restricted->address . ' darf nur schreiben, wer Verteiler verwaltet.',
         ], 422);
     }
 

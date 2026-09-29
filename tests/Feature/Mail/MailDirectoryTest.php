@@ -102,6 +102,7 @@ final class MailDirectoryTest extends FeatureTestCase
         $alice = $this->member('Alice Absender');
         $bob   = $this->member('Bob Empfang');
         $restricted = $this->list('leitung@ignis.ef', senders: MailList::SENDERS_MANAGERS);
+        $restricted->update(['name' => 'Geheime Runde']);
         Capsule::table('intra_mail_list_members')->insert(['list_id' => $restricted->id, 'mailbox_id' => $bob['mailbox']->id]);
 
         // Normale Nutzer: abgelehnt, egal ob An, CC oder BCC.
@@ -109,7 +110,10 @@ final class MailDirectoryTest extends FeatureTestCase
         foreach (['to', 'cc', 'bcc'] as $field) {
             $response = $this->post('/mail/drafts/' . $this->draft() . '/send', [$field => ['leitung@ignis.ef']]);
             $this->assertStatus(422, $response);
-            $this->assertStringContainsString('Leitung', (string) ($this->assertJsonResponse($response)['message'] ?? ''));
+            // Nur die Adresse, nie der Name eines Verteilers, den man nicht sieht.
+            $message = (string) ($this->assertJsonResponse($response)['message'] ?? '');
+            $this->assertStringContainsString('leitung@ignis.ef', $message);
+            $this->assertStringNotContainsString('Geheime Runde', $message);
         }
 
         // Allen antworten: der gespeicherte Empfängerkopf mit dem Verteiler
@@ -122,6 +126,14 @@ final class MailDirectoryTest extends FeatureTestCase
         $sent = $this->assertJsonResponse($this->post('/mail/drafts/' . $replyAll . '/send', []));
         $this->assertTrue($sent['success']);
         $this->assertContains(['mailbox_id' => $bob['mailbox']->id, 'role' => 'to', 'folder' => 'inbox'], $this->deliveries($replyAll));
+
+        // Wer antwortet, sieht den Verteiler als bloße Adresse.
+        $this->loginAs($bob['user']);
+        $compose = $this->get('/mail/compose/reply-all/' . $replyAll);
+        $this->assertBodyContains('leitung@ignis.ef', $compose);
+        $this->assertBodyNotContains('Geheime Runde', $compose);
+        $this->loginAs($alice['user'], ['mail.use', 'mail.lists.manage']);
+        $this->assertBodyContains('Geheime Runde', $this->get('/mail/compose/reply-all/' . $replyAll));
     }
 
     #[Test]
