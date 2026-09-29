@@ -1,12 +1,16 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.0.12-beta
 
 Neu ist das mitgelieferte Plugin „Mail“: ein internes Postfach für jeden Mitarbeiter, das wie ein Mailprogramm funktioniert, aber nichts nach außen schickt. Adressen entstehen aus dem Namen (`m.mueller@ignis.ef` oder `max.mueller@ignis.ef`, einstellbar), das Postfach mit dem Mitarbeiter. Im Archiv-Dienstgrad oder nach dem Löschen wird es stillgelegt, alte Mails bleiben lesbar. Für den Bestand legt `php cli/intra.php mail:backfill` die Postfächer an.
 
 Geschrieben wird im Drawer mit An, CC und BCC samt Vorschlägen aus dem Adressbuch, formatiertem Text mit Links, Anhängen (Bilder, PDF, Text, bis 10 MB je Mail) und Signatur. Entwürfe speichern sich beim Tippen. Die Ordner heißen Posteingang, Gesendet, Entwürfe, Archiv und Papierkorb; ab 1200 px stehen Ordner, Liste und Lesebereich nebeneinander. Neue Mails zeigen die Glocke und ein Zähler am Eintrag „Mail“, die globale Suche findet die eigenen unter „Mails“.
 
 Verteiler gibt es als feste Liste oder als Regel nach Rolle, Dienstgrad oder RD-/FW-Qualifikation; je Verteiler lässt sich festlegen, ob alle oder nur die Verteiler-Verwaltung daran schreiben. Die Postfachverwaltung korrigiert Adressen, sperrt Postfächer und wechselt Domains, sieht aber keine Mails. Neue Rechte: `mail.use`, `mail.lists.manage`, `mail.domain.choose`, `mail.admin`. Die Einstellungen (Domain, Muster, erlaubte Domains, Standard-Signatur) liegen unter Einstellungen › Mail, weil sie dort geprüft werden. Die allgemeine System-Konfiguration zeigt nur noch Werte, die sich dort auch bearbeiten lassen.
+
+Ein Postfach gehört fest einem Benutzerkonto. Passt genau ein Konto zum Mitarbeiter, wird es automatisch zugeordnet, bestehende Postfächer bei der Migration. Ein später geändertes Discord-Tag in der Personalakte verschiebt das Postfach nicht. Umhängen geht nur über „Konto zuordnen“ in der Postfachverwaltung, nie auf das eigene Konto; das bisherige Konto bekommt einen Hinweis, das Audit-Log hält es fest. Anhänge tragen immer die Endung ihres erkannten Typs, doppeltes Senden stellt nicht doppelt zu, und eine Mail ohne erreichbaren Empfänger wird nicht abgeschickt. Antworten zitieren höchstens zehn Ebenen. `mail:backfill` läuft jede Nacht.
+
+Die Anmeldeseite ist aufgeräumter: links nur noch ein Logo, die Begrüßung und die Anmeldung, rechts eine animierte Vorschau der Anwendung. Die Zahlen darin sind erfunden, die Anmeldeseite fragt nichts aus der Datenbank ab. Auf schmalen Bildschirmen entfällt die Vorschau.
 
 ## 2026.0.11-beta
 
