@@ -72,7 +72,7 @@ final class AttachmentStorage
             throw new InvalidArgumentException('Dieser Dateityp ist nicht erlaubt (nur Bilder, PDF oder Text).');
         }
 
-        $name = self::sanitizeName(is_string($upload['name'] ?? null) ? $upload['name'] : '');
+        $name = self::nameFor(self::sanitizeName(is_string($upload['name'] ?? null) ? $upload['name'] : ''), $mime);
         $dir  = $this->ensureDir();
 
         return Capsule::connection()->transaction(function () use ($draft, $tmp, $size, $mime, $extension, $name, $dir): Attachment {
@@ -158,6 +158,31 @@ final class AttachmentStorage
             @unlink($file);
         }
         $attachment->delete();
+    }
+
+    /**
+     * Die Endung folgt dem erkannten Typ, nicht dem Namen: ein als Text
+     * erkanntes „Wachplan.bat“ geht als „Wachplan.txt“ raus, eine fehlende
+     * Endung kommt dazu. Beim Speichern und noch einmal beim Ausliefern.
+     */
+    public static function nameFor(string $name, string $mime): string
+    {
+        $extension = self::ALLOWED[$mime] ?? null;
+        if ($extension === null) {
+            return $name;
+        }
+
+        $stem    = $name;
+        $current = '';
+        if (preg_match('/^(.*)\.([A-Za-z0-9]{1,10})$/s', $name, $m) === 1) {
+            [, $stem, $current] = $m;
+        }
+        $current = strtolower($current);
+        if ($current === $extension || ($extension === 'jpg' && $current === 'jpeg')) {
+            return $name;
+        }
+
+        return ($stem !== '' ? $stem : 'anhang') . '.' . $extension;
     }
 
     /**

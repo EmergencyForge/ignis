@@ -179,6 +179,41 @@ final class MailAttachmentTest extends FeatureTestCase
     }
 
     #[Test]
+    public function die_endung_folgt_dem_erkannten_typ(): void
+    {
+        $alice = $this->member('Alice Absender');
+        $bob   = $this->member('Bob Empfang');
+        $this->loginAs($alice['user']);
+        $id  = $this->draft();
+        $png = (string) base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+
+        $cases = [
+            ["start calc\r\nexit\r\n", 'Wachplan.bat', 'Wachplan.txt'],
+            ['Nur Text', 'LIESMICH', 'LIESMICH.txt'],
+            ['Nur Text', 'notiz.TXT', 'notiz.TXT'],
+            [$png, 'bild.txt', 'bild.png'],
+            [$png, '.exe', 'anhang.png'],
+        ];
+        $ids = [];
+        foreach ($cases as [$contents, $name, $expected]) {
+            $data = $this->assertJsonResponse($this->attach($id, $contents, $name));
+            $this->assertTrue($data['success'], $name);
+            $this->assertSame($expected, $data['name'], $name);
+            $ids[] = (int) $data['attachmentId'];
+        }
+
+        $this->post('/mail/drafts/' . $id . '/send', ['to' => [$bob['mailbox']->address]]);
+        $this->loginAs($bob['user']);
+        $download = $this->get('/mail/attachments/' . $ids[0]);
+        $this->assertSame('text/plain', $download->headers['Content-Type']);
+        $this->assertStringStartsWith('attachment; filename="Wachplan.txt"', $download->headers['Content-Disposition']);
+
+        // Auch ein älterer Datensatz geht nur mit der passenden Endung raus.
+        Attachment::query()->whereKey($ids[0])->update(['original_name' => 'Wachplan.bat']);
+        $this->assertStringStartsWith('attachment; filename="Wachplan.txt"', $this->get('/mail/attachments/' . $ids[0])->headers['Content-Disposition']);
+    }
+
+    #[Test]
     public function dateiname_nach_rfc_5987(): void
     {
         $this->assertSame('attachment; filename="a_b.pdf"; filename*=UTF-8\'\'a%C3%9Fb.pdf', MailController::contentDisposition('aßb.pdf'));

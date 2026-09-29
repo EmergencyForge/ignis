@@ -520,7 +520,7 @@ final class MailController extends Controller
 
         return new Response(200, $contents, [
             'Content-Type'           => $attachment->mime,
-            'Content-Disposition'    => self::contentDisposition($attachment->original_name),
+            'Content-Disposition'    => self::contentDisposition(AttachmentStorage::nameFor($attachment->original_name, $attachment->mime)),
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control'          => 'private, no-store',
         ]);
