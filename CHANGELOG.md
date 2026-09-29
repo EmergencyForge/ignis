@@ -1,5 +1,13 @@
 # Changelog
 
+## Unveröffentlicht
+
+Neu ist das mitgelieferte Plugin „Mail“: ein internes Postfach für jeden Mitarbeiter, das wie ein Mailprogramm funktioniert, aber nichts nach außen schickt. Adressen entstehen aus dem Namen (`m.mueller@ignis.ef` oder `max.mueller@ignis.ef`, einstellbar), das Postfach mit dem Mitarbeiter. Im Archiv-Dienstgrad oder nach dem Löschen wird es stillgelegt, alte Mails bleiben lesbar. Für den Bestand legt `php cli/intra.php mail:backfill` die Postfächer an.
+
+Geschrieben wird im Drawer mit An, CC und BCC samt Vorschlägen aus dem Adressbuch, formatiertem Text mit Links, Anhängen (Bilder, PDF, Text, bis 10 MB je Mail) und Signatur. Entwürfe speichern sich beim Tippen. Die Ordner heißen Posteingang, Gesendet, Entwürfe, Archiv und Papierkorb; ab 1200 px stehen Ordner, Liste und Lesebereich nebeneinander. Neue Mails zeigen die Glocke und ein Zähler am Eintrag „Mail“, die globale Suche findet die eigenen unter „Mails“.
+
+Verteiler gibt es als feste Liste oder als Regel nach Rolle, Dienstgrad oder RD-/FW-Qualifikation; je Verteiler lässt sich festlegen, ob alle oder nur die Verteiler-Verwaltung daran schreiben. Die Postfachverwaltung korrigiert Adressen, sperrt Postfächer und wechselt Domains, sieht aber keine Mails. Neue Rechte: `mail.use`, `mail.lists.manage`, `mail.domain.choose`, `mail.admin`. Die Einstellungen (Domain, Muster, erlaubte Domains, Standard-Signatur) liegen unter Einstellungen › Mail, weil sie dort geprüft werden. Die allgemeine System-Konfiguration zeigt nur noch Werte, die sich dort auch bearbeiten lassen.
+
 ## 2026.0.11-beta
 
 Die Bausteine der Oberfläche (Knöpfe, Formulare, Dialoge, Tabellen, Karten, Hinweise und mehr) kommen jetzt aus dem gemeinsamen UI-Paket, das auch Lex nutzt. ignis bringt dadurch rund 5.500 Zeilen eigenes CSS weniger mit. Die Kontraste im hellen Theme übernehmen die Korrekturen aus Lex: Text auf farbigen Flächen bleibt überall gut lesbar.

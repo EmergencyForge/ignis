@@ -440,11 +440,13 @@ final class SystemController
         $query = trim((string) ($request->query['q'] ?? ''));
 
         try {
+            // Treffer sind je Nutzer verschieden (eigene Mails, Rechte): nie
+            // in einen geteilten Cache und nicht auf die Platte.
             return Response::json([
                 'q'       => $query,
                 'results' => $this->search->run($query, scope: is_string($request->query['scope'] ?? null) ? $request->query['scope'] : 'all'),
                 'scopes' => $this->search->scopes(),
-            ]);
+            ])->withHeader('Cache-Control', 'private, no-store');
         } catch (\Throwable $e) {
             Logger::error('System: global-search Fehler', ['error' => $e->getMessage(), 'query' => $query]);
             return Response::json(['error' => 'Datenbankfehler'], 500);

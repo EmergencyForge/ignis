@@ -63,6 +63,8 @@ use Plugin\Mail\Models\Signature;
  */
 final class MailController extends Controller
 {
+    use RendersPages;
+
     public const MAX_BODY_JSON_BYTES = 200_000;
     public const MAX_SUBJECT_LENGTH = 255;
     public const MAX_RAW_RECIPIENTS = 100;
@@ -87,11 +89,6 @@ final class MailController extends Controller
         private readonly NotificationManager $notifications,
     ) {
         $this->mailer = new Mailer($store, $directory, $renderer);
-    }
-
-    protected function viewBasePath(): string
-    {
-        return dirname(__DIR__, 2) . '/templates';
     }
 
     // ── Seiten ────────────────────────────────────────────────────
@@ -822,23 +819,6 @@ final class MailController extends Controller
         return $this->page('mail/no-mailbox', [
             'hasMitarbeiter' => $userId !== null && Mailbox::mitarbeiterIdForUser($userId) !== null,
         ]);
-    }
-
-    /**
-     * Rendert eine Ansicht als Antwort; Mail-Seiten landen in keinem Cache.
-     *
-     * @param array<string,mixed> $data
-     */
-    private function page(string $view, array $data, int $status = 200): Response
-    {
-        ob_start();
-        try {
-            $this->renderView($view, $data);
-        } finally {
-            $html = (string) ob_get_clean();
-        }
-
-        return Response::html($html, $status)->withHeader('Cache-Control', 'private, no-store');
     }
 
     /**

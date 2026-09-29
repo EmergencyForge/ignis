@@ -18,7 +18,7 @@ return [
     'permissions'     => ['mail.use', 'mail.lists.manage', 'mail.domain.choose', 'mail.admin'],
     'autoload'        => ['Plugin\\Mail\\' => 'src/'],
     'policies'        => [],
-    'search'          => [],
+    'search'          => ['Plugin\\Mail\\Search\\MailSource'],
     'notifications'   => ['Plugin\\Mail\\Notifications\\MailType'],
     'default_enabled' => true,
     'removable'       => true,

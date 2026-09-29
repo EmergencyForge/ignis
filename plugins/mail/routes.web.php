@@ -14,7 +14,9 @@ declare(strict_types=1);
 
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
+use Plugin\Mail\Controllers\MailAdminController;
 use Plugin\Mail\Controllers\MailController;
+use Plugin\Mail\Controllers\MailListController;
 
 $mailAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.use'])];
 $folders  = '{folder:inbox|sent|drafts|archive|trash}';
@@ -45,3 +47,22 @@ $router->post('/mail/messages/{id:\d+}/delete',  [MailController::class, 'delete
 $router->get( '/mail/attachments/{id:\d+}',      [MailController::class, 'downloadAttachment'], $mailAuth);
 $router->post('/mail/attachments/{id:\d+}/delete', [MailController::class, 'deleteAttachment'], $mailAuth);
 $router->get( '/mail/addressbook',               [MailController::class, 'addressbook'],        $mailAuth);
+
+// Verteiler (mail.lists.manage)
+$listAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.lists.manage'])];
+$router->get( '/mail/lists',                   [MailListController::class, 'index'],   $listAuth);
+$router->get( '/mail/lists/create',            [MailListController::class, 'create'],  $listAuth);
+$router->post('/mail/lists',                   [MailListController::class, 'store'],   $listAuth);
+$router->get( '/mail/lists/{id:\d+}/edit',     [MailListController::class, 'edit'],    $listAuth);
+$router->post('/mail/lists/{id:\d+}',          [MailListController::class, 'update'],  $listAuth);
+$router->post('/mail/lists/{id:\d+}/delete',   [MailListController::class, 'destroy'], $listAuth);
+
+// Postfachverwaltung und Einstellungen (mail.admin) — ohne Einsicht in Mails.
+$adminAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.admin'])];
+$router->get( '/settings/mail',                            [MailAdminController::class, 'settings'],      $adminAuth);
+$router->post('/settings/mail',                            [MailAdminController::class, 'saveSettings'],  $adminAuth);
+$router->get( '/settings/mail/mailboxes',                  [MailAdminController::class, 'mailboxes'],     $adminAuth);
+$router->get( '/settings/mail/mailboxes/{id:\d+}/edit',    [MailAdminController::class, 'editMailbox'],   $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}',         [MailAdminController::class, 'updateMailbox'], $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}/lock',    [MailAdminController::class, 'lockMailbox'],   $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}/unlock',  [MailAdminController::class, 'unlockMailbox'], $adminAuth);
