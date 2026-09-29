@@ -55,7 +55,7 @@ final class MailType implements NotificationTypeInterface
         }
 
         $copies = Delivery::query()->where('message_id', (int) $m[1])->where('mailbox_id', $mailbox->id)
-            ->whereNull('deleted_at')->get(['role', 'folder']);
+            ->where('deleted_at', null)->get(['role', 'folder']);
         $copy = $copies->first(static fn (Delivery $d): bool => $d->role !== 'sender') ?? $copies->first();
 
         return $copy !== null ? MailController::basePath() . 'mail/' . $copy->folder . '/' . (int) $m[1] : null;
