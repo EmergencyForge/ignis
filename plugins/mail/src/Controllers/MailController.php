@@ -71,7 +71,15 @@ final class MailController extends Controller
     public const MAX_RAW_RECIPIENTS = 100;
     public const MAX_RESOLVED_DELIVERIES = 500;
 
-    private const BODY_JSON_MAX_DEPTH = 64;
+    /**
+     * `body_json` ist eine JSON-Spalte; MariaDB nimmt dort höchstens 31
+     * verschachtelte Arrays/Objekte an und wirft sonst einen Constraint-
+     * Fehler (500). json_decode() zählt eine Ebene mehr: Tiefe 32 lässt
+     * genau das durch, was die Spalte speichert. Jedes Zitat kostet zwei
+     * Ebenen, deshalb kappt composeFromOriginal() bei MAX_QUOTE_DEPTH.
+     */
+    private const BODY_JSON_MAX_DEPTH = 32;
+    public const MAX_QUOTE_DEPTH = 10;
     private const MOVABLE_FOLDERS = ['inbox', 'archive', 'trash', 'restore'];
 
     /**
@@ -749,7 +757,7 @@ final class MailController extends Controller
             'title'        => $title,
             'subject'      => mb_substr($draft->subject, 0, self::MAX_SUBJECT_LENGTH),
             'recipients'   => ['to' => $addresses($draft->recipients->to), 'cc' => $addresses($draft->recipients->cc)],
-            'bodyJson'     => $this->withSignature($draft->bodyJson, $mailbox),
+            'bodyJson'     => $this->withSignature(self::capQuotes($draft->bodyJson), $mailbox),
             'inReplyTo'    => $draft->forwardAttachments ? null : $message->id,
             'forwardFrom'  => $draft->forwardAttachments ? $message->id : null,
             'forwardNames' => $draft->forwardAttachments ? $message->attachments->pluck('original_name')->all() : [],
@@ -819,6 +827,33 @@ final class MailController extends Controller
         return is_array($doc) && ($doc['type'] ?? null) === 'doc' ? $doc : null;
     }
 
+    /**
+     * Kappt die Zitate einer Antwort oder Weiterleitung bei MAX_QUOTE_DEPTH
+     * Ebenen: ein tieferes Zitat wird zu einem Absatz „[ältere Zitate
+     * gekürzt]“. Ohne das scheitert jede Kette nach gut einem Dutzend
+     * Antworten an der Tiefengrenze der JSON-Spalte.
+     *
+     * @param array<string,mixed> $node
+     * @return array<string,mixed>
+     */
+    public static function capQuotes(array $node, int $depth = 0): array
+    {
+        if (!is_array($node['content'] ?? null)) {
+            return $node;
+        }
+        foreach ($node['content'] as $i => $child) {
+            if (!is_array($child)) {
+                continue;
+            }
+            $isQuote = ($child['type'] ?? null) === 'blockquote';
+            $node['content'][$i] = $isQuote && $depth >= self::MAX_QUOTE_DEPTH
+                ? ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => '[ältere Zitate gekürzt]']]]
+                : self::capQuotes($child, $depth + ($isQuote ? 1 : 0));
+        }
+
+        return $node;
+    }
+
     /** Enthält ein Editor-Dokument irgendwo Text? Leere Absätze zählen nicht. */
     private static function hasText(mixed $node): bool
     {
@@ -868,6 +903,9 @@ final class MailController extends Controller
             return 'Der Text ist zu groß (höchstens 200 KB).';
         }
         $decoded = json_decode($raw, true, self::BODY_JSON_MAX_DEPTH);
+        if (json_last_error() === JSON_ERROR_DEPTH) {
+            return 'Der Text ist zu tief verschachtelt (zu viele Zitate oder Listen ineinander).';
+        }
 
         return is_array($decoded) && ($decoded['type'] ?? null) === 'doc' ? $decoded : 'Ungültiger Text.';
     }

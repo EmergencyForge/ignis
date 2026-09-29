@@ -181,6 +181,53 @@ final class MailSendTest extends FeatureTestCase
     }
 
     #[Test]
+    public function eine_lange_antwortkette_kappt_die_zitate_und_bleibt_speicherbar(): void
+    {
+        $bob = $this->member('Bob Empfang');
+        $id  = (int) $this->send(['subject' => 'Kette', 'body_json' => self::doc('Anfang'), 'to' => [$bob['mailbox']->address]])['messageId'];
+
+        for ($i = 1; $i <= 60; $i++) {
+            $compose = $this->get('/mail/compose/reply/' . $id);
+            $this->assertOk($compose);
+            $this->assertSame(1, preg_match('~data-efe-content="([^"]*)"~', $compose->body, $m));
+            $doc = json_decode(html_entity_decode($m[1], ENT_QUOTES), true);
+            $doc['content'][0]['content'] = [['type' => 'text', 'text' => 'Antwort ' . $i]];
+
+            $draft = $this->draft(['subject' => 'Re: Kette', 'body_json' => (string) json_encode($doc), 'in_reply_to' => (string) $id, 'to' => [$bob['mailbox']->address]]);
+            $sent  = $this->assertJsonResponse($this->post('/mail/drafts/' . $draft . '/send', []));
+            $this->assertTrue($sent['success'], 'Antwort ' . $i . ': ' . (string) ($sent['message'] ?? ''));
+            $id = $draft;
+        }
+
+        $last = Message::query()->findOrFail($id);
+        $depth = static function (array $node) use (&$depth): int {
+            $inner = 0;
+            foreach ((array) ($node['content'] ?? []) as $child) {
+                $inner = max($inner, is_array($child) ? $depth($child) : 0);
+            }
+
+            return $inner + (($node['type'] ?? null) === 'blockquote' ? 1 : 0);
+        };
+        $this->assertSame(10, $depth($last->body_json));
+        $this->assertStringContainsString('[ältere Zitate gekürzt]', (string) $last->body_html);
+        $this->assertStringContainsString('Antwort 51', (string) $last->body_html);
+        $this->assertStringNotContainsString('Antwort 49', (string) $last->body_html);
+    }
+
+    #[Test]
+    public function zu_tief_verschachtelter_text_ist_eine_ablehnung(): void
+    {
+        $node = ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'tief']]];
+        for ($i = 0; $i < 15; $i++) {
+            $node = ['type' => 'blockquote', 'content' => [$node]];
+        }
+        $response = $this->post('/mail/drafts', ['subject' => 'Tief', 'body_json' => (string) json_encode(['type' => 'doc', 'content' => [$node]])]);
+
+        $this->assertStatus(422, $response);
+        $this->assertStringContainsString('zu tief verschachtelt', (string) ($this->assertJsonResponse($response)['message'] ?? ''));
+    }
+
+    #[Test]
     public function die_rohe_empfaengerzahl_zaehlt_vor_jeder_pruefung(): void
     {
         $id   = $this->draft();
