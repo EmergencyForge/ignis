@@ -445,6 +445,9 @@ final class MailController extends Controller
         } else {
             $own->update(['folder' => $folder]);
         }
+        if ($folder === 'trash') {
+            self::forgetNotifications($message->id);
+        }
 
         return self::json(['success' => true]);
     }
@@ -472,7 +475,7 @@ final class MailController extends Controller
         if ($read && $userId !== null) {
             Capsule::table('intra_notifications')
                 ->where('user_id', $userId)->where('type', 'mail')->where('is_read', 0)
-                ->where('link', self::basePath() . 'mail/inbox/' . $message->id)
+                ->where('link', self::notificationLink($message->id))
                 ->update(['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')]);
         }
 
@@ -501,6 +504,7 @@ final class MailController extends Controller
             }
         }
         $this->store->delete($message->id, MailDirectory::ref($mailbox));
+        self::forgetNotifications($message->id);
 
         return self::json(['success' => true]);
     }
@@ -1053,8 +1057,27 @@ final class MailController extends Controller
         $this->notifications->notify('mail', $userIds, [
             'title'   => 'Neue Mail von ' . $sender->display_name,
             'message' => $subject,
-            'link'    => self::basePath() . 'mail/inbox/' . $messageId,
+            'link'    => self::notificationLink($messageId),
         ]);
+    }
+
+    /**
+     * Der gespeicherte Link eines Glocken-Eintrags, zugleich sein Schlüssel.
+     * Geöffnet wird die Mail dort, wo sie liegt (Notifications\MailType::link()).
+     */
+    public static function notificationLink(int $messageId): string
+    {
+        return self::basePath() . 'mail/inbox/' . $messageId;
+    }
+
+    /** Papierkorb oder gelöscht: die eigenen Glocken-Einträge zur Mail gehen mit. */
+    private static function forgetNotifications(int $messageId): void
+    {
+        $userId = SessionManager::userId();
+        if ($userId !== null) {
+            Capsule::table('intra_notifications')->where('user_id', $userId)->where('type', 'mail')
+                ->where('link', self::notificationLink($messageId))->delete();
+        }
     }
 
     /** Die Nachricht, wenn das Postfach eine nicht gelöschte Kopie davon hat. */

@@ -46,6 +46,41 @@ final class MailIntegrationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function die_glocke_folgt_der_mail_und_braucht_ein_offenes_postfach(): void
+    {
+        $alice = $this->member('Alice Absender');
+        $bob   = $this->member('Bob Empfang');
+        $carla = $this->member('Carla Kopie');
+        $this->loginAs($alice['user']);
+        $id = (int) $this->send(['subject' => 'Wohin?', 'to' => [$bob['mailbox']->address, $carla['mailbox']->address]])['messageId'];
+        $bell = static fn (int $userId): int => (int) Capsule::table('intra_notifications')->where('user_id', $userId)->where('type', 'mail')->count();
+        $type = new \Plugin\Mail\Notifications\MailType();
+
+        // Der Link führt dorthin, wo die Mail gerade liegt.
+        $this->loginAs($bob['user']);
+        $this->assertSame('/mail/inbox/' . $id, $type->link(['link' => '/mail/inbox/' . $id]));
+        $this->post('/mail/messages/' . $id . '/move', ['folder' => 'archive']);
+        $this->assertSame('/mail/archive/' . $id, $type->link(['link' => '/mail/inbox/' . $id]));
+
+        // Papierkorb nimmt den Eintrag mit, die anderen behalten ihren.
+        $this->assertSame(1, $bell($bob['user']->id));
+        $this->post('/mail/messages/' . $id . '/move', ['folder' => 'trash']);
+        $this->assertSame(0, $bell($bob['user']->id));
+        $this->assertSame(1, $bell($carla['user']->id));
+
+        // Endgültig löschen ebenso.
+        $this->loginAs($carla['user']);
+        $this->post('/mail/messages/' . $id . '/delete');
+        $this->assertSame(0, $bell($carla['user']->id));
+
+        // Gesperrtes Postfach: keine Mail-Einträge in der Glocke.
+        $this->assertTrue($type->allowed());
+        $carla['mailbox']->update(['locked' => 1]);
+        $this->loginAs($carla['user']);
+        $this->assertFalse($type->allowed());
+    }
+
+    #[Test]
     public function sidebar_zaehlt_ungelesene_und_die_glocke_meldet_sie(): void
     {
         $alice = $this->member('Alice Absender');
