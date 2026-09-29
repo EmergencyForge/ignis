@@ -30,6 +30,9 @@
 .ignis-mail__snippet { display: block; overflow: hidden; color: var(--tertiary-text); font-size: var(--fs-sm, 13px); font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
 .ignis-mail__subject-line { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .ignis-mail__subject-line i { flex: none; color: var(--tertiary-text); }
+.ignis-mail__flag { flex: none; }
+.ignis-mail__subject-line .ignis-mail__flag i { color: var(--warn-text); }
+.ignis-mail__reading [data-mail-action="flag"][aria-pressed="true"] { color: var(--warn-text); }
 .ignis-mail__subject-text { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
 .ignis-mail__date { white-space: nowrap; color: var(--secondary-text); font-variant-numeric: tabular-nums; }
 
@@ -42,9 +45,14 @@
     body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench] { grid-template-columns: 12rem minmax(0, 1fr) minmax(320px, 26rem); }
     body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench].is-preview-wide { grid-template-columns: 12rem minmax(0, 1fr) minmax(400px, 45%); }
     body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench] .ignis-preview { display: block; }
+    /* Feste Spalten, der Betreff bekommt den Rest. Die Aktionsspalte
+       trägt den „Vorschau“-Knopf (~77px) plus Zellenabstand; darunter ragte
+       er bei 1440px über den Rand. Jede Zeile einzeilig mit Ellipse. */
     .ignis-mail__list table { table-layout: fixed; width: 100%; }
     .ignis-mail__list th:nth-child(1), .ignis-mail__list td:nth-child(1) { width: 10rem; }
     .ignis-mail__list th:nth-child(3), .ignis-mail__list td:nth-child(3) { width: 8.5rem; }
+    .ignis-mail__list th:nth-child(4), .ignis-mail__list td:nth-child(4) { width: 7rem; }
+    .ignis-mail__party, .ignis-mail__subject { overflow: hidden; }
     .ignis-mail__party a { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 @media (max-width: 1199px) {
@@ -60,3 +68,6 @@
 .ignis-mail__editor.efe-page { width: auto; min-height: 12rem; margin: 0; padding: 12px 14px; background: transparent; color: inherit; box-shadow: none; }
 .ignis-mail-compose__footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
 .ignis-mail-compose__footer [role='status'] { flex: 1 1 auto; color: var(--secondary-text); font-size: var(--fs-sm, 13px); }
+
+/* Verteiler: die Kriterien der Regel als Raster, auch bei langen Listen. */
+.ignis-mail-rule__options { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 4px 16px; }

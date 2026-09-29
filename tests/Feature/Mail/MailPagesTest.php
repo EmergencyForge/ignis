@@ -84,6 +84,94 @@ final class MailPagesTest extends FeatureTestCase
         $this->assertBodyNotContains('data-mail-mark-read', $this->get('/mail/inbox/' . $id . '/preview'));
     }
 
+    /** Der Lesebereich einer Seite: alles ab dem <aside> des Arbeitsbereichs. */
+    private static function pane(string $body): string
+    {
+        $start = strpos($body, 'data-ignis-preview aria-live');
+
+        return $start === false ? '' : substr($body, $start);
+    }
+
+    #[Test]
+    public function per_url_zeigt_der_lesebereich_die_gewaehlte_mail(): void
+    {
+        $this->loginAs($this->alice['user']);
+        $older = (int) $this->send(['subject' => 'Ältere Mail', 'body_json' => self::doc('Alt'), 'to' => [$this->bob['mailbox']->address]])['messageId'];
+        $newer = $this->draft(['subject' => 'Neuere Mail', 'to' => [$this->bob['mailbox']->address]]);
+        Capsule::table('intra_mail_attachments')->insert(['message_id' => $newer, 'path' => 'storage/private/mail-attachments/x.txt', 'original_name' => 'dienstplan-neu.txt', 'mime' => 'text/plain', 'size' => 10]);
+        $this->post('/mail/drafts/' . $newer . '/send', []);
+        Capsule::table('intra_mail_messages')->where('id', $older)->update(['sent_at' => date('Y-m-d H:i:s', time() - 3600)]);
+        $this->loginAs($this->bob['user']);
+
+        foreach ([[$newer, 'Neuere Mail', 'Ältere Mail'], [$older, 'Ältere Mail', 'Neuere Mail']] as [$id, $subject, $other]) {
+            $page = $this->get('/mail/inbox/' . $id);
+            $pane = self::pane($page->body);
+            $this->assertStringContainsString('<h3 class="ignis-preview__title">' . $subject . '</h3>', $pane);
+            $this->assertStringNotContainsString($other, $pane);
+            $this->assertStringContainsString('data-mail-id="' . $id . '"', $pane);
+            $this->assertMatchesRegularExpression('~data-ignis-row="' . $id . '"[^>]*aria-selected="true"~', $page->body, 'Die gewählte Zeile ist markiert.');
+            $this->assertSame(1, substr_count($page->body, 'aria-selected="true"'));
+        }
+        $this->assertStringContainsString('dienstplan-neu.txt', self::pane($this->get('/mail/inbox/' . $newer)->body));
+        $this->assertStringNotContainsString('dienstplan-neu.txt', self::pane($this->get('/mail/inbox/' . $older)->body));
+        $this->assertBodyNotContains('aria-selected="true"', $this->get('/mail/inbox'));
+    }
+
+    #[Test]
+    public function die_liste_zeigt_absaetze_getrennt_und_entities_als_zeichen(): void
+    {
+        $this->loginAs($this->alice['user']);
+        $doc = ['type' => 'doc', 'content' => [
+            ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Hallo Anna,']]],
+            ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'anbei Mo & Di.']]],
+        ]];
+        $this->send(['subject' => 'Plan', 'body_json' => (string) json_encode($doc), 'to' => [$this->bob['mailbox']->address]]);
+
+        $this->loginAs($this->bob['user']);
+        $this->assertBodyContains('<span class="ignis-mail__snippet">Hallo Anna, anbei Mo &amp; Di.</span>', $this->get('/mail/inbox'));
+    }
+
+    #[Test]
+    public function markieren_zeigt_die_fahne_und_nur_beteiligte_duerfen(): void
+    {
+        $id = $this->sendRound();
+        $this->loginAs($this->bob['user']);
+
+        $pane = $this->get('/mail/inbox/' . $id . '/preview');
+        $this->assertBodyContains('data-mail-action="flag" data-mail-flagged="0" data-mail-id="' . $id . '" aria-pressed="false"', $pane);
+        $this->assertBodyNotContains('ignis-mail__flag', $this->get('/mail/inbox'));
+
+        $this->assertTrue($this->assertJsonResponse($this->post('/mail/messages/' . $id . '/flag', ['flagged' => '1']))['success']);
+        $this->assertTrue((bool) Delivery::query()->where('message_id', $id)->where('mailbox_id', $this->bob['mailbox']->id)->value('flagged'));
+        $this->assertBodyContains('ignis-mail__flag', $this->get('/mail/inbox'));
+        $this->assertBodyContains('data-mail-flagged="1" data-mail-id="' . $id . '" aria-pressed="true"', $this->get('/mail/inbox/' . $id . '/preview'));
+        $this->assertFalse((bool) Delivery::query()->where('message_id', $id)->where('mailbox_id', $this->carla['mailbox']->id)->value('flagged'), 'Nur die eigene Kopie.');
+
+        $this->assertTrue($this->assertJsonResponse($this->post('/mail/messages/' . $id . '/flag', ['flagged' => '0']))['success']);
+        $this->assertFalse((bool) Delivery::query()->where('message_id', $id)->where('mailbox_id', $this->bob['mailbox']->id)->value('flagged'));
+
+        $eve = $this->member('Eve Fremd');
+        $this->loginAs($eve['user']);
+        $this->assertNotFound($this->post('/mail/messages/' . $id . '/flag', ['flagged' => '1']));
+        $this->assertStatus(422, $this->post('/mail/messages/' . $id . '/flag', ['flagged' => ['1']]));
+    }
+
+    #[Test]
+    public function verfassen_als_seite_hat_kopf_und_karte_im_drawer_nicht(): void
+    {
+        $this->loginAs($this->alice['user']);
+
+        $page = $this->get('/mail/compose');
+        $this->assertBodyContains('<h1>Neue Mail</h1>', $page);
+        $this->assertMatchesRegularExpression('~class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="/mail">Mail</a></span>~', $page->body);
+        $this->assertMatchesRegularExpression('~<div class="ignis-card">\s*<div class="ignis-card__body">\s*<form id="mail-compose-form"~', $page->body);
+
+        $drawer = $this->get('/mail/compose', ['headers' => ['X-Requested-With' => 'fragment']]);
+        $this->assertBodyContains('<form id="mail-compose-form"', $drawer);
+        $this->assertBodyNotContains('<h1>', $drawer);
+        $this->assertBodyNotContains('ignis-breadcrumb', $drawer);
+    }
+
     #[Test]
     public function bcc_sieht_nur_der_absender_und_der_bcc_empfaenger_sich_selbst(): void
     {

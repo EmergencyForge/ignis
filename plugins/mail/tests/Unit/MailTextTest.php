@@ -50,6 +50,16 @@ final class MailTextTest extends TestCase
     }
 
     #[Test]
+    public function klartext_aus_dem_gerenderten_html(): void
+    {
+        $this->assertSame('Hallo Anna, anbei der Plan für Mo & Di. Zeile zwei Punkt Zitat', MailBodyRenderer::plainText(
+            "<p>Hallo Anna,</p><p>anbei der Plan für <strong>Mo &amp; Di</strong>.<br>Zeile&nbsp;zwei</p><ul><li>Punkt</li></ul><blockquote><p>Zitat</p></blockquote>",
+        ));
+        $this->assertSame('', MailBodyRenderer::plainText(null));
+        $this->assertSame('a < b', MailBodyRenderer::plainText('<p>a &lt; b</p>'));
+    }
+
+    #[Test]
     public function domain_liste(): void
     {
         $this->assertSame(['ignis.ef', 'lspd.de'], MailAddressRules::parseDomains(' IGNIS.ef, lspd.de;; kaputt ignis.ef -x.de'));

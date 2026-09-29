@@ -483,6 +483,31 @@ final class MailController extends Controller
     }
 
     /**
+     * POST /mail/messages/{id}/flag — markieren (`flagged=1`) oder die
+     * Markierung entfernen (`0`). Betrifft nur die eigenen Kopien.
+     */
+    public function flag(Request $request, string $id): Response
+    {
+        $mailbox = Mailbox::current();
+        if ($mailbox === null) {
+            return self::noMailbox();
+        }
+        $raw = $request->post['flagged'] ?? null;
+        if ($raw !== '0' && $raw !== '1') {
+            return self::json(['success' => false, 'message' => 'Ungültiger Wert.'], 422);
+        }
+        $message = $this->participantMessage((int) $id, $mailbox);
+        if ($message === null) {
+            return self::json(['success' => false, 'message' => 'Nachricht wurde nicht gefunden.'], 404);
+        }
+
+        Delivery::query()->where('message_id', $message->id)->where('mailbox_id', $mailbox->id)->whereNull('deleted_at')
+            ->update(['flagged' => $raw === '1']);
+
+        return self::json(['success' => true, 'flagged' => $raw === '1']);
+    }
+
+    /**
      * POST /mail/messages/{id}/delete — die eigene Kopie endgültig löschen
      * (weicher Vermerk, die anderen Beteiligten behalten ihre). Bei einem
      * Entwurf gibt es niemanden sonst: er geht samt Anhängen und Dateien ganz.
@@ -713,6 +738,7 @@ final class MailController extends Controller
             'header'        => self::visibleHeader($message, $mailbox, $delivery),
             'bodyHtml'      => $isDraft ? $this->renderer->render($message->body_json) : (string) $message->body_html,
             'needsMarkRead' => $delivery->read_at === null && $delivery->role !== 'sender',
+            'flagged'       => $delivery->flagged,
         ];
     }
 

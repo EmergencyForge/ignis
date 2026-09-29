@@ -7,6 +7,7 @@ namespace Plugin\Mail\Search;
 use App\Auth\Permissions;
 use App\Search\SearchSourceInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Mail\MailBodyRenderer;
 use Plugin\Mail\Models\Mailbox;
 
 /**
@@ -65,7 +66,7 @@ final class MailSource implements SearchSourceInterface
             if (isset($items[$id])) {
                 continue;
             }
-            $text = trim((string) preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $row->body_html), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+            $text = MailBodyRenderer::plainText($row->body_html);
             $hit  = str_contains(mb_strtolower((string) $row->subject . ' ' . $row->display_name . ' ' . $row->address), $needle)
                 || str_contains(mb_strtolower($text), $needle);
             if (!$hit) {

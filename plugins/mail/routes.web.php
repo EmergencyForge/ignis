@@ -43,6 +43,7 @@ $router->post('/mail/drafts/{id:\d+}/send',      [MailController::class, 'sendDr
 $router->post('/mail/drafts/{id:\d+}/attachments', [MailController::class, 'uploadAttachment'], $mailAuth);
 $router->post('/mail/messages/{id:\d+}/move',    [MailController::class, 'move'],               $mailAuth);
 $router->post('/mail/messages/{id:\d+}/read',    [MailController::class, 'markRead'],           $mailAuth);
+$router->post('/mail/messages/{id:\d+}/flag',    [MailController::class, 'flag'],               $mailAuth);
 $router->post('/mail/messages/{id:\d+}/delete',  [MailController::class, 'delete'],             $mailAuth);
 $router->get( '/mail/attachments/{id:\d+}',      [MailController::class, 'downloadAttachment'], $mailAuth);
 $router->post('/mail/attachments/{id:\d+}/delete', [MailController::class, 'deleteAttachment'], $mailAuth);

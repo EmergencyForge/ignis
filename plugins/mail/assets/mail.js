@@ -127,6 +127,34 @@
             return;
         }
 
+        // Markieren bleibt an Ort und Stelle: Knopf und Fahne in der Zeile
+        // wechseln, die Seite lädt nicht neu.
+        if (action === 'flag') {
+            var next = button.getAttribute('data-mail-flagged') === '1' ? '0' : '1';
+            var flagBody = new FormData();
+            flagBody.set('flagged', next);
+            button.disabled = true;
+            post(url + 'flag', flagBody).then(function (result) {
+                button.disabled = false;
+                if (!result.ok) {
+                    snack('error', (result.data && result.data.message) || 'Das hat nicht geklappt.');
+                    return;
+                }
+                button.setAttribute('data-mail-flagged', next);
+                button.setAttribute('aria-pressed', next === '1' ? 'true' : 'false');
+                var line = document.querySelector('tr[data-ignis-row="' + id + '"] .ignis-mail__subject-line');
+                var flag = line && line.querySelector('.ignis-mail__flag');
+                if (next === '0' && flag) flag.remove();
+                if (next === '1' && line && !flag) {
+                    flag = document.createElement('span');
+                    flag.className = 'ignis-mail__flag';
+                    flag.innerHTML = '<i class="fa-solid fa-flag" aria-hidden="true"></i><span class="ignis-sr-only">markiert</span>';
+                    line.querySelector('.ignis-mail__subject-text').after(flag);
+                }
+            });
+            return;
+        }
+
         var body = new FormData();
         var target = url + 'move';
         if (action === 'move') {

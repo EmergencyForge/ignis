@@ -9,6 +9,11 @@
  * Kein Schreiben auf GET: „gelesen“ setzt mail.js per POST, sobald der
  * Lesebereich die Mail zeigt (data-mail-mark-read).
  *
+ * Die per URL gewählte Mail trägt in der Liste aria-selected="true"
+ * (workbench.js pflegt das Attribut danach selbst). Der Lesebereich
+ * bekommt seine Variablen in einem eigenen Scope; die Schleifenvariablen
+ * der Liste dürfen ihn nicht überdecken.
+ *
  * @var string                                   $folder
  * @var array<string, array{label:string, icon:string}> $folders
  * @var \Plugin\Mail\Models\Mailbox              $mailbox
@@ -23,9 +28,10 @@ $bodyId     = 'mail';
 $SITE_TITLE = 'Mail · ' . $folders[$folder]['label'];
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $isOutgoing = in_array($folder, ['sent', 'drafts'], true);
+$selectedId = $readingPane !== null ? (int) $readingPane['message']->id : null;
 
 $snippet = static function (?string $html): string {
-    $text = trim((string) preg_replace('/\s+/u', ' ', strip_tags((string) $html)));
+    $text = \Plugin\Mail\MailBodyRenderer::plainText($html);
 
     return mb_strlen($text) > 90 ? mb_substr($text, 0, 89) . '…' : $text;
 };
@@ -97,20 +103,22 @@ $snippet = static function (?string $html): string {
                                         <th scope="col"><?= $isOutgoing ? 'An' : 'Von' ?></th>
                                         <th scope="col">Betreff</th>
                                         <th scope="col">Datum</th>
+                                        <th scope="col" class="ignis-table__actions"><span class="ignis-sr-only">Aktionen</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($deliveries as $delivery):
-                                        $message = $delivery->message;
-                                        $unread  = $delivery->read_at === null && !$isOutgoing;
-                                        $party   = $isOutgoing
-                                            ? implode(', ', (array) ($message->header_json['to'] ?? []))
-                                            : $message->senderMailbox->display_name;
-                                        $date    = $message->sent_at ?? $message->updated_at ?? $message->created_at;
-                                        $href    = $base . 'mail/' . $folder . '/' . $message->id;
-                                        $subject = $message->subject !== '' ? $message->subject : '(kein Betreff)';
+                                    <?php foreach ($deliveries as $row):
+                                        $rowMessage = $row->message;
+                                        $rowId      = (int) $rowMessage->id;
+                                        $unread     = $row->read_at === null && !$isOutgoing;
+                                        $party      = $isOutgoing
+                                            ? implode(', ', (array) ($rowMessage->header_json['to'] ?? []))
+                                            : $rowMessage->senderMailbox->display_name;
+                                        $date       = $rowMessage->sent_at ?? $rowMessage->updated_at ?? $rowMessage->created_at;
+                                        $href       = $base . 'mail/' . $folder . '/' . $rowId;
+                                        $subject    = $rowMessage->subject !== '' ? $rowMessage->subject : '(kein Betreff)';
                                         ?>
-                                        <tr data-ignis-row="<?= (int) $message->id ?>" data-href="<?= htmlspecialchars($href) ?>" tabindex="0"<?= $unread ? ' class="is-unread"' : '' ?>>
+                                        <tr data-ignis-row="<?= $rowId ?>" data-href="<?= htmlspecialchars($href) ?>" tabindex="0"<?= $unread ? ' class="is-unread"' : '' ?><?= $rowId === $selectedId ? ' aria-selected="true"' : '' ?>>
                                             <td data-label="<?= $isOutgoing ? 'An' : 'Von' ?>" data-mobile-primary class="ignis-mail__party">
                                                 <a href="<?= htmlspecialchars($href) ?>"><?= htmlspecialchars($party !== '' ? $party : '—') ?></a>
                                                 <?php if ($unread): ?><span class="ignis-sr-only">(ungelesen)</span><?php endif; ?>
@@ -118,14 +126,20 @@ $snippet = static function (?string $html): string {
                                             <td data-label="Betreff" data-mobile-context class="ignis-mail__subject">
                                                 <span class="ignis-mail__subject-line">
                                                     <span class="ignis-mail__subject-text"><?= htmlspecialchars($subject) ?></span>
-                                                    <?php if ($message->attachments->isNotEmpty()): ?>
+                                                    <?php if ($row->flagged): ?>
+                                                        <span class="ignis-mail__flag"><i class="fa-solid fa-flag" aria-hidden="true"></i><span class="ignis-sr-only">markiert</span></span>
+                                                    <?php endif; ?>
+                                                    <?php if ($rowMessage->attachments->isNotEmpty()): ?>
                                                         <i class="fa-solid fa-paperclip" aria-hidden="true"></i><span class="ignis-sr-only">mit Anhang</span>
                                                     <?php endif; ?>
                                                 </span>
-                                                <span class="ignis-mail__snippet"><?= htmlspecialchars($snippet($message->body_html)) ?></span>
+                                                <span class="ignis-mail__snippet"><?= htmlspecialchars($snippet($rowMessage->body_html)) ?></span>
                                             </td>
                                             <td data-label="Datum" data-mobile-context class="ignis-mail__date">
                                                 <?= $date !== null ? htmlspecialchars($date->format('d.m.Y H:i')) : '—' ?>
+                                            </td>
+                                            <td class="ignis-table__actions">
+                                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-preview-open>Vorschau</button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -137,7 +151,10 @@ $snippet = static function (?string $html): string {
 
                 <aside class="ignis-preview ignis-mail__pane" data-ignis-preview aria-live="polite">
                     <?php if ($readingPane !== null): ?>
-                        <?php extract($readingPane, EXTR_SKIP); require __DIR__ . '/_reading-pane.php'; ?>
+                        <?php (static function (array $pane): void {
+                            extract($pane);
+                            require __DIR__ . '/_reading-pane.php';
+                        })($readingPane); ?>
                     <?php else: ?>
                         <div class="ignis-preview__empty">
                             <i class="fa-solid fa-envelope-open" aria-hidden="true"></i>

@@ -17,6 +17,7 @@
  * @var array{to:list<string>,cc:list<string>,bcc:list<string>} $header
  * @var string                                  $bodyHtml   Momentaufnahme aus dem Renderer
  * @var bool                                    $needsMarkRead
+ * @var bool                                    $flagged     die eigene Kopie ist markiert
  */
 
 $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
@@ -81,6 +82,9 @@ $list   = static fn (array $addresses): string => $addresses === [] ? '—' : ht
             <a href="<?= htmlspecialchars($base . 'mail/compose/forward/' . $id) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer>
                 <i class="fa-solid fa-share" aria-hidden="true"></i> Weiterleiten
             </a>
+            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-mail-action="flag" data-mail-flagged="<?= $flagged ? '1' : '0' ?>" data-mail-id="<?= $id ?>" aria-pressed="<?= $flagged ? 'true' : 'false' ?>">
+                <i class="fa-solid fa-flag" aria-hidden="true"></i> Markieren
+            </button>
             <?php if ($folder === 'trash'): ?>
                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-mail-action="move" data-mail-target="restore" data-mail-id="<?= $id ?>">
                     <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Wiederherstellen
