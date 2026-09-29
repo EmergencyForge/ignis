@@ -75,6 +75,28 @@ final class SystemPagesTest extends FeatureTestCase
     }
 
     /**
+     * Nicht editierbare Werte fehlen auf der Seite, bis auf API-Schlüssel
+     * und Installations-ID: beide stehen zum Ablesen da, ohne Formularfeld.
+     */
+    #[Test]
+    public function installations_id_steht_nur_zum_ablesen_da(): void
+    {
+        Capsule::table('intra_config')->upsert(
+            [['config_key' => 'INSTALLATION_ID', 'config_value' => 'inst-1234-abcd', 'config_type' => 'string', 'category' => 'telemetrie', 'description' => 'Eindeutige Installations-ID für Telemetrie', 'is_editable' => 0, 'display_order' => 1]],
+            ['config_key'],
+            ['config_value', 'is_editable'],
+        );
+        (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
+
+        $page = $this->get('/settings/system/config');
+
+        $this->assertOk($page);
+        $this->assertMatchesRegularExpression('~<input[^>]*id="INSTALLATION_ID"[^>]*value="inst-1234-abcd"[^>]*readonly~s', $page->body);
+        $this->assertBodyNotContains('name="INSTALLATION_ID"', $page);
+        $this->assertBodyNotContains('MAIL_DOMAIN', $page);
+    }
+
+    /**
      * SYSTEM_LOGO bekommt die Package-Dropzone statt nur des Textfelds; das
      * Textfeld bleibt als Alternative hinter einer Disclosure erhalten. Die
      * grosse Config-Form selbst (id="configForm") bleibt unveraendert —

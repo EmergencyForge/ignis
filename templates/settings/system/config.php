@@ -80,13 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
     exit();
 }
 
-// Nur, was sich hier bearbeiten lässt, dazu der API-Schlüssel mit eigener
-// Anzeige. Andere nicht editierbare Werte stünden sonst als Beschriftung
-// ohne Feld da; wer sie pflegt, hat eine eigene Seite (z. B. /settings/mail).
+// Nur, was sich hier bearbeiten lässt, dazu API-Schlüssel und
+// Installations-ID mit eigener Anzeige (nur lesen). Andere nicht
+// editierbare Werte stünden sonst als Beschriftung ohne Feld da; wer sie
+// pflegt, hat eine eigene Seite (z. B. /settings/mail).
 $configByCategory = array_filter(array_map(
     static fn (array $configs): array => array_values(array_filter(
         $configs,
-        static fn (array $config): bool => (bool) $config['is_editable'] || $config['config_key'] === 'API_KEY',
+        static fn (array $config): bool => (bool) $config['is_editable'] || in_array($config['config_key'], ['API_KEY', 'INSTALLATION_ID'], true),
     )),
     $configManager->getConfigByCategory(),
 ));
@@ -173,6 +174,15 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         </button>
                                                     </div>
                                                     <div class="ignis-field__hint">Dieser API-Schlüssel wird für externe Schnittstellen verwendet. Ein neuer Schlüssel macht alte Integrationen ungültig.</div>
+
+                                                <?php elseif ($config['config_key'] === 'INSTALLATION_ID'): ?>
+                                                    <input
+                                                        type="text"
+                                                        class="ignis-input ignis-mono"
+                                                        id="<?= htmlspecialchars($config['config_key']) ?>"
+                                                        value="<?= htmlspecialchars($config['config_value']) ?>"
+                                                        readonly>
+                                                    <div class="ignis-field__hint">Wird beim ersten Telemetrie-Kontakt vergeben und lässt sich nicht ändern.</div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'boolean'): ?>
                                                     <label class="ignis-switch" for="<?= htmlspecialchars($config['config_key']) ?>">
