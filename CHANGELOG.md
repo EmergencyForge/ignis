@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.11-beta
+
+Die Bausteine der Oberfläche (Knöpfe, Formulare, Dialoge, Tabellen, Karten, Hinweise und mehr) kommen jetzt aus dem gemeinsamen UI-Paket, das auch Lex nutzt. ignis bringt dadurch rund 5.500 Zeilen eigenes CSS weniger mit. Die Kontraste im hellen Theme übernehmen die Korrekturen aus Lex: Text auf farbigen Flächen bleibt überall gut lesbar.
+
+Knöpfe gibt es jetzt in vier Stufen – Primär, Sekundär, Ghost und Gefahr. Die bisherigen Sonderformen (grün, gelb, umrandet, getönt) erscheinen als Sekundär-Knopf, Erfolg-Knöpfe als Primär. Die kleine Zeile über dem Seitentitel ist gedämpft statt orange in Großbuchstaben. Auf der Anmeldeseite ist die rechte Bildspalte mit Logo und Text wieder zu sehen, auf der Einstellungsübersicht stehen Titel und Beschreibung der Kacheln einheitlich untereinander, und im Suchfeld der Mitarbeiterliste überdeckt die Lupe nicht mehr den Text.
+
 ## 2026.0.10-beta
 
 Die globale Suche (Strg K) findet Mitarbeiter, Fahrzeuge, Dokumente, Mängel und Vorlagen jetzt auch bei einem Tippfehler oder vertauschten Umlaut, markiert diese Treffer dezent mit „ähnlich" und lässt Kennungen wie Dienstnummer oder Kennzeichen bewusst unangetastet.
