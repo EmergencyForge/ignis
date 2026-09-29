@@ -142,7 +142,7 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/index.php');
 
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
             $this->redirect('settings/enotf/index');
@@ -261,7 +261,7 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/kategorien/index.php');
 
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
             $this->redirect('settings/enotf/kategorien/index');

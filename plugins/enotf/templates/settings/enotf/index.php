@@ -236,7 +236,18 @@ use App\Helpers\Flash;
                 deleteBtn.addEventListener('click', function() {
                     const id = document.getElementById('quicklink-id').value;
                     if (confirm('Möchten Sie diesen Link wirklich löschen?')) {
-                        window.location.href = '<?= BASE_PATH ?>settings/enotf/delete?id=' + id;
+                        // POST mit CSRF-Token: die Route nimmt nur POST an.
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '<?= BASE_PATH ?>settings/enotf/delete';
+                        form.innerHTML = <?= json_encode(csrf_field(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+                        const idField = document.createElement('input');
+                        idField.type = 'hidden';
+                        idField.name = 'id';
+                        idField.value = id;
+                        form.appendChild(idField);
+                        document.body.appendChild(form);
+                        form.submit();
                     }
                 });
             }

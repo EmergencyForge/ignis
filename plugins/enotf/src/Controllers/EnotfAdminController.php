@@ -46,12 +46,11 @@ class EnotfAdminController extends Controller
         $this->requireAuth();
         if (!Gate::allows('enotf.editProtocol')) {
             Flash::set('error', 'no-permissions');
-            header('Location: ' . EnotfUrl::admin('list'));
-            exit;
+            throw new \EmergencyForge\Http\Exceptions\RedirectException(EnotfUrl::admin('list'));
         }
 
         $userid = $_SESSION['userid'];
-        $id     = (int) ($_GET['id'] ?? 0);
+        $id     = (int) ($_POST['id'] ?? 0);
 
         // Protocol-Info VOR Delete für Notification
         $protocol = Capsule::table('intra_edivi')
@@ -86,8 +85,8 @@ class EnotfAdminController extends Controller
             }
         }
 
-        header('Location: ' . EnotfUrl::admin('list'));
-        exit;
+        // Exception statt header()+exit: der Router schickt den Redirect.
+        throw new \EmergencyForge\Http\Exceptions\RedirectException(EnotfUrl::admin('list'));
     }
 
     public function qmActionsModal(): void

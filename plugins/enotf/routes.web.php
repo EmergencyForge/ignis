@@ -77,7 +77,8 @@ $router->get('/enotf/admin',          [EnotfAdminController::class, 'listAction'
 $router->get('/enotf/admin/',         [EnotfAdminController::class, 'listAction'], $enotfAdminAuth);
 $router->get('/enotf/admin/list',     [EnotfAdminController::class, 'listAction'], $enotfAdminAuth);
 
-$router->get('/enotf/admin/delete',     [EnotfAdminController::class, 'destroy'], $enotfAdminAuth);
+// Nur POST: CsrfMiddleware prüft keine GETs (siehe templates/enotf/admin/list.php).
+$router->post('/enotf/admin/delete',     [EnotfAdminController::class, 'destroy'], $enotfAdminAuth);
 
 $router->get('/enotf/admin/qm-actions-modal',     [EnotfAdminController::class, 'qmActionsModal'], $enotfAdminAuth);
 
