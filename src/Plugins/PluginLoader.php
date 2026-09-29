@@ -35,6 +35,7 @@ class PluginLoader
         'enotf',
         'enotf-v2',
         'firetab',
+        'mail',
     ];
 
     /**

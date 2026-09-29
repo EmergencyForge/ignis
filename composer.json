@@ -8,7 +8,8 @@
     { "type": "path", "url": "../WebPackages/packages/plugin-system",  "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/health-check",   "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/cron-scheduler", "options": { "symlink": true } },
-    { "type": "path", "url": "../WebPackages/packages/fuzzy-search",   "options": { "symlink": true } }
+    { "type": "path", "url": "../WebPackages/packages/fuzzy-search",   "options": { "symlink": true } },
+    { "type": "path", "url": "../WebPackages/packages/mail",           "options": { "symlink": true } }
   ],
   "require": {
     "php": ">=8.3",
@@ -27,12 +28,13 @@
     "illuminate/queue": "^11.0",
     "symfony/console": "^7.0",
     "dragonmantank/cron-expression": "^3.6",
-    "emergencyforge/editor-php": "^0.2",
+    "emergencyforge/editor-php": "^0.3",
     "emergencyforge/http-kernel": "^0.1.3",
     "emergencyforge/plugin-system": "^0.1",
     "emergencyforge/health-check": "^0.1",
     "emergencyforge/cron-scheduler": "^0.1",
-    "emergencyforge/fuzzy-search": "^0.1"
+    "emergencyforge/fuzzy-search": "^0.1",
+    "emergencyforge/mail": "^0.1"
   },
   "autoload": {
     "psr-4": {

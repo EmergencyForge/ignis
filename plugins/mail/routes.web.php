@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Mail — Web-Routen.
+ *
+ * Alles hinter AuthMiddleware + `mail.use`. Das Postfach kommt immer aus
+ * der Sitzung (Mailbox::current()), keine Route nimmt ein fremdes an.
+ * Schreibende Routen prüft die globale CsrfMiddleware.
+ *
+ * @var \EmergencyForge\Http\Router $router
+ */
+
+use App\Http\Middleware\AuthMiddleware;
+use App\Http\Middleware\PermissionMiddleware;
+use Plugin\Mail\Controllers\MailController;
+
+$mailAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.use'])];
+
+$router->post('/mail/drafts',                    [MailController::class, 'createDraft'],        $mailAuth);
+$router->post('/mail/drafts/{id:\d+}',           [MailController::class, 'updateDraft'],        $mailAuth);
+$router->post('/mail/drafts/{id:\d+}/send',      [MailController::class, 'sendDraft'],          $mailAuth);
+$router->post('/mail/drafts/{id:\d+}/attachments', [MailController::class, 'uploadAttachment'], $mailAuth);
+$router->post('/mail/messages/{id:\d+}/move',    [MailController::class, 'move'],               $mailAuth);
+$router->post('/mail/messages/{id:\d+}/read',    [MailController::class, 'markRead'],           $mailAuth);
+$router->post('/mail/messages/{id:\d+}/delete',  [MailController::class, 'delete'],             $mailAuth);
+$router->get( '/mail/attachments/{id:\d+}',      [MailController::class, 'downloadAttachment'], $mailAuth);
+$router->post('/mail/attachments/{id:\d+}/delete', [MailController::class, 'deleteAttachment'], $mailAuth);
+$router->get( '/mail/addressbook',               [MailController::class, 'addressbook'],        $mailAuth);

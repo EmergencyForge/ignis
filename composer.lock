@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6dfee4748b22a166449761ea68249943",
+    "content-hash": "9ff3ffa0ed6591c77a909cf8539d7b24",
     "packages": [
         {
             "name": "brick/math",
@@ -810,11 +810,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.2.0",
+            "version": "0.3.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "07643c601cf3f2f25e2c5ebe7a2c350088f43ba9"
+                "reference": "ea526247f3c0cf1cb49c9419208a3d084c5ea29e"
             },
             "require": {
                 "php": ">=8.3",
@@ -943,6 +943,41 @@
                 "MIT"
             ],
             "description": "Schlanker HTTP-Kern der EmergencyForge-Anwendungen: Router (FastRoute), Middleware-Pipeline, Request/Response ohne PSR-7.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/mail",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/mail",
+                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
+            },
+            "require": {
+                "emergencyforge/fuzzy-search": "^0.1",
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\Mail\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\Mail\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Internes Mailmodul fuer Lex und ignis: Adressvergabe, Verteiler-Aufloesung, Postfach-Zustellung und Antwort/Weiterleiten, ohne Datenbank und ohne SMTP.",
             "transport-options": {
                 "symlink": true,
                 "relative": true

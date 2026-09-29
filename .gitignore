@@ -8,6 +8,7 @@ php_errors.log
 storage/logs/
 storage/documents/**.pdf
 storage/private/**/*.pdf
+storage/private/mail-attachments/
 storage/profile-pictures/
 node_modules/
 storage/cache/

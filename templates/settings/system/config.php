@@ -80,7 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
     exit();
 }
 
-$configByCategory = $configManager->getConfigByCategory();
+// Nur, was sich hier bearbeiten lässt, dazu der API-Schlüssel mit eigener
+// Anzeige. Andere nicht editierbare Werte stünden sonst als Beschriftung
+// ohne Feld da; wer sie pflegt, hat eine eigene Seite (z. B. /settings/mail).
+$configByCategory = array_filter(array_map(
+    static fn (array $configs): array => array_values(array_filter(
+        $configs,
+        static fn (array $config): bool => (bool) $config['is_editable'] || $config['config_key'] === 'API_KEY',
+    )),
+    $configManager->getConfigByCategory(),
+));
 
 $layout = 'admin';
 $bodyId = 'settings';
