@@ -76,8 +76,14 @@ final class AttachmentStorage
         $dir  = $this->ensureDir();
 
         return Capsule::connection()->transaction(function () use ($draft, $tmp, $size, $mime, $extension, $name, $dir): Attachment {
-            if (Message::query()->whereKey($draft->id)->lockForUpdate()->first() === null) {
+            // Dieselbe Zeilensperre wie beim Senden: was hier ankommt, ist
+            // entweder noch ein Entwurf oder schon gesendet, nie dazwischen.
+            $locked = Message::query()->whereKey($draft->id)->lockForUpdate()->first();
+            if ($locked === null) {
                 throw new InvalidArgumentException('Entwurf wurde nicht gefunden.');
+            }
+            if ($locked->status !== 'draft') {
+                throw new InvalidArgumentException('Die Mail ist schon gesendet, Anhänge lassen sich nicht mehr ändern.');
             }
 
             $total = (int) Attachment::query()->where('message_id', $draft->id)->sum('size');

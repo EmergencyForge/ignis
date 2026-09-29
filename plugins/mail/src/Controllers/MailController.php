@@ -12,6 +12,7 @@ use App\Notifications\NotificationManager;
 use App\Security\CsrfProtection;
 use App\Session\SessionManager;
 use DateTimeImmutable;
+use DomainException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use EmergencyForge\Mail\Address;
@@ -339,7 +340,11 @@ final class MailController extends Controller
         }
         $draft = $this->ownDraft((int) $id, $mailbox);
         if ($draft === null) {
-            return self::json(['success' => false, 'message' => 'Entwurf wurde nicht gefunden.'], 404);
+            $sent = $this->participantMessage((int) $id, $mailbox);
+
+            return $sent !== null && $sent->sender_mailbox_id === $mailbox->id
+                ? self::alreadySent()
+                : self::json(['success' => false, 'message' => 'Entwurf wurde nicht gefunden.'], 404);
         }
 
         $post = $request->post;
@@ -358,26 +363,46 @@ final class MailController extends Controller
             return $fields;
         }
 
-        $error = $this->restrictedListError($fields['recipients'])
-            ?? $this->resolvedCountError($fields['recipients'], $mailbox);
+        $recipients = $fields['recipients'];
+        if ($recipients->to === [] && $recipients->cc === [] && $recipients->bcc === []) {
+            return self::json(['success' => false, 'message' => 'Die Mail hat keine Empfänger.'], 422);
+        }
+
+        $error = $this->restrictedListError($recipients)
+            ?? $this->resolvedCountError($recipients, $mailbox);
         if ($error !== null) {
             return $error;
         }
 
+        // Senden und Zustellen in einer Transaktion, unter Sperre der Zeile:
+        // zwei gleichzeitige Sende-Requests stellen nicht doppelt zu, und ein
+        // Anhang, der gleichzeitig hochlädt, wartet auf die Sperre und sieht
+        // danach „gesendet“ (AttachmentStorage::store()).
         try {
-            $result = $this->mailer->sendDraft(
-                $draft->id,
-                MailDirectory::ref($mailbox),
-                $fields['subject'],
-                $fields['body'] ?? $draft->body_json,
-                $fields['recipients'],
-                $draft->thread_id,
-                $draft->in_reply_to,
-            );
+            $result = Capsule::connection()->transaction(function () use ($draft, $mailbox, $fields): array {
+                $locked = Message::query()->whereKey($draft->id)->lockForUpdate()->first();
+                if ($locked === null || $locked->status !== 'draft' || $locked->sender_mailbox_id !== $mailbox->id) {
+                    throw new DomainException('bereits gesendet');
+                }
+
+                return $this->mailer->sendDraft(
+                    $locked->id,
+                    MailDirectory::ref($mailbox),
+                    $fields['subject'],
+                    $fields['body'] ?? $locked->body_json,
+                    $fields['recipients'],
+                    $locked->thread_id,
+                    $locked->in_reply_to,
+                );
+            });
+        } catch (DomainException) {
+            return self::alreadySent();
         } catch (InvalidArgumentException $e) {
             return self::json(['success' => false, 'message' => $e->getMessage()], 422);
         }
 
+        // Die Glocke erst nach dem Commit: keine Benachrichtigung zu einer
+        // Mail, die es am Ende nicht gibt.
         $this->notifyRecipients($draft->id, $mailbox, $fields['subject']);
 
         return self::json(['success' => true, 'messageId' => $result['messageId'], 'unresolvedAddresses' => $result['unresolvedAddresses']]);
@@ -875,32 +900,37 @@ final class MailController extends Controller
             return $fail($body);
         }
 
+        // Erst zählen, dann prüfen und Objekte bauen: 100.000 gepostete
+        // Einträge kosten so nur ein count().
+        $raw   = [];
         $total = 0;
-        $lists = [];
         foreach (['to', 'cc', 'bcc'] as $key) {
             $value = $post[$key] ?? [];
-            if ($value === '' || $value === []) {
-                $lists[$key] = [];
-                continue;
+            if ($value === '') {
+                $value = [];
             }
             if (!is_array($value)) {
                 return $fail('Ungültige Empfängerliste.');
             }
-            $recipients = [];
+            $total    += count($value);
+            $raw[$key] = $value;
+        }
+        if ($total > self::MAX_RAW_RECIPIENTS) {
+            return $fail('Zu viele Empfänger (höchstens ' . self::MAX_RAW_RECIPIENTS . ' in An, CC und BCC zusammen).');
+        }
+
+        $lists = [];
+        foreach ($raw as $key => $value) {
+            $lists[$key] = [];
             foreach ($value as $entry) {
                 if (!is_string($entry)) {
                     return $fail('Ungültige Empfängeradresse.');
                 }
                 $entry = trim($entry);
                 if ($entry !== '' && strlen($entry) <= 254) {
-                    $recipients[] = new Recipient(new Address($entry));
+                    $lists[$key][] = new Recipient(new Address($entry));
                 }
             }
-            $total += count($value);
-            $lists[$key] = $recipients;
-        }
-        if ($total > self::MAX_RAW_RECIPIENTS) {
-            return $fail('Zu viele Empfänger (höchstens ' . self::MAX_RAW_RECIPIENTS . ' in An, CC und BCC zusammen).');
         }
 
         return [
@@ -941,13 +971,21 @@ final class MailController extends Controller
 
     /**
      * Zählt die Zustellungen nach Auflösung der Verteiler: ein einzelner
-     * großer Verteiler umginge sonst die Grenze der rohen Eingabe.
+     * großer Verteiler umginge sonst die Grenze der rohen Eingabe. Keine
+     * einzige Zustellung (nur unbekannte Adressen, inaktive oder gesperrte
+     * Postfächer, leere Verteiler) ist ebenfalls eine Ablehnung.
      */
     private function resolvedCountError(RecipientSet $recipients, Mailbox $sender): ?Response
     {
-        $plan = RecipientResolver::resolve($recipients, MailDirectory::ref($sender), $this->directory);
-        if (count($plan->deliveries) > self::MAX_RESOLVED_DELIVERIES) {
+        $plan  = RecipientResolver::resolve($recipients, MailDirectory::ref($sender), $this->directory);
+        $count = count($plan->deliveries);
+        if ($count > self::MAX_RESOLVED_DELIVERIES) {
             return self::json(['success' => false, 'message' => 'Zu viele Empfänger nach Auflösung der Verteiler (höchstens ' . self::MAX_RESOLVED_DELIVERIES . ').'], 422);
+        }
+        if ($count === 0) {
+            return self::json(['success' => false, 'message' => $plan->unresolvedAddresses !== []
+                ? 'Kein Empfänger ist zustellbar. Unbekannt, inaktiv oder gesperrt und damit nicht zustellbar: ' . implode(', ', $plan->unresolvedAddresses) . '.'
+                : 'Kein Empfänger ist zustellbar: die Verteiler haben keine aktiven Mitglieder.'], 422);
         }
 
         return null;
@@ -1025,6 +1063,11 @@ final class MailController extends Controller
         }
 
         return Response::json($data, $status)->withHeader('Cache-Control', 'private, no-store');
+    }
+
+    private static function alreadySent(): Response
+    {
+        return self::json(['success' => false, 'message' => 'Diese Mail ist bereits gesendet.'], 409);
     }
 
     private static function noMailbox(): Response

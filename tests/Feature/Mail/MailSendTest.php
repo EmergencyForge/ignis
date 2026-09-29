@@ -73,8 +73,13 @@ final class MailSendTest extends FeatureTestCase
         sort($recipients);
         $this->assertSame($recipients, $notified);
 
-        // Zweimal senden geht nicht, der Entwurf ist keiner mehr.
-        $this->assertStatus(404, $this->post('/mail/drafts/' . $id . '/send', []));
+        // Zweimal senden geht nicht: 409, keine zweite Runde Zustellungen und Glocken.
+        $before = $this->deliveries($id);
+        $again  = $this->post('/mail/drafts/' . $id . '/send', ['to' => [$bob['mailbox']->address]]);
+        $this->assertStatus(409, $again);
+        $this->assertFalse($this->assertJsonResponse($again)['success']);
+        $this->assertSame($before, $this->deliveries($id));
+        $this->assertSame(3, Capsule::table('intra_notifications')->where('type', 'mail')->where('link', '/mail/inbox/' . $id)->count());
     }
 
     #[Test]
@@ -151,6 +156,40 @@ final class MailSendTest extends FeatureTestCase
         $this->assertStatus(422, $this->post('/mail/drafts/' . $id, ['to' => 'a@ignis.ef']));
         $this->assertStatus(422, $this->post('/mail/drafts/' . $id, ['to' => [['a@ignis.ef']]]));
         $this->assertStatus(422, $this->post('/mail/messages/' . $id . '/move', ['folder' => ['trash']]));
+    }
+
+    #[Test]
+    public function ohne_zustellbare_empfaenger_wird_nicht_gesendet(): void
+    {
+        $id = $this->draft();
+
+        $none = $this->post('/mail/drafts/' . $id . '/send', ['subject' => 'Leer', 'to' => [], 'cc' => [], 'bcc' => []]);
+        $this->assertStatus(422, $none);
+        $this->assertStringContainsString('keine Empfänger', (string) ($this->assertJsonResponse($none)['message'] ?? ''));
+
+        $bob = $this->member('Bob Gesperrt');
+        $bob['mailbox']->locked = true;
+        $bob['mailbox']->save();
+        $inactive = $this->post('/mail/drafts/' . $id . '/send', ['subject' => 'Leer', 'to' => [$bob['mailbox']->address, 'niemand@ignis.ef']]);
+        $this->assertStatus(422, $inactive);
+        $message = (string) ($this->assertJsonResponse($inactive)['message'] ?? '');
+        $this->assertStringContainsString('nicht zustellbar', $message);
+        $this->assertStringContainsString($bob['mailbox']->address, $message);
+
+        $this->assertSame('draft', Message::query()->findOrFail($id)->status);
+        $this->assertCount(1, $this->deliveries($id));
+    }
+
+    #[Test]
+    public function die_rohe_empfaengerzahl_zaehlt_vor_jeder_pruefung(): void
+    {
+        $id   = $this->draft();
+        $many = array_merge([['kein text']], array_fill(0, 100, 'x@ignis.ef'));
+
+        $response = $this->post('/mail/drafts/' . $id, ['to' => $many]);
+
+        $this->assertStatus(422, $response);
+        $this->assertStringContainsString('Zu viele Empfänger', (string) ($this->assertJsonResponse($response)['message'] ?? ''));
     }
 
     #[Test]

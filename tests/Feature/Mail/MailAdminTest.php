@@ -114,7 +114,9 @@ final class MailAdminTest extends FeatureTestCase
 
         // Gesperrt: nicht zustellbar und nicht zu öffnen.
         $this->loginAs($alice['user']);
-        $this->assertSame([$bob['mailbox']->address], $this->send(['to' => [$bob['mailbox']->address]])['unresolvedAddresses']);
+        $blocked = $this->send(['to' => [$bob['mailbox']->address]]);
+        $this->assertFalse($blocked['success']);
+        $this->assertStringContainsString('nicht zustellbar: ' . $bob['mailbox']->address, (string) $blocked['message']);
         $this->loginAs($bob['user']);
         $this->assertBodyContains('Dein Postfach ist nicht aktiv', $this->get('/mail'));
 

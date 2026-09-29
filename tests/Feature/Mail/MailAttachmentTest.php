@@ -179,6 +179,28 @@ final class MailAttachmentTest extends FeatureTestCase
     }
 
     #[Test]
+    public function an_eine_gesendete_mail_kommt_kein_anhang_mehr(): void
+    {
+        $alice = $this->member('Alice Absender');
+        $bob   = $this->member('Bob Empfang');
+        $this->loginAs($alice['user']);
+        $id    = $this->draft();
+        $stale = \Plugin\Mail\Models\Message::query()->findOrFail($id);
+        $this->assertTrue($this->assertJsonResponse($this->post('/mail/drafts/' . $id . '/send', ['to' => [$bob['mailbox']->address]]))['success']);
+
+        $this->assertNotFound($this->attach($id, 'zu spät', 'nachtrag.txt'));
+
+        // Auch wer den Entwurf vor dem Senden geladen hat, kommt nicht mehr durch.
+        try {
+            app(AttachmentStorage::class)->store($stale, $this->upload('zu spät', 'nachtrag.txt'));
+            $this->fail('Anhang an gesendete Mail angenommen.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('gesendet', $e->getMessage());
+        }
+        $this->assertSame(0, Attachment::query()->where('message_id', $id)->count());
+    }
+
+    #[Test]
     public function die_endung_folgt_dem_erkannten_typ(): void
     {
         $alice = $this->member('Alice Absender');
