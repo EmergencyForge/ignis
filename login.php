@@ -176,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         <div class="ignis-login-preview__stats" data-ignis-enter>
                             <div class="ignis-login-preview__stat"><b data-ignis-count>128</b><span>Mitarbeiter</span></div>
                             <div class="ignis-login-preview__stat"><b data-ignis-count>7</b><span>Offene Anträge</span></div>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>23</b><span>Fahrzeuge einsatzbereit</span></div>
+                            <div class="ignis-login-preview__stat"><b data-ignis-count>23</b><span>Fahrzeuge bereit</span></div>
                         </div>
                         <div class="ignis-login-preview__list" data-ignis-enter>
                             <p class="ignis-login-preview__list-title">Letzte Einsätze</p>
