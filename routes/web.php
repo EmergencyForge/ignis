@@ -313,9 +313,9 @@ $router->post('/personnel/profile',     $mitarbeiterProfileDispatch, [new AuthMi
 $router->get('/personnel/create',      [PersonnelController::class, 'create'], $mitarbeiterCreateAuth);
 $router->post('/personnel/create',     [PersonnelController::class, 'store'], $mitarbeiterCreateAuth);
 
-// destroy() läuft per GET (Legacy — könnte später auf DELETE umgestellt werden,
-// aber im aktuellen UI wird das via Link getriggert)
-$router->get('/personnel/delete',     [PersonnelController::class, 'destroy'], $mitarbeiterDeleteAuth);
+// Löschen nur per POST: CsrfMiddleware prüft keine GETs, ein eingebettetes
+// `<img src=".../personnel/delete?id=…">` hätte sonst gelöscht.
+$router->post('/personnel/delete',     [PersonnelController::class, 'destroy'], $mitarbeiterDeleteAuth);
 
 // Dokument-View (GET — zeigt Dokumenten-Details), dokument-delete (POST mit CSRF)
 $router->get('/personnel/document-view',     [PersonnelController::class, 'showDocument'], [new AuthMiddleware()]);
@@ -333,8 +333,8 @@ $router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\Emergen
 
 $router->post('/personnel/document-delete',     [PersonnelController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
 
-// Comment-Delete — wird per Link in der Detail-Liste getriggert, daher GET.
-$router->get('/personnel/comment-delete',     [PersonnelController::class, 'deleteComment'], $mitarbeiterCommentAuth);
+// Comment-Delete — POST mit CSRF-Token, aus demselben Grund wie oben.
+$router->post('/personnel/comment-delete',     [PersonnelController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 
 // ----------------------------------------------------------------------------
 //  Settings-Modul

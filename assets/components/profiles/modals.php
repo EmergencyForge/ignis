@@ -224,9 +224,14 @@ async function toggleArchiveFromViewer(docid, archive) {
             confirmText: 'Löschen',
             title:       'Mitarbeiter löschen',
         }).then(function (ok) {
-            if (ok) {
-                window.location.href = '<?= BASE_PATH ?>personnel/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>';
-            }
+            if (!ok) return;
+            // POST mit CSRF-Token statt Link: ein GET dürfte nichts löschen.
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?= BASE_PATH ?>personnel/delete';
+            form.innerHTML = <?= json_encode(csrf_field() . '<input type="hidden" name="id" value="' . (int) ($_GET['id'] ?? 0) . '">', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+            document.body.appendChild(form);
+            form.submit();
         });
     }
     <?php endif; ?>

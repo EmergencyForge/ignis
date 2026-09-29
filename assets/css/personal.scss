@@ -173,6 +173,12 @@
   font-size: 0.8rem;
 }
 
+// Das Formular (POST mit CSRF-Token) trägt nur den Knopf und nimmt am
+// Flex-Layout von .comment-item nicht teil.
+.comment-item__delete-form {
+  display: contents;
+}
+
 .comment-item__delete {
   opacity: 0;
   transition: opacity 0.15s;
