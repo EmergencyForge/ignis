@@ -83,7 +83,7 @@ const { emergencyForgeUi } = await import(pathToFileURL(resolve(packagesDir, 'pa
 const uiPackageModules = [
     'accordion', 'alert', 'chip', 'colorpicker', 'combobox', 'datepicker',
     'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'file',
-    'form', 'multi-select', 'snackbar', 'tabs', 'tooltip', 'workbench',
+    'form', 'login-preview', 'multi-select', 'snackbar', 'tabs', 'tooltip', 'workbench',
 ];
 const uiProductFiles = {
     dialog:   'assets/js/ui/dialog-compat.js',
