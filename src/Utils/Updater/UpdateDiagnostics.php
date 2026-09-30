@@ -121,8 +121,6 @@ final class UpdateDiagnostics
     {
         $criticalPaths = [
             'root' => $appRoot,
-            'system' => $appRoot . '/system',
-            'system/updates' => $appRoot . '/system/updates',
             'storage' => $appRoot . '/storage',
             'storage/temp' => $appRoot . '/storage/temp',
             'vendor' => $appRoot . '/vendor',
@@ -192,7 +190,7 @@ final class UpdateDiagnostics
 
         // Calculate size of key directories
         $storageSize = $this->getDirectorySize($appRoot . '/storage');
-        $backupSize = $this->getDirectorySize($appRoot . '/system/updates');
+        $backupSize = $this->getDirectorySize($appRoot . '/storage/backups/updates');
 
         // Count temp update directories
         $tempUpdateDirs = glob($appRoot . '/storage/temp/update_*');
@@ -389,7 +387,7 @@ final class UpdateDiagnostics
     private function diagnoseUpdateHistory(): array
     {
         $appRoot = $this->appRoot;
-        $updatesDir = $appRoot . '/system/updates';
+        $updatesDir = $appRoot . '/storage/backups/updates';
 
         $backups = [];
         if (is_dir($updatesDir)) {

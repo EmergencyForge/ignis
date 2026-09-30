@@ -57,6 +57,24 @@ final class UpdateDiagnosticsTest extends TestCase
         self::assertStringContainsString('Typ: permissions', $report['diagnostic_support']);
     }
 
+    #[Test]
+    public function a_healthy_installation_has_no_path_problems_and_its_backups_are_found(): void
+    {
+        foreach (['storage/temp', 'vendor', 'src', 'assets'] as $dir) {
+            $this->tree($dir);
+        }
+        $this->tree('.', ['composer.json' => '{}', 'composer.lock' => '{}']);
+        $this->tree('storage/backups/updates/backup_2026-09-30_12-00-00', ['index.php' => str_repeat('x', 20000)]);
+
+        $diagnostics = $this->diagnostics()->run();
+
+        self::assertSame([], $diagnostics['permissions']['issues']);
+        self::assertSame('ok', $diagnostics['permissions']['status']);
+        self::assertSame(1, $diagnostics['update_history']['backup_count']);
+        self::assertSame('backup_2026-09-30_12-00-00', $diagnostics['update_history']['backups'][0]['name']);
+        self::assertGreaterThan(0, $diagnostics['disk_space']['backup_size_mb']);
+    }
+
     private function diagnostics(): UpdateDiagnostics
     {
         return new UpdateDiagnostics(
