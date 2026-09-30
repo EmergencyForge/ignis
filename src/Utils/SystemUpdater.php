@@ -17,10 +17,11 @@ use App\Utils\Updater\VersionStore;
 use Exception;
 
 /**
- * SystemUpdater
- * 
- * Handles system update operations including checking for updates,
- * downloading updates from GitHub releases, and applying them.
+ * Update-Prüfung und -Installation. Die Klasse hält nur den Ablauf
+ * zusammen; die Arbeit machen die Bausteine in App\Utils\Updater
+ * (GitHub-Zugriff, Archivprüfung, Backup, Kopieren, version.json, Cache,
+ * Composer, Diagnose). Die öffentlichen Methoden bleiben die, die
+ * Einstellungsseiten, API und Konsole aufrufen.
  */
 class SystemUpdater
 {
