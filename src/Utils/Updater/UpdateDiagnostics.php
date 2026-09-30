@@ -88,7 +88,8 @@ final class UpdateDiagnostics
 
         $memoryLimit = ini_get('memory_limit');
         $memoryLimitBytes = $this->convertToBytes((string) $memoryLimit);
-        $memoryAdequate = $memoryLimitBytes >= (128 * 1024 * 1024); // 128 MB minimum
+        // -1 heißt unbegrenzt
+        $memoryAdequate = $memoryLimitBytes === -1 || $memoryLimitBytes >= (128 * 1024 * 1024); // 128 MB minimum
 
         $maxExecutionTime = ini_get('max_execution_time');
         $timeoutAdequate = ($maxExecutionTime == 0 || $maxExecutionTime >= 300); // 5 minutes minimum

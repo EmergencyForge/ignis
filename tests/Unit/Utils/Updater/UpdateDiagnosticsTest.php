@@ -93,6 +93,21 @@ final class UpdateDiagnosticsTest extends TestCase
         self::assertSame('Neuester Fehler', $this->diagnostics()->latestReport()['error_analysis']['message'] ?? null);
     }
 
+    #[Test]
+    public function an_unlimited_memory_limit_is_enough(): void
+    {
+        $previous = (string) ini_get('memory_limit');
+        ini_set('memory_limit', '-1');
+        try {
+            $system = $this->diagnostics()->run()['system_info'];
+        } finally {
+            ini_set('memory_limit', $previous);
+        }
+
+        self::assertSame('-1', $system['memory_limit']);
+        self::assertTrue($system['memory_adequate']);
+    }
+
     private function diagnostics(): UpdateDiagnostics
     {
         return new UpdateDiagnostics(
