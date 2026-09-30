@@ -332,7 +332,7 @@ class UserController extends Controller
     }
 
     /**
-     * GET /benutzer/delete?id=X — Endgültiges Löschen eines Users.
+     * POST /users/delete (id) — Endgültiges Löschen eines Users.
      *
      * Schutzregeln:
      *   - Selbst-Löschung verboten
@@ -344,7 +344,7 @@ class UserController extends Controller
         $this->requireAuth();
 
         $currentUserId = (int) $_SESSION['userid'];
-        $targetId      = (int) ($_GET['id'] ?? 0);
+        $targetId      = (int) ($_POST['id'] ?? 0);
 
         if ($targetId <= 0) {
             Flash::set('error', 'invalid-request');
@@ -384,7 +384,7 @@ class UserController extends Controller
     }
 
     /**
-     * GET /benutzer/toggle-active?id=X&action=deactivate|reactivate
+     * POST /users/toggle-active (id, action=deactivate|reactivate)
      *
      * Soft-Delete: Benutzer wird deaktiviert statt gelöscht. Reaktivierung
      * setzt is_active wieder auf 1 und löscht deactivated_at/by.
@@ -394,8 +394,8 @@ class UserController extends Controller
         $this->requireAuth();
 
         $currentUserId = (int) $_SESSION['userid'];
-        $targetId      = (int) ($_GET['id'] ?? 0);
-        $action        = (string) ($_GET['action'] ?? '');
+        $targetId      = (int) ($_POST['id'] ?? 0);
+        $action        = (string) ($_POST['action'] ?? '');
 
         if ($targetId <= 0 || !in_array($action, ['deactivate', 'reactivate'], true)) {
             Flash::set('error', 'invalid-request');

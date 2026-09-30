@@ -112,13 +112,14 @@ $benutzerEditDispatch = function (\EmergencyForge\Http\Request $request) {
 };
 $router->match(['GET', 'POST'], '/users/edit',     $benutzerEditDispatch, $userAuth);
 
-$router->match(['GET', 'POST'], '/users/delete',     [UserController::class, 'destroy'], $userAuth);
+// Löschen und (De-)Aktivieren nur per POST: CsrfMiddleware prüft keine GETs.
+$router->post('/users/delete',     [UserController::class, 'destroy'], $userAuth);
 
 $router->get('/users/audit-log',     [UserController::class, 'auditlog'], $userAuth);
 
 $router->match(['GET', 'POST'], '/users/registration-codes',     [UserController::class, 'registrationCodes'], $userAuth);
 
-$router->match(['GET', 'POST'], '/users/toggle-active',     [UserController::class, 'setActive'], $userAuth);
+$router->post('/users/toggle-active',     [UserController::class, 'setActive'], $userAuth);
 
 // Rollen-Verwaltung
 $router->get('/users/roles',           [RoleController::class, 'index'], $userAuth);
