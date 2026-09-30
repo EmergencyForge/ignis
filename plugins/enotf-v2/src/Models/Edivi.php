@@ -29,6 +29,7 @@ use App\Models\Model;
  *
  * @property int $freigegeben
  * @property int $hidden_user
+ * @property int $pat_synced
  */
 class Edivi extends Model
 {

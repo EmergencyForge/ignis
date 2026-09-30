@@ -249,13 +249,13 @@ class PersonalLogManager
         $total = (clone $query)->count();
 
         // Get entries for current page
-        $entries = $query
+        /** @var \Illuminate\Database\Eloquent\Collection<int, PersonnelLog> $rows */
+        $rows = $query
             ->orderByDesc('datetime')
             ->offset($offset)
             ->limit($perPage)
-            ->get()
-            ->map(fn (PersonnelLog $entry) => $entry->getAttributes())
-            ->all();
+            ->get();
+        $entries = $rows->map(fn (PersonnelLog $entry) => $entry->getAttributes())->all();
 
         // Parse metadata JSON
         foreach ($entries as &$entry) {

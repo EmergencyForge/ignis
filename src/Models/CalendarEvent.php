@@ -40,6 +40,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon         $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CalendarAttendee> $attendees
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role>             $visibilityRoles
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class CalendarEvent extends EloquentModel
 {

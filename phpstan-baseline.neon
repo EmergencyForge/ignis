@@ -91,18 +91,6 @@ parameters:
 			path: assets/functions/enotf/conditions.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: assets/functions/enotf/enrbridge.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: auth/callback.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -181,12 +169,6 @@ parameters:
 			path: plugins/enotf-v2/src/Controllers/Api/ProtokollApiController.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf-v2/src/Controllers/Api/ProtokollApiController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\EnotfV2\\Models\\EnotfSession\>\:\:active\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -199,33 +181,15 @@ parameters:
 			path: plugins/enotf-v2/src/Controllers/Api/ShareApiController.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: plugins/enotf-v2/src/Controllers/Api/ShareApiController.php
-
-		-
 			message: '#^Variable \$updates in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
 			path: plugins/enotf-v2/src/Controllers/Api/ShareApiController.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: plugins/enotf-v2/src/Controllers/Api/SyncApiController.php
-
-		-
 			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\EdiviVitalwert\:\:aktiv\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: plugins/enotf-v2/src/Controllers/Api/VitalsApiController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\EdiviVitalwert\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: plugins/enotf-v2/src/Controllers/Api/VitalsApiController.php
 
 		-
@@ -535,18 +499,6 @@ parameters:
 			path: plugins/enotf-v2/templates/overview.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/abschluss.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Vehicle\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/abschluss.php
-
-		-
 			message: '#^Parameter \#1 \$array \(array\{1, 2, 3, 4, 5, 6, 7, 8, \.\.\.\}\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 2
@@ -613,12 +565,6 @@ parameters:
 			path: plugins/enotf/src/Controllers/Api/EnotfController.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 17
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
 			message: '#^Method Plugin\\Enotf\\Controllers\\Api\\EnotfController\:\:handleShareMerge\(\) has parameter \$reqData with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -667,27 +613,9 @@ parameters:
 			path: plugins/enotf/src/Controllers/Api/HospitalAvailabilityController.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\HospitalDepartment\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/HospitalAvailabilityController.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: plugins/enotf/src/Controllers/Api/KlinikCodeController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/KlinikCodeController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviKlinikcode\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
 			path: plugins/enotf/src/Controllers/Api/KlinikCodeController.php
 
 		-
@@ -695,12 +623,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: plugins/enotf/src/Controllers/Api/PoiCardController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\HospitalDepartment\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/PoiDepartmentsController.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
@@ -823,12 +745,6 @@ parameters:
 			path: plugins/enotf/src/Requests/SaveFieldRequest.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviQmLog\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/admin/qm-actions-modal.php
-
-		-
 			message: '#^Variable \$vehicles in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.variable
 			count: 1
@@ -847,436 +763,16 @@ parameters:
 			path: plugins/enotf/templates/enotf/login.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/print/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviVitalwert\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/print/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/3_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/3_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/freigabe.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviPoi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/freigabe.php
-
-		-
 			message: '#^If condition is always false\.$#'
 			identifier: if.alwaysFalse
 			count: 1
 			path: plugins/enotf/templates/enotf/protokoll/abschluss/freigabe.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/index.php
-
-		-
 			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: plugins/enotf/templates/enotf/protokoll/abschluss/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/anamnese/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/anamnese/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/anamnese/2_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/anamnese/2_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/anamnese/3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/anamnese/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_10.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_11.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_6.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_7.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_8.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_10_9.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_6.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/1_9.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_10.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_11.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_6.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_7.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_8.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_10_9.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_6.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/2_9.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/diagnose/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/atemwege/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/atemwege/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/atemwege/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/atmung/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/atmung/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/atmung/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/ekg/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/erweitern/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/erweitern/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/erweitern/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/index.php
 
 		-
 			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
@@ -1289,132 +785,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 3
 			path: plugins/enotf/templates/enotf/protokoll/erstbefund/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/kreislauf/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/kreislauf/3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/kreislauf/4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/kreislauf/5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/kreislauf/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/messwerte/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/3_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/3_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/neurologie/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/psychisch/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/atemwege/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/atemwege/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/atmung/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/atmung/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/atmung/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
 
 		-
 			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
@@ -1531,30 +901,6 @@ parameters:
 			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviMedikament\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/load_medikamente.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
@@ -1567,164 +913,14 @@ parameters:
 			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/save_medikament.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/save_medikament.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviMedikament\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/save_medikament.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 2
 			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/save_medikament.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/weitere/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/weitere/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/weitere/3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/weitere/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_6.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_7.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_8.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_1_9.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_2_1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_2_2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_2_3.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_2_4.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/1_2_5.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/zugang/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: plugins/enotf/templates/enotf/protokoll/protokollart.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
 			count: 1
 			path: plugins/enotf/templates/enotf/protokoll/rettdaten/1.php
 
@@ -1732,66 +928,12 @@ parameters:
 			message: '#^If condition is always false\.$#'
 			identifier: if.alwaysFalse
 			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/rettdaten/1.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: plugins/enotf/templates/enotf/protokoll/rettdaten/2.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/rettdaten/2.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/protokoll/rettdaten/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/verlauf/add.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviVitalwert\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/protokoll/verlauf/add.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/verlauf/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviVitalwert\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/protokoll/verlauf/index.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/verlauf/list.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/verlauf/list.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviVitalwert\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
 			path: plugins/enotf/templates/enotf/protokoll/verlauf/list.php
 
 		-
@@ -1805,30 +947,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: plugins/enotf/templates/enotf/schnittstelle/index.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviKlinikcode\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/schnittstelle/klinikcode.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\Edivi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/schnittstelle/voranmeldung.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviPoi\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf/templates/enotf/schnittstelle/voranmeldung.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Enotf\\Models\\EdiviPrereg\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf/templates/enotf/schnittstelle/voranmeldung.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
@@ -1849,82 +967,10 @@ parameters:
 			path: plugins/firetab/src/Controllers/Api/FireController.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireIncidentLogEntry\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireIncidentVehicle\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireStatusQueueEntry\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireController.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 4
 			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireIncident\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireIncidentLogEntry\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireIncidentVehicle\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireMapMarker\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireMapMarker\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireMapZone\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireMapZone\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireLagekarteController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireStatusQueueEntry\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireStatusPollController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\Firetab\\Models\\FireStatusQueueEntry\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/firetab/src/Controllers/Api/FireStatusPollController.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
@@ -2245,51 +1291,9 @@ parameters:
 			path: plugins/knowledge-base/migrations/20250607000057_insert_intra_kb_config_29112025.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbCategory\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/knowledge-base/src/Controllers/Api/KnowledgebaseController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbCategory\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: plugins/knowledge-base/src/Controllers/Api/KnowledgebaseController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbTag\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/knowledge-base/src/Controllers/Api/KnowledgebaseController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbTag\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: plugins/knowledge-base/src/Controllers/Api/KnowledgebaseController.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 4
-			path: plugins/knowledge-base/src/Controllers/LexiconController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbEntry\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/knowledge-base/src/Controllers/LexiconController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbEntry\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: plugins/knowledge-base/src/Controllers/LexiconController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\KnowledgeBase\\Models\\KbEntryRelation\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: plugins/knowledge-base/src/Controllers/LexiconController.php
 
 		-
@@ -2497,18 +1501,6 @@ parameters:
 			path: src/Auth/Permissions.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\CalendarAttendee\:\:firstOrCreate\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Calendar/AbsenceSyncService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\CalendarEvent\:\:firstOrNew\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Calendar/AbsenceSyncService.php
-
-		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
@@ -2519,12 +1511,6 @@ parameters:
 			identifier: return.unusedType
 			count: 1
 			path: src/Calendar/AbsenceSyncService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\CalendarAttendee\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Calendar/AttendeeResolver.php
 
 		-
 			message: '#^Method App\\Calendar\\AttendeeResolver\:\:resolveByRoles\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
@@ -2653,12 +1639,6 @@ parameters:
 			path: src/Federation/FederatedPersonnel.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\FederationLink\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Federation/FederationMiddleware.php
-
-		-
 			message: '#^Method App\\Federation\\FederationMiddleware\:\:authenticate\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2681,36 +1661,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Federation/FederationMiddleware.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationLink\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationLink\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationLink\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationLink\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationSyncLog\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Federation/FederationPairingService.php
 
 		-
 			message: '#^Method App\\Federation\\FederationPairingService\:\:createLink\(\) has parameter \$remoteInfo with no value type specified in iterable type array\.$#'
@@ -2741,18 +1691,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationLink\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FederationSyncLog\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Federation/FederationSyncService.php
 
 		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
@@ -2881,24 +1819,6 @@ parameters:
 			path: src/Helpers/Redirects.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:count\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Helpers/UserHelper.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Helpers/UserHelper.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Helpers/UserHelper.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 6
@@ -2921,12 +1841,6 @@ parameters:
 			identifier: ternary.alwaysTrue
 			count: 2
 			path: src/Http/Controllers/Api/NotificationController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\RegistrationCode\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/Api/PersonnelController.php
 
 		-
 			message: '#^Left side of && is always false\.$#'
@@ -2995,51 +1909,15 @@ parameters:
 			path: src/Http/Controllers/Api/VehicleImportController.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Vehicle\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/Api/VehicleImportController.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: src/Http/Controllers/Api/VehicleImportController.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\VehicleTzTemplate\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/Api/VehicleTzTemplatesController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\VehicleTzTemplate\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Http/Controllers/Api/VehicleTzTemplatesController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\CalendarAttendee\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\CalendarAttendee\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\CalendarEvent\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
 			path: src/Http/Controllers/CalendarController.php
 
 		-
@@ -3091,24 +1969,6 @@ parameters:
 			path: src/Http/Controllers/EditorDocumentController.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\FormType\>\:\:active\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -3119,12 +1979,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: src/Http/Controllers/FormsController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\LogbookEntry\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/LogbookController.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Personnel\>\:\:active\(\)\.$#'
@@ -3139,33 +1993,9 @@ parameters:
 			path: src/Http/Controllers/PersonnelController.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\AmbSkill\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FdSkill\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 3
-			path: src/Http/Controllers/PersonnelController.php
-
-		-
 			message: '#^Call to an undefined static method App\\Models\\Rank\:\:active\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Rank\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
 			path: src/Http/Controllers/PersonnelController.php
 
 		-
@@ -3193,12 +2023,6 @@ parameters:
 			path: src/Http/Controllers/PersonnelController.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Http/Controllers/RoleController.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -3211,22 +2035,10 @@ parameters:
 			path: src/Http/Controllers/Settings/AntragSettingsController.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\CronJob\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/Settings/CronController.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: src/Http/Controllers/Settings/CronController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\EditorTemplate\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/Settings/EditorTemplateController.php
 
 		-
 			message: '#^Method App\\Http\\Controllers\\Settings\\FahrzeugeController\:\:collectVehicleData\(\) return type has no value type specified in iterable type array\.$#'
@@ -3865,28 +2677,10 @@ parameters:
 			path: src/Models/VehicleTzTemplate.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Notifications/NotificationManager.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: src/Notifications/NotificationManager.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\PersonnelLog\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\PersonnelLog\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: src/Personnel/PersonalLogManager.php
 
 		-
 			message: '#^Method App\\Personnel\\PersonalLogManager\:\:addEntry\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
@@ -4537,12 +3331,6 @@ parameters:
 			path: templates/users/registration-codes.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: tests/Feature/EditorDocumentTest.php
-
-		-
 			message: '#^Property Tests\\Feature\\InboxTest\:\:\$userId is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
@@ -4591,43 +3379,7 @@ parameters:
 			path: tests/Integration/Jobs/FailedJobsReaderTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Form\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FormData\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FormField\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FormField\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
 			message: '#^Call to an undefined static method App\\Models\\FormType\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FormType\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\FormType\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: tests/Integration/Models/AntragTypModelTest.php
@@ -4639,21 +3391,9 @@ parameters:
 			path: tests/Integration/Models/AntragTypModelTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\RegistrationCode\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/RegistrationCodeModelTest.php
-
-		-
 			message: '#^Call to an undefined static method App\\Models\\RegistrationCode\:\:unused\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
-			path: tests/Integration/Models/RegistrationCodeModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\RegistrationCode\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
 			path: tests/Integration/Models/RegistrationCodeModelTest.php
 
 		-
@@ -4669,33 +3409,9 @@ parameters:
 			path: tests/Integration/Models/RegistrationCodeModelTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 5
-			path: tests/Integration/Models/RoleModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/RoleModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/UserModelTest.php
-
-		-
 			message: '#^Call to an undefined static method App\\Models\\User\:\:active\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: tests/Integration/Models/UserModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
 			path: tests/Integration/Models/UserModelTest.php
 
 		-
@@ -4703,42 +3419,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: tests/Integration/Models/UserModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/UserModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: tests/Integration/Policies/RolePolicyTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Policies/RolePolicyTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Role\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Policies/UserPolicyTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:where\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Policies/UserPolicyTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Policies/UserPolicyTest.php
 
 		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'

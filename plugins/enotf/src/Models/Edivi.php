@@ -22,6 +22,11 @@ use App\Models\Model;
  * Kein `created_at`/`updated_at`-Paar: Zeitstempel sind `sendezeit`
  * (DB-Default CURRENT_TIMESTAMP) und `last_edit` (wird von den Templates
  * explizit per NOW() gesetzt).
+ *
+ * @property int         $freigegeben
+ * @property string|null $pat_vorname
+ * @property string|null $pat_nachname
+ * @property int         $pat_synced
  */
 class Edivi extends Model
 {

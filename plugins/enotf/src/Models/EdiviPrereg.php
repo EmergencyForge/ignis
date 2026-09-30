@@ -14,6 +14,8 @@ use App\Models\Model;
  * Spaltennamen automatisch, dadurch ist das hier kein Sonderfall mehr.
  * `timestamp` und `active` haben DB-Defaults und müssen beim Insert
  * nicht gesetzt werden.
+ *
+ * @property int $id
  */
 class EdiviPrereg extends Model
 {

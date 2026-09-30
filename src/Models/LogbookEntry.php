@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null    $created_by
  * @property \DateTime   $created_at
  * @property \DateTime   $updated_at
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class LogbookEntry extends EloquentModel
 {

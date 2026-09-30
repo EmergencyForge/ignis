@@ -58,6 +58,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null    $created_by
  * @property \DateTime|null $updated_at
  * @property int|null    $updated_by
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class FireIncident extends EloquentModel
 {

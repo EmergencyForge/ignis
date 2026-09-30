@@ -16,10 +16,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int            $event_id
  * @property int            $mitarbeiter_id
  * @property string         $response       'pending'|'accepted'|'declined'|'tentative'
- * @property \DateTime|null $responded_at
+ * @property-read \DateTime|null $responded_at
+ * @property-write \DateTimeInterface|string|null $responded_at
  * @property bool           $is_organizer
  * @property \DateTime      $created_at
  * @property-read Personnel|null $mitarbeiter
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class CalendarAttendee extends EloquentModel
 {

@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string      $data         JSON-Blob der Trupp-Daten
  * @property string|null $created_at
  * @property string|null $updated_at
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class FireAsuRecord extends EloquentModel
 {

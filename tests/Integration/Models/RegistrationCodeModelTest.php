@@ -81,7 +81,7 @@ class RegistrationCodeModelTest extends IntegrationTestCase
         $code = $this->makeCode();
         $reloaded = RegistrationCode::find($code->id);
 
-        $this->assertIsBool($reloaded->is_used);
+        $this->assertIsBool($reloaded->getAttribute('is_used'));
         $this->assertInstanceOf(\DateTimeInterface::class, $reloaded->created_at);
     }
 }
