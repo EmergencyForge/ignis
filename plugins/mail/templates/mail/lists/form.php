@@ -9,7 +9,7 @@
  * @var array<string,mixed>               $form      name, local, domain, kind, senders, members, *_ids
  * @var list<string>                      $domains
  * @var list<\Plugin\Mail\Models\Mailbox> $mailboxes zur Wahl: zustellbare plus bisherige Mitglieder
- * @var array<string, array<int,string>>  $criteria  role_ids|rank_ids|rd_quali_ids|fw_quali_ids => Id => Name
+ * @var array<string, array<int,string>>  $criteria  role_ids|rank_ids|rd_quali_ids|fw_quali_ids|fachdienst_ids => Id => Name
  */
 
 use Plugin\Mail\MailAddressRules;
@@ -31,6 +31,7 @@ $groups = [
     'rank_ids'     => ['Dienstgrade', 'Noch keine Dienstgrade angelegt.'],
     'rd_quali_ids' => ['RD-Qualifikationen', 'Noch keine RD-Qualifikationen angelegt.'],
     'fw_quali_ids' => ['FW-Qualifikationen', 'Noch keine FW-Qualifikationen angelegt.'],
+    'fachdienst_ids' => ['Fachdienste', 'Noch keine Fachdienste angelegt.'],
 ];
 ?>
     <div class="container-full relative" id="mainpageContainer">
@@ -54,7 +55,7 @@ $groups = [
                             <label for="list-kind" class="ignis-field__label">Art</label>
                             <select id="list-kind" name="kind" class="ignis-input">
                                 <option value="static"<?= $form['kind'] !== 'dynamic' ? ' selected' : '' ?>>Statisch: feste Mitglieder</option>
-                                <option value="dynamic"<?= $form['kind'] === 'dynamic' ? ' selected' : '' ?>>Dynamisch: Regel aus Rolle, Dienstgrad, Qualifikation</option>
+                                <option value="dynamic"<?= $form['kind'] === 'dynamic' ? ' selected' : '' ?>>Dynamisch: Regel aus Rolle, Dienstgrad, Qualifikation, Fachdienst</option>
                             </select>
                         </div>
                     </div>

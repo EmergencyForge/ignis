@@ -78,6 +78,12 @@ trait MailFixtures
         return $fw;
     }
 
+    /** Legt einen Fachdienst (Sachgebiet) an und liefert seine Id. */
+    protected function fachdienst(int $sgnr, string $name): int
+    {
+        return (int) Capsule::table('intra_mitarbeiter_fdquali')->insertGetId(['sgnr' => $sgnr, 'sgname' => $name, 'disabled' => 0]);
+    }
+
     /** @param array<string,mixed> $overrides */
     protected function mitarbeiter(string $fullname, array $overrides = []): Personnel
     {

@@ -105,6 +105,21 @@ final class MailListAdminTest extends FeatureTestCase
     }
 
     #[Test]
+    public function fachdienste_sind_ein_kriterium_mit_ids_im_protokoll(): void
+    {
+        $fd = $this->fachdienst(903, 'Höhenrettung');
+        $this->assertBodyContains('Höhenrettung', $this->get('/mail/lists/create'));
+
+        $base = ['name' => 'Höhenretter', 'local' => 'hoehe', 'domain' => 'ignis.ef', 'kind' => 'dynamic', 'senders' => 'all'];
+        $this->assertRedirect($this->post('/mail/lists', $base + ['fachdienst_ids' => [(string) $fd, '999999']]));
+
+        $list = MailList::query()->where('address', 'hoehe@ignis.ef')->firstOrFail();
+        $this->assertSame([$fd], $list->rule['fachdienst_ids']);
+        $this->assertBodyContains('Fachdienst: Höhenrettung', $this->get('/mail/lists'));
+        $this->assertSame([$fd], $this->audit()[0]['context']['fachdienst_ids_added']);
+    }
+
+    #[Test]
     public function das_formular_zeigt_nur_den_bereich_der_gewaehlten_art(): void
     {
         $static  = '~<div[^>]*data-list-kind="static"(?![^>]*hidden)[^>]*>~';
