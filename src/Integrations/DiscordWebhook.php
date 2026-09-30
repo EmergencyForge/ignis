@@ -316,11 +316,11 @@ class DiscordWebhook
 
             $ch = \curl_init($webhookUrl);
             \curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            \curl_setopt($ch, CURLOPT_POST, 1);
+            \curl_setopt($ch, CURLOPT_POST, true);
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
             \curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             \curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Deaktiviere SSL-Verifizierung für Discord
-            \curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            \curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
             \curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
             $response = \curl_exec($ch);

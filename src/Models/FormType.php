@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \DateTime   $erstellt_am
  * @property int|null    $erstellt_von
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FormField> $felder
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Antrag>      $antraege
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Form>        $antraege
  */
 class FormType extends Model
 {
@@ -43,8 +43,10 @@ class FormType extends Model
      */
     public function felder(): HasMany
     {
-        return $this->hasMany(FormField::class, 'antragstyp_id', 'id')
-            ->orderBy('sortierung');
+        $felder = $this->hasMany(FormField::class, 'antragstyp_id', 'id');
+        $felder->orderBy('sortierung');
+
+        return $felder;
     }
 
     /**

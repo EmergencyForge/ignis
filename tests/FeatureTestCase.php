@@ -324,12 +324,12 @@ abstract class FeatureTestCase extends IntegrationTestCase
         );
     }
 
-    protected function assertBodyNotContains(string $needle, Response $response): void
+    protected function assertBodyNotContains(string $needle, Response $response, string $message = ''): void
     {
         $this->assertStringNotContainsString(
             $needle,
             $response->body,
-            "Response body unexpectedly contains '$needle'",
+            $message !== '' ? $message : "Response body unexpectedly contains '$needle'",
         );
     }
 

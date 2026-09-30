@@ -750,7 +750,7 @@ final class EnotfController
             return Response::json(['success' => false, 'error' => 'Ungültiges JSON'], 400);
         }
 
-        if (!isset($data['intraRP_API_Key']) || $data['intraRP_API_Key'] !== API_KEY) {
+        if (!isset($data['intraRP_API_Key']) || $data['intraRP_API_Key'] !== constant('API_KEY')) {
             return Response::json(['success' => false, 'error' => 'Nicht autorisiert', 'hint' => 'API-Key stimmt nicht überein'], 401);
         }
 

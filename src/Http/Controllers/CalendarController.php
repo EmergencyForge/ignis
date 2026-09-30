@@ -729,7 +729,7 @@ class CalendarController extends Controller
     private function formatForFullCalendar(mixed $value, bool $allDay, bool $isEnd = false): string
     {
         if ($value instanceof \DateTimeInterface) {
-            $dt = $value;
+            $dt = \DateTimeImmutable::createFromInterface($value);
         } else {
             try {
                 $dt = new \DateTimeImmutable((string) $value);

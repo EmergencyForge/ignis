@@ -49,7 +49,7 @@ final class FailedJobsReader
     /**
      * Gibt die neuesten Failed Jobs zurück (Default: 100 Einträge).
      *
-     * @return list<array{id:int, uuid:string, connection:string, queue:string, payload:string, exception:string, failed_at:string, job_class:?string, short_message:?string}>
+     * @return list<array{id:int, uuid:string, connection:string, queue:string, payload:string, exception:string, failed_at:string, failed_at_formatted:string, job_class:?string, short_message:?string}>
      */
     public function getRecent(int $limit = 100): array
     {

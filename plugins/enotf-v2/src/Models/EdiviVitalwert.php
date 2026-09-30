@@ -20,6 +20,10 @@ use App\Models\Model;
  * Unicode-Subskript (`SpO₂`, `etCO₂`, …) — v2 mappt beim Lesen auf
  * Codes, muss die Altstrings aber verstehen.
  * Blutzucker wird immer in mg/dl gespeichert (BloodSugarHelper).
+ *
+ * @property int         $geloescht
+ * @property string|null $geloescht_am
+ * @property string|null $geloescht_von
  */
 class EdiviVitalwert extends Model
 {

@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array|null  $theme_config
  * @property string      $theme  dark|light|system, siehe ProfileController::theme()
  * @property-read Role|null $userRole
+ * @property-read Personnel|null $mitarbeiter
  */
 class User extends Model
 {

@@ -26,6 +26,9 @@ use App\Models\Model;
  *   - `createdby`: 1 = Leitstelle/EMD-Sync, 2 = manuell (steuert
  *     Löschbarkeit über /api/enotf/delete-protocol).
  *   - `prot_by`: 0 = Rettungsdienst-, 1 = Notarztprotokoll.
+ *
+ * @property int $freigegeben
+ * @property int $hidden_user
  */
 class Edivi extends Model
 {

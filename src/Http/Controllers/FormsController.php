@@ -81,10 +81,7 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        $felder = FormField::query()
-            ->where('antragstyp_id', $typId)
-            ->orderBy('sortierung')
-            ->get();
+        $felder = $typ->felder;
 
         $this->renderView('forms/create', [
             'typ'         => $typ,
@@ -119,10 +116,7 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        $felder = FormField::query()
-            ->where('antragstyp_id', $typId)
-            ->orderBy('sortierung')
-            ->get();
+        $felder = $typ->felder;
 
         // Validierung: Typ-Check pro Feld, Pflichtfeld-Check, Mass-Assignment-
         // Schutz. Readonly-Felder werden hier bewusst NICHT aus $_POST gezogen

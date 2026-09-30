@@ -1170,8 +1170,11 @@ final class EmdSyncController
     // ── Response-Collection ──────────────────────────────────────────
 
     /**
+     * Schlüssel ist die Dispatch-ID; PHP macht aus der numerischen
+     * Zeichenkette wieder einen int.
+     *
      * @param  array<int, int>  $fireIncidentsByDispatch
-     * @return array<string, array<int, array<string, mixed>>>
+     * @return array<int, list<array<string, mixed>>>
      */
     private function collectLocalSitreps(array $fireIncidentsByDispatch): array
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent-Model für `intra_registration_codes` — Einladungs- und
@@ -14,10 +15,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string      $code
  * @property string|null $label
  * @property int|null    $created_by
- * @property \DateTime   $created_at
+ * @property Carbon      $created_at
  * @property int|null    $used_by
- * @property \DateTime|null $used_at
- * @property \DateTime|null $expires_at
+ * @property Carbon|null    $used_at
+ * @property Carbon|null    $expires_at
  * @property bool        $is_used
  * @property-read User|null $creator
  * @property-read User|null $usedByUser

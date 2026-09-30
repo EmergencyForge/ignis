@@ -33,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $discordid
  * @property bool        $is_archived       (via spätere ALTER-Migration)
  * @property int|null    $template_id       (via spätere ALTER-Migration)
- * @property-read Mitarbeiter|null $mitarbeiter
+ * @property-read Personnel|null $mitarbeiter
  */
 class PersonnelDocument extends Model
 {

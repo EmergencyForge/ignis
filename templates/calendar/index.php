@@ -6,11 +6,11 @@
  * die Kategorie-Filter sind Schalter-Chips (ignis-chip--toggle) über dem
  * Kalender, calendar.js liest die Kästchen darin (.filter-category).
  *
- * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $mitarbeiter
+ * @var \Illuminate\Support\Collection<int,\App\Models\Personnel> $mitarbeiter
  * @var array<int,array<string,mixed>>                              $roles
  * @var array<string,string>                                        $categories
  * @var array<int,string>                                           $colors
- * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $absentToday
+ * @var \Illuminate\Support\Collection<int,\App\Models\Personnel> $absentToday
  */
 
 

@@ -3,7 +3,7 @@
  * View: Mitarbeiter-Profil (Detailseite)
  *
  * Erwartet im Scope (vom PersonnelController::show() via extract()):
- *   @var \App\Models\Mitarbeiter      $mitarbeiter   Eloquent-Model mit Eager-Loaded Relations
+ *   @var \App\Models\Personnel      $mitarbeiter   Eloquent-Model mit Eager-Loaded Relations
  *   @var array                        $row           Mitarbeiter-Attribute (Legacy-Scope-Vertrag für Partials)
  *   @var array                        $dginfo        Dienstgrad-Attribute oder []
  *   @var array                        $rdginfo       RdQuali-Attribute (mind. 'none' => 1)

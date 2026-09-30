@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent-Model fuer `intra_calendar_events` — Termine, role-getaggte
@@ -20,9 +21,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string         $title
  * @property string|null    $description
  * @property string|null    $location
- * @property \DateTime      $starts_at
- * @property \DateTime      $ends_at
+ * @property-read Carbon   $starts_at
+ * @property-write Carbon|string $starts_at  Eloquent nimmt auch 'Y-m-d H:i:s'
+ * @property-read Carbon   $ends_at
+ * @property-write Carbon|string $ends_at
  * @property bool           $all_day
+ * @property bool           $track_attendance
  * @property string         $color
  * @property string         $category
  * @property string         $visibility           'private'|'attendees'|'role'|'all'
@@ -30,10 +34,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null       $source_ref_id
  * @property int            $created_by
  * @property string|null    $recurrence_rule
- * @property \DateTime|null $recurrence_until
+ * @property Carbon|null    $recurrence_until
  * @property int|null       $parent_event_id
- * @property \DateTime      $created_at
- * @property \DateTime      $updated_at
+ * @property Carbon         $created_at
+ * @property Carbon         $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CalendarAttendee> $attendees
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Role>             $visibilityRoles
  */
 class CalendarEvent extends EloquentModel
 {

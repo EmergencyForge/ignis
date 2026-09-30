@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \DateTime|null $responded_at
  * @property bool           $is_organizer
  * @property \DateTime      $created_at
+ * @property-read Personnel|null $mitarbeiter
  */
 class CalendarAttendee extends EloquentModel
 {
