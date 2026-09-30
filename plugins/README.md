@@ -51,7 +51,7 @@ return [
     'name'            => 'eNOTF – Notfallprotokolle',
     'version'         => '1.0.0',
     'vendor'          => 'EmergencyForge',
-    'requires'        => ['ignis' => '>=1.2 <2.0'],
+    'requires'        => ['ignis' => '>=2026.0.6-beta'],
     'depends'         => [],
     'permissions'     => ['enotf.view', 'enotf.edit', 'enotf.admin'],
     // PSR-4-Autoloading für die Plugin-Klassen (Prefix => Ordner im Plugin)

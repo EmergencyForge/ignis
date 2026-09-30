@@ -1,9 +1,10 @@
 # Plugins für ıgnıs
 
-Diese Datei beschreibt den öffentlichen Plugin-Vertrag für ıgnıs 1.x. Nur
+Diese Datei beschreibt den öffentlichen Plugin-Vertrag für ıgnıs 2026.x
+(Versionen nach dem Schema `vJAHR.GROSS.KLEIN`, etwa `v2026.0.13-beta`). Nur
 die hier ausdrücklich dokumentierten Schnittstellen sind stabil. Interne
 Klassen, Templates, Datenbanktabellen und nicht aufgeführte Events dürfen sich
-innerhalb einer Hauptversion ändern.
+auch innerhalb von 2026.x ändern.
 
 ## Verzeichnisstruktur
 
@@ -27,7 +28,9 @@ assets/plugin.js     optional, fertig kompiliert
 ```
 
 Pflichtfelder des Manifests sind `id`, `name` und `version`. `requires.ignis`
-grenzt kompatible ıgnıs-Versionen ein; `depends` nennt andere Plugin-IDs.
+grenzt kompatible ıgnıs-Versionen ein, etwa `>=2026.0.6-beta`. Ältere Manifeste
+mit `>=1.1` passen weiterhin, weil jede Version im Jahresschema größer ist als
+1.x. `depends` nennt andere Plugin-IDs.
 `autoload`, `policies`, `permissions`, `default_enabled` und `removable`
 entsprechen den Beispielen der mitgelieferten Plugins unter `plugins/`.
 
@@ -80,7 +83,7 @@ gekennzeichnet. Ein eigenes `cron.php`-Register gibt es nicht.
 ## Öffentlicher Event-Katalog v1
 
 Die folgenden Events und ihre öffentlichen Konstruktor-Properties gelten in
-ıgnıs 1.x als stabil, solange das jeweilige mitgelieferte Plugin aktiv ist:
+ıgnıs 2026.x als stabil, solange das jeweilige mitgelieferte Plugin aktiv ist:
 
 - `Plugin\Firetab\Events\FireProtocolReleased`: `incidentData` (`array`)
 - `Plugin\Enotf\Events\EnotfProtocolReleased`: `protocolData` (`array`)
@@ -90,7 +93,7 @@ Listener werden in `events.php` als Event-FQCN zu einer Liste von
 Listener-FQCNs gemappt. Jeder Listener besitzt `handle(EventClass $event):
 void`. Listener-Fehler werden geloggt und dürfen den auslösenden Request nicht
 blockieren. Nicht in diesem Katalog aufgeführte Events sind intern und können
-sich ohne Major-Bump ändern.
+sich mit jeder Version ändern.
 
 ## Katalog und Einreichung
 
