@@ -260,8 +260,8 @@
 }
 
 /* Aktiv-Highlight fuer RSVP-Buttons im View-Template — currentColor
-   sorgt dafuer dass der Ring zur Variant-Farbe passt (gruen bei
-   ignis-btn--soft-success, etc.) statt orange Brand-Default. */
+   sorgt dafuer dass der Ring zur Textfarbe des Knopfs passt statt zum
+   orangen Brand-Default. */
 .ignis-btn.is-active {
     box-shadow: inset 0 0 0 1px currentColor;
     font-weight: 700;

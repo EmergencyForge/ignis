@@ -10,7 +10,6 @@
 // $bootstrap-aliases: true (liefert zusätzlich die rohe .input-group-Klasse).
 @include ef.base-tokens;
 @include ef.base('ignis', $bootstrap-aliases: true);
-@include ef.base-legacy-aliases('ignis'); // eine Version lang, dann raus
 
 // =====================================================
 // ıgnıs UI — Produkt-Reste, die base() nicht mitbringt

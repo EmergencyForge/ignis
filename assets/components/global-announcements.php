@@ -85,11 +85,11 @@ if (!$alreadyShown) {
 
 // Typ-Konfiguration
 $typeConfig = [
-    'critical' => ['badge' => 'danger', 'icon' => 'fa-circle-exclamation', 'label' => 'Kritisch'],
-    'warning' => ['badge' => 'warning', 'icon' => 'fa-triangle-exclamation', 'label' => 'Warnung'],
-    'update' => ['badge' => 'primary', 'icon' => 'fa-arrow-up-from-bracket', 'label' => 'Update'],
-    'info' => ['badge' => 'info', 'icon' => 'fa-circle-info', 'label' => 'Info'],
-    'success' => ['badge' => 'success', 'icon' => 'fa-circle-check', 'label' => 'Erfolg'],
+    'critical' => ['badge' => 'danger', 'button' => 'danger', 'icon' => 'fa-circle-exclamation', 'label' => 'Kritisch'],
+    'warning' => ['badge' => 'warn', 'button' => 'secondary', 'icon' => 'fa-triangle-exclamation', 'label' => 'Warnung'],
+    'update' => ['badge' => 'primary', 'button' => 'primary', 'icon' => 'fa-arrow-up-from-bracket', 'label' => 'Update'],
+    'info' => ['badge' => 'info', 'button' => 'secondary', 'icon' => 'fa-circle-info', 'label' => 'Info'],
+    'success' => ['badge' => 'ok', 'button' => 'primary', 'icon' => 'fa-circle-check', 'label' => 'Erfolg'],
 ];
 
 // Höchste Priorität ermitteln (für Modal-Styling)
@@ -154,7 +154,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
                                 <div class="flex items-center gap-2 flex-wrap mt-3">
                                     <?php if (!empty($ann['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ann['link']) ?>" class="ignis-btn ignis-btn--<?= $config['badge'] ?> ignis-btn--sm" target="_blank">
+                                        <a href="<?= htmlspecialchars($ann['link']) ?>" class="ignis-btn ignis-btn--<?= $config['button'] ?> ignis-btn--sm" target="_blank">
                                             <i class="fa-solid fa-external-link mr-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>

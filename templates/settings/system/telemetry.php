@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $telemetry->enable();
                 $message = 'Telemetrie wurde aktiviert. Vielen Dank für deine Unterstützung!';
             }
-            $messageType = 'success';
+            $messageType = 'ok';
             break;
 
         case 'toggle_announcements':
@@ -38,17 +38,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $announcements->enable();
                 $message = 'Ankündigungen wurden aktiviert.';
             }
-            $messageType = 'success';
+            $messageType = 'ok';
             break;
 
         case 'send_heartbeat':
             if ($telemetry->isEnabled()) {
                 $result = $telemetry->sendHeartbeat(true);
                 $message = $result['success'] ? 'Heartbeat erfolgreich gesendet.' : ($result['message'] ?? 'Heartbeat konnte nicht gesendet werden.');
-                $messageType = $result['success'] ? 'success' : 'danger';
+                $messageType = $result['success'] ? 'ok' : 'danger';
             } else {
                 $message = 'Telemetrie ist deaktiviert.';
-                $messageType = 'warning';
+                $messageType = 'warn';
             }
             break;
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $announcements->refreshCache();
             if ($result['success']) {
                 $message = 'Ankündigungen-Cache aktualisiert. ' . ($result['count'] ?? 0) . ' Ankündigungen geladen.';
-                $messageType = 'success';
+                $messageType = 'ok';
             } else {
                 $message = 'Cache-Aktualisierung fehlgeschlagen: ' . ($result['message'] ?? 'Unbekannter Fehler');
                 $messageType = 'danger';
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'updated_at'   => Capsule::raw('NOW()'),
                         ]);
                     $message = 'Hub-URL aktualisiert.';
-                    $messageType = 'success';
+                    $messageType = 'ok';
                 } catch (\PDOException $e) {
                     $message = 'Fehler beim Speichern: ' . $e->getMessage();
                     $messageType = 'danger';
@@ -249,7 +249,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                         <form method="POST" class="inline">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="action" value="toggle_telemetry">
-                                            <button type="submit" class="ignis-btn ignis-btn--<?= $telemetryEnabled ? 'warning' : 'success' ?>">
+                                            <button type="submit" class="ignis-btn ignis-btn--<?= $telemetryEnabled ? 'secondary' : 'primary' ?>">
                                                 <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
@@ -319,7 +319,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                         <form method="POST" class="inline">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="action" value="toggle_announcements">
-                                            <button type="submit" class="ignis-btn ignis-btn--<?= $announcementsEnabled ? 'warning' : 'success' ?>">
+                                            <button type="submit" class="ignis-btn ignis-btn--<?= $announcementsEnabled ? 'secondary' : 'primary' ?>">
                                                 <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $announcementsEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>

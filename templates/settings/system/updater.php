@@ -376,7 +376,7 @@ $SITE_TITLE = 'System Updates';
                                     $urgency = $updater->getUpdateUrgency($updateInfo);
                                     $urgencyColors = [
                                         'low' => 'info',
-                                        'medium' => 'warning',
+                                        'medium' => 'warn',
                                         'high' => 'danger',
                                         'critical' => 'danger'
                                     ];
@@ -386,7 +386,7 @@ $SITE_TITLE = 'System Updates';
                                         'high' => 'Hohe Priorität',
                                         'critical' => 'Kritisch'
                                     ];
-                                    $alertClass = $urgencyColors[$urgency] ?? 'success';
+                                    $alertClass = $urgencyColors[$urgency] ?? 'ok';
                                     ?>
                                     <div class="ignis-alert ignis-alert--<?= $alertClass ?>">
                                         <h5 class="ignis-alert__title"><i class="fa-solid fa-check-circle"></i> Neues Update verfügbar!</h5>

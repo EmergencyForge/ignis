@@ -53,7 +53,7 @@ if (!$ist_freigegeben) {
                     ]);
 
                 $message = 'Vitalparameter erfolgreich gelöscht.';
-                $messageType = 'success';
+                $messageType = 'ok';
             }
             break;
     }

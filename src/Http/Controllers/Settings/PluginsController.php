@@ -129,14 +129,14 @@ final class PluginsController extends Controller
     ): array {
         $entry = $catalog->find($pluginId);
         if ($entry === null) return ['Plugin wurde im aktuellen Katalog nicht gefunden.', 'danger'];
-        if (!($entry['installable'] ?? false)) return ['Installation ist gesperrt: Download oder SHA256-Pin fehlt.', 'warning'];
+        if (!($entry['installable'] ?? false)) return ['Installation ist gesperrt: Download oder SHA256-Pin fehlt.', 'warn'];
 
         try {
             $plugin = $installer->stage($entry, $update);
             if ($update) {
-                return ["„{$plugin->manifest->name}“ wurde auf {$plugin->manifest->version} aktualisiert. Der Aktivierungszustand bleibt erhalten.", 'success'];
+                return ["„{$plugin->manifest->name}“ wurde auf {$plugin->manifest->version} aktualisiert. Der Aktivierungszustand bleibt erhalten.", 'ok'];
             }
-            return ["„{$plugin->manifest->name}“ wurde geprüft und heruntergeladen. Bitte bestätige jetzt separat die Installation.", 'success'];
+            return ["„{$plugin->manifest->name}“ wurde geprüft und heruntergeladen. Bitte bestätige jetzt separat die Installation.", 'ok'];
         } catch (\Throwable $e) {
             return ['Katalog-Installation abgebrochen: ' . $e->getMessage(), 'danger'];
         }
@@ -151,13 +151,13 @@ final class PluginsController extends Controller
     ): array {
         $plugin = $registry->get($pluginId);
         if ($plugin === null) return ['Unbekanntes Plugin.', 'danger'];
-        if (PluginLoader::isBundled($pluginId)) return ['Mitgelieferte Plugins können nicht entfernt werden.', 'warning'];
+        if (PluginLoader::isBundled($pluginId)) return ['Mitgelieferte Plugins können nicht entfernt werden.', 'warn'];
         if (in_array($pluginId, $repository->enabledIds(), true)) {
-            return ['Plugin muss vor dem Entfernen deaktiviert werden.', 'warning'];
+            return ['Plugin muss vor dem Entfernen deaktiviert werden.', 'warn'];
         }
         try {
             $installer->remove($pluginId);
-            return ["Plugin-Dateien von „{$plugin->manifest->name}“ wurden entfernt. Tabellen und Daten bleiben erhalten.", 'success'];
+            return ["Plugin-Dateien von „{$plugin->manifest->name}“ wurden entfernt. Tabellen und Daten bleiben erhalten.", 'ok'];
         } catch (\Throwable $e) {
             return ['Plugin konnte nicht entfernt werden: ' . $e->getMessage(), 'danger'];
         }
@@ -198,7 +198,7 @@ final class PluginsController extends Controller
             return ['Unbekanntes Plugin.', 'danger'];
         }
         if (PluginLoader::isInstalled($plugin)) {
-            return ["„{$plugin->manifest->name}\u{201c} ist bereits installiert.", 'warning'];
+            return ["„{$plugin->manifest->name}\u{201c} ist bereits installiert.", 'warn'];
         }
 
         if (!PluginLoader::markInstalled($plugin)) {
@@ -212,12 +212,12 @@ final class PluginsController extends Controller
         } catch (\Throwable $e) {
             return [
                 "„{$plugin->manifest->name}\u{201c} wurde installiert, aber der Migrationslauf meldete: " . $e->getMessage(),
-                'warning',
+                'warn',
             ];
         }
 
         $repository->setEnabled($pluginId, true);
-        return ["„{$plugin->manifest->name}\u{201c} wurde installiert und aktiviert.", 'success'];
+        return ["„{$plugin->manifest->name}\u{201c} wurde installiert und aktiviert.", 'ok'];
     }
 
     /**
@@ -232,7 +232,7 @@ final class PluginsController extends Controller
             return ['Unbekanntes Plugin.', 'danger'];
         }
         if (!PluginLoader::isInstalled($plugin)) {
-            return ["„{$plugin->manifest->name}\u{201c} ist noch nicht installiert — bitte zuerst die Installation starten.", 'warning'];
+            return ["„{$plugin->manifest->name}\u{201c} ist noch nicht installiert — bitte zuerst die Installation starten.", 'warn'];
         }
 
         $enabledIds = $repository->enabledIds();
@@ -240,17 +240,17 @@ final class PluginsController extends Controller
 
         if ($isEnabled) {
             if (!$plugin->manifest->removable) {
-                return ["„{$plugin->manifest->name}\u{201c} ist fester Bestandteil und kann nicht deaktiviert werden.", 'warning'];
+                return ["„{$plugin->manifest->name}\u{201c} ist fester Bestandteil und kann nicht deaktiviert werden.", 'warn'];
             }
             $dependents = $this->enabledDependents($pluginId, $registry, $enabledIds);
             if ($dependents !== []) {
                 return [
                     "„{$plugin->manifest->name}\u{201c} wird noch benötigt von: " . implode(', ', $dependents) . '. Bitte zuerst dort deaktivieren.',
-                    'warning',
+                    'warn',
                 ];
             }
             $repository->setEnabled($pluginId, false);
-            return ["„{$plugin->manifest->name}\u{201c} wurde deaktiviert. Daten und Tabellen bleiben erhalten.", 'success'];
+            return ["„{$plugin->manifest->name}\u{201c} wurde deaktiviert. Daten und Tabellen bleiben erhalten.", 'ok'];
         }
 
         // Aktivieren: fehlende Abhängigkeiten benennen statt still zu scheitern.
@@ -264,12 +264,12 @@ final class PluginsController extends Controller
         if ($missing !== []) {
             return [
                 "„{$plugin->manifest->name}\u{201c} benötigt zuerst: " . implode(', ', $missing) . '.',
-                'warning',
+                'warn',
             ];
         }
 
         $repository->setEnabled($pluginId, true);
-        return ["„{$plugin->manifest->name}\u{201c} wurde aktiviert.", 'success'];
+        return ["„{$plugin->manifest->name}\u{201c} wurde aktiviert.", 'ok'];
     }
 
     /**
