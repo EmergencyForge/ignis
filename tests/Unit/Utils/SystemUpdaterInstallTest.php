@@ -292,8 +292,7 @@ final class SystemUpdaterInstallTest extends TestCase
         self::assertStringContainsString('ıgnıs System-Diagnose', $result['diagnostic_support']);
         self::assertStringContainsString('Integritätsprüfung fehlgeschlagen', (string) file_get_contents($this->root . '/storage/logs/updater-diagnostic.log'));
         self::assertCount(1, glob($this->root . '/storage/logs/updater-diagnostic_*.json') ?: []);
-        // Ist-Zustand: sucht nach diagnostic_*.json und findet die Berichte nicht.
-        self::assertNull($updater->getLatestDiagnosticReport());
+        self::assertStringStartsWith('Integritätsprüfung fehlgeschlagen', $updater->getLatestDiagnosticReport()['error_analysis']['message'] ?? '');
     }
 
     #[Test]

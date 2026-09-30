@@ -733,7 +733,7 @@ final class UpdateDiagnostics
             file_put_contents($jsonFile, json_encode($diagnostics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
             // Keep only last 10 JSON files
-            $jsonFiles = glob(dirname($this->diagnosticFile) . '/diagnostic_*.json');
+            $jsonFiles = glob($this->reportPattern());
             if (count($jsonFiles) > 10) {
                 usort($jsonFiles, function ($a, $b) {
                     return filemtime($a) <=> filemtime($b);
@@ -755,7 +755,7 @@ final class UpdateDiagnostics
      */
     public function latestReport(): ?array
     {
-        $jsonFiles = glob(dirname($this->diagnosticFile) . '/diagnostic_*.json');
+        $jsonFiles = glob($this->reportPattern());
         if (empty($jsonFiles)) {
             return null;
         }
@@ -767,6 +767,15 @@ final class UpdateDiagnostics
         $latestFile = $jsonFiles[0];
         $content = file_get_contents($latestFile);
         return json_decode((string) $content, true);
+    }
+
+    /**
+     * Die JSON-Berichte heißen wie das Log, nur mit Zeitstempel:
+     * updater-diagnostic.log → updater-diagnostic_20261001_120000.json.
+     */
+    private function reportPattern(): string
+    {
+        return dirname($this->diagnosticFile) . '/' . basename($this->diagnosticFile, '.log') . '_*.json';
     }
 
     /**

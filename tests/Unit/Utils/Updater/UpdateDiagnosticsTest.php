@@ -75,6 +75,24 @@ final class UpdateDiagnosticsTest extends TestCase
         self::assertGreaterThan(0, $diagnostics['disk_space']['backup_size_mb']);
     }
 
+    #[Test]
+    public function keeps_the_ten_newest_reports_and_finds_the_latest(): void
+    {
+        for ($i = 1; $i <= 12; $i++) {
+            $file = sprintf('%s/updater-diagnostic_20260901_1200%02d.json', $this->tree('storage/logs'), $i);
+            file_put_contents($file, '{"alt":' . $i . '}');
+            touch($file, time() - 3600 + $i);
+        }
+
+        $this->diagnostics()->run(new \Exception('Neuester Fehler'));
+
+        $reports = glob($this->tmp . '/storage/logs/updater-diagnostic_*.json') ?: [];
+        self::assertCount(10, $reports);
+        self::assertNotContains($this->tmp . '/storage/logs/updater-diagnostic_20260901_120003.json', $reports);
+        self::assertContains($this->tmp . '/storage/logs/updater-diagnostic_20260901_120004.json', $reports);
+        self::assertSame('Neuester Fehler', $this->diagnostics()->latestReport()['error_analysis']['message'] ?? null);
+    }
+
     private function diagnostics(): UpdateDiagnostics
     {
         return new UpdateDiagnostics(
