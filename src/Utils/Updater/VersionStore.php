@@ -39,7 +39,9 @@ final class VersionStore
                 mkdir($dir, 0755, true);
             }
 
-            file_put_contents($this->file, $json);
+            if (file_put_contents($this->file, $json) === false) {
+                return false;
+            }
             $this->current = $versionData;
 
             return true;

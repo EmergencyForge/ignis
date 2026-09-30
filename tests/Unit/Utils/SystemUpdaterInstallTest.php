@@ -258,6 +258,26 @@ final class SystemUpdaterInstallTest extends TestCase
     }
 
     #[Test]
+    public function an_unwritable_version_json_fails_the_update(): void
+    {
+        $this->serve(self::ASSET_URL, ['composer.json' => '{}', 'index.php' => 'neu']);
+        $updater = $this->updater();
+        unlink($this->root . '/storage/version.json');
+        mkdir($this->root . '/storage/version.json');
+
+        set_error_handler(static fn (): bool => true);
+        try {
+            $result = $updater->downloadAndApplyUpdate(self::ASSET_URL, 'v2026.0.9');
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertFalse($result['success']);
+        self::assertSame('Fehler beim Update: Konnte version.json nicht aktualisieren. Update möglicherweise unvollständig.', $result['message']);
+        self::assertSame('v2026.0.8', $updater->getCurrentVersion()['version']);
+    }
+
+    #[Test]
     public function a_failure_is_diagnosed_and_logged(): void
     {
         $this->serve(self::ASSET_URL, ['composer.json' => '{}']);

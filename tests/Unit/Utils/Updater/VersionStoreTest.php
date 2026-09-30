@@ -40,6 +40,24 @@ final class VersionStoreTest extends TestCase
     }
 
     #[Test]
+    public function a_failed_write_is_reported_and_keeps_the_old_version(): void
+    {
+        $file = $this->tmp . '/version.json';
+        $store = new VersionStore($file);
+        mkdir($file);
+
+        set_error_handler(static fn (): bool => true);
+        try {
+            $written = $store->write(['version' => 'v2026.0.9']);
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertFalse($written);
+        self::assertSame('v0.5.0', $store->current()['version']);
+    }
+
+    #[Test]
     public function the_prerelease_flag_wins_over_the_name(): void
     {
         $file = $this->tree('storage') . '/version.json';
