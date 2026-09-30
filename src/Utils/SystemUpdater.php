@@ -25,12 +25,12 @@ use Exception;
 class SystemUpdater
 {
     private string $versionFile;
-    private string $composerPendingFile;
     private string $appRoot;
     private GitHubReleaseSource $source;
     private VersionStore $versions;
     private UpdateCheckCache $cache;
     private UpdateDiagnostics $diagnostics;
+    private ComposerRunner $composer;
     private string $diagnosticFile;
 
     /**
@@ -42,16 +42,16 @@ class SystemUpdater
         $this->appRoot = $appRoot;
         $this->source = $source ?? new GitHubReleaseSource();
         $this->versionFile = $appRoot . '/storage/version.json';
-        $this->composerPendingFile = $appRoot . '/storage/composer_pending.json';
         $this->diagnosticFile = $appRoot . '/storage/logs/updater-diagnostic.log';
         LegacyStorageMigration::run($appRoot, [
             '/version.json'          => $this->versionFile,
-            '/composer_pending.json' => $this->composerPendingFile,
+            '/composer_pending.json' => $appRoot . '/storage/composer_pending.json',
             '/diagnostic.log'        => $this->diagnosticFile,
         ]);
         $this->versions = new VersionStore($this->versionFile);
         $this->cache = new UpdateCheckCache($appRoot . '/storage/cache/update-check.json');
         $this->diagnostics = new UpdateDiagnostics($appRoot, $this->diagnosticFile, $this->versions, $this->source);
+        $this->composer = new ComposerRunner($appRoot, $appRoot . '/storage/composer_pending.json', $this->diagnostics);
         $this->cleanupOldTempDirectories();
     }
 
@@ -133,26 +133,6 @@ class SystemUpdater
         }
 
         return $warnings;
-    }
-
-    /**
-     * Parse PHP ini size values (e.g. "128M", "1G", "512K") to bytes
-     */
-    private function parsePhpSize(string $size): int
-    {
-        $size = trim($size);
-        if ($size === '-1') return -1;
-        if ($size === '0') return 0;
-
-        $value = (int)$size;
-        $unit = strtoupper(substr($size, -1));
-
-        return match ($unit) {
-            'G' => $value * 1024 * 1024 * 1024,
-            'M' => $value * 1024 * 1024,
-            'K' => $value * 1024,
-            default => $value,
-        };
     }
 
     /**
@@ -302,20 +282,7 @@ class SystemUpdater
             // Step 6: Mark composer as pending (only for zipball updates without vendor/)
             $composerPending = false;
             if (!$isReleaseAsset) {
-                $composerStatus = [
-                    'pending' => true,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'version' => $newVersion
-                ];
-
-                $dir = dirname($this->composerPendingFile);
-                if (!is_dir($dir)) {
-                    mkdir($dir, 0755, true);
-                }
-
-                if (!file_put_contents($this->composerPendingFile, json_encode($composerStatus, JSON_PRETTY_PRINT))) {
-                    \App\Logging\Logger::warning('Warning: Could not write composer pending file: ' . $this->composerPendingFile);
-                }
+                $this->composer->markPending($newVersion);
                 $composerPending = true;
             }
 
@@ -368,149 +335,13 @@ class SystemUpdater
     }
 
     /**
-     * Run composer install after system update
-     * 
-     * @param string $appRoot Application root directory
-     * @return array Result containing execution status and output
-     */
-    private function runComposerInstall(string $appRoot): array
-    {
-        // exec() steht in disable_functions vieler Shared-Hosting-Setups —
-        // seit PHP 8 wirft der Aufruf dann einen fatalen Error statt still
-        // zu scheitern. Ohne exec() kann Composer hier nicht laufen.
-        if (!function_exists('exec')) {
-            return [
-                'executed' => false,
-                'success' => false,
-                'error' => true,
-                'message' => 'exec() ist auf diesem Hosting deaktiviert (disable_functions) — bitte `composer install --no-dev` manuell ausführen oder ein Release-Paket mit vendor/ verwenden.'
-            ];
-        }
-
-        // Check if composer is available
-        $composerPath = ComposerRunner::findExecutable();
-
-        if (!$composerPath) {
-            return [
-                'executed' => false,
-                'success' => false,
-                'error' => true,
-                'message' => 'Composer-Executable nicht gefunden.'
-            ];
-        }
-
-        try {
-            // OS detection for proper command syntax
-            $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-
-            // Use composer's --working-dir option for safer execution
-            // Windows doesn't have timeout command, so omit it there
-            if ($isWindows) {
-                $command = sprintf(
-                    '%s install --working-dir=%s --no-dev --optimize-autoloader --no-interaction 2>&1',
-                    escapeshellarg($composerPath),
-                    escapeshellarg($appRoot)
-                );
-            } else {
-                $command = sprintf(
-                    'timeout 600 %s install --working-dir=%s --no-dev --optimize-autoloader --no-interaction 2>&1',
-                    escapeshellarg($composerPath),
-                    escapeshellarg($appRoot)
-                );
-            }
-
-            // Execute composer command with timeout
-            $output = [];
-            $returnCode = 0;
-            exec($command, $output, $returnCode);
-
-            $outputString = implode("\n", $output);
-
-            // Check if timeout occurred (exit code 124)
-            if ($returnCode === 124) {
-                return [
-                    'executed' => true,
-                    'success' => false,
-                    'message' => 'Composer-Installation hat zu lange gedauert (Timeout nach 10 Minuten).',
-                    'output' => $outputString,
-                    'return_code' => $returnCode
-                ];
-            }
-
-            if ($returnCode === 0) {
-                return [
-                    'executed' => true,
-                    'success' => true,
-                    'message' => 'Composer-Abhängigkeiten erfolgreich installiert.',
-                    'output' => $outputString
-                ];
-            } else {
-                // Run diagnostics for composer failure
-                $report = $this->diagnostics->report(
-                    new Exception('Composer-Installation fehlgeschlagen mit Exit-Code ' . $returnCode),
-                    [
-                        'operation' => 'composer_install',
-                        'return_code' => $returnCode,
-                        'output' => $outputString,
-                        'composer_path' => $composerPath
-                    ]
-                );
-
-                return [
-                    'executed' => true,
-                    'success' => false,
-                    'error' => true,
-                    'message' => 'Composer-Installation fehlgeschlagen.',
-                    'output' => $outputString,
-                    'return_code' => $returnCode,
-                ] + $report;
-            }
-        } catch (Exception $e) {
-            // Run diagnostics for exception
-            $report = $this->diagnostics->report($e, [
-                'operation' => 'composer_install_exception',
-                'composer_path' => $composerPath
-            ]);
-
-            return [
-                'executed' => false,
-                'success' => false,
-                'error' => true,
-                'message' => 'Fehler beim Ausführen von Composer: ' . $e->getMessage(),
-            ] + $report;
-        }
-    }
-
-    /**
      * Check if composer installation is pending
      * 
      * @return array Status information
      */
     public function getComposerStatus(): array
     {
-        if (!file_exists($this->composerPendingFile)) {
-            return [
-                'pending' => false,
-                'message' => 'Keine ausstehende Composer-Installation.'
-            ];
-        }
-
-        $content = file_get_contents($this->composerPendingFile);
-        $status = json_decode($content, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            // Corrupted file, remove it and return not pending
-            if (file_exists($this->composerPendingFile) && !unlink($this->composerPendingFile)) {
-                \App\Logging\Logger::warning('Warning: Could not remove corrupted composer pending file: ' . $this->composerPendingFile);
-            }
-            return [
-                'pending' => false,
-                'error' => true,
-                'message' => 'Composer-Status-Datei war beschädigt und wurde entfernt.'
-            ];
-        }
-
-        return array_merge(['pending' => true], $status ?? []);
+        return $this->composer->status();
     }
 
     /**
@@ -520,27 +351,7 @@ class SystemUpdater
      */
     public function executePendingComposerInstall(): array
     {
-        if (!file_exists($this->composerPendingFile)) {
-            return [
-                'success' => false,
-                'error' => true,
-                'message' => 'Keine ausstehende Composer-Installation gefunden.'
-            ];
-        }
-
-        $appRoot = $this->appRoot;
-
-        // Run composer install
-        $result = $this->runComposerInstall($appRoot);
-
-        // Remove pending status file if successful
-        if ($result['success']) {
-            if (file_exists($this->composerPendingFile) && !unlink($this->composerPendingFile)) {
-                \App\Logging\Logger::warning('Warning: Could not remove composer pending file after successful install: ' . $this->composerPendingFile);
-            }
-        }
-
-        return $result;
+        return $this->composer->installPending();
     }
 
     /**

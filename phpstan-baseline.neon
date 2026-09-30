@@ -691,12 +691,6 @@ parameters:
 			path: src/Telemetry/TelemetryManager.php
 
 		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 2
-			path: src/Utils/SystemUpdater.php
-
-		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:checkForUpdates\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -782,18 +776,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:getUpdateUrgency\(\) has parameter \$updateInfo with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:parsePhpSize\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:runComposerInstall\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Utils/SystemUpdater.php
