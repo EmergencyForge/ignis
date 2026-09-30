@@ -248,6 +248,10 @@ class SystemUpdater
             $backupSummary = $backups->backUp($backupDir, $sourceDir, $excludeDirs, $excludeFiles, $this->versionFile);
 
             // Step 4: Apply update (copy files)
+            // Ab hier liegen auf der Platte die Dateien der neuen Version. Was
+            // danach noch geladen würde, käme von dort und passt vielleicht
+            // nicht mehr zu diesem Code; der Fehlerbericht wird deshalb vorher geladen.
+            class_exists(DiagnosticFormatter::class);
             $installer = new FileInstaller($appRoot);
             try {
                 $installer->copy($sourceDir, $excludeDirs, $excludeFiles, $preserveDirs);
