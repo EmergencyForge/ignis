@@ -23,6 +23,8 @@
 
     var AUTOSAVE_MS = 1500;
     var SUGGEST_MS = 250;
+    // Meldung für die nächste Mail-Seite, mail.js zeigt sie (siehe leave()).
+    var CARRIED_SNACK_KEY = 'ignis.mail.snack';
 
     function debounce(fn, ms) {
         var timer = null;
@@ -259,9 +261,32 @@
             });
         });
 
-        function leave(url) {
+        function closeOrGo(url) {
             var close = drawer && drawer.querySelector('[data-ignis-drawer-close]');
             if (close) close.click();
+            else window.location.href = url;
+        }
+
+        /**
+         * Nach Senden oder Verwerfen eines Entwurfs. Liste und Zähler der
+         * Mail-Seite (Ordner, Sidebar) kennen die Änderung noch nicht: sie
+         * lädt neu wie nach jeder anderen Mail-Aktion (mail.js), die Meldung
+         * wartet im sessionStorage. Auf anderen Seiten schließt nur der Drawer.
+         */
+        function leave(url, kind, message) {
+            if (drawer && !document.querySelector('.ignis-mail[data-ignis-workbench]')) {
+                if (message) snack(kind, message);
+                closeOrGo(url);
+                return;
+            }
+            if (message) {
+                try {
+                    sessionStorage.setItem(CARRIED_SNACK_KEY, JSON.stringify({ kind: kind, text: message }));
+                } catch (e) {
+                    // ohne Storage keine Meldung, gesendet ist trotzdem
+                }
+            }
+            if (drawer) window.location.reload();
             else window.location.href = url;
         }
 
@@ -279,8 +304,9 @@
             ask.then(function (ok) {
                 if (!ok) return;
                 settle().then(function () {
+                    // Nie angelegt: nichts zu löschen, nichts neu zu laden.
                     if (!draftId) {
-                        leave(base + 'mail/drafts');
+                        closeOrGo(base + 'mail/drafts');
                         return;
                     }
                     post(base + 'mail/messages/' + draftId + '/delete', new FormData()).then(function () {
@@ -300,10 +326,9 @@
                 .then(function (result) {
                     if (result.ok) {
                         var missing = result.data.unresolvedAddresses || [];
-                        snack(missing.length ? 'warning' : 'success', missing.length
+                        leave(base + 'mail/sent', missing.length ? 'warning' : 'success', missing.length
                             ? 'Gesendet. Nicht zustellbar: ' + missing.join(', ')
                             : 'Mail gesendet.');
-                        leave(base + 'mail/sent');
                         return;
                     }
                     settled = false;
