@@ -29,6 +29,12 @@ final class GitHubReleaseSourceTest extends TestCase
             'fremder Host mit GitHub-Pfad' => ['https://evil.example/https://github.com/EmergencyForge/ignis/releases/download/v1/x.zip', null],
             'Subdomain-Trick' => ['https://github.com.evil.example/EmergencyForge/ignis/releases/download/v1/x.zip', null],
             'leer' => ['', null],
+            // cURL löst ../ vor dem Abruf auf und landete so in einem fremden Repository.
+            'Punktsegmente im Asset' => ['https://github.com/EmergencyForge/ignis/releases/download/../../../evil/repo/releases/download/v1/x.zip', null],
+            'Punktsegmente im Zipball' => ['https://api.github.com/repos/EmergencyForge/ignis/zipball/../../evil/repo/zipball/v1', null],
+            'kodierte Punktsegmente' => ['https://github.com/EmergencyForge/ignis/releases/download/%2e%2E/%2E./.%2e/evil/repo/releases/download/v1/x.zip', null],
+            'einzelner Punkt' => ['https://github.com/EmergencyForge/ignis/releases/download/./x.zip', null],
+            'Punkte im Tag bleiben erlaubt' => ['https://github.com/EmergencyForge/ignis/releases/download/v2026.0.8/ignis-v2026.0.8..zip', 'asset'],
         ];
     }
 

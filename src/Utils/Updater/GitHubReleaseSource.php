@@ -38,6 +38,11 @@ class GitHubReleaseSource
      */
     public function downloadKind(string $url): ?string
     {
+        // cURL löst ./ und ../ vor dem Abruf auf. Ohne diese Prüfung führte
+        // .../releases/download/../../../fremd/repo/... aus dem Repository heraus.
+        if (preg_match('#(^|/)\.{1,2}(/|$)#', rawurldecode($url))) {
+            return null;
+        }
         if (preg_match('#^https://github\.com/' . self::ALLOWED_REPOSITORIES . '/releases/download/#i', $url)) {
             return 'asset';
         }
