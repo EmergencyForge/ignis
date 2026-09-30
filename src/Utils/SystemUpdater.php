@@ -5,9 +5,12 @@ namespace App\Utils;
 use App\Utils\Updater\BackupManager;
 use App\Utils\Updater\FileInstaller;
 use App\Utils\Updater\GitHubReleaseSource;
+use App\Utils\Updater\LegacyStorageMigration;
 use App\Utils\Updater\ReleaseNotes;
 use App\Utils\Updater\UpdateArchive;
+use App\Utils\Updater\UpdateCheckCache;
 use App\Utils\Updater\VersionComparator;
+use App\Utils\Updater\VersionStore;
 use Exception;
 
 /**
@@ -18,14 +21,12 @@ use Exception;
  */
 class SystemUpdater
 {
-    private const UPDATE_CACHE_TTL_SECONDS = 21600;
-
     private string $versionFile;
     private string $composerPendingFile;
-    private string $updateCacheFile;
     private string $appRoot;
     private GitHubReleaseSource $source;
-    private array $currentVersion;
+    private VersionStore $versions;
+    private UpdateCheckCache $cache;
     private array $diagnosticLog = [];
     private string $diagnosticFile;
 
@@ -39,73 +40,15 @@ class SystemUpdater
         $this->source = $source ?? new GitHubReleaseSource();
         $this->versionFile = $appRoot . '/storage/version.json';
         $this->composerPendingFile = $appRoot . '/storage/composer_pending.json';
-        $this->updateCacheFile = $appRoot . '/storage/cache/update-check.json';
         $this->diagnosticFile = $appRoot . '/storage/logs/updater-diagnostic.log';
-        $this->migrateLegacySystemDirectory($appRoot);
-        $this->loadCurrentVersion();
-        $this->cleanupOldTempDirectories();
-    }
-
-    /**
-     * Einmalige Migration: /system/updates/* → /storage/*.
-     * Das alte Verzeichnis wird anschließend entfernt, damit es nicht als
-     * Stolperstein zurückbleibt.
-     */
-    private function migrateLegacySystemDirectory(string $appRoot): void
-    {
-        $legacyDir = $appRoot . '/system/updates';
-        if (!is_dir($legacyDir)) {
-            return;
-        }
-
-        $moves = [
+        LegacyStorageMigration::run($appRoot, [
             '/version.json'          => $this->versionFile,
             '/composer_pending.json' => $this->composerPendingFile,
             '/diagnostic.log'        => $this->diagnosticFile,
-        ];
-
-        foreach ($moves as $legacyName => $newPath) {
-            $legacyPath = $legacyDir . $legacyName;
-            if (!file_exists($legacyPath)) {
-                continue;
-            }
-            $targetDir = dirname($newPath);
-            if (!is_dir($targetDir)) {
-                @mkdir($targetDir, 0755, true);
-            }
-            if (!file_exists($newPath)) {
-                @copy($legacyPath, $newPath);
-            }
-            @unlink($legacyPath);
-        }
-
-        // Alle weiteren Dateien im Legacy-Ordner ignorieren — sie waren
-        // temporäre Artefakte. Ordner entfernen falls leer.
-        @rmdir($legacyDir);
-        @rmdir($appRoot . '/system');
-    }
-
-    /**
-     * Load current version from version.json
-     */
-    private function loadCurrentVersion(): void
-    {
-        if (!file_exists($this->versionFile)) {
-            $this->currentVersion = [
-                'version' => 'v0.5.0',
-                'updated_at' => date('Y-m-d H:i:s'),
-                'build_number' => '0',
-                'commit_hash' => 'initial'
-            ];
-            return;
-        }
-
-        $content = file_get_contents($this->versionFile);
-        $this->currentVersion = json_decode($content, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Failed to parse version.json: ' . json_last_error_msg());
-        }
+        ]);
+        $this->versions = new VersionStore($this->versionFile);
+        $this->cache = new UpdateCheckCache($appRoot . '/storage/cache/update-check.json');
+        $this->cleanupOldTempDirectories();
     }
 
     /**
@@ -113,7 +56,7 @@ class SystemUpdater
      */
     public function getCurrentVersion(): array
     {
-        return $this->currentVersion;
+        return $this->versions->current();
     }
 
     /**
@@ -140,7 +83,7 @@ class SystemUpdater
             }
 
             $latestVersion = $latestRelease['tag_name'];
-            $currentVersion = $this->currentVersion['version'];
+            $currentVersion = $this->versions->current()['version'];
 
             $isNewer = VersionComparator::isNewer($latestVersion, $currentVersion);
             $isLatestPreRelease = $latestRelease['prerelease'] ?? false;
@@ -345,7 +288,7 @@ class SystemUpdater
             if (!$this->updateVersionFile([
                 'version' => $newVersion,
                 'updated_at' => date('Y-m-d H:i:s'),
-                'build_number' => (int)($this->currentVersion['build_number'] ?? 0) + 1,
+                'build_number' => (int)($this->versions->current()['build_number'] ?? 0) + 1,
                 'commit_hash' => 'auto-update',
                 'prerelease' => $isPreRelease
             ])) {
@@ -696,21 +639,7 @@ class SystemUpdater
      */
     public function updateVersionFile(array $versionData): bool
     {
-        try {
-            $json = json_encode($versionData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-            $dir = dirname($this->versionFile);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
-            }
-
-            file_put_contents($this->versionFile, $json);
-            $this->currentVersion = $versionData;
-
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
+        return $this->versions->write($versionData);
     }
 
     /**
@@ -729,13 +658,7 @@ class SystemUpdater
      */
     public function isPreRelease(): bool
     {
-        // Check if version.json has an explicit prerelease flag
-        if (isset($this->currentVersion['prerelease'])) {
-            return (bool)$this->currentVersion['prerelease'];
-        }
-
-        // Fall back to pattern matching in version string
-        return VersionComparator::isPreRelease($this->currentVersion['version']);
+        return $this->versions->isPreRelease();
     }
 
     /**
@@ -754,14 +677,7 @@ class SystemUpdater
      */
     public function getVersionAge(): int
     {
-        if (!isset($this->currentVersion['updated_at'])) {
-            return 0;
-        }
-
-        $updatedAt = strtotime($this->currentVersion['updated_at']);
-        $now = time();
-
-        return (int) floor(($now - $updatedAt) / 86400);
+        return $this->versions->ageInDays();
     }
 
     /**
@@ -787,7 +703,7 @@ class SystemUpdater
             return 'none';
         }
 
-        return VersionComparator::urgency($this->currentVersion['version'], $updateInfo['latest_version'], $this->getVersionAge());
+        return VersionComparator::urgency($this->versions->current()['version'], $updateInfo['latest_version'], $this->getVersionAge());
     }
 
     /**
@@ -796,83 +712,6 @@ class SystemUpdater
     public function getFormattedReleaseNotes(string $markdown): string
     {
         return ReleaseNotes::toHtml($markdown);
-    }
-
-    /**
-     * Cache update check results to avoid rate limiting
-     */
-    private function getCachedUpdateCheck(?bool $includePreRelease = null, bool $allowExpired = false): ?array
-    {
-        if (!file_exists($this->updateCacheFile)) {
-            return null;
-        }
-
-        $cacheData = json_decode((string) @file_get_contents($this->updateCacheFile), true);
-
-        if (!is_array($cacheData)) {
-            return null;
-        }
-
-        $channel = $this->updateCacheChannel($includePreRelease);
-        $entry = $cacheData['channels'][$channel] ?? null;
-
-        // Read caches written by pre-channel updater versions once, then they
-        // will be replaced using the current structure.
-        if (!is_array($entry) && isset($cacheData['timestamp'], $cacheData['data'])) {
-            $entry = $cacheData;
-        }
-
-        if (!is_array($entry) || !isset($entry['timestamp']) || !is_array($entry['data'] ?? null)) {
-            return null;
-        }
-
-        if (!$allowExpired && time() - (int) $entry['timestamp'] > self::UPDATE_CACHE_TTL_SECONDS) {
-            return null;
-        }
-
-        // Invalidate cache if current version has changed
-        // This ensures users see accurate update notifications after local upgrades
-        $cachedVersion = $entry['current_version'] ?? null;
-        $actualVersion = $this->currentVersion['version'] ?? null;
-
-        if ($cachedVersion !== null && $actualVersion !== null && $cachedVersion !== $actualVersion) {
-            return null;
-        }
-
-        $data = $entry['data'];
-        $data['checked_at'] = date(DATE_ATOM, (int) $entry['timestamp']);
-        return $data;
-    }
-
-    /**
-     * Save update check results to cache
-     */
-    private function cacheUpdateCheck(array $data, ?bool $includePreRelease = null): void
-    {
-        $cacheDir = dirname($this->updateCacheFile);
-        if (!is_dir($cacheDir)) {
-            @mkdir($cacheDir, 0755, true);
-        }
-
-        $cacheData = [];
-        if (is_file($this->updateCacheFile)) {
-            $decoded = json_decode((string) @file_get_contents($this->updateCacheFile), true);
-            if (is_array($decoded) && isset($decoded['channels'])) {
-                $cacheData = $decoded;
-            }
-        }
-
-        $cacheData['channels'][$this->updateCacheChannel($includePreRelease)] = [
-            'timestamp' => time(),
-            'current_version' => $this->currentVersion['version'] ?? 'unknown',
-            'data' => $data,
-        ];
-
-        @file_put_contents(
-            $this->updateCacheFile,
-            json_encode($cacheData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-            LOCK_EX
-        );
     }
 
     private function updateCacheChannel(?bool $includePreRelease): string
@@ -889,8 +728,11 @@ class SystemUpdater
      */
     public function checkForUpdatesCached(bool $forceRefresh = false, ?bool $includePreRelease = null): array
     {
+        $channel = $this->updateCacheChannel($includePreRelease);
+        $installed = $this->versions->current()['version'] ?? null;
+
         if (!$forceRefresh) {
-            $cached = $this->getCachedUpdateCheck($includePreRelease);
+            $cached = $this->cache->get($channel, $installed);
 
             if ($cached !== null) {
                 $cached['cached'] = true;
@@ -900,12 +742,12 @@ class SystemUpdater
 
         $result = $this->checkForUpdates($includePreRelease);
         if (!isset($result['error'])) {
-            $this->cacheUpdateCheck($result, $includePreRelease);
+            $this->cache->put($channel, $installed ?? 'unknown', $result);
         } else {
             // GitHub-/Netzwerkfehler dürfen eine zuletzt bekannte Meldung
             // nicht vernichten. Für Managed Hosting ist ein markierter,
             // veralteter Status hilfreicher als gar kein Status.
-            $stale = $this->getCachedUpdateCheck($includePreRelease, true);
+            $stale = $this->cache->get($channel, $installed, true);
             if ($stale !== null) {
                 $stale['cached'] = true;
                 $stale['stale'] = true;
@@ -923,11 +765,7 @@ class SystemUpdater
      */
     public function clearCache(): bool
     {
-        if (file_exists($this->updateCacheFile)) {
-            return @unlink($this->updateCacheFile);
-        }
-
-        return true;
+        return $this->cache->clear();
     }
 
     /**
@@ -974,7 +812,7 @@ class SystemUpdater
             $this->updateVersionFile([
                 'version' => $devVersion,
                 'updated_at' => date('Y-m-d H:i:s'),
-                'build_number' => (int)($this->currentVersion['build_number'] ?? 0) + 1,
+                'build_number' => (int)($this->versions->current()['build_number'] ?? 0) + 1,
                 'commit_hash' => $commitSha,
                 'prerelease' => true,
                 'branch' => $branch
@@ -1398,7 +1236,7 @@ class SystemUpdater
         }
 
         return [
-            'current_version' => $this->currentVersion,
+            'current_version' => $this->versions->current(),
             'version_age_days' => $this->getVersionAge(),
             'backups' => $backups,
             'backup_count' => count($backups),

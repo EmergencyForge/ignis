@@ -397,15 +397,15 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     #[Test]
     public function moves_the_legacy_system_directory_into_storage(): void
     {
-        $updater = $this->updater(['version' => 'v2026.0.8']);
         $this->tree('system/updates', [
             'version.json' => '{"version":"v1.0.0"}',
             'composer_pending.json' => '{"pending":true}',
             'diagnostic.log' => 'alt',
         ]);
 
-        $this->callPrivate($updater, 'migrateLegacySystemDirectory', [$this->root]);
+        $updater = $this->updater(['version' => 'v2026.0.8']);
 
+        self::assertSame('v2026.0.8', $updater->getCurrentVersion()['version']);
         self::assertSame('{"version":"v2026.0.8"}', file_get_contents($this->root . '/storage/version.json'));
         self::assertSame('{"pending":true}', file_get_contents($this->root . '/storage/composer_pending.json'));
         self::assertSame('alt', file_get_contents($this->root . '/storage/logs/updater-diagnostic.log'));
@@ -415,14 +415,31 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     #[Test]
     public function the_legacy_directory_stays_while_it_holds_other_files(): void
     {
-        $updater = $this->updater(null);
         $this->tree('system/updates', ['version.json' => '{"version":"v1.0.0"}', 'backup_1/x.php' => 'x']);
 
-        $this->callPrivate($updater, 'migrateLegacySystemDirectory', [$this->root]);
+        $updater = $this->updater(null);
 
+        // Die Migration läuft vor dem Lesen der Version.
+        self::assertSame('v1.0.0', $updater->getCurrentVersion()['version']);
         self::assertSame('{"version":"v1.0.0"}', file_get_contents($this->root . '/storage/version.json'));
         self::assertFileDoesNotExist($this->root . '/system/updates/version.json');
         self::assertFileExists($this->root . '/system/updates/backup_1/x.php');
+    }
+
+    #[Test]
+    public function removes_update_leftovers_older_than_a_day(): void
+    {
+        $this->tree('storage/temp/update_alt', ['update.zip' => 'x']);
+        $this->tree('storage/temp/update_frisch', ['update.zip' => 'x']);
+        $this->tree('storage/temp/anderes', ['x' => 'x']);
+        touch($this->root . '/storage/temp/update_alt', time() - 86401);
+        touch($this->root . '/storage/temp/anderes', time() - 86401);
+
+        $this->updater();
+
+        self::assertDirectoryDoesNotExist($this->root . '/storage/temp/update_alt');
+        self::assertDirectoryExists($this->root . '/storage/temp/update_frisch');
+        self::assertDirectoryExists($this->root . '/storage/temp/anderes');
     }
 
     #[Test]
