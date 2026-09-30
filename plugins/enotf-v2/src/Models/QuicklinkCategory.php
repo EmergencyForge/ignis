@@ -27,6 +27,9 @@ class QuicklinkCategory extends Model
         $query->where('active', 1);
     }
 
+    /**
+     * @return HasMany<Quicklink, $this>
+     */
     public function links(): HasMany
     {
         return $this->hasMany(Quicklink::class, 'category_slug', 'slug');

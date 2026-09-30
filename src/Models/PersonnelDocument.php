@@ -91,6 +91,9 @@ class PersonnelDocument extends Model
         return self::TYPE_LABELS[$type] ?? 'Unbekannt';
     }
 
+    /**
+     * @return BelongsTo<Personnel, $this>
+     */
     public function mitarbeiter(): BelongsTo
     {
         return $this->belongsTo(Personnel::class, 'profileid', 'id');

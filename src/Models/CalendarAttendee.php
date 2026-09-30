@@ -47,11 +47,17 @@ class CalendarAttendee extends EloquentModel
         'created_at'     => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<CalendarEvent, $this>
+     */
     public function event(): BelongsTo
     {
         return $this->belongsTo(CalendarEvent::class, 'event_id');
     }
 
+    /**
+     * @return BelongsTo<Personnel, $this>
+     */
     public function mitarbeiter(): BelongsTo
     {
         return $this->belongsTo(Personnel::class, 'mitarbeiter_id');

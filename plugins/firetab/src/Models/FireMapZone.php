@@ -29,6 +29,9 @@ class FireMapZone extends Model
 {
     protected $table = 'intra_fire_incident_map_zones';
 
+    /**
+     * @return BelongsTo<FireIncident, $this>
+     */
     public function incident(): BelongsTo
     {
         return $this->belongsTo(FireIncident::class, 'incident_id', 'id');

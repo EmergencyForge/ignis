@@ -39,6 +39,9 @@ class FireAsuRecord extends EloquentModel
 
     protected $guarded = [];
 
+    /**
+     * @return BelongsTo<FireIncident, $this>
+     */
     public function incident(): BelongsTo
     {
         return $this->belongsTo(FireIncident::class, 'incident_id', 'id');

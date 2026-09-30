@@ -23,6 +23,9 @@ class HospitalDepartment extends Model
         return $this->belongsTo(EdiviPoi::class, 'poi_id');
     }
 
+    /**
+     * @return HasOne<HospitalAvailability, $this>
+     */
     public function availability(): HasOne
     {
         return $this->hasOne(HospitalAvailability::class, 'department_id');

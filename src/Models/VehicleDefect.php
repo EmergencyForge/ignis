@@ -63,11 +63,17 @@ class VehicleDefect extends Model
         'vehicle_id' => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<Vehicle, $this>
+     */
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
 
+    /**
+     * @return HasMany<VehicleDefectLog, $this>
+     */
     public function logEntries(): HasMany
     {
         return $this->hasMany(VehicleDefectLog::class, 'defect_id', 'id');

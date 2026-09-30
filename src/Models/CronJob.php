@@ -33,6 +33,9 @@ class CronJob extends Model
         'id' => 'integer',
     ];
 
+    /**
+     * @return HasMany<CronRun, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(CronRun::class, 'job_id', 'id');

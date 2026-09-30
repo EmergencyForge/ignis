@@ -27,6 +27,9 @@ class FireSitrep extends Model
 {
     protected $table = 'intra_fire_incident_sitreps';
 
+    /**
+     * @return BelongsTo<FireIncident, $this>
+     */
     public function incident(): BelongsTo
     {
         return $this->belongsTo(FireIncident::class, 'incident_id', 'id');

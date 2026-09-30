@@ -25,6 +25,9 @@ class FormData extends Model
         'antrag_id' => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<Form, $this>
+     */
     public function antrag(): BelongsTo
     {
         return $this->belongsTo(Form::class, 'antrag_id', 'id');

@@ -54,6 +54,9 @@ class Form extends Model
         'cirs_time'     => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<FormType, $this>
+     */
     public function typ(): BelongsTo
     {
         return $this->belongsTo(FormType::class, 'antragstyp_id', 'id');
@@ -61,6 +64,8 @@ class Form extends Model
 
     /**
      * Form-Daten dieses Antrags (eine Row pro Feld).
+     *
+     * @return HasMany<FormData, $this>
      */
     public function daten(): HasMany
     {

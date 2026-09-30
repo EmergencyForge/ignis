@@ -43,6 +43,8 @@ class FormType extends Model
     /**
      * Felder-Definitionen für dieses Antragstyp-Formular,
      * sortiert nach Sortierungsfeld.
+     *
+     * @return HasMany<FormField, $this>
      */
     public function felder(): HasMany
     {
@@ -54,6 +56,8 @@ class FormType extends Model
 
     /**
      * Alle Anträge dieses Typs (am häufigsten via Form::with('typ') geladen).
+     *
+     * @return HasMany<Form, $this>
      */
     public function antraege(): HasMany
     {

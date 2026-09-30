@@ -65,17 +65,25 @@ class Personnel extends Model
      * BelongsTo-Relation auf Rank. Methoden-Name endet auf `Model`,
      * weil das Property `dienstgrad` schon die FK-ID hält und sonst Eloquent
      * sich verschluckt.
+     *
+     * @return BelongsTo<Rank, $this>
      */
     public function dienstgradModel(): BelongsTo
     {
         return $this->belongsTo(Rank::class, 'dienstgrad', 'id');
     }
 
+    /**
+     * @return BelongsTo<FdSkill, $this>
+     */
     public function fwQualiModel(): BelongsTo
     {
         return $this->belongsTo(FdSkill::class, 'qualifw2', 'id');
     }
 
+    /**
+     * @return BelongsTo<AmbSkill, $this>
+     */
     public function rdQualiModel(): BelongsTo
     {
         return $this->belongsTo(AmbSkill::class, 'qualird', 'id');

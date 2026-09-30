@@ -41,6 +41,9 @@ class FormField extends Model
         'readonly'      => 'boolean',
     ];
 
+    /**
+     * @return BelongsTo<FormType, $this>
+     */
     public function typ(): BelongsTo
     {
         return $this->belongsTo(FormType::class, 'antragstyp_id', 'id');

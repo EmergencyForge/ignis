@@ -43,6 +43,9 @@ class EdiviPoi extends Model
         $query->whereIn('typ', self::TYP_KLINIKEN);
     }
 
+    /**
+     * @return HasMany<HospitalDepartment, $this>
+     */
     public function departments(): HasMany
     {
         return $this->hasMany(HospitalDepartment::class, 'poi_id');

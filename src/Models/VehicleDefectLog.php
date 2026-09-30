@@ -28,6 +28,9 @@ class VehicleDefectLog extends Model
         'user_id'   => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<VehicleDefect, $this>
+     */
     public function defect(): BelongsTo
     {
         return $this->belongsTo(VehicleDefect::class, 'defect_id', 'id');

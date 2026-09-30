@@ -48,6 +48,8 @@ class Role extends Model
 
     /**
      * Beziehung: Role → User. Der Foreign Key in `intra_users` heißt `role`.
+     *
+     * @return HasMany<User, $this>
      */
     public function users(): HasMany
     {

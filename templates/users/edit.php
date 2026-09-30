@@ -5,7 +5,7 @@
  * Erwartet im Scope (vom UserController via extract()):
  *   @var \App\Models\User                                                    $target
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role>     $availableRoles
- *   @var \Illuminate\Support\Collection|array                                $auditEntries
+ *   @var \Illuminate\Support\Collection<int, \stdClass>|array{}             $auditEntries
  */
 
 use App\Auth\Gate;

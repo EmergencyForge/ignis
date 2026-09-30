@@ -34,6 +34,9 @@ class EnotfSession extends Model
         $query->where('active', 1);
     }
 
+    /**
+     * @return HasMany<EnotfSessionMember, $this>
+     */
     public function members(): HasMany
     {
         return $this->hasMany(EnotfSessionMember::class, 'session_id');

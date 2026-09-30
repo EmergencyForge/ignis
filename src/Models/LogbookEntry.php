@@ -84,6 +84,8 @@ class LogbookEntry extends EloquentModel
      * Beziehung zum Fahrzeug (intra_fahrzeuge). Kein eigenes Eloquent-Model
      * für Fahrzeuge in dieser Phase — wir geben null oder eine stdClass via
      * Capsule, wenn wir Daten brauchen.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function vehicle(): BelongsTo
     {

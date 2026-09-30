@@ -39,6 +39,9 @@ class Rank extends Model
         'created_at' => 'datetime',
     ];
 
+    /**
+     * @return HasMany<Personnel, $this>
+     */
     public function mitarbeiter(): HasMany
     {
         return $this->hasMany(Personnel::class, 'dienstgrad', 'id');

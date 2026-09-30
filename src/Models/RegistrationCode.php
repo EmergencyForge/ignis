@@ -42,6 +42,8 @@ class RegistrationCode extends Model
 
     /**
      * Beziehung: Code → User der ihn erstellt hat.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
@@ -50,6 +52,8 @@ class RegistrationCode extends Model
 
     /**
      * Beziehung: Code → User der ihn eingelöst hat (falls bereits benutzt).
+     *
+     * @return BelongsTo<User, $this>
      */
     public function usedByUser(): BelongsTo
     {

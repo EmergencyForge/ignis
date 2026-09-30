@@ -27,6 +27,9 @@ class CronRun extends Model
         'job_id' => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<CronJob, $this>
+     */
     public function job(): BelongsTo
     {
         return $this->belongsTo(CronJob::class, 'job_id', 'id');

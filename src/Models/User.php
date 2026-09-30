@@ -58,6 +58,8 @@ class User extends Model
      * Foreign Key heißt `role` (nicht `role_id`), daher explizit angegeben.
      * Die Methode heißt absichtlich `userRole`, weil `role` mit der Spalte
      * kollidieren würde.
+     *
+     * @return BelongsTo<Role, $this>
      */
     public function userRole(): BelongsTo
     {
@@ -67,6 +69,8 @@ class User extends Model
     /**
      * Beziehung: User → Mitarbeiter über aktenid → intra_mitarbeiter.id.
      * Optional — nicht jeder User hat ein verknüpftes Mitarbeiter-Profil.
+     *
+     * @return BelongsTo<Personnel, $this>
      */
     public function mitarbeiter(): BelongsTo
     {

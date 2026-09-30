@@ -163,22 +163,10 @@ parameters:
 			path: plugins/enotf-v2/src/Helpers/EnotfV2Url.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPoi\:\:departments\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPoi.php
-
-		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviQmLog\:\:protokoll\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: plugins/enotf-v2/src/Models/EdiviQmLog.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EnotfSession\:\:members\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/enotf-v2/src/Models/EnotfSession.php
 
 		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\EnotfSessionMember\:\:session\(\) has no return type specified\.$#'
@@ -199,22 +187,10 @@ parameters:
 			path: plugins/enotf-v2/src/Models/HospitalAvailability.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\HospitalDepartment\:\:availability\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/enotf-v2/src/Models/HospitalDepartment.php
-
-		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\HospitalDepartment\:\:poi\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: plugins/enotf-v2/src/Models/HospitalDepartment.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\QuicklinkCategory\:\:links\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/enotf-v2/src/Models/QuicklinkCategory.php
 
 		-
 			message: '#^Result of && is always false\.$#'
@@ -745,58 +721,16 @@ parameters:
 			path: plugins/firetab/src/Controllers/FiretabController.php
 
 		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireAsuRecord\:\:incident\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireAsuRecord.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncident\:\:vehicles\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireIncident.php
-
-		-
 			message: '#^Property Plugin\\Firetab\\Models\\FireIncident\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: plugins/firetab/src/Models/FireIncident.php
 
 		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncidentLogEntry\:\:incident\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireIncidentLogEntry.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncidentVehicle\:\:incident\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireIncidentVehicle.php
-
-		-
 			message: '#^Property Plugin\\Firetab\\Models\\FireIncidentVehicle\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: plugins/firetab/src/Models/FireIncidentVehicle.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireMapMarker\:\:incident\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireMapMarker.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireMapZone\:\:incident\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireMapZone.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireSitrep\:\:incident\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/firetab/src/Models/FireSitrep.php
 
 		-
 			message: '#^Result of && is always false\.$#'
@@ -959,42 +893,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: plugins/knowledge-base/src/KBHelper.php
-
-		-
-			message: '#^Method Plugin\\KnowledgeBase\\Models\\KbCategory\:\:children\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/knowledge-base/src/Models/KbCategory.php
-
-		-
-			message: '#^Method Plugin\\KnowledgeBase\\Models\\KbCategory\:\:entries\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/knowledge-base/src/Models/KbCategory.php
-
-		-
-			message: '#^Method Plugin\\KnowledgeBase\\Models\\KbCategory\:\:parent\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/knowledge-base/src/Models/KbCategory.php
-
-		-
-			message: '#^Method Plugin\\KnowledgeBase\\Models\\KbEntry\:\:category\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/knowledge-base/src/Models/KbEntry.php
-
-		-
-			message: '#^Method Plugin\\KnowledgeBase\\Models\\KbEntry\:\:tags\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/knowledge-base/src/Models/KbEntry.php
-
-		-
-			message: '#^Method Plugin\\KnowledgeBase\\Models\\KbTag\:\:entries\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: plugins/knowledge-base/src/Models/KbTag.php
 
 		-
 			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLage\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
@@ -1705,52 +1603,10 @@ parameters:
 			path: src/Models/AmbSkill.php
 
 		-
-			message: '#^Method App\\Models\\CalendarAttendee\:\:event\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarAttendee.php
-
-		-
-			message: '#^Method App\\Models\\CalendarAttendee\:\:mitarbeiter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarAttendee.php
-
-		-
 			message: '#^Property App\\Models\\CalendarAttendee\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/CalendarAttendee.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:attendees\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:exceptions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:parent\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:visibilityRoles\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
 
 		-
 			message: '#^Property App\\Models\\CalendarEvent\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1759,22 +1615,10 @@ parameters:
 			path: src/Models/CalendarEvent.php
 
 		-
-			message: '#^Method App\\Models\\CronJob\:\:runs\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CronJob.php
-
-		-
 			message: '#^Property App\\Models\\CronJob\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/CronJob.php
-
-		-
-			message: '#^Method App\\Models\\CronRun\:\:job\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CronRun.php
 
 		-
 			message: '#^Property App\\Models\\CronRun\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1789,28 +1633,10 @@ parameters:
 			path: src/Models/FdSkill.php
 
 		-
-			message: '#^Method App\\Models\\Form\:\:daten\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Form.php
-
-		-
-			message: '#^Method App\\Models\\Form\:\:typ\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Form.php
-
-		-
 			message: '#^Property App\\Models\\Form\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Form.php
-
-		-
-			message: '#^Method App\\Models\\FormData\:\:antrag\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/FormData.php
 
 		-
 			message: '#^Property App\\Models\\FormData\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1819,40 +1645,16 @@ parameters:
 			path: src/Models/FormData.php
 
 		-
-			message: '#^Method App\\Models\\FormField\:\:typ\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/FormField.php
-
-		-
 			message: '#^Property App\\Models\\FormField\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/FormField.php
 
 		-
-			message: '#^Method App\\Models\\FormType\:\:antraege\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/FormType.php
-
-		-
-			message: '#^Method App\\Models\\FormType\:\:felder\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/FormType.php
-
-		-
 			message: '#^Property App\\Models\\FormType\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/FormType.php
-
-		-
-			message: '#^Method App\\Models\\LogbookEntry\:\:vehicle\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/LogbookEntry.php
 
 		-
 			message: '#^Property App\\Models\\LogbookEntry\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1867,34 +1669,10 @@ parameters:
 			path: src/Models/Notification.php
 
 		-
-			message: '#^Method App\\Models\\Personnel\:\:dienstgradModel\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\Personnel\:\:fwQualiModel\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\Personnel\:\:rdQualiModel\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
 			message: '#^Property App\\Models\\Personnel\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\PersonnelDocument\:\:mitarbeiter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/PersonnelDocument.php
 
 		-
 			message: '#^Property App\\Models\\PersonnelDocument\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1909,28 +1687,10 @@ parameters:
 			path: src/Models/PersonnelLog.php
 
 		-
-			message: '#^Method App\\Models\\Rank\:\:mitarbeiter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Rank.php
-
-		-
 			message: '#^Property App\\Models\\Rank\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Rank.php
-
-		-
-			message: '#^Method App\\Models\\RegistrationCode\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/RegistrationCode.php
-
-		-
-			message: '#^Method App\\Models\\RegistrationCode\:\:usedByUser\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/RegistrationCode.php
 
 		-
 			message: '#^Property App\\Models\\RegistrationCode\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1941,12 +1701,6 @@ parameters:
 		-
 			message: '#^Class App\\Models\\Role has PHPDoc tag @property for property \$permissions with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Role.php
-
-		-
-			message: '#^Method App\\Models\\Role\:\:users\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
 			count: 1
 			path: src/Models/Role.php
 
@@ -1963,28 +1717,10 @@ parameters:
 			path: src/Models/User.php
 
 		-
-			message: '#^Method App\\Models\\User\:\:mitarbeiter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:userRole\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/User.php
-
-		-
 			message: '#^Property App\\Models\\User\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\Vehicle\:\:defects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/Vehicle.php
 
 		-
 			message: '#^Property App\\Models\\Vehicle\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -1993,28 +1729,10 @@ parameters:
 			path: src/Models/Vehicle.php
 
 		-
-			message: '#^Method App\\Models\\VehicleDefect\:\:logEntries\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/VehicleDefect.php
-
-		-
-			message: '#^Method App\\Models\\VehicleDefect\:\:vehicle\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/VehicleDefect.php
-
-		-
 			message: '#^Property App\\Models\\VehicleDefect\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/VehicleDefect.php
-
-		-
-			message: '#^Method App\\Models\\VehicleDefectLog\:\:defect\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/VehicleDefectLog.php
 
 		-
 			message: '#^Property App\\Models\\VehicleDefectLog\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -2609,24 +2327,6 @@ parameters:
 			identifier: nullCoalesce.offset
 			count: 1
 			path: templates/settings/system/updater.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$auditEntries contains generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: templates/users/edit.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$auditEntries has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/users/edit.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$auditEntries has no value type specified in iterable type array\|Illuminate\\Support\\Collection\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/users/edit.php
 
 		-
 			message: '#^Instanceof between DateTime and DateTimeInterface will always evaluate to true\.$#'

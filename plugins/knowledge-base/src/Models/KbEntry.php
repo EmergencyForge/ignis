@@ -34,11 +34,17 @@ class KbEntry extends Model
 {
     protected $table = 'intra_kb_entries';
 
+    /**
+     * @return BelongsTo<KbCategory, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(KbCategory::class, 'category_id', 'id');
     }
 
+    /**
+     * @return BelongsToMany<KbTag, $this>
+     */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(KbTag::class, 'intra_kb_entry_tags', 'entry_id', 'tag_id');

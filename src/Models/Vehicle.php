@@ -52,6 +52,9 @@ class Vehicle extends Model
         '6' => 'Nicht einsatzbereit',
     ];
 
+    /**
+     * @return HasMany<VehicleDefect, $this>
+     */
     public function defects(): HasMany
     {
         return $this->hasMany(VehicleDefect::class, 'vehicle_id', 'id');

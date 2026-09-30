@@ -118,6 +118,8 @@ class FireIncident extends EloquentModel
 
     /**
      * Beziehung: alle Fahrzeuge die an diesem Einsatz beteiligt sind/waren.
+     *
+     * @return HasMany<FireIncidentVehicle, $this>
      */
     public function vehicles(): HasMany
     {

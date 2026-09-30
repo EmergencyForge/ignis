@@ -96,11 +96,17 @@ class CalendarEvent extends EloquentModel
         'updated_at'       => 'datetime',
     ];
 
+    /**
+     * @return HasMany<CalendarAttendee, $this>
+     */
     public function attendees(): HasMany
     {
         return $this->hasMany(CalendarAttendee::class, 'event_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -109,6 +115,8 @@ class CalendarEvent extends EloquentModel
     /**
      * Mehrere Rollen die ein Event sehen duerfen (visibility='role').
      * Pivot-Tabelle: intra_calendar_event_roles.
+     *
+     * @return BelongsToMany<Role, $this>
      */
     public function visibilityRoles(): BelongsToMany
     {
@@ -120,11 +128,17 @@ class CalendarEvent extends EloquentModel
         );
     }
 
+    /**
+     * @return BelongsTo<self, $this>
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_event_id');
     }
 
+    /**
+     * @return HasMany<self, $this>
+     */
     public function exceptions(): HasMany
     {
         return $this->hasMany(self::class, 'parent_event_id');
