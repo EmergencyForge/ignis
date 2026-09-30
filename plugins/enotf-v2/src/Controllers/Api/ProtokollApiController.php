@@ -196,7 +196,7 @@ final class ProtokollApiController
             Edivi::where('enr', $enr)->update([
                 'hidden_user'    => 1,
                 'freigeber_name' => $freigeber,
-                'last_edit'      => Capsule::raw('NOW()'),
+                'last_edit'      => Capsule::connection()->raw('NOW()'),
                 'freigegeben'    => 1,
             ]);
 

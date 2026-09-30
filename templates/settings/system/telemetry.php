@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ->where('config_key', 'HUB_URL')
                         ->update([
                             'config_value' => $newUrl,
-                            'updated_at'   => Capsule::raw('NOW()'),
+                            'updated_at'   => Capsule::connection()->raw('NOW()'),
                         ]);
                     $message = 'Hub-URL aktualisiert.';
                     $messageType = 'ok';

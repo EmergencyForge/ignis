@@ -256,7 +256,7 @@ final class ProtokollService
         // Feldname ist durch die Whitelist abgesichert → kein Injection-Risiko
         Edivi::query()->where('enr', $enr)->update([
             $field      => $value,
-            'last_edit' => DB::raw('NOW()'),
+            'last_edit' => DB::connection()->raw('NOW()'),
         ]);
 
         // Namensänderung → patname "Nachname, Vorname" ableiten + Sync-Reset
@@ -313,7 +313,7 @@ final class ProtokollService
         Edivi::query()->where('enr', $enr)->update([
             'freigeber_name' => $freigeberName,
             'freigegeben'    => 1,
-            'last_edit'      => DB::raw('NOW()'),
+            'last_edit'      => DB::connection()->raw('NOW()'),
         ]);
 
         try {

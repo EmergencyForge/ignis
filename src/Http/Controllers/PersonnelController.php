@@ -253,7 +253,7 @@ class PersonnelController extends Controller
                 ->select(
                     'u.id',
                     'u.username',
-                    Capsule::raw('COALESCE(m.fullname, u.fullname) as fullname'),
+                    Capsule::connection()->raw('COALESCE(m.fullname, u.fullname) as fullname'),
                     'u.aktenid',
                     'u.is_active'
                 )
@@ -269,7 +269,7 @@ class PersonnelController extends Controller
                     ->where('label', 'like', '%' . ignis_like_prefix($mitarbeiter->fullname) . '%')
                     ->where(function ($q) {
                         $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>', Capsule::raw('NOW()'));
+                          ->orWhere('expires_at', '>', Capsule::connection()->raw('NOW()'));
                     })
                     ->orderBy('created_at', 'desc')
                     ->limit(1)
@@ -773,8 +773,8 @@ class PersonnelController extends Controller
             ->where('pd.docid', $docid)
             ->select(
                 'pd.*',
-                Capsule::raw('IFNULL(pd.is_archived, 0) as is_archived'),
-                Capsule::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+                Capsule::connection()->raw('IFNULL(pd.is_archived, 0) as is_archived'),
+                Capsule::connection()->raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
                 'emp.fullname as empfaenger_fullname',
                 'emp.id as empfaenger_id'
             )

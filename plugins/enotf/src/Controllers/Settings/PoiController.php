@@ -288,7 +288,7 @@ class PoiController extends Controller
                 ->update([
                     'a.status'     => 'not_staffed',
                     'a.updated_by' => 'Zurückgesetzt',
-                    'a.updated_at' => Capsule::raw('CURRENT_TIMESTAMP'),
+                    'a.updated_at' => Capsule::connection()->raw('CURRENT_TIMESTAMP'),
                 ]);
             Flash::set('success', "Alle Fachrichtungen wurden auf 'Nicht besetzt' gesetzt ($affected aktualisiert).");
         } catch (PDOException $e) {
@@ -317,7 +317,7 @@ class PoiController extends Controller
                     Capsule::table('intra_edivi_hospital_access_codes')->upsert(
                         ['poi_id' => $poiId, 'code' => $newCode],
                         ['poi_id'],
-                        ['code', 'updated_at' => Capsule::raw('CURRENT_TIMESTAMP')]
+                        ['code', 'updated_at' => Capsule::connection()->raw('CURRENT_TIMESTAMP')]
                     );
 
                     Flash::set('success', 'Zugangscode erfolgreich generiert: ' . htmlspecialchars($newCode));
@@ -329,7 +329,7 @@ class PoiController extends Controller
             }
         }
 
-        $hospitals = Capsule::select("
+        $hospitals = Capsule::connection()->select("
             SELECT
                 p.id,
                 p.name,

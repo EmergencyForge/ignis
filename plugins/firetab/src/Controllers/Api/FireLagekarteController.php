@@ -97,7 +97,7 @@ final class FireLagekarteController
             'created_by'   => $userId,
             'vehicle_id'   => $vehicleId,
             'operator_id'  => $operatorId,
-            'created_at'   => Capsule::raw('NOW()'),
+            'created_at'   => Capsule::connection()->raw('NOW()'),
         ]);
 
         $markerId = (int) $marker->id;
@@ -256,7 +256,7 @@ final class FireLagekarteController
             'created_by'  => $userId,
             'vehicle_id'  => $vehicleId,
             'operator_id' => $operatorId,
-            'created_at'  => Capsule::raw('NOW()'),
+            'created_at'  => Capsule::connection()->raw('NOW()'),
         ]);
 
         $zoneId = (int) $zone->id;
@@ -379,7 +379,7 @@ final class FireLagekarteController
             'created_by'   => $userId,
             'vehicle_id'   => $vehicleId,
             'operator_id'  => $operatorId,
-            'created_at'   => Capsule::raw('NOW()'),
+            'created_at'   => Capsule::connection()->raw('NOW()'),
         ]);
 
         return Response::json([
@@ -447,7 +447,7 @@ final class FireLagekarteController
                 'operator_id'        => $operatorId,
                 'action_type'        => $actionType,
                 'action_description' => $description,
-                'created_at'         => Capsule::raw('NOW()'),
+                'created_at'         => Capsule::connection()->raw('NOW()'),
             ]);
         } catch (PDOException $e) {
             // Log-Tabelle ist optional — Fehler ignorieren

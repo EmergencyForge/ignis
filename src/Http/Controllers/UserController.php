@@ -103,7 +103,7 @@ class UserController extends Controller
             ->leftJoin('intra_users_roles', 'intra_users.role', '=', 'intra_users_roles.id')
             ->select(
                 'intra_users.*',
-                Capsule::raw(
+                Capsule::connection()->raw(
                     "COALESCE(intra_mitarbeiter.fullname, 'Kein Profil verbunden') as mitarbeiter_fullname"
                 ),
                 'intra_users_roles.name as role_name'

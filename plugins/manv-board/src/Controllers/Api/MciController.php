@@ -139,9 +139,9 @@ final class MciController
         Capsule::table('intra_manv_patienten')
             ->where('id', $patientId)
             ->update([
-                'transport_abfahrt' => Capsule::raw('NOW()'),
+                'transport_abfahrt' => Capsule::connection()->raw('NOW()'),
                 'geaendert_von'     => $_SESSION['user_id'] ?? null,
-                'geaendert_am'      => Capsule::raw('NOW()'),
+                'geaendert_am'      => Capsule::connection()->raw('NOW()'),
             ]);
 
         // Fahrzeug aus Ressourcen entfernen, falls vorhanden

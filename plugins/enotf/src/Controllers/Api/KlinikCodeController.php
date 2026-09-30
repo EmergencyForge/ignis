@@ -96,7 +96,7 @@ final class KlinikCodeController
     private function findValidExistingCode(string $enr): ?array
     {
         $row = EdiviKlinikcode::where('enr', $enr)
-            ->where('expires_at', '>', DB::raw('NOW()'))
+            ->where('expires_at', '>', DB::connection()->raw('NOW()'))
             ->orderByDesc('created_at')
             ->first(['code', 'expires_at']);
 
@@ -137,13 +137,13 @@ final class KlinikCodeController
         DB::table('intra_edivi_klinikcodes')->insert([
             'enr'        => $enr,
             'code'       => $code,
-            'expires_at' => DB::raw('DATE_ADD(NOW(), INTERVAL 1 HOUR)'),
+            'expires_at' => DB::connection()->raw('DATE_ADD(NOW(), INTERVAL 1 HOUR)'),
         ]);
 
         $row = DB::table('intra_edivi_klinikcodes')
             ->where('enr', $enr)
             ->orderByDesc('id')
-            ->select('code', DB::raw("DATE_FORMAT(expires_at, '%Y-%m-%d %H:%i:%s') AS expires_at"))
+            ->select('code', DB::connection()->raw("DATE_FORMAT(expires_at, '%Y-%m-%d %H:%i:%s') AS expires_at"))
             ->first();
 
         return [

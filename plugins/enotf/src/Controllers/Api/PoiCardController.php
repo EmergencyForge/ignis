@@ -48,7 +48,7 @@ final class PoiCardController extends Controller
             ->select(
                 'd.id',
                 'd.name',
-                Capsule::raw("COALESCE(a.status, 'not_staffed') AS status"),
+                Capsule::connection()->raw("COALESCE(a.status, 'not_staffed') AS status"),
             )
             ->get()
             ->map(fn ($row) => (array) $row)

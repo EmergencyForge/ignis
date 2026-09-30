@@ -216,7 +216,7 @@ final class ShareApiController
                 'source_vehicle'     => $_SESSION['protfzg'],
                 'target_vehicle'     => $targetVehicle,
                 'status'             => 'pending',
-                'created_at'         => DB::raw('NOW()'),
+                'created_at'         => DB::connection()->raw('NOW()'),
             ]);
 
             return Response::json([
@@ -269,7 +269,7 @@ final class ShareApiController
                 ->where('id', $requestId)
                 ->update([
                     'status'      => 'rejected',
-                    'response_at' => DB::raw('NOW()'),
+                    'response_at' => DB::connection()->raw('NOW()'),
                     'response_by' => $_SESSION['fahrername'],
                 ]);
 
@@ -380,7 +380,7 @@ final class ShareApiController
                 ->where('id', $requestId)
                 ->update([
                     'status'       => 'accepted',
-                    'response_at'  => DB::raw('NOW()'),
+                    'response_at'  => DB::connection()->raw('NOW()'),
                     'response_by'  => $_SESSION['fahrername'],
                     'action_taken' => $actionTaken,
                     'new_enr'      => $newEnr,

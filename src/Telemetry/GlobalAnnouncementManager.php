@@ -39,7 +39,7 @@ class GlobalAnnouncementManager
                 ->where('config_key', 'ANNOUNCEMENTS_ENABLED')
                 ->update([
                     'config_value' => 'true',
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             return true;
         } catch (\PDOException $e) {
@@ -55,7 +55,7 @@ class GlobalAnnouncementManager
                 ->where('config_key', 'ANNOUNCEMENTS_ENABLED')
                 ->update([
                     'config_value' => 'false',
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             return true;
         } catch (\PDOException $e) {
@@ -129,7 +129,7 @@ class GlobalAnnouncementManager
             Capsule::table('intra_global_announcements_dismissed')->insertOrIgnore([
                 'announcement_id' => $announcementId,
                 'user_id'         => $userId,
-                'dismissed_at'    => Capsule::raw('NOW()'),
+                'dismissed_at'    => Capsule::connection()->raw('NOW()'),
             ]);
             return true;
         } catch (\PDOException $e) {
@@ -237,7 +237,7 @@ class GlobalAnnouncementManager
                     'admin_only'      => $ann['admin_only'] ?? 0,
                     'valid_from'      => $validFrom,
                     'valid_until'     => $validUntil,
-                    'fetched_at'      => Capsule::raw('NOW()'),
+                    'fetched_at'      => Capsule::connection()->raw('NOW()'),
                 ]);
             }
 

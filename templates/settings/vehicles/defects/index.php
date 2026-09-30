@@ -25,7 +25,7 @@ $users = Capsule::table('intra_users as u')
     ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
     ->where('u.is_active', 1)
     ->orderBy('fullname')
-    ->get(['u.id', Capsule::raw('COALESCE(m.fullname, u.username) AS fullname')])
+    ->get(['u.id', Capsule::connection()->raw('COALESCE(m.fullname, u.username) AS fullname')])
     ->map(fn ($row) => (array) $row)
     ->all();
 
@@ -66,7 +66,7 @@ if ($tableExists) {
                 )")
         ->select([
             'l.defect_id',
-            Capsule::raw('COALESCE(m.fullname, u.username) AS last_status_user'),
+            Capsule::connection()->raw('COALESCE(m.fullname, u.username) AS last_status_user'),
             'l.details as last_status_details',
             'l.created_at as last_status_at',
         ]);
@@ -86,9 +86,9 @@ if ($tableExists) {
             'f.identifier as vehicle_identifier',
             'f.kennzeichen',
             'f.veh_type',
-            Capsule::raw('COALESCE(m1.fullname, u1.username) AS reporter_name'),
-            Capsule::raw('COALESCE(m2.fullname, u2.username) AS assigned_name'),
-            Capsule::raw('COALESCE(m3.fullname, u3.username) AS resolver_name'),
+            Capsule::connection()->raw('COALESCE(m1.fullname, u1.username) AS reporter_name'),
+            Capsule::connection()->raw('COALESCE(m2.fullname, u2.username) AS assigned_name'),
+            Capsule::connection()->raw('COALESCE(m3.fullname, u3.username) AS resolver_name'),
             'last_log.last_status_user',
             'last_log.last_status_details',
             'last_log.last_status_at',

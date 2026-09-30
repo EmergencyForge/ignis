@@ -103,7 +103,7 @@ class OverviewController extends EnotfV2Controller
                 ->update([
                     'hidden_user'    => 1,
                     'freigeber_name' => $freigeberName,
-                    'last_edit'      => Capsule::raw('NOW()'),
+                    'last_edit'      => Capsule::connection()->raw('NOW()'),
                     'freigegeben'    => 1,
                 ]);
         } catch (\Throwable $e) {

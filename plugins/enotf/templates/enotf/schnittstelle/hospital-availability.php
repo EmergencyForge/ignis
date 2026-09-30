@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                     'updated_by'    => 'Klinikpersonal',
                 ],
                 ['department_id'],
-                ['status', 'updated_by', 'updated_at' => Capsule::raw('CURRENT_TIMESTAMP')]
+                ['status', 'updated_by', 'updated_at' => Capsule::connection()->raw('CURRENT_TIMESTAMP')]
             );
         }
         $success_message = 'Verfügbarkeiten erfolgreich aktualisiert.';
@@ -81,7 +81,7 @@ if ($hospitalPoiId !== null) {
             'd.id',
             'd.name',
             'd.sort_order',
-            Capsule::raw("COALESCE(a.status, 'not_staffed') as status"),
+            Capsule::connection()->raw("COALESCE(a.status, 'not_staffed') as status"),
             'a.updated_at'
         )
         ->where('d.poi_id', $hospitalPoiId)

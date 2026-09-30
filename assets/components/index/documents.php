@@ -19,7 +19,7 @@ if ($userData) {
             'pd.docid',
             'pd.ausstellungsdatum',
             'pd.type',
-            \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+            \Illuminate\Database\Capsule\Manager::connection()->raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
         ])
         ->map(fn ($row) => (array) $row)
         ->all();

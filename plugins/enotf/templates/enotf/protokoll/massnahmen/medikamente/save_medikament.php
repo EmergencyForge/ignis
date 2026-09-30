@@ -134,7 +134,7 @@ try {
         try {
             $affectedRows = Edivi::where('enr', $enr)->update([
                 'medis'     => $medikamenteJson,
-                'last_edit' => Capsule::raw('NOW()'),
+                'last_edit' => Capsule::connection()->raw('NOW()'),
             ]);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -196,7 +196,7 @@ try {
         $medikamenteJson = empty($medikamente) ? '0' : json_encode($medikamente, JSON_UNESCAPED_UNICODE);
         Edivi::where('enr', $enr)->update([
             'medis'     => $medikamenteJson,
-            'last_edit' => Capsule::raw('NOW()'),
+            'last_edit' => Capsule::connection()->raw('NOW()'),
         ]);
 
         http_response_code(200); // Explicitly set 200 status

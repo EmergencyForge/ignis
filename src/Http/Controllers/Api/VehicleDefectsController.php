@@ -263,7 +263,7 @@ final class VehicleDefectsController
             ->update([
                 'status'          => 'resolved',
                 'resolved_by'     => $userId,
-                'resolved_at'     => Capsule::raw('NOW()'),
+                'resolved_at'     => Capsule::connection()->raw('NOW()'),
                 'resolution_note' => $note,
             ]);
 

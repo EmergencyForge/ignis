@@ -357,7 +357,7 @@ class EnotfController extends Controller
                 ->update([
                     'hidden_user'    => 1,
                     'freigeber_name' => $freigeberName,
-                    'last_edit'      => Capsule::raw('NOW()'),
+                    'last_edit'      => Capsule::connection()->raw('NOW()'),
                     'freigegeben'    => 1,
                 ]);
 
@@ -465,7 +465,7 @@ class EnotfController extends Controller
                 ->map(fn ($r) => (array) $r)
                 ->all();
         } else {
-            $rows = Capsule::select(
+            $rows = Capsule::connection()->select(
                 "SELECT c.*,
                         COUNT(t.id) as tile_count,
                         SUM(t.amount) as total_items
@@ -561,7 +561,7 @@ class EnotfController extends Controller
             }
         }
 
-        $rows = Capsule::select("
+        $rows = Capsule::connection()->select("
             SELECT
                 p.id as poi_id,
                 p.name as hospital_name,

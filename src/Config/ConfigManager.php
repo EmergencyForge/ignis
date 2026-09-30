@@ -123,7 +123,7 @@ class ConfigManager
                 ->update([
                     'config_value' => $value,
                     'updated_by'   => $userId,
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
 
             return true;
@@ -155,7 +155,7 @@ class ConfigManager
                     ->update([
                         'config_value' => $value,
                         'updated_by'   => $userId,
-                        'updated_at'   => Capsule::raw('NOW()'),
+                        'updated_at'   => Capsule::connection()->raw('NOW()'),
                     ]);
                 $updated[] = $key;
             }

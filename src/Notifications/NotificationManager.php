@@ -327,7 +327,7 @@ class NotificationManager
 
             return $query->update([
                 'is_read' => 1,
-                'read_at' => Capsule::raw('NOW()'),
+                'read_at' => Capsule::connection()->raw('NOW()'),
             ]);
         } catch (\PDOException $e) {
             Logger::error('Failed to mark notification as read: ' . $e->getMessage());

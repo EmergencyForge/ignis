@@ -113,7 +113,7 @@ final class FireController
                     ->where('incident_id', $incidentId)
                     ->update([
                         'current_status'    => $newStatus,
-                        'status_updated_at' => Capsule::raw('NOW()'),
+                        'status_updated_at' => Capsule::connection()->raw('NOW()'),
                     ]);
 
                 // 2. Status-Queue für FiveM-Polling
@@ -148,7 +148,7 @@ final class FireController
                     ->where('id', $vehicleId)
                     ->update([
                         'current_status'    => $newStatus,
-                        'status_updated_at' => Capsule::raw('NOW()'),
+                        'status_updated_at' => Capsule::connection()->raw('NOW()'),
                         'status_source'     => 'incident',
                     ]);
             });
@@ -276,11 +276,11 @@ final class FireController
             $userId = (int) ($_SESSION['userid'] ?? 0);
             $affectedRows = $baseQuery()->update([
                 'i.archived'    => 1,
-                'i.archived_at' => Capsule::raw('NOW()'),
+                'i.archived_at' => Capsule::connection()->raw('NOW()'),
                 'i.archived_by' => $userId,
                 'i.status'      => 4,
                 'i.updated_by'  => $userId,
-                'i.updated_at'  => Capsule::raw('NOW()'),
+                'i.updated_at'  => Capsule::connection()->raw('NOW()'),
             ]);
 
             $timeLabel   = $timePeriod === 'all' ? 'alle' : "letzte {$timePeriod} Tage";

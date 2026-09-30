@@ -235,7 +235,7 @@ final class VehicleImportController
             ->where('status', 'pending')
             ->update([
                 'status'       => 'rejected',
-                'processed_at' => Capsule::raw('NOW()'),
+                'processed_at' => Capsule::connection()->raw('NOW()'),
                 'processed_by' => $_SESSION['userid'],
             ]);
 
@@ -291,7 +291,7 @@ final class VehicleImportController
             ->where('id', $queueId)
             ->update([
                 'status'       => 'accepted',
-                'processed_at' => Capsule::raw('NOW()'),
+                'processed_at' => Capsule::connection()->raw('NOW()'),
                 'processed_by' => $_SESSION['userid'],
             ]);
     }

@@ -60,7 +60,7 @@ if ($ziel) {
                         Capsule::table('intra_edivi_prereg')
                             ->where('active', 1)
                             ->whereNotNull('arrival')
-                            ->where('arrival', '<', Capsule::raw('NOW() - INTERVAL 10 MINUTE'))
+                            ->where('arrival', '<', Capsule::connection()->raw('NOW() - INTERVAL 10 MINUTE'))
                             ->update(['active' => 0]);
 
                         $preregQuery = Capsule::table('intra_edivi_prereg')

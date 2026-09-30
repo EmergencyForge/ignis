@@ -43,7 +43,7 @@ class TelemetryManager
                 ->where('config_key', 'TELEMETRY_ENABLED')
                 ->update([
                     'config_value' => 'true',
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             return true;
         } catch (\PDOException $e) {
@@ -59,7 +59,7 @@ class TelemetryManager
                 ->where('config_key', 'TELEMETRY_ENABLED')
                 ->update([
                     'config_value' => 'false',
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             return true;
         } catch (\PDOException $e) {
@@ -211,7 +211,7 @@ class TelemetryManager
             try {
                 $stats['active_users'] = (int) Capsule::table('intra_session_logs')
                     ->whereRaw('created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)')
-                    ->count(Capsule::raw('DISTINCT user_id'));
+                    ->count(Capsule::connection()->raw('DISTINCT user_id'));
             } catch (\PDOException $e) {
                 // Fallback: Alle User zählen
                 $stats['active_users'] = $stats['total_users'];

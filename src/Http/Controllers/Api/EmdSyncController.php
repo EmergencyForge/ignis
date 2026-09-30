@@ -415,7 +415,7 @@ final class EmdSyncController
                             ->where('vehicle_id', $vehicleId)
                             ->update([
                                 'current_status'    => (string) $statusValue,
-                                'status_updated_at' => Capsule::raw('NOW()'),
+                                'status_updated_at' => Capsule::connection()->raw('NOW()'),
                             ]);
                         if ($fireStatusAffected > 0) {
                             Logger::info('EmdSync: Fire Incident Status aktualisiert', [
@@ -854,7 +854,7 @@ final class EmdSyncController
                 'vehicle_id'         => null,
                 'operator_id'        => null,
                 'created_by'         => null,
-                'created_at'         => Capsule::raw('NOW()'),
+                'created_at'         => Capsule::connection()->raw('NOW()'),
             ]);
 
             $createdFireIncidents++;
@@ -902,7 +902,7 @@ final class EmdSyncController
                 'vehicle_id'     => $vehicleId,
                 'from_other_org' => 0,
                 'created_by'     => null,
-                'created_at'     => Capsule::raw('NOW()'),
+                'created_at'     => Capsule::connection()->raw('NOW()'),
             ]);
 
             // Bei bestehendem Incident zusätzlich Log-Eintrag
@@ -914,7 +914,7 @@ final class EmdSyncController
                     'vehicle_id'         => $vehicleId,
                     'operator_id'        => null,
                     'created_by'         => null,
-                    'created_at'         => Capsule::raw('NOW()'),
+                    'created_at'         => Capsule::connection()->raw('NOW()'),
                 ]);
             }
 
@@ -1084,7 +1084,7 @@ final class EmdSyncController
                     'pat_nachname'         => $patientData['nachname'],
                     'patgebdat'            => $patientData['birthdate'],
                     'sonderrechte_anfahrt' => $sonderrechteAnfahrt,
-                    'created_at'           => Capsule::raw('NOW()'),
+                    'created_at'           => Capsule::connection()->raw('NOW()'),
                     'createdby'            => 1,
                 ]);
 
@@ -1104,7 +1104,7 @@ final class EmdSyncController
                     'pat_nachname'         => $patientData['nachname'],
                     'patgebdat'            => $patientData['birthdate'],
                     'sonderrechte_anfahrt' => $sonderrechteAnfahrt,
-                    'created_at'           => Capsule::raw('NOW()'),
+                    'created_at'           => Capsule::connection()->raw('NOW()'),
                     'createdby'            => 1,
                 ]);
 

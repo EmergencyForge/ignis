@@ -92,7 +92,7 @@ class FederationSyncService
                 'quali_fw' => $person['quali_fw'] ?? null,
                 'quali_fd' => $person['quali_fd'] ?? null,
                 'cached_data' => json_encode($person, JSON_UNESCAPED_UNICODE),
-                'cached_at' => Capsule::raw('NOW()'),
+                'cached_at' => Capsule::connection()->raw('NOW()'),
             ]],
             ['source_instance_id', 'remote_id'],
             [
@@ -192,7 +192,7 @@ class FederationSyncService
     {
         try {
             FederationLink::where('id', $linkId)->update([
-                'last_sync_at' => Capsule::raw('NOW()'),
+                'last_sync_at' => Capsule::connection()->raw('NOW()'),
                 'last_sync_status' => $status,
                 'last_sync_error' => $error,
             ]);
@@ -373,7 +373,7 @@ class FederationSyncService
                 'remote_id' => (int) $protocol['id'],
                 'cached_data' => json_encode($protocol, JSON_UNESCAPED_UNICODE),
                 'protocol_date' => $protocolDate,
-                'cached_at' => Capsule::raw('NOW()'),
+                'cached_at' => Capsule::connection()->raw('NOW()'),
             ]],
             ['source_instance_id', 'remote_id'],
             ['cached_data', 'protocol_date', 'cached_at']
@@ -392,7 +392,7 @@ class FederationSyncService
                 'incident_number' => $incident['incident_number'] ?? null,
                 'cached_data' => json_encode($incident, JSON_UNESCAPED_UNICODE),
                 'incident_date' => $incident['created_at'] ?? null,
-                'cached_at' => Capsule::raw('NOW()'),
+                'cached_at' => Capsule::connection()->raw('NOW()'),
             ]],
             ['source_instance_id', 'remote_id'],
             ['incident_number', 'cached_data', 'incident_date', 'cached_at']

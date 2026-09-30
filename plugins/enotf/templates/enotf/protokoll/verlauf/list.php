@@ -48,7 +48,7 @@ if (!$ist_freigegeben) {
                     ->where('enr', $enr)
                     ->update([
                         'geloescht'     => 1,
-                        'geloescht_am'  => Capsule::raw('NOW()'),
+                        'geloescht_am'  => Capsule::connection()->raw('NOW()'),
                         'geloescht_von' => $_SESSION['username'] ?? 'Unbekannt',
                     ]);
 

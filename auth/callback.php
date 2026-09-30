@@ -169,7 +169,7 @@ try {
                 ->update([
                     'is_used' => 1,
                     'used_by' => $newUser->id,
-                    'used_at' => Capsule::raw('NOW()'),
+                    'used_at' => Capsule::connection()->raw('NOW()'),
                 ]);
 
             SessionManager::clearRegistrationCode();

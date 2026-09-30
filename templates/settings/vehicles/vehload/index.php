@@ -22,8 +22,8 @@ $categories = Capsule::table('intra_fahrzeuge_beladung_categories as c')
     ->orderBy('c.title')
     ->get([
         'c.*',
-        Capsule::raw('COUNT(t.id) as tile_count'),
-        Capsule::raw('SUM(t.amount) as total_items'),
+        Capsule::connection()->raw('COUNT(t.id) as tile_count'),
+        Capsule::connection()->raw('SUM(t.amount) as total_items'),
     ])
     ->map(fn ($row) => (array) $row)
     ->all();
