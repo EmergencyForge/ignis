@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Tests\Unit\Utils;
 
 use App\Utils\SystemUpdater;
+use App\Utils\Updater\DiagnosticFormatter;
+use App\Utils\Updater\UpdateDiagnostics;
 use Tests\Unit\Utils\Updater\FakeReleaseSource;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 
 /**
  * Charakterisierungstests: halten fest, was der Updater heute tut, bevor er
@@ -514,18 +515,16 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     #[DataProvider('errorMessages')]
     public function classifies_errors_for_the_diagnosis(string $message, string $type): void
     {
-        self::assertSame($type, $this->callPrivate($this->updater(), 'classifyError', [$message]));
+        self::assertSame($type, UpdateDiagnostics::classifyError($message));
     }
 
     #[Test]
     public function derives_the_overall_severity(): void
     {
-        $updater = $this->updater();
-
-        self::assertSame('error', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'error'], 'b' => ['status' => 'warning']]]));
-        self::assertSame('warning', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'warning'], 'b' => ['status' => 'warning']]]));
-        self::assertSame('info', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'warning'], 'b' => ['status' => 'ok']]]));
-        self::assertSame('ok', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'info'], 'severity' => 'error']]));
+        self::assertSame('error', UpdateDiagnostics::severity(['a' => ['status' => 'error'], 'b' => ['status' => 'warning']]));
+        self::assertSame('warning', UpdateDiagnostics::severity(['a' => ['status' => 'warning'], 'b' => ['status' => 'warning']]));
+        self::assertSame('info', UpdateDiagnostics::severity(['a' => ['status' => 'warning'], 'b' => ['status' => 'ok']]));
+        self::assertSame('ok', UpdateDiagnostics::severity(['a' => ['status' => 'info'], 'severity' => 'error']));
     }
 
     #[Test]
@@ -602,7 +601,7 @@ TXT;
         $updater = $this->updater();
         $diagnosis = $this->diagnosis();
 
-        $summary = $this->callPrivate($updater, 'formatDiagnosticSummary', [$diagnosis]);
+        $summary = DiagnosticFormatter::summary($diagnosis);
         self::assertStringStartsWith("=== Update-Diagnose ===\n\nSchweregrad: ERROR\nZeitpunkt: 2026-09-30 12:00:00\n\nFehlertyp: download\nNachricht: Download kaputt", $summary);
         self::assertStringContainsString("• System-Umgebung: warning\n  - Fehlende Extensions: zip\n• Berechtigungen: warning\n  - Pfad nicht beschreibbar: vendor\n• Speicherplatz: error", $summary);
         self::assertStringNotContainsString('• Netzwerk', $summary);
@@ -629,12 +628,6 @@ TXT;
         $updater = new SystemUpdater($this->root, $this->source);
 
         return $updater;
-    }
-
-    /** @param list<mixed> $arguments */
-    private function callPrivate(object $object, string $method, array $arguments = []): mixed
-    {
-        return (new ReflectionClass($object))->getMethod($method)->invokeArgs($object, $arguments);
     }
 
     /** @param list<array<string, mixed>> $releases */
