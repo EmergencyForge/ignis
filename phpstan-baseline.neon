@@ -127,12 +127,6 @@ parameters:
 			path: auth/callback.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>permissions" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: auth/callback.php
-
-		-
 			message: '#^Class App\\Http\\Controllers\\Api\\KnowledgebaseController not found\.$#'
 			identifier: class.notFound
 			count: 1

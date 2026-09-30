@@ -26,6 +26,7 @@ final class CsrfMiddleware implements MiddlewareInterface
         '/api/telemetry/heartbeat',
         '/api/telemetry-heartbeat.php',
         '/api/emd/status-poll',
+        '/api/tablet/login-token',
     ];
 
     public function process(Request $request, callable $next): Response

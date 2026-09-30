@@ -232,6 +232,18 @@ class SessionManager
     }
 
     /**
+     * Anmeldung eines bestehenden Kontos mit den Rechten seiner Rolle.
+     * Discord-Callback, zentrale Anmeldung und ignisTab laufen hier durch.
+     *
+     * @param array<string,mixed> $user Row aus intra_users
+     */
+    public static function loginAccount(array $user): void
+    {
+        self::loginUser($user);
+        self::setPermissions(\App\Auth\Permissions::retrieveFromDatabase((int) $user['id']));
+    }
+
+    /**
      * Setzt Rollen-Detail-Keys (color/name/priority) — wird von
      * Permissions::loadRoleData() aufgerufen, sobald die Rolle aufgelöst
      * ist. Getrennt von loginUser(), weil die Rolle erst NACH dem Login

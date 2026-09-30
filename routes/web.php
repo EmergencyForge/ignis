@@ -90,6 +90,7 @@ $router->get('/auth/discord',  $rootScript('auth/discord.php'));
 $router->get('/auth/fabrica', [\App\Http\Controllers\FabricaAuthController::class, 'login']);
 $router->get('/auth/fabrica/callback', [\App\Http\Controllers\FabricaAuthController::class, 'callback']);
 $router->get('/auth/callback', $rootScript('auth/callback.php'));
+$router->get('/auth/tablet', [\App\Http\Controllers\TabletLoginController::class, 'login']);
 
 // ----------------------------------------------------------------------------
 //  Benutzer-Modul — UserController + RoleController rufen intern

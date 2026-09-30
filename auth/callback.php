@@ -117,14 +117,7 @@ try {
             return Response::redirect(BASE_PATH . 'login');
         }
 
-        if ($user->full_admin) {
-            $perms = ['full_admin'];
-        } else {
-            $role = Role::query()->find($user->role);
-            $perms = $role?->permissions ?? [];
-        }
-
-        SessionManager::loginUser($user->toArray(), $perms);
+        SessionManager::loginAccount($user->toArray());
     } else {
         // Check registration mode
         $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';

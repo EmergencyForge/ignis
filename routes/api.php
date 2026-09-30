@@ -81,6 +81,13 @@ $router->post('/api/emd-sync.php',
     [ApiKeyMiddleware::class]
 );
 
+// FiveM-Server: Einmal-Token für die Anmeldung über ignisTab. Eingelöst
+// wird er unter /auth/tablet (routes/web.php).
+$router->post('/api/tablet/login-token',
+    [\App\Http\Controllers\TabletLoginController::class, 'issue'],
+    [ApiKeyMiddleware::class]
+);
+
 // ----------------------------------------------------------------------------
 //  Hover-Card-Fragments (Browser-Session, intern für Tooltips/Popovers)
 // ----------------------------------------------------------------------------

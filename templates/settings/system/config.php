@@ -193,6 +193,9 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             <?= ($config['config_value'] === 'true' || $config['config_value'] === '1') ? 'checked' : '' ?>>
                                                         <span></span>
                                                     </label>
+                                                    <?php if ($config['config_key'] === 'TABLET_LOGIN_ENABLED'): ?>
+                                                        <div class="ignis-field__hint">Der FiveM-Server fordert mit dem API-Schlüssel einen Einmal-Link für die Discord-ID des Spielers an, das Tablet meldet sich damit an. Das klappt nur für bestehende, aktive Benutzer mit hinterlegter Discord-ID; neue Konten entstehen so nicht.</div>
+                                                    <?php endif; ?>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'color'): ?>
                                                     <div class="flex items-center gap-2">

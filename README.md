@@ -58,3 +58,18 @@ Für nginx gibt es keine Durchreichung: `root` muss auf `public/` zeigen.
 `try_files`-Regeln. `/api/health` meldet außerdem fehlende PHP-Erweiterungen,
 HTTP-Transport, eingeschränkte Prozessfunktionen und unter `rewrite`, ob der
 Document-Root auf `public/` zeigt.
+
+### Anmeldung über ignisTab
+
+Discord-OAuth funktioniert im Browser von FiveM nicht. Für das Tablet-Skript
+ignisTab gibt es deshalb eine eigene Anmeldung, die unter Einstellungen ›
+System-Konfiguration › Funktionen mit `TABLET_LOGIN_ENABLED` eingeschaltet
+wird (ab Werk aus). Der FiveM-Server schickt `POST /api/tablet/login-token`
+mit dem API-Schlüssel im Header `X-API-Key` und `{"discord_id": "…"}` und
+bekommt einen Token, der 60 Sekunden und genau einmal gilt. Das Tablet öffnet
+damit `/auth/tablet?token=…` und ist angemeldet wie nach dem Discord-Login.
+
+Es funktioniert nur für bestehende, aktive Benutzer, deren Discord-ID in
+ignis hinterlegt ist; ein Konto entsteht dabei nie. Pro Discord-ID gibt es
+höchstens zehn Token pro Minute. Die Discord-ID stammt vom FiveM-Server, sie
+ist also nur so verlässlich wie dessen Discord-Pflicht.

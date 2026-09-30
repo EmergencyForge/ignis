@@ -111,6 +111,7 @@ final class CsrfTest extends FeatureTestCase
             '/api/telemetry/heartbeat',
             '/api/telemetry-heartbeat.php',
             '/api/emd/status-poll',
+            '/api/tablet/login-token',
         ], $exempt);
     }
 }
