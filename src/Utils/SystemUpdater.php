@@ -57,6 +57,8 @@ class SystemUpdater
 
     /**
      * Get current version information
+     *
+     * @return array<string, mixed>
      */
     public function getCurrentVersion(): array
     {
@@ -67,6 +69,7 @@ class SystemUpdater
      * Check for available updates from GitHub releases
      * 
      * @param bool $includePreRelease If true, include pre-release versions in the check
+     * @return array<string, mixed>
      */
     public function checkForUpdates(?bool $includePreRelease = null): array
     {
@@ -120,7 +123,8 @@ class SystemUpdater
 
     /**
      * Check if PHP limits are sufficient for downloading and extracting updates
-     * @return array List of warning messages (empty if all OK)
+     *
+     * @return list<string> List of warning messages (empty if all OK)
      */
     private function checkPhpLimits(): array
     {
@@ -141,7 +145,7 @@ class SystemUpdater
      * @param string $downloadUrl URL to download the update from
      * @param string $newVersion Version being installed
      * @param bool $isPreRelease Whether the new version is a pre-release
-     * @return array Result of the update operation
+     * @return array<string, mixed> Result of the update operation
      */
     public function downloadAndApplyUpdate(
         string $downloadUrl,
@@ -337,7 +341,7 @@ class SystemUpdater
     /**
      * Check if composer installation is pending
      * 
-     * @return array Status information
+     * @return array<string, mixed> Status information
      */
     public function getComposerStatus(): array
     {
@@ -347,7 +351,7 @@ class SystemUpdater
     /**
      * Execute pending composer installation
      * 
-     * @return array Result of composer execution
+     * @return array<string, mixed> Result of composer execution
      */
     public function executePendingComposerInstall(): array
     {
@@ -357,7 +361,7 @@ class SystemUpdater
     /**
      * Update version.json file
      * 
-     * @param array $versionData New version data
+     * @param array<string, mixed> $versionData New version data
      */
     public function updateVersionFile(array $versionData): bool
     {
@@ -368,6 +372,7 @@ class SystemUpdater
      * Get all available releases from GitHub
      * 
      * @param int $limit Maximum number of releases to fetch
+     * @return array<mixed>
      */
     public function getAllReleases(int $limit = 10): array
     {
@@ -416,6 +421,8 @@ class SystemUpdater
     /**
      * Get update urgency level
      * Returns: 'none', 'low', 'medium', 'high', 'critical'
+     *
+     * @param array<string, mixed> $updateInfo
      */
     public function getUpdateUrgency(?array $updateInfo = null): string
     {
@@ -447,6 +454,7 @@ class SystemUpdater
      * 
      * @param bool $forceRefresh If true, bypass cache and fetch fresh data
      * @param bool $includePreRelease If true, include pre-release versions in the check
+     * @return array<string, mixed>
      */
     public function checkForUpdatesCached(bool $forceRefresh = false, ?bool $includePreRelease = null): array
     {
@@ -493,7 +501,7 @@ class SystemUpdater
     /**
      * Fetch all branches from GitHub API
      *
-     * @return array List of branch names
+     * @return array<mixed> List of branch names
      */
     public function fetchBranches(): array
     {
@@ -504,7 +512,7 @@ class SystemUpdater
      * Fetch the latest commit of a specific branch from GitHub API
      *
      * @param string $branch Branch name
-     * @return array|null Commit info or null on error
+     * @return array<string, mixed>|null Commit info or null on error
      */
     public function fetchBranchLatestCommit(string $branch): ?array
     {
@@ -516,7 +524,7 @@ class SystemUpdater
      *
      * @param string $branch Branch name
      * @param string $commitSha Full commit SHA
-     * @return array Result of the update operation
+     * @return array<string, mixed> Result of the update operation
      */
     public function downloadAndApplyBranchUpdate(string $branch, string $commitSha): array
     {
@@ -590,8 +598,8 @@ class SystemUpdater
      * Comprehensive diagnostic function for update failures
      *
      * @param Exception|null $exception Optional exception that triggered the diagnostic
-     * @param array $context Additional context information about the failure
-     * @return array Detailed diagnostic report for support analysis
+     * @param array<string, mixed> $context Additional context information about the failure
+     * @return array<string, mixed> Detailed diagnostic report for support analysis
      */
     public function runUpdateDiagnostics(?Exception $exception = null, array $context = []): array
     {
@@ -600,6 +608,8 @@ class SystemUpdater
 
     /**
      * Get the latest diagnostic report
+     *
+     * @return array<string, mixed>|null
      */
     public function getLatestDiagnosticReport(): ?array
     {
@@ -608,6 +618,8 @@ class SystemUpdater
 
     /**
      * Format diagnostic summary as HTML for UI display
+     *
+     * @param array<string, mixed> $diagnostics
      */
     public function formatDiagnosticHTML(array $diagnostics): string
     {
@@ -616,6 +628,8 @@ class SystemUpdater
 
     /**
      * Generate support export text (easy to copy/paste)
+     *
+     * @param array<string, mixed> $diagnostics
      */
     public function formatDiagnosticForSupport(array $diagnostics): string
     {
