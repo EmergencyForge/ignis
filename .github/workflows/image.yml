@@ -28,6 +28,15 @@ jobs:
         with:
           path: ignis
 
+      # Welcher Stand von WebPackages ins Image kommt, steht in
+      # .github/webpackages-ref, dort steht auch, wie man ihn anhebt.
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       - name: Token fuer die Pakete
         id: packages
         uses: actions/create-github-app-token@v3
@@ -40,6 +49,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 

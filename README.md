@@ -73,3 +73,18 @@ Es funktioniert nur für bestehende, aktive Benutzer, deren Discord-ID in
 ignis hinterlegt ist; ein Konto entsteht dabei nie. Pro Discord-ID gibt es
 höchstens zehn Token pro Minute. Die Discord-ID stammt vom FiveM-Server, sie
 ist also nur so verlässlich wie dessen Discord-Pflicht.
+
+### Entwicklung: gemeinsame Pakete
+
+Einige Bausteine (UI, Editor, Cron, Mail und weitere) liegen im Paket-Repo
+WebPackages. Composer bindet sie über Pfad-Repositories aus dem
+Nachbar-Checkout `../WebPackages` ein, Vite baut UI und Editor von dort aus
+dem Quelltext.
+
+Die CI (`php.yml`, `build-release.yml`, `image.yml`) checkt WebPackages nicht
+von `main` aus, sondern den Tag aus `.github/webpackages-ref`. Ein
+ignis-Commit baut damit immer gegen denselben Paketstand, und ein Bruch auf
+WebPackages-`main` färbt ignis nicht rot. Braucht ignis neuere Pakete, kommt
+der neue Tag in diese Datei, im selben Commit wie `composer.lock` und das neu
+gebaute Dist. Die Schritte stehen in der Datei selbst. Lokal gilt der Ref
+nicht: gebaut wird aus dem Nachbar-Checkout, wie er gerade ausgecheckt ist.

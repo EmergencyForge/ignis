@@ -1,0 +1,16 @@
+# Stand von EmergencyForge/WebPackages, gegen den die CI testet, das Dist
+# prüft, das Release-Paket und das Image baut (php.yml, build-release.yml,
+# image.yml). Gelesen wird die einzige Zeile ohne #: ein Tag, notfalls ein
+# Commit-SHA. Kein Branch, sonst baut derselbe ignis-Commit morgen gegen
+# andere Pakete.
+#
+# Anheben, wenn ignis einen neueren Paketstand braucht:
+# 1. In WebPackages ist der Stand auf main gemergt und getaggt
+#    (<paket>/vX.Y.Z, siehe README dort).
+# 2. Hier den Tag des Pakets eintragen, dessen Änderung ignis braucht. Die
+#    Tags hängen an main-Commits, der Checkout bringt also alle Pakete in
+#    dem Stand mit, den main zu diesem Zeitpunkt hatte.
+# 3. Im selben Commit composer.lock (composer update 'emergencyforge/*')
+#    und das Dist (npm run build) aus genau diesem Stand erneuern, sonst
+#    schlägt der Dist-Vergleich in php.yml fehl.
+ui/v0.6.0
