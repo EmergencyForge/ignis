@@ -35,18 +35,19 @@ final class JobDispatcher
         try {
             $connection = $this->queueManager->connection();
 
-            $payload = [
-                'job'  => SerializedJob::class . '@handle',
-                'data' => [
-                    'class'      => get_class($job),
-                    'serialized' => serialize($job),
-                ],
+            // Illuminate legt `Klasse@methode` als `job` und das zweite
+            // Argument als `data` in den Payload; der Worker ruft damit
+            // SerializedJob::handle($job, $data) auf.
+            $handler = SerializedJob::class . '@handle';
+            $data    = [
+                'class'      => get_class($job),
+                'serialized' => serialize($job),
             ];
 
             if ($job->delay > 0) {
-                $connection->later($job->delay, $payload, null, $job->queue);
+                $connection->later($job->delay, $handler, $data, $job->queue);
             } else {
-                $connection->push($payload, '', $job->queue);
+                $connection->push($handler, $data, $job->queue);
             }
         } catch (\Throwable $e) {
             Logger::warning('JobDispatcher: Queue unavailable, running job synchronously', [
