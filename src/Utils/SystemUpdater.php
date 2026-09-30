@@ -3,6 +3,8 @@
 namespace App\Utils;
 
 use App\Utils\Updater\GitHubReleaseSource;
+use App\Utils\Updater\ReleaseNotes;
+use App\Utils\Updater\VersionComparator;
 use Exception;
 
 /**
@@ -159,7 +161,7 @@ class SystemUpdater
             $latestVersion = $latestRelease['tag_name'];
             $currentVersion = $this->currentVersion['version'];
 
-            $isNewer = $this->compareVersions($latestVersion, $currentVersion);
+            $isNewer = VersionComparator::isNewer($latestVersion, $currentVersion);
             $isLatestPreRelease = $latestRelease['prerelease'] ?? false;
 
             $asset = GitHubReleaseSource::pickUpdateAsset($latestRelease);
@@ -225,15 +227,6 @@ class SystemUpdater
         };
     }
 
-    private function compareVersions(string $version1, string $version2): bool
-    {
-        // Remove 'v' prefix if present
-        $v1 = ltrim($version1, 'v');
-        $v2 = ltrim($version2, 'v');
-
-        return version_compare($v1, $v2, '>');
-    }
-
     /**
      * Download and apply update
      * 
@@ -261,11 +254,7 @@ class SystemUpdater
             $isReleaseAsset = $downloadKind === 'asset';
 
             // Security: Validate version format
-            // Allow up to 5 version segments (e.g., v0.5.4.3.1) plus optional pre-release suffix
-            // Also allow dev-branch-commit format for branch updates (e.g., dev-main-abc12345)
-            // Note: {0,4} means 0 to 4 additional segments after the first, totaling 1 to 5 segments
-            if (!preg_match('/^v?\d+(\.\d+){0,4}(-[a-zA-Z0-9.-]+)?$/', $newVersion) &&
-                !preg_match('/^dev-[a-zA-Z0-9._\/-]+-[a-f0-9]{7,8}$/', $newVersion)) {
+            if (!VersionComparator::isValidFormat($newVersion)) {
                 throw new Exception('Ungültiges Versionsformat.');
             }
 
@@ -1344,8 +1333,7 @@ class SystemUpdater
         }
 
         // Fall back to pattern matching in version string
-        $version = $this->currentVersion['version'];
-        return preg_match('/(alpha|beta|rc|dev)/i', $version) === 1;
+        return VersionComparator::isPreRelease($this->currentVersion['version']);
     }
 
     /**
@@ -1356,7 +1344,7 @@ class SystemUpdater
      */
     public function isVersionPreRelease(string $version): bool
     {
-        return preg_match('/(alpha|beta|rc|dev)/i', $version) === 1;
+        return VersionComparator::isPreRelease($version);
     }
 
     /**
@@ -1397,30 +1385,7 @@ class SystemUpdater
             return 'none';
         }
 
-        $age = $this->getVersionAge();
-        $currentVersion = ltrim($this->currentVersion['version'], 'v');
-        $latestVersion = ltrim($updateInfo['latest_version'], 'v');
-
-        // Parse versions
-        $currentParts = explode('.', $currentVersion);
-        $latestParts = explode('.', $latestVersion);
-
-        // Major version change = high urgency
-        if (($latestParts[0] ?? 0) > ($currentParts[0] ?? 0)) {
-            return 'high';
-        }
-
-        // Minor version change with old version = medium urgency
-        if (($latestParts[1] ?? 0) > ($currentParts[1] ?? 0)) {
-            return $age > 60 ? 'medium' : 'low';
-        }
-
-        // Patch version change
-        if (($latestParts[2] ?? 0) > ($currentParts[2] ?? 0)) {
-            return $age > 30 ? 'medium' : 'low';
-        }
-
-        return 'low';
+        return VersionComparator::urgency($this->currentVersion['version'], $updateInfo['latest_version'], $this->getVersionAge());
     }
 
     /**
@@ -1428,67 +1393,7 @@ class SystemUpdater
      */
     public function getFormattedReleaseNotes(string $markdown): string
     {
-        $lines = explode("\n", $markdown);
-        $output = '';
-        $inList = false;
-
-        foreach ($lines as $line) {
-            $line = trim($line);
-
-            // Headers
-            if (preg_match('/^### (.+)$/', $line, $matches)) {
-                if ($inList) {
-                    $output .= '</ul>';
-                    $inList = false;
-                }
-                $output .= '<h6>' . htmlspecialchars($matches[1]) . '</h6>';
-            } elseif (preg_match('/^## (.+)$/', $line, $matches)) {
-                if ($inList) {
-                    $output .= '</ul>';
-                    $inList = false;
-                }
-                $output .= '<h5>' . htmlspecialchars($matches[1]) . '</h5>';
-            } elseif (preg_match('/^# (.+)$/', $line, $matches)) {
-                if ($inList) {
-                    $output .= '</ul>';
-                    $inList = false;
-                }
-                $output .= '<h4>' . htmlspecialchars($matches[1]) . '</h4>';
-            }
-            // List items
-            elseif (preg_match('/^[\*\-] (.+)$/', $line, $matches)) {
-                if (!$inList) {
-                    $output .= '<ul>';
-                    $inList = true;
-                }
-                $output .= '<li>' . htmlspecialchars($matches[1]) . '</li>';
-            }
-            // Bold text
-            elseif (preg_match('/\*\*(.+?)\*\*/', $line)) {
-                if ($inList) {
-                    $output .= '</ul>';
-                    $inList = false;
-                }
-                // First escape entire line, then replace markdown markers with HTML
-                $line = htmlspecialchars($line);
-                $line = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $line);
-                $output .= '<p>' . $line . '</p>';
-            }
-            // Regular text
-            elseif (!empty($line)) {
-                if ($inList) {
-                    $output .= '</ul>';
-                    $inList = false;
-                }
-                $output .= '<p>' . htmlspecialchars($line) . '</p>';
-            }
-        }
-
-        if ($inList) {
-            $output .= '</ul>';
-        }
-
-        return $output;
+        return ReleaseNotes::toHtml($markdown);
     }
 
     /**

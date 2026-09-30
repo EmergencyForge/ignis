@@ -5,23 +5,38 @@ declare(strict_types=1);
 namespace Tests\Unit\Utils\Updater;
 
 use App\Utils\Updater\GitHubReleaseSource;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class GitHubReleaseSourceTest extends TestCase
 {
-    #[Test]
-    public function tells_release_assets_from_zipballs_and_rejects_the_rest(): void
+    /** @return array<string, array{string, string|null}> */
+    public static function downloadUrls(): array
     {
-        $source = new GitHubReleaseSource();
+        return [
+            'Release-Asset ignis' => ['https://github.com/EmergencyForge/ignis/releases/download/v2026.0.8/ignis-v2026.0.8.zip', 'asset'],
+            // ForgeBoard #113: alte Installationen kennen nur intraRP-URLs.
+            'Release-Asset intraRP (Altbestand)' => ['https://github.com/EmergencyForge/intraRP/releases/download/v1.2.0/intraRP-v1.2.0.zip', 'asset'],
+            'Zipball ignis' => ['https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.0.8', 'zipball'],
+            'Zipball intraRP (Altbestand)' => ['https://api.github.com/repos/EmergencyForge/intraRP/zipball/v1.2.0', 'zipball'],
+            'Groß-/Kleinschreibung egal' => ['https://GITHUB.com/emergencyforge/IGNIS/releases/download/v1/x.zip', 'asset'],
+            'http statt https' => ['http://github.com/EmergencyForge/ignis/releases/download/v1/x.zip', null],
+            'fremde Organisation' => ['https://github.com/SomeoneElse/ignis/releases/download/v1/x.zip', null],
+            'ähnlicher Repo-Name' => ['https://github.com/EmergencyForge/ignis-fork/releases/download/v1/x.zip', null],
+            'Archiv statt Release' => ['https://github.com/EmergencyForge/ignis/archive/refs/tags/v1.zip', null],
+            'Tarball' => ['https://api.github.com/repos/EmergencyForge/ignis/tarball/v1', null],
+            'fremder Host mit GitHub-Pfad' => ['https://evil.example/https://github.com/EmergencyForge/ignis/releases/download/v1/x.zip', null],
+            'Subdomain-Trick' => ['https://github.com.evil.example/EmergencyForge/ignis/releases/download/v1/x.zip', null],
+            'leer' => ['', null],
+        ];
+    }
 
-        self::assertSame('asset', $source->downloadKind('https://github.com/EmergencyForge/ignis/releases/download/v1/ignis-v1.zip'));
-        self::assertSame('asset', $source->downloadKind('https://github.com/EmergencyForge/intraRP/releases/download/v1/intraRP-v1.zip'));
-        self::assertSame('zipball', $source->downloadKind('https://api.github.com/repos/EmergencyForge/ignis/zipball/v1'));
-        self::assertSame('zipball', $source->downloadKind('https://api.github.com/repos/EmergencyForge/intraRP/zipball/abc'));
-        self::assertNull($source->downloadKind('https://github.com/EmergencyForge/ignis-fork/releases/download/v1/x.zip'));
-        self::assertNull($source->downloadKind('https://example.com/EmergencyForge/ignis/releases/download/v1/x.zip'));
-        self::assertNull($source->downloadKind('http://github.com/EmergencyForge/ignis/releases/download/v1/x.zip'));
+    #[Test]
+    #[DataProvider('downloadUrls')]
+    public function tells_release_assets_from_zipballs_and_rejects_the_rest(string $url, ?string $kind): void
+    {
+        self::assertSame($kind, (new GitHubReleaseSource())->downloadKind($url));
     }
 
     #[Test]

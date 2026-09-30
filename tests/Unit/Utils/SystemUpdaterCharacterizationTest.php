@@ -39,122 +39,56 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     }
 
     // ── Download-URL, Repository und Eingaben ──────────────────────────
+    // Die vollständigen Regeln prüfen GitHubReleaseSourceTest und
+    // VersionComparatorTest. Hier steht nur, dass das Update sie anwendet.
 
-    /** @return array<string, array{string}> */
-    public static function acceptedUrls(): array
+    #[Test]
+    public function accepts_release_assets_and_zipballs_of_both_repositories(): void
     {
-        return [
-            'Release-Asset ignis' => ['https://github.com/EmergencyForge/ignis/releases/download/v2026.0.8/ignis-v2026.0.8.zip'],
-            'Release-Asset intraRP (Altbestand)' => ['https://github.com/EmergencyForge/intraRP/releases/download/v1.2.0/intraRP-v1.2.0.zip'],
-            'Zipball ignis' => ['https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.0.8'],
-            'Zipball intraRP (Altbestand)' => ['https://api.github.com/repos/EmergencyForge/intraRP/zipball/v1.2.0'],
-            'Groß-/Kleinschreibung egal' => ['https://GITHUB.com/emergencyforge/IGNIS/releases/download/v1/x.zip'],
-        ];
+        foreach ([
+            'https://github.com/EmergencyForge/ignis/releases/download/v2026.0.8/ignis-v2026.0.8.zip',
+            'https://github.com/EmergencyForge/intraRP/releases/download/v1.2.0/intraRP-v1.2.0.zip',
+            'https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.0.8',
+        ] as $url) {
+            $result = $this->updater()->downloadAndApplyUpdate($url, 'kaputt');
+
+            self::assertFalse($result['success']);
+            self::assertSame('Fehler beim Update: Ungültiges Versionsformat.', $result['message'], $url);
+        }
     }
 
     #[Test]
-    #[DataProvider('acceptedUrls')]
-    public function accepts_release_assets_and_zipballs_of_both_repositories(string $url): void
+    public function rejects_foreign_urls_before_touching_the_disk(): void
     {
-        $result = $this->updater()->downloadAndApplyUpdate($url, 'kaputt');
+        $url = 'https://github.com/SomeoneElse/ignis/releases/download/v1/x.zip';
 
-        self::assertFalse($result['success']);
-        self::assertSame('Fehler beim Update: Ungültiges Versionsformat.', $result['message']);
-    }
-
-    /** @return array<string, array{string}> */
-    public static function rejectedUrls(): array
-    {
-        return [
-            'http statt https' => ['http://github.com/EmergencyForge/ignis/releases/download/v1/x.zip'],
-            'fremde Organisation' => ['https://github.com/SomeoneElse/ignis/releases/download/v1/x.zip'],
-            'ähnlicher Repo-Name' => ['https://github.com/EmergencyForge/ignis-fork/releases/download/v1/x.zip'],
-            'Archiv statt Release' => ['https://github.com/EmergencyForge/ignis/archive/refs/tags/v1.zip'],
-            'Tarball' => ['https://api.github.com/repos/EmergencyForge/ignis/tarball/v1'],
-            'fremder Host mit GitHub-Pfad' => ['https://evil.example/https://github.com/EmergencyForge/ignis/releases/download/v1/x.zip'],
-            'Subdomain-Trick' => ['https://github.com.evil.example/EmergencyForge/ignis/releases/download/v1/x.zip'],
-            'leer' => [''],
-        ];
-    }
-
-    #[Test]
-    #[DataProvider('rejectedUrls')]
-    public function rejects_everything_else_before_touching_the_disk(string $url): void
-    {
         $result = $this->updater()->downloadAndApplyUpdate($url, 'v2026.0.9');
 
         self::assertFalse($result['success']);
         self::assertTrue($result['error']);
         self::assertSame(
-            'Fehler beim Update: Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden. URL: ' . substr($url, 0, 100),
+            'Fehler beim Update: Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden. URL: ' . $url,
             $result['message']
         );
         self::assertSame(['success', 'error', 'message', 'diagnostics', 'diagnostic_summary', 'diagnostic_html', 'diagnostic_support'], array_keys($result));
     }
 
-    /** @return array<string, array{string, bool}> */
-    public static function versions(): array
-    {
-        return [
-            'Jahresschema' => ['v2026.0.8', true],
-            'ohne v' => ['2026.0.8', true],
-            'fünf Stellen' => ['v1.2.3.4.5', true],
-            'Vorabversion' => ['v2026.1.0-beta.1', true],
-            'Branch-Build' => ['dev-main-abc12345', true],
-            'Branch mit Schrägstrich' => ['dev-feature/x-abcdef1', true],
-            'sechs Stellen' => ['v1.2.3.4.5.6', false],
-            'Wort' => ['latest', false],
-            'Leerzeichen am Ende' => ['v2026.0.8 ', false],
-            'Branch-Build ohne Hash' => ['dev-main-xyz', false],
-            'Pfad' => ['../v1', false],
-        ];
-    }
-
     #[Test]
-    #[DataProvider('versions')]
-    public function validates_the_version_format_before_the_checksum(string $version, bool $valid): void
+    public function validates_the_version_format_before_the_checksum(): void
     {
-        $result = $this->updater()->downloadAndApplyUpdate(
-            'https://github.com/EmergencyForge/ignis/releases/download/v1/ignis-v1.zip',
-            $version,
-            false,
-            'keine-pruefsumme'
-        );
+        $url = 'https://github.com/EmergencyForge/ignis/releases/download/v1/ignis-v1.zip';
 
         self::assertSame(
-            $valid ? 'Fehler beim Update: Ungültige SHA-256-Prüfsumme für das Update-Artefakt.' : 'Fehler beim Update: Ungültiges Versionsformat.',
-            $result['message']
+            'Fehler beim Update: Ungültige SHA-256-Prüfsumme für das Update-Artefakt.',
+            $this->updater()->downloadAndApplyUpdate($url, 'dev-main-abc12345', false, 'keine-pruefsumme')['message']
+        );
+        self::assertSame(
+            'Fehler beim Update: Ungültiges Versionsformat.',
+            $this->updater()->downloadAndApplyUpdate($url, 'latest', false, 'keine-pruefsumme')['message']
         );
     }
 
-    // ── Versionsvergleich ──────────────────────────────────────────────
-
-    /** @return array<string, array{string, string, bool}> */
-    public static function comparisons(): array
-    {
-        return [
-            'Jahresschema schlägt 1.x' => ['v2026.0.8', 'v1.2.0', true],
-            '1.x nicht neuer als Jahresschema' => ['v1.2.0', 'v2026.0.8', false],
-            'zweistellige Patch-Nummer' => ['v2026.0.11', 'v2026.0.8', true],
-            'gleich' => ['v2026.0.8', 'v2026.0.8', false],
-            'ohne v gegen mit v' => ['2026.0.8', 'v2026.0.8', false],
-            'final schlägt beta' => ['v2026.1.0', 'v2026.1.0-beta.1', true],
-            'beta der nächsten Minor' => ['v2026.1.0-beta.1', 'v2026.0.11', true],
-            'beta.2 schlägt beta.1' => ['v2026.1.0-beta.2', 'v2026.1.0-beta.1', true],
-            'rc schlägt beta' => ['v2026.1.0-rc.1', 'v2026.1.0-beta.3', true],
-            'Release schlägt Branch-Build' => ['v2026.0.8', 'dev-main-abc12345', true],
-            'Branch-Build nie neuer' => ['dev-main-abc12345', 'v2026.0.8', false],
-            'Standard ohne version.json' => ['v2026.0.8', 'v0.5.0', true],
-            'numerisch statt alphabetisch' => ['v1.10.0', 'v1.9.9', true],
-        ];
-    }
-
-    #[Test]
-    #[DataProvider('comparisons')]
-    public function compares_versions(string $candidate, string $installed, bool $newer): void
-    {
-        self::assertSame($newer, $this->callPrivate($this->updater(), 'compareVersions', [$candidate, $installed]));
-    }
+    // ── Versionen ──────────────────────────────────────────────────────
 
     #[Test]
     public function recognises_prerelease_versions_by_name(): void
@@ -176,27 +110,14 @@ final class SystemUpdaterCharacterizationTest extends TestCase
         self::assertFalse($this->updater(['version' => 'v2026.0.8'])->isPreRelease());
     }
 
-    /** @return array<string, array{string, string, int, string}> */
-    public static function urgencies(): array
-    {
-        return [
-            'Wechsel von 1.x ins Jahresschema' => ['v1.2.0', 'v2026.0.8', 0, 'high'],
-            'Minor, junge Version' => ['v2026.0.8', 'v2026.1.0', 10, 'low'],
-            'Minor, älter als 60 Tage' => ['v2026.0.8', 'v2026.1.0', 61, 'medium'],
-            'Patch, junge Version' => ['v2026.0.8', 'v2026.0.11', 10, 'low'],
-            'Patch, älter als 30 Tage' => ['v2026.0.8', 'v2026.0.11', 31, 'medium'],
-            'Beta der nächsten Minor' => ['v2026.0.11', 'v2026.1.0-beta.1', 0, 'low'],
-            'Final nach eigener Beta' => ['v2026.1.0-beta.1', 'v2026.1.0', 400, 'low'],
-        ];
-    }
-
     #[Test]
-    #[DataProvider('urgencies')]
-    public function rates_update_urgency(string $installed, string $latest, int $ageDays, string $urgency): void
+    public function rates_update_urgency_by_the_age_in_version_json(): void
     {
-        $updater = $this->updater(['version' => $installed, 'updated_at' => $this->daysAgo($ageDays)]);
+        $update = ['available' => true, 'latest_version' => 'v2026.0.11'];
 
-        self::assertSame($urgency, $updater->getUpdateUrgency(['available' => true, 'latest_version' => $latest]));
+        self::assertSame('high', $this->updater(['version' => 'v1.2.0'])->getUpdateUrgency($update));
+        self::assertSame('low', $this->updater(['version' => 'v2026.0.8', 'updated_at' => $this->daysAgo(30)])->getUpdateUrgency($update));
+        self::assertSame('medium', $this->updater(['version' => 'v2026.0.8', 'updated_at' => $this->daysAgo(31)])->getUpdateUrgency($update));
     }
 
     #[Test]
@@ -695,20 +616,6 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     }
 
     // ── Darstellung ────────────────────────────────────────────────────
-
-    #[Test]
-    public function renders_release_notes(): void
-    {
-        $markdown = "# Titel\n## Neu\n### Details\n- Punkt <b>1</b>\n* Punkt 2\n\n- Punkt 3\nText mit **fett** & <script>\n#Kein Titel\n\nNormaler Text\n- Letzter";
-
-        self::assertSame(
-            '<h4>Titel</h4><h5>Neu</h5><h6>Details</h6>'
-            . '<ul><li>Punkt &lt;b&gt;1&lt;/b&gt;</li><li>Punkt 2</li><li>Punkt 3</li></ul>'
-            . '<p>Text mit <strong>fett</strong> &amp; &lt;script&gt;</p>'
-            . '<p>#Kein Titel</p><p>Normaler Text</p><ul><li>Letzter</li></ul>',
-            $this->updater()->getFormattedReleaseNotes($markdown)
-        );
-    }
 
     /** @return array<string, array{string, string}> */
     public static function errorMessages(): array
