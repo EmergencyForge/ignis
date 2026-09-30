@@ -1,0 +1,1088 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Utils;
+
+use App\Utils\SystemUpdater;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+
+/**
+ * Charakterisierungstests: halten fest, was der Updater heute tut, bevor er
+ * zerlegt wird. Sie beschreiben den Ist-Zustand, nicht den Wunsch. Ein
+ * Test, der hier kippt, heißt: das Verhalten hat sich verändert.
+ */
+final class SystemUpdaterCharacterizationTest extends TestCase
+{
+    private const API = 'ignistest://api';
+
+    private string $root = '';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->root = sys_get_temp_dir() . '/ignis-updater-char-' . bin2hex(random_bytes(6));
+        mkdir($this->root . '/storage', 0755, true);
+        FakeGitHubStream::register();
+    }
+
+    protected function tearDown(): void
+    {
+        FakeGitHubStream::unregister();
+        $this->removeTree($this->root);
+        parent::tearDown();
+    }
+
+    // ── Download-URL, Repository und Eingaben ──────────────────────────
+
+    /** @return array<string, array{string}> */
+    public static function acceptedUrls(): array
+    {
+        return [
+            'Release-Asset ignis' => ['https://github.com/EmergencyForge/ignis/releases/download/v2026.0.8/ignis-v2026.0.8.zip'],
+            'Release-Asset intraRP (Altbestand)' => ['https://github.com/EmergencyForge/intraRP/releases/download/v1.2.0/intraRP-v1.2.0.zip'],
+            'Zipball ignis' => ['https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.0.8'],
+            'Zipball intraRP (Altbestand)' => ['https://api.github.com/repos/EmergencyForge/intraRP/zipball/v1.2.0'],
+            'Groß-/Kleinschreibung egal' => ['https://GITHUB.com/emergencyforge/IGNIS/releases/download/v1/x.zip'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('acceptedUrls')]
+    public function accepts_release_assets_and_zipballs_of_both_repositories(string $url): void
+    {
+        $result = $this->updater()->downloadAndApplyUpdate($url, 'kaputt');
+
+        self::assertFalse($result['success']);
+        self::assertSame('Fehler beim Update: Ungültiges Versionsformat.', $result['message']);
+    }
+
+    /** @return array<string, array{string}> */
+    public static function rejectedUrls(): array
+    {
+        return [
+            'http statt https' => ['http://github.com/EmergencyForge/ignis/releases/download/v1/x.zip'],
+            'fremde Organisation' => ['https://github.com/SomeoneElse/ignis/releases/download/v1/x.zip'],
+            'ähnlicher Repo-Name' => ['https://github.com/EmergencyForge/ignis-fork/releases/download/v1/x.zip'],
+            'Archiv statt Release' => ['https://github.com/EmergencyForge/ignis/archive/refs/tags/v1.zip'],
+            'Tarball' => ['https://api.github.com/repos/EmergencyForge/ignis/tarball/v1'],
+            'fremder Host mit GitHub-Pfad' => ['https://evil.example/https://github.com/EmergencyForge/ignis/releases/download/v1/x.zip'],
+            'Subdomain-Trick' => ['https://github.com.evil.example/EmergencyForge/ignis/releases/download/v1/x.zip'],
+            'leer' => [''],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('rejectedUrls')]
+    public function rejects_everything_else_before_touching_the_disk(string $url): void
+    {
+        $result = $this->updater()->downloadAndApplyUpdate($url, 'v2026.0.9');
+
+        self::assertFalse($result['success']);
+        self::assertTrue($result['error']);
+        self::assertSame(
+            'Fehler beim Update: Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden. URL: ' . substr($url, 0, 100),
+            $result['message']
+        );
+        self::assertSame(['success', 'error', 'message', 'diagnostics', 'diagnostic_summary', 'diagnostic_html', 'diagnostic_support'], array_keys($result));
+    }
+
+    /** @return array<string, array{string, bool}> */
+    public static function versions(): array
+    {
+        return [
+            'Jahresschema' => ['v2026.0.8', true],
+            'ohne v' => ['2026.0.8', true],
+            'fünf Stellen' => ['v1.2.3.4.5', true],
+            'Vorabversion' => ['v2026.1.0-beta.1', true],
+            'Branch-Build' => ['dev-main-abc12345', true],
+            'Branch mit Schrägstrich' => ['dev-feature/x-abcdef1', true],
+            'sechs Stellen' => ['v1.2.3.4.5.6', false],
+            'Wort' => ['latest', false],
+            'Leerzeichen am Ende' => ['v2026.0.8 ', false],
+            'Branch-Build ohne Hash' => ['dev-main-xyz', false],
+            'Pfad' => ['../v1', false],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('versions')]
+    public function validates_the_version_format_before_the_checksum(string $version, bool $valid): void
+    {
+        $result = $this->updater()->downloadAndApplyUpdate(
+            'https://github.com/EmergencyForge/ignis/releases/download/v1/ignis-v1.zip',
+            $version,
+            false,
+            'keine-pruefsumme'
+        );
+
+        self::assertSame(
+            $valid ? 'Fehler beim Update: Ungültige SHA-256-Prüfsumme für das Update-Artefakt.' : 'Fehler beim Update: Ungültiges Versionsformat.',
+            $result['message']
+        );
+    }
+
+    // ── Versionsvergleich ──────────────────────────────────────────────
+
+    /** @return array<string, array{string, string, bool}> */
+    public static function comparisons(): array
+    {
+        return [
+            'Jahresschema schlägt 1.x' => ['v2026.0.8', 'v1.2.0', true],
+            '1.x nicht neuer als Jahresschema' => ['v1.2.0', 'v2026.0.8', false],
+            'zweistellige Patch-Nummer' => ['v2026.0.11', 'v2026.0.8', true],
+            'gleich' => ['v2026.0.8', 'v2026.0.8', false],
+            'ohne v gegen mit v' => ['2026.0.8', 'v2026.0.8', false],
+            'final schlägt beta' => ['v2026.1.0', 'v2026.1.0-beta.1', true],
+            'beta der nächsten Minor' => ['v2026.1.0-beta.1', 'v2026.0.11', true],
+            'beta.2 schlägt beta.1' => ['v2026.1.0-beta.2', 'v2026.1.0-beta.1', true],
+            'rc schlägt beta' => ['v2026.1.0-rc.1', 'v2026.1.0-beta.3', true],
+            'Release schlägt Branch-Build' => ['v2026.0.8', 'dev-main-abc12345', true],
+            'Branch-Build nie neuer' => ['dev-main-abc12345', 'v2026.0.8', false],
+            'Standard ohne version.json' => ['v2026.0.8', 'v0.5.0', true],
+            'numerisch statt alphabetisch' => ['v1.10.0', 'v1.9.9', true],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('comparisons')]
+    public function compares_versions(string $candidate, string $installed, bool $newer): void
+    {
+        self::assertSame($newer, $this->callPrivate($this->updater(), 'compareVersions', [$candidate, $installed]));
+    }
+
+    #[Test]
+    public function recognises_prerelease_versions_by_name(): void
+    {
+        $updater = $this->updater();
+
+        foreach (['v2026.1.0-beta.1', 'v2026.1.0-rc.1', 'v1.0.0-ALPHA', 'dev-main-abc12345'] as $version) {
+            self::assertTrue($updater->isVersionPreRelease($version), $version);
+        }
+        self::assertFalse($updater->isVersionPreRelease('v2026.0.8'));
+    }
+
+    #[Test]
+    public function the_prerelease_flag_in_version_json_wins_over_the_name(): void
+    {
+        self::assertFalse($this->updater(['version' => 'v2026.1.0-beta.1', 'prerelease' => false])->isPreRelease());
+        self::assertTrue($this->updater(['version' => 'v2026.0.8', 'prerelease' => true])->isPreRelease());
+        self::assertTrue($this->updater(['version' => 'v2026.1.0-beta.1'])->isPreRelease());
+        self::assertFalse($this->updater(['version' => 'v2026.0.8'])->isPreRelease());
+    }
+
+    /** @return array<string, array{string, string, int, string}> */
+    public static function urgencies(): array
+    {
+        return [
+            'Wechsel von 1.x ins Jahresschema' => ['v1.2.0', 'v2026.0.8', 0, 'high'],
+            'Minor, junge Version' => ['v2026.0.8', 'v2026.1.0', 10, 'low'],
+            'Minor, älter als 60 Tage' => ['v2026.0.8', 'v2026.1.0', 61, 'medium'],
+            'Patch, junge Version' => ['v2026.0.8', 'v2026.0.11', 10, 'low'],
+            'Patch, älter als 30 Tage' => ['v2026.0.8', 'v2026.0.11', 31, 'medium'],
+            'Beta der nächsten Minor' => ['v2026.0.11', 'v2026.1.0-beta.1', 0, 'low'],
+            'Final nach eigener Beta' => ['v2026.1.0-beta.1', 'v2026.1.0', 400, 'low'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('urgencies')]
+    public function rates_update_urgency(string $installed, string $latest, int $ageDays, string $urgency): void
+    {
+        $updater = $this->updater(['version' => $installed, 'updated_at' => $this->daysAgo($ageDays)]);
+
+        self::assertSame($urgency, $updater->getUpdateUrgency(['available' => true, 'latest_version' => $latest]));
+    }
+
+    #[Test]
+    public function no_urgency_without_an_available_update(): void
+    {
+        self::assertSame('none', $this->updater()->getUpdateUrgency(['available' => false, 'latest_version' => 'v9999.0.0']));
+    }
+
+    #[Test]
+    public function recommends_an_update_after_ninety_days(): void
+    {
+        self::assertSame(90, $this->updater(['version' => 'v1', 'updated_at' => $this->daysAgo(90)])->getVersionAge());
+        self::assertFalse($this->updater(['version' => 'v1', 'updated_at' => $this->daysAgo(90)])->isUpdateRecommended());
+        self::assertTrue($this->updater(['version' => 'v1', 'updated_at' => $this->daysAgo(91)])->isUpdateRecommended());
+        self::assertSame(0, $this->updater(['version' => 'v1'])->getVersionAge());
+    }
+
+    // ── Release-Auswahl über die GitHub-API ────────────────────────────
+
+    #[Test]
+    public function picks_the_latest_stable_release_and_its_ignis_asset(): void
+    {
+        $this->serveReleases($this->releases());
+
+        $result = $this->updater()->checkForUpdates(false);
+
+        self::assertSame([self::API . '/releases?per_page=20'], FakeGitHubStream::$requested);
+        self::assertSame([
+            'available' => true,
+            'current_version' => 'v2026.0.8',
+            'latest_version' => 'v2026.0.9',
+            'release_name' => 'v2026.0.9',
+            'release_notes' => 'Keine Release-Notizen verfügbar.',
+            'published_at' => null,
+            'download_url' => 'https://github.com/EmergencyForge/ignis/releases/download/v2026.0.9/ignis-v2026.0.9.zip',
+            'download_url_fallback' => 'https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.0.9',
+            'html_url' => null,
+            'is_prerelease' => false,
+            'has_release_asset' => true,
+            'checksum_sha256' => str_repeat('ab', 32),
+            'download_size' => 1234,
+        ], $result);
+    }
+
+    #[Test]
+    public function the_prerelease_channel_takes_the_first_non_draft_release(): void
+    {
+        $this->serveReleases($this->releases());
+
+        $result = $this->updater()->checkForUpdates(true);
+
+        self::assertSame('v2026.1.0-beta.1', $result['latest_version']);
+        self::assertSame('Beta 1', $result['release_name']);
+        self::assertSame('Neu', $result['release_notes']);
+        self::assertSame('2026-09-20T10:00:00Z', $result['published_at']);
+        self::assertSame('https://github.com/EmergencyForge/ignis/releases/tag/v2026.1.0-beta.1', $result['html_url']);
+        self::assertTrue($result['is_prerelease']);
+        self::assertFalse($result['has_release_asset']);
+        self::assertSame('https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.1.0-beta.1', $result['download_url']);
+        self::assertNull($result['checksum_sha256']);
+        self::assertNull($result['download_size']);
+    }
+
+    #[Test]
+    public function without_explicit_channel_the_installed_version_decides(): void
+    {
+        $this->serveReleases($this->releases());
+
+        self::assertSame('v2026.0.9', $this->updater(['version' => 'v2026.0.8'])->checkForUpdates()['latest_version']);
+        self::assertSame('v2026.1.0-beta.1', $this->updater(['version' => 'v2026.1.0-beta.0'])->checkForUpdates()['latest_version']);
+    }
+
+    #[Test]
+    public function falls_back_to_a_prerelease_when_there_is_no_stable_release(): void
+    {
+        $this->serveReleases([$this->release('v2026.1.0-beta.1', ['prerelease' => true])]);
+
+        self::assertSame('v2026.1.0-beta.1', $this->updater()->checkForUpdates(false)['latest_version']);
+    }
+
+    #[Test]
+    public function the_same_version_is_not_an_update(): void
+    {
+        $this->serveReleases([$this->release('v2026.0.8')]);
+
+        self::assertFalse($this->updater()->checkForUpdates(false)['available']);
+    }
+
+    /** @return array<string, array{list<array<string, mixed>>, string|null, bool, string|null, int|null}> */
+    public static function assetLists(): array
+    {
+        $digest = 'sha256:' . str_repeat('CD', 32);
+        return [
+            'ignis vor intraRP' => [[
+                ['name' => 'ignis-v1-install.zip', 'browser_download_url' => 'https://x/install.zip'],
+                ['name' => 'intraRP-v1.zip', 'browser_download_url' => 'https://x/intraRP.zip'],
+                ['name' => 'ignis-v1.zip', 'browser_download_url' => 'https://x/ignis.zip', 'digest' => $digest, 'size' => '42'],
+            ], 'https://x/ignis.zip', true, str_repeat('cd', 32), 42],
+            'erstes Archiv ohne ignis-Präfix' => [[
+                ['name' => 'notes.txt', 'browser_download_url' => 'https://x/notes.txt'],
+                ['name' => 'intraRP-v1.zip', 'browser_download_url' => 'https://x/intraRP.zip'],
+                ['name' => 'other.zip', 'browser_download_url' => 'https://x/other.zip'],
+            ], 'https://x/intraRP.zip', true, null, null],
+            'nur Installationspaket' => [[
+                ['name' => 'ignis-v1-install.zip', 'browser_download_url' => 'https://x/install.zip'],
+            ], null, false, null, null],
+            'Digest mit anderem Verfahren' => [[
+                ['name' => 'ignis-v1.zip', 'browser_download_url' => 'https://x/ignis.zip', 'digest' => 'sha512:' . str_repeat('ab', 64)],
+            ], 'https://x/ignis.zip', true, null, null],
+            'kaputter Digest' => [[
+                ['name' => 'ignis-v1.zip', 'browser_download_url' => 'https://x/ignis.zip', 'digest' => 'sha256:abc'],
+            ], 'https://x/ignis.zip', true, null, null],
+        ];
+    }
+
+    /** @param list<array<string, mixed>> $assets */
+    #[Test]
+    #[DataProvider('assetLists')]
+    public function chooses_the_update_archive_among_the_assets(array $assets, ?string $url, bool $isAsset, ?string $checksum, ?int $size): void
+    {
+        $this->serveReleases([$this->release('v2026.0.9', ['assets' => $assets])]);
+
+        $result = $this->updater()->checkForUpdates(false);
+
+        self::assertSame($url ?? 'https://api.github.com/repos/EmergencyForge/ignis/zipball/v2026.0.9', $result['download_url']);
+        self::assertSame($isAsset, $result['has_release_asset']);
+        self::assertSame($checksum, $result['checksum_sha256']);
+        self::assertSame($size, $result['download_size']);
+    }
+
+    #[Test]
+    public function reports_an_error_when_github_gives_nothing_usable(): void
+    {
+        $expected = [
+            'available' => false,
+            'error' => true,
+            'message' => 'Konnte nicht auf GitHub-API zugreifen. Bitte prüfen Sie Ihre Internetverbindung oder versuchen Sie es später erneut (möglicherweise API-Ratenlimit erreicht).',
+        ];
+
+        self::assertSame($expected, $this->updater()->checkForUpdates(false));
+        $this->serveReleases([]);
+        self::assertSame($expected, $this->updater()->checkForUpdates(false));
+        $this->serveReleases([$this->release('v2026.0.9', ['draft' => true])]);
+        self::assertSame($expected, $this->updater()->checkForUpdates(false));
+    }
+
+    // ── Cache der Update-Prüfung ───────────────────────────────────────
+
+    #[Test]
+    public function caches_the_check_per_channel(): void
+    {
+        $this->serveReleases($this->releases());
+        $updater = $this->updater();
+
+        $fresh = $updater->checkForUpdatesCached(false, false);
+        self::assertFalse($fresh['cached']);
+        self::assertCount(1, FakeGitHubStream::$requested);
+
+        $cached = $updater->checkForUpdatesCached(false, false);
+        self::assertTrue($cached['cached']);
+        self::assertSame('v2026.0.9', $cached['latest_version']);
+        self::assertArrayHasKey('checked_at', $cached);
+        self::assertCount(1, FakeGitHubStream::$requested);
+
+        self::assertSame('v2026.1.0-beta.1', $updater->checkForUpdatesCached(false, true)['latest_version']);
+        self::assertCount(2, FakeGitHubStream::$requested);
+
+        $file = $this->readJson($this->root . '/storage/cache/update-check.json');
+        self::assertSame(['stable', 'prerelease'], array_keys($file['channels']));
+        self::assertSame('v2026.0.8', $file['channels']['stable']['current_version']);
+        self::assertSame(
+            date(DATE_ATOM, $file['channels']['stable']['timestamp']),
+            $cached['checked_at']
+        );
+
+        $updater->checkForUpdatesCached(true, false);
+        self::assertCount(3, FakeGitHubStream::$requested);
+    }
+
+    #[Test]
+    public function an_expired_or_foreign_cache_entry_is_refreshed(): void
+    {
+        $this->serveReleases($this->releases());
+        $updater = $this->updater();
+
+        $this->writeCache(['stable' => ['timestamp' => time() - 21601, 'current_version' => 'v2026.0.8', 'data' => ['latest_version' => 'alt']]]);
+        self::assertSame('v2026.0.9', $updater->checkForUpdatesCached(false, false)['latest_version']);
+
+        $this->writeCache(['stable' => ['timestamp' => time(), 'current_version' => 'v2026.0.7', 'data' => ['latest_version' => 'alt']]]);
+        self::assertSame('v2026.0.9', $updater->checkForUpdatesCached(false, false)['latest_version']);
+
+        $this->writeCache(['stable' => ['timestamp' => time() - 21000, 'current_version' => 'v2026.0.8', 'data' => ['latest_version' => 'frisch genug']]]);
+        self::assertSame('frisch genug', $updater->checkForUpdatesCached(false, false)['latest_version']);
+    }
+
+    #[Test]
+    public function reads_the_cache_format_from_before_channels(): void
+    {
+        $this->serveReleases($this->releases());
+        $this->prepareCacheDir();
+        file_put_contents($this->root . '/storage/cache/update-check.json', json_encode([
+            'timestamp' => time(),
+            'data' => ['latest_version' => 'aus altem Cache'],
+        ]));
+        $updater = $this->updater();
+
+        self::assertSame('aus altem Cache', $updater->checkForUpdatesCached(false, true)['latest_version']);
+
+        $updater->checkForUpdatesCached(true, false);
+        $file = $this->readJson($this->root . '/storage/cache/update-check.json');
+        self::assertSame(['channels'], array_keys($file));
+    }
+
+    #[Test]
+    public function a_failed_refresh_returns_the_last_known_result_marked_stale(): void
+    {
+        $updater = $this->updater();
+        $this->writeCache(['stable' => ['timestamp' => time() - 90000, 'current_version' => 'v2026.0.8', 'data' => ['available' => true, 'latest_version' => 'v2026.0.9']]]);
+
+        $result = $updater->checkForUpdatesCached(true, false);
+
+        self::assertTrue($result['cached']);
+        self::assertTrue($result['stale']);
+        self::assertSame('v2026.0.9', $result['latest_version']);
+        self::assertStringStartsWith('Konnte nicht auf GitHub-API zugreifen.', $result['refresh_error']);
+    }
+
+    #[Test]
+    public function a_failed_check_without_cache_is_not_cached(): void
+    {
+        $result = $this->updater()->checkForUpdatesCached(false, false);
+
+        self::assertTrue($result['error']);
+        self::assertFalse($result['cached']);
+        self::assertFileDoesNotExist($this->root . '/storage/cache/update-check.json');
+    }
+
+    #[Test]
+    public function clearing_the_cache_deletes_the_file(): void
+    {
+        $updater = $this->updater();
+        self::assertTrue($updater->clearCache());
+
+        $this->writeCache(['stable' => ['timestamp' => time(), 'data' => []]]);
+        self::assertTrue($updater->clearCache());
+        self::assertFileDoesNotExist($this->root . '/storage/cache/update-check.json');
+    }
+
+    // ── Branches (Entwicklermodus) ─────────────────────────────────────
+
+    #[Test]
+    public function lists_branches_and_their_latest_commit(): void
+    {
+        FakeGitHubStream::$responses[self::API . '/branches?per_page=100'] = '[{"name":"main"},{"name":"feature/x"}]';
+        FakeGitHubStream::$responses[self::API . '/commits/feature%2Fx'] = '{"sha":"' . str_repeat('a', 40) . '"}';
+        FakeGitHubStream::$responses[self::API . '/commits/leer'] = '{}';
+        FakeGitHubStream::$responses[self::API . '/releases?per_page=5'] = '[{"tag_name":"v1"}]';
+        $updater = $this->updater();
+
+        self::assertSame([['name' => 'main'], ['name' => 'feature/x']], $updater->fetchBranches());
+        self::assertSame(['sha' => str_repeat('a', 40)], $updater->fetchBranchLatestCommit('feature/x'));
+        self::assertNull($updater->fetchBranchLatestCommit('leer'));
+        self::assertNull($updater->fetchBranchLatestCommit('fehlt'));
+        self::assertSame([['tag_name' => 'v1']], $updater->getAllReleases(5));
+
+        FakeGitHubStream::$responses[self::API . '/branches?per_page=100'] = 'kein json';
+        self::assertSame([], $updater->fetchBranches());
+        unset(FakeGitHubStream::$responses[self::API . '/releases?per_page=5']);
+        self::assertSame([], $updater->getAllReleases(5));
+    }
+
+    // ── ZIP-Prüfung ────────────────────────────────────────────────────
+
+    /** @return array<string, array{string, string}> */
+    public static function unsafeEntries(): array
+    {
+        return [
+            'Elternverzeichnis' => ['../outside.php', 'unsicheren Pfad'],
+            'Elternverzeichnis in der Mitte' => ['ok/../../x.php', 'unsicheren Pfad'],
+            'Backslash-Traversal' => ['a\\..\\..\\b.php', 'unsicheren Pfad'],
+            'absolut' => ['/etc/cron.d/x', 'unsicheren Pfad'],
+            'Laufwerksbuchstabe' => ['C:/win.php', 'unsicheren Pfad'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('unsafeEntries')]
+    public function rejects_archive_entries_that_escape_the_target(string $entry, string $message): void
+    {
+        $zip = $this->zip([$entry => '<?php', 'fine/a.php' => '<?php']);
+
+        try {
+            $this->callPrivate($this->updater(), 'validateArchiveEntries', [$zip]);
+            self::fail('Eintrag hätte abgelehnt werden müssen: ' . $entry);
+        } catch (\Exception $error) {
+            self::assertStringContainsString($message, $error->getMessage());
+        } finally {
+            $zip->close();
+        }
+    }
+
+    #[Test]
+    public function rejects_symbolic_links_and_accepts_ordinary_entries(): void
+    {
+        $zip = $this->zip(['ok/a.php' => '<?php', 'ok/b.txt' => 'x']);
+        $this->callPrivate($this->updater(), 'validateArchiveEntries', [$zip]);
+        $zip->close();
+
+        $zip = $this->zip(['link' => '/etc/passwd'], ['link']);
+        try {
+            $this->expectExceptionMessage('Symbolische Links sind in Update-Archiven nicht erlaubt: link');
+            $this->callPrivate($this->updater(), 'validateArchiveEntries', [$zip]);
+        } finally {
+            $zip->close();
+        }
+    }
+
+    // ── Backup und Kopieren ────────────────────────────────────────────
+
+    #[Test]
+    public function backs_up_every_file_the_release_would_overwrite(): void
+    {
+        $source = $this->tree('source', [
+            'index.php' => 'neu',
+            'src/Keep.php' => 'neu',
+            'src/Created.php' => 'neu',
+            'vendor/lib.php' => 'neu',
+            'storage/x.json' => 'neu',
+            '.env' => 'neu',
+            'sub/.gitignore' => 'neu',
+        ]);
+        $app = $this->tree('app', [
+            'index.php' => 'alt',
+            'src/Keep.php' => 'alt',
+            'vendor/lib.php' => 'alt',
+            'storage/x.json' => 'alt',
+            '.env' => 'alt',
+            'sub/.gitignore' => 'alt',
+        ]);
+        $backup = $this->root . '/backup';
+        mkdir($backup);
+
+        $summary = $this->callPrivate($this->updater(), 'backupUpdateFiles', [
+            $source, $app, $backup, ['vendor', 'storage', 'system/updates'], ['.env', '.git', '.gitignore'],
+        ]);
+
+        self::assertSame(2, $summary['backed_up_files']);
+        self::assertSame(['src/Created.php'], $summary['created_files']);
+        self::assertSame('alt', file_get_contents($backup . '/index.php'));
+        self::assertSame('alt', file_get_contents($backup . '/src/Keep.php'));
+        self::assertFileDoesNotExist($backup . '/vendor/lib.php');
+        self::assertFileDoesNotExist($backup . '/.env');
+        $manifest = $this->readJson($backup . '/_update-backup.json');
+        self::assertSame(['created_at', 'backed_up_files', 'created_files'], array_keys($manifest));
+        self::assertSame(2, $manifest['backed_up_files']);
+    }
+
+    #[Test]
+    public function copies_the_release_over_the_installation(): void
+    {
+        $source = $this->tree('source', [
+            'index.php' => 'neu',
+            'composer.json' => '{"neu":true}',
+            'src/Deep/New.php' => 'neu',
+            'assets/img/logo.png' => 'standard',
+            'assets/img/neu.png' => 'neu',
+            'vendor/lib.php' => 'neu',
+            'storage/x.json' => 'neu',
+            'system/updates/y' => 'neu',
+            '.env' => 'neu',
+            'nested/.git' => 'neu',
+        ]);
+        $app = $this->tree('app', [
+            'index.php' => 'alt',
+            'composer.json' => '{}',
+            'assets/img/logo.png' => 'eigenes Logo',
+            'vendor/lib.php' => 'alt',
+            '.env' => 'geheim',
+        ]);
+
+        $this->callPrivate($this->updater(), 'copyUpdateFiles', [
+            $source, $app, ['vendor', 'storage', 'system/updates'], ['.env', '.git', '.gitignore'], ['assets/img'],
+        ]);
+
+        self::assertSame('neu', file_get_contents($app . '/index.php'));
+        self::assertSame('{"neu":true}', file_get_contents($app . '/composer.json'));
+        self::assertSame('neu', file_get_contents($app . '/src/Deep/New.php'));
+        self::assertSame('eigenes Logo', file_get_contents($app . '/assets/img/logo.png'));
+        self::assertSame('neu', file_get_contents($app . '/assets/img/neu.png'));
+        self::assertSame('alt', file_get_contents($app . '/vendor/lib.php'));
+        self::assertSame('geheim', file_get_contents($app . '/.env'));
+        self::assertDirectoryDoesNotExist($app . '/storage');
+        self::assertDirectoryDoesNotExist($app . '/system/updates');
+        self::assertFileDoesNotExist($app . '/nested/.git');
+    }
+
+    #[Test]
+    public function a_file_that_cannot_be_written_stops_the_copy(): void
+    {
+        $source = $this->tree('source', ['src/A.php' => 'neu']);
+        $app = $this->tree('app', []);
+        mkdir($app . '/src/A.php', 0755, true);
+
+        set_error_handler(static fn (): bool => true);
+        try {
+            $this->callPrivate($this->updater(), 'copyUpdateFiles', [$source, $app, [], [], []]);
+            self::fail('Kopieren hätte scheitern müssen.');
+        } catch (\Exception $error) {
+            self::assertSame('Konnte Datei nicht kopieren: src/A.php', $error->getMessage());
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    // ── Migrationen, version.json, Composer-Status ─────────────────────
+
+    #[Test]
+    public function moves_the_legacy_system_directory_into_storage(): void
+    {
+        $updater = $this->updater(['version' => 'v2026.0.8']);
+        $this->tree('system/updates', [
+            'version.json' => '{"version":"v1.0.0"}',
+            'composer_pending.json' => '{"pending":true}',
+            'diagnostic.log' => 'alt',
+        ]);
+
+        $this->callPrivate($updater, 'migrateLegacySystemDirectory', [$this->root]);
+
+        self::assertSame('{"version":"v2026.0.8"}', file_get_contents($this->root . '/storage/version.json'));
+        self::assertSame('{"pending":true}', file_get_contents($this->root . '/storage/composer_pending.json'));
+        self::assertSame('alt', file_get_contents($this->root . '/storage/logs/updater-diagnostic.log'));
+        self::assertDirectoryDoesNotExist($this->root . '/system');
+    }
+
+    #[Test]
+    public function the_legacy_directory_stays_while_it_holds_other_files(): void
+    {
+        $updater = $this->updater(null);
+        $this->tree('system/updates', ['version.json' => '{"version":"v1.0.0"}', 'backup_1/x.php' => 'x']);
+
+        $this->callPrivate($updater, 'migrateLegacySystemDirectory', [$this->root]);
+
+        self::assertSame('{"version":"v1.0.0"}', file_get_contents($this->root . '/storage/version.json'));
+        self::assertFileDoesNotExist($this->root . '/system/updates/version.json');
+        self::assertFileExists($this->root . '/system/updates/backup_1/x.php');
+    }
+
+    #[Test]
+    public function a_missing_version_json_means_v0_5_0(): void
+    {
+        $version = $this->updater(null)->getCurrentVersion();
+
+        self::assertSame('v0.5.0', $version['version']);
+        self::assertSame('0', $version['build_number']);
+        self::assertSame('initial', $version['commit_hash']);
+        self::assertMatchesRegularExpression('/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/', $version['updated_at']);
+    }
+
+    #[Test]
+    public function a_broken_version_json_is_an_error(): void
+    {
+        file_put_contents($this->root . '/storage/version.json', '{kaputt');
+
+        // Ist-Zustand: json_decode() liefert null in eine array-Property,
+        // bevor die eigene Fehlermeldung greifen kann.
+        $this->expectException(\TypeError::class);
+        $this->updater(null);
+    }
+
+    #[Test]
+    public function writes_version_json(): void
+    {
+        $this->removeTree($this->root . '/storage');
+        $updater = $this->updater(null);
+        $data = ['version' => 'v2026.0.9', 'updated_at' => '2026-09-30 12:00:00', 'build_number' => 13, 'commit_hash' => 'auto-update', 'prerelease' => false, 'url' => 'a/b'];
+
+        self::assertTrue($updater->updateVersionFile($data));
+
+        self::assertSame(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), file_get_contents($this->root . '/storage/version.json'));
+        self::assertSame($data, $updater->getCurrentVersion());
+    }
+
+    #[Test]
+    public function reports_the_pending_composer_state(): void
+    {
+        $updater = $this->updater();
+        self::assertSame(['pending' => false, 'message' => 'Keine ausstehende Composer-Installation.'], $updater->getComposerStatus());
+        self::assertSame(['success' => false, 'error' => true, 'message' => 'Keine ausstehende Composer-Installation gefunden.'], $updater->executePendingComposerInstall());
+
+        file_put_contents($this->root . '/storage/composer_pending.json', '{"pending":true,"created_at":"2026-09-30 12:00:00","version":"v2026.0.9"}');
+        self::assertSame(['pending' => true, 'created_at' => '2026-09-30 12:00:00', 'version' => 'v2026.0.9'], $updater->getComposerStatus());
+
+        file_put_contents($this->root . '/storage/composer_pending.json', '{kaputt');
+        self::assertSame(['pending' => false, 'error' => true, 'message' => 'Composer-Status-Datei war beschädigt und wurde entfernt.'], $updater->getComposerStatus());
+        self::assertFileDoesNotExist($this->root . '/storage/composer_pending.json');
+    }
+
+    // ── Darstellung ────────────────────────────────────────────────────
+
+    #[Test]
+    public function renders_release_notes(): void
+    {
+        $markdown = "# Titel\n## Neu\n### Details\n- Punkt <b>1</b>\n* Punkt 2\n\n- Punkt 3\nText mit **fett** & <script>\n#Kein Titel\n\nNormaler Text\n- Letzter";
+
+        self::assertSame(
+            '<h4>Titel</h4><h5>Neu</h5><h6>Details</h6>'
+            . '<ul><li>Punkt &lt;b&gt;1&lt;/b&gt;</li><li>Punkt 2</li><li>Punkt 3</li></ul>'
+            . '<p>Text mit <strong>fett</strong> &amp; &lt;script&gt;</p>'
+            . '<p>#Kein Titel</p><p>Normaler Text</p><ul><li>Letzter</li></ul>',
+            $this->updater()->getFormattedReleaseNotes($markdown)
+        );
+    }
+
+    /** @return array<string, array{string, string}> */
+    public static function errorMessages(): array
+    {
+        return [
+            'Netzwerk' => ['Connection timed out', 'network'],
+            'Rechte' => ['Permission denied', 'permissions'],
+            'Speicher' => ['No space left on device', 'disk_space'],
+            'ZIP' => ['ZIP-Datei ist leer', 'zip'],
+            'Composer' => ['Composer-Installation fehlgeschlagen', 'composer'],
+            'Arbeitsspeicher' => ['Allowed memory size exhausted', 'memory'],
+            'Prüfsumme' => ['Integritätsprüfung fehlgeschlagen: Die SHA-256-Prüfsumme des Downloads stimmt nicht', 'download'],
+            'GitHub' => ['GitHub rate limit', 'github_api'],
+            'Unbekannt' => ['Etwas anderes', 'unknown'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('errorMessages')]
+    public function classifies_errors_for_the_diagnosis(string $message, string $type): void
+    {
+        self::assertSame($type, $this->callPrivate($this->updater(), 'classifyError', [$message]));
+    }
+
+    #[Test]
+    public function derives_the_overall_severity(): void
+    {
+        $updater = $this->updater();
+
+        self::assertSame('error', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'error'], 'b' => ['status' => 'warning']]]));
+        self::assertSame('warning', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'warning'], 'b' => ['status' => 'warning']]]));
+        self::assertSame('info', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'warning'], 'b' => ['status' => 'ok']]]));
+        self::assertSame('ok', $this->callPrivate($updater, 'calculateSeverity', [['a' => ['status' => 'info'], 'severity' => 'error']]));
+    }
+
+    #[Test]
+    public function formats_the_diagnosis_for_support(): void
+    {
+        $expected = <<<'TXT'
+========================================
+ıgnıs System-Diagnose
+========================================
+
+Zeitpunkt: 2026-09-30 12:00:00
+Schweregrad: ERROR
+Version: v2026.0.8
+
+FEHLER-DETAILS:
+---------------
+Typ: download
+Nachricht: Download kaputt
+
+SYSTEM-INFORMATION:
+-------------------
+PHP Version: 8.3.0
+Betriebssystem: Linux
+SAPI: cli
+Memory Limit: 256M
+Max Execution Time: 0s
+Fehlende Extensions: zip
+
+SPEICHER:
+---------
+Frei: 100 MB
+Gesamt: 1000 MB
+Auslastung: 90%
+Storage-Verzeichnis: 12 MB
+Backup-Verzeichnis: 3 MB
+Fehlgeschlagene Update-Verzeichnisse: 2
+Status: error
+
+BERECHTIGUNGEN:
+---------------
+Status: warning
+  - Pfad nicht beschreibbar: vendor
+
+NETZWERK:
+---------
+Status: ok
+GitHub API: erreichbar
+Response Time: 120 ms
+
+ABHÄNGIGKEITEN:
+---------------
+Composer: verfügbar
+  Version: 2.8.1
+Vendor: vorhanden
+Autoload: vorhanden
+
+KONFIGURATION:
+--------------
+Hosting: Plesk
+Git Repository: nein
+
+========================================
+Ende des Diagnose-Berichts
+========================================
+TXT;
+
+        self::assertSame($expected, $this->updater()->formatDiagnosticForSupport($this->diagnosis()));
+    }
+
+    #[Test]
+    public function formats_the_diagnosis_as_text_and_html(): void
+    {
+        $updater = $this->updater();
+        $diagnosis = $this->diagnosis();
+
+        $summary = $this->callPrivate($updater, 'formatDiagnosticSummary', [$diagnosis]);
+        self::assertStringStartsWith("=== Update-Diagnose ===\n\nSchweregrad: ERROR\nZeitpunkt: 2026-09-30 12:00:00\n\nFehlertyp: download\nNachricht: Download kaputt", $summary);
+        self::assertStringContainsString("• System-Umgebung: warning\n  - Fehlende Extensions: zip\n• Berechtigungen: warning\n  - Pfad nicht beschreibbar: vendor\n• Speicherplatz: error", $summary);
+        self::assertStringNotContainsString('• Netzwerk', $summary);
+
+        $html = $updater->formatDiagnosticHTML($diagnosis);
+        self::assertStringContainsString("<div class='ignis-alert ignis-alert--danger'>", $html);
+        self::assertStringContainsString('<strong>Nachricht:</strong> Download kaputt', $html);
+        self::assertStringContainsString("<span class='ignis-chip ignis-chip--warn'>warning</span>", $html);
+        self::assertStringContainsString('Nur 100 MB frei<br>storage: 12 MB, backups: 3 MB<br>2 fehlgeschlagene Update-Verzeichnisse', $html);
+        self::assertStringNotContainsString('Keine kritischen Probleme', $html);
+
+        $diagnosis['error_analysis']['message'] = '<script>x</script>';
+        self::assertStringContainsString('&lt;script&gt;x&lt;/script&gt;', $updater->formatDiagnosticHTML($diagnosis));
+    }
+
+    // ── Hilfen ─────────────────────────────────────────────────────────
+
+    /** @param array<string, mixed>|null $version */
+    private function updater(?array $version = ['version' => 'v2026.0.8']): SystemUpdater
+    {
+        if ($version !== null) {
+            file_put_contents($this->root . '/storage/version.json', json_encode($version));
+        }
+        $updater = new SystemUpdater();
+        $paths = [
+            'versionFile' => $this->root . '/storage/version.json',
+            'composerPendingFile' => $this->root . '/storage/composer_pending.json',
+            'updateCacheFile' => $this->root . '/storage/cache/update-check.json',
+            'diagnosticFile' => $this->root . '/storage/logs/updater-diagnostic.log',
+            'githubApiUrl' => self::API,
+        ];
+        $reflection = new ReflectionClass(SystemUpdater::class);
+        foreach ($paths as $name => $value) {
+            $reflection->getProperty($name)->setValue($updater, $value);
+        }
+        $this->callPrivate($updater, 'loadCurrentVersion');
+
+        return $updater;
+    }
+
+    /** @param list<mixed> $arguments */
+    private function callPrivate(object $object, string $method, array $arguments = []): mixed
+    {
+        return (new ReflectionClass($object))->getMethod($method)->invokeArgs($object, $arguments);
+    }
+
+    /** @param list<array<string, mixed>> $releases */
+    private function serveReleases(array $releases): void
+    {
+        FakeGitHubStream::$responses[self::API . '/releases?per_page=20'] = (string) json_encode($releases);
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function releases(): array
+    {
+        return [
+            $this->release('v2026.1.0-beta.2', ['draft' => true, 'prerelease' => true]),
+            $this->release('v2026.1.0-beta.1', [
+                'prerelease' => true,
+                'name' => 'Beta 1',
+                'body' => 'Neu',
+                'published_at' => '2026-09-20T10:00:00Z',
+                'html_url' => 'https://github.com/EmergencyForge/ignis/releases/tag/v2026.1.0-beta.1',
+            ]),
+            $this->release('v2026.0.9', ['assets' => [
+                ['name' => 'ignis-v2026.0.9-install.zip', 'browser_download_url' => 'https://github.com/EmergencyForge/ignis/releases/download/v2026.0.9/ignis-v2026.0.9-install.zip'],
+                ['name' => 'ignis-v2026.0.9.zip', 'browser_download_url' => 'https://github.com/EmergencyForge/ignis/releases/download/v2026.0.9/ignis-v2026.0.9.zip', 'size' => 1234, 'digest' => 'sha256:' . str_repeat('AB', 32)],
+            ]]),
+            $this->release('v2026.0.8'),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     * @return array<string, mixed>
+     */
+    private function release(string $tag, array $overrides = []): array
+    {
+        return $overrides + [
+            'tag_name' => $tag,
+            'draft' => false,
+            'prerelease' => false,
+            'zipball_url' => 'https://api.github.com/repos/EmergencyForge/ignis/zipball/' . $tag,
+            'assets' => [],
+        ];
+    }
+
+    /** @param array<string, mixed> $channels */
+    private function writeCache(array $channels): void
+    {
+        $this->prepareCacheDir();
+        file_put_contents($this->root . '/storage/cache/update-check.json', json_encode(['channels' => $channels]));
+    }
+
+    private function prepareCacheDir(): void
+    {
+        if (!is_dir($this->root . '/storage/cache')) {
+            mkdir($this->root . '/storage/cache', 0755, true);
+        }
+    }
+
+    /** @return array<string, mixed> */
+    private function readJson(string $file): array
+    {
+        $data = json_decode((string) file_get_contents($file), true);
+        self::assertIsArray($data);
+
+        return $data;
+    }
+
+    private function daysAgo(int $days): string
+    {
+        return date('Y-m-d H:i:s', time() - $days * 86400 - 3600);
+    }
+
+    /** @param array<string, string> $files */
+    private function tree(string $name, array $files): string
+    {
+        $dir = $this->root . '/' . $name;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        foreach ($files as $path => $content) {
+            if (!is_dir(dirname($dir . '/' . $path))) {
+                mkdir(dirname($dir . '/' . $path), 0755, true);
+            }
+            file_put_contents($dir . '/' . $path, $content);
+        }
+
+        return $dir;
+    }
+
+    /**
+     * @param array<string, string> $entries
+     * @param list<string> $symlinks
+     */
+    private function zip(array $entries, array $symlinks = []): \ZipArchive
+    {
+        $file = $this->root . '/archive-' . bin2hex(random_bytes(4)) . '.zip';
+        $zip = new \ZipArchive();
+        self::assertTrue($zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE));
+        foreach ($entries as $name => $content) {
+            $zip->addFromString($name, $content);
+        }
+        foreach ($symlinks as $name) {
+            $zip->setExternalAttributesName($name, \ZipArchive::OPSYS_UNIX, 0120777 << 16);
+        }
+        $zip->close();
+        self::assertTrue($zip->open($file));
+
+        return $zip;
+    }
+
+    /** @return array<string, mixed> */
+    private function diagnosis(): array
+    {
+        return [
+            'timestamp' => '2026-09-30 12:00:00',
+            'severity' => 'error',
+            'system_info' => [
+                'php_version' => '8.3.0',
+                'os' => 'Linux',
+                'sapi' => 'cli',
+                'memory_limit' => '256M',
+                'max_execution_time' => '0',
+                'missing_required_extensions' => ['zip'],
+                'status' => 'warning',
+            ],
+            'permissions' => ['issues' => ['Pfad nicht beschreibbar: vendor'], 'status' => 'warning'],
+            'disk_space' => [
+                'free_space_mb' => 100,
+                'total_space_mb' => 1000,
+                'usage_percent' => 90,
+                'storage_size_mb' => 12,
+                'backup_size_mb' => 3,
+                'temp_update_dirs_count' => 2,
+                'status' => 'error',
+            ],
+            'network' => ['tests' => ['github_api' => ['accessible' => true, 'response_time_ms' => 120]], 'status' => 'ok'],
+            'dependencies' => [
+                'composer_available' => true,
+                'composer_version' => '2.8.1',
+                'vendor_directory_exists' => true,
+                'autoload_exists' => true,
+            ],
+            'update_history' => ['current_version' => ['version' => 'v2026.0.8']],
+            'configuration' => ['is_plesk' => true, 'is_cpanel' => false, 'git_repository' => false],
+            'error_analysis' => ['has_error' => true, 'error_type' => 'download', 'message' => 'Download kaputt'],
+        ];
+    }
+
+    private function removeTree(string $path): void
+    {
+        if (is_link($path) || is_file($path)) {
+            @unlink($path);
+            return;
+        }
+        if (!is_dir($path)) {
+            return;
+        }
+        foreach (scandir($path) ?: [] as $entry) {
+            if ($entry !== '.' && $entry !== '..') {
+                $this->removeTree($path . '/' . $entry);
+            }
+        }
+        @rmdir($path);
+    }
+}
+
+/**
+ * Stream-Wrapper, der die GitHub-API ersetzt: der Updater liest seine
+ * API-Antworten über file_get_contents(), und hier landen sie aus dem Test.
+ */
+final class FakeGitHubStream
+{
+    /** @var array<string, string> */
+    public static array $responses = [];
+
+    /** @var list<string> */
+    public static array $requested = [];
+
+    /** @var resource|null */
+    public $context;
+
+    private string $body = '';
+
+    private int $position = 0;
+
+    public static function register(): void
+    {
+        self::$responses = [];
+        self::$requested = [];
+        stream_wrapper_register('ignistest', self::class);
+    }
+
+    public static function unregister(): void
+    {
+        stream_wrapper_unregister('ignistest');
+    }
+
+    public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
+    {
+        self::$requested[] = $path;
+        if (!array_key_exists($path, self::$responses)) {
+            return false;
+        }
+        $this->body = self::$responses[$path];
+
+        return true;
+    }
+
+    public function stream_read(int $count): string
+    {
+        $chunk = substr($this->body, $this->position, $count);
+        $this->position += strlen($chunk);
+
+        return $chunk;
+    }
+
+    public function stream_eof(): bool
+    {
+        return $this->position >= strlen($this->body);
+    }
+
+    /** @return array<string, int> */
+    public function stream_stat(): array
+    {
+        return [];
+    }
+}
