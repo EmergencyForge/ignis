@@ -91,10 +91,11 @@ final class VersionStore
         }
 
         $content = file_get_contents($this->file);
-        $this->current = json_decode((string) $content, true);
+        $current = json_decode((string) $content, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new Exception('Failed to parse version.json: ' . json_last_error_msg());
         }
+        $this->current = $current;
     }
 }

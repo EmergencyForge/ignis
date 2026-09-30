@@ -459,9 +459,8 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     {
         file_put_contents($this->root . '/storage/version.json', '{kaputt');
 
-        // Ist-Zustand: json_decode() liefert null in eine array-Property,
-        // bevor die eigene Fehlermeldung greifen kann.
-        $this->expectException(\TypeError::class);
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Failed to parse version.json: Syntax error');
         $this->updater(null);
     }
 
