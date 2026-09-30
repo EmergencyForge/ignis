@@ -58,13 +58,10 @@ class PersonnelController extends Controller
             'einstdatum' => 'intra_mitarbeiter.einstdatum',
         ], 'einstdatum', 'asc', 25, ['dg', 'rd', 'fw', 'archiv']);
 
-        $query = Personnel::query()->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel']);
-        if ($showArchive) {
-            $query->archived($archiveDienstgradIds);
-        } else {
-            $query->active($archiveDienstgradIds);
-        }
-        $query
+        $query = $showArchive
+            ? Personnel::archived($archiveDienstgradIds)
+            : Personnel::active($archiveDienstgradIds);
+        $query->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
             ->leftJoin('intra_mitarbeiter_dienstgrade as dg', 'intra_mitarbeiter.dienstgrad', '=', 'dg.id')
             ->leftJoin('intra_mitarbeiter_rdquali as rd', 'intra_mitarbeiter.qualird', '=', 'rd.id')
             ->leftJoin('intra_mitarbeiter_fwquali as fw', 'intra_mitarbeiter.qualifw2', '=', 'fw.id')

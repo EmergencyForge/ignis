@@ -42,6 +42,9 @@ use Illuminate\Support\Carbon;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role>             $visibilityRoles
  *
  * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
+ *
+ * @method static Builder<static> inRange(DateTimeInterface $from, DateTimeInterface $to)
+ * @method static Builder<static> visibleTo(int $userId, ?int $roleId, ?int $mitarbeiterId)
  */
 class CalendarEvent extends EloquentModel
 {
@@ -131,13 +134,15 @@ class CalendarEvent extends EloquentModel
      * Scope: Events, die im Bereich [from, to] liegen oder sich damit ueberschneiden.
      * Recurring-Series werden NICHT expandiert — das macht der RecurrenceExpander
      * spaeter. Hier reicht "starts_at <= to AND (ends_at >= from OR recurrence_until >= from)".
+     *
+     * @param Builder<self> $query
      */
-    public function scopeInRange(Builder $query, DateTimeInterface $from, DateTimeInterface $to): Builder
+    public function scopeInRange(Builder $query, DateTimeInterface $from, DateTimeInterface $to): void
     {
         $fromStr = $from->format('Y-m-d H:i:s');
         $toStr   = $to->format('Y-m-d H:i:s');
 
-        return $query->where(function (Builder $q) use ($fromStr, $toStr) {
+        $query->where(function (Builder $q) use ($fromStr, $toStr) {
             $q->where(function (Builder $sq) use ($fromStr, $toStr) {
                 // Single-Event-Overlap
                 $sq->whereNull('recurrence_rule')
@@ -160,10 +165,12 @@ class CalendarEvent extends EloquentModel
      * Logik in CalendarPolicy::view(). Role-Membership-Check braucht
      * eine Subquery auf die Pivot-Tabelle, weil ein Event mehrere Rollen
      * tragen kann.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeVisibleTo(Builder $query, int $userId, ?int $roleId, ?int $mitarbeiterId): Builder
+    public function scopeVisibleTo(Builder $query, int $userId, ?int $roleId, ?int $mitarbeiterId): void
     {
-        return $query->where(function (Builder $q) use ($userId, $roleId, $mitarbeiterId) {
+        $query->where(function (Builder $q) use ($userId, $roleId, $mitarbeiterId) {
             $q->where('created_by', $userId)
                 ->orWhere('visibility', self::VISIBILITY_ALL);
 

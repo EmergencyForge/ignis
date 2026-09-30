@@ -265,7 +265,7 @@ final class VehicleImportController
     private function status(): Response
     {
         $requestPending = file_exists($this->flagPath());
-        $pendingCount   = VehicleImportQueueItem::query()->pending()->count();
+        $pendingCount   = VehicleImportQueueItem::pending()->count();
 
         return Response::json([
             'success'            => true,

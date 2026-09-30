@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Eloquent-Model für `intra_mitarbeiter_fwquali` — Feuerwehr-Qualifikationen.
  *
@@ -19,6 +21,8 @@ namespace App\Models;
  * @property string $name_w
  * @property bool   $none
  * @property \DateTime $created_at
+ *
+ * @method static Builder<static> real()
  */
 class FdSkill extends Model
 {
@@ -42,9 +46,11 @@ class FdSkill extends Model
 
     /**
      * Echte Qualifikationen ohne den "Keine"-Eintrag, sortiert nach Priority.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeReal($query)
+    public function scopeReal(Builder $query): void
     {
-        return $query->where('none', 0)->orderBy('priority');
+        $query->where('none', 0)->orderBy('priority');
     }
 }

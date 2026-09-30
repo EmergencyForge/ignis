@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * `intra_edivi` — das eNOTF-Protokoll, eine Zeile pro Einsatzprotokoll.
@@ -30,6 +31,8 @@ use App\Models\Model;
  * @property int $freigegeben
  * @property int $hidden_user
  * @property int $pat_synced
+ *
+ * @method static Builder<static> offenFuerFahrzeug(string $vehicleIdentifier)
  */
 class Edivi extends Model
 {
@@ -60,10 +63,12 @@ class Edivi extends Model
 
     /**
      * Scope: offene Protokolle eines Fahrzeugs (Overview-Semantik).
+     *
+     * @param Builder<self> $query
      */
-    public function scopeOffenFuerFahrzeug($query, string $vehicleIdentifier)
+    public function scopeOffenFuerFahrzeug(Builder $query, string $vehicleIdentifier): void
     {
-        return $query
+        $query
             ->where('freigegeben', 0)
             ->where(function ($q) use ($vehicleIdentifier) {
                 $q->where('fzg_transp', $vehicleIdentifier)

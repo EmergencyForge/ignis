@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -16,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * Klinik-Features (Fachabteilungen, Verfügbarkeit, Zugangscode) gibt es
  * nur bei `typ` exakt 'Krankenhaus' oder 'Klinik'.
+ *
+ * @method static Builder<static> active()
+ * @method static Builder<static> kliniken()
  */
 class EdiviPoi extends Model
 {
@@ -23,14 +27,20 @@ class EdiviPoi extends Model
 
     public const TYP_KLINIKEN = ['Krankenhaus', 'Klinik'];
 
-    public function scopeActive($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('active', 1);
+        $query->where('active', 1);
     }
 
-    public function scopeKliniken($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopeKliniken(Builder $query): void
     {
-        return $query->whereIn('typ', self::TYP_KLINIKEN);
+        $query->whereIn('typ', self::TYP_KLINIKEN);
     }
 
     public function departments(): HasMany

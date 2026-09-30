@@ -75,7 +75,7 @@ final class EditorDocumentController extends Controller
             $this->redirect($back);
         }
 
-        $template = EditorTemplate::query()->active()->find((int) $data['template_id']);
+        $template = EditorTemplate::active()->find((int) $data['template_id']);
         if ($template === null) {
             Flash::error('Vorlage wurde nicht gefunden oder ist nicht aktiv.');
             $this->redirect($back);

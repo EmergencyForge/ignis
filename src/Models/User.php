@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -24,6 +25,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string      $theme  dark|light|system, siehe ProfileController::theme()
  * @property-read Role|null $userRole
  * @property-read Personnel|null $mitarbeiter
+ *
+ * @method static Builder<static> active()
+ * @method static Builder<static> inactive()
  */
 class User extends Model
 {
@@ -71,17 +75,21 @@ class User extends Model
 
     /**
      * Convenience: Aktive User-Filter für Queries.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('is_active', 1);
+        $query->where('is_active', 1);
     }
 
     /**
      * Convenience: Inaktive (deaktivierte) User.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeInactive($query)
+    public function scopeInactive(Builder $query): void
     {
-        return $query->where('is_active', 0);
+        $query->where('is_active', 0);
     }
 }

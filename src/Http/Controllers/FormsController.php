@@ -45,8 +45,7 @@ class FormsController extends Controller
      */
     public function selectType(): void
     {
-        $typen = FormType::query()
-            ->active()
+        $typen = FormType::active()
             ->withCount('felder')
             ->get();
 

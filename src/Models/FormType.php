@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null    $erstellt_von
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FormField> $felder
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Form>        $antraege
+ *
+ * @method static Builder<static> active()
  */
 class FormType extends Model
 {
@@ -59,10 +62,12 @@ class FormType extends Model
 
     /**
      * Convenience-Scope: nur aktive Antragstypen, sortiert für die Auswahl-View.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('aktiv', 1)
+        $query->where('aktiv', 1)
             ->orderBy('sortierung')
             ->orderBy('name');
     }

@@ -22,7 +22,7 @@ $editorDocs = EditorDocument::query()
 
 /** @var \Illuminate\Support\Collection<int,EditorTemplate> $editorTemplates */
 $editorTemplates = DocumentPolicy::manage()
-    ? EditorTemplate::query()->active()->orderBy('name')->get()
+    ? EditorTemplate::active()->orderBy('name')->get()
     : collect();
 ?>
 <?php if ($editorDocs->isNotEmpty() || $editorTemplates->isNotEmpty()): ?>

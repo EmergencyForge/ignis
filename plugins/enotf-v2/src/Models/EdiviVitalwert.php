@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * `intra_edivi_vitalparameter_einzelwerte` — ein Messwert pro Zeile,
@@ -24,6 +25,8 @@ use App\Models\Model;
  * @property int         $geloescht
  * @property string|null $geloescht_am
  * @property string|null $geloescht_von
+ *
+ * @method static Builder<static> aktiv()
  */
 class EdiviVitalwert extends Model
 {
@@ -31,10 +34,12 @@ class EdiviVitalwert extends Model
 
     /**
      * Scope: nur nicht gelöschte Messwerte.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeAktiv($query)
+    public function scopeAktiv(Builder $query): void
     {
-        return $query->where('geloescht', 0);
+        $query->where('geloescht', 0);
     }
 
     /**

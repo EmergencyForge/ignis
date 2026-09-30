@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -36,6 +37,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Rank|null $dienstgradModel
  * @property-read FdSkill|null    $fwQualiModel
  * @property-read AmbSkill|null    $rdQualiModel
+ *
+ * @method static Builder<static> active(array<int> $archiveDienstgradIds = [])
+ * @method static Builder<static> archived(array<int> $archiveDienstgradIds = [])
  */
 class Personnel extends Model
 {
@@ -101,21 +105,27 @@ class Personnel extends Model
      * Akzeptiert die Archive-Rank-IDs als Argument, weil das Model
      * sie nicht implizit kennt.
      *
+     * @param Builder<self> $query
      * @param array<int> $archiveDienstgradIds
      */
-    public function scopeActive($query, array $archiveDienstgradIds = [])
+    public function scopeActive(Builder $query, array $archiveDienstgradIds = []): void
     {
         if ($archiveDienstgradIds === []) {
-            return $query;
+            return;
         }
-        return $query->whereNotIn('dienstgrad', $archiveDienstgradIds);
+        $query->whereNotIn('dienstgrad', $archiveDienstgradIds);
     }
 
-    public function scopeArchived($query, array $archiveDienstgradIds = [])
+    /**
+     * @param Builder<self> $query
+     * @param array<int> $archiveDienstgradIds
+     */
+    public function scopeArchived(Builder $query, array $archiveDienstgradIds = []): void
     {
         if ($archiveDienstgradIds === []) {
-            return $query->whereRaw('1 = 0'); // empty result
+            $query->whereRaw('1 = 0'); // empty result
+            return;
         }
-        return $query->whereIn('dienstgrad', $archiveDienstgradIds);
+        $query->whereIn('dienstgrad', $archiveDienstgradIds);
     }
 }

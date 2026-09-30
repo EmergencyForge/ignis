@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
@@ -22,6 +23,8 @@ use Illuminate\Support\Carbon;
  * @property bool        $is_used
  * @property-read User|null $creator
  * @property-read User|null $usedByUser
+ *
+ * @method static Builder<static> unused()
  */
 class RegistrationCode extends Model
 {
@@ -67,8 +70,11 @@ class RegistrationCode extends Model
         return true;
     }
 
-    public function scopeUnused($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopeUnused(Builder $query): void
     {
-        return $query->where('is_used', 0);
+        $query->where('is_used', 0);
     }
 }

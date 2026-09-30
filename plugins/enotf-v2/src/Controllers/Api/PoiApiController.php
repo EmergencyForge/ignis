@@ -58,8 +58,7 @@ final class PoiApiController
         $search = trim((string) ($request->query['search'] ?? ''));
 
         try {
-            $query = EdiviPoi::query()
-                ->active()
+            $query = EdiviPoi::active()
                 ->orderBy('name');
 
             if ($search !== '') {

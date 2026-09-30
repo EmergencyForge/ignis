@@ -19,12 +19,6 @@ parameters:
 			path: assets/components/profiles/_poi-hover-card.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: assets/components/profiles/documents/editor.php
-
-		-
 			message: '#^PHPDoc tag @var for variable \$category has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -121,34 +115,10 @@ parameters:
 			path: phinx.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\Medikament\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/Api/MedisApiController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\EnotfV2\\Models\\EdiviPoi\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/Api/PoiApiController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\EnotfV2\\Models\\EnotfSession\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/Api/SessionApiController.php
-
-		-
 			message: '#^Variable \$updates in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
 			path: plugins/enotf-v2/src/Controllers/Api/ShareApiController.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\EdiviVitalwert\:\:aktiv\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: plugins/enotf-v2/src/Controllers/Api/VitalsApiController.php
 
 		-
 			message: '#^Method Plugin\\EnotfV2\\Controllers\\LoginController\:\:crewArrayToStruct\(\) has parameter \$crew with no value type specified in iterable type array\.$#'
@@ -167,24 +137,6 @@ parameters:
 			identifier: nullCoalesce.offset
 			count: 1
 			path: plugins/enotf-v2/src/Controllers/LoginController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\EnotfV2\\Models\\Edivi\>\:\:offenFuerFahrzeug\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: plugins/enotf-v2/src/Controllers/OverviewController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\EnotfV2\\Models\\QuicklinkCategory\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/OverviewController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Query\\Builder\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/OverviewController.php
 
 		-
 			message: '#^Method Plugin\\EnotfV2\\Helpers\\EnotfV2Url\:\:api\(\) has parameter \$params with no value type specified in iterable type array\.$#'
@@ -211,70 +163,10 @@ parameters:
 			path: plugins/enotf-v2/src/Helpers/EnotfV2Url.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\Edivi\:\:scopeOffenFuerFahrzeug\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/Edivi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\Edivi\:\:scopeOffenFuerFahrzeug\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/Edivi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviKlinikcode\:\:scopeGueltig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviKlinikcode.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviKlinikcode\:\:scopeGueltig\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviKlinikcode.php
-
-		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPoi\:\:departments\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: plugins/enotf-v2/src/Models/EdiviPoi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPoi\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPoi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPoi\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPoi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPoi\:\:scopeKliniken\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPoi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPoi\:\:scopeKliniken\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPoi.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPrereg\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPrereg.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviPrereg\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviPrereg.php
 
 		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviQmLog\:\:protokoll\(\) has no return type specified\.$#'
@@ -283,44 +175,8 @@ parameters:
 			path: plugins/enotf-v2/src/Models/EdiviQmLog.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviShareRequest\:\:scopePending\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviShareRequest.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviShareRequest\:\:scopePending\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviShareRequest.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviVitalwert\:\:scopeAktiv\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviVitalwert.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviVitalwert\:\:scopeAktiv\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviVitalwert.php
-
-		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\EnotfSession\:\:members\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: plugins/enotf-v2/src/Models/EnotfSession.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EnotfSession\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EnotfSession.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EnotfSession\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: plugins/enotf-v2/src/Models/EnotfSession.php
 
@@ -355,44 +211,8 @@ parameters:
 			path: plugins/enotf-v2/src/Models/HospitalDepartment.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\Medikament\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/Medikament.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\Medikament\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/Medikament.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\Quicklink\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/Quicklink.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\Quicklink\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf-v2/src/Models/Quicklink.php
-
-		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\QuicklinkCategory\:\:links\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: plugins/enotf-v2/src/Models/QuicklinkCategory.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\QuicklinkCategory\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/QuicklinkCategory.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\QuicklinkCategory\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: plugins/enotf-v2/src/Models/QuicklinkCategory.php
 
@@ -469,22 +289,10 @@ parameters:
 			path: plugins/enotf-v2/templates/protokoll/index.php
 
 		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\Medikament\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/massnahmen.php
-
-		-
 			message: '#^PHPDoc tag @var for variable \$protokoll has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: plugins/enotf-v2/templates/protokoll/section-stub.php
-
-		-
-			message: '#^Call to an undefined static method Plugin\\EnotfV2\\Models\\EdiviVitalwert\:\:aktiv\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/verlauf.php
 
 		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\) with array\{''''\}\|array\{''links'', ''rechts''\} and ''Lokation anderer…''\|''Lokation Bein ohne…''\|''Lokation Ellbeuge…''\|''Lokation Fuß ohne…''\|''Lokation Hals ohne…''\|''Lokation Handrücken…''\|''Lokation Humerus…''\|''Lokation Kopf ohne…''\|''Lokation Oberarm…''\|''Lokation Sonstige…''\|''Lokation Sternum…''\|''Lokation Tibia…''\|''Lokation Unterarm…'' will always evaluate to true\.$#'
@@ -941,30 +749,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: plugins/firetab/src/Models/FireAsuRecord.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncident\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/firetab/src/Models/FireIncident.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncident\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/firetab/src/Models/FireIncident.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncident\:\:scopeFinalized\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/firetab/src/Models/FireIncident.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Models\\FireIncident\:\:scopeFinalized\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/firetab/src/Models/FireIncident.php
 
 		-
 			message: '#^Method Plugin\\Firetab\\Models\\FireIncident\:\:vehicles\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
@@ -1711,12 +1495,6 @@ parameters:
 			path: src/Http/Controllers/Api/VehicleDefectsController.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\VehicleImportQueueItem\>\:\:pending\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Http/Controllers/Api/VehicleImportController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -1763,36 +1541,6 @@ parameters:
 			identifier: ternary.alwaysFalse
 			count: 1
 			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\FormType\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Http/Controllers/FormsController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Personnel\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Personnel\>\:\:archived\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Rank\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/PersonnelController.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
@@ -1951,18 +1699,6 @@ parameters:
 			path: src/Logging/LogReader.php
 
 		-
-			message: '#^Method App\\Models\\AmbSkill\:\:scopeReal\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/AmbSkill.php
-
-		-
-			message: '#^Method App\\Models\\AmbSkill\:\:scopeReal\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/AmbSkill.php
-
-		-
 			message: '#^Property App\\Models\\AmbSkill\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2011,30 +1747,6 @@ parameters:
 			path: src/Models/CalendarEvent.php
 
 		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:scopeInRange\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:scopeInRange\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:scopeVisibleTo\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Method App\\Models\\CalendarEvent\:\:scopeVisibleTo\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
 			message: '#^Method App\\Models\\CalendarEvent\:\:visibilityRoles\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -2069,18 +1781,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/CronRun.php
-
-		-
-			message: '#^Method App\\Models\\FdSkill\:\:scopeReal\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/FdSkill.php
-
-		-
-			message: '#^Method App\\Models\\FdSkill\:\:scopeReal\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/FdSkill.php
 
 		-
 			message: '#^Property App\\Models\\FdSkill\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -2143,18 +1843,6 @@ parameters:
 			path: src/Models/FormType.php
 
 		-
-			message: '#^Method App\\Models\\FormType\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/FormType.php
-
-		-
-			message: '#^Method App\\Models\\FormType\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/FormType.php
-
-		-
 			message: '#^Property App\\Models\\FormType\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2197,36 +1885,6 @@ parameters:
 			path: src/Models/Personnel.php
 
 		-
-			message: '#^Method App\\Models\\Personnel\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\Personnel\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\Personnel\:\:scopeArchived\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\Personnel\:\:scopeArchived\(\) has parameter \$archiveDienstgradIds with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Method App\\Models\\Personnel\:\:scopeArchived\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
 			message: '#^Property App\\Models\\Personnel\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2257,18 +1915,6 @@ parameters:
 			path: src/Models/Rank.php
 
 		-
-			message: '#^Method App\\Models\\Rank\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/Rank.php
-
-		-
-			message: '#^Method App\\Models\\Rank\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/Rank.php
-
-		-
 			message: '#^Property App\\Models\\Rank\:\:\$casts type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2277,18 +1923,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\RegistrationCode\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: src/Models/RegistrationCode.php
-
-		-
-			message: '#^Method App\\Models\\RegistrationCode\:\:scopeUnused\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/RegistrationCode.php
-
-		-
-			message: '#^Method App\\Models\\RegistrationCode\:\:scopeUnused\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: src/Models/RegistrationCode.php
 
@@ -2331,30 +1965,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\User\:\:mitarbeiter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:scopeInactive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:scopeInactive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: src/Models/User.php
 
@@ -2411,18 +2021,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/VehicleDefectLog.php
-
-		-
-			message: '#^Method App\\Models\\VehicleImportQueueItem\:\:scopePending\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Models/VehicleImportQueueItem.php
-
-		-
-			message: '#^Method App\\Models\\VehicleImportQueueItem\:\:scopePending\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: src/Models/VehicleImportQueueItem.php
 
 		-
 			message: '#^Property App\\Models\\VehicleImportQueueItem\:\:\$casts type has no value type specified in iterable type array\.$#'
@@ -3103,22 +2701,10 @@ parameters:
 			path: tests/Integration/Jobs/FailedJobsReaderTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\FormType\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
 			message: '#^Property Tests\\Integration\\Models\\AntragTypModelTest\:\:\$cleanupAntragIds type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\RegistrationCode\:\:unused\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: tests/Integration/Models/RegistrationCodeModelTest.php
 
 		-
 			message: '#^Method Tests\\Integration\\Models\\RegistrationCodeModelTest\:\:makeCode\(\) has parameter \$overrides with no value type specified in iterable type array\.$#'
@@ -3131,18 +2717,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Integration/Models/RegistrationCodeModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/UserModelTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:inactive\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Integration/Models/UserModelTest.php
 
 		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'

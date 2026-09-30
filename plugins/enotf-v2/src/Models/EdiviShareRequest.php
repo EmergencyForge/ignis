@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * `intra_edivi_share_requests` — Protokoll-Übergabe zwischen Fahrzeugen.
@@ -13,6 +14,8 @@ use App\Models\Model;
  * `status`: pending | accepted | rejected | cancelled.
  * `action_taken` (nach Annahme): merged | new_protocol; bei „new"
  * steht die neue Einsatznummer in `new_enr`.
+ *
+ * @method static Builder<static> pending()
  */
 class EdiviShareRequest extends Model
 {
@@ -23,8 +26,11 @@ class EdiviShareRequest extends Model
     public const STATUS_REJECTED  = 'rejected';
     public const STATUS_CANCELLED = 'cancelled';
 
-    public function scopePending($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopePending(Builder $query): void
     {
-        return $query->where('status', self::STATUS_PENDING);
+        $query->where('status', self::STATUS_PENDING);
     }
 }
