@@ -739,24 +739,6 @@ parameters:
 			path: src/Utils/SystemUpdater.php
 
 		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:copyUpdateFiles\(\) has parameter \$excludeDirs with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:copyUpdateFiles\(\) has parameter \$excludeFiles with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:copyUpdateFiles\(\) has parameter \$preserveDirs with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:detectProxyConfiguration\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -901,12 +883,6 @@ parameters:
 			path: src/Utils/SystemUpdater.php
 
 		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:isExcludedUpdatePath\(\) has parameter \$excludeFiles with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:parsePhpSize\(\) is unused\.$#'
 			identifier: method.unused
 			count: 1
@@ -921,12 +897,6 @@ parameters:
 		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:provideSolutions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:recursiveCopy\(\) is unused\.$#'
-			identifier: method.unused
 			count: 1
 			path: src/Utils/SystemUpdater.php
 
@@ -969,12 +939,6 @@ parameters:
 		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:updateVersionFile\(\) has parameter \$versionData with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
 			count: 1
 			path: src/Utils/SystemUpdater.php
 
@@ -1079,15 +1043,3 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Unit/Utils/SystemUpdaterHostingTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Utils\\SystemUpdaterManifestTest\:\:callPrivate\(\) has parameter \$args with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Utils/SystemUpdaterManifestTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Utils\\SystemUpdaterManifestTest\:\:writeManifest\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Utils/SystemUpdaterManifestTest.php

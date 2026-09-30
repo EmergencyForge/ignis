@@ -2,8 +2,11 @@
 
 namespace App\Utils;
 
+use App\Utils\Updater\BackupManager;
+use App\Utils\Updater\FileInstaller;
 use App\Utils\Updater\GitHubReleaseSource;
 use App\Utils\Updater\ReleaseNotes;
+use App\Utils\Updater\UpdateArchive;
 use App\Utils\Updater\VersionComparator;
 use Exception;
 
@@ -41,28 +44,6 @@ class SystemUpdater
         $this->migrateLegacySystemDirectory($appRoot);
         $this->loadCurrentVersion();
         $this->cleanupOldTempDirectories();
-    }
-
-    private function validateSharedPackages(string $sourceDir, string $appRoot, bool $release): void
-    {
-        $composer = json_decode((string) file_get_contents($sourceDir . '/composer.json'), true, 512, JSON_THROW_ON_ERROR);
-        $repositories = $composer['repositories'] ?? [];
-        foreach ($repositories as $repository) {
-            if (!is_array($repository) || ($repository['type'] ?? '') !== 'path') {
-                continue;
-            }
-            if ($release) {
-                if (!is_file($sourceDir . '/vendor/autoload.php')) {
-                    throw new Exception('Das Release-Paket enthält keine gebündelten Composer-Abhängigkeiten. Bitte ein vollständiges Release-Paket verwenden.');
-                }
-                continue;
-            }
-            $url = $repository['url'] ?? '';
-            $paths = is_string($url) && $url !== '' ? glob($appRoot . '/' . $url . '/composer.json') : [];
-            if (!$paths) {
-                throw new Exception('Dieses Quellupdate benötigt die benachbarten WebPackages-Pakete. Bitte WebPackages bereitstellen oder das fertige Release-Paket mit Abhängigkeiten verwenden. Es wurden keine Anwendungsdateien geändert.');
-            }
-        }
     }
 
     /**
@@ -258,14 +239,7 @@ class SystemUpdater
                 throw new Exception('Ungültiges Versionsformat.');
             }
 
-            if ($expectedSha256 !== null && $expectedSha256 !== '') {
-                $expectedSha256 = strtolower(trim($expectedSha256));
-                if (!preg_match('/^[a-f0-9]{64}$/', $expectedSha256)) {
-                    throw new Exception('Ungültige SHA-256-Prüfsumme für das Update-Artefakt.');
-                }
-            } else {
-                $expectedSha256 = null;
-            }
+            $expectedSha256 = UpdateArchive::normalizeChecksum($expectedSha256);
 
             $appRoot = $this->appRoot;
 
@@ -322,107 +296,11 @@ class SystemUpdater
             // holding the complete vendor-containing release in memory.
             $downloadSize = $this->source->download($downloadUrl, $zipFile);
 
-            $signatureHandle = @fopen($zipFile, 'rb');
-            $signature = $signatureHandle !== false ? fread($signatureHandle, 2) : false;
-            if (is_resource($signatureHandle)) fclose($signatureHandle);
-            if ($signature !== 'PK') {
-                throw new Exception('Der Download ist kein gültiges ZIP-Archiv.');
-            }
-
-            if ($expectedSha256 !== null) {
-                $actualSha256 = hash_file('sha256', $zipFile);
-                if ($actualSha256 === false || !hash_equals($expectedSha256, strtolower($actualSha256))) {
-                    throw new Exception('Integritätsprüfung fehlgeschlagen: Die SHA-256-Prüfsumme des Downloads stimmt nicht mit dem GitHub-Release überein.');
-                }
-            }
+            UpdateArchive::verify($zipFile, $expectedSha256);
 
             // Step 2: Extract ZIP
-            if (!class_exists('ZipArchive')) {
-                throw new Exception('ZipArchive PHP-Erweiterung nicht verfügbar. Bitte installieren Sie php-zip.');
-            }
-
-            // Validate ZIP file exists and has content
-            if (!file_exists($zipFile)) {
-                throw new Exception('ZIP-Datei wurde nicht gefunden: ' . $zipFile);
-            }
-
-            $zipSize = filesize($zipFile);
-            if ($zipSize === false || $zipSize === 0) {
-                throw new Exception('ZIP-Datei ist leer oder konnte nicht gelesen werden. Größe: ' . ($zipSize === false ? 'unbekannt' : '0 Bytes'));
-            }
-
-            $zip = new \ZipArchive();
-            $openResult = $zip->open($zipFile);
-            if ($openResult !== true) {
-                $errorMessages = [
-                    \ZipArchive::ER_EXISTS => 'Datei existiert bereits',
-                    \ZipArchive::ER_INCONS => 'ZIP-Archiv ist inkonsistent',
-                    \ZipArchive::ER_INVAL => 'Ungültiges Argument',
-                    \ZipArchive::ER_MEMORY => 'Speicherfehler',
-                    \ZipArchive::ER_NOENT => 'Datei existiert nicht',
-                    \ZipArchive::ER_NOZIP => 'Keine gültige ZIP-Datei',
-                    \ZipArchive::ER_OPEN => 'Datei konnte nicht geöffnet werden',
-                    \ZipArchive::ER_READ => 'Lesefehler',
-                    \ZipArchive::ER_SEEK => 'Seek-Fehler'
-                ];
-                $errorMsg = $errorMessages[$openResult] ?? 'Unbekannter Fehler (' . $openResult . ')';
-                throw new Exception('Konnte ZIP-Datei nicht öffnen: ' . $errorMsg . '. Dateigröße: ' . round($zipSize / 1024, 2) . ' KB');
-            }
-
-            $numFiles = $zip->numFiles;
-            if ($numFiles === 0) {
-                $zip->close();
-                throw new Exception('ZIP-Datei enthält keine Dateien. Möglicherweise ist das Update beschädigt.');
-            }
-
-            try {
-                $this->validateArchiveEntries($zip);
-            } catch (Exception $e) {
-                $zip->close();
-                throw $e;
-            }
-
-            // Create extraction directory before extracting
-            if (!is_dir($extractDir)) {
-                if (!mkdir($extractDir, 0755, true)) {
-                    $zip->close();
-                    throw new Exception('Konnte Extraktions-Verzeichnis nicht erstellen: ' . $extractDir);
-                }
-            }
-
-            if (!is_writable($extractDir)) {
-                $zip->close();
-                throw new Exception('Extraktions-Verzeichnis ist nicht beschreibbar: ' . $extractDir);
-            }
-
-            $extractResult = $zip->extractTo($extractDir);
-            $zip->close();
-
-            if (!$extractResult) {
-                throw new Exception('Konnte ZIP-Datei nicht extrahieren (' . $numFiles . ' Dateien). Bitte Speicherplatz und Berechtigungen prüfen.');
-            }
-
-            // Give filesystem time to sync (especially on Windows/Plesk)
-            clearstatcache();
-            usleep(100000); // 100ms wait
-
-            // Determine source directory:
-            // - GitHub zipballs extract to a subdirectory like "EmergencyForge-intraRP-abc123/"
-            // - Release asset ZIPs extract files directly (no wrapper directory)
-            $extractedDirs = glob($extractDir . '/*', GLOB_ONLYDIR);
-            if (!empty($extractedDirs) && file_exists($extractedDirs[0] . '/composer.json')) {
-                // Zipball style: subdirectory wrapper
-                $sourceDir = $extractedDirs[0];
-            } elseif (file_exists($extractDir . '/composer.json')) {
-                // Release asset style: files directly in extract dir
-                $sourceDir = $extractDir;
-            } else {
-                $allItems = glob($extractDir . '/*');
-                $itemsList = $allItems ? implode(', ', array_map('basename', $allItems)) : 'keine';
-                throw new Exception('Konnte Update-Dateien nicht finden. Extrahierte Inhalte: ' . $itemsList);
-            }
-
-            $this->validateSharedPackages($sourceDir, $appRoot, $isReleaseAsset);
+            $sourceDir = UpdateArchive::extract($zipFile, $extractDir);
+            UpdateArchive::validateSharedPackages($sourceDir, $appRoot, $isReleaseAsset);
 
             // Release assets include vendor/ — source zipballs do not.
             $excludeDirs = $isReleaseAsset
@@ -434,37 +312,14 @@ class SystemUpdater
             // Step 3: Back up every existing file that the release can
             // overwrite. The former hard-coded src/assets/api list missed
             // templates, routes, config and vendor, making restoration partial.
-            $backupBase = $appRoot . '/storage/backups/updates';
-            if (!is_dir($backupBase) && !mkdir($backupBase, 0755, true)) {
-                throw new Exception('Konnte Backup-Verzeichnis nicht erstellen: ' . $backupBase);
-            }
-            $backupDir = $backupBase . '/backup_' . date('Y-m-d_H-i-s');
-            if (!is_writable($backupBase)) {
-                throw new Exception('Keine Schreibberechtigung für Backup-Verzeichnis: ' . $backupBase);
-            }
-
-            if (!mkdir($backupDir, 0755, true)) {
-                throw new Exception('Konnte Backup-Verzeichnis nicht erstellen: ' . $backupDir);
-            }
-
-            $backupSummary = $this->backupUpdateFiles(
-                $sourceDir,
-                $appRoot,
-                $backupDir,
-                $excludeDirs,
-                $excludeFiles
-            );
-
-            if (file_exists($this->versionFile)) {
-                if (!is_dir($backupDir . '/storage')) {
-                    mkdir($backupDir . '/storage', 0755, true);
-                }
-                copy($this->versionFile, $backupDir . '/storage/version.json');
-            }
+            $backups = new BackupManager($appRoot);
+            $backupDir = $backups->reserve();
+            $backupSummary = $backups->backUp($backupDir, $sourceDir, $excludeDirs, $excludeFiles, $this->versionFile);
 
             // Step 4: Apply update (copy files)
+            $installer = new FileInstaller($appRoot);
             try {
-                $this->copyUpdateFiles($sourceDir, $appRoot, $excludeDirs, $excludeFiles, $preserveDirs);
+                $installer->copy($sourceDir, $excludeDirs, $excludeFiles, $preserveDirs);
             } catch (Exception $e) {
                 throw new Exception('Fehler beim Kopieren der Update-Dateien: ' . $e->getMessage() . ' - Backup verfügbar in: ' . $backupDir);
             }
@@ -473,7 +328,7 @@ class SystemUpdater
             // mit der neuen Version wegfallen sollen — z.B. Modul-Verzeichnisse
             // nach einer Router-Migration). Fehlendes Manifest ist kein Fehler.
             try {
-                $manifestResult = $this->applyUpdateManifest($sourceDir, $appRoot);
+                $manifestResult = $installer->applyManifest($sourceDir);
                 if ($manifestResult['applied']) {
                     \App\Logging\Logger::info('Update-Manifest verarbeitet', [
                         'deleted' => $manifestResult['deleted'],
@@ -524,7 +379,7 @@ class SystemUpdater
             }
 
             // Clean up temp files
-            $this->recursiveDelete($tempDir);
+            FileInstaller::deleteTree($tempDir);
 
             return [
                 'success' => true,
@@ -542,7 +397,7 @@ class SystemUpdater
             // Clean up temp files if they exist
             if (isset($tempDir) && is_dir($tempDir)) {
                 try {
-                    $this->recursiveDelete($tempDir);
+                    FileInstaller::deleteTree($tempDir);
                 } catch (Exception $cleanupEx) {
                     // Ignore cleanup errors
                 }
@@ -567,459 +422,6 @@ class SystemUpdater
                 'diagnostic_support' => $this->formatDiagnosticForSupport($diagnostics)
             ];
         }
-    }
-
-    /**
-     * Reject archive entries that could escape the extraction directory or
-     * create symbolic links. ZipArchive::extractTo() behavior differs between
-     * libzip versions, so the updater enforces the boundary itself.
-     */
-    private function validateArchiveEntries(\ZipArchive $zip): void
-    {
-        for ($index = 0; $index < $zip->numFiles; $index++) {
-            $name = $zip->getNameIndex($index);
-            if (!is_string($name) || $name === '' || str_contains($name, "\0")) {
-                throw new Exception('Das Update-Archiv enthält einen ungültigen Dateinamen.');
-            }
-
-            $normalized = str_replace('\\', '/', $name);
-            $segments = explode('/', $normalized);
-            if (str_starts_with($normalized, '/')
-                || preg_match('/^[a-zA-Z]:\//', $normalized)
-                || in_array('..', $segments, true)) {
-                throw new Exception('Das Update-Archiv enthält einen unsicheren Pfad: ' . $name);
-            }
-
-            $operatingSystem = 0;
-            $attributes = 0;
-            if ($zip->getExternalAttributesIndex($index, $operatingSystem, $attributes)) {
-                $fileType = ($attributes >> 16) & 0170000;
-                if ($fileType === 0120000) {
-                    throw new Exception('Symbolische Links sind in Update-Archiven nicht erlaubt: ' . $name);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param list<string> $excludeDirs
-     * @param list<string> $excludeFiles
-     * @return array{backed_up_files:int, created_files:list<string>}
-     */
-    private function backupUpdateFiles(
-        string $source,
-        string $appRoot,
-        string $backupDir,
-        array $excludeDirs,
-        array $excludeFiles
-    ): array {
-        $sourceNormalized = realpath($source);
-        if ($sourceNormalized === false) {
-            throw new Exception('Update-Quelle für Backup nicht gefunden: ' . $source);
-        }
-
-        $backedUp = 0;
-        $createdFiles = [];
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($sourceNormalized, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
-
-        foreach ($iterator as $item) {
-            if (!$item->isFile()) {
-                continue;
-            }
-
-            $subPath = str_replace('\\', '/', substr($item->getPathname(), strlen($sourceNormalized) + 1));
-            if ($this->isExcludedUpdatePath($subPath, $excludeDirs, $excludeFiles)) {
-                continue;
-            }
-
-            $currentPath = $appRoot . '/' . $subPath;
-            if (!is_file($currentPath)) {
-                $createdFiles[] = $subPath;
-                continue;
-            }
-
-            $backupPath = $backupDir . '/' . $subPath;
-            $backupParent = dirname($backupPath);
-            if (!is_dir($backupParent) && !mkdir($backupParent, 0755, true)) {
-                throw new Exception('Konnte Backup-Unterverzeichnis nicht erstellen: ' . $backupParent);
-            }
-            if (!copy($currentPath, $backupPath)) {
-                throw new Exception('Konnte Datei nicht sichern: ' . $subPath);
-            }
-            $backedUp++;
-        }
-
-        $manifest = [
-            'created_at' => date(DATE_ATOM),
-            'backed_up_files' => $backedUp,
-            'created_files' => $createdFiles,
-        ];
-        if (@file_put_contents(
-            $backupDir . '/_update-backup.json',
-            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-            LOCK_EX
-        ) === false) {
-            throw new Exception('Konnte Backup-Manifest nicht speichern.');
-        }
-
-        return $manifest;
-    }
-
-    /** @param list<string> $excludeDirs @param list<string> $excludeFiles */
-    private function isExcludedUpdatePath(string $subPath, array $excludeDirs, array $excludeFiles): bool
-    {
-        foreach ($excludeDirs as $excludeDir) {
-            $excludeDir = trim(str_replace('\\', '/', $excludeDir), '/');
-            if ($subPath === $excludeDir || str_starts_with($subPath, $excludeDir . '/')) {
-                return true;
-            }
-        }
-
-        foreach ($excludeFiles as $excludeFile) {
-            if ($subPath === $excludeFile || basename($subPath) === $excludeFile) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Recursively copy directory
-     */
-    private function recursiveCopy(string $source, string $dest): void
-    {
-        if (!is_dir($dest)) {
-            mkdir($dest, 0755, true);
-        }
-
-        // Normalize source path with realpath to avoid path mismatches
-        $sourceNormalized = realpath($source);
-        if ($sourceNormalized === false) {
-            throw new Exception('Source directory does not exist: ' . $source);
-        }
-
-        $dirIterator = new \RecursiveDirectoryIterator($sourceNormalized, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator = new \RecursiveIteratorIterator($dirIterator, \RecursiveIteratorIterator::SELF_FIRST);
-
-        foreach ($iterator as $item) {
-            $itemPath = $item->getPathname();
-            $itemRealPath = realpath($itemPath);
-
-            // If realpath fails (shouldn't happen but be safe), use original path
-            if ($itemRealPath === false) {
-                $itemRealPath = $itemPath;
-            }
-
-            // Calculate relative path by removing the source directory prefix
-            $subPath = substr($itemRealPath, strlen($sourceNormalized) + 1);
-            $subPath = str_replace('\\', '/', $subPath);
-            $destPath = $dest . '/' . $subPath;
-
-            if ($item->isDir()) {
-                if (!is_dir($destPath)) {
-                    mkdir($destPath, 0755, true);
-                }
-            } else {
-                copy($item, $destPath);
-            }
-        }
-    }
-
-    /**
-     * Copy update files while excluding certain directories and files
-     * 
-     * @param string $source Source directory
-     * @param string $dest Destination directory
-     * @param array $excludeDirs Directories to completely skip
-     * @param array $excludeFiles Files to completely skip
-     * @param array $preserveDirs Directories where existing files should be preserved (only copy new files)
-     */
-    private function copyUpdateFiles(string $source, string $dest, array $excludeDirs, array $excludeFiles, array $preserveDirs = []): void
-    {
-        // Normalize source path with realpath to avoid path mismatches
-        $sourceNormalized = realpath($source);
-        if ($sourceNormalized === false) {
-            throw new Exception('Source directory does not exist: ' . $source);
-        }
-
-        $dirIterator = new \RecursiveDirectoryIterator($sourceNormalized, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator = new \RecursiveIteratorIterator($dirIterator, \RecursiveIteratorIterator::SELF_FIRST);
-
-        $criticalFiles = ['composer.json', 'composer.lock'];
-        $importantFiles = ['index.php', '.htaccess']; // Important but not critical - ensure they're overwritten
-        $failedCriticalFiles = [];
-
-        foreach ($iterator as $item) {
-            // Get relative path from source directory
-            // Use realpath for both paths to ensure they match exactly
-            $itemPath = $item->getPathname();
-            $itemRealPath = realpath($itemPath);
-
-            // If realpath fails (shouldn't happen but be safe), use original path
-            if ($itemRealPath === false) {
-                $itemRealPath = $itemPath;
-            }
-
-            // Calculate relative path by removing the source directory prefix
-            $subPath = substr($itemRealPath, strlen($sourceNormalized) + 1);
-            $subPath = str_replace('\\', '/', $subPath); // Normalize to forward slashes
-
-            if ($this->isExcludedUpdatePath($subPath, $excludeDirs, $excludeFiles)) {
-                continue;
-            }
-
-            $destPath = $dest . '/' . $subPath;
-
-            // Check if path is in a preserve directory
-            $inPreserveDir = false;
-            foreach ($preserveDirs as $preserveDir) {
-                $preserveDir = trim(str_replace('\\', '/', $preserveDir), '/');
-                if ($subPath === $preserveDir || str_starts_with($subPath, $preserveDir . '/')) {
-                    $inPreserveDir = true;
-                    break;
-                }
-            }
-
-            if ($item->isDir()) {
-                if (!is_dir($destPath)) {
-                    mkdir($destPath, 0755, true);
-                }
-            } else {
-                $destDir = dirname($destPath);
-                if (!is_dir($destDir)) {
-                    mkdir($destDir, 0755, true);
-                }
-
-                // If in preserve directory, only copy if file doesn't exist
-                if ($inPreserveDir) {
-                    if (!file_exists($destPath)) {
-                        if (!copy($item, $destPath)) {
-                            throw new Exception('Konnte Datei nicht kopieren: ' . $subPath);
-                        }
-                    }
-                } else {
-                    // Normal behavior: overwrite existing files
-                    // For critical and important files, ensure write permission and verify copy success
-                    $isCriticalFile = in_array(basename($subPath), $criticalFiles) && dirname($subPath) === '.';
-                    $isImportantFile = in_array(basename($subPath), $importantFiles) && dirname($subPath) === '.';
-
-                    if (($isCriticalFile || $isImportantFile) && file_exists($destPath)) {
-                        // Ensure file is writable before attempting to overwrite
-                        if (!is_writable($destPath)) {
-                            @chmod($destPath, 0644);
-                            // If still not writable, log warning but continue
-                            if (!is_writable($destPath)) {
-                                \App\Logging\Logger::warning('Warning: Could not make file writable: ' . $destPath);
-                            }
-                        }
-                    }
-
-                    if (!copy($item, $destPath)) {
-                        if ($isCriticalFile) {
-                            $failedCriticalFiles[] = $subPath;
-                        }
-                        throw new Exception('Konnte Datei nicht kopieren: ' . $subPath);
-                    }
-
-                    // Verify critical files were actually updated
-                    if ($isCriticalFile) {
-                        if (filesize($destPath) !== filesize($item)) {
-                            $failedCriticalFiles[] = $subPath . ' (Größe stimmt nicht überein)';
-                        }
-                    }
-
-                    // Log verification for important files (non-critical)
-                    if ($isImportantFile && !$isCriticalFile) {
-                        if (filesize($destPath) !== filesize($item)) {
-                            \App\Logging\Logger::warning('Warning: Important file may not have been updated correctly: ' . $subPath);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Report any critical file failures
-        if (!empty($failedCriticalFiles)) {
-            throw new Exception('Kritische Dateien konnten nicht aktualisiert werden: ' . implode(', ', $failedCriticalFiles));
-        }
-    }
-
-    /**
-     * Verarbeitet `update-manifest.json` aus dem Release-ZIP und löscht die
-     * dort deklarierten Pfade aus dem Projekt-Root.
-     *
-     * Manifest-Format (im Root des ZIPs):
-     *   {
-     *     "version": "2.0.0",
-     *     "delete_paths": ["enotf", "einsatz", "manv", ...]
-     *   }
-     *
-     * Jeder Pfad wird strikt validiert:
-     *   - kein Path-Traversal (`..`, Nullbytes, absolute Pfade)
-     *   - geschützte Verzeichnisse (`storage`, `system`, `vendor`, `.git`,
-     *     `.env*`, `public/index.php`) sind tabu
-     *   - der Real-Pfad muss innerhalb des App-Roots liegen
-     *
-     * Fehlende Pfade werden als „skipped" ausgewiesen, nicht als Fehler —
-     * ein Kunde hat einen migrations-spezifischen Modul-Ordner evtl. schon
-     * von Hand entfernt.
-     *
-     * @return array{applied:bool, deleted:array<int,string>, skipped:array<int,array{path:string,reason:string}>, error?:string}
-     */
-    private function applyUpdateManifest(string $sourceDir, string $appRoot): array
-    {
-        $result = ['applied' => false, 'deleted' => [], 'skipped' => []];
-
-        $manifestPath = $sourceDir . '/update-manifest.json';
-        if (!is_file($manifestPath)) {
-            return $result;
-        }
-
-        $raw = @file_get_contents($manifestPath);
-        if ($raw === false) {
-            $result['error'] = 'update-manifest.json konnte nicht gelesen werden';
-            return $result;
-        }
-
-        $manifest = json_decode($raw, true);
-        if (!is_array($manifest)) {
-            $result['error'] = 'update-manifest.json ist kein gültiges JSON';
-            return $result;
-        }
-
-        $deletePaths = $manifest['delete_paths'] ?? [];
-        if (!is_array($deletePaths)) {
-            $result['error'] = 'delete_paths im Manifest ist kein Array';
-            return $result;
-        }
-
-        $result['applied'] = true;
-
-        foreach ($deletePaths as $entry) {
-            if (!is_string($entry)) {
-                $result['skipped'][] = ['path' => (string) $entry, 'reason' => 'kein String'];
-                continue;
-            }
-
-            $normalized = $this->validateManifestDeletePath($entry, $appRoot);
-            if ($normalized === null) {
-                $result['skipped'][] = ['path' => $entry, 'reason' => 'geschützt/ungültig'];
-                continue;
-            }
-
-            $fullPath = $appRoot . '/' . $normalized;
-            if (!file_exists($fullPath) && !is_link($fullPath)) {
-                $result['skipped'][] = ['path' => $normalized, 'reason' => 'nicht vorhanden'];
-                continue;
-            }
-
-            try {
-                if (is_dir($fullPath) && !is_link($fullPath)) {
-                    $this->recursiveDelete($fullPath);
-                } else {
-                    @unlink($fullPath);
-                }
-                $result['deleted'][] = $normalized;
-            } catch (\Throwable $e) {
-                $result['skipped'][] = ['path' => $normalized, 'reason' => 'Löschen fehlgeschlagen: ' . $e->getMessage()];
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Validiert einen Pfad aus dem Update-Manifest und gibt ihn normalisiert
-     * zurück, oder `null` wenn er nicht gelöscht werden darf.
-     *
-     * Reject-Regeln:
-     *   - leer, `/`, `.`, `..`
-     *   - enthält `..`, Nullbyte, Backslash-escaped Traversal
-     *   - absolute Pfade (`/foo`, `C:\foo`)
-     *   - geschützte Prefixe: `storage`, `system`, `vendor`, `.git`, `.env`, `public/index.php`
-     *   - realpath-Check: Parent-Dir darf nicht außerhalb des App-Roots liegen
-     */
-    private function validateManifestDeletePath(string $path, string $appRoot): ?string
-    {
-        $path = trim($path);
-        if ($path === '' || $path === '/' || $path === '.' || $path === '..') {
-            return null;
-        }
-
-        if (str_contains($path, "\0") || str_contains($path, '..')) {
-            return null;
-        }
-
-        if (str_starts_with($path, '/') || str_starts_with($path, '\\') || preg_match('#^[a-zA-Z]:#', $path)) {
-            return null;
-        }
-
-        $normalized = trim(str_replace('\\', '/', $path), '/');
-        if ($normalized === '') {
-            return null;
-        }
-
-        $protectedPrefixes = [
-            'storage',
-            'system',
-            'vendor',
-            '.git',
-            '.env',
-            'public/index.php',
-            'composer.json',
-            'composer.lock',
-            '.htaccess',
-        ];
-        foreach ($protectedPrefixes as $prefix) {
-            if ($normalized === $prefix || str_starts_with($normalized, $prefix . '/')) {
-                return null;
-            }
-        }
-
-        // Realpath-Check: Parent muss innerhalb des App-Roots liegen
-        $fullPath   = $appRoot . '/' . $normalized;
-        $parentDir  = dirname($fullPath);
-        $resolvedParent = realpath($parentDir);
-        $resolvedRoot   = realpath($appRoot);
-        if ($resolvedParent === false || $resolvedRoot === false) {
-            return null;
-        }
-        $resolvedRootWithSep = rtrim($resolvedRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        if (!str_starts_with($resolvedParent . DIRECTORY_SEPARATOR, $resolvedRootWithSep)
-            && $resolvedParent !== $resolvedRoot) {
-            return null;
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * Recursively delete directory
-     */
-    private function recursiveDelete(string $dir): void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($iterator as $item) {
-            if ($item->isDir()) {
-                rmdir($item);
-            } else {
-                unlink($item);
-            }
-        }
-
-        rmdir($dir);
     }
 
     /**
@@ -1613,7 +1015,7 @@ class SystemUpdater
                 // Delete directories older than 24 hours
                 if (($now - $mtime) > $maxAge) {
                     try {
-                        $this->recursiveDelete($dir);
+                        FileInstaller::deleteTree($dir);
                     } catch (Exception $e) {
                         // Ignore errors during cleanup
                     }
