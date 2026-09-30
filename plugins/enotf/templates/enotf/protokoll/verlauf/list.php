@@ -18,7 +18,8 @@ if (!isset($_GET['enr'])) {
 }
 
 $enr = $_GET['enr'];
-$action = $_GET['action'] ?? 'manage';
+// Aktionen nur per POST: CsrfMiddleware prüft keine GETs, ein Link hätte gelöscht.
+$action = $_POST['action'] ?? 'manage';
 
 // ENR-Berechtigung prüfen
 $daten = Edivi::where('enr', $enr)->first();
@@ -39,10 +40,10 @@ if ($daten['freigegeben'] == 1) {
 if (!$ist_freigegeben) {
     switch ($action) {
         case 'delete':
-            if (isset($_GET['id'])) {
-                $id = $_GET['id'];
+            if (isset($_POST['id'])) {
+                $id = (int) $_POST['id'];
 
-                // Soft Delete
+                // Nur Soft Delete: ein Trigger auf der Tabelle blockiert hartes Löschen.
                 EdiviVitalwert::where('id', $id)
                     ->where('enr', $enr)
                     ->update([
@@ -407,12 +408,20 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
                                                     </td>
                                                     <?php if (!$ist_freigegeben): ?>
                                                         <td>
-                                                            <a href="?enr=<?= $enr ?>&action=delete&id=<?= $vital['id'] ?>"
-                                                                class="btn-delete-compact"
-                                                                onclick="event.preventDefault(); showConfirm('Parameter \'<?= htmlspecialchars($vital['parameter_name']) ?>\' (<?= htmlspecialchars($vital['parameter_wert']) ?> <?= htmlspecialchars($vital['parameter_einheit']) ?>) löschen?', {danger: true, confirmText: 'Löschen', title: 'Parameter löschen'}).then(result => { if(result) window.location.href = this.href; });">
-                                                                <i class="fa-solid fa-trash"></i>
-                                                                Löschen
-                                                            </a>
+                                                            <?php
+                                                            // Als JSON-String: ein Apostroph im Wert beendet den JS-String nicht.
+                                                            $confirmText = json_encode("Parameter '{$vital['parameter_name']}' ({$vital['parameter_wert']} {$vital['parameter_einheit']}) löschen?", JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                                                            ?>
+                                                            <form method="POST" action="?enr=<?= urlencode($enr) ?>" style="display:inline"
+                                                                onsubmit="event.preventDefault(); var f = this; showConfirm(<?= htmlspecialchars((string) $confirmText, ENT_QUOTES) ?>, {danger: true, confirmText: 'Löschen', title: 'Parameter löschen'}).then(function (ok) { if (ok) f.submit(); });">
+                                                                <?= csrf_field() ?>
+                                                                <input type="hidden" name="action" value="delete">
+                                                                <input type="hidden" name="id" value="<?= (int) $vital['id'] ?>">
+                                                                <button type="submit" class="btn-delete-compact">
+                                                                    <i class="fa-solid fa-trash"></i>
+                                                                    Löschen
+                                                                </button>
+                                                            </form>
                                                         </td>
                                                     <?php endif; ?>
                                                 </tr>
