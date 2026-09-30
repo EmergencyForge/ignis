@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Utils\Updater\GitHubReleaseSource;
 use Exception;
 
 /**
@@ -13,25 +14,28 @@ use Exception;
 class SystemUpdater
 {
     private const UPDATE_CACHE_TTL_SECONDS = 21600;
-    private const MAX_UPDATE_ARCHIVE_BYTES = 536870912;
 
     private string $versionFile;
     private string $composerPendingFile;
     private string $updateCacheFile;
-    private string $githubRepo = 'EmergencyForge/ignis';
-    private string $githubApiUrl;
+    private string $appRoot;
+    private GitHubReleaseSource $source;
     private array $currentVersion;
     private array $diagnosticLog = [];
     private string $diagnosticFile;
 
-    public function __construct()
+    /**
+     * @param string|null $appRoot Installationsverzeichnis; Tests setzen ein Temp-Verzeichnis
+     */
+    public function __construct(?string $appRoot = null, ?GitHubReleaseSource $source = null)
     {
-        $appRoot = dirname(dirname(__DIR__));
+        $appRoot ??= dirname(__DIR__, 2);
+        $this->appRoot = $appRoot;
+        $this->source = $source ?? new GitHubReleaseSource();
         $this->versionFile = $appRoot . '/storage/version.json';
         $this->composerPendingFile = $appRoot . '/storage/composer_pending.json';
         $this->updateCacheFile = $appRoot . '/storage/cache/update-check.json';
         $this->diagnosticFile = $appRoot . '/storage/logs/updater-diagnostic.log';
-        $this->githubApiUrl = "https://api.github.com/repos/{$this->githubRepo}";
         $this->migrateLegacySystemDirectory($appRoot);
         $this->loadCurrentVersion();
         $this->cleanupOldTempDirectories();
@@ -142,7 +146,7 @@ class SystemUpdater
                 $includePreRelease = $this->isPreRelease();
             }
 
-            $latestRelease = $this->fetchLatestRelease($includePreRelease);
+            $latestRelease = $this->source->latestRelease($includePreRelease);
 
             if (!$latestRelease) {
                 return [
@@ -158,46 +162,7 @@ class SystemUpdater
             $isNewer = $this->compareVersions($latestVersion, $currentVersion);
             $isLatestPreRelease = $latestRelease['prerelease'] ?? false;
 
-            // Prefer release asset ZIP (includes vendor/) over zipball (raw source).
-            // Reihenfolge: ignis-*.zip > intraRP-*.zip (Legacy) > irgendein *.zip.
-            $downloadUrl = $latestRelease['zipball_url'] ?? null;
-            $hasReleaseAsset = false;
-            $checksumSha256 = null;
-            $downloadSize = null;
-            if (!empty($latestRelease['assets'])) {
-                $pickedAsset = null;
-                foreach ($latestRelease['assets'] as $asset) {
-                    $name = $asset['name'] ?? '';
-                    if (!str_ends_with($name, '.zip')) {
-                        continue;
-                    }
-                    // Install-Package (setup.php + Archiv für Erstinstallationen)
-                    // ist KEIN Update-Artefakt — enthält ein ZIP im ZIP.
-                    if (str_ends_with($name, '-install.zip')) {
-                        continue;
-                    }
-                    if (str_starts_with($name, 'ignis-')) {
-                        $pickedAsset = $asset;
-                        break;
-                    }
-                    if ($pickedAsset === null) {
-                        $pickedAsset = $asset;
-                    }
-                }
-                if ($pickedAsset !== null) {
-                    $downloadUrl = $pickedAsset['browser_download_url'];
-                    $hasReleaseAsset = true;
-                    $downloadSize = isset($pickedAsset['size']) ? (int) $pickedAsset['size'] : null;
-
-                    // GitHub berechnet für Release-Assets serverseitig einen
-                    // SHA-256-Digest. Damit prüfen wir das Archiv vor dem
-                    // Entpacken, ohne eine zweite, manipulierbare Formularquelle.
-                    $digest = (string) ($pickedAsset['digest'] ?? '');
-                    if (preg_match('/^sha256:([a-f0-9]{64})$/i', $digest, $matches)) {
-                        $checksumSha256 = strtolower($matches[1]);
-                    }
-                }
-            }
+            $asset = GitHubReleaseSource::pickUpdateAsset($latestRelease);
 
             return [
                 'available' => $isNewer,
@@ -206,13 +171,13 @@ class SystemUpdater
                 'release_name' => $latestRelease['name'] ?? $latestVersion,
                 'release_notes' => $latestRelease['body'] ?? 'Keine Release-Notizen verfügbar.',
                 'published_at' => $latestRelease['published_at'] ?? null,
-                'download_url' => $downloadUrl,
+                'download_url' => $asset['download_url'],
                 'download_url_fallback' => $latestRelease['zipball_url'] ?? null,
                 'html_url' => $latestRelease['html_url'] ?? null,
                 'is_prerelease' => $isLatestPreRelease,
-                'has_release_asset' => $hasReleaseAsset,
-                'checksum_sha256' => $checksumSha256,
-                'download_size' => $downloadSize,
+                'has_release_asset' => $asset['has_release_asset'],
+                'checksum_sha256' => $asset['checksum_sha256'],
+                'download_size' => $asset['download_size'],
             ];
         } catch (Exception $e) {
             return [
@@ -221,230 +186,6 @@ class SystemUpdater
                 'message' => 'Fehler beim Prüfen auf Updates: ' . $e->getMessage()
             ];
         }
-    }
-
-    /**
-     * Fetch latest release from GitHub API
-     * 
-     * @param bool $includePreRelease If true, include pre-release versions
-     */
-    private function fetchLatestRelease(bool $includePreRelease = false): ?array
-    {
-        // Always fetch from list to get both stable and pre-release versions
-        return $this->fetchLatestReleaseFromList($includePreRelease);
-    }
-
-    /**
-     * Fetch latest release from releases list
-     * 
-     * @param bool $includePreRelease If true, returns latest release (can be pre-release or stable).
-     *                                 If false, returns latest stable release only.
-     */
-    private function fetchLatestReleaseFromList(bool $includePreRelease = false): ?array
-    {
-        $url = "{$this->githubApiUrl}/releases?per_page=20";
-        $response = $this->httpGet($url);
-
-        if ($response === null) {
-            return null;
-        }
-
-        $releases = json_decode($response, true);
-
-        if (!is_array($releases) || empty($releases)) {
-            return null;
-        }
-
-        // Filter out draft releases
-        $releases = array_filter($releases, function ($release) {
-            return !($release['draft'] ?? false);
-        });
-
-        if (empty($releases)) {
-            return null;
-        }
-
-        // If including pre-releases, return the first (latest) non-draft release
-        // This can be either a pre-release or stable version
-        if ($includePreRelease) {
-            return reset($releases);
-        }
-
-        // Otherwise, find the latest stable (non-prerelease) release
-        foreach ($releases as $release) {
-            if (!($release['prerelease'] ?? false)) {
-                return $release;
-            }
-        }
-
-        // If no stable release found, return the first release
-        return reset($releases);
-    }
-
-    /**
-     * Compare two version strings
-     * Returns true if $version1 is newer than $version2
-     */
-    /**
-     * HTTP GET with cURL fallback for hosts where allow_url_fopen is disabled
-     */
-    private function httpGet(string $url, int $timeout = 10): ?string
-    {
-        $headers = $this->githubHeaders('application/vnd.github+json');
-
-        // Try file_get_contents first
-        if (ini_get('allow_url_fopen')) {
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => $headers,
-                    'timeout' => $timeout
-                ]
-            ]);
-            $response = @file_get_contents($url, false, $context);
-            if ($response !== false) return $response;
-        }
-
-        // Fallback: cURL
-        if (function_exists('curl_init')) {
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_TIMEOUT => $timeout,
-                CURLOPT_USERAGENT => 'ignis-Updater',
-                CURLOPT_HTTPHEADER => $headers,
-                CURLOPT_SSL_VERIFYPEER => true,
-            ]);
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
-                return $response;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Download a large file (ZIP) with cURL fallback
-     */
-    private function httpDownloadToFile(string $url, string $targetFile): int
-    {
-        $headers = $this->githubHeaders('application/zip, application/octet-stream', false);
-
-        // cURL schreibt direkt auf die Platte. Das hält den PHP-Speicherbedarf
-        // unabhängig von der Archivgröße und funktioniert auch bei kleinen
-        // memory_limit-Werten auf Shared Hosting.
-        if (function_exists('curl_init')) {
-            $output = @fopen($targetFile, 'wb');
-            if ($output === false) {
-                throw new Exception('Konnte temporäre Update-Datei nicht zum Schreiben öffnen.');
-            }
-
-            $tooLarge = false;
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_FILE => $output,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS => 5,
-                CURLOPT_TIMEOUT => 300,
-                CURLOPT_CONNECTTIMEOUT => 15,
-                CURLOPT_USERAGENT => 'ignis-Updater',
-                CURLOPT_HTTPHEADER => $headers,
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
-                CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
-                CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
-                CURLOPT_NOPROGRESS => false,
-                CURLOPT_XFERINFOFUNCTION => static function ($resource, float $downloadTotal, float $downloaded) use (&$tooLarge): int {
-                    if ($downloadTotal > self::MAX_UPDATE_ARCHIVE_BYTES || $downloaded > self::MAX_UPDATE_ARCHIVE_BYTES) {
-                        $tooLarge = true;
-                        return 1;
-                    }
-                    return 0;
-                },
-            ]);
-            $success = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-            fclose($output);
-
-            if ($success !== false && $httpCode >= 200 && $httpCode < 300) {
-                $size = filesize($targetFile);
-                if ($size !== false && $size > 0 && $size <= self::MAX_UPDATE_ARCHIVE_BYTES) {
-                    return (int) $size;
-                }
-            }
-
-            @unlink($targetFile);
-            if ($tooLarge) {
-                throw new Exception('Das Update-Archiv überschreitet die erlaubte Größe von 512 MB.');
-            }
-            if (!ini_get('allow_url_fopen')) {
-                throw new Exception('cURL-Download fehlgeschlagen' . ($curlError !== '' ? ': ' . $curlError : '.'));
-            }
-        }
-
-        if (ini_get('allow_url_fopen')) {
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => $headers,
-                    'timeout' => 300,
-                    'follow_location' => 1,
-                    'max_redirects' => 5,
-                    'ignore_errors' => false,
-                ],
-                'ssl' => [
-                    'verify_peer' => true,
-                    'verify_peer_name' => true,
-                    'allow_self_signed' => false,
-                ],
-            ]);
-            $input = @fopen($url, 'rb', false, $context);
-            $output = @fopen($targetFile, 'wb');
-            if ($input !== false && $output !== false) {
-                $bytes = stream_copy_to_stream($input, $output, self::MAX_UPDATE_ARCHIVE_BYTES + 1);
-                fclose($input);
-                fclose($output);
-                if ($bytes !== false && $bytes > 0 && $bytes <= self::MAX_UPDATE_ARCHIVE_BYTES) {
-                    return (int) $bytes;
-                }
-                @unlink($targetFile);
-                if ($bytes !== false && $bytes > self::MAX_UPDATE_ARCHIVE_BYTES) {
-                    throw new Exception('Das Update-Archiv überschreitet die erlaubte Größe von 512 MB.');
-                }
-            } else {
-                if (is_resource($input)) fclose($input);
-                if (is_resource($output)) fclose($output);
-                @unlink($targetFile);
-            }
-        }
-
-        throw new Exception('Der Update-Download ist fehlgeschlagen. cURL und allow_url_fopen konnten das Archiv nicht streamen.');
-    }
-
-    /** @return list<string> */
-    private function githubHeaders(string $accept, bool $authenticate = true): array
-    {
-        $headers = [
-            'User-Agent: ignis-Updater',
-            'Accept: ' . $accept,
-            'X-GitHub-Api-Version: 2022-11-28',
-        ];
-
-        // Optional für private Mirrors oder höhere API-Limits. Der Token wird
-        // ausschließlich als Header verwendet und niemals geloggt/gecached.
-        $token = trim((string) getenv('IGNIS_GITHUB_TOKEN'));
-        if ($authenticate && $token !== '') {
-            $headers[] = 'Authorization: Bearer ' . $token;
-        }
-
-        return $headers;
     }
 
     /**
@@ -510,18 +251,14 @@ class SystemUpdater
     {
         try {
             // Security: Validate download URL is from GitHub (zipball or release asset)
-            // Alte Installationen dürfen noch gecachte intraRP-URLs verwenden;
-            // neue Releases kommen ausschließlich aus EmergencyForge/ignis.
-            $allowedRepoPattern = 'EmergencyForge/(?:ignis|intraRP)';
-            $isValidZipball = preg_match('#^https://api\.github\.com/repos/' . $allowedRepoPattern . '/zipball/#i', $downloadUrl);
-            $isValidAsset = preg_match('#^https://github\.com/' . $allowedRepoPattern . '/releases/download/#i', $downloadUrl);
-            if (!$isValidZipball && !$isValidAsset) {
+            $downloadKind = $this->source->downloadKind($downloadUrl);
+            if ($downloadKind === null) {
                 // Backwards compatibility: old updater versions only accept zipball URLs.
                 // If this is a release asset URL that fails validation on an old install,
                 // the calling code should retry with download_url_fallback (zipball_url).
                 throw new Exception('Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden. URL: ' . substr($downloadUrl, 0, 100));
             }
-            $isReleaseAsset = (bool)$isValidAsset;
+            $isReleaseAsset = $downloadKind === 'asset';
 
             // Security: Validate version format
             // Allow up to 5 version segments (e.g., v0.5.4.3.1) plus optional pre-release suffix
@@ -541,7 +278,7 @@ class SystemUpdater
                 $expectedSha256 = null;
             }
 
-            $appRoot = dirname(dirname(__DIR__));
+            $appRoot = $this->appRoot;
 
             // Check write permissions
             if (!is_writable($appRoot)) {
@@ -594,7 +331,7 @@ class SystemUpdater
 
             // Step 1: Download update directly to storage/temp. This avoids
             // holding the complete vendor-containing release in memory.
-            $downloadSize = $this->httpDownloadToFile($downloadUrl, $zipFile);
+            $downloadSize = $this->source->download($downloadUrl, $zipFile);
 
             $signatureHandle = @fopen($zipFile, 'rb');
             $signature = $signatureHandle !== false ? fread($signatureHandle, 2) : false;
@@ -1546,7 +1283,7 @@ class SystemUpdater
             ];
         }
 
-        $appRoot = dirname(dirname(__DIR__));
+        $appRoot = $this->appRoot;
 
         // Run composer install
         $result = $this->runComposerInstall($appRoot);
@@ -1592,32 +1329,7 @@ class SystemUpdater
      */
     public function getAllReleases(int $limit = 10): array
     {
-        try {
-            $url = "{$this->githubApiUrl}/releases?per_page={$limit}";
-
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => [
-                        'User-Agent: ignis-Updater',
-                        'Accept: application/vnd.github+json'
-                    ],
-                    'timeout' => 10
-                ]
-            ]);
-
-            $response = @file_get_contents($url, false, $context);
-
-            if ($response === false) {
-                return [];
-            }
-
-            $releases = json_decode($response, true);
-
-            return $releases ?? [];
-        } catch (Exception $e) {
-            return [];
-        }
+        return $this->source->releases($limit);
     }
 
     /**
@@ -1918,36 +1630,7 @@ class SystemUpdater
      */
     public function fetchBranches(): array
     {
-        try {
-            $url = "{$this->githubApiUrl}/branches?per_page=100";
-
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => [
-                        'User-Agent: ignis-Updater',
-                        'Accept: application/vnd.github+json'
-                    ],
-                    'timeout' => 10
-                ]
-            ]);
-
-            $response = @file_get_contents($url, false, $context);
-
-            if ($response === false) {
-                return [];
-            }
-
-            $branches = json_decode($response, true);
-
-            if (!is_array($branches)) {
-                return [];
-            }
-
-            return $branches;
-        } catch (Exception $e) {
-            return [];
-        }
+        return $this->source->branches();
     }
 
     /**
@@ -1958,36 +1641,7 @@ class SystemUpdater
      */
     public function fetchBranchLatestCommit(string $branch): ?array
     {
-        try {
-            $url = "{$this->githubApiUrl}/commits/" . urlencode($branch);
-
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => [
-                        'User-Agent: ignis-Updater',
-                        'Accept: application/vnd.github+json'
-                    ],
-                    'timeout' => 10
-                ]
-            ]);
-
-            $response = @file_get_contents($url, false, $context);
-
-            if ($response === false) {
-                return null;
-            }
-
-            $commit = json_decode($response, true);
-
-            if (!is_array($commit) || !isset($commit['sha'])) {
-                return null;
-            }
-
-            return $commit;
-        } catch (Exception $e) {
-            return null;
-        }
+        return $this->source->branchLatestCommit($branch);
     }
 
     /**
@@ -2000,7 +1654,7 @@ class SystemUpdater
     public function downloadAndApplyBranchUpdate(string $branch, string $commitSha): array
     {
         // Construct the zipball URL for the specific commit
-        $downloadUrl = "https://api.github.com/repos/{$this->githubRepo}/zipball/{$commitSha}";
+        $downloadUrl = $this->source->zipballUrl($commitSha);
 
         // Use a dev version string: branch-shortsha
         $shortSha = substr($commitSha, 0, 8);
@@ -2030,7 +1684,7 @@ class SystemUpdater
     private function cleanupOldTempDirectories(): void
     {
         try {
-            $appRoot = dirname(dirname(__DIR__));
+            $appRoot = $this->appRoot;
             $tempBase = $appRoot . '/storage/temp';
 
             if (!is_dir($tempBase)) {
@@ -2075,7 +1729,7 @@ class SystemUpdater
     public function runUpdateDiagnostics(?Exception $exception = null, array $context = []): array
     {
         $this->diagnosticLog = [];
-        $appRoot = dirname(dirname(__DIR__));
+        $appRoot = $this->appRoot;
 
         $diagnostics = [
             'timestamp' => date('Y-m-d H:i:s'),
@@ -2245,7 +1899,7 @@ class SystemUpdater
         $overallStatus = 'ok';
 
         // Test 1: GitHub API connectivity
-        $apiTest = $this->testGitHubAPI();
+        $apiTest = $this->source->probe();
         $tests['github_api'] = $apiTest;
         if ($apiTest['status'] !== 'ok') {
             $overallStatus = 'error';
@@ -2272,63 +1926,6 @@ class SystemUpdater
         return [
             'tests' => $tests,
             'status' => $overallStatus
-        ];
-    }
-
-    /**
-     * Test GitHub API connectivity
-     */
-    private function testGitHubAPI(): array
-    {
-        $startTime = microtime(true);
-
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => [
-                    'User-Agent: ignis-Updater-Diagnostic',
-                    'Accept: application/vnd.github+json'
-                ],
-                'timeout' => 10
-            ]
-        ]);
-
-        $testUrl = $this->githubApiUrl;
-        $response = @file_get_contents($testUrl, false, $context);
-        $responseTime = round((microtime(true) - $startTime) * 1000, 2);
-
-        if ($response === false) {
-            $error = error_get_last();
-            return [
-                'accessible' => false,
-                'error' => $error['message'] ?? 'Unbekannter Fehler',
-                'response_time_ms' => $responseTime,
-                'status' => 'error'
-            ];
-        }
-
-        $data = json_decode($response, true);
-        $rateLimitRemaining = null;
-        $rateLimitReset = null;
-
-        // Try to get rate limit info from headers if available
-        if (is_array($http_response_header)) {
-            foreach ($http_response_header as $header) {
-                if (stripos($header, 'X-RateLimit-Remaining:') === 0) {
-                    $rateLimitRemaining = (int)trim(substr($header, 23));
-                }
-                if (stripos($header, 'X-RateLimit-Reset:') === 0) {
-                    $rateLimitReset = (int)trim(substr($header, 19));
-                }
-            }
-        }
-
-        return [
-            'accessible' => true,
-            'response_time_ms' => $responseTime,
-            'rate_limit_remaining' => $rateLimitRemaining,
-            'rate_limit_reset' => $rateLimitReset ? date('Y-m-d H:i:s', $rateLimitReset) : null,
-            'status' => $responseTime < 3000 ? 'ok' : 'warning'
         ];
     }
 
@@ -2422,7 +2019,7 @@ class SystemUpdater
             }
         }
 
-        $appRoot = dirname(dirname(__DIR__));
+        $appRoot = $this->appRoot;
         $composerJsonExists = file_exists($appRoot . '/composer.json');
         $composerLockExists = file_exists($appRoot . '/composer.lock');
         $vendorExists = is_dir($appRoot . '/vendor');
@@ -2453,7 +2050,7 @@ class SystemUpdater
      */
     private function diagnoseUpdateHistory(): array
     {
-        $appRoot = dirname(dirname(__DIR__));
+        $appRoot = $this->appRoot;
         $updatesDir = $appRoot . '/system/updates';
 
         $backups = [];

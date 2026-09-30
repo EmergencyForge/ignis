@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Utils;
 
 use App\Utils\SystemUpdater;
+use Tests\Unit\Utils\Updater\FakeReleaseSource;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -17,21 +18,22 @@ use ReflectionClass;
  */
 final class SystemUpdaterCharacterizationTest extends TestCase
 {
-    private const API = 'ignistest://api';
+    private const API = 'https://api.github.com/repos/EmergencyForge/ignis';
 
     private string $root = '';
+
+    private FakeReleaseSource $source;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->root = sys_get_temp_dir() . '/ignis-updater-char-' . bin2hex(random_bytes(6));
         mkdir($this->root . '/storage', 0755, true);
-        FakeGitHubStream::register();
+        $this->source = new FakeReleaseSource();
     }
 
     protected function tearDown(): void
     {
-        FakeGitHubStream::unregister();
         $this->removeTree($this->root);
         parent::tearDown();
     }
@@ -221,7 +223,7 @@ final class SystemUpdaterCharacterizationTest extends TestCase
 
         $result = $this->updater()->checkForUpdates(false);
 
-        self::assertSame([self::API . '/releases?per_page=20'], FakeGitHubStream::$requested);
+        self::assertSame([self::API . '/releases?per_page=20'], $this->source->requested);
         self::assertSame([
             'available' => true,
             'current_version' => 'v2026.0.8',
@@ -351,16 +353,16 @@ final class SystemUpdaterCharacterizationTest extends TestCase
 
         $fresh = $updater->checkForUpdatesCached(false, false);
         self::assertFalse($fresh['cached']);
-        self::assertCount(1, FakeGitHubStream::$requested);
+        self::assertCount(1, $this->source->requested);
 
         $cached = $updater->checkForUpdatesCached(false, false);
         self::assertTrue($cached['cached']);
         self::assertSame('v2026.0.9', $cached['latest_version']);
         self::assertArrayHasKey('checked_at', $cached);
-        self::assertCount(1, FakeGitHubStream::$requested);
+        self::assertCount(1, $this->source->requested);
 
         self::assertSame('v2026.1.0-beta.1', $updater->checkForUpdatesCached(false, true)['latest_version']);
-        self::assertCount(2, FakeGitHubStream::$requested);
+        self::assertCount(2, $this->source->requested);
 
         $file = $this->readJson($this->root . '/storage/cache/update-check.json');
         self::assertSame(['stable', 'prerelease'], array_keys($file['channels']));
@@ -371,7 +373,7 @@ final class SystemUpdaterCharacterizationTest extends TestCase
         );
 
         $updater->checkForUpdatesCached(true, false);
-        self::assertCount(3, FakeGitHubStream::$requested);
+        self::assertCount(3, $this->source->requested);
     }
 
     #[Test]
@@ -448,10 +450,10 @@ final class SystemUpdaterCharacterizationTest extends TestCase
     #[Test]
     public function lists_branches_and_their_latest_commit(): void
     {
-        FakeGitHubStream::$responses[self::API . '/branches?per_page=100'] = '[{"name":"main"},{"name":"feature/x"}]';
-        FakeGitHubStream::$responses[self::API . '/commits/feature%2Fx'] = '{"sha":"' . str_repeat('a', 40) . '"}';
-        FakeGitHubStream::$responses[self::API . '/commits/leer'] = '{}';
-        FakeGitHubStream::$responses[self::API . '/releases?per_page=5'] = '[{"tag_name":"v1"}]';
+        $this->source->responses[self::API . '/branches?per_page=100'] = '[{"name":"main"},{"name":"feature/x"}]';
+        $this->source->responses[self::API . '/commits/feature%2Fx'] = '{"sha":"' . str_repeat('a', 40) . '"}';
+        $this->source->responses[self::API . '/commits/leer'] = '{}';
+        $this->source->responses[self::API . '/releases?per_page=5'] = '[{"tag_name":"v1"}]';
         $updater = $this->updater();
 
         self::assertSame([['name' => 'main'], ['name' => 'feature/x']], $updater->fetchBranches());
@@ -460,9 +462,9 @@ final class SystemUpdaterCharacterizationTest extends TestCase
         self::assertNull($updater->fetchBranchLatestCommit('fehlt'));
         self::assertSame([['tag_name' => 'v1']], $updater->getAllReleases(5));
 
-        FakeGitHubStream::$responses[self::API . '/branches?per_page=100'] = 'kein json';
+        $this->source->responses[self::API . '/branches?per_page=100'] = 'kein json';
         self::assertSame([], $updater->fetchBranches());
-        unset(FakeGitHubStream::$responses[self::API . '/releases?per_page=5']);
+        unset($this->source->responses[self::API . '/releases?per_page=5']);
         self::assertSame([], $updater->getAllReleases(5));
     }
 
@@ -806,7 +808,8 @@ Ende des Diagnose-Berichts
 ========================================
 TXT;
 
-        self::assertSame($expected, $this->updater()->formatDiagnosticForSupport($this->diagnosis()));
+        // Unter Windows checkt Git die Datei mit CRLF aus, der Heredoc erbt das.
+        self::assertSame(str_replace("\r\n", "\n", $expected), $this->updater()->formatDiagnosticForSupport($this->diagnosis()));
     }
 
     #[Test]
@@ -839,19 +842,7 @@ TXT;
         if ($version !== null) {
             file_put_contents($this->root . '/storage/version.json', json_encode($version));
         }
-        $updater = new SystemUpdater();
-        $paths = [
-            'versionFile' => $this->root . '/storage/version.json',
-            'composerPendingFile' => $this->root . '/storage/composer_pending.json',
-            'updateCacheFile' => $this->root . '/storage/cache/update-check.json',
-            'diagnosticFile' => $this->root . '/storage/logs/updater-diagnostic.log',
-            'githubApiUrl' => self::API,
-        ];
-        $reflection = new ReflectionClass(SystemUpdater::class);
-        foreach ($paths as $name => $value) {
-            $reflection->getProperty($name)->setValue($updater, $value);
-        }
-        $this->callPrivate($updater, 'loadCurrentVersion');
+        $updater = new SystemUpdater($this->root, $this->source);
 
         return $updater;
     }
@@ -865,7 +856,7 @@ TXT;
     /** @param list<array<string, mixed>> $releases */
     private function serveReleases(array $releases): void
     {
-        FakeGitHubStream::$responses[self::API . '/releases?per_page=20'] = (string) json_encode($releases);
+        $this->source->responses[self::API . '/releases?per_page=20'] = (string) json_encode($releases);
     }
 
     /** @return list<array<string, mixed>> */
@@ -1025,64 +1016,3 @@ TXT;
     }
 }
 
-/**
- * Stream-Wrapper, der die GitHub-API ersetzt: der Updater liest seine
- * API-Antworten über file_get_contents(), und hier landen sie aus dem Test.
- */
-final class FakeGitHubStream
-{
-    /** @var array<string, string> */
-    public static array $responses = [];
-
-    /** @var list<string> */
-    public static array $requested = [];
-
-    /** @var resource|null */
-    public $context;
-
-    private string $body = '';
-
-    private int $position = 0;
-
-    public static function register(): void
-    {
-        self::$responses = [];
-        self::$requested = [];
-        stream_wrapper_register('ignistest', self::class);
-    }
-
-    public static function unregister(): void
-    {
-        stream_wrapper_unregister('ignistest');
-    }
-
-    public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
-    {
-        self::$requested[] = $path;
-        if (!array_key_exists($path, self::$responses)) {
-            return false;
-        }
-        $this->body = self::$responses[$path];
-
-        return true;
-    }
-
-    public function stream_read(int $count): string
-    {
-        $chunk = substr($this->body, $this->position, $count);
-        $this->position += strlen($chunk);
-
-        return $chunk;
-    }
-
-    public function stream_eof(): bool
-    {
-        return $this->position >= strlen($this->body);
-    }
-
-    /** @return array<string, int> */
-    public function stream_stat(): array
-    {
-        return [];
-    }
-}

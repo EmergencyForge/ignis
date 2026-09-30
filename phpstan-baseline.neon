@@ -691,12 +691,6 @@ parameters:
 			path: src/Telemetry/TelemetryManager.php
 
 		-
-			message: '#^Call to function is_array\(\) with list\<string\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
 			message: '#^Left side of && is always true\.$#'
 			identifier: booleanAnd.leftAlwaysTrue
 			count: 2
@@ -841,18 +835,6 @@ parameters:
 			path: src/Utils/SystemUpdater.php
 
 		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:fetchLatestRelease\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:fetchLatestReleaseFromList\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:formatDiagnosticForSupport\(\) has parameter \$diagnostics with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -974,12 +956,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Utils\\SystemUpdater\:\:testDNSResolution\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Utils/SystemUpdater.php
-
-		-
-			message: '#^Method App\\Utils\\SystemUpdater\:\:testGitHubAPI\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Utils/SystemUpdater.php

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Utils;
 
 use App\Utils\SystemUpdater;
+use App\Utils\Updater\GitHubReleaseSource;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -67,7 +68,7 @@ final class SystemUpdaterHostingTest extends TestCase
     {
         $updater = new SystemUpdater();
 
-        self::assertSame('EmergencyForge/ignis', $this->property($updater, 'githubRepo'));
+        self::assertSame('https://api.github.com/repos/EmergencyForge/ignis', (new GitHubReleaseSource())->apiUrl());
         self::assertStringEndsWith('/storage/cache/update-check.json', str_replace('\\', '/', (string) $this->property($updater, 'updateCacheFile')));
     }
 
