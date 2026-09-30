@@ -152,7 +152,7 @@ class GitHubReleaseSource
     /** @return array<mixed> */
     public function releases(int $limit): array
     {
-        $response = $this->plainGet($this->apiUrl() . '/releases?per_page=' . $limit);
+        $response = $this->get($this->apiUrl() . '/releases?per_page=' . $limit);
         if ($response === null) {
             return [];
         }
@@ -163,7 +163,7 @@ class GitHubReleaseSource
     /** @return array<mixed> */
     public function branches(): array
     {
-        $response = $this->plainGet($this->apiUrl() . '/branches?per_page=100');
+        $response = $this->get($this->apiUrl() . '/branches?per_page=100');
         if ($response === null) {
             return [];
         }
@@ -176,7 +176,7 @@ class GitHubReleaseSource
     /** @return array<string, mixed>|null */
     public function branchLatestCommit(string $branch): ?array
     {
-        $response = $this->plainGet($this->apiUrl() . '/commits/' . urlencode($branch));
+        $response = $this->get($this->apiUrl() . '/commits/' . urlencode($branch));
         if ($response === null) {
             return null;
         }
@@ -382,27 +382,6 @@ class GitHubReleaseSource
         }
 
         return null;
-    }
-
-    /**
-     * Einfache API-Anfrage nur über Streams, ohne Token und ohne cURL.
-     */
-    protected function plainGet(string $url): ?string
-    {
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => [
-                    'User-Agent: ignis-Updater',
-                    'Accept: application/vnd.github+json'
-                ],
-                'timeout' => 10
-            ]
-        ]);
-
-        $response = @file_get_contents($url, false, $context);
-
-        return $response === false ? null : $response;
     }
 
     /** @return list<string> */

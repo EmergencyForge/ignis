@@ -41,16 +41,6 @@ final class FakeReleaseSource extends GitHubReleaseSource
 
     protected function get(string $url, int $timeout = 10): ?string
     {
-        return $this->respond($url);
-    }
-
-    protected function plainGet(string $url): ?string
-    {
-        return $this->respond($url);
-    }
-
-    private function respond(string $url): ?string
-    {
         $this->requested[] = $url;
 
         return $this->responses[$url] ?? null;

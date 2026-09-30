@@ -70,6 +70,33 @@ final class GitHubReleaseSourceTest extends TestCase
     }
 
     #[Test]
+    public function branches_and_commits_use_the_same_api_access_as_releases(): void
+    {
+        // Nur get() ist ersetzt: ein Aufruf, der daran vorbeigeht, landet nicht in $requested.
+        $source = new class extends GitHubReleaseSource {
+            /** @var list<string> */
+            public array $requested = [];
+
+            protected function get(string $url, int $timeout = 10): string
+            {
+                $this->requested[] = $url;
+
+                return str_contains($url, '/commits/') ? '{"sha":"abc"}' : '[]';
+            }
+        };
+
+        $source->releases(5);
+        $source->branches();
+        self::assertSame(['sha' => 'abc'], $source->branchLatestCommit('main'));
+
+        self::assertSame([
+            'https://api.github.com/repos/EmergencyForge/ignis/releases?per_page=5',
+            'https://api.github.com/repos/EmergencyForge/ignis/branches?per_page=100',
+            'https://api.github.com/repos/EmergencyForge/ignis/commits/main',
+        ], $source->requested);
+    }
+
+    #[Test]
     public function streams_the_archive_to_disk_when_curl_cannot(): void
     {
         $dir = sys_get_temp_dir() . '/ignis-source-' . bin2hex(random_bytes(6));
