@@ -43,6 +43,12 @@ parameters:
 			path: assets/components/profiles/_user-hover-card.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: assets/components/profiles/documents/editor.php
+
+		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
@@ -2449,60 +2455,6 @@ parameters:
 			path: plugins/knowledge-base/src/Models/KbTag.php
 
 		-
-			message: '#^Call to static method createSearchSnippet\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 1
-			path: plugins/knowledge-base/templates/lexicon/index.php
-
-		-
-			message: '#^Call to static method getCompetencyInfo\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 1
-			path: plugins/knowledge-base/templates/lexicon/index.php
-
-		-
-			message: '#^Call to static method getTypeLabel\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 1
-			path: plugins/knowledge-base/templates/lexicon/index.php
-
-		-
-			message: '#^Call to static method highlightSearchTerms\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 3
-			path: plugins/knowledge-base/templates/lexicon/index.php
-
-		-
-			message: '#^Call to static method competencyNeedsDarkText\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 1
-			path: plugins/knowledge-base/templates/lexicon/view.php
-
-		-
-			message: '#^Call to static method getCompetencyInfo\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 1
-			path: plugins/knowledge-base/templates/lexicon/view.php
-
-		-
-			message: '#^Call to static method getTypeColor\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 2
-			path: plugins/knowledge-base/templates/lexicon/view.php
-
-		-
-			message: '#^Call to static method getTypeLabel\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 3
-			path: plugins/knowledge-base/templates/lexicon/view.php
-
-		-
-			message: '#^Call to static method sanitizeContent\(\) on an unknown class App\\KnowledgeBase\\KBHelper\.$#'
-			identifier: class.notFound
-			count: 13
-			path: plugins/knowledge-base/templates/lexicon/view.php
-
-		-
 			message: '#^Call to an undefined static method Illuminate\\Database\\Capsule\\Manager\:\:raw\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
@@ -2819,6 +2771,12 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Database/AutoMigrator.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''1337''\|''Berufsfeuerwehr''\|''CHANGE_ME''\|''Musterstadt''\|''Musterweg 0815'' and '''' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Documents/Editor/VariableCatalog.php
 
 		-
 			message: '#^Method App\\Federation\\FederatedPersonnel\:\:getAllGrouped\(\) return type has no value type specified in iterable type array\.$#'
@@ -3307,6 +3265,30 @@ parameters:
 			path: src/Http/Controllers/CalendarController.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/EditorDocumentController.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\FormType\>\:\:active\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -3431,6 +3413,12 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 2
 			path: src/Http/Controllers/Settings/CronController.php
+
+		-
+			message: '#^Call to an undefined static method App\\Models\\EditorTemplate\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/Http/Controllers/Settings/EditorTemplateController.php
 
 		-
 			message: '#^Method App\\Http\\Controllers\\Settings\\FahrzeugeController\:\:collectVehicleData\(\) return type has no value type specified in iterable type array\.$#'
@@ -4897,6 +4885,12 @@ parameters:
 			path: templates/users/registration-codes.php
 
 		-
+			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/Feature/EditorDocumentTest.php
+
+		-
 			message: '#^Method Tests\\FeatureTestCase\:\:assertBodyNotContains\(\) invoked with 3 parameters, 2 required\.$#'
 			identifier: arguments.count
 			count: 1
@@ -5195,52 +5189,3 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Unit/Utils/SystemUpdaterManifestTest.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''1337''\|''Berufsfeuerwehr''\|''CHANGE_ME''\|''Musterstadt''\|''Musterweg 0815'' and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Documents/Editor/VariableCatalog.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Personnel\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/EditorDocumentController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\EditorTemplate\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: src/Http/Controllers/Settings/EditorTemplateController.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\EditorDocument\:\:find\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 4
-			path: tests/Feature/EditorDocumentTest.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\EditorTemplate\>\:\:active\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: assets/components/profiles/documents/editor.php
-

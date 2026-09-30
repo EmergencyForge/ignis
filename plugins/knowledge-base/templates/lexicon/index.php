@@ -1,6 +1,6 @@
 <?php
 use App\Auth\Permissions;
-use App\KnowledgeBase\KBHelper;
+use Plugin\KnowledgeBase\KBHelper;
 
 $layout = 'admin';
 $bodyId = 'lexicon';
