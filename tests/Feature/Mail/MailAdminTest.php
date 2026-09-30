@@ -155,13 +155,16 @@ final class MailAdminTest extends FeatureTestCase
         $this->asAdmin();
         $this->assertOk($this->get('/settings/mail'));
 
-        $valid = ['domain' => 'Feuerwehr.test', 'pattern' => 'first_dot_last', 'allowed' => 'lspd.de, rettung.test', 'signature' => "Mit Gruß\nWache 1"];
+        $valid = ['domain' => 'Feuerwehr.test', 'pattern' => 'first_dot_last', 'allowed' => 'lspd.de, rettung.test', 'signature' => "Mit Gruß\nWache 1", 'cooldown' => '15'];
         $this->assertStatus(422, $this->post('/settings/mail', ['domain' => 'kaputt'] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['pattern' => 'nachname'] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['allowed' => 'gut.de, -schlecht'] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['signature' => str_repeat("x\n", 101) . 'x'] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['signature' => "Gru\xC3\x28"] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['domain' => ['x']] + $valid));
+        foreach (['-1', '3601', 'zehn', '1.5', ''] as $cooldown) {
+            $this->assertStatus(422, $this->post('/settings/mail', ['cooldown' => $cooldown] + $valid));
+        }
 
         $this->assertRedirect($this->post('/settings/mail', $valid), '/settings/mail');
         $config = Capsule::table('intra_config')->where('category', 'mail')->pluck('config_value', 'config_key')->all();
@@ -169,6 +172,7 @@ final class MailAdminTest extends FeatureTestCase
         $this->assertSame('first_dot_last', $config['MAIL_ADDRESS_PATTERN']);
         $this->assertSame('lspd.de, rettung.test', $config['MAIL_ALLOWED_DOMAINS']);
         $this->assertStringContainsString('Wache 1', $config['MAIL_DEFAULT_SIGNATURE']);
+        $this->assertSame('15', $config['MAIL_SEND_COOLDOWN']);
 
         $audit = $this->auditRows();
         $this->assertCount(1, $audit);

@@ -31,6 +31,8 @@ trait MailFixtures
         Capsule::table('intra_config')->where('config_key', 'MAIL_ADDRESS_PATTERN')->update(['config_value' => 'initial_dot_last']);
         Capsule::table('intra_config')->where('config_key', 'MAIL_ALLOWED_DOMAINS')->update(['config_value' => '']);
         Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => '']);
+        // Die Sendepause prüft MailSendCooldownTest; andere Tests senden schnell hintereinander.
+        Capsule::table('intra_config')->where('config_key', 'MAIL_SEND_COOLDOWN')->update(['config_value' => '0']);
     }
 
     protected function rank(bool $archive = false): Rank
