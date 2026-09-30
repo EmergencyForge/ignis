@@ -28,7 +28,9 @@ final class VehicleImportController
 {
     /**
      * GET|POST /api/vehicles/import-handler?action=...
-     * Action-Dispatcher für alle Import-Queue-Operationen.
+     * Action-Dispatcher für alle Import-Queue-Operationen. Per GET nur
+     * lesen (list, status); alles Schreibende, auch die Import-Anforderung,
+     * nur per POST, denn CsrfMiddleware prüft keine GETs.
      */
     public function handle(Request $request): Response
     {
@@ -49,7 +51,7 @@ final class VehicleImportController
                 $action === 'overwrite' && $method === 'POST' => $this->overwriteExisting($request),
                 $action === 'merge'     && $method === 'POST' => $this->mergeWithExisting($request),
                 $action === 'ignore'    && $method === 'POST' => $this->ignore($request),
-                $action === 'request'                      => $this->requestImport(),
+                $action === 'request'   && $method === 'POST' => $this->requestImport(),
                 $action === 'status'                       => $this->status(),
                 default                                    => Response::json(['success' => false, 'message' => 'Unbekannte Aktion']),
             };
