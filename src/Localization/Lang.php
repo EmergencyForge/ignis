@@ -4,10 +4,12 @@ namespace App\Localization;
 
 class Lang
 {
+    /** @var array<string, string> */
     protected static $phrases = [];
+    /** @var string */
     protected static $language = 'de';
 
-    public static function setLanguage(string $lang)
+    public static function setLanguage(string $lang): void
     {
         self::$language = $lang;
         $file = __DIR__ . "/../../assets/lang/{$lang}.php";

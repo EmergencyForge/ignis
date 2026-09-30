@@ -162,7 +162,7 @@ final class AbsenceSyncService
     /**
      * Beschreibung mit Antragsnummer + Begruendung (sofern angegeben).
      */
-    private static function buildDescription(Form $antrag): ?string
+    private static function buildDescription(Form $antrag): string
     {
         $parts = ['Antrag #' . $antrag->uniqueid];
         $grund = $antrag->getFieldValue('grund');

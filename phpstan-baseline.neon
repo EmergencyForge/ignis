@@ -61,36 +61,6 @@ parameters:
 			path: plugins/enotf-v2/src/Controllers/LoginController.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviQmLog\:\:protokoll\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EdiviQmLog.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\EnotfSessionMember\:\:session\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/EnotfSessionMember.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\HospitalAccessCode\:\:poi\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/HospitalAccessCode.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\HospitalAvailability\:\:department\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/HospitalAvailability.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Models\\HospitalDepartment\:\:poi\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf-v2/src/Models/HospitalDepartment.php
-
-		-
 			message: '#^Result of && is always false\.$#'
 			identifier: booleanAnd.alwaysFalse
 			count: 3
@@ -261,114 +231,6 @@ parameters:
 		-
 			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayAllMedikamente\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayAllMedikamente\(\) has parameter \$medikamenteJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayAllZugaenge\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayAllZugaenge\(\) has parameter \$zugangJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayAllZugaengeText\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayAllZugaengeText\(\) has parameter \$zugangJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayZugaengeByArt\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayZugaengeByArt\(\) has parameter \$filterArt with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayZugaengeByArt\(\) has parameter \$zugangJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayZugaengeByArtText\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayZugaengeByArtText\(\) has parameter \$filterArt with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function displayZugaengeByArtText\(\) has parameter \$zugangJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function getCurrentMedikamente\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function getCurrentMedikamente\(\) has parameter \$medikamenteJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function hasAnyMedikamente\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Function hasAnyMedikamente\(\) has parameter \$medikamenteJson with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 5
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
 			count: 1
 			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
 
@@ -595,24 +457,6 @@ parameters:
 			path: src/Calendar/AbsenceSyncService.php
 
 		-
-			message: '#^Method App\\Calendar\\AbsenceSyncService\:\:buildDescription\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Calendar/AbsenceSyncService.php
-
-		-
-			message: '#^Method App\\Calendar\\AttendeeResolver\:\:resolveByRoles\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Calendar/AttendeeResolver.php
-
-		-
-			message: '#^Method App\\Calendar\\AttendeeResolver\:\:resolveExplicit\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Calendar/AttendeeResolver.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -811,34 +655,10 @@ parameters:
 			path: src/Jobs/SerializedJob.php
 
 		-
-			message: '#^Method App\\Localization\\Lang\:\:setLanguage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Localization/Lang.php
-
-		-
-			message: '#^Property App\\Localization\\Lang\:\:\$language has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/Localization/Lang.php
-
-		-
-			message: '#^Property App\\Localization\\Lang\:\:\$phrases has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/Localization/Lang.php
-
-		-
 			message: '#^Offset ''size'' on array\{name\: string, index\: int, crc\: int, size\: int, mtime\: int, comp_size\: int, comp_method\: int, encryption_method\: int\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Plugins/CatalogInstaller.php
-
-		-
-			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 1
-			path: src/Plugins/PluginLoader.php
 
 		-
 			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
@@ -1265,12 +1085,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 2
 			path: templates/users/registration-codes.php
-
-		-
-			message: '#^Property Tests\\Feature\\InboxTest\:\:\$userId is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: tests/Feature/InboxTest.php
 
 		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with EmergencyForge\\Http\\Router will always evaluate to true\.$#'

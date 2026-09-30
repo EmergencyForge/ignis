@@ -107,7 +107,7 @@ class PluginLoader
             }
         }
         sort($paths);
-        return array_values($paths);
+        return $paths;
     }
 
     /**

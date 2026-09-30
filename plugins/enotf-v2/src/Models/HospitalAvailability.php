@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * `intra_edivi_hospital_availability` — Verfügbarkeitsstatus je
@@ -32,7 +33,10 @@ class HospitalAvailability extends Model
         self::STATUS_FULL        => 'Abgemeldet',
     ];
 
-    public function department()
+    /**
+     * @return BelongsTo<HospitalDepartment, $this>
+     */
+    public function department(): BelongsTo
     {
         return $this->belongsTo(HospitalDepartment::class, 'department_id');
     }
