@@ -313,8 +313,7 @@ final class SystemUpdaterInstallTest extends TestCase
         self::assertSame($sha, $version['commit_hash']);
         self::assertTrue($version['prerelease']);
         self::assertSame('main', $version['branch']);
-        // Ist-Zustand: die Build-Nummer wird zweimal hochgezählt.
-        self::assertSame(14, $version['build_number']);
+        self::assertSame(13, $version['build_number']);
     }
 
     // ── Hilfen ─────────────────────────────────────────────────────────

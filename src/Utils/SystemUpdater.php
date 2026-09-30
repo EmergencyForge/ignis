@@ -537,12 +537,13 @@ class SystemUpdater
 
         $result = $this->downloadAndApplyUpdate($downloadUrl, $devVersion, true);
 
-        // Update version.json with the full commit hash for proper detection
+        // Update version.json with the full commit hash for proper detection.
+        // Die Build-Nummer hat downloadAndApplyUpdate() schon hochgezählt.
         if ($result['success']) {
             $this->updateVersionFile([
                 'version' => $devVersion,
                 'updated_at' => date('Y-m-d H:i:s'),
-                'build_number' => (int)($this->versions->current()['build_number'] ?? 0) + 1,
+                'build_number' => (int)($this->versions->current()['build_number'] ?? 0),
                 'commit_hash' => $commitSha,
                 'prerelease' => true,
                 'branch' => $branch
