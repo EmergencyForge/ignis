@@ -12,6 +12,9 @@ use Phinx\Migration\AbstractMigration;
  */
 class InsertIntraConfigDefaults04112025 extends AbstractMigration
 {
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function defaults(): array
     {
         return [

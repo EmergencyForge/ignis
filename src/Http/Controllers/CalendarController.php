@@ -583,6 +583,8 @@ class CalendarController extends Controller
 
     /**
      * Uebernimmt validierte Felder in das Event-Model (nicht gespeichert).
+     *
+     * @param array<string, mixed> $data
      */
     private function buildFromValidated(CalendarEvent $event, array $data): CalendarEvent
     {
@@ -606,6 +608,8 @@ class CalendarController extends Controller
     /**
      * Synct die Pivot-Tabelle intra_calendar_event_roles. Bei
      * visibility != 'role' werden alle Pivot-Rows entfernt.
+     *
+     * @param array<int> $roleIds
      */
     private function syncVisibilityRoles(CalendarEvent $event, array $roleIds): void
     {
@@ -621,6 +625,8 @@ class CalendarController extends Controller
      * es alle persistierten Attendees. Bei 'attendees' fuegt es Differenzen
      * hinzu/entfernt sie. Der Ersteller ist immer als Organizer-Attendee drin
      * (egal welche Visibility).
+     *
+     * @param array<int> $mitarbeiterIds
      */
     private function syncAttendees(CalendarEvent $event, array $mitarbeiterIds, int $creatorUserId): void
     {
@@ -692,6 +698,8 @@ class CalendarController extends Controller
 
     /**
      * Konvertiert ein Event in das FullCalendar-EventInput-Format.
+     *
+     * @return array<string, mixed>
      */
     private function toFullCalendarEvent(CalendarEvent $event, bool $isRecurring, ?int $seriesId, ?string $myResponse = null): array
     {
@@ -797,6 +805,8 @@ class CalendarController extends Controller
      * Nicht-blockierender Konflikt-Hint nach store/update — wenn Attendees
      * im Zeitraum bereits andere Termine haben, gibt's eine Flash::warning
      * mit Kurz-Zusammenfassung. Der Save selbst ist bereits durch.
+     *
+     * @param array<int> $attendeeIds
      */
     private function flashConflictHint(CalendarEvent $event, array $attendeeIds): void
     {

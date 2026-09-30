@@ -31,7 +31,7 @@ class MapCoordinates
      * 
      * @param float $gtaX GTA X coordinate
      * @param float $gtaY GTA Y coordinate
-     * @return array ['x' => float, 'y' => float] Map percentages (0-100)
+     * @return array{x: float, y: float} Map percentages (0-100)
      */
     public static function gtaToMap(float $gtaX, float $gtaY): array
     {
@@ -62,7 +62,7 @@ class MapCoordinates
      * 
      * @param float $mapX Map X percentage (0-100)
      * @param float $mapY Map Y percentage (0-100)
-     * @return array ['x' => float, 'y' => float] GTA coordinates
+     * @return array{x: float, y: float} GTA coordinates
      */
     public static function mapToGta(float $mapX, float $mapY): array
     {
@@ -95,7 +95,7 @@ class MapCoordinates
      * @param float $gta2Y Second GTA Y
      * @param float $map2X Second map X%
      * @param float $map2Y Second map Y%
-     * @return array ['scaleX' => float, 'scaleY' => float]
+     * @return array{scaleX: float, scaleY: float}
      */
     public static function calculateScale(
         float $gta1X,

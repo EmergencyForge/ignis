@@ -25,6 +25,7 @@ class AmbSkill extends Model
 {
     protected $table = 'intra_mitarbeiter_rdquali';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'priority'   => 'integer',

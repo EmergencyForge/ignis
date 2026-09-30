@@ -210,8 +210,8 @@ class SessionManager
     /**
      * Standard-User-Login (Discord-OAuth, Login-Form).
      *
-     * @param array $user        Row aus intra_users
-     * @param array $permissions Liste der aufgelösten Permission-Strings
+     * @param array<string, mixed> $user        Row aus intra_users
+     * @param list<string> $permissions Liste der aufgelösten Permission-Strings
      */
     public static function loginUser(array $user, array $permissions = []): void
     {
@@ -260,9 +260,7 @@ class SessionManager
     /**
      * Login der eNOTF-Crew (Fahrer + Beifahrer + optional Praktikant).
      *
-     * @param array $crew {fahrer:{name,quali}, beifahrer:{name,quali}, praktikant?:{name,quali}}
-     */
-    /**
+     * @param array{fahrer?: array{name?: string, quali?: string}, beifahrer?: array{name?: string, quali?: string}, praktikant?: array{name?: string, quali?: string}} $crew
      * @param int|string|null $protokollFzg Vehicle-Identifier (Legacy:
      * gemischter Typ — historisch wurde der Wert direkt aus `$_SESSION
      * ['protfzg']` durchgeschoben, was sowohl ints als auch strings
@@ -594,6 +592,8 @@ class SessionManager
      * konnte und der nächste Request den Vorgang fortsetzen soll. Akzeptiert
      * sowohl Booleans (Flag-Variante: "irgendwas hängt") als auch ein
      * Array mit Detail-State.
+     *
+     * @param array<string, mixed>|bool|null $data
      */
     public static function setComposerPending(array|bool|null $data): void
     {

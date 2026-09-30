@@ -30,6 +30,7 @@ class RegistrationCode extends Model
 {
     protected $table = 'intra_registration_codes';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'created_by' => 'integer',

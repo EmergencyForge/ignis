@@ -61,6 +61,7 @@ class PersonnelDocument extends Model
 
     protected $table = 'intra_mitarbeiter_dokumente';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'                => 'integer',
         'docid'             => 'integer',

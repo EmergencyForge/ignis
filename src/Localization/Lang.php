@@ -18,6 +18,9 @@ class Lang
         }
     }
 
+    /**
+     * @param list<string|int|float> $values
+     */
     public static function get(string $key, array $values = []): string
     {
         if (!isset(self::$phrases[$key])) {

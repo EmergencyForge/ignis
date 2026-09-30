@@ -6,7 +6,7 @@
  * @var string      $prefillLocation
  * @var string|null $prefillIncidentId
  * @var string|null $asuId
- * @var array|null  $existingProtocol
+ * @var array<string, mixed>|null $existingProtocol
  */
 ?>
 <!DOCTYPE html>

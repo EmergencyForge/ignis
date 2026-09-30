@@ -38,6 +38,7 @@ class CalendarAttendee extends EloquentModel
     public const RESPONSE_DECLINED  = 'declined';
     public const RESPONSE_TENTATIVE = 'tentative';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'             => 'integer',
         'event_id'       => 'integer',

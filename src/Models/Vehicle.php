@@ -31,6 +31,7 @@ class Vehicle extends Model
 {
     protected $table = 'intra_fahrzeuge';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'                   => 'integer',
         'rd_type'              => 'integer',

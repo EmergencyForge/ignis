@@ -15,6 +15,8 @@ class MANVRessource
 {
     /**
      * Erstellt eine neue Ressource
+     *
+     * @param array<string, mixed> $data
      */
     public function create(array $data): int
     {
@@ -33,6 +35,8 @@ class MANVRessource
 
     /**
      * Aktualisiert eine Ressource
+     *
+     * @param array<string, mixed> $data
      */
     public function update(int $id, array $data): bool
     {
@@ -64,6 +68,8 @@ class MANVRessource
 
     /**
      * Ruft eine Ressource ab
+     *
+     * @return array<string, mixed>|null
      */
     public function getById(int $id): ?array
     {
@@ -73,6 +79,8 @@ class MANVRessource
 
     /**
      * Ruft alle Ressourcen einer MANV-Lage ab
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getByLage(int $lageId, ?string $typ = null): array
     {
@@ -101,6 +109,8 @@ class MANVRessource
 
     /**
      * Ruft verfügbare Fahrzeuge ab
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getAvailableVehicles(int $lageId): array
     {

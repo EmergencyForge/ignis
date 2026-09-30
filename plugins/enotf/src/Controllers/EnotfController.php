@@ -234,6 +234,9 @@ class EnotfController extends Controller
     /**
      * Konvertiert das flache crew-Array (fahrername/fahrerquali/...) ins
      * strukturierte Format, das SessionManager::loginEnotfCrew() erwartet.
+     *
+     * @param array<string, mixed> $crew
+     * @return array{fahrer: array{name: mixed, quali: mixed}, beifahrer: array{name: mixed, quali: mixed}, praktikant: array{name: mixed, quali: mixed}}
      */
     private function crewArrayToStruct(array $crew): array
     {

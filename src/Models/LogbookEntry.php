@@ -70,6 +70,7 @@ class LogbookEntry extends EloquentModel
         'sonstige'       => 'secondary',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'vehicle_id' => 'integer',

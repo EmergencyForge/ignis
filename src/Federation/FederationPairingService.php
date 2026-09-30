@@ -90,7 +90,7 @@ class FederationPairingService
     /**
      * Complete pairing: store the link to a remote instance.
      *
-     * @param array  $remoteInfo     Parsed connection token data
+     * @param array<string, mixed> $remoteInfo     Parsed connection token data
      * @param string $apiKeyOutgoing The key we will use to authenticate with them
      * @param string $apiKeyIncoming The key they must use to authenticate with us
      * @return int The new link ID
@@ -118,7 +118,7 @@ class FederationPairingService
      * Update sync permissions for a link.
      *
      * @param int   $linkId
-     * @param array $settings Keys: consume_personnel, consume_enotf, consume_fire,
+     * @param array<string, bool|int> $settings Keys: consume_personnel, consume_enotf, consume_fire,
      *                        provide_personnel, provide_enotf, provide_fire
      */
     public function updateLinkSettings(int $linkId, array $settings): bool
@@ -184,7 +184,7 @@ class FederationPairingService
     /**
      * Get all linked instances.
      *
-     * @return array[]
+     * @return array<int, array<string, mixed>>
      */
     public function getAllLinks(): array
     {
@@ -195,6 +195,8 @@ class FederationPairingService
 
     /**
      * Get a single link by ID.
+     *
+     * @return array<string, mixed>|null
      */
     public function getLink(int $linkId): ?array
     {
@@ -207,7 +209,7 @@ class FederationPairingService
      *
      * @param string $url    Remote instance base URL
      * @param string $apiKey API key to authenticate with
-     * @return array Remote instance info on success
+     * @return array<string, mixed> Remote instance info on success
      */
     public function performHandshake(string $url, string $apiKey): array
     {

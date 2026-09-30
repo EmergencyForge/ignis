@@ -29,6 +29,7 @@ class CronJob extends Model
 {
     protected $table = 'intra_cron_jobs';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
     ];

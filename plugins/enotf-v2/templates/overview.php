@@ -15,7 +15,7 @@
  * @var array<int,array<string,mixed>>               $protokolle
  * @var array<int,array<string,mixed>>               $categories
  * @var array<string,array<int,array<string,mixed>>> $linksByCategory
- * @var array                                        $crew
+ * @var array<string, mixed>                         $crew
  */
 
 use Plugin\Enotf\Helpers\EnotfUrl;

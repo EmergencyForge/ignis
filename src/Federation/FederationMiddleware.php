@@ -62,7 +62,7 @@ class FederationMiddleware
      * Läuft über die Eloquent-Capsule; der optionale $pdo-Parameter bleibt
      * nur für Alt-Aufrufer erhalten und wird ignoriert.
      *
-     * @return array Der zur authentifizierten Instanz passende Eintrag aus
+     * @return array<string, mixed> Der zur authentifizierten Instanz passende Eintrag aus
      *               `intra_federation_links`.
      * @throws FederationAuthException
      */
@@ -94,7 +94,7 @@ class FederationMiddleware
     /**
      * Prüft, ob das authentifizierte Link die geforderte Capability anbietet.
      *
-     * @param array  $link     Der von tryAuthenticate() gelieferte Eintrag
+     * @param array<string, mixed> $link     Der von tryAuthenticate() gelieferte Eintrag
      * @param string $dataType Eine von: 'personnel', 'enotf', 'fire'
      * @throws FederationAuthException
      */
@@ -131,7 +131,7 @@ class FederationMiddleware
      * Returns the linked instance record on success; sends an error JSON
      * and exits otherwise.
      *
-     * @return array The matching intra_federation_links record
+     * @return array<string, mixed> The matching intra_federation_links record
      */
     public static function authenticate(?PDO $pdo = null): array
     {
@@ -145,7 +145,7 @@ class FederationMiddleware
     /**
      * Verify that the authenticated link has permission to access a specific data type.
      *
-     * @param array  $link     The linked instance record from authenticate()
+     * @param array<string, mixed> $link     The linked instance record from authenticate()
      * @param string $dataType One of: 'personnel', 'enotf', 'fire'
      */
     public static function requireProvidePermission(array $link, string $dataType): void

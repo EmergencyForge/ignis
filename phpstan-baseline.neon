@@ -13,24 +13,6 @@ parameters:
 			path: assets/components/error-page.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$departments has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/components/profiles/_poi-hover-card.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$category has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/components/vehload/_category-card.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$tiles has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/components/vehload/_category-card.php
-
-		-
 			message: '#^Variable \$canEdit on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 1
@@ -43,58 +25,10 @@ parameters:
 			path: assets/components/vehload/_category-card.php
 
 		-
-			message: '#^Function enotf_get_active_required\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/functions/enotf/conditions.php
-
-		-
-			message: '#^Function enotf_get_base_required\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/functions/enotf/conditions.php
-
-		-
-			message: '#^Function enotf_get_condition_additions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/functions/enotf/conditions.php
-
-		-
-			message: '#^Function enotf_get_condition_overrides\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/functions/enotf/conditions.php
-
-		-
-			message: '#^Function enotf_get_conditions_for_js\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: assets/functions/enotf/conditions.php
-
-		-
 			message: '#^Ternary operator condition is always true\.$#'
 			identifier: ternary.alwaysTrue
 			count: 2
 			path: config/container.php
-
-		-
-			message: '#^Method InsertIntraConfigDefaults04112025\:\:defaults\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: database/migrations/20250607000053_insert_intra_config_defaults_04112025.php
-
-		-
-			message: '#^Method AddPerformanceIndexes16012026\:\:addIndexIfMissing\(\) has parameter \$columns with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: database/migrations/20250607000103_add_performance_indexes_16012026.php
-
-		-
-			message: '#^Method AddPerformanceIndexes16012026\:\:addIndexIfMissing\(\) has parameter \$options with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: database/migrations/20250607000103_add_performance_indexes_16012026.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between array and null will always evaluate to false\.$#'
@@ -121,46 +55,10 @@ parameters:
 			path: plugins/enotf-v2/src/Controllers/Api/ShareApiController.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Controllers\\LoginController\:\:crewArrayToStruct\(\) has parameter \$crew with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/LoginController.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Controllers\\LoginController\:\:crewArrayToStruct\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/src/Controllers/LoginController.php
-
-		-
 			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: plugins/enotf-v2/src/Controllers/LoginController.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Helpers\\EnotfV2Url\:\:api\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/src/Helpers/EnotfV2Url.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Helpers\\EnotfV2Url\:\:appendParams\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/src/Helpers/EnotfV2Url.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Helpers\\EnotfV2Url\:\:page\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/src/Helpers/EnotfV2Url.php
-
-		-
-			message: '#^Method Plugin\\EnotfV2\\Helpers\\EnotfV2Url\:\:v1Api\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/src/Helpers/EnotfV2Url.php
 
 		-
 			message: '#^Method Plugin\\EnotfV2\\Models\\EdiviQmLog\:\:protokoll\(\) has no return type specified\.$#'
@@ -211,18 +109,6 @@ parameters:
 			path: plugins/enotf-v2/templates/_layout-protokoll.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$crew has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/templates/create.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$crew has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/templates/loggedout.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between ''beifahrer''\|''praktikant'' and ''fahrer'' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
@@ -233,12 +119,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: plugins/enotf-v2/templates/login.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$crew has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/templates/overview.php
 
 		-
 			message: '#^Parameter \#1 \$array \(array\{1, 2, 3, 4, 5, 6, 7, 8, \.\.\.\}\) of array_values is already a list, call has no effect\.$#'
@@ -259,58 +139,16 @@ parameters:
 			path: plugins/enotf-v2/templates/protokoll/erstbefund.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$crew has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/index.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$protokoll has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/section-stub.php
-
-		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\) with array\{''''\}\|array\{''links'', ''rechts''\} and ''Lokation anderer…''\|''Lokation Bein ohne…''\|''Lokation Ellbeuge…''\|''Lokation Fuß ohne…''\|''Lokation Hals ohne…''\|''Lokation Handrücken…''\|''Lokation Humerus…''\|''Lokation Kopf ohne…''\|''Lokation Oberarm…''\|''Lokation Sonstige…''\|''Lokation Sternum…''\|''Lokation Tibia…''\|''Lokation Unterarm…'' will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
 			path: plugins/enotf-v2/tests/Unit/EnotfV2CatalogsTest.php
 
 		-
-			message: '#^Method Plugin\\EnotfV2\\Tests\\Unit\\EnotfV2ProtokollAccessGuardTest\:\:protokoll\(\) has parameter \$overrides with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf-v2/tests/Unit/EnotfV2ProtokollAccessGuardTest.php
-
-		-
 			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: plugins/enotf/routes.web.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Controllers\\Api\\EnotfController\:\:handleShareMerge\(\) has parameter \$reqData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Controllers\\Api\\EnotfController\:\:handleShareMerge\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Controllers\\Api\\EnotfController\:\:handleShareNewProtocol\(\) has parameter \$reqData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Controllers\\Api\\EnotfController\:\:handleShareNewProtocol\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>pat_nachname" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -331,28 +169,10 @@ parameters:
 			path: plugins/enotf/src/Controllers/Api/EnotfController.php
 
 		-
-			message: '#^Method Plugin\\Enotf\\Controllers\\EnotfController\:\:crewArrayToStruct\(\) has parameter \$crew with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Controllers/EnotfController.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Controllers\\EnotfController\:\:crewArrayToStruct\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Controllers/EnotfController.php
-
-		-
 			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: plugins/enotf/src/Controllers/EnotfController.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\EnotfSession\:\:updateCrew\(\) has parameter \$crew with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/EnotfSession.php
 
 		-
 			message: '#^Offset ''fahrername'' on array\{fahrername\: string, fahrerquali\: string\|null, beifahrername\: string\|null, beifahrerquali\: string\|null, praktikantname\: string\|null, praktikantquali\: string\|null\} on left side of \?\? always exists and is not nullable\.$#'
@@ -365,36 +185,6 @@ parameters:
 			identifier: constructor.unusedParameter
 			count: 1
 			path: plugins/enotf/src/Helpers/BloodSugarHelper.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Helpers\\EnotfUrl\:\:admin\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Helpers/EnotfUrl.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Helpers\\EnotfUrl\:\:adminZielverwaltung\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Helpers/EnotfUrl.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Helpers\\EnotfUrl\:\:appendParams\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Helpers/EnotfUrl.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Helpers\\EnotfUrl\:\:page\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Helpers/EnotfUrl.php
-
-		-
-			message: '#^Method Plugin\\Enotf\\Helpers\\EnotfUrl\:\:schnittstelle\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/enotf/src/Helpers/EnotfUrl.php
 
 		-
 			message: '#^Result of && is always false\.$#'
@@ -631,78 +421,6 @@ parameters:
 			path: plugins/firetab/src/Controllers/FiretabController.php
 
 		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionAddAsu\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionAddSitrep\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionAddVehicle\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionArchive\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionDeleteAsu\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionFinalize\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionRemoveVehicle\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionSetStatus\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionUnarchive\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionUpdateAsu\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionUpdateCore\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Method Plugin\\Firetab\\Controllers\\FiretabController\:\:actionUpdateNotes\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
 			message: '#^Offset 0\|1\|2\|3\|4 on array\{''Ungesehen'', ''In Prüfung'', ''Freigegeben'', ''Ungenügend'', ''Ausgeblendet''\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 2
@@ -719,18 +437,6 @@ parameters:
 			identifier: identical.alwaysFalse
 			count: 3
 			path: plugins/firetab/src/Controllers/FiretabController.php
-
-		-
-			message: '#^Property Plugin\\Firetab\\Models\\FireIncident\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Models/FireIncident.php
-
-		-
-			message: '#^Property Plugin\\Firetab\\Models\\FireIncidentVehicle\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/src/Models/FireIncidentVehicle.php
 
 		-
 			message: '#^Result of && is always false\.$#'
@@ -835,18 +541,6 @@ parameters:
 			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$existingProtocol has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/templates/firetab/asu.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$statusConfig has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/firetab/templates/firetab/status-reports.php
-
-		-
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
 			count: 1
@@ -889,136 +583,10 @@ parameters:
 			path: plugins/knowledge-base/src/Controllers/LexiconController.php
 
 		-
-			message: '#^Method Plugin\\KnowledgeBase\\KBHelper\:\:getCompetencyInfo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/knowledge-base/src/KBHelper.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLage\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLage.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLage\:\:getAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLage.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLage\:\:getById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLage.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLage\:\:getStatistics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLage.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLage\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLage.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLog\:\:getByLage\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLog.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVLog\:\:getByReference\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVLog.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVPatient\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVPatient.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVPatient\:\:getById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVPatient.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVPatient\:\:getByLage\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVPatient.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVPatient\:\:search\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVPatient.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVPatient\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVPatient.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVRessource\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVRessource.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVRessource\:\:getAvailableVehicles\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVRessource.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVRessource\:\:getById\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVRessource.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVRessource\:\:getByLage\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVRessource.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Models\\MANVRessource\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/src/Models/MANVRessource.php
-
-		-
-			message: '#^Method Plugin\\ManvBoard\\Tests\\Unit\\MciPolicyTest\:\:loginWith\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: plugins/manv-board/tests/Unit/MciPolicyTest.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: public/index.php
-
-		-
-			message: '#^Method App\\Auth\\Permissions\:\:check\(\) has parameter \$requiredPermissions with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Auth/Permissions.php
-
-		-
-			message: '#^Method App\\Auth\\Permissions\:\:retrieveFromDatabase\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Auth/Permissions.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
@@ -1045,20 +613,8 @@ parameters:
 			path: src/Calendar/AttendeeResolver.php
 
 		-
-			message: '#^Method App\\Calendar\\ConflictDetector\:\:describeConflictsForAttendees\(\) has parameter \$mitarbeiterIds with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Calendar/ConflictDetector.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
 			identifier: method.notFound
-			count: 1
-			path: src/Calendar/IcalExporter.php
-
-		-
-			message: '#^Method App\\Calendar\\IcalExporter\:\:foldAndJoin\(\) has parameter \$lines with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: src/Calendar/IcalExporter.php
 
@@ -1069,220 +625,10 @@ parameters:
 			path: src/Calendar/IcalExporter.php
 
 		-
-			message: '#^Method App\\Calendar\\RecurrenceExpander\:\:loadExceptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Calendar/RecurrenceExpander.php
-
-		-
-			message: '#^Method App\\Calendar\\RecurrenceExpander\:\:nextOccurrence\(\) has parameter \$rule with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Calendar/RecurrenceExpander.php
-
-		-
-			message: '#^Method App\\Calendar\\RecurrenceExpander\:\:parseRule\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Calendar/RecurrenceExpander.php
-
-		-
-			message: '#^Method App\\Config\\ConfigManager\:\:getAllConfig\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Config/ConfigManager.php
-
-		-
-			message: '#^Method App\\Config\\ConfigManager\:\:getConfigByCategory\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Config/ConfigManager.php
-
-		-
-			message: '#^Method App\\Config\\ConfigManager\:\:updateMultiple\(\) has parameter \$updates with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Config/ConfigManager.php
-
-		-
-			message: '#^Method App\\Config\\ConfigManager\:\:updateMultiple\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Config/ConfigManager.php
-
-		-
-			message: '#^Property App\\Config\\ConfigManager\:\:\$configCache type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Config/ConfigManager.php
-
-		-
-			message: '#^Method App\\Database\\AutoMigrator\:\:buildLegacyToPhinxMapping\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Database/AutoMigrator.php
-
-		-
-			message: '#^Method App\\Database\\AutoMigrator\:\:hasPendingMigrations\(\) has parameter \$files with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Database/AutoMigrator.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between ''1337''\|''Berufsfeuerwehr''\|''CHANGE_ME''\|''Musterstadt''\|''Musterweg 0815'' and '''' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: src/Documents/Editor/VariableCatalog.php
-
-		-
-			message: '#^Method App\\Federation\\FederatedPersonnel\:\:getAllGrouped\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederatedPersonnel.php
-
-		-
-			message: '#^Method App\\Federation\\FederatedPersonnel\:\:getAllNames\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederatedPersonnel.php
-
-		-
-			message: '#^Method App\\Federation\\FederatedPersonnel\:\:getLeaderOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederatedPersonnel.php
-
-		-
-			message: '#^Method App\\Federation\\FederationMiddleware\:\:authenticate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationMiddleware.php
-
-		-
-			message: '#^Method App\\Federation\\FederationMiddleware\:\:requireProvidePermission\(\) has parameter \$link with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationMiddleware.php
-
-		-
-			message: '#^Method App\\Federation\\FederationMiddleware\:\:tryAuthenticate\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationMiddleware.php
-
-		-
-			message: '#^Method App\\Federation\\FederationMiddleware\:\:tryRequireProvidePermission\(\) has parameter \$link with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationMiddleware.php
-
-		-
-			message: '#^Method App\\Federation\\FederationPairingService\:\:createLink\(\) has parameter \$remoteInfo with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationPairingService\:\:getAllLinks\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationPairingService\:\:getLink\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationPairingService\:\:performHandshake\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationPairingService\:\:updateLinkSettings\(\) has parameter \$settings with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationPairingService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationSyncService\:\:fetchFromRemote\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationSyncService\:\:getActiveLink\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationSyncService\:\:getPersonnelSyncDueLinks\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationSyncService\:\:upsertEnotfCache\(\) has parameter \$protocol with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationSyncService\:\:upsertFireCache\(\) has parameter \$incident with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Method App\\Federation\\FederationSyncService\:\:upsertPersonnelCache\(\) has parameter \$person with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Federation/FederationSyncService.php
-
-		-
-			message: '#^Method App\\Helpers\\Flash\:\:get\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Flash.php
-
-		-
-			message: '#^Method App\\Helpers\\Flash\:\:set\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Flash.php
-
-		-
-			message: '#^Property App\\Helpers\\Flash\:\:\$defaultTitles type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Flash.php
-
-		-
-			message: '#^Method App\\Helpers\\MapCoordinates\:\:calculateScale\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/MapCoordinates.php
-
-		-
-			message: '#^Method App\\Helpers\\MapCoordinates\:\:gtaToMap\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/MapCoordinates.php
-
-		-
-			message: '#^Method App\\Helpers\\MapCoordinates\:\:mapToGta\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/MapCoordinates.php
-
-		-
-			message: '#^Method App\\Helpers\\ProtocolDetection\:\:validateBasePathConfiguration\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/ProtocolDetection.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between '''' and '''' will always evaluate to true\.$#'
@@ -1295,36 +641,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: src/Helpers/ProtocolDetection.php
-
-		-
-			message: '#^Method App\\Helpers\\Redirects\:\:addParamsToUrl\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Redirects.php
-
-		-
-			message: '#^Method App\\Helpers\\Redirects\:\:getRedirectUrl\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Redirects.php
-
-		-
-			message: '#^Method App\\Helpers\\Redirects\:\:redirect\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Redirects.php
-
-		-
-			message: '#^Method App\\Helpers\\Redirects\:\:redirectToRememberedPage\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Redirects.php
-
-		-
-			message: '#^Method App\\Helpers\\Redirects\:\:redirectWithSuccess\(\) has parameter \$params with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Helpers/Redirects.php
 
 		-
 			message: '#^Call to function is_array\(\) with array\<int, array\<string, mixed\>\> will always evaluate to true\.$#'
@@ -1405,36 +721,6 @@ parameters:
 			path: src/Http/Controllers/CalendarController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\CalendarController\:\:buildFromValidated\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\CalendarController\:\:flashConflictHint\(\) has parameter \$attendeeIds with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\CalendarController\:\:syncAttendees\(\) has parameter \$mitarbeiterIds with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\CalendarController\:\:syncVisibilityRoles\(\) has parameter \$roleIds with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\CalendarController\:\:toFullCalendarEvent\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Http/Controllers/CalendarController.php
-
-		-
 			message: '#^Ternary operator condition is always false\.$#'
 			identifier: ternary.alwaysFalse
 			count: 1
@@ -1457,12 +743,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 3
 			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Settings\\FahrzeugeController\:\:collectVehicleData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Http/Controllers/Settings/FahrzeugeController.php
 
 		-
 			message: '#^Result of && is always false\.$#'
@@ -1513,42 +793,6 @@ parameters:
 			path: src/Hub/ChangelogClient.php
 
 		-
-			message: '#^Method App\\Integrations\\DiscordWebhook\:\:loadWebhooks\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Integrations/DiscordWebhook.php
-
-		-
-			message: '#^Method App\\Integrations\\DiscordWebhook\:\:notifyEnotfPreregistration\(\) has parameter \$preregData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Integrations/DiscordWebhook.php
-
-		-
-			message: '#^Method App\\Integrations\\DiscordWebhook\:\:notifyEnotfProtocolReleased\(\) has parameter \$protocolData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Integrations/DiscordWebhook.php
-
-		-
-			message: '#^Method App\\Integrations\\DiscordWebhook\:\:notifyFireProtocolReleased\(\) has parameter \$incidentData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Integrations/DiscordWebhook.php
-
-		-
-			message: '#^Method App\\Integrations\\DiscordWebhook\:\:sendWebhook\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Integrations/DiscordWebhook.php
-
-		-
-			message: '#^Property App\\Integrations\\DiscordWebhook\:\:\$webhookCache type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Integrations/DiscordWebhook.php
-
-		-
 			message: '#^Call to function is_string\(\) with class\-string\<App\\Jobs\\Job\> will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1567,12 +811,6 @@ parameters:
 			path: src/Jobs/SerializedJob.php
 
 		-
-			message: '#^Method App\\Localization\\Lang\:\:get\(\) has parameter \$values with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Localization/Lang.php
-
-		-
 			message: '#^Method App\\Localization\\Lang\:\:setLanguage\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -1589,210 +827,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: src/Localization/Lang.php
-
-		-
-			message: '#^Method App\\Logging\\LogReader\:\:scanFileForErrorId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Logging/LogReader.php
-
-		-
-			message: '#^Property App\\Models\\AmbSkill\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/AmbSkill.php
-
-		-
-			message: '#^Property App\\Models\\CalendarAttendee\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/CalendarAttendee.php
-
-		-
-			message: '#^Property App\\Models\\CalendarEvent\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/CalendarEvent.php
-
-		-
-			message: '#^Property App\\Models\\CronJob\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/CronJob.php
-
-		-
-			message: '#^Property App\\Models\\CronRun\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/CronRun.php
-
-		-
-			message: '#^Property App\\Models\\FdSkill\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/FdSkill.php
-
-		-
-			message: '#^Property App\\Models\\Form\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Form.php
-
-		-
-			message: '#^Property App\\Models\\FormData\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/FormData.php
-
-		-
-			message: '#^Property App\\Models\\FormField\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/FormField.php
-
-		-
-			message: '#^Property App\\Models\\FormType\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/FormType.php
-
-		-
-			message: '#^Property App\\Models\\LogbookEntry\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/LogbookEntry.php
-
-		-
-			message: '#^Property App\\Models\\Notification\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Notification.php
-
-		-
-			message: '#^Property App\\Models\\Personnel\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Personnel.php
-
-		-
-			message: '#^Property App\\Models\\PersonnelDocument\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/PersonnelDocument.php
-
-		-
-			message: '#^Property App\\Models\\PersonnelLog\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/PersonnelLog.php
-
-		-
-			message: '#^Property App\\Models\\Rank\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Rank.php
-
-		-
-			message: '#^Property App\\Models\\RegistrationCode\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/RegistrationCode.php
-
-		-
-			message: '#^Class App\\Models\\Role has PHPDoc tag @property for property \$permissions with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Role.php
-
-		-
-			message: '#^Property App\\Models\\Role\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Role.php
-
-		-
-			message: '#^Class App\\Models\\User has PHPDoc tag @property for property \$theme_config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Property App\\Models\\User\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/User.php
-
-		-
-			message: '#^Property App\\Models\\Vehicle\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/Vehicle.php
-
-		-
-			message: '#^Property App\\Models\\VehicleDefect\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/VehicleDefect.php
-
-		-
-			message: '#^Property App\\Models\\VehicleDefectLog\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/VehicleDefectLog.php
-
-		-
-			message: '#^Property App\\Models\\VehicleImportQueueItem\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/VehicleImportQueueItem.php
-
-		-
-			message: '#^Property App\\Models\\VehicleTzTemplate\:\:\$casts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Models/VehicleTzTemplate.php
-
-		-
-			message: '#^Method App\\Personnel\\PersonalLogManager\:\:addEntry\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Method App\\Personnel\\PersonalLogManager\:\:getComments\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Method App\\Personnel\\PersonalLogManager\:\:getEntries\(\) has parameter \$typeFilter with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Method App\\Personnel\\PersonalLogManager\:\:getEntries\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Method App\\Personnel\\PersonalLogManager\:\:getSystemLogs\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Method App\\Personnel\\PersonalLogManager\:\:logProfileModification\(\) has parameter \$changedFields with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Personnel/PersonalLogManager.php
-
-		-
-			message: '#^Method App\\Plugins\\CatalogClient\:\:normalize\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Plugins/CatalogClient.php
 
 		-
 			message: '#^Offset ''size'' on array\{name\: string, index\: int, crc\: int, size\: int, mtime\: int, comp_size\: int, comp_method\: int, encryption_method\: int\} on left side of \?\? always exists and is not nullable\.$#'
@@ -1825,99 +859,15 @@ parameters:
 			path: src/Session/SessionManager.php
 
 		-
-			message: '#^Method App\\Session\\SessionManager\:\:loginEnotfCrew\(\) has parameter \$crew with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Session/SessionManager.php
-
-		-
-			message: '#^Method App\\Session\\SessionManager\:\:loginUser\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Session/SessionManager.php
-
-		-
-			message: '#^Method App\\Session\\SessionManager\:\:loginUser\(\) has parameter \$user with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Session/SessionManager.php
-
-		-
-			message: '#^Method App\\Session\\SessionManager\:\:setComposerPending\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Session/SessionManager.php
-
-		-
 			message: '#^Offset ''page'' on non\-empty\-array\<string, int\|string\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Support/ListQuery.php
 
 		-
-			message: '#^Method App\\Telemetry\\GlobalAnnouncementManager\:\:getActiveAnnouncements\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/GlobalAnnouncementManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\GlobalAnnouncementManager\:\:getAllCached\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/GlobalAnnouncementManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\GlobalAnnouncementManager\:\:getCacheInfo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/GlobalAnnouncementManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\GlobalAnnouncementManager\:\:refreshCache\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/GlobalAnnouncementManager.php
-
-		-
 			message: '#^Dead catch \- PDOException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 2
-			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\TelemetryManager\:\:collectData\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\TelemetryManager\:\:collectModuleInfo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\TelemetryManager\:\:collectStats\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\TelemetryManager\:\:collectSystemInfo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\TelemetryManager\:\:getDataPreview\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Method App\\Telemetry\\TelemetryManager\:\:sendHeartbeat\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
 			path: src/Telemetry/TelemetryManager.php
 
 		-
@@ -2269,42 +1219,6 @@ parameters:
 			path: templates/calendar/index.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$dginfo has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/personnel/profile.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$fwginfo has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/personnel/profile.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$panelakte has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/personnel/profile.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$pendingInvite has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/personnel/profile.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$rdginfo has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/personnel/profile.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$row has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: templates/personnel/profile.php
-
-		-
 			message: '#^Right side of && is always true\.$#'
 			identifier: booleanAnd.rightAlwaysTrue
 			count: 1
@@ -2365,60 +1279,6 @@ parameters:
 			path: tests/Feature/RoutesSmokeTest.php
 
 		-
-			message: '#^Method Tests\\FeatureTestCase\:\:actingAs\(\) has parameter \$extraSession with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/FeatureTestCase.php
-
-		-
-			message: '#^Method Tests\\Integration\\Federation\\FederationMiddlewareTest\:\:insertLink\(\) has parameter \$overrides with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Federation/FederationMiddlewareTest.php
-
-		-
-			message: '#^Property Tests\\Integration\\Http\\Controllers\\Api\\EmdSyncFwVehicleRegressionTest\:\:\$lhf type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Http/Controllers/Api/EmdSyncFwVehicleRegressionTest.php
-
-		-
-			message: '#^Property Tests\\Integration\\Http\\Controllers\\Api\\EmdSyncFwVehicleRegressionTest\:\:\$nef type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Http/Controllers/Api/EmdSyncFwVehicleRegressionTest.php
-
-		-
-			message: '#^Property Tests\\Integration\\Http\\Controllers\\Api\\EmdSyncFwVehicleRegressionTest\:\:\$rtw type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Http/Controllers/Api/EmdSyncFwVehicleRegressionTest.php
-
-		-
-			message: '#^Property Tests\\Integration\\Jobs\\FailedJobsReaderTest\:\:\$createdJobIds type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Jobs/FailedJobsReaderTest.php
-
-		-
-			message: '#^Property Tests\\Integration\\Models\\AntragTypModelTest\:\:\$cleanupAntragIds type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Models/AntragTypModelTest.php
-
-		-
-			message: '#^Method Tests\\Integration\\Models\\RegistrationCodeModelTest\:\:makeCode\(\) has parameter \$overrides with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Models/RegistrationCodeModelTest.php
-
-		-
-			message: '#^Property Tests\\Integration\\Models\\RegistrationCodeModelTest\:\:\$cleanupIds type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Integration/Models/RegistrationCodeModelTest.php
-
-		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
@@ -2429,66 +1289,6 @@ parameters:
 			identifier: method.alreadyNarrowedType
 			count: 2
 			path: tests/Unit/Events/EventDispatcherTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Events\\OrderProbeEvent\:\:__construct\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Events/EventDispatcherTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Http\\Controllers\\Api\\CharacterControllerTest\:\:jsonRequest\(\) has parameter \$body with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Http/Controllers/Api/CharacterControllerTest.php
-
-		-
-			message: '#^Property App\\Notifications\\NotificationManager@anonymous/tests/Unit/Http/Controllers/Api/NotificationControllerTest\.php\:124\:\:\$lastCall type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Http/Controllers/Api/NotificationControllerTest.php
-
-		-
-			message: '#^Property App\\Notifications\\NotificationManager@anonymous/tests/Unit/Http/Controllers/Api/NotificationControllerTest\.php\:51\:\:\$lastCall type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Http/Controllers/Api/NotificationControllerTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Http\\Requests\\Personnel\\UpdateProfileRequestTest\:\:validBase\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Http/Requests/Personnel/UpdateProfileRequestTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Http\\Validation\\AntragFieldValidatorTest\:\:field\(\) has parameter \$attrs with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Http/Validation/AntragFieldValidatorTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Http\\Validation\\FormRequestTest\:\:postJson\(\) has parameter \$body with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Http/Validation/FormRequestTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Policies\\FormsPolicyTest\:\:loginWith\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Policies/FormsPolicyTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Policies\\LogbookPolicyTest\:\:loginAdmin\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Policies/LogbookPolicyTest.php
-
-		-
-			message: '#^Method Tests\\Unit\\Policies\\LogbookPolicyTest\:\:makeFahrt\(\) has parameter \$attrs with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: tests/Unit/Policies/LogbookPolicyTest.php
 
 		-
 			message: '#^Method Tests\\Unit\\Utils\\SystemUpdaterHostingTest\:\:callPrivate\(\) has parameter \$arguments with no value type specified in iterable type array\.$#'

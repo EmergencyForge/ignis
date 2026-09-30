@@ -14,7 +14,7 @@
  * @var string $sectionTemplateFile               Absoluter Pfad (Section oder Stub)
  * @var bool   $istGesperrt
  * @var bool   $istUserGeloescht
- * @var array  $crew
+ * @var array<string, mixed> $crew
  */
 
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);

@@ -32,6 +32,7 @@ class FormType extends Model
 {
     protected $table = 'intra_antrag_typen';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'           => 'integer',
         'aktiv'        => 'boolean',

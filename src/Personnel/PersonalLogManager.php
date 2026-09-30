@@ -28,7 +28,7 @@ class PersonalLogManager
      * @param int $type Log entry type (use TYPE_* constants)
      * @param string $content Log entry content
      * @param string $panelUser User who created the entry
-     * @param array|null $metadata Additional structured data (optional)
+     * @param array<string, mixed>|null $metadata Additional structured data (optional)
      * @return int The ID of the created log entry
      */
     public function addEntry(
@@ -118,7 +118,7 @@ class PersonalLogManager
      *
      * @param int $profileId Employee profile ID
      * @param string $panelUser User who made the change
-     * @param array|null $changedFields Optional array of changed field names
+     * @param list<string>|null $changedFields Optional array of changed field names
      * @return int Log entry ID
      */
     public function logProfileModification(
@@ -232,8 +232,8 @@ class PersonalLogManager
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
      * @param int $perPage Items per page
-     * @param array|null $typeFilter Optional array of types to filter by
-     * @return array Array with 'entries' and 'total' keys
+     * @param list<int>|null $typeFilter Optional array of types to filter by
+     * @return array{entries: list<array<string, mixed>>, total: int} Array with 'entries' and 'total' keys
      */
     public function getEntries(int $profileId, int $page = 1, int $perPage = 6, ?array $typeFilter = null): array
     {
@@ -277,7 +277,7 @@ class PersonalLogManager
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
      * @param int $perPage Items per page
-     * @return array Array with 'entries' and 'total' keys
+     * @return array{entries: list<array<string, mixed>>, total: int} Array with 'entries' and 'total' keys
      */
     public function getComments(int $profileId, int $page = 1, int $perPage = 6): array
     {
@@ -295,7 +295,7 @@ class PersonalLogManager
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
      * @param int $perPage Items per page
-     * @return array Array with 'entries' and 'total' keys
+     * @return array{entries: list<array<string, mixed>>, total: int} Array with 'entries' and 'total' keys
      */
     public function getSystemLogs(int $profileId, int $page = 1, int $perPage = 6): array
     {

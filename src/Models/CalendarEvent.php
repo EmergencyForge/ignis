@@ -82,6 +82,7 @@ class CalendarEvent extends EloquentModel
         'orange', 'blue', 'green', 'red', 'purple', 'gray',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'               => 'integer',
         'source_ref_id'    => 'integer',

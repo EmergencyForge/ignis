@@ -120,6 +120,9 @@ class TelemetryManager
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function collectData(): array
     {
         return [
@@ -133,6 +136,9 @@ class TelemetryManager
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectSystemInfo(): array
     {
         return [
@@ -157,6 +163,9 @@ class TelemetryManager
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectStats(): array
     {
         $stats = [
@@ -294,6 +303,9 @@ class TelemetryManager
         return $stats;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectModuleInfo(): array
     {
         $modules = [
@@ -399,6 +411,9 @@ class TelemetryManager
         return (time() - strtotime($lastHeartbeat)) >= self::HEARTBEAT_INTERVAL;
     }
 
+    /**
+     * @return array<string, mixed> bool, message: string}
+     */
     public function sendHeartbeat(bool $force = false): array
     {
         if (!$this->isEnabled()) {
@@ -524,6 +539,9 @@ class TelemetryManager
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getDataPreview(): array
     {
         return $this->collectData();

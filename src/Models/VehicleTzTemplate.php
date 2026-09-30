@@ -24,6 +24,7 @@ class VehicleTzTemplate extends Model
 {
     protected $table = 'intra_fahrzeuge_tz_templates';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
     ];

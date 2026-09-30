@@ -163,6 +163,8 @@ final class IcalExporter
     /**
      * RFC 5545 line-folding: Zeilen ueber 75 Oktetten werden mit CRLF +
      * Leerzeichen-Continuation umgebrochen. Joint mit CRLF und finalem CRLF.
+     *
+     * @param list<string> $lines
      */
     private static function foldAndJoin(array $lines): string
     {

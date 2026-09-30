@@ -21,7 +21,10 @@ class EnotfV2ProtokollAccessGuardTest extends TestCase
         $_SESSION = [];
     }
 
-    /** @return array<string,mixed> */
+    /**
+     * @param array<string, mixed> $overrides
+     * @return array<string, mixed>
+     */
     private function protokoll(array $overrides = []): array
     {
         return array_merge([

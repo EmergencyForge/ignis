@@ -27,6 +27,8 @@ class FederatedPersonnel
      *
      * Each personnel entry has: id, fullname, dienstnr, dienstgrad_name, dienstgrad_badge,
      * quali_rd, is_remote, federation_id (for remote entries).
+     *
+     * @return list<array{source: string|null, source_name: string, personnel: list<array<string, mixed>>}>
      */
     public static function getAllGrouped(?PDO $pdo = null): array
     {
@@ -131,6 +133,8 @@ class FederatedPersonnel
      *   ['fullname' => 'Max Mustermann', 'source_name' => null],
      *   ['fullname' => 'Anna Schmidt', 'source_name' => 'Rettungsdienst'],
      * ]
+     *
+     * @return list<array{fullname: string, source_name: string|null}>
      */
     public static function getAllNames(?PDO $pdo = null): array
     {
@@ -171,7 +175,7 @@ class FederatedPersonnel
      * Get all personnel as options for a leader dropdown.
      * Returns local IDs as integers, remote IDs as "fed:{instance_id}:{remote_id}".
      *
-     * @return array[] Each: ['id' => int|string, 'fullname' => string, 'source_name' => string|null]
+     * @return list<array{id: int|string, fullname: string, source_name: string|null}> Each: ['id' => int|string, 'fullname' => string, 'source_name' => string|null]
      */
     public static function getLeaderOptions(?PDO $pdo = null): array
     {

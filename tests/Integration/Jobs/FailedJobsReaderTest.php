@@ -34,6 +34,7 @@ class FailedJobsReaderTest extends IntegrationTestCase
 
     /** @var list<int> IDs die wir für Cleanup merken */
     private array $createdFailedIds = [];
+    /** @var list<int> */
     private array $createdJobIds    = [];
 
     protected function setUp(): void

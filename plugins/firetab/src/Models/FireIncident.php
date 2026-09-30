@@ -95,6 +95,7 @@ class FireIncident extends EloquentModel
         self::STATUS_HIDDEN       => 'bg-dark',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'                => 'integer',
         'leader_id'         => 'integer',

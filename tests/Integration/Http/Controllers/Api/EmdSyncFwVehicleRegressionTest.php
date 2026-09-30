@@ -43,8 +43,11 @@ class EmdSyncFwVehicleRegressionTest extends IntegrationTestCase
     // über die eindeutig zufällige Dispatch-ID.
     protected bool $useTransactions = false;
 
+    /** @var array<string, mixed> */
     private array $rtw;
+    /** @var array<string, mixed> */
     private array $nef;
+    /** @var array<string, mixed> */
     private array $lhf;
     private string $dispatchId;
 

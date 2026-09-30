@@ -32,6 +32,7 @@ class Rank extends Model
 {
     protected $table = 'intra_mitarbeiter_dienstgrade';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'priority'   => 'integer',

@@ -33,6 +33,9 @@ class Redirects
         return ($refererHostWithPort === $currentHost && $refererScheme === $currentScheme);
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function getRedirectUrl(string $defaultUrl, array $params = []): string
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -46,6 +49,9 @@ class Redirects
         return self::addParamsToUrl($defaultUrl, $params);
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     private static function addParamsToUrl(string $url, array $params): string
     {
         if (empty($params)) {
@@ -58,6 +64,9 @@ class Redirects
         return $url . $separator . $queryString;
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function redirectWithSuccess(string $defaultUrl, array $params = ['success' => 1]): void
     {
         $redirectUrl = self::getRedirectUrl($defaultUrl, $params);
@@ -65,6 +74,9 @@ class Redirects
         exit();
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function redirect(string $defaultUrl, array $params = []): void
     {
         $redirectUrl = self::getRedirectUrl($defaultUrl, $params);
@@ -84,6 +96,9 @@ class Redirects
         }
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function redirectToRememberedPage(string $defaultUrl, string $sessionKey = 'redirect_after', array $params = ['success' => 1]): void
     {
         if (session_status() === PHP_SESSION_NONE) {

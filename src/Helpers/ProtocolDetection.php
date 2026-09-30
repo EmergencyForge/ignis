@@ -147,6 +147,9 @@ class ProtocolDetection
         return $baseUrl . $fullPath;
     }
 
+    /**
+     * @return list<string>  Warnungen, leer bei gültiger Konfiguration
+     */
     public static function validateBasePathConfiguration(): array
     {
         $warnings = [];

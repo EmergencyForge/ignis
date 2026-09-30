@@ -58,6 +58,7 @@ class VehicleDefect extends Model
         'resolved'    => ['Gelöst', 'ok'],
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'vehicle_id' => 'integer',

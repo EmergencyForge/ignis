@@ -91,6 +91,8 @@ class AutoMigrator
     /**
      * Prüft ob in der phinxlog-Tabelle alle Migrations-Dateien als „up"
      * vermerkt sind. Verlässt sich auf das `{timestamp}_…`-Filenamen-Pattern.
+     *
+     * @param list<string> $files
      */
     private function hasPendingMigrations(array $files): bool
     {
@@ -228,6 +230,8 @@ HTML;
      *
      * Phinx-Migration-Filenames haben das Format: {timestamp}_{legacy_stem}.php
      * Klassennamen sind die CamelCase-Variante des legacy_stem.
+     *
+     * @return array<string, array{string, string}>
      */
     private function buildLegacyToPhinxMapping(): array
     {

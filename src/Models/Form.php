@@ -46,6 +46,7 @@ class Form extends Model
         self::STATUS_ACCEPTED    => 'Angenommen',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'            => 'integer',
         'antragstyp_id' => 'integer',

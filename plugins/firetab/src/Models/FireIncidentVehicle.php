@@ -29,6 +29,7 @@ class FireIncidentVehicle extends Model
 {
     protected $table = 'intra_fire_incident_vehicles';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'             => 'integer',
         'incident_id'    => 'integer',

@@ -1315,7 +1315,12 @@ final class EnotfController
         return ($name !== '' && $quali !== '') ? "{$name} ({$quali})" : null;
     }
 
-    /** Share-Merge: Quelldaten in bestehendes Protokoll übernehmen. */
+    /**
+     * Share-Merge: Quelldaten in bestehendes Protokoll übernehmen.
+     *
+     * @param array<string, mixed> $reqData
+     * @return array{error: string|null}
+     */
     private function handleShareMerge(
         array $reqData, string $targetEnr, string $currentVehicle, bool $isDoctorVehicle,
         string $fzgField, string $persoField1, string $persoField2, string $persoField3,
@@ -1358,7 +1363,12 @@ final class EnotfController
         return ['error' => null];
     }
 
-    /** Share-New: Neues Protokoll aus Quelldaten + aktuellem Fahrzeug erstellen. */
+    /**
+     * Share-New: Neues Protokoll aus Quelldaten + aktuellem Fahrzeug erstellen.
+     *
+     * @param array<string, mixed> $reqData
+     * @return array{new_enr: string}
+     */
     private function handleShareNewProtocol(
         array $reqData, string $currentVehicle, string $fzgField,
         string $persoField1, string $persoField2, string $persoField3,

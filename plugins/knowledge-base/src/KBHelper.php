@@ -11,7 +11,7 @@ class KBHelper
      * Get competency level information including colors and labels
      * 
      * @param string|null $level The competency level key
-     * @return array|null Competency information or null if not found
+     * @return array<string, string>|null Competency information or null if not found
      */
     public static function getCompetencyInfo(?string $level): ?array
     {

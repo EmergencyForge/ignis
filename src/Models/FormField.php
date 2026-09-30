@@ -33,6 +33,7 @@ class FormField extends Model
 {
     protected $table = 'intra_antrag_felder';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'            => 'integer',
         'antragstyp_id' => 'integer',

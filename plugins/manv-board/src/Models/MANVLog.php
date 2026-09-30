@@ -30,6 +30,8 @@ class MANVLog
 
     /**
      * Ruft alle Log-Einträge einer MANV-Lage ab
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getByLage(int $lageId, int $limit = 100): array
     {
@@ -44,6 +46,8 @@ class MANVLog
 
     /**
      * Ruft Log-Einträge für eine bestimmte Referenz ab
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getByReference(int $lageId, string $referenzTyp, int $referenzId): array
     {

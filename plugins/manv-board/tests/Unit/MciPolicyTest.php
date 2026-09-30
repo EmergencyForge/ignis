@@ -23,6 +23,9 @@ class MciPolicyTest extends TestCase
         $_SESSION = [];
     }
 
+    /**
+     * @param list<string> $permissions
+     */
     private function loginWith(array $permissions): void
     {
         $_SESSION['userid']      = 42;

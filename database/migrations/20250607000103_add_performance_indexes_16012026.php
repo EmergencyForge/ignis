@@ -110,6 +110,10 @@ class AddPerformanceIndexes16012026 extends AbstractMigration
         // würde solche Indizes mit entfernen. Die Indizes sind rein additiv.
     }
 
+    /**
+     * @param list<string> $columns
+     * @param array<string, mixed> $options
+     */
     private function addIndexIfMissing(string $tableName, string $indexName, array $columns, array $options = []): void
     {
         if (!$this->hasTable($tableName)) {

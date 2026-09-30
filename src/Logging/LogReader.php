@@ -306,6 +306,9 @@ class LogReader
 
     // ── Internals ─────────────────────────────────────────────
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function scanFileForErrorId(string $path, string $errorId): ?array
     {
         $needleA = '[' . $errorId . ']';

@@ -22,6 +22,7 @@ class VehicleDefectLog extends Model
 {
     protected $table = 'intra_fahrzeuge_defect_log';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'        => 'integer',
         'defect_id' => 'integer',

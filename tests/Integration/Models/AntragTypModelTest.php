@@ -13,6 +13,7 @@ use Tests\IntegrationTestCase;
 class AntragTypModelTest extends IntegrationTestCase
 {
     private int $typId;
+    /** @var list<int> */
     private array $cleanupAntragIds = [];
 
     protected function setUp(): void

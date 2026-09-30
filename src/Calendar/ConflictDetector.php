@@ -67,6 +67,8 @@ final class ConflictDetector
      * Bequemer aggregierter Check — gibt eine kurze Zusammenfassung
      * zurueck, geeignet fuer Flash::warning(). Leerer String wenn keine
      * Konflikte.
+     *
+     * @param array<int> $mitarbeiterIds
      */
     public static function describeConflictsForAttendees(
         array $mitarbeiterIds,

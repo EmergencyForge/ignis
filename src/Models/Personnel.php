@@ -49,6 +49,7 @@ class Personnel extends Model
     public const GENDER_FEMALE = 1;
     public const GENDER_DIVERSE = 2;
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'          => 'integer',
         'geschlecht'  => 'integer',

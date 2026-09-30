@@ -548,6 +548,9 @@ class FiretabController extends Controller
 
     // ── Individual action methods ──────────────────────────
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionAddVehicle(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -592,6 +595,9 @@ class FiretabController extends Controller
         Flash::success('Einsatzmittel hinzugefügt.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionRemoveVehicle(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -623,6 +629,9 @@ class FiretabController extends Controller
         Flash::success('Fahrzeug entfernt.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionAddSitrep(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -665,6 +674,9 @@ class FiretabController extends Controller
         Flash::success('Lagemeldung gespeichert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionFinalize(int $id, array $incident): void
     {
         $inc = Capsule::table('intra_fire_incidents')->where('id', $id)
@@ -710,6 +722,9 @@ class FiretabController extends Controller
         Flash::success('Protokoll zur QM-Sichtung markiert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionSetStatus(int $id, array $incident): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
@@ -751,6 +766,9 @@ class FiretabController extends Controller
         Flash::success('Status aktualisiert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUpdateNotes(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -769,6 +787,9 @@ class FiretabController extends Controller
         Flash::success('Einsatzgeschehen gespeichert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUpdateCore(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -814,6 +835,9 @@ class FiretabController extends Controller
         Flash::success('Einsatzdaten gespeichert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionAddAsu(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -865,6 +889,9 @@ class FiretabController extends Controller
         }
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUpdateAsu(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -919,6 +946,9 @@ class FiretabController extends Controller
         }
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionDeleteAsu(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -946,6 +976,9 @@ class FiretabController extends Controller
         Flash::success('ASU-Protokoll gelöscht.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionArchive(int $id, array $incident): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
@@ -970,6 +1003,9 @@ class FiretabController extends Controller
         $this->redirect('einsatz/admin/list');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUnarchive(int $id, array $incident): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {

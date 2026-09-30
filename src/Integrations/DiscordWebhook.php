@@ -12,12 +12,13 @@ use PDOException;
  */
 class DiscordWebhook
 {
+    /** @var array<string, string>|null */
     private static ?array $webhookCache = null;
 
     /**
      * Load webhook URLs from config
      *
-     * @return array Array of webhook URLs by type
+     * @return array<string, string> Array of webhook URLs by type
      */
     private function loadWebhooks(): array
     {
@@ -64,7 +65,7 @@ class DiscordWebhook
     /**
      * Send notification about released eNOTF protocol
      * 
-     * @param array $protocolData Protocol data (enr, last_edit, etc.)
+     * @param array<string, mixed> $protocolData Protocol data (enr, last_edit, etc.)
      * @return bool Success status
      */
     public function notifyEnotfProtocolReleased(array $protocolData): bool
@@ -111,7 +112,7 @@ class DiscordWebhook
     /**
      * Send notification about released fireTab protocol
      * 
-     * @param array $incidentData Incident data (id, incident_number, location, keyword, etc.)
+     * @param array<string, mixed> $incidentData Incident data (id, incident_number, location, keyword, etc.)
      * @return bool Success status
      */
     public function notifyFireProtocolReleased(array $incidentData): bool
@@ -177,7 +178,7 @@ class DiscordWebhook
     /**
      * Send notification about new eNOTF pre-registration
      * 
-     * @param array $preregData Pre-registration data (id, priority, arrival, diagnose, etc.)
+     * @param array<string, mixed> $preregData Pre-registration data (id, priority, arrival, diagnose, etc.)
      * @return bool Success status
      */
     public function notifyEnotfPreregistration(array $preregData): bool
@@ -304,7 +305,7 @@ class DiscordWebhook
      * Send webhook to Discord
      * 
      * @param string $webhookUrl Discord webhook URL
-     * @param array $payload JSON payload
+     * @param array<string, mixed> $payload JSON payload
      * @return bool Success status
      */
     private function sendWebhook(string $webhookUrl, array $payload): bool

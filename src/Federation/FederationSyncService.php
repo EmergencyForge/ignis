@@ -77,6 +77,8 @@ class FederationSyncService
 
     /**
      * Upsert a single personnel record into the cache.
+     *
+     * @param array<string, mixed> $person
      */
     private function upsertPersonnelCache(string $sourceInstanceId, array $person): void
     {
@@ -122,7 +124,7 @@ class FederationSyncService
     /**
      * Fetch JSON data from a remote federation endpoint.
      *
-     * @return array Decoded JSON response
+     * @return array<string, mixed> Decoded JSON response
      */
     private function fetchFromRemote(string $url, string $apiKey): array
     {
@@ -203,6 +205,8 @@ class FederationSyncService
 
     /**
      * Get an active link by ID.
+     *
+     * @return array<string, mixed>|null
      */
     private function getActiveLink(int $linkId): ?array
     {
@@ -362,6 +366,8 @@ class FederationSyncService
 
     /**
      * Upsert a single eNOTF protocol into the cache.
+     *
+     * @param array<string, mixed> $protocol
      */
     private function upsertEnotfCache(string $sourceInstanceId, array $protocol): void
     {
@@ -382,6 +388,8 @@ class FederationSyncService
 
     /**
      * Upsert a single fire incident into the cache.
+     *
+     * @param array<string, mixed> $incident
      */
     private function upsertFireCache(string $sourceInstanceId, array $incident): void
     {
@@ -431,7 +439,7 @@ class FederationSyncService
     /**
      * Get all links that need a personnel sync.
      *
-     * @return array[] Links where consume_personnel=1 and sync is due
+     * @return array<int, array<string, mixed>> Links where consume_personnel=1 and sync is due
      */
     public function getPersonnelSyncDueLinks(): array
     {
