@@ -1,7 +1,7 @@
 <!-- Toast container managed by global toasts.js -->
 <script>
     $(document).ready(function() {
-        const enr = <?= json_encode($enr) ?>;
+        const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
         $('input[name="psych[]"]').addClass('medikament-field-ignore');
         $('input[name="ebesonderheiten[]"]').addClass('medikament-field-ignore');
@@ -225,7 +225,7 @@
             }
         }
 
-        window.__dynamicDaten = <?= json_encode($daten) ?>;
+        window.__dynamicDaten = <?= json_encode($daten, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         updateNavFillStates(window.__dynamicDaten);
         validateLinks();
 
@@ -530,7 +530,7 @@
                 return;
             }
 
-            const pfname = <?= json_encode($daten['pfname']) ?>;
+            const pfname = <?= json_encode($daten['pfname'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             if (!pfname || pfname.trim() === "") {
                 showToast("Kein Protokollant angegeben", 'error');
                 return;

@@ -305,7 +305,7 @@ function displayAllMedikamente($medikamenteJson)
     foreach ($medikamente as $med) {
         $displayEinheit = $med['einheit'];
         if ($displayEinheit === 'mcg') {
-            $displayEinheit = '&micro;g';
+            $displayEinheit = 'µg';
         } else if ($displayEinheit === 'IE') {
             $displayEinheit = 'I.E.';
         }
@@ -347,7 +347,7 @@ if (!empty($daten['rettungstechnik'])) {
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -492,14 +492,14 @@ if (!empty($daten['rettungstechnik'])) {
                                 <div class="col">
                                     <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Zugänge <i id="icon-zugang_display" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
-                                        <input type="hidden" name="zugang_display" class="edivi__input-check" value="<?= $daten['c_zugang'] !== null ? $daten['c_zugang'] : '' ?>">
+                                        <input type="hidden" name="zugang_display" class="edivi__input-check" value="<?= e($daten['c_zugang']) ?>">
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="pvk" class="edivi__description">PVK</label>
-                                                            <textarea name="pvk" id="pvk" class="w-100 ignis-input" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'pvk') ?></textarea>
+                                                            <textarea name="pvk" id="pvk" class="w-100 ignis-input" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= e(displayZugaengeByArtText($daten['c_zugang'] ?? '', 'pvk')) ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -507,7 +507,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="io" class="edivi__description">intraossär</label>
-                                                            <textarea name="io" id="io" class="w-100 ignis-input" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'io') ?></textarea>
+                                                            <textarea name="io" id="io" class="w-100 ignis-input" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= e(displayZugaengeByArtText($daten['c_zugang'] ?? '', 'io')) ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -526,7 +526,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="medikamente" class="edivi__description" style="display: none;">Medikamente</label>
-                                                            <textarea name="medikamente" id="medikamente" class="w-100 ignis-input edivi__input-check" style="height: 36vh; overflow-y: auto; resize: vertical;" readonly><?= displayAllMedikamente($daten['medis'] ?? '') ?></textarea>
+                                                            <textarea name="medikamente" id="medikamente" class="w-100 ignis-input edivi__input-check" style="height: 36vh; overflow-y: auto; resize: vertical;" readonly><?= e(displayAllMedikamente($daten['medis'] ?? '')) ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>

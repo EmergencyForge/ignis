@@ -221,7 +221,7 @@ if (!empty($diagnose_weitere_array)) {
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -288,7 +288,7 @@ if (!empty($diagnose_weitere_array)) {
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="diagnose_text" class="edivi__description" style="display: none;">Diagnose Text</label>
-                                                    <textarea name="diagnose_text" id="diagnose_text" rows="5" class="w-100 ignis-input" style="resize: none" readonly><?= $daten['diagnose'] ?></textarea>
+                                                    <textarea name="diagnose_text" id="diagnose_text" rows="5" class="w-100 ignis-input" style="resize: none" readonly><?= e($daten['diagnose']) ?></textarea>
                                                 </div>
                                             </div>
                                         </div>

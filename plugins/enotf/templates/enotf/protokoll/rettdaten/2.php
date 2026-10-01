@@ -59,7 +59,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
     <style>
@@ -218,7 +218,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="edivi__freigabe-buttons">
                         <div class="row">
                             <div class="col">
-                                <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
+                                <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>">zurück</a>
                             </div>
                             <div class="col">
                                 <a href="#" id="save-address-btn">speichern</a>
@@ -388,7 +388,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         document.getElementById('save-address-btn').addEventListener('click', function(e) {
             e.preventDefault();
 
-            const enr = <?= json_encode($enr) ?>;
+            const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
             // POI-Name und Adressfelder auslesen
             const poi = document.getElementById('ziel_poi').value;
@@ -423,7 +423,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                         // Optional: Zurück zur Hauptseite nach kurzer Verzögerung
                         setTimeout(function() {
-                            window.location.href = '<?= Redirects::getRedirectUrl($defaultUrl); ?>';
+                            window.location.href = <?= json_encode(Redirects::getRedirectUrl($defaultUrl), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
                         }, 1000);
                     } else {
                         showToast('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'), 'error');
@@ -464,7 +464,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         // Sonderrechte Transport Tri-State Toggle: leer → nein → ja → leer
         (function() {
             var btn = document.getElementById('btn-sonderrechte-transport');
-            var currentValue = <?= json_encode($daten['sonderrechte_transport'] ?? null) ?>;
+            var currentValue = <?= json_encode($daten['sonderrechte_transport'] ?? null, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
             btn.addEventListener('click', function() {
                 if (currentValue === null || currentValue === '') {
@@ -490,7 +490,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
             function saveValue() {
                 var formData = new FormData();
-                formData.append('enr', <?= json_encode($enr) ?>);
+                formData.append('enr', <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>);
                 formData.append('field', 'sonderrechte_transport');
                 formData.append('value', currentValue || '');
                 fetch('<?= BASE_PATH ?>api/enotf/save-fields', { method: 'POST', body: formData });

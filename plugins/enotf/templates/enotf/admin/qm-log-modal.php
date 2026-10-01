@@ -35,7 +35,7 @@ if ($row === null) {
                 <div class='edivi__box edivi__log-comment mb-3 flex align-items-center gap-3'>
                     <div class="flex h-8 w-8 align-items-center justify-center"><i class="fa-solid fa-circle-info"></i></div>
                     <div class='col'>
-                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= $log_row['timestamp'] ?></small>
+                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= e($log_row['timestamp']) ?></small>
                         <p class='mb-0'><?= htmlspecialchars($log_row['kommentar']) ?></p>
                     </div>
                 </div>
@@ -45,8 +45,8 @@ if ($row === null) {
                 <div class='edivi__box edivi__log-comment mb-3 flex align-items-center gap-3'>
                     <div class="flex h-8 w-8 align-items-center justify-center"><i class="fa-solid fa-gear"></i></div>
                     <div class='col'>
-                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= $log_row['timestamp'] ?></small>
-                        <p class='mb-0'><?= $log_row['kommentar'] ?></p>
+                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= e($log_row['timestamp']) ?></small>
+                        <p class='mb-0'><?= preg_match('~^<span class="ignis-chip(?: ignis-chip--\w+)?">[\p{L} ]+</span>$~u', (string) $log_row['kommentar']) === 1 ? $log_row['kommentar'] : e($log_row['kommentar']) ?></p>
                     </div>
                 </div>
     <?php

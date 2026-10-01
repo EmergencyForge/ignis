@@ -63,7 +63,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Metas -->
 <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
 <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
-<meta property="og:url" content="<?= $prot_url ?>" />
+<meta property="og:url" content="<?= e($prot_url) ?>" />
 <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
 <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
 <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />

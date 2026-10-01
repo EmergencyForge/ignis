@@ -103,7 +103,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -197,7 +197,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="enr" class="edivi__description">Einsatznummer</label>
-                                            <input type="text" name="enr" id="enr" class="w-100 ignis-input" value="<?= $_GET['enr'] ?>" readonly>
+                                            <input type="text" name="enr" id="enr" class="w-100 ignis-input" value="<?= e($_GET['enr']) ?>" readonly>
                                         </div>
                                         <div class="col">
                                             <label for="edatum" class="edivi__description">Einsatzdatum</label>
@@ -205,7 +205,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         </div>
                                         <div class="col">
                                             <label for="ezeit" class="edivi__description">Einsatzzeit</label>
-                                            <input type="time" name="ezeit" id="ezeit" class="w-100 ignis-input edivi__input-check" value="<?= $daten['ezeit'] ?>" required>
+                                            <input type="time" name="ezeit" id="ezeit" class="w-100 ignis-input edivi__input-check" value="<?= e($daten['ezeit']) ?>" required>
                                         </div>
                                     </div>
                                     <div class="row my-2">
@@ -416,7 +416,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const zeitFelder = ['salarm', 's1', 's2', 's3', 's4', 'spat', 's7', 's8', 'sende'];
-            const enr = <?= json_encode($enr) ?>;
+            const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             const _now = new Date();
             const heute = String(_now.getDate()).padStart(2, '0') + '.' + String(_now.getMonth() + 1).padStart(2, '0') + '.' + _now.getFullYear();
 

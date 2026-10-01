@@ -156,8 +156,16 @@
             item.href = '#';
 
             const typeLabel = vehicle.rd_type == 1 ? 'NA' : 'RD';
-            const kennzeichenText = vehicle.kennzeichen ? ` <small class="text-[var(--text-dimmed,#818189)]">[${vehicle.kennzeichen}]</small>` : '';
-            item.innerHTML = `${vehicle.name || vehicle.identifier} <span class="ignis-chip">${typeLabel}</span>${kennzeichenText}`;
+            const chip = document.createElement('span');
+            chip.className = 'ignis-chip';
+            chip.textContent = typeLabel;
+            item.append(`${vehicle.name || vehicle.identifier} `, chip);
+            if (vehicle.kennzeichen) {
+                const kennzeichen = document.createElement('small');
+                kennzeichen.className = 'text-[var(--text-dimmed,#818189)]';
+                kennzeichen.textContent = `[${vehicle.kennzeichen}]`;
+                item.append(' ', kennzeichen);
+            }
 
             item.dataset.identifier = vehicle.identifier;
             item.dataset.name = vehicle.name || vehicle.identifier;

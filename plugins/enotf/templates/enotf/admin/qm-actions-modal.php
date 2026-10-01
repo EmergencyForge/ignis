@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Generate form HTML for modal
 ?>
 <div class="edivi__box">
-    <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=<?= $_GET['id'] ?>" method="post">
+    <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=<?= (int) $_GET['id'] ?>" method="post">
         <?= csrf_field() ?>
         <div class="mb-1 mt-2 grid grid-cols-[120px_1fr] align-items-center gap-3">
             <div class="fw-bold">Gesichtet von</div>

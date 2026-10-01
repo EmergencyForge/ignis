@@ -63,7 +63,7 @@ $currentDateTime = date('Y-m-d\TH:i');
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 7) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -80,19 +80,19 @@ $currentDateTime = date('Y-m-d\TH:i');
                                 <div class="col edivi__vitalparam-box" data-before="SpO₂" data-after="%">
                                     <input type="text" name="spo2" id="spo2"
                                         class="ignis-input edivi__vitalparam keypad-input"
-                                        min="0" max="100" placeholder="96" value="<?= $daten['spo2'] ?>" data-ignore-autosave>
+                                        min="0" max="100" placeholder="96" value="<?= e($daten['spo2']) ?>" data-ignore-autosave>
                                 </div>
 
                                 <div class="col edivi__vitalparam-box" data-before="AF" data-after="/min">
                                     <input type="text" name="atemfreq" id="atemfreq"
                                         class="ignis-input edivi__vitalparam keypad-input"
-                                        min="0" max="60" placeholder="16" value="<?= $daten['atemfreq'] ?>" data-ignore-autosave>
+                                        min="0" max="60" placeholder="16" value="<?= e($daten['atemfreq']) ?>" data-ignore-autosave>
                                 </div>
 
                                 <div class="col edivi__vitalparam-box" data-before="etCO₂" data-after="mmHg">
                                     <input type="text" name="etco2" id="etco2"
                                         class="ignis-input edivi__vitalparam keypad-input"
-                                        min="0" max="100" placeholder="35" value="<?= $daten['etco2'] ?>" data-ignore-autosave>
+                                        min="0" max="100" placeholder="35" value="<?= e($daten['etco2']) ?>" data-ignore-autosave>
                                 </div>
                             </div>
 
@@ -100,17 +100,17 @@ $currentDateTime = date('Y-m-d\TH:i');
                                 <div class="col edivi__vitalparam-box" data-before="HF" data-after="/min">
                                     <input type="text" name="herzfreq" id="herzfreq"
                                         class="ignis-input edivi__vitalparam keypad-input"
-                                        min="0" max="300" placeholder="80" value="<?= $daten['herzfreq'] ?>" data-ignore-autosave>
+                                        min="0" max="300" placeholder="80" value="<?= e($daten['herzfreq']) ?>" data-ignore-autosave>
                                 </div>
 
                                 <div class="col edivi__vitalparam-box" data-before="NIBP/RR" data-after="mmHg">
                                     <input type="text" name="rrsys" id="rrsys"
                                         class="ignis-input edivi__vitalparam-shared keypad-input"
-                                        min="0" max="300" placeholder="120" style="border-right:0!important" value="<?= $daten['rrsys'] ?>" data-ignore-autosave>
+                                        min="0" max="300" placeholder="120" style="border-right:0!important" value="<?= e($daten['rrsys']) ?>" data-ignore-autosave>
                                     <div class="edivi_vitalparam-spacer">/</div>
                                     <input type="text" name="rrdias" id="rrdias"
                                         class="ignis-input edivi__vitalparam-shared keypad-input"
-                                        min="0" max="300" placeholder="80" style="border-left:0!important" value="<?= $daten['rrdias'] ?>" data-ignore-autosave>
+                                        min="0" max="300" placeholder="80" style="border-left:0!important" value="<?= e($daten['rrdias']) ?>" data-ignore-autosave>
                                 </div>
                             </div>
 
@@ -122,14 +122,14 @@ $currentDateTime = date('Y-m-d\TH:i');
                                         max="<?= $bzUnit === 'mmol/l' ? 55 : 1000 ?>"
                                         step="<?= $bzUnit === 'mmol/l' ? '0.1' : '1' ?>"
                                         placeholder="<?= $bzUnit === 'mmol/l' ? '5.0' : '90' ?>"
-                                        value="<?= $daten['bz'] ?>"
+                                        value="<?= e($daten['bz']) ?>"
                                         data-ignore-autosave>
                                 </div>
 
                                 <div class="col edivi__vitalparam-box" data-before="Temperatur" data-after="°C">
                                     <input type="text" name="temp" id="temp"
                                         class="ignis-input edivi__vitalparam keypad-input"
-                                        min="10" max="45" step="0.1" placeholder="36,5" value="<?= $daten['temp'] ?>" data-ignore-autosave>
+                                        min="10" max="45" step="0.1" placeholder="36,5" value="<?= e($daten['temp']) ?>" data-ignore-autosave>
                                 </div>
                             </div>
 
@@ -559,7 +559,7 @@ $currentDateTime = date('Y-m-d\TH:i');
     </script>
     <script>
         (function() {
-            const enr = <?= json_encode($enr) ?>;
+            const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             const fields = ['spo2', 'atemfreq', 'etco2', 'herzfreq', 'rrsys', 'rrdias', 'bz', 'temp'];
             const endpoint = '<?= BASE_PATH ?>api/enotf/save-fields';
 
@@ -587,7 +587,7 @@ $currentDateTime = date('Y-m-d\TH:i');
             async function saveAll() {
                 const fields = ['spo2', 'atemfreq', 'etco2', 'herzfreq', 'rrsys', 'rrdias', 'bz', 'temp'];
                 const endpoint = '<?= BASE_PATH ?>api/enotf/save-fields';
-                const enr = <?= json_encode($enr) ?>;
+                const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
                 const jobs = [];
                 for (const f of fields) {

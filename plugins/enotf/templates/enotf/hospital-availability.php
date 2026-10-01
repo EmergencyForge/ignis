@@ -290,7 +290,7 @@ $defaultUrl = EnotfUrl::page('overview');
                 <div class="edivi__freigabe-buttons mt-4">
                     <div class="row">
                         <div class="col">
-                            <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
+                            <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>">zurück</a>
                         </div>
                     </div>
                 </div>
