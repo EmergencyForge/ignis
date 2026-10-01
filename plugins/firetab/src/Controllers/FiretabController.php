@@ -1243,48 +1243,57 @@ class FiretabController extends Controller
             'archived' => 'archived_at',
         ], $showArchived ? 'archived' : 'created', 'desc', 20, ['show_archived']);
 
-        $rows = Capsule::table('intra_fire_incidents as i')
-            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
-            ->where('i.archived', $showArchived ? 1 : 0)
-            ->select([
-                'i.id', 'i.incident_number', 'i.started_at', 'i.location', 'i.keyword',
-                'i.leader_id', 'm.fullname as leader_name', 'i.status', 'i.finalized',
-                'i.created_at', 'i.archived_at',
-                Capsule::connection()->raw('NULL as federation_source'),
-            ]);
-
+        // Dieselbe Abfrage für die Liste und für die Zähler der Segmente
+        // Aktiv und Archiv, jeweils mit der Suche.
         $federationOn = (bool) (new ConfigManager())->get('FEDERATION_ENABLED', FederationMiddleware::isEnabled());
-        if ($federationOn && !$showArchived) {
-            $json = static fn (string $key): \Illuminate\Contracts\Database\Query\Expression
-                => Capsule::connection()->raw("JSON_UNQUOTE(JSON_EXTRACT(fcf.cached_data, '$." . $key . "')) as " . $key);
-            $federated = Capsule::table('intra_federation_cache_fire as fcf')
-                ->join('intra_federation_links as fl', function ($join) {
-                    $join->on('fl.instance_id', '=', 'fcf.source_instance_id')
-                         ->where('fl.is_active', 1);
-                })
+        $build = static function (bool $archived) use ($list, $federationOn): \Illuminate\Database\Query\Builder {
+            $rows = Capsule::table('intra_fire_incidents as i')
+                ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+                ->where('i.archived', $archived ? 1 : 0)
                 ->select([
-                    'fcf.remote_id as id', 'fcf.incident_number',
-                    Capsule::connection()->raw('fcf.incident_date as started_at'),
-                    $json('location'), $json('keyword'),
-                    Capsule::connection()->raw('NULL as leader_id'),
-                    $json('leader_name'), $json('status'), $json('finalized'),
-                    Capsule::connection()->raw('fcf.incident_date as created_at'),
-                    Capsule::connection()->raw('NULL as archived_at'),
-                    'fl.instance_name as federation_source',
+                    'i.id', 'i.incident_number', 'i.started_at', 'i.location', 'i.keyword',
+                    'i.leader_id', 'm.fullname as leader_name', 'i.status', 'i.finalized',
+                    'i.created_at', 'i.archived_at',
+                    Capsule::connection()->raw('NULL as federation_source'),
                 ]);
-            $rows->unionAll($federated);
-        }
 
-        $query = Capsule::connection()->query()->fromSub($rows, 'u');
+            if ($federationOn && !$archived) {
+                $json = static fn (string $key): \Illuminate\Contracts\Database\Query\Expression
+                    => Capsule::connection()->raw("JSON_UNQUOTE(JSON_EXTRACT(fcf.cached_data, '$." . $key . "')) as " . $key);
+                $federated = Capsule::table('intra_federation_cache_fire as fcf')
+                    ->join('intra_federation_links as fl', function ($join) {
+                        $join->on('fl.instance_id', '=', 'fcf.source_instance_id')
+                             ->where('fl.is_active', 1);
+                    })
+                    ->select([
+                        'fcf.remote_id as id', 'fcf.incident_number',
+                        Capsule::connection()->raw('fcf.incident_date as started_at'),
+                        $json('location'), $json('keyword'),
+                        Capsule::connection()->raw('NULL as leader_id'),
+                        $json('leader_name'), $json('status'), $json('finalized'),
+                        Capsule::connection()->raw('fcf.incident_date as created_at'),
+                        Capsule::connection()->raw('NULL as archived_at'),
+                        'fl.instance_name as federation_source',
+                    ]);
+                $rows->unionAll($federated);
+            }
 
-        if ($list->q !== '') {
-            $query->where(function ($q) use ($list) {
-                $q->where('incident_number', 'LIKE', $list->like())
-                    ->orWhere('location', 'LIKE', $list->like())
-                    ->orWhere('keyword', 'LIKE', $list->like())
-                    ->orWhere('leader_name', 'LIKE', $list->like());
-            });
-        }
+            $query = Capsule::connection()->query()->fromSub($rows, 'u');
+
+            if ($list->q !== '') {
+                $query->where(function ($q) use ($list) {
+                    $q->where('incident_number', 'LIKE', $list->like())
+                        ->orWhere('location', 'LIKE', $list->like())
+                        ->orWhere('keyword', 'LIKE', $list->like())
+                        ->orWhere('leader_name', 'LIKE', $list->like());
+                });
+            }
+
+            return $query;
+        };
+
+        $query  = $build($showArchived);
+        $counts = ['active' => $build(false)->count(), 'archived' => $build(true)->count()];
 
         $incidents = $list->paginate($query)->map(fn ($r) => (array) $r)->all();
 
@@ -1307,6 +1316,7 @@ class FiretabController extends Controller
             'incidents'    => $incidents,
             'showArchived' => $showArchived,
             'list'         => $list,
+            'counts'       => $counts,
         ]);
     }
 

@@ -8,6 +8,7 @@
  *   @var \Illuminate\Support\Collection<int, \App\Models\User> $users  Zeilen der aktuellen Seite
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles  (keyBy id)
  *   @var \App\Support\ListQuery $list
+ *   @var array<string,int> $counts  Zeilen je Status für die Segmente, '' sind alle
  */
 
 use App\Auth\Gate;
@@ -57,7 +58,7 @@ $pgLabel = 'Benutzer';
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Status">
                             <?php foreach (['' => 'Alle', 'active' => 'Aktiv', 'inactive' => 'Deaktiviert'] as $statusKey => $statusLabel): ?>
-                                <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => $statusKey === '' ? null : $statusKey, 'page' => null])) ?>"<?= $list->filter('status') === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $statusLabel ?></a>
+                                <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => $statusKey === '' ? null : $statusKey, 'page' => null])) ?>"<?= $list->filter('status') === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $statusLabel ?> <span class="ignis-segmented__count"><?= $counts[$statusKey] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>

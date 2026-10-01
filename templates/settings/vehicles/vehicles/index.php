@@ -12,6 +12,7 @@
  *
  * @var \Illuminate\Support\Collection<int, array<string,mixed>> $vehicles  Zeilen der aktuellen Seite
  * @var \App\Support\ListQuery                                    $list
+ * @var array<int|string,int>                                     $counts    Fahrzeuge je Aktiv-Wert für die Segmente, '' sind alle
  */
 
 use App\Auth\Permissions;
@@ -79,7 +80,7 @@ $SITE_TITLE = 'Fahrzeuge';
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Aktiv">
                             <?php foreach (['' => 'Alle', '1' => 'Aktiv', '0' => 'Inaktiv'] as $activeKey => $activeLabel): ?>
-                                <a href="<?= htmlspecialchars($list->url($pgPath, ['active' => $activeKey === '' ? null : $activeKey, 'page' => null])) ?>"<?= $list->filter('active') === $activeKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $activeLabel ?></a>
+                                <a href="<?= htmlspecialchars($list->url($pgPath, ['active' => $activeKey === '' ? null : $activeKey, 'page' => null])) ?>"<?= $list->filter('active') === (string) $activeKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $activeLabel ?> <span class="ignis-segmented__count"><?= $counts[$activeKey] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>

@@ -51,6 +51,9 @@ final class InboxController extends Controller
             ->map(fn ($n): array => $this->notifications->decorate($n->getAttributes()))
             ->all();
 
+        // Zähler der Segmente: Gelesen mit dem gewählten Typ, Typ mit dem Lesefilter.
+        $byType = ListQuery::countBy($this->notifications->builder($userId, $unreadOnly, null), 'type');
+
         $this->renderView('inbox/index', [
             'entries'    => $rows,
             'list'       => $list,
@@ -58,6 +61,11 @@ final class InboxController extends Controller
             'type'       => $type,
             'types'      => $this->notifications->visibleTypes(),
             'unread'     => $this->notifications->count($userId),
+            'counts'     => [
+                'all'    => $this->notifications->builder($userId, false, $type === '' ? null : $type)->count(),
+                'unread' => $this->notifications->builder($userId, true, $type === '' ? null : $type)->count(),
+                'types'  => ['' => array_sum($byType)] + $byType,
+            ],
         ]);
     }
 

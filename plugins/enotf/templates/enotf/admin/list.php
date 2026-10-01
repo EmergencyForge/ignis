@@ -7,6 +7,48 @@ use App\Auth\Permissions;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Flash;
+
+$result = Capsule::table('intra_edivi')
+    ->where('hidden', '<>', 1)
+    ->get()
+    ->map(fn ($r) => (array) $r)
+    ->all();
+
+// Append federated eNOTF protocols (read-only)
+if (\App\Federation\FederationMiddleware::isEnabled()) {
+    try {
+        $fedRows = Capsule::table('intra_federation_cache_enotf as fce')
+            ->join('intra_federation_links as fl', function ($join) {
+                $join->on('fl.instance_id', '=', 'fce.source_instance_id')
+                    ->where('fl.is_active', 1);
+            })
+            ->orderByDesc('fce.protocol_date')
+            ->select('fce.cached_data', 'fl.instance_name')
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->all();
+        foreach ($fedRows as $fedRow) {
+            $p = json_decode($fedRow['cached_data'], true);
+            if (!$p) continue;
+            $p['_federation_source'] = $fedRow['instance_name'];
+            $p['_federation_readonly'] = true;
+            // Ensure expected keys exist
+            $p['protokoll_status'] = $p['protokoll_status'] ?? 2;
+            $p['freigegeben'] = $p['freigegeben'] ?? 1;
+            $p['hidden_user'] = $p['hidden_user'] ?? 0;
+            $p['bearbeiter'] = $p['bearbeiter'] ?? '';
+            $p['freigeber_name'] = $p['freigeber_name'] ?? '';
+            $p['id'] = 'fed_' . ($p['id'] ?? 0);
+            $result[] = $p;
+        }
+    } catch (\PDOException $e) {
+        // Silently skip
+    }
+}
+
+// Zähler der Segmente: unbearbeitet heißt ungesehen oder in Prüfung, wie der Filter unten.
+$viewUnprocessed = isset($_GET['view']) && $_GET['view'] == 1;
+$countUnprocessed = count(array_filter($result, static fn (array $row): bool => in_array((int) $row['protokoll_status'], [0, 1], true)));
 ?>
 
 <!DOCTYPE html>
@@ -30,10 +72,10 @@ use App\Helpers\Flash;
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
                     <div class="flex items-center gap-3">
-                        <div class="btn-toolbar-group">
-                            <a href="?view=0" class="ignis-btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
-                            <a href="?view=1" class="ignis-btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
-                        </div>
+                        <nav class="ignis-segmented" aria-label="Status">
+                            <a href="?view=0"<?= !$viewUnprocessed ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= count($result) ?></span></a>
+                            <a href="?view=1"<?= $viewUnprocessed ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-triangle-exclamation" data-tone="warn" aria-hidden="true"></i>Unbearbeitet <span class="ignis-segmented__count"><?= $countUnprocessed ?></span></a>
+                        </nav>
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
                             <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--secondary ignis-btn--sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
@@ -57,44 +99,6 @@ use App\Helpers\Flash;
                             </thead>
                             <tbody>
                                 <?php
-                                $result = Capsule::table('intra_edivi')
-                                    ->where('hidden', '<>', 1)
-                                    ->get()
-                                    ->map(fn ($r) => (array) $r)
-                                    ->all();
-
-                                // Append federated eNOTF protocols (read-only)
-                                if (\App\Federation\FederationMiddleware::isEnabled()) {
-                                    try {
-                                        $fedRows = Capsule::table('intra_federation_cache_enotf as fce')
-                                            ->join('intra_federation_links as fl', function ($join) {
-                                                $join->on('fl.instance_id', '=', 'fce.source_instance_id')
-                                                    ->where('fl.is_active', 1);
-                                            })
-                                            ->orderByDesc('fce.protocol_date')
-                                            ->select('fce.cached_data', 'fl.instance_name')
-                                            ->get()
-                                            ->map(fn ($r) => (array) $r)
-                                            ->all();
-                                        foreach ($fedRows as $fedRow) {
-                                            $p = json_decode($fedRow['cached_data'], true);
-                                            if (!$p) continue;
-                                            $p['_federation_source'] = $fedRow['instance_name'];
-                                            $p['_federation_readonly'] = true;
-                                            // Ensure expected keys exist
-                                            $p['protokoll_status'] = $p['protokoll_status'] ?? 2;
-                                            $p['freigegeben'] = $p['freigegeben'] ?? 1;
-                                            $p['hidden_user'] = $p['hidden_user'] ?? 0;
-                                            $p['bearbeiter'] = $p['bearbeiter'] ?? '';
-                                            $p['freigeber_name'] = $p['freigeber_name'] ?? '';
-                                            $p['id'] = 'fed_' . ($p['id'] ?? 0);
-                                            $result[] = $p;
-                                        }
-                                    } catch (\PDOException $e) {
-                                        // Silently skip
-                                    }
-                                }
-
                                 foreach ($result as $row) {
                                     $datetime = new DateTime($row['sendezeit']);
                                     $date = $datetime->format('d.m.Y | H:i');
@@ -138,7 +142,7 @@ use App\Helpers\Flash;
                                             break;
                                     }
 
-                                    if (isset($_GET['view']) && $_GET['view'] == 1) {
+                                    if ($viewUnprocessed) {
                                         if ($row['protokoll_status'] != 0 && $row['protokoll_status'] != 1) {
                                             continue;
                                         }

@@ -115,6 +115,7 @@ class UserController extends Controller
                     ->orWhere('intra_mitarbeiter.fullname', 'LIKE', $list->like());
             });
         }
+        $byStatus = ListQuery::countBy($query, 'intra_users.is_active');
         if ($list->filter('status') === 'active') {
             $query->where('intra_users.is_active', 1);
         } elseif ($list->filter('status') === 'inactive') {
@@ -125,9 +126,10 @@ class UserController extends Controller
         $roles = Role::all()->keyBy('id');
 
         $this->renderView('users/list', [
-            'users' => $users,
-            'roles' => $roles,
-            'list'  => $list,
+            'users'  => $users,
+            'roles'  => $roles,
+            'list'   => $list,
+            'counts' => ['' => array_sum($byStatus), 'active' => $byStatus['1'] ?? 0, 'inactive' => $byStatus['0'] ?? 0],
         ]);
     }
 

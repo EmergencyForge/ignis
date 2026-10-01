@@ -7,6 +7,7 @@
  * @var \Illuminate\Support\Collection<int, \App\Models\Form>      $antraege       Zeilen der aktuellen Seite
  * @var array<int,array{class:string,text:string,icon:string}>    $statusDisplay
  * @var \App\Support\ListQuery                                     $list
+ * @var array<int|string,int>                                     $counts         Zeilen je Status für die Segmente, '' sind alle
  */
 
 use App\Auth\Gate;
@@ -56,9 +57,9 @@ $chipFor = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'succes
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Status">
-                            <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => null, 'page' => null])) ?>"<?= $list->filter('status') === '' ? ' class="is-active" aria-current="true"' : '' ?>>Alle</a>
+                            <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => null, 'page' => null])) ?>"<?= $list->filter('status') === '' ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= $counts[''] ?? 0 ?></span></a>
                             <?php foreach ($statusDisplay as $statusValue => $statusMeta): ?>
-                                <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => (string) $statusValue, 'page' => null])) ?>"<?= $list->filter('status') === (string) $statusValue ? ' class="is-active" aria-current="true"' : '' ?>><?= htmlspecialchars($statusMeta['text']) ?></a>
+                                <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => (string) $statusValue, 'page' => null])) ?>"<?= $list->filter('status') === (string) $statusValue ? ' class="is-active" aria-current="true"' : '' ?>><i class="<?= htmlspecialchars($statusMeta['icon']) ?>" data-tone="<?= ['success' => 'ok', 'warning' => 'warn'][$statusMeta['class']] ?? $statusMeta['class'] ?>" aria-hidden="true"></i><?= htmlspecialchars($statusMeta['text']) ?> <span class="ignis-segmented__count"><?= $counts[$statusValue] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>

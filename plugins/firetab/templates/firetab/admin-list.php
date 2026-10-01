@@ -12,6 +12,7 @@
  * @var array<int,array<string,mixed>> $incidents
  * @var bool                           $showArchived
  * @var \App\Support\ListQuery         $list
+ * @var array{active:int, archived:int} $counts  Einsätze je Segment, mit der Suche
  */
 
 use App\Security\CsrfProtection;
@@ -66,8 +67,8 @@ $statusMap = [
                 <?php endif; ?>
                 <span class="ignis-list-toolbar__spacer"></span>
                 <nav class="ignis-segmented" aria-label="Archiv">
-                    <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => null, 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= !$showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Aktiv</a>
-                    <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => '1', 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= $showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Archiv</a>
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => null, 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= !$showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Aktiv <span class="ignis-segmented__count"><?= $counts['active'] ?></span></a>
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => '1', 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= $showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Archiv <span class="ignis-segmented__count"><?= $counts['archived'] ?></span></a>
                 </nav>
             </form>
 

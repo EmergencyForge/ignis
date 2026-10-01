@@ -55,7 +55,14 @@ try {
     $tableExists = false;
 }
 
+// Zähler der Statussegmente, mit dem Fahrzeugfilter, aber ohne den Status selbst.
+$statusCounts = [];
 if ($tableExists) {
+    $statusCounts = \App\Support\ListQuery::countBy(
+        Capsule::table('intra_fahrzeuge_defects as d')->when($filterVehicle > 0, static fn ($q) => $q->where('d.vehicle_id', $filterVehicle)),
+        'd.status',
+    );
+    $statusCounts[''] = array_sum($statusCounts);
     $lastLogSub = Capsule::table('intra_fahrzeuge_defect_log as l')
         ->leftJoin('intra_users as u', 'l.user_id', '=', 'u.id')
         ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
@@ -207,8 +214,8 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Status">
-                            <?php foreach (['' => 'Alle'] + array_map(static fn (array $s): string => $s[0], $statusLabels) as $statusKey => $statusLabel): ?>
-                                <a href="<?= htmlspecialchars($listUrl(['status' => $statusKey === '' ? null : $statusKey])) ?>"<?= $filterStatus === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= htmlspecialchars($statusLabel) ?></a>
+                            <?php foreach (['' => ['Alle', '']] + $statusLabels as $statusKey => [$statusLabel, $statusTone]): ?>
+                                <a href="<?= htmlspecialchars($listUrl(['status' => $statusKey === '' ? null : $statusKey])) ?>"<?= $filterStatus === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?php if ($statusTone !== ''): ?><i class="fa-solid <?= ['danger' => 'fa-circle-xmark', 'warn' => 'fa-triangle-exclamation', 'info' => 'fa-circle-pause', 'ok' => 'fa-circle-check'][$statusTone] ?>" data-tone="<?= $statusTone ?>" aria-hidden="true"></i><?php endif; ?><?= htmlspecialchars($statusLabel) ?> <span class="ignis-segmented__count"><?= $statusCounts[$statusKey] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>
