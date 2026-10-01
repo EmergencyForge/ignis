@@ -505,39 +505,9 @@ parameters:
 			path: src/Http/Controllers/Api/NotificationController.php
 
 		-
-			message: '#^Left side of && is always false\.$#'
-			identifier: booleanAnd.leftAlwaysFalse
-			count: 1
-			path: src/Http/Controllers/Api/PersonnelController.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 1
-			path: src/Http/Controllers/Api/PersonnelController.php
-
-		-
 			message: '#^Right side of && is always true\.$#'
 			identifier: booleanAnd.rightAlwaysTrue
 			count: 3
-			path: src/Http/Controllers/Api/PersonnelController.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''CHANGE_ME'' and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Http/Controllers/Api/PersonnelController.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''CHANGE_ME'' and ''CHANGE_ME'' will always evaluate to false\.$#'
-			identifier: notIdentical.alwaysFalse
-			count: 1
-			path: src/Http/Controllers/Api/PersonnelController.php
-
-		-
-			message: '#^Ternary operator condition is always false\.$#'
-			identifier: ternary.alwaysFalse
-			count: 1
 			path: src/Http/Controllers/Api/PersonnelController.php
 
 		-
@@ -575,30 +545,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 3
 			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 2
-			path: src/Http/Controllers/UserController.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between '''' and '''' will always evaluate to false\.$#'
-			identifier: notIdentical.alwaysFalse
-			count: 2
-			path: src/Http/Controllers/UserController.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''CHANGE_ME'' and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Http/Controllers/UserController.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''CHANGE_ME'' and ''CHANGE_ME'' will always evaluate to false\.$#'
-			identifier: notIdentical.alwaysFalse
-			count: 1
-			path: src/Http/Controllers/UserController.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'

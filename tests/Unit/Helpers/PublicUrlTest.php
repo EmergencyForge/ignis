@@ -17,11 +17,21 @@ use PHPUnit\Framework\TestCase;
  */
 final class PublicUrlTest extends TestCase
 {
+    /**
+     * Name in einer Variablen: ein wörtliches define('SYSTEM_URL') ließe
+     * PHPStan die Konstante im ganzen Projekt vergessen (siehe NavigationTest).
+     */
+    private static function systemUrl(string $value): void
+    {
+        $constant = 'SYSTEM_URL';
+        define($constant, $value);
+    }
+
     #[Test]
     #[RunInSeparateProcess]
     public function system_url_schlaegt_den_host_des_requests(): void
     {
-        define('SYSTEM_URL', 'intra.example.de/');
+        self::systemUrl('intra.example.de/');
         $_SERVER['HTTP_HOST'] = 'intrarp-app:8080';
 
         $this->assertSame('https://intra.example.de/auth/tablet', ProtocolDetection::buildPublicUrl('auth/tablet'));
@@ -31,7 +41,7 @@ final class PublicUrlTest extends TestCase
     #[RunInSeparateProcess]
     public function ein_schema_in_system_url_bleibt(): void
     {
-        define('SYSTEM_URL', 'http://intra.example.de');
+        self::systemUrl('http://intra.example.de');
 
         $this->assertSame('http://intra.example.de/auth/tablet', ProtocolDetection::buildPublicUrl('/auth/tablet'));
     }
@@ -40,7 +50,7 @@ final class PublicUrlTest extends TestCase
     #[RunInSeparateProcess]
     public function ohne_system_url_bleibt_es_beim_host_des_requests(): void
     {
-        define('SYSTEM_URL', 'CHANGE_ME');
+        self::systemUrl('CHANGE_ME');
         $_SERVER['HTTP_HOST'] = 'intra.example.de';
 
         $this->assertSame(ProtocolDetection::buildFullUrl('auth/tablet'), ProtocolDetection::buildPublicUrl('auth/tablet'));
