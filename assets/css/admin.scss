@@ -882,7 +882,7 @@ select.form-select option {
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  color: var(--white);
+  color: var(--input-text);
   padding: 0.45rem 0.75rem 0.45rem 2.2rem;
   font-size: 0.82rem;
   min-width: 220px;
@@ -915,7 +915,7 @@ select.form-select option {
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  color: var(--white);
+  color: var(--input-text);
   padding: 0.4rem 2rem 0.4rem 0.65rem;
   font-size: 0.82rem;
   -webkit-appearance: none;
