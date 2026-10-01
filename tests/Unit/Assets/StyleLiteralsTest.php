@@ -99,6 +99,22 @@ final class StyleLiteralsTest extends TestCase
         self::assertSame([], $bad);
     }
 
+    /**
+     * Die Farben von Funke sind oklch-Werte. Am Hex-Wächter in
+     * ThemeTokensTest kämen sie vorbei, deshalb stehen sie nur im
+     * Token-Block des Skins.
+     */
+    public function testOklchColoursStayInTheSkinTokens(): void
+    {
+        $bad = [];
+        foreach ($this->sources() as $name => $code) {
+            if ($name !== '_look-aliases.scss' && preg_match_all('/\boklch\(/', $code, $m)) {
+                $bad[] = $name . ': ' . count($m[0]);
+            }
+        }
+        self::assertSame([], $bad);
+    }
+
     public function testSemanticColoursAreNotRgbTriples(): void
     {
         $bad = [];

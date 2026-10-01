@@ -106,6 +106,7 @@ body[data-ui-skin="core"] {
 // auf hellem Grund. preferences.js setzt dieselben Werte inline und gewinnt;
 // das hier gilt, bis das Skript gelaufen ist.
 [data-theme="light"] body[data-ui-skin="core"] {
+  @include look-aliases.light;
   --accent-text: color-mix(in srgb, var(--accent-base) 75%, black);
   --accent-focus: color-mix(in srgb, var(--accent-base) 75%, black);
 }

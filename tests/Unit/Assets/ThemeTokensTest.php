@@ -18,9 +18,14 @@ use PHPUnit\Framework\TestCase;
  *      eine Hex-Farbe.
  *   3. Weiß-Transparenzen als Fläche (rgba(255,255,255,<0.5)) laufen über die
  *      --fill-Tokens, damit der helle Satz sie umdrehen kann.
+ *   4. Die Funke-Werte des Skins stehen in _look-aliases.scss, dem
+ *      Token-Block hinter ef.look-tokens(). Jede Farbe aus aliases() hat
+ *      dort in light() ein helles Gegenstück, sonst stünde im hellen Skin
+ *      eine Farbe, die für den dunklen Grund gewählt ist.
  *
- * Ausnahmen (EXCEPTIONS) sind die eNOTF-Stylesheets: eNOTF v1 und v2 sind
- * nicht Teil des Redesigns und behalten ihre Farben.
+ * Ausnahmen (EXCEPTIONS) sind die beiden Token-Dateien und die
+ * eNOTF-Stylesheets: eNOTF v1 und v2 sind nicht Teil des Redesigns und
+ * behalten ihre Farben.
  */
 final class ThemeTokensTest extends TestCase
 {
@@ -29,6 +34,7 @@ final class ThemeTokensTest extends TestCase
      */
     private const EXCEPTIONS = [
         '_tokens.scss'      => 'die Tokens selbst',
+        '_look-aliases.scss' => 'Token-Block des Skins, trägt den hellen Akzent #f0500a',
         '_enotf-skin.scss'  => 'eNOTF-Skin der ignis-Komponenten, aus ui.scss herausgelöst',
         'divi.scss'         => 'eNOTF-Stylesheet (nur von eNOTF v1/v2 geladen)',
         'print.scss'        => 'eNOTF-Druckansicht',
@@ -155,6 +161,36 @@ final class ThemeTokensTest extends TestCase
         }
 
         $this->assertSame([], $hits, "Weiß-Transparenzen gehören auf die --fill-Tokens:\n  " . implode("\n  ", $hits));
+    }
+
+    /** Skin-Farben, die hell und dunkel gleich bleiben, mit Grund. */
+    private const SKIN_FIXED = [
+        '--on-accent' => 'Tinte steht hell wie dunkel auf demselben Orange',
+    ];
+
+    #[Test]
+    public function heller_skin_ueberschreibt_jede_funke_farbe(): void
+    {
+        $scss = str_replace("\r\n", "\n", (string) file_get_contents($this->cssDir() . '/_look-aliases.scss'));
+        $block = function (string $mixin) use ($scss): array {
+            $this->assertSame(1, preg_match('/^@mixin ' . $mixin . ' \{\n(.*?)\n\}\n/ms', $scss, $m), "@mixin $mixin fehlt");
+            preg_match_all('/^\s*(--[a-z0-9-]+):\s*([^;]+);/m', $this->withoutComments($m[1]), $decls, PREG_SET_ORDER);
+
+            return array_column($decls, 2, 1);
+        };
+        $dark = $block('aliases');
+        $light = $block('light');
+
+        $missing = [];
+        foreach ($dark as $token => $value) {
+            $hasColour = preg_match('/#[0-9a-f]{3,8}\b|rgba?\(\s*\d|okl(?:ch|ab)\(/i', $value) === 1;
+            if ($hasColour && !isset($light[$token]) && !isset(self::SKIN_FIXED[$token])) {
+                $missing[] = $token;
+            }
+        }
+
+        $this->assertNotSame([], $light);
+        $this->assertSame([], $missing, "Diese Funke-Farben fehlen in light():\n  " . implode("\n  ", $missing));
     }
 
     #[Test]

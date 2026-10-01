@@ -1,24 +1,41 @@
 // Leitet die eigenen Namen von ignis auf die Rollen des gemeinsamen Looks
-// um. Gehört in den Skin-Block direkt hinter ef.look-tokens(): nur dort
-// gibt es die Rollen. Auf :root blieben die Aliase leer oder veraltet.
+// um und trägt die Funke-Werte von ignis. Gehört in den Skin-Block direkt
+// hinter ef.look-tokens(): nur dort gibt es die Rollen. Auf :root lesen
+// die Seiten ohne Skin mit, darunter eNOTF.
+//
+// Namen, die das Paket selbst als Rolle liefert (--border-strong und die
+// Töne mit -soft), stehen hier nicht, sonst überschrieben sie die Rolle.
 @mixin aliases {
+  // Bei 20deg lag der zweite Verlaufston nach dem Gamut-Schnitt nur 8° vom
+  // ersten entfernt, bei 32deg sind es 16°.
   --accent-hue: 40;
-  --accent-shift: 20deg;
+  --accent-shift: 32deg;
+  // Vorgaben bis zum ersten Lauf von preferences.js, das für #f0500a
+  // dieselben Werte rechnet. Auf dem ungedunkelten Orange steht Tinte, der
+  // Hover mischt zu Weiß. Weiß hätte dort nur 3,6 : 1.
+  --on-accent: oklch(.2 .03 40);
+  --accent-press: white;
+  --accent-fill: var(--accent-base);
+
+  // Die Datenreihen sind Cyan, Sand und Grau. Orange steht in keinem
+  // Diagramm, damit es nie wie ein Alarm aussieht, auch nicht bei anderer
+  // SYSTEM_COLOR.
+  --series-1: oklch(.78 .12 210);
+  --series-2: oklch(.82 .07 75);
+  --series-3: var(--series-4);
 
   --bg: var(--canvas);
-  --bg-2: var(--surface);
+  // Seitenleiste und Kopfzeile liegen ohne Fläche auf dem Grund. Die
+  // Übersicht setzt --bg-2 als Seitengrund (body#dashboard).
+  --bg-2: var(--canvas);
   --border: var(--border-subtle);
-  --border-strong: var(--border-control);
   --text: var(--content-text);
   --text-2: var(--secondary-text);
   --text-3: var(--tertiary-text);
-  --input-bg: var(--surface);
+  --input-bg: var(--well);
   --input-text: var(--text);
   --input-placeholder: var(--text-3);
-
-  --ok-soft: color-mix(in oklab, var(--ok) 14%, transparent);
-  --warn-soft: color-mix(in oklab, var(--warn) 16%, transparent);
-  --danger-soft: color-mix(in oklab, var(--danger) 14%, transparent);
+  --fs-base: 14px;
 
   // Dieselben Ableitungen wie auf :root. Dort sind sie mit den alten
   // Neutral- und Bedeutungsfarben ausgerechnet; hier rechnen sie mit denen
@@ -27,9 +44,10 @@
   --btn-success-bg: var(--ok);
   --btn-success-hover: color-mix(in srgb, var(--ok) 88%, white);
   --btn-success-active: color-mix(in srgb, var(--ok) 85%, black);
-  --btn-danger-bg: var(--danger);
-  --btn-danger-hover: color-mix(in srgb, var(--danger) 88%, white);
-  --btn-danger-active: color-mix(in srgb, var(--danger) 85%, black);
+  // Weiße Schrift hält auf --danger nur 3,5 : 1, auf --danger-fill 4,5.
+  --btn-danger-bg: var(--danger-fill);
+  --btn-danger-hover: color-mix(in oklab, var(--danger-fill) 92%, black);
+  --btn-danger-active: color-mix(in oklab, var(--danger-fill) 92%, black);
   --btn-warning-bg: var(--warn);
   --btn-warning-hover: color-mix(in srgb, var(--warn) 88%, white);
   --btn-warning-active: color-mix(in srgb, var(--warn) 85%, black);
@@ -48,7 +66,7 @@
   --radius: var(--radius-2);
   --radius-md: var(--radius-2);
   --radius-lg: var(--radius-3);
-  --radius-xl: var(--radius-3);
+  --radius-xl: var(--radius-4);
   --shadow: var(--shadow-card);
   --shadow-lg: var(--shadow-pop);
 
@@ -60,4 +78,15 @@
   --spring-gentle: var(--motion-spring);
 
   --sidebar-w: 256px;
+}
+
+// Für den hellen Skin-Block hinter ef.look(). Das helle #cc3f00 aus
+// _tokens.scss gilt nur noch für Seiten ohne Skin. Auf ihm bekäme der
+// Primärknopf weiße Schrift statt Tinte.
+@mixin light {
+  --accent: #f0500a;
+  --series-1: oklch(.58 .11 215);
+  --series-2: oklch(.60 .09 72);
+  // look() setzt hell die dritte Reihe von Lex.
+  --series-3: var(--series-4);
 }

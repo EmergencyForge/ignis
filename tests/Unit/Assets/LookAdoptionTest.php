@@ -45,18 +45,64 @@ final class LookAdoptionTest extends TestCase
         $skin = $this->skinBlock('body[data-ui-skin=core]') + $this->skinBlock('body[data-ui-skin="core"]');
         $expected = [
             '--accent-hue' => '40',
-            '--accent-shift' => '20deg',
+            '--accent-shift' => '32deg',
             '--bg' => 'var(--canvas)',
+            '--bg-2' => 'var(--canvas)',
+            '--input-bg' => 'var(--well)',
             '--text' => 'var(--content-text)',
             '--text-3' => 'var(--tertiary-text)',
             '--border' => 'var(--border-subtle)',
+            '--radius-sm' => 'var(--radius-1)',
             '--radius-md' => 'var(--radius-2)',
+            '--radius-lg' => 'var(--radius-3)',
+            '--radius-xl' => 'var(--radius-4)',
             '--shadow' => 'var(--shadow-card)',
             '--spring' => 'var(--motion-spring)',
+            '--fs-base' => '14px',
         ];
         foreach ($expected as $name => $value) {
             self::assertSame($value, $skin[$name] ?? null, $name);
         }
+    }
+
+    /**
+     * Ein Alias auf einen Namen, den das Paket selbst als Rolle liefert,
+     * überschreibt die Rolle. Der Hover-Rand der Felder hätte dann nur
+     * 1,6 : 1, und die getönten Flächen wären durchsichtig.
+     */
+    public function testAliasesDoNotShadowRolesOfTheLook(): void
+    {
+        $skin = $this->skinBlock('body[data-ui-skin=core]') + $this->skinBlock('body[data-ui-skin="core"]');
+        self::assertStringStartsWith('oklch(', $skin['--border-strong'] ?? '');
+        foreach (['--ok-soft' => 'ok', '--warn-soft' => 'warn', '--danger-soft' => 'danger'] as $name => $tone) {
+            self::assertSame('color-mix(in oklab, var(--' . $tone . ') 18%, var(--surface-2))', $skin[$name] ?? null, $name);
+        }
+    }
+
+    /**
+     * Tinte auf Orange und die Reihen Cyan, Sand, Grau stehen im Skin, nie
+     * auf :root, dort lesen die eNOTF-Seiten mit. Hell bleibt der Akzent
+     * #f0500a, mit dem dunkleren #cc3f00 bekäme der Knopf weiße Schrift.
+     */
+    public function testFunkeValuesOfIgnisLiveInTheSkin(): void
+    {
+        $skin = $this->skinBlock('body[data-ui-skin=core]') + $this->skinBlock('body[data-ui-skin="core"]');
+        self::assertMatchesRegularExpression('/^oklch\((0?\.2|20%) \.03 40\)$/', $skin['--on-accent'] ?? '');
+        self::assertMatchesRegularExpression('/^(white|#fff)$/', $skin['--accent-press'] ?? '');
+        self::assertSame('var(--accent-base)', $skin['--accent-fill'] ?? null);
+        self::assertMatchesRegularExpression('/^oklch\((0?\.78|78%) \.12 210\)$/', $skin['--series-1'] ?? '');
+        self::assertMatchesRegularExpression('/^oklch\((0?\.82|82%) \.07 75\)$/', $skin['--series-2'] ?? '');
+        self::assertSame('var(--series-4)', $skin['--series-3'] ?? null);
+
+        $light = $this->skinBlock('[data-theme=light] body[data-ui-skin=core]') + $this->skinBlock('[data-theme="light"] body[data-ui-skin="core"]');
+        self::assertSame('#f0500a', $light['--accent'] ?? null);
+        self::assertMatchesRegularExpression('/^oklch\((0?\.58|58%) \.11 215\)$/', $light['--series-1'] ?? '');
+        self::assertMatchesRegularExpression('/^oklch\((0?\.6|60%) \.09 72\)$/', $light['--series-2'] ?? '');
+        self::assertSame('var(--series-4)', $light['--series-3'] ?? null);
+
+        $root = $this->skinBlock(':root');
+        self::assertArrayNotHasKey('--series-1', $root);
+        self::assertSame('#fff7f2', $root['--on-accent'] ?? null);
     }
 
     /**
@@ -90,7 +136,7 @@ final class LookAdoptionTest extends TestCase
             '--input-placeholder' => 'var(--text-3)',
             '--btn-secondary-bg' => 'var(--fill-3)',
             '--btn-success-bg' => 'var(--ok)',
-            '--btn-danger-bg' => 'var(--danger)',
+            '--btn-danger-bg' => 'var(--danger-fill)',
             '--btn-warning-bg' => 'var(--warn)',
             '--comment-positive-stripe' => 'var(--ok)',
         ];

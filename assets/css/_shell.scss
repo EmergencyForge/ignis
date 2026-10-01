@@ -159,7 +159,7 @@ html.is-collapsed body.ignis-app--legacy {
     flex: 0 1 30rem;
     height: 32px;
     padding: 0 0.65rem;
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--border-ui);
     border-radius: var(--radius-md);
     background: var(--input-bg);
     color: var(--text-3);
@@ -188,7 +188,7 @@ html.is-collapsed body.ignis-app--legacy {
     font-family: var(--mono);
     font-size: 0.66rem;
     padding: 0 0.3rem;
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--border-control);
     border-radius: var(--radius-2);
     color: var(--text-3);
     white-space: nowrap;
@@ -293,7 +293,7 @@ html.is-collapsed body.ignis-app--legacy {
     min-width: 13rem;
     padding: 0.25rem;
     background: var(--surface);
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--border-control);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
@@ -677,7 +677,7 @@ html.is-collapsed body.ignis-app--legacy {
   overflow: auto;
   padding: 0.25rem;
   background: var(--surface);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-control);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   color: var(--text);
