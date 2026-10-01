@@ -77,7 +77,7 @@ final class EmptyPartialTest extends TestCase
             'title' => 'ignis ist fast startklar',
             'steps' => [['label' => 'Wache hinterlegt', 'state' => 'done'], ['label' => 'Fahrzeuge anlegen', 'state' => 'current'], ['label' => 'Vorlage wählen', 'state' => 'todo']],
         ]);
-        self::assertStringContainsString('<span>1 von 3 erledigt</span><i style="--progress: 33%"></i>', $html);
+        self::assertStringContainsString('<span aria-hidden="true">1 von 3 erledigt</span><div class="ignis-progress ignis-progress--sm" role="progressbar" aria-label="1 von 3 erledigt" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="--value:0.33"><div class="ignis-progress__bar"></div></div>', $html);
         self::assertStringContainsString('<li data-state="current">', $html);
     }
 

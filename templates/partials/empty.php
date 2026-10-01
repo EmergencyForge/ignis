@@ -98,7 +98,12 @@ if (($empty['tips'] ?? []) !== []) {
 if (($empty['steps'] ?? []) !== []) {
     $emptyDone = count(array_filter($empty['steps'], static fn (array $step): bool => ($step['state'] ?? '') === 'done'));
     $emptyTotal = count($empty['steps']);
-    echo '<div class="ignis-empty__progress"><span>' . $emptyDone . ' von ' . $emptyTotal . ' erledigt</span><i style="--progress: ' . (int) round($emptyDone / $emptyTotal * 100) . '%"></i></div>';
+    $emptyShare = (int) round($emptyDone / $emptyTotal * 100);
+    $emptyCount = $emptyDone . ' von ' . $emptyTotal . ' erledigt';
+    // Der Balken ist ein ignis-progress--sm wie auf der Referenzseite des Pakets.
+    echo '<div class="ignis-empty__progress"><span aria-hidden="true">' . $emptyCount . '</span>'
+        . '<div class="ignis-progress ignis-progress--sm" role="progressbar" aria-label="' . $emptyCount . '" aria-valuenow="' . $emptyShare
+        . '" aria-valuemin="0" aria-valuemax="100" style="--value:' . ($emptyShare / 100) . '"><div class="ignis-progress__bar"></div></div></div>';
     echo '<ol class="ignis-empty__steps">';
     foreach (array_values($empty['steps']) as $emptyIndex => $emptyItem) {
         $emptyState = in_array($emptyItem['state'] ?? 'todo', ['done', 'current', 'todo'], true) ? ($emptyItem['state'] ?? 'todo') : 'todo';
