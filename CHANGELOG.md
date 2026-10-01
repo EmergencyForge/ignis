@@ -1,8 +1,10 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.0.14-beta
 
 Weitere Stellen, an denen ein präparierter Link oder ein eingebettetes Bild etwas auslösen konnte, gehen nur noch über ein Formular mit Sicherheitstoken: Benutzerkonten löschen und deaktivieren, eNOTF-Vitalwerte löschen und der EMD-Fahrzeugimport. Die ungenutzte Seite, die Vitalwerte endgültig löschen wollte, ist entfernt. Die eNOTF-Voranmeldung schrieb jedes abgeschickte Formular samt Diagnose und Freitext in eine Logdatei neben dem Template; das entfällt, und das Update löscht die alte Datei. Der Updater lehnt Download-Adressen mit `../` ab, über die sich vorher ein Paket aus einem fremden Repository laden ließ. Cron-Webhooks prüfen ihr Ziel jetzt auch für IPv6 und schicken den Request an genau die geprüfte Adresse, damit eine zwischendurch geänderte DNS-Antwort nicht doch ins interne Netz führt (cron-scheduler 0.1.1). Der Dokumenteditor bringt das Sicherheitsupdate von TipTap 3.31.4 mit (editor 0.3.1).
+
+eNOTF v1 gibt Einsatznummern, Patientendaten, Freitexte und Seitentitel jetzt überall maskiert aus. Bisher ließ sich über einen präparierten Namen oder eine Einsatznummer Skript in Übersicht, Druckansicht, QM-Log oder Arrivalboard einschleusen. Die ENR-Brücke nimmt nur noch Einsatznummern aus Ziffern und Unterstrich mit höchstens 40 Zeichen an, die Voranmeldung prüft Priorität, Datum, Uhrzeit, Alter, GCS und Textlängen und weist ungültige Angaben ab. Aussehen und Ablauf von eNOTF bleiben, wie sie sind.
 
 ignisTab kann sich ohne Discord-OAuth anmelden, das im FiveM-Browser nicht funktioniert: Der FiveM-Server holt mit dem API-Schlüssel einen Einmal-Token für die Discord-ID des Spielers, das Tablet meldet sich damit an. Das gilt nur für bestehende, aktive Benutzer, ein Konto entsteht dabei nie; teilen sich zwei aktive Konten eine Discord-ID, gibt es keinen Token. Eingeschaltet wird es unter Einstellungen › System-Konfiguration › Funktionen mit `TABLET_LOGIN_ENABLED`, ab Werk ist es aus. Die Einzelheiten stehen in der README.
 
@@ -14,7 +16,7 @@ Das Lexikon der Wissensdatenbank öffnet wieder, die Übersicht brach bisher ab,
 
 Der Updater ist in einzelne Bausteine zerlegt (Release-Quelle, Versionsregeln, Archivprüfung, Sicherung, Dateikopie, `version.json`, Diagnose, Composer), das Verhalten beim Update bleibt gleich. Dabei sind einige Fehler aufgefallen und behoben: Ließ sich `version.json` nicht schreiben, meldete das Update trotzdem Erfolg und bot sich danach erneut an. Eine beschädigte `version.json` ergibt eine verständliche Meldung statt eines Typfehlers. Eine Branch-Installation zählte die Build-Nummer doppelt hoch. Die Diagnose suchte auf umgezogenen Installationen in den alten Ordnern und meldete deshalb immer einen Fehler, fand ihre eigenen Berichte nicht und hob sie unbegrenzt auf; jetzt bleiben die zehn neuesten. Ein unbegrenztes `memory_limit` gilt nicht mehr als zu wenig Speicher. Branches und Commits im Entwicklermodus laden wie Releases über cURL und mit `IGNIS_GITHUB_TOKEN`, auch ohne `allow_url_fopen`.
 
-Für Entwickler: Die PHPStan-Baseline ist von rund 1.100 auf 166 Meldungen geschrumpft, vor allem durch typisierte Relationen, Scopes und Array-Typen; am Verhalten ändert das nichts. Die CI testet und baut gegen einen festen WebPackages-Tag aus `.github/webpackages-ref` statt gegen dessen `main`.
+Für Entwickler: Die PHPStan-Baseline ist von rund 1.100 auf 166 Meldungen geschrumpft, vor allem durch typisierte Relationen, Scopes und Array-Typen; am Verhalten ändert das nichts. Die CI testet und baut gegen einen festen WebPackages-Tag aus `.github/webpackages-ref` statt gegen dessen `main`. Sie führt jetzt auch die Feature- und Integrationstests gegen eine Datenbank aus und schlägt fehl, wenn ein Test scheitert; bisher blieb sie grün, obwohl diese Tests gar nicht liefen.
 
 ## 2026.0.13-beta
 
