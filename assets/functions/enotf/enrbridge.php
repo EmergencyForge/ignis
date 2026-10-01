@@ -13,8 +13,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Format wie eNOTF v2 (CreateController) und das Eingabefeld in create.php.
     // Höchstens 40 Zeichen: mit Suffix "_N" passt die ENR noch in die
-    // 50 Zeichen von intra_edivi_vitalparameter_einzelwerte.enr.
-    if (!is_string($enr) || strlen($enr) > 40 || !preg_match('/^[0-9_]+$/', $enr)) {
+    // 50 Zeichen von intra_edivi_vitalparameter_einzelwerte.enr. Ohne /D ließe
+    // $ einen Zeilenumbruch am Ende durch.
+    if (!is_string($enr) || strlen($enr) > 40 || !preg_match('/^[0-9_]+$/D', $enr)) {
         return Response::text('Ungültige Einsatznummer.', 422);
     }
     $prot_by = isset($_POST["prot_by"]) ? (int)$_POST["prot_by"] : 0;

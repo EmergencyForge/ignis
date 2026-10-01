@@ -39,10 +39,11 @@ final class EnotfEnrBridgeTest extends FeatureTestCase
     public static function ungueltigeEnr(): array
     {
         return [
-            'Markup'  => ['<script>alert(1)</script>'],
-            'zu lang' => [str_repeat('1', 41)],
-            'leer'    => [''],
-            'Array'   => [['1']],
+            'Markup'        => ['<script>alert(1)</script>'],
+            'zu lang'       => [str_repeat('1', 41)],
+            'leer'          => [''],
+            'Zeilenumbruch' => ["123\n"],
+            'Array'         => [['1']],
         ];
     }
 

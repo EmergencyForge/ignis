@@ -64,6 +64,8 @@ final class EnotfArrivalboardTest extends FeatureTestCase
             'GCS als Markup'   => [['_GCS_' => '<b>15</b>']],
             'GCS zu klein'     => [['_GCS_' => '2']],
             'Alter negativ'    => [['_AGE_' => '-1']],
+            'Alter mit Zeilenumbruch' => [['_AGE_' => "54\n"]],
+            'Priorität mit Zeilenumbruch' => [['priority' => "1\n"]],
             'Uhrzeit'          => [['arrival_time' => '25:00']],
             'Datum'            => [['arrival_date' => '2026-02-30']],
             'Diagnose zu lang' => [['diagnose' => str_repeat('x', 256)]],

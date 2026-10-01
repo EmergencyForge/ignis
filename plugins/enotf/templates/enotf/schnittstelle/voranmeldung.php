@@ -72,19 +72,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
     }
 
     // Erlaubte Werte wie im Formular. Das Alter rechnet das Formular aus dem
-    // Geburtsdatum, die GCS ist leer oder liegt zwischen 3 und 15.
+    // Geburtsdatum, die GCS ist leer oder liegt zwischen 3 und 15. /D, damit
+    // $ keinen Zeilenumbruch am Ende zulässt.
     $formats = [
-        'priority'     => '/^[012]$/',
-        'kreislauf'    => '/^[01]$/',
-        'intubiert'    => '/^[01]$/',
-        'arrival_date' => '/^(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4})$/',
-        'arrival_time' => '/^([01]\d|2[0-3]):[0-5]\d$/',
-        '_AGE_'        => '/^(\d{1,2}|1[0-4]\d|150)?$/',
-        '_GCS_'        => '/^([3-9]|1[0-5])?$/',
-        'fahrzeug'     => '/^.{1,255}$/su',
-        'diagnose'     => '/^.{1,255}$/su',
-        'ziel'         => '/^.{1,255}$/su',
-        'text'         => '/^.{0,1000}$/su',
+        'priority'     => '/^[012]$/D',
+        'kreislauf'    => '/^[01]$/D',
+        'intubiert'    => '/^[01]$/D',
+        'arrival_date' => '/^(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4})$/D',
+        'arrival_time' => '/^([01]\d|2[0-3]):[0-5]\d$/D',
+        '_AGE_'        => '/^(\d{1,2}|1[0-4]\d|150)?$/D',
+        '_GCS_'        => '/^([3-9]|1[0-5])?$/D',
+        'fahrzeug'     => '/^.{1,255}$/suD',
+        'diagnose'     => '/^.{1,255}$/suD',
+        'ziel'         => '/^.{1,255}$/suD',
+        'text'         => '/^.{0,1000}$/suD',
     ];
     foreach ($formats as $field => $pattern) {
         $value = $_POST[$field] ?? '';
