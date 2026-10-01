@@ -215,7 +215,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                             <?php if ($openDefects > 0): ?>
                                                 <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" data-ignis-tooltip="Offene Defekte anzeigen" aria-label="<?= $openDefects ?> offene Defekte anzeigen"><?= $openDefects ?></a>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-3)]">—</span>
+                                                <span class="text-tertiary-text">—</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>

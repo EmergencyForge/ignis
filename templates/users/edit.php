@@ -91,7 +91,7 @@ $bodyId = 'benutzer';
             </div>
 
             <?php if (Gate::allows('user.viewAuditLog')): ?>
-                <h2 class="mb-3">Benutzer-Log <small class="text-[var(--text-3)] font-normal">(letzte 100 Einträge, alles unter <a href="<?= BASE_PATH ?>users/audit-log">Audit Log</a>)</small></h2>
+                <h2 class="mb-3">Benutzer-Log <small class="text-tertiary-text font-normal">(letzte 100 Einträge, alles unter <a href="<?= BASE_PATH ?>users/audit-log">Audit Log</a>)</small></h2>
                 <div class="flex flex-wrap -mx-3">
                     <div class="flex-1 px-3">
                         <div class="twplus-table-card">

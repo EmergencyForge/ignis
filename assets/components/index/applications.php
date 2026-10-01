@@ -58,7 +58,7 @@ $appStatus = [
                 <td><i class="<?= htmlspecialchars((string) $row['typ_icon']) ?> mr-1" aria-hidden="true"></i> <?= htmlspecialchars((string) $row['typ_name']) ?></td>
                 <td><span class="ignis-chip ignis-chip--dot ignis-chip--<?= $stateChip ?>"><?= $stateText ?></span></td>
                 <td><a class="ignis-mono" href="<?= htmlspecialchars($viewUrl) ?>"><?= htmlspecialchars((string) $row['uniqueid']) ?></a></td>
-                <td><?= !empty($row['cirs_manager']) ? htmlspecialchars((string) $row['cirs_manager']) : '<span class="text-[var(--text-3)]">—</span>' ?></td>
+                <td><?= !empty($row['cirs_manager']) ? htmlspecialchars((string) $row['cirs_manager']) : '<span class="text-tertiary-text">—</span>' ?></td>
                 <td><?= date('d.m.Y | H:i', strtotime((string) $row['time_added'])) ?></td>
                 <td class="ignis-table__actions">
                     <div class="ignis-row-actions">

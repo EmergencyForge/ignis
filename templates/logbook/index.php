@@ -262,7 +262,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                         )) ?>">
                                             <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
                                             <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
-                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-[var(--text-3)]">—</span>' ?></td>
+                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-tertiary-text">—</span>' ?></td>
                                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                                             <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                                             <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>

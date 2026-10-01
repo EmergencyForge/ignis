@@ -30,22 +30,22 @@ $SITE_TITLE = 'Performance';
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-database mr-1" aria-hidden="true"></i> Datenbank-Größe</span>
                     <span class="twplus-stats__value" id="dbSize">--</span>
-                    <span class="block text-xs text-[var(--text-3)]" id="dbSizeDetail">Lade...</span>
+                    <span class="block text-xs text-tertiary-text" id="dbSizeDetail">Lade...</span>
                 </div>
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-table mr-1" aria-hidden="true"></i> Tabellen / Zeilen</span>
                     <span class="twplus-stats__value" id="dbTables">--</span>
-                    <span class="block text-xs text-[var(--text-3)]" id="dbRows">--</span>
+                    <span class="block text-xs text-tertiary-text" id="dbRows">--</span>
                 </div>
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-users mr-1" aria-hidden="true"></i> Aktive Benutzer</span>
                     <span class="twplus-stats__value" id="activeUsers">--</span>
-                    <span class="block text-xs text-[var(--text-3)]" id="activeUsersDetail">Lade...</span>
+                    <span class="block text-xs text-tertiary-text" id="activeUsersDetail">Lade...</span>
                 </div>
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-server mr-1" aria-hidden="true"></i> Server-Uptime</span>
                     <span class="twplus-stats__value" id="uptime">--</span>
-                    <span class="block text-xs text-[var(--text-3)]" id="uptimeDetail">Lade...</span>
+                    <span class="block text-xs text-tertiary-text" id="uptimeDetail">Lade...</span>
                 </div>
             </div>
 
@@ -168,12 +168,12 @@ $SITE_TITLE = 'Performance';
 
         // Kennwert-Zeile in einem Block: Label links, Wert rechts.
         function statRow(labelHtml, valueHtml, first) {
-            return '<div class="flex items-center justify-between py-2' + (first ? '' : ' border-t border-[var(--fill-2)]') + '"><span>' + labelHtml + '</span><span class="font-semibold">' + valueHtml + '</span></div>';
+            return '<div class="flex items-center justify-between py-2' + (first ? '' : ' border-t border-fill-2') + '"><span>' + labelHtml + '</span><span class="font-semibold">' + valueHtml + '</span></div>';
         }
 
         function infoGrid(items) {
             return '<div class="grid grid-cols-2 gap-2">' + items.map(([label, value]) =>
-                '<div class="rounded-md bg-[var(--fill-1)] p-2"><div class="text-xs uppercase text-[var(--text-3)]">' + label + '</div><div class="font-semibold">' + value + '</div></div>'
+                '<div class="rounded-md bg-fill-1 p-2"><div class="text-xs uppercase text-tertiary-text">' + label + '</div><div class="font-semibold">' + value + '</div></div>'
             ).join('') + '</div>';
         }
 
@@ -236,7 +236,7 @@ $SITE_TITLE = 'Performance';
 
             for (const [key, value] of Object.entries(content)) {
                 const info = CONTENT_LABELS[key] || { label: key, icon: 'fa-circle' };
-                html += statRow('<i class="fa-solid ' + info.icon + ' mr-2 text-[var(--text-3)]" aria-hidden="true"></i>' + info.label, formatNumber(value), html === '');
+                html += statRow('<i class="fa-solid ' + info.icon + ' mr-2 text-tertiary-text" aria-hidden="true"></i>' + info.label, formatNumber(value), html === '');
             }
 
             container.className = '';
@@ -280,7 +280,7 @@ $SITE_TITLE = 'Performance';
                         <td>
                             <div class="flex items-center gap-2">
                                 <div class="grow">${progressBar(pct, 25, 50)}</div>
-                                <span class="min-w-[2.5rem] text-right text-sm text-[var(--text-3)]">${pct.toFixed(0)}%</span>
+                                <span class="min-w-[2.5rem] text-right text-sm text-tertiary-text">${pct.toFixed(0)}%</span>
                             </div>
                         </td>
                     </tr>`;
@@ -308,7 +308,7 @@ $SITE_TITLE = 'Performance';
                     </div>
                     ${progressBar(pct, 50, 80)}
                 </div>
-                <div class="text-sm text-[var(--text-3)]">
+                <div class="text-sm text-tertiary-text">
                     Auslastung: ${pct.toFixed(1)}%
                 </div>`;
         }
@@ -323,7 +323,7 @@ $SITE_TITLE = 'Performance';
             let html = '';
             items.forEach(item => {
                 html += statRow(
-                    '<i class="fa-solid ' + item.icon + ' mr-2 text-[var(--' + item.chip + ')]" aria-hidden="true"></i>' + item.label,
+                    '<i class="fa-solid ' + item.icon + ' mr-2" data-tone="' + item.chip + '" aria-hidden="true"></i>' + item.label,
                     '<span class="ignis-chip ignis-chip--' + item.chip + '">' + item.value + '</span>',
                     html === ''
                 );

@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         echo '</div>';
                         echo '<button type="submit" class="ignis-btn ignis-btn--secondary block w-full">Mit Code registrieren</button>';
                         echo '</form>';
-                        echo '<div class="mb-3 text-center"><small class="text-gray-400">oder</small></div>';
+                        echo '<div class="mb-3 text-center"><small class="text-tertiary-text">oder</small></div>';
                     }
                     ?>
 
@@ -142,13 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                 <?php if ($impressumUrl !== '' || $datenschutzUrl !== ''): ?>
                     <p class="mt-2 text-center text-xs">
                         <?php if ($impressumUrl !== ''): ?>
-                            <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-gray-200">Impressum</a>
+                            <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-secondary-text">Impressum</a>
                         <?php endif; ?>
                         <?php if ($impressumUrl !== '' && $datenschutzUrl !== ''): ?>
                             <span class="mx-2">|</span>
                         <?php endif; ?>
                         <?php if ($datenschutzUrl !== ''): ?>
-                            <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-gray-200">Datenschutz</a>
+                            <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-secondary-text">Datenschutz</a>
                         <?php endif; ?>
                     </p>
                 <?php endif; ?>

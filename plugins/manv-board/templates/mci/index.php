@@ -50,9 +50,9 @@ $bodyPage = 'edivi';
                     <p class="twplus-page-header__eyebrow">Einsatzführung</p>
                     <h1>MANV-Übersicht
                         <?php if ($statusFilter === 'abgeschlossen'): ?>
-                            <small class="ml-2 text-gray-400">(Abgeschlossene Lagen)</small>
+                            <small class="ml-2 text-tertiary-text">(Abgeschlossene Lagen)</small>
                         <?php elseif ($statusFilter === 'archiviert'): ?>
-                            <small class="ml-2 text-gray-400">(Archivierte Lagen)</small>
+                            <small class="ml-2 text-tertiary-text">(Archivierte Lagen)</small>
                         <?php endif; ?>
                     </h1>
                     <p class="twplus-page-header__description">Massenanfall von Verletzten – aktive, abgeschlossene und archivierte Lagen im Überblick.</p>
@@ -107,7 +107,7 @@ $bodyPage = 'edivi';
                                 <span class="ignis-chip <?= $statusClass ?> status-badge"><?= $statusText ?></span>
                             </div>
                             <div class="ignis-card__body">
-                                <h6 class="ignis-card__subtitle mb-4 text-gray-400">
+                                <h6 class="ignis-card__subtitle mb-4 text-tertiary-text">
                                     <?= htmlspecialchars($lage['einsatzort']) ?>
                                 </h6>
 
@@ -119,18 +119,18 @@ $bodyPage = 'edivi';
 
                                 <div class="mb-4 grid grid-cols-2 gap-3">
                                     <div class="stat-box">
-                                        <div class="text-xs text-gray-400">LNA</div>
+                                        <div class="text-xs text-tertiary-text">LNA</div>
                                         <div><strong><?= htmlspecialchars($lage['lna_name'] ?? 'Nicht zugewiesen') ?></strong></div>
                                     </div>
                                     <div class="stat-box">
-                                        <div class="text-xs text-gray-400">OrgL</div>
+                                        <div class="text-xs text-tertiary-text">OrgL</div>
                                         <div><strong><?= htmlspecialchars($lage['orgl_name'] ?? 'Nicht zugewiesen') ?></strong></div>
                                     </div>
                                 </div>
 
                                 <div class="stat-box">
                                     <div class="mb-2 flex items-center justify-between">
-                                        <span class="text-gray-400">Patienten gesamt:</span>
+                                        <span class="text-tertiary-text">Patienten gesamt:</span>
                                         <span class="ignis-chip ignis-chip--primary"><?= (int) $stats['total_patienten'] ?></span>
                                     </div>
                                     <div class="grid grid-cols-4 gap-1 text-center">
@@ -139,12 +139,12 @@ $bodyPage = 'edivi';
                                         <div class="ignis-chip ignis-chip--ok w-full">SK3: <?= (int) $stats['sk3'] ?></div>
                                         <div class="ignis-chip ignis-chip--info w-full">SK4: <?= (int) $stats['sk4'] ?></div>
                                     </div>
-                                    <div class="mt-2 text-xs text-gray-400">
+                                    <div class="mt-2 text-xs text-tertiary-text">
                                         Transportiert: <?= (int) $stats['transportiert'] ?> | Wartend: <?= (int) $stats['wartend'] ?>
                                     </div>
                                 </div>
 
-                                <div class="mt-3 text-xs text-gray-400">
+                                <div class="mt-3 text-xs text-tertiary-text">
                                     <i class="fas fa-clock mr-1"></i>
                                     Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
                                 </div>

@@ -179,8 +179,8 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <div class="ignis-card logs-lookup-hero mb-3">
                         <div class="ignis-card__body flex flex-wrap items-center gap-3">
                             <div class="shrink-0">
-                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-[var(--info)]" aria-hidden="true"></i>Error-ID Lookup</div>
-                                <div class="text-xs text-[var(--text-3)]">
+                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-info-text" aria-hidden="true"></i>Error-ID Lookup</div>
+                                <div class="text-xs text-tertiary-text">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
                                 </div>
                             </div>
@@ -209,19 +209,19 @@ $SITE_TITLE = 'Fehlerprotokoll';
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Letzte 24h</dt>
-                            <dd class="twplus-stats__value text-[var(--warn)]"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-warn-text"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Letzte 7 Tage</dt>
-                            <dd class="twplus-stats__value text-[var(--warn)]"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-warn-text"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Critical</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Error</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                     </dl>
 
@@ -295,7 +295,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <div class="ignis-card mt-3">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title flex flex-wrap items-center gap-2">
-                                <i class="fa-solid fa-hexagon-exclamation text-[var(--warn)]" aria-hidden="true"></i>
+                                <i class="fa-solid fa-hexagon-exclamation text-warn-text" aria-hidden="true"></i>
                                 Fehlgeschlagene Hintergrund-Jobs
                                 <?php if ($failedTotal > 0): ?>
                                     <span class="ignis-chip ignis-chip--dot ignis-chip--danger"><?= (int) $failedTotal ?></span>

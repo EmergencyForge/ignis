@@ -17,15 +17,15 @@
             $fullWidth = ($feld->breite ?? 'full') !== 'half'
                 || in_array($feld->feldtyp, ['textarea', 'multiselect', 'file'], true);
             if ($feld->feldtyp === 'checkbox') {
-                $feldWert = $feld->wert ? '<i class="fa-solid fa-square-check text-[var(--ok)]" aria-hidden="true"></i> Ja' : '<i class="fa-regular fa-square text-[var(--text-3)]" aria-hidden="true"></i> Nein';
+                $feldWert = $feld->wert ? '<i class="fa-solid fa-square-check text-ok-text" aria-hidden="true"></i> Ja' : '<i class="fa-regular fa-square text-tertiary-text" aria-hidden="true"></i> Nein';
             } elseif (empty($feld->wert)) {
-                $feldWert = '<span class="text-[var(--text-3)]">Keine Angabe</span>';
+                $feldWert = '<span class="text-tertiary-text">Keine Angabe</span>';
             } else {
                 $feldWert = htmlspecialchars($feld->wert);
             }
             ?>
             <div class="<?= $fullWidth ? 'md:col-span-2 ' : '' ?>min-w-0">
-                <div class="text-xs text-[var(--text-3)]"><?= htmlspecialchars($feld->label) ?></div>
+                <div class="text-xs text-tertiary-text"><?= htmlspecialchars($feld->label) ?></div>
                 <div class="whitespace-pre-line break-words"><?= $feldWert ?></div>
             </div>
         <?php endforeach; ?>

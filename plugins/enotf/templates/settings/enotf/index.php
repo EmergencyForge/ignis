@@ -116,12 +116,12 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="quicklink-url" class="ignis-field__label">URL</label>
                                 <input type="text" class="ignis-input" name="url" id="quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="ignis-field__hint text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-icon" class="ignis-field__label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="ignis-input" name="icon" id="quicklink-icon" placeholder="fa-solid fa-link" required>
-                                <small class="ignis-field__hint text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-category" class="ignis-field__label">Kategorie</label>
@@ -177,12 +177,12 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="create-quicklink-url" class="ignis-field__label">URL</label>
                                 <input type="text" class="ignis-input" name="url" id="create-quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="ignis-field__hint text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-icon" class="ignis-field__label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="ignis-input" name="icon" id="create-quicklink-icon" placeholder="fa-solid fa-link" value="fa-solid fa-link" required>
-                                <small class="ignis-field__hint text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-category" class="ignis-field__label">Kategorie</label>

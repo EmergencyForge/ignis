@@ -200,14 +200,14 @@ $pgLabel = 'Mitarbeiter';
                                             <?php if (!$isRdNone): ?>
                                                 <span class="ignis-chip ignis-chip--category"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-3)]">-</span>
+                                                <span class="text-tertiary-text">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td data-label="FW-Qualifikation">
                                             <?php if (!$isFwNone): ?>
                                                 <span class="ignis-chip ignis-chip--category"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-3)]">-</span>
+                                                <span class="text-tertiary-text">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td data-label="Einstellung"><?= htmlspecialchars($einstellungsdatum) ?></td>

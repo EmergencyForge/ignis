@@ -132,10 +132,10 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <?= $feld['pflichtfeld'] ? '<i class="fa-solid fa-check text-[var(--ok)]" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-xmark text-[var(--text-3)]" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
+                                                    <?= $feld['pflichtfeld'] ? '<i class="fa-solid fa-check text-ok-text" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-xmark text-tertiary-text" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
                                                 </td>
                                                 <td>
-                                                    <?= $feld['readonly'] ? '<i class="fa-solid fa-lock text-[var(--warn)]" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-lock-open text-[var(--text-3)]" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
+                                                    <?= $feld['readonly'] ? '<i class="fa-solid fa-lock text-warn-text" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-lock-open text-tertiary-text" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
                                                 </td>
                                                 <td class="ignis-table__actions">
                                                     <div class="ignis-row-actions">

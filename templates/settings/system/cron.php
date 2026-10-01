@@ -48,7 +48,7 @@ $SITE_TITLE = 'Cron-Jobs';
 
             <details class="ignis-card mb-4">
                 <summary class="ignis-card__header cursor-pointer select-none text-sm">
-                    <span><i class="fa-solid fa-link mr-1" aria-hidden="true"></i> <strong>Externer Trigger-Endpoint</strong> <span class="text-[var(--text-3)]">— für cron-job.org, UptimeRobot &amp; Co.</span></span>
+                    <span><i class="fa-solid fa-link mr-1" aria-hidden="true"></i> <strong>Externer Trigger-Endpoint</strong> <span class="text-tertiary-text">— für cron-job.org, UptimeRobot &amp; Co.</span></span>
                 </summary>
                 <div class="ignis-card__body">
                     <div class="flex items-center gap-2">
@@ -103,7 +103,7 @@ $SITE_TITLE = 'Cron-Jobs';
                             <tr<?= $isActive ? '' : ' class="is-muted"' ?>>
                                 <td>
                                     <div class="font-semibold"><?= htmlspecialchars($job['name']) ?></div>
-                                    <small class="text-[var(--text-3)]"><span class="ignis-mono"><?= htmlspecialchars($job['identifier']) ?></span><?php if ($isBuiltin): ?> · <span class="text-[var(--warn)]">built-in</span><?php endif; ?></small>
+                                    <small class="text-tertiary-text"><span class="ignis-mono"><?= htmlspecialchars($job['identifier']) ?></span><?php if ($isBuiltin): ?> · <span class="text-warn-text">built-in</span><?php endif; ?></small>
                                 </td>
                                 <td><code class="ignis-mono"><?= htmlspecialchars($job['schedule']) ?></code></td>
                                 <td>
@@ -111,7 +111,7 @@ $SITE_TITLE = 'Cron-Jobs';
                                     <?php if (!($job['handler_available'] ?? true)): ?>
                                         <span class="ignis-chip ignis-chip--warn" data-ignis-tooltip="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
                                     <?php endif; ?>
-                                    <div class="max-w-[220px] break-all text-xs text-[var(--text-3)]"><?= htmlspecialchars($job['handler']) ?></div>
+                                    <div class="max-w-[220px] break-all text-xs text-tertiary-text"><?= htmlspecialchars($job['handler']) ?></div>
                                 </td>
                                 <td>
                                     <?php if ($isActive): ?>
@@ -122,7 +122,7 @@ $SITE_TITLE = 'Cron-Jobs';
                                 </td>
                                 <td>
                                     <span class="ignis-chip ignis-chip--dot ignis-chip--<?= $runChip ?>"><?= $runText ?></span>
-                                    <div class="text-xs text-[var(--text-3)]">
+                                    <div class="text-xs text-tertiary-text">
                                         <?= htmlspecialchars(DateTimeHelper::formatShort($job['last_run_at'] ?? null)) ?>
                                     </div>
                                 </td>
@@ -252,7 +252,7 @@ $SITE_TITLE = 'Cron-Jobs';
             // dann den Inhalt asynchron via fetch nachschieben.
             var bodyEl = document.createElement('div');
             bodyEl.className = 'text-sm';
-            bodyEl.innerHTML = '<div class="text-[var(--text-3)]">Lade…</div>';
+            bodyEl.innerHTML = '<div class="text-tertiary-text">Lade…</div>';
 
             new Dialog({
                 title:   'Verlauf — ' + name,
@@ -264,20 +264,20 @@ $SITE_TITLE = 'Cron-Jobs';
             fetch(<?= json_encode($base . 'settings/system/cron/history') ?> + '?id=' + id)
                 .then(r => r.json())
                 .then(data => {
-                    if (!data.ok) { bodyEl.innerHTML = '<div class="text-[var(--danger)]">Fehler beim Laden</div>'; return; }
+                    if (!data.ok) { bodyEl.innerHTML = '<div class="text-danger-text">Fehler beim Laden</div>'; return; }
                     if (!data.runs || data.runs.length === 0) {
-                        bodyEl.innerHTML = '<div class="text-[var(--text-3)]">Noch keine Läufe.</div>';
+                        bodyEl.innerHTML = '<div class="text-tertiary-text">Noch keine Läufe.</div>';
                         return;
                     }
                     const chipFor = { success: 'ok', failed: 'danger' };
                     const rows = data.runs.map(r => {
                         const chip = chipFor[r.status] || 'secondary';
-                        const output = r.output ? `<pre class="ignis-mono mb-2 whitespace-pre-wrap break-words rounded-md bg-[var(--surface-2)] p-2 text-xs">${escapeHtml(r.output)}</pre>` : '';
+                        const output = r.output ? `<pre class="ignis-mono mb-2 whitespace-pre-wrap break-words rounded-md bg-surface-2 p-2 text-xs">${escapeHtml(r.output)}</pre>` : '';
                         return `
-                            <div class="border-b border-[var(--fill-2)] py-2 last:border-b-0">
+                            <div class="border-b border-fill-2 py-2 last:border-b-0">
                                 <div class="mb-1 flex items-center justify-between">
                                     <span class="ignis-chip ignis-chip--dot ignis-chip--${chip}">${escapeHtml(r.status)}</span>
-                                    <span class="text-xs text-[var(--text-3)]">${formatLocalTime(r.started_at)} · ${r.duration_ms || 0}ms</span>
+                                    <span class="text-xs text-tertiary-text">${formatLocalTime(r.started_at)} · ${r.duration_ms || 0}ms</span>
                                 </div>
                                 ${output}
                             </div>`;

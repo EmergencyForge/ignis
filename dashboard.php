@@ -92,7 +92,7 @@ ob_start();
         <section class="mb-8">
           <h2 class="mb-3"><?= htmlspecialchars((string) $category['title']) ?></h2>
           <?php if ($category['tiles'] === []): ?>
-            <p class="text-sm text-[var(--text-3)]">Noch keine Verlinkungen in dieser Kategorie.</p>
+            <p class="text-sm text-tertiary-text">Noch keine Verlinkungen in dieser Kategorie.</p>
           <?php endif; ?>
           <div class="twplus-link-grid">
             <?php foreach ($category['tiles'] as $tile): ?>

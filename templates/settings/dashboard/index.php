@@ -120,10 +120,10 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
             <label for="tile-icon" class="ignis-field__label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
             <div class="flex items-center gap-2">
                 <input type="text" class="ignis-input" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
-                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--fill-1)] text-[var(--text-2)]" aria-hidden="true"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
+                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-fill-1 text-secondary-text" aria-hidden="true"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
             </div>
             <small class="form-hint block"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank" rel="noopener">Alle Icons ansehen</a></small>
-            <div id="tile-icon-suggestions" class="mt-2 max-h-52 overflow-y-auto rounded-md border border-[var(--border)] p-2" hidden></div>
+            <div id="tile-icon-suggestions" class="mt-2 max-h-52 overflow-y-auto rounded-md border border-border-subtle p-2" hidden></div>
         </div>
         <div class="mb-3">
             <label for="tile-priority" class="ignis-field__label">Priorität</label>

@@ -80,7 +80,7 @@ $SITE_TITLE = 'Antragstypen';
                                             <i class="<?= htmlspecialchars($typ['icon']) ?> text-xl" aria-hidden="true"></i>
                                         </td>
                                         <td><a href="<?= htmlspecialchars($editUrl) ?>"><strong><?= htmlspecialchars($typ['name']) ?></strong></a></td>
-                                        <td class="text-[var(--text-3)]">
+                                        <td class="text-tertiary-text">
                                             <?= htmlspecialchars(mb_substr($beschreibung, 0, 80)) ?><?= mb_strlen($beschreibung) > 80 ? '…' : '' ?>
                                         </td>
                                         <td class="ignis-table__num"><?= (int)$typ['anzahl_felder'] ?></td>

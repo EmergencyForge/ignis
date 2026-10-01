@@ -26,7 +26,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <h1 class="mb-0">Krankenhaus-Fachrichtungen</h1>
-                            <p class="text-[var(--text-dimmed,#818189)] mb-0">
+                            <p class="text-tertiary-text mb-0">
                                 <span data-poi-card="<?= (int) $poi['id'] ?>" style="cursor:help;">
                                     <?= htmlspecialchars($poi['name']) ?>
                                 </span>
@@ -87,7 +87,7 @@ use App\Helpers\Flash;
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="4" class="text-center text-[var(--text-dimmed,#818189)]">Keine Fachrichtungen vorhanden</td>
+                                        <td colspan="4" class="text-center text-tertiary-text">Keine Fachrichtungen vorhanden</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -107,7 +107,7 @@ use App\Helpers\Flash;
             <div class="mb-3">
                 <label for="dept-sort-order" class="ignis-field__label">Sortierung</label>
                 <input type="number" class="ignis-input" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
-                <small class="text-[var(--text-dimmed,#818189)]">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
+                <small class="text-tertiary-text">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
             </div>
         </template>
     <?php endif; ?>

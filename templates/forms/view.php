@@ -69,7 +69,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
                             <div class="ignis-card__body">
                                 <dl class="ignis-detail__dl">
                                     <dt>Bearbeiter</dt>
-                                    <dd><?= !empty($antrag->cirs_manager) ? htmlspecialchars($antrag->cirs_manager) : '<span class="text-[var(--text-3)]">Noch nicht zugewiesen</span>' ?></dd>
+                                    <dd><?= !empty($antrag->cirs_manager) ? htmlspecialchars($antrag->cirs_manager) : '<span class="text-tertiary-text">Noch nicht zugewiesen</span>' ?></dd>
                                     <dt>Status</dt>
                                     <dd><?= $statusChip ?></dd>
                                     <?php if (!empty($antrag->cirs_text)): ?>

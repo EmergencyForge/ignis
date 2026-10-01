@@ -72,7 +72,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
                                         <?php if (!empty($antrag->cirs_manager)): ?>
                                             <?= htmlspecialchars($antrag->cirs_manager) ?>
                                         <?php else: ?>
-                                            <span class="text-[var(--text-3)]">Noch nicht zugewiesen</span>
+                                            <span class="text-tertiary-text">Noch nicht zugewiesen</span>
                                         <?php endif; ?>
                                     </div>
                                     <small class="form-hint block">Wird beim Speichern auf „<?= htmlspecialchars($currentUserFullname) ?>" gesetzt.</small>

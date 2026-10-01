@@ -258,7 +258,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                                             </label>
                                         <?php endforeach; ?>
                                         <?php if (empty($allTags)): ?>
-                                            <small class="text-gray-500">Noch keine Tags vorhanden.</small>
+                                            <small class="text-tertiary-text">Noch keine Tags vorhanden.</small>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -368,7 +368,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                         <!-- General Content (CKEditor) -->
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3">Zusätzlicher Inhalt</h4>
-                            <p class="text-gray-500 text-sm">Optionaler Freitext für weitere Informationen (mit Formatierung)</p>
+                            <p class="text-tertiary-text text-sm">Optionaler Freitext für weitere Informationen (mit Formatierung)</p>
 
                             <textarea name="content" id="content" class="ignis-textarea" rows="2"><?= htmlspecialchars($formData['content']) ?></textarea>
                         </div>
@@ -376,7 +376,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                         <!-- Verknüpfte Einträge -->
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-link"></i> Verknüpfte Einträge</h4>
-                            <p class="text-gray-500 text-sm">Querverweise zu zusammenhängenden Einträgen hinzufügen</p>
+                            <p class="text-tertiary-text text-sm">Querverweise zu zusammenhängenden Einträgen hinzufügen</p>
 
                             <div class="relative mb-3">
                                 <input type="text" class="ignis-input" id="relationSearch" placeholder="Eintrag suchen..." autocomplete="off">

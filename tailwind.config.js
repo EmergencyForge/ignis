@@ -44,6 +44,23 @@ export default {
                     deep:    '#232128',
                     soft:    '#37343e',
                 },
+                // Rollen des Looks unter ihrem Token-Namen, damit Templates
+                // keine beliebigen Werte wie text-[#d46b6b] setzen. Text 3 und
+                // die Tonschriften gibt es nur im Skin, der Rückfall gilt auf
+                // Seiten ohne ihn.
+                'secondary-text': 'var(--secondary-text, var(--text-2))',
+                'tertiary-text':  'var(--tertiary-text, var(--text-3))',
+                'ok-text':        'var(--ok-text, var(--ok))',
+                'warn-text':      'var(--warn-text, var(--warn))',
+                'danger-text':    'var(--danger-text, var(--danger))',
+                'info-text':      'var(--info-text, var(--info))',
+                'warn-soft':      'var(--warn-soft)',
+                'warn-line':      'var(--warn-line, var(--warn))',
+                'border-subtle':  'var(--border-subtle, var(--border))',
+                'fill-1':         'var(--fill-1)',
+                'fill-2':         'var(--fill-2)',
+                'surface-2':      'var(--surface-2)',
+                well:             'var(--well, var(--fill-1))',
             },
             fontFamily: {
                 sans:    ['Rubik', 'system-ui', 'sans-serif'],

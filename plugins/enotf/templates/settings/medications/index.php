@@ -65,8 +65,8 @@ use App\Helpers\Flash;
                                     <tr>
                                         <td <?= $dimmed ?>><?= (int)$row['priority'] ?></td>
                                         <td <?= $dimmed ?>><?= $wirkstoff ?></td>
-                                        <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-[var(--text-dimmed,#818189)]">-</span>' ?></td>
-                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-[var(--text-dimmed,#818189)]">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-tertiary-text">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-tertiary-text">-</span>' ?></td>
                                         <td><?= $medActive ?></td>
                                         <td><?= $actions ?></td>
                                     </tr>

@@ -200,7 +200,7 @@ final class DiagnosticFormatter
                 $html[] = "          <strong>{$problem['title']}:</strong> ";
                 $html[] = "          <span class='ignis-chip ignis-chip--" . self::statusClass($problem['status']) . "'>{$problem['status']}</span>";
                 if ($problem['details']) {
-                    $html[] = "          <br><small class='text-gray-400'>{$problem['details']}</small>";
+                    $html[] = "          <br><small class='text-tertiary-text'>{$problem['details']}</small>";
                 }
                 $html[] = "        </li>";
             }

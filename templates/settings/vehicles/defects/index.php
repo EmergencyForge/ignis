@@ -163,23 +163,23 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                     <dl class="twplus-stats twplus-stats--five" aria-label="Defektstatistik">
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Offen</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= (int)$stats['open_count'] ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= (int)$stats['open_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">In Bearbeitung</dt>
-                            <dd class="twplus-stats__value text-[var(--warn)]"><?= (int)$stats['in_progress_count'] ?></dd>
+                            <dd class="twplus-stats__value text-warn-text"><?= (int)$stats['in_progress_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Aufgeschoben</dt>
-                            <dd class="twplus-stats__value text-[var(--info)]"><?= (int)$stats['deferred_count'] ?></dd>
+                            <dd class="twplus-stats__value text-info-text"><?= (int)$stats['deferred_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Gelöst</dt>
-                            <dd class="twplus-stats__value text-[var(--ok)]"><?= (int)$stats['resolved_count'] ?></dd>
+                            <dd class="twplus-stats__value text-ok-text"><?= (int)$stats['resolved_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Nicht einsatzfähig</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= (int)$stats['not_operable_open'] ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= (int)$stats['not_operable_open'] ?></dd>
                         </div>
                     </dl>
 
@@ -642,8 +642,8 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         wrapper.querySelector('.detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
                         wrapper.querySelector('.detail-assigned').textContent = d.assigned_name || '—';
                         wrapper.querySelector('.detail-operable').innerHTML = d.vehicle_operable == 1
-                            ? '<span class="text-[var(--ok)]"><i class="fa-solid fa-check"></i> Ja</span>'
-                            : '<span class="text-[var(--danger)]"><i class="fa-solid fa-ban"></i> Nein</span>';
+                            ? '<span class="text-ok-text"><i class="fa-solid fa-check"></i> Ja</span>'
+                            : '<span class="text-danger-text"><i class="fa-solid fa-ban"></i> Nein</span>';
 
                         var resWrap = wrapper.querySelector('.detail-resolution-wrap');
                         if (d.resolution_note) {

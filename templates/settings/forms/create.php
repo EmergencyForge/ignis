@@ -49,7 +49,7 @@ $SITE_TITLE = 'Neuer Antragstyp';
                         <div class="mb-3">
                             <label for="icon" class="ignis-field__label">Icon</label>
                             <div class="flex items-center gap-2">
-                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--fill-1)] text-[var(--text-2)]" aria-hidden="true">
+                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-fill-1 text-secondary-text" aria-hidden="true">
                                     <i id="icon-preview" class="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?>"></i>
                                 </span>
                                 <input type="text"

@@ -86,7 +86,7 @@ $bodyId = 'benutzer';
                                             <?php if (!empty($code->label)): ?>
                                                 <?= htmlspecialchars($code->label) ?>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-dimmed,#818189)]">Ohne Bezeichnung</span>
+                                                <span class="text-tertiary-text">Ohne Bezeichnung</span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($code->creator?->username ?? 'System') ?></td>
@@ -94,12 +94,12 @@ $bodyId = 'benutzer';
                                         <td>
                                             <?php if ($code->expires_at !== null): ?>
                                                 <?php if ($isExpired): ?>
-                                                    <span class="text-[#d46b6b]"><?= htmlspecialchars($code->expires_at->format('d.m.Y H:i')) ?></span>
+                                                    <span class="text-danger-text"><?= htmlspecialchars($code->expires_at->format('d.m.Y H:i')) ?></span>
                                                 <?php else: ?>
                                                     <?= htmlspecialchars($code->expires_at->format('d.m.Y H:i')) ?>
                                                 <?php endif; ?>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-dimmed,#818189)]">Unbegrenzt</span>
+                                                <span class="text-tertiary-text">Unbegrenzt</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -114,7 +114,7 @@ $bodyId = 'benutzer';
                                         <td>
                                             <?php if ($code->is_used): ?>
                                                 <?= htmlspecialchars($code->usedByUser?->username ?? 'Unbekannt') ?>
-                                                <br><small class="text-[var(--text-dimmed,#818189)]"><?= htmlspecialchars($code->used_at?->format('d.m.Y H:i') ?? '') ?></small>
+                                                <br><small class="text-tertiary-text"><?= htmlspecialchars($code->used_at?->format('d.m.Y H:i') ?? '') ?></small>
                                             <?php else: ?>
                                                 -
                                             <?php endif; ?>

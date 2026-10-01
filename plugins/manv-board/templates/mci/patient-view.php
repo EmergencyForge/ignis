@@ -73,7 +73,7 @@ $bodyPage = 'edivi';
                         <h4>
                             <?= htmlspecialchars($patient['vorname'] ?? '') ?> <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
                         </h4>
-                        <p class="mb-0 text-gray-400">
+                        <p class="mb-0 text-tertiary-text">
                             MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?>
                         </p>
                     </div>
@@ -83,7 +83,7 @@ $bodyPage = 'edivi';
                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? 'Ungesichtet') ?>
                             </span>
                         </h2>
-                        <small class="text-gray-400">
+                        <small class="text-tertiary-text">
                             <?php if (!empty($patient['sichtungskategorie_zeit'])): ?>
                                 Gesichtet: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['sichtungskategorie_zeit']) ?>
                             <?php endif; ?>
@@ -159,10 +159,10 @@ $bodyPage = 'edivi';
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
                                     <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie">
-                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-[#d46b6b]">SK1 - Rot</option>
-                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-[#ddb84a]">SK2 - Gelb</option>
-                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-[#6abf76]">SK3 - Grün</option>
-                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-[#5bb8cc]">SK4 - Blau</option>
+                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-danger-text">SK1 - Rot</option>
+                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-warn-text">SK2 - Gelb</option>
+                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-ok-text">SK3 - Grün</option>
+                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-info-text">SK4 - Blau</option>
                                         <option value="SK5" <?= ($patient['sichtungskategorie'] ?? '') === 'SK5' ? 'selected' : '' ?> style="background-color: #000; color: #fff;">SK5 - Schwarz (Tot)</option>
                                         <option value="SK6" <?= ($patient['sichtungskategorie'] ?? '') === 'SK6' ? 'selected' : '' ?> style="color: #9b59b6;">SK6 - Lila</option>
                                     </select>
@@ -223,7 +223,7 @@ $bodyPage = 'edivi';
 
                                 <?php if ($canTransport && !empty($patient['transport_abfahrt'])): ?>
                                     <div class="info-box">
-                                        <small class="text-gray-400">
+                                        <small class="text-tertiary-text">
                                             <i class="fas fa-clock mr-1"></i>
                                             Abfahrt: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['transport_abfahrt']) ?>
                                         </small>

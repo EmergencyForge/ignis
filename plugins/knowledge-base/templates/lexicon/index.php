@@ -345,7 +345,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                                 </div>
                                                 <h2 class="twplus-content-card__title"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['title']), $searchQuery) : htmlspecialchars($entry['title']) ?></h2>
                                                 <?php if (!empty($entry['subtitle'])): ?>
-                                                    <p class="text-gray-500 text-sm"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['subtitle']), $searchQuery) : htmlspecialchars($entry['subtitle']) ?></p>
+                                                    <p class="text-tertiary-text text-sm"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['subtitle']), $searchQuery) : htmlspecialchars($entry['subtitle']) ?></p>
                                                 <?php endif; ?>
 
                                                 <?php if (!empty($searchQuery)):
@@ -359,7 +359,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                                         if ($snippet !== null) break;
                                                     }
                                                     if ($snippet !== null): ?>
-                                                    <p class="text-gray-500 text-sm mt-1" style="font-size: 0.8rem;">
+                                                    <p class="text-tertiary-text text-sm mt-1" style="font-size: 0.8rem;">
                                                         <?= KBHelper::highlightSearchTerms(htmlspecialchars($snippet), $searchQuery) ?>
                                                     </p>
                                                 <?php endif; endif; ?>
@@ -376,7 +376,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                                 <?php endif; ?>
                                             </div>
                                             <div class="kb-card-footer twplus-content-card__footer">
-                                                <small class="text-gray-500 kb-card-footer-text">
+                                                <small class="text-tertiary-text kb-card-footer-text">
                                                     <?php if ($entry['updated_at']): ?>
                                                         Aktualisiert: <?= date('d.m.Y H:i', strtotime($entry['updated_at'])) ?>
                                                         <?php if ($entry['updater_name'] && empty($entry['hide_editor'])): ?>

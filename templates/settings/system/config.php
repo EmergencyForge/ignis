@@ -201,7 +201,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     <div class="flex items-center gap-2">
                                                         <input
                                                             type="color"
-                                                            class="h-10 w-14 shrink-0 cursor-pointer rounded-md border border-[var(--border)] bg-transparent p-0"
+                                                            class="h-10 w-14 shrink-0 cursor-pointer rounded-md border border-border-subtle bg-transparent p-0"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>_picker"
                                                             aria-label="Farbe wählen"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
@@ -250,7 +250,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             <img
                                                                 src="<?= systemLogoUrl((string) $config['config_value']) ?>"
                                                                 alt="Vorschau des Logos"
-                                                                class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
+                                                                class="max-h-[100px] max-w-[200px] rounded-md border border-border-subtle bg-surface-2 p-2"
                                                                 id="logo_preview"
                                                                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
                                                         </div>
@@ -270,7 +270,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         <img
                                                             src="<?= htmlspecialchars($config['config_value']) ?>"
                                                             alt="Vorschau des Link-Bildes"
-                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
+                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-border-subtle bg-surface-2 p-2"
                                                             id="meta_image_preview"
                                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
                                                     </div>
