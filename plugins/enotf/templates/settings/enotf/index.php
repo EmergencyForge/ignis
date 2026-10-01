@@ -41,11 +41,11 @@ use App\Helpers\Flash;
                     </div>
                     <?php Flash::render(); ?>
                     <div class="mb-3">
-                        <div class="btn-toolbar-group" id="statusFilter">
-                            <button class="ignis-btn active" data-filter="">Alle</button>
-                            <button class="ignis-btn" data-filter="Ja">Aktiv</button>
-                            <button class="ignis-btn" data-filter="Nein">Inaktiv</button>
-                        </div>
+                        <nav class="ignis-segmented" id="statusFilter" aria-label="Status">
+                            <button type="button" class="is-active" data-filter="">Alle</button>
+                            <button type="button" data-filter="Ja">Aktiv</button>
+                            <button type="button" data-filter="Nein">Inaktiv</button>
+                        </nav>
                     </div>
                     <div class="intra__tile px-3 py-2">
                         <table class="table table-striped" id="table-quicklinks">
@@ -256,10 +256,10 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
     <script>
-        document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(btn) {
+        document.querySelectorAll('#statusFilter button').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
-                this.classList.add('active');
+                document.querySelectorAll('#statusFilter button').forEach(function(b) { b.classList.remove('is-active'); });
+                this.classList.add('is-active');
                 var filter = this.dataset.filter;
                 document.querySelectorAll('#table-quicklinks tbody tr').forEach(function(row) {
                     if (!filter) { row.style.display = ''; return; }

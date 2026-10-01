@@ -513,38 +513,6 @@ div.btn.disabled {
   color: var(--warn);
 }
 
-.btn-toolbar-group {
-  display: inline-flex;
-  gap: 2px;
-  background: var(--bg-2);
-  border-radius: var(--radius-md);
-  padding: 3px;
-}
-
-.btn-toolbar-group .btn,
-.btn-toolbar-group .ignis-btn {
-  border-radius: var(--radius-sm);
-  border: none !important;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-  background: transparent;
-  color: var(--text-3);
-}
-
-.btn-toolbar-group .btn:hover,
-.btn-toolbar-group .ignis-btn:hover {
-  transform: none;
-  box-shadow: none;
-  color: var(--text-2);
-  background: var(--fill-1);
-}
-
-.btn-toolbar-group .btn.active,
-.btn-toolbar-group .ignis-btn.active {
-  background: var(--accent) !important;
-  color: var(--white) !important;
-}
-
 textarea.form-control,
 input.form-control,
 select.form-select {
