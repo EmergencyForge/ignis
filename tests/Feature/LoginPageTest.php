@@ -27,4 +27,19 @@ final class LoginPageTest extends FeatureTestCase
         $this->assertStringNotContainsString('login-background', $response->body);
         $this->assertStringContainsString('<body id="alogin"', $response->body);
     }
+
+    /**
+     * Das Formular ist eine Schale. Ohne die Mulde stünden Titel, Hinweise
+     * und Knopf direkt auf ihrem Rand.
+     */
+    #[Test]
+    public function titel_und_anmeldung_liegen_in_der_mulde_der_fuss_auf_dem_rand(): void
+    {
+        $body = $this->get('/login')->body;
+
+        $this->assertMatchesRegularExpression(
+            '~<div class="twplus-login__well">\s*<h1 id="loginHeader" class="twplus-login__title">.*?class="twplus-login__actions">.*?</div>\s*</div>\s*<p class="twplus-login__foot">~s',
+            $body,
+        );
+    }
 }

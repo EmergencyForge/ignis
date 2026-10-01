@@ -83,43 +83,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         <img src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
                     <?php endif; ?>
                 </div>
-                <h1 id="loginHeader" class="twplus-login__title">Willkommen zurück</h1>
-                <p class="twplus-login__lead">Melde dich an, um in <?= htmlspecialchars((string) SERVER_CITY) ?> weiterzuarbeiten.</p>
+                <?php // Die Wortmarke ist der Kopf der Schale, alles bis zu den Aktionen liegt in der Mulde, der Fuß steht auf dem Rand. ?>
+                <div class="twplus-login__well">
+                    <h1 id="loginHeader" class="twplus-login__title">Willkommen zurück</h1>
+                    <p class="twplus-login__lead">Melde dich an, um in <?= htmlspecialchars((string) SERVER_CITY) ?> weiterzuarbeiten.</p>
 
-                <?php
-                if ($error) {
-                    echo '<div class="ignis-alert ignis-alert--danger mb-4" role="alert">';
-                    echo '<i class="fa-solid fa-exclamation-triangle ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung konnte nicht bestätigt werden</strong><br>' . htmlspecialchars($error) . '</div>';
-                    echo '</div>';
-                }
-
-                // Normal login view
-                if ($registrationMode === 'closed' && !$error) {
-                    echo '<div class="ignis-alert ignis-alert--warn mb-4" role="alert">';
-                    echo '<i class="fa-solid fa-lock ignis-alert__icon"></i><div class="ignis-alert__body">Registrierung für neue Benutzer ist derzeit geschlossen.</div>';
-                    echo '</div>';
-                } elseif ($registrationMode === 'code') {
-                    if (!$error) {
-                        echo '<div class="ignis-alert ignis-alert--info mb-4" role="alert">';
-                        echo '<i class="fa-solid fa-ticket ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung erforderlich</strong><br>Neue Benutzer benötigen einen Registrierungscode.</div>';
+                    <?php
+                    if ($error) {
+                        echo '<div class="ignis-alert ignis-alert--danger mb-4" role="alert">';
+                        echo '<i class="fa-solid fa-exclamation-triangle ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung konnte nicht bestätigt werden</strong><br>' . htmlspecialchars($error) . '</div>';
                         echo '</div>';
                     }
 
-                    // Optional code input field
-                    echo '<form method="POST" class="mb-4">';
-                    echo csrf_field();
-                    echo '<div class="relative mb-3">';
-                    echo '<label class="ignis-field__label" for="registration_code">Registrierungscode</label>';
-                    echo '<input type="text" class="ignis-input" id="registration_code" name="registration_code" placeholder="Code aus der Einladung" autocomplete="one-time-code">';
-                    echo '</div>';
-                    echo '<button type="submit" class="ignis-btn ignis-btn--secondary block w-full">Mit Code registrieren</button>';
-                    echo '</form>';
-                    echo '<div class="mb-3 text-center"><small class="text-gray-400">oder</small></div>';
-                }
-                ?>
+                    // Normal login view
+                    if ($registrationMode === 'closed' && !$error) {
+                        echo '<div class="ignis-alert ignis-alert--warn mb-4" role="alert">';
+                        echo '<i class="fa-solid fa-lock ignis-alert__icon"></i><div class="ignis-alert__body">Registrierung für neue Benutzer ist derzeit geschlossen.</div>';
+                        echo '</div>';
+                    } elseif ($registrationMode === 'code') {
+                        if (!$error) {
+                            echo '<div class="ignis-alert ignis-alert--info mb-4" role="alert">';
+                            echo '<i class="fa-solid fa-ticket ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung erforderlich</strong><br>Neue Benutzer benötigen einen Registrierungscode.</div>';
+                            echo '</div>';
+                        }
 
-                <div class="twplus-login__actions">
-                    <a href="<?= BASE_PATH ?><?= $centralLogin ? 'auth/fabrica' : 'auth/discord' ?>" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><?php if ($centralLogin): ?><span aria-hidden="true" style="display:inline-flex;align-self:center;flex-shrink:0;"><?= str_replace('<svg ', '<svg width="28" height="16" ', (string) file_get_contents(__DIR__ . '/assets/img/ef-mark.svg')) ?></span><?php else: ?><i class="fa-brands fa-discord" aria-hidden="true"></i><?php endif; ?> Mit <?= $centralLogin ? 'Sync' : 'Discord' ?> anmelden</a>
+                        // Optional code input field
+                        echo '<form method="POST" class="mb-4">';
+                        echo csrf_field();
+                        echo '<div class="relative mb-3">';
+                        echo '<label class="ignis-field__label" for="registration_code">Registrierungscode</label>';
+                        echo '<input type="text" class="ignis-input" id="registration_code" name="registration_code" placeholder="Code aus der Einladung" autocomplete="one-time-code">';
+                        echo '</div>';
+                        echo '<button type="submit" class="ignis-btn ignis-btn--secondary block w-full">Mit Code registrieren</button>';
+                        echo '</form>';
+                        echo '<div class="mb-3 text-center"><small class="text-gray-400">oder</small></div>';
+                    }
+                    ?>
+
+                    <div class="twplus-login__actions">
+                        <a href="<?= BASE_PATH ?><?= $centralLogin ? 'auth/fabrica' : 'auth/discord' ?>" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><?php if ($centralLogin): ?><span aria-hidden="true" style="display:inline-flex;align-self:center;flex-shrink:0;"><?= str_replace('<svg ', '<svg width="28" height="16" ', (string) file_get_contents(__DIR__ . '/assets/img/ef-mark.svg')) ?></span><?php else: ?><i class="fa-brands fa-discord" aria-hidden="true"></i><?php endif; ?> Mit <?= $centralLogin ? 'Sync' : 'Discord' ?> anmelden</a>
+                    </div>
                 </div>
 
                 <?php
