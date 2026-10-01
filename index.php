@@ -15,7 +15,7 @@ $dashboardPlugins = app(\App\Plugins\PluginLoader::class);
 $dashboardEnotf   = $dashboardPlugins->isActive('enotf');
 $dashboardFiretab = $dashboardPlugins->isActive('firetab');
 
-// Übersicht wie „ignis im Dienst“ aus der Funke-Spec: Kacheln, Einsätze,
+// Übersicht wie „ignis im Dienst“ aus der Spec zu ui 0.7.0: Kacheln, Einsätze,
 // Fahrzeuge und Hinweise, jeweils nur mit Recht und echten Daten.
 $dashboardNow       = new DateTimeImmutable();
 $dashboardIncidents = Overview::incidents($dashboardPlugins, $dashboardNow);

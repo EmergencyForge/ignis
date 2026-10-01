@@ -54,7 +54,7 @@ h4, .h4 { font-size: 1.1rem; }
 h5, .h5 { font-size: 0.95rem; }
 h6, .h6 { font-size: 0.85rem; }
 
-// Im Skin ist ein h2 Abschnittstitel mit 20/28 wie in der Funke-Skala,
+// Im Skin ist ein h2 Abschnittstitel mit 20/28 wie in der Schriftskala,
 // kleiner als der Seitentitel (24/32). :where hält die Spezifität bei der
 // von h2, eine Klasse an der Überschrift gewinnt also weiter.
 :where(body.ignis-app) h2 { font-size: 20px; line-height: 28px; }

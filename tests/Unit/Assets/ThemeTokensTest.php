@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  *      eine Hex-Farbe.
  *   3. Weiß-Transparenzen als Fläche (rgba(255,255,255,<0.5)) laufen über die
  *      --fill-Tokens, damit der helle Satz sie umdrehen kann.
- *   4. Die Funke-Werte des Skins stehen in _look-aliases.scss, dem
+ *   4. Die eigenen Werte des Skins stehen in _look-aliases.scss, dem
  *      Token-Block hinter ef.look-tokens(). Jede Farbe aus aliases() hat
  *      dort in light() ein helles Gegenstück, sonst stünde im hellen Skin
  *      eine Farbe, die für den dunklen Grund gewählt ist.
@@ -170,7 +170,7 @@ final class ThemeTokensTest extends TestCase
     ];
 
     #[Test]
-    public function heller_skin_ueberschreibt_jede_funke_farbe(): void
+    public function heller_skin_ueberschreibt_jede_skinfarbe(): void
     {
         $scss = str_replace("\r\n", "\n", (string) file_get_contents($this->cssDir() . '/_look-aliases.scss'));
         $block = function (string $mixin) use ($scss): array {
@@ -191,7 +191,7 @@ final class ThemeTokensTest extends TestCase
         }
 
         $this->assertNotSame([], $light);
-        $this->assertSame([], $missing, "Diese Funke-Farben fehlen in light():\n  " . implode("\n  ", $missing));
+        $this->assertSame([], $missing, "Diese Skin-Farben fehlen in light():\n  " . implode("\n  ", $missing));
     }
 
     #[Test]

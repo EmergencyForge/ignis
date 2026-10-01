@@ -13,7 +13,7 @@ use Tests\FixtureFactory;
 
 /**
  * Das Dashboard (index.php) ist die Übersicht „ignis im Dienst“ aus der
- * Funke-Spec: Kennzahl-Kacheln mit der Alarmkachel für offene
+ * Spec zu ui 0.7.0: Kennzahl-Kacheln mit der Alarmkachel für offene
  * eNOTF-Protokolle, die Einsätze als Schale mit Sparklines, die Fahrzeuge
  * als Strichskala mit Status-Zeilen und rechts die Hinweise. Alles nur mit
  * Recht und echten Daten (App\Support\Overview). Darunter stehen die

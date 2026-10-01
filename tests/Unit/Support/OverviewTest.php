@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Die reinen Helfer der Übersicht: Datum im Seitenkopf, Dauer für „seit“
- * und der Ton eines FMS-Status nach der Funke-Spec (0 Gefahr, 1 und 2 ok,
+ * und der Ton eines FMS-Status nach der Spec zu ui 0.7.0 (0 Gefahr, 1 und 2 ok,
  * 3, 4, 7 und 8 Info, 5 Warnung, 6 neutral).
  */
 final class OverviewTest extends TestCase

@@ -87,7 +87,7 @@ final class LookAdoptionTest extends TestCase
      * Knopf im Hellen weiße Schrift. Der helle Block setzt ihn nicht noch
      * einmal, sonst käme SYSTEM_COLOR dort nicht an.
      */
-    public function testFunkeValuesOfIgnisLiveInTheSkin(): void
+    public function testOwnValuesOfIgnisLiveInTheSkin(): void
     {
         $skin = $this->skinBlock('body[data-ui-skin=core]') + $this->skinBlock('body[data-ui-skin="core"]');
         self::assertMatchesRegularExpression('/^oklch\((0?\.2|20%) \.03 40\)$/', $skin['--on-accent'] ?? '');

@@ -100,7 +100,7 @@ final class StyleLiteralsTest extends TestCase
     }
 
     /**
-     * Die Farben von Funke sind oklch-Werte. Am Hex-Wächter in
+     * Die Farben des Looks sind oklch-Werte. Am Hex-Wächter in
      * ThemeTokensTest kämen sie vorbei, deshalb stehen sie nur im
      * Token-Block des Skins.
      */
