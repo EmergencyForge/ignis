@@ -310,7 +310,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                     ? 'Einträge zu Medikamenten, Maßnahmen und allgemeinem Wissen erscheinen hier.'
                                     : 'Einträge erscheinen hier, sobald die Redaktion der Wissensdatenbank welche anlegt.',
                                 'actions' => $canCreateEntry
-                                    ? [['label' => 'Ersten Eintrag erstellen', 'href' => BASE_PATH . 'lexicon/create', 'style' => 'primary', 'icon' => 'fa-plus']]
+                                    ? [['label' => 'Ersten Eintrag erstellen', 'href' => BASE_PATH . 'lexicon/create', 'style' => 'secondary', 'icon' => 'fa-plus']]
                                     : [],
                             ];
                         require dirname(__DIR__, 4) . '/templates/partials/empty.php';

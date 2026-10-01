@@ -71,6 +71,10 @@ $topLogoIsDefault = systemLogoIsDefault();
 $topGroups  = $topLoggedIn ? Navigation::groups() : [];
 $topActions = Navigation::quickActions($topGroups);
 
+// Ein Primärknopf je Ansicht. Bringt die Seite einen mit, ist „Neu“
+// sekundär. Im Shim (navbar.php) ist der Inhalt noch nicht bekannt.
+$topNewStyle = isset($layoutContent) && !str_contains((string) $layoutContent, 'ignis-btn--primary') ? 'primary' : 'secondary';
+
 // Einträge der Palette ohne Server (assets/js/ui/palette.js): „X anlegen"
 // aus den Schnellaktionen und „Gehe zu" aus der sichtbaren Navigation,
 // als JSON am Suchfeld. Die Treffer aus dem Datenbestand kommen von
@@ -130,7 +134,7 @@ foreach ($topGroups as $topGroup) {
 
     <?php if ($topActions !== []): ?>
         <details class="ignis-menu ignis-menu--right" data-ignis-menu>
-            <summary class="ignis-btn ignis-btn--primary ignis-btn--sm ignis-topbar__new"><i class="fa-solid fa-plus" aria-hidden="true"></i> <span class="ignis-topbar__new-label">Neu</span> <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i></summary>
+            <summary class="ignis-btn ignis-btn--<?= $topNewStyle ?> ignis-btn--sm ignis-topbar__new"><i class="fa-solid fa-plus" aria-hidden="true"></i> <span class="ignis-topbar__new-label">Neu</span> <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i></summary>
             <div class="ignis-menu__panel" role="menu">
                 <?php foreach ($topActions as $topAction): ?>
                     <?php if ($topAction['type'] === 'drawer' || $topAction['type'] === 'link'): ?>

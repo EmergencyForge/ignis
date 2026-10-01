@@ -226,7 +226,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                 'title'   => 'Noch keine Fahrten eingetragen',
                                 'text'    => 'Fahrten erscheinen hier, sobald jemand eine einträgt.',
                                 'actions' => $canManage
-                                    ? [['label' => 'Fahrt eintragen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-logbook-create' => '']]]
+                                    ? [['label' => 'Fahrt eintragen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-logbook-create' => '']]]
                                     : [],
                             ];
                         require dirname(__DIR__) . '/partials/empty.php';

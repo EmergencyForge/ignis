@@ -100,7 +100,7 @@ $SITE_TITLE = 'Dokumentvorlagen';
                         'heading' => 2,
                         'title'   => 'Noch keine Vorlagen',
                         'text'    => 'Vorlagen legen Briefkopf und feste Abschnitte der Dokumente fest.',
-                        'actions' => [['label' => 'Neue Vorlage', 'href' => BASE_PATH . 'settings/documents/editor-templates/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                        'actions' => [['label' => 'Neue Vorlage', 'href' => BASE_PATH . 'settings/documents/editor-templates/create', 'style' => 'secondary', 'icon' => 'fa-plus']],
                     ];
                     require dirname(__DIR__, 2) . '/partials/empty.php';
                     ?>

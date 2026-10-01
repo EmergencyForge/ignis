@@ -72,6 +72,18 @@ final class ShellTest extends FeatureTestCase
     }
 
     #[Test]
+    public function neu_ist_nur_ohne_eigenen_primaerknopf_der_seite_primaer(): void
+    {
+        $this->login();
+
+        // Die Benutzerliste hat keinen Primärknopf, die Mitarbeiterliste „Mitarbeiter anlegen“.
+        $this->assertBodyContains('class="ignis-btn ignis-btn--primary ignis-btn--sm ignis-topbar__new"', $this->get('/users/list'));
+        $personnel = $this->get('/personnel/list');
+        $this->assertBodyContains('class="ignis-btn ignis-btn--secondary ignis-btn--sm ignis-topbar__new"', $personnel);
+        $this->assertSame(1, substr_count($personnel->body, 'ignis-btn--primary'));
+    }
+
+    #[Test]
     public function plugin_seite_rendert_durch_die_huelle(): void
     {
         $this->login();

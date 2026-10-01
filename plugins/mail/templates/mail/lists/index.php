@@ -33,7 +33,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                         'variant' => 'first', 'tone' => 'info', 'icon' => 'fa-people-group', 'ghostColumns' => 4,
                         'title'   => 'Noch keine Verteiler',
                         'text'    => 'Ein Verteiler bündelt Postfächer unter einer Adresse, etwa „wache1@…“ für alle auf Wache 1.',
-                        'actions' => [['label' => 'Verteiler anlegen', 'href' => $base . 'mail/lists/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                        'actions' => [['label' => 'Verteiler anlegen', 'href' => $base . 'mail/lists/create', 'style' => 'secondary', 'icon' => 'fa-plus']],
                     ];
                     require dirname(__DIR__, 5) . '/templates/partials/empty.php';
                     ?>

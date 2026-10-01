@@ -39,7 +39,7 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
                     'heading' => 2,
                     'title'   => 'Noch keine Schnellzugriffe',
                     'text'    => 'Lege eine Kategorie an und füge ihr Verlinkungen hinzu. Sie erscheinen danach auf dem Dashboard.',
-                    'actions' => [['label' => 'Kategorie erstellen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-dashboard-create-category' => '']]],
+                    'actions' => [['label' => 'Kategorie erstellen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-dashboard-create-category' => '']]],
                 ];
                 require dirname(__DIR__, 2) . '/partials/empty.php';
                 ?>

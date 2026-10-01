@@ -160,7 +160,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                                 ? 'Fahrzeuge brauchst du für Protokolle, Mängel und das Fahrtenbuch.'
                                                 : 'Fahrzeuge braucht ignis für Protokolle, Mängel und das Fahrtenbuch. Anlegen darf, wer die Fahrzeugverwaltung von der Administration bekommen hat.',
                                             'actions'      => $canManage
-                                                ? [['label' => 'Fahrzeug erstellen', 'href' => BASE_PATH . 'settings/vehicles/vehicles/create', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
+                                                ? [['label' => 'Fahrzeug erstellen', 'href' => BASE_PATH . 'settings/vehicles/vehicles/create', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
                                                 : [],
                                         ];
                                     }

@@ -181,7 +181,7 @@ $SITE_TITLE = 'Beladelisten';
                             ? 'Kategorien ordnen die Beladung der Fahrzeuge. Lege die erste an und ergänze danach die Gegenstände.'
                             : 'Kategorien ordnen die Beladung der Fahrzeuge. Anlegen darf, wer die Fahrzeugverwaltung von der Administration bekommen hat.',
                         'actions' => Permissions::check(['admin', 'vehicles.manage'])
-                            ? [['label' => 'Neue Kategorie', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-beladung-add-category' => '']]]
+                            ? [['label' => 'Neue Kategorie', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-beladung-add-category' => '']]]
                             : [],
                     ];
                     require dirname(__DIR__, 3) . '/partials/empty.php';

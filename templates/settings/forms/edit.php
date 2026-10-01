@@ -81,7 +81,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                             'icon'    => 'fa-list',
                             'title'   => 'Noch keine Formularfelder',
                             'text'    => 'Felder legen fest, was Mitarbeitende im Antrag ausfüllen.',
-                            'actions' => [['label' => 'Feld hinzufügen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-forms-add-field' => '']]],
+                            'actions' => [['label' => 'Feld hinzufügen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-forms-add-field' => '']]],
                         ];
                         require dirname(__DIR__, 2) . '/partials/empty.php';
                         ?>

@@ -38,7 +38,7 @@ $SITE_TITLE = 'Antragstypen';
                     'heading' => 2,
                     'title'   => 'Noch keine Antragstypen',
                     'text'    => 'Antragstypen legen fest, welche Anträge Mitarbeitende stellen können.',
-                    'actions' => [['label' => 'Neuer Antragstyp', 'href' => BASE_PATH . 'settings/forms/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                    'actions' => [['label' => 'Neuer Antragstyp', 'href' => BASE_PATH . 'settings/forms/create', 'style' => 'secondary', 'icon' => 'fa-plus']],
                 ];
                 require dirname(__DIR__, 2) . '/partials/empty.php';
                 ?>

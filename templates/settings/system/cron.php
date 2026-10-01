@@ -89,7 +89,7 @@ $SITE_TITLE = 'Cron-Jobs';
                                 'heading' => 2,
                                 'title'   => 'Noch keine Cron-Jobs',
                                 'text'    => 'Wiederkehrende Aufgaben erscheinen hier, sobald eine angelegt ist.',
-                                'actions' => [['label' => 'Neuer Job', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-cron-create' => '']]],
+                                'actions' => [['label' => 'Neuer Job', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-cron-create' => '']]],
                             ];
                             ?>
                             <tr><td colspan="8"><?php require dirname(__DIR__, 2) . '/partials/empty.php'; ?></td></tr>

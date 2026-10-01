@@ -165,7 +165,7 @@ $pgLabel = 'Mitarbeiter';
                                                 ? 'Lege Mitarbeitende an oder lass sie sich per Discord anmelden. Qualifikationen und Dienstzeiten hängen danach am Profil.'
                                                 : 'Mitarbeitende erscheinen hier, sobald sie sich per Discord anmelden oder angelegt werden. Das Recht zum Anlegen vergibt die Administration.',
                                             'actions'      => $canCreate
-                                                ? [['label' => 'Mitarbeitende anlegen', 'href' => BASE_PATH . 'personnel/create', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
+                                                ? [['label' => 'Mitarbeitende anlegen', 'href' => BASE_PATH . 'personnel/create', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
                                                 : [],
                                         ];
                                     }
