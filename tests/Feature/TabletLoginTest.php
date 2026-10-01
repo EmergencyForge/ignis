@@ -32,9 +32,9 @@ final class TabletLoginTest extends FeatureTestCase
     }
 
     /** @param array<string,mixed>|string $body */
-    private function requestToken(array|string $body, ?string $key = null, bool $withKey = true): Response
+    private function requestToken(array|string $body, ?string $key = null, bool $withKey = true, string $remote = '192.0.2.10'): Response
     {
-        $server = ['REMOTE_ADDR' => '192.0.2.10'];
+        $server = ['REMOTE_ADDR' => $remote];
         if ($withKey) {
             $server['HTTP_X_API_KEY'] = $key ?? (string) constant('API_KEY');
         }
@@ -67,6 +67,30 @@ final class TabletLoginTest extends FeatureTestCase
 
         $this->assertStatus(403, $this->requestToken(['discord_id' => (string) $user->discord_id], withKey: false));
         $this->assertStatus(403, $this->requestToken(['discord_id' => (string) $user->discord_id], 'falscher-schluessel'));
+        $this->assertSame(0, $this->tokenCount($user));
+    }
+
+    /**
+     * Die API lässt in Development Anfragen von 127.0.0.1 ohne Schlüssel
+     * durch. Für einen Token, der jedes Konto anmeldet, reicht das nicht.
+     */
+    #[Test]
+    public function der_localhost_bypass_der_api_reicht_nicht_fuer_einen_token(): void
+    {
+        $user = FixtureFactory::user();
+        $appEnv = $_ENV['APP_ENV'] ?? null;
+        $_ENV['APP_ENV'] = 'development';
+        try {
+            $response = $this->requestToken(['discord_id' => (string) $user->discord_id], withKey: false, remote: '127.0.0.1');
+        } finally {
+            if ($appEnv === null) {
+                unset($_ENV['APP_ENV']);
+            } else {
+                $_ENV['APP_ENV'] = $appEnv;
+            }
+        }
+
+        $this->assertStatus(403, $response);
         $this->assertSame(0, $this->tokenCount($user));
     }
 

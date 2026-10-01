@@ -34,6 +34,11 @@ final class TabletLoginController
         if (!self::enabled()) {
             return Response::json(['success' => false, 'error' => 'disabled'], 404);
         }
+        // Der Localhost-Bypass der API (Development) genügt hier nicht: der
+        // Token meldet jedes aktive Konto an, auch Admins.
+        if ($request->attribute('api_auth') !== 'key') {
+            return Response::json(['success' => false, 'error' => 'api_key_required'], 403);
+        }
 
         $discordId = ($request->json() ?? [])['discord_id'] ?? null;
         if (!is_string($discordId) || preg_match('/^[0-9]{17,20}$/D', $discordId) !== 1) {
