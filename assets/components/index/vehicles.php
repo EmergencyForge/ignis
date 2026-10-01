@@ -40,7 +40,7 @@ $vehicleIcons = [1 => 'fa-truck-medical', 2 => 'fa-truck-medical', 3 => 'fa-truc
             ]);
         ?>
             <div class="ignis-bezel__item ignis-entry">
-                <span class="ignis-glyph" aria-hidden="true"><i class="fa-solid <?= $vehicleIcons[$vehicleRow['rd_type']] ?? 'fa-car' ?>"></i></span>
+                <span class="ignis-glyph ignis-glyph--sm" aria-hidden="true"><i class="fa-solid <?= $vehicleIcons[$vehicleRow['rd_type']] ?? 'fa-car' ?>"></i></span>
                 <span class="ignis-entry__title ignis-mono"><?= htmlspecialchars($vehicleRow['name']) ?></span>
                 <span class="ignis-chip ignis-chip--sm"<?= $vehicleStatus['tone'] !== null ? ' data-tone="' . $vehicleStatus['tone'] . '"' : '' ?>><?= $vehicleRow['status'] === '6' ? '<i class="fa-solid fa-ban" aria-hidden="true"></i>' : '' ?><b><?= htmlspecialchars($vehicleRow['status']) ?></b> <?= htmlspecialchars($vehicleStatus['label']) ?></span>
                 <?php if ($vehicleMeta !== []): ?>

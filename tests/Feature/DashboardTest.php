@@ -94,6 +94,7 @@ final class DashboardTest extends FeatureTestCase
         // Fahrzeuge: Strichskala mit einem Strich je Fahrzeug, Status als getönter Chip.
         $this->assertStringContainsString('role="meter" aria-valuenow="1" aria-valuemin="0" aria-valuemax="2" aria-label="Fahrzeuge einsatzbereit, 1 von 2"', $body);
         $this->assertSame(1, substr_count($body, 'ignis-meter__tick is-on'));
+        $this->assertMatchesRegularExpression('~<div class="ignis-bezel__item ignis-entry">\s*<span class="ignis-glyph ignis-glyph--sm" aria-hidden="true">~', $body);
         $this->assertStringContainsString('data-tone="ok"><b>2</b> Einsatzbereit Wache</span>', $body);
         $this->assertStringContainsString('<span class="ignis-chip ignis-chip--sm"><i class="fa-solid fa-ban" aria-hidden="true"></i><b>6</b> Nicht einsatzbereit</span>', $body);
 
