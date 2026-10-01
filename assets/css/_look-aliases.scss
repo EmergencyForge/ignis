@@ -83,6 +83,8 @@
   --spring-gentle: var(--motion-spring);
 
   --sidebar-w: 256px;
+  // Eingeklappt eine Schiene mit 40-px-Einträgen und 8 px Rand je Seite.
+  --sidebar-w-collapsed: 56px;
 }
 
 // Für den hellen Skin-Block hinter ef.look().
