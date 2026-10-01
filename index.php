@@ -50,7 +50,7 @@ ob_start();
                     <p class="twplus-page-header__description"><?= htmlspecialchars(Overview::dateLabel($dashboardNow)) ?></p>
                 </div>
                 <div class="twplus-page-header__actions">
-                    <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
+                    <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
                 </div>
             </header>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
