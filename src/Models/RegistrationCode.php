@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string      $code
  * @property string|null $label
  * @property int|null    $created_by
- * @property Carbon      $created_at
+ * @property Carbon|null $created_at
  * @property int|null    $used_by
  * @property Carbon|null    $used_at
  * @property Carbon|null    $expires_at

@@ -243,15 +243,9 @@ class CalendarController extends Controller
             return Response::json(['success' => false, 'message' => 'Nicht gefunden'], 404);
         }
 
-        $startsAt = $event->starts_at instanceof \DateTimeInterface
-            ? $event->starts_at->format('Y-m-d\TH:i')
-            : substr((string) $event->starts_at, 0, 16);
-        $endsAt = $event->ends_at instanceof \DateTimeInterface
-            ? $event->ends_at->format('Y-m-d\TH:i')
-            : substr((string) $event->ends_at, 0, 16);
-        $until = $event->recurrence_until instanceof \DateTimeInterface
-            ? $event->recurrence_until->format('Y-m-d')
-            : ($event->recurrence_until ? substr((string) $event->recurrence_until, 0, 10) : null);
+        $startsAt = $event->starts_at->format('Y-m-d\TH:i');
+        $endsAt = $event->ends_at->format('Y-m-d\TH:i');
+        $until = $event->recurrence_until?->format('Y-m-d');
 
         return Response::json([
             'success' => true,
