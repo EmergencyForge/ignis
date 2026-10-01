@@ -9,6 +9,7 @@ use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
 use App\Integrations\DiscordWebhook;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Models\Edivi;
 use Plugin\Enotf\Models\EdiviPoi;
@@ -258,8 +259,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             ]);
         }
 
-        Redirects::redirect($defaultUrl, []);
-        exit();
+        // Zurück an den Controller statt header() und exit.
+        return Response::redirect($defaultUrl);
     } else {
         $formError = "Bitte füllen Sie alle Pflichtfelder korrekt aus.";
     }

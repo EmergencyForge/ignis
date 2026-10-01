@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -16,6 +17,8 @@ use Tests\FixtureFactory;
  */
 final class EnotfArrivalboardTest extends FeatureTestCase
 {
+    private string $enr = '';
+
     #[Test]
     public function arrivalboard_ist_oeffentlich_und_escaped_die_voranmeldung(): void
     {
@@ -79,12 +82,67 @@ final class EnotfArrivalboardTest extends FeatureTestCase
     #[DataProvider('ungueltigeVoranmeldung')]
     public function ungueltige_voranmeldung_wird_abgewiesen(array $abweichung): void
     {
+        $vorher = Capsule::table('intra_edivi_prereg')->count();
+
+        $response = $this->voranmelden($abweichung);
+
+        // Abgewiesen heißt: kein Redirect, das Formular steht wieder da, kein Eintrag.
+        $this->assertOk($response);
+        $this->assertSame($vorher, Capsule::table('intra_edivi_prereg')->count());
+    }
+
+    /** @return array<string, array{array<string, mixed>, array<string, string>}> */
+    public static function gueltigeVoranmeldung(): array
+    {
+        return [
+            'wie aus dem Formular' => [[], ['arrival' => date('Y-m-d') . ' 12:30:00', 'alter' => '54', 'gcs' => '15', 'priority' => '1']],
+            'Datum als d.m.Y'      => [['arrival_date' => '5.3.2026'], ['arrival' => '2026-03-05 12:30:00']],
+            'GCS leer, Alter 0'    => [['_GCS_' => '', '_AGE_' => '0'], ['gcs' => '', 'alter' => '0']],
+            'Freitext leer'        => [['text' => ''], ['text' => '']],
+            'Umlaute bis zur Höchstlänge' => [
+                ['diagnose' => str_repeat('ü', 255), 'text' => str_repeat('ä', 1000)],
+                ['diagnose' => str_repeat('ü', 255), 'text' => str_repeat('ä', 1000)],
+            ],
+            'Grenzwerte' => [
+                ['arrival_time' => '00:00', '_GCS_' => '3', '_AGE_' => '150', 'priority' => '2', 'kreislauf' => '0', 'intubiert' => '1'],
+                ['arrival' => date('Y-m-d') . ' 00:00:00', 'gcs' => '3', 'alter' => '150', 'priority' => '2', 'kreislauf' => '0', 'intubiert' => '1'],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed>  $abweichung
+     * @param array<string, string> $erwartet
+     */
+    #[Test]
+    #[DataProvider('gueltigeVoranmeldung')]
+    public function gueltige_voranmeldung_wird_gespeichert(array $abweichung, array $erwartet): void
+    {
+        $vorher = Capsule::table('intra_edivi_prereg')->count();
+
+        $response = $this->voranmelden($abweichung);
+
+        $this->assertRedirect($response, 'enr=' . $this->enr);
+        $this->assertSame($vorher + 1, Capsule::table('intra_edivi_prereg')->count());
+        $eintrag = (array) Capsule::table('intra_edivi_prereg')->orderByDesc('id')->first();
+        foreach ($erwartet as $spalte => $wert) {
+            $this->assertSame($wert, (string) $eintrag[$spalte], $spalte);
+        }
+    }
+
+    /**
+     * Schickt die Voranmeldung zu einem neuen Protokoll ab: mit den Werten,
+     * die das Formular im Browser schickt, und den Abweichungen darüber.
+     *
+     * @param array<string, mixed> $abweichung
+     */
+    private function voranmelden(array $abweichung): Response
+    {
         $user = FixtureFactory::user();
         $this->actingAs($user->id, ['permissions' => ['full_admin'], 'cirs_username' => $user->username]);
 
-        $enr = 'T-' . uniqid();
-        Capsule::table('intra_edivi')->insert(['enr' => $enr, 'patname' => 'Max Muster', 'protokoll_status' => 0, 'hidden' => 0, 'freigegeben' => 0]);
-        $vorher = Capsule::table('intra_edivi_prereg')->count();
+        $this->enr = 'T-' . uniqid();
+        Capsule::table('intra_edivi')->insert(['enr' => $this->enr, 'patname' => 'Max Muster', 'protokoll_status' => 0, 'hidden' => 0, 'freigegeben' => 0]);
 
         $body = array_merge([
             'new'          => '1',
@@ -101,10 +159,6 @@ final class EnotfArrivalboardTest extends FeatureTestCase
             'priority'     => '1',
         ], $abweichung);
 
-        $response = $this->post('/enotf/schnittstelle/voranmeldung', $body, ['query' => ['enr' => $enr]]);
-
-        // Abgewiesen heißt: kein Redirect, das Formular steht wieder da, kein Eintrag.
-        $this->assertOk($response);
-        $this->assertSame($vorher, Capsule::table('intra_edivi_prereg')->count());
+        return $this->post('/enotf/schnittstelle/voranmeldung', $body, ['query' => ['enr' => $this->enr]]);
     }
 }

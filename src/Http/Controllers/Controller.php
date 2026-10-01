@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Helpers\Layout;
+use EmergencyForge\Http\Response;
 
 /**
  * Base-Klasse für alle HTTP-Controller in intraRP.
@@ -129,9 +130,14 @@ abstract class Controller
      * assets/js/ui/drawer-form.js) lässt Layout::render() die Hülle weg und
      * liefert nur den Inhalt in <div class="ignis-fragment" data-title>.
      *
+     * Gibt das Template eine Response zurück (`return Response::redirect(...)`
+     * nach einem POST), liefert renderView() sie statt der Ausgabe. So kommt
+     * das Template ohne header() und exit aus, und ein Test kann den Redirect
+     * prüfen.
+     *
      * @param array<string,mixed> $data
      */
-    protected function renderView(string $view, array $data = []): void
+    protected function renderView(string $view, array $data = []): ?Response
     {
         $templatePath = rtrim($this->viewBasePath(), '/\\') . '/' . $view . '.php';
         if (!is_file($templatePath)) {
@@ -146,11 +152,15 @@ abstract class Controller
         // sauber emittieren, ohne sie unter Dashboard-Layout zu schachteln.
         ob_start();
         try {
-            require $templatePath;
+            $templateResponse = require $templatePath;
             $output = (string) ob_get_clean();
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
+        }
+
+        if ($templateResponse instanceof Response) {
+            return $templateResponse;
         }
 
         if (isset($layout) && is_string($layout) && $layout !== '') {
@@ -163,5 +173,7 @@ abstract class Controller
         }
 
         echo $output;
+
+        return null;
     }
 }
