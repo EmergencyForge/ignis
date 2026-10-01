@@ -160,7 +160,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
                                     if ($isFederated) {
                                         $actions = "<span style='font-size:var(--fs-xs);color:var(--text-dimmed);'>read-only</span>";
                                     } elseif (Permissions::check(['admin', 'edivi.edit'])) {
-                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$jsArgs})' class='ignis-btn ignis-btn--sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$jsArgs})' class='ignis-btn ignis-btn--sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> "
+                                        $actions = "<button type='button' aria-label='QM-Aktionen öffnen' data-ignis-tooltip='QM-Aktionen öffnen' onclick='openQMActions({$jsArgs})' class='ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm'><i class='fa-solid fa-exclamation' aria-hidden='true'></i></button> <button type='button' aria-label='QM-Log öffnen' data-ignis-tooltip='QM-Log öffnen' onclick='openQMLog({$jsArgs})' class='ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm'><i class='fa-solid fa-clock-rotate-left' aria-hidden='true'></i></button> "
                                             // Löschen per POST mit CSRF-Token und Rückfrage (vorher ein
                                             // GET-Link ohne beides). Fester Pfad statt EnotfUrl::admin():
                                             // das liefert, weil useCleanUrls() fest false ist, die
@@ -171,7 +171,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
                                             . " onsubmit=\"event.preventDefault(); var f = this; showConfirm('Protokoll wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Protokoll löschen'}).then(function (ok) { if (ok) f.submit(); });\">"
                                             . csrf_field()
                                             . "<input type='hidden' name='id' value='" . (int) $row['id'] . "'>"
-                                            . "<button type='submit' title='Protokoll löschen' aria-label='Protokoll löschen' class='ignis-btn ignis-btn--sm btn-outline-danger ignis-btn--icon'><i class='fa-solid fa-trash'></i></button></form>";
+                                            . "<button type='submit' aria-label='Protokoll löschen' data-ignis-tooltip='Protokoll löschen' class='ignis-btn ignis-btn--ghost-danger ignis-btn--icon ignis-btn--sm'><i class='fa-solid fa-trash' aria-hidden='true'></i></button></form>";
                                     }
                                     echo "<tr" . ($isFederated ? " style='opacity:0.85;'" : "") . ">";
                                     echo "<td>" . htmlspecialchars($row['enr'] ?? '') . $fedBadge . "</td>";
@@ -182,7 +182,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
                                     if ($isFederated) {
                                         echo "<td>{$actions}</td>";
                                     } else {
-                                        echo "<td><a title='Protokoll ansehen' href='" . EnotfUrl::protokoll($row['enr']) . "' class='ignis-btn ignis-btn--sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
+                                        echo "<td><a aria-label='Protokoll ansehen' data-ignis-tooltip='Protokoll ansehen' href='" . EnotfUrl::protokoll($row['enr']) . "' class='ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm' target='_blank'><i class='fa-solid fa-eye' aria-hidden='true'></i></a> {$actions}</td>";
                                     }
                                     echo "</tr>";
                                 }

@@ -213,19 +213,6 @@ div.btn:active {
   box-shadow: none;
 }
 
-.btn-soft-primary {
-  background: color-mix(in oklab, var(--info) 15%, transparent) !important;
-  color: var(--info) !important;
-  border: none !important;
-}
-
-.btn-soft-primary:hover {
-  background: color-mix(in oklab, var(--info) 25%, transparent) !important;
-  color: var(--info) !important;
-  transform: none;
-  box-shadow: none;
-}
-
 .btn-soft-success {
   background: color-mix(in oklab, var(--ok) 15%, transparent) !important;
   color: var(--ok) !important;
