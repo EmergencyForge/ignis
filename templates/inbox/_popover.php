@@ -43,7 +43,7 @@ $basePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 <?php if (!empty($entry['message'])): ?>
                     <span><?= htmlspecialchars((string) $entry['message']) ?></span>
                 <?php endif; ?>
-                <small><?= htmlspecialchars((string) $entry['label']) ?> · <?= htmlspecialchars(\App\Helpers\DateTimeHelper::formatShortLocal((string) $entry['created_at'])) ?></small>
+                <small><?= htmlspecialchars((string) $entry['label']) ?> · <?= htmlspecialchars(\App\Helpers\DateTimeHelper::fromDbClock((string) $entry['created_at'])?->format('d.m.Y H:i') ?? '–') ?></small>
             </span>
         </<?= $entryTag ?>>
     <?php endforeach; ?>

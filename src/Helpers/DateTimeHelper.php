@@ -28,6 +28,60 @@ final class DateTimeHelper
 {
     public const LOCAL_TZ = 'Europe/Berlin';
 
+    /** Abstand der DB-Uhr zu UTC in Sekunden, je Request einmal erfragt. */
+    private static ?int $dbUtcOffset = null;
+
+    // ── DB-Uhr-Input (Felder mit DEFAULT CURRENT_TIMESTAMP oder NOW()) ──
+
+    /**
+     * Abstand der Datenbankuhr zu UTC in Sekunden. Die Verbindung setzt keine
+     * Zeitzone, NOW() und CURRENT_TIMESTAMP laufen also in der Zeitzone des
+     * DB-Servers: im Docker-Betrieb UTC, auf manchen Hostern Ortszeit. Ohne
+     * Verbindung gilt die Ortszeit, wie bisher bei den Local-Methoden.
+     */
+    public static function dbUtcOffset(): int
+    {
+        if (self::$dbUtcOffset === null) {
+            try {
+                $row = \Illuminate\Database\Capsule\Manager::connection()
+                    ->selectOne('SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) AS diff');
+                $seconds = is_object($row) && isset($row->diff) ? (int) $row->diff : 0;
+                // Beide Uhren liest MySQL im selben Statement, auf Viertelstunden gerundet bleibt nur der Zonenabstand.
+                self::$dbUtcOffset = (int) (round($seconds / 900) * 900);
+            } catch (\Throwable) {
+                self::$dbUtcOffset = (new \DateTimeImmutable('now', new \DateTimeZone(self::LOCAL_TZ)))->getOffset();
+            }
+        }
+
+        return self::$dbUtcOffset;
+    }
+
+    /** Für Tests: festen Abstand setzen, null fragt die Datenbank wieder. */
+    public static function useDbUtcOffset(?int $seconds): void
+    {
+        self::$dbUtcOffset = $seconds;
+    }
+
+    /**
+     * Parsed einen Wert, den die Datenbankuhr geschrieben hat, und liefert ihn
+     * in Europe/Berlin. Läuft der DB-Server in UTC, wird aus 22:30 so 00:30
+     * des Folgetags; läuft er in Ortszeit, bleibt der Wert, wie er ist.
+     */
+    public static function fromDbClock(?string $dbString): ?\DateTimeImmutable
+    {
+        if ($dbString === null || $dbString === '') {
+            return null;
+        }
+        try {
+            $asUtc = new \DateTimeImmutable($dbString, new \DateTimeZone('UTC'));
+            return $asUtc
+                ->modify(sprintf('%+d seconds', -self::dbUtcOffset()))
+                ->setTimezone(new \DateTimeZone(self::LOCAL_TZ));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     // ── UTC-Input (neue Tabellen, z.B. Cron) ─────────────────────────
 
     /**

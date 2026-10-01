@@ -76,6 +76,30 @@ final class InboxTest extends FeatureTestCase
     }
 
     #[Test]
+    public function kurz_nach_mitternacht_steht_unter_heute(): void
+    {
+        // created_at schreibt die Datenbankuhr, im Container UTC. Eine
+        // Meldung von 00:30 Uhr Ortszeit liegt dort noch auf dem Vortag und
+        // landete deshalb unter „Gestern“; der Test lief nur nachts rot.
+        $me = $this->login();
+        $this->manager()->notify('system', [$me], ['title' => 'Nach Mitternacht', 'link' => '/index']);
+
+        $dbOffset = (int) \Illuminate\Database\Capsule\Manager::connection()
+            ->selectOne('SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) AS diff')->diff;
+        $localMidnight = new \DateTimeImmutable('today 00:30', new \DateTimeZone('Europe/Berlin'));
+        $dbClock = $localMidnight->setTimezone(new \DateTimeZone('UTC'))
+            ->modify(sprintf('%+d seconds', (int) (round($dbOffset / 900) * 900)))
+            ->format('Y-m-d H:i:s');
+        Notification::query()->where('user_id', $me)->update(['created_at' => $dbClock]);
+
+        $page = $this->get('/inbox');
+        $this->assertOk($page);
+        $this->assertBodyContains('class="ignis-inbox__day">Heute<', $page);
+        $this->assertBodyNotContains('class="ignis-inbox__day">Gestern<', $page);
+        $this->assertBodyContains('class="ignis-inbox__when">00:30<', $page);
+    }
+
+    #[Test]
     public function popover_ohne_huelle_mit_limit(): void
     {
         $me = $this->login();
