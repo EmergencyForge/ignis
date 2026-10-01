@@ -188,6 +188,11 @@ export default defineConfig(({ mode }) => {
                 cssCodeSplit: false,
                 rollupOptions: {
                     input: uiEntries,
+                    // Seiten-Skripte importieren aus den Einstiegen
+                    // (calendar.js: { Dialog } aus ui/dialog.js). Ohne diese
+                    // Angabe entfernt Rollup bei App-Builds die Exporte der
+                    // Einstiege, und das importierende Modul bricht ab.
+                    preserveEntrySignatures: 'exports-only',
                     output: {
                         format: 'es',
                         entryFileNames: '[name].js',

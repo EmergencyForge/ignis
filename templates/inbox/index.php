@@ -28,16 +28,19 @@ $bodyId = 'inbox';
 $pgPath  = 'inbox';
 $pgLabel = 'Benachrichtigungen';
 
-// Gruppen nach Tag: Heute, Gestern, dann das Datum.
-$today     = date('Y-m-d');
-$yesterday = date('Y-m-d', strtotime('-1 day'));
+// Gruppen nach Tag: Heute, Gestern, dann das Datum. created_at schreibt die
+// Datenbankuhr (oft UTC); verglichen wird der Tag in Ortszeit.
+$localTz   = new DateTimeZone(DateTimeHelper::LOCAL_TZ);
+$today     = (new DateTimeImmutable('today', $localTz))->format('Y-m-d');
+$yesterday = (new DateTimeImmutable('yesterday', $localTz))->format('Y-m-d');
 $groups    = [];
 foreach ($entries as $entry) {
-    $day = substr((string) $entry['created_at'], 0, 10);
+    $at  = DateTimeHelper::fromDbClock((string) $entry['created_at']);
+    $day = $at?->format('Y-m-d') ?? substr((string) $entry['created_at'], 0, 10);
     $heading = match ($day) {
         $today     => 'Heute',
         $yesterday => 'Gestern',
-        default    => DateTimeHelper::formatDateLocal((string) $entry['created_at'], $day),
+        default    => $at?->format('d.m.Y') ?? $day,
     };
     $groups[$heading][] = $entry;
 }
@@ -129,7 +132,7 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
                                         </span>
                                         <span class="ignis-inbox__meta">
                                             <span class="ignis-chip ignis-chip--sm<?= $entry['known'] ? '' : ' ignis-chip--secondary' ?>"><?= htmlspecialchars((string) $entry['label']) ?></span>
-                                            <time datetime="<?= htmlspecialchars((string) $entry['created_at'], ENT_QUOTES) ?>" class="ignis-inbox__when"><?= htmlspecialchars(DateTimeHelper::formatTimeLocal((string) $entry['created_at'])) ?></time>
+                                            <time datetime="<?= htmlspecialchars((string) $entry['created_at'], ENT_QUOTES) ?>" class="ignis-inbox__when"><?= htmlspecialchars(DateTimeHelper::fromDbClock((string) $entry['created_at'])?->format('H:i') ?? '–') ?></time>
                                         </span>
                                     </<?= $entryTag ?>>
                                     <?php if ($entryUnread): ?>
