@@ -170,13 +170,3 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-
-// Sichtungskategorien des MANV-Boards (plugins/manv-board): volle Fläche in
-// der Bedeutungsfarbe, weil die Farbe hier das Signal ist.
-.ignis-chip--sk1 { background: var(--danger); color: var(--white); }
-.ignis-chip--sk2 { background: var(--warn); color: var(--bg); }
-.ignis-chip--sk3 { background: var(--ok); color: var(--white); }
-.ignis-chip--sk4 { background: var(--info); color: var(--white); }
-.ignis-chip--sk5,
-.ignis-chip--tot { background: var(--text); color: var(--bg); }
-.ignis-chip--sk6 { background: var(--fill-4); color: var(--text); }

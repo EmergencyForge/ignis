@@ -35,8 +35,8 @@ final class LookAdoptionTest extends TestCase
     public function testTheSkinUsesTheSharedLook(): void
     {
         $skin = $this->skinBlock('body[data-ui-skin=core]') + $this->skinBlock('body[data-ui-skin="core"]');
-        self::assertSame('2px', $skin['--radius-2'] ?? null);
-        self::assertSame('3px', $skin['--radius-3'] ?? null);
+        self::assertSame('10px', $skin['--radius-2'] ?? null);
+        self::assertSame('16px', $skin['--radius-3'] ?? null);
         self::assertStringStartsWith('oklch(', $skin['--canvas'] ?? '');
     }
 
@@ -115,6 +115,21 @@ final class LookAdoptionTest extends TestCase
         self::assertMatchesRegularExpression('/\.rounded-xl\{border-radius:var\(--radius-3\)\}/', $css);
         self::assertMatchesRegularExpression('/\.shadow-strong\{[^}]*var\(--shadow-pop\)/', $css);
         self::assertMatchesRegularExpression('/\.shadow-soft\{[^}]*var\(--shadow-card\)/', $css);
+    }
+
+    /**
+     * Der neutrale Chip des Skins hat (0,2,1). Eine Sichtungskategorie mit
+     * nur einer Klasse verlöre dagegen und wäre grau.
+     */
+    public function testTriageChipsKeepTheirToneInTheSkin(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+        self::assertMatchesRegularExpression(
+            '/body\[data-ui-skin="?core"?\] \.ignis-chip:is\(\.ignis-chip--sk1,[^)]*\.ignis-chip--tot\)\{background:var\(--tone-soft\);border-color:var\(--tone-line\);color:var\(--tone-text\)\}/',
+            $css,
+        );
+        self::assertStringContainsString('.ignis-chip--sk1{--tone-soft:var(--danger-soft);--tone-line:var(--danger-line);--tone-text:var(--danger-text)}', $css);
+        self::assertStringContainsString('.ignis-chip--sk4{--tone-soft:var(--info-soft);', $css);
     }
 
     public function testEmptyStatesAreBuilt(): void
