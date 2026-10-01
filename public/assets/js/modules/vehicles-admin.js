@@ -282,7 +282,7 @@
                     const badge = document.getElementById('importBadge');
                     if (badge) {
                         badge.textContent = data.import_queue_count;
-                        badge.classList.remove('hidden');
+                        badge.hidden = false;
                     }
                 }
             })
@@ -637,7 +637,7 @@
                     </div>
                 `;
                 const badge = document.getElementById('importBadge');
-                if (badge) badge.classList.add('hidden');
+                if (badge) badge.hidden = true;
             }
         }
 

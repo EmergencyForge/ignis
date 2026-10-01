@@ -43,7 +43,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                 </button>
                                 <button type="button" class="ignis-btn ignis-btn--secondary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
-                                    <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
+                                    <span class="ignis-chip ignis-chip--count ml-1" id="importBadge" hidden>0</span>
                                 </button>
                                 <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/create" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
