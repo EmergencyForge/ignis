@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "f66d80bd1b72efe30fad7f5c1a2085c50212475f"
+                "reference": "6a31cef1a84cbff1ee4f630a265c4a12d737756f"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
