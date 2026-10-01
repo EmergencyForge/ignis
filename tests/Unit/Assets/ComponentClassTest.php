@@ -177,9 +177,7 @@ final class ComponentClassTest extends TestCase
             }
         }
 
-        // Paket-Befund: WebPackages ui/datetimepicker.js setzt noch das alte
-        // soft-primary. Behebt das Paket es (secondary), fliegt der Eintrag raus.
-        $unknown = array_values(array_diff(array_unique($unknown), ['datetimepicker.js: ignis-btn--soft-primary']));
+        $unknown = array_values(array_unique($unknown));
         sort($unknown);
 
         $this->assertSame(
@@ -209,9 +207,8 @@ final class ComponentClassTest extends TestCase
      * Quellcode, der die alten Namen neu einführt, fällt hier durch.
      *
      * public/assets/js/ui ist gebautes Paket-Modul (WebPackages), kein
-     * ignis-Quellcode — ein altes Klassenliteral dort (z.B. datetimepicker.js'
-     * "Übernehmen"-Knopf) ist ein Paket-Befund, den dieses Repo nicht beheben
-     * kann; der Knopf fällt auf die Grundform von ignis-btn zurück.
+     * ignis-Quellcode — ein altes Klassenliteral dort ist ein Paket-Befund,
+     * den dieses Repo nicht beheben kann.
      */
     public function testNoOldVocabularyClassNamesInSource(): void
     {
