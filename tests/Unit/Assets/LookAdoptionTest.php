@@ -60,6 +60,7 @@ final class LookAdoptionTest extends TestCase
             '--spring' => 'var(--motion-spring)',
             '--fs-base' => '14px',
             '--sidebar-w-collapsed' => '56px',
+            '--link' => 'var(--accent-text)',
         ];
         foreach ($expected as $name => $value) {
             self::assertSame($value, $skin[$name] ?? null, $name);

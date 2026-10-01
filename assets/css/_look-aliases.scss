@@ -40,6 +40,8 @@
   --input-bg: var(--well);
   --input-text: var(--text);
   --input-placeholder: var(--text-3);
+  // Links sind Schrift im Akzent. Das Orange selbst hielte hell nur 3,6 : 1.
+  --link: var(--accent-text);
   --fs-base: 14px;
 
   // Dieselben Ableitungen wie auf :root. Dort sind sie mit den alten
