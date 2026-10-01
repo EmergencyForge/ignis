@@ -47,7 +47,7 @@ $bodyPage = 'edivi';
                             'heading' => 2,
                             'title'   => 'Noch keine Fahrzeuge',
                             'text'    => 'Füge das erste Fahrzeug hinzu, um Ressourcen der Lage zuzuordnen.',
-                            'actions' => [['label' => 'Fahrzeug hinzufügen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-dialog-target' => '#createModal']]],
+                            'actions' => [['label' => 'Fahrzeug hinzufügen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-dialog-target' => '#createModal']]],
                         ];
                         require dirname(__DIR__, 4) . '/templates/partials/empty.php';
                         ?>
