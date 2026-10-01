@@ -142,7 +142,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -156,7 +156,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>[#<?= $daten['enr'] ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
+        <title>[#<?= e($daten['enr']) ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
         <!-- Stylesheets -->
         <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
         <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/lineawesome/css/line-awesome.min.css" />
@@ -173,8 +173,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         <!-- Metas -->
         <meta name="theme-color" content="#ffaf2f" />
         <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
-        <meta property="og:url" content="<?= $prot_url ?>" />
-        <meta property="og:title" content="[#<?= $daten['enr'] ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?>" />
+        <meta property="og:url" content="<?= e($prot_url) ?>" />
+        <meta property="og:title" content="[#<?= e($daten['enr']) ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?>" />
         <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
         <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
     </head>
@@ -198,7 +198,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <table class="container-fluid">
                                             <tbody>
                                                 <tr>
-                                                    <td><?= $daten['patname'] ?? '<span style="color:lightgray">Kein Name hinterlegt</span>' ?> * <?= $daten['patgebdat'] ?? '<span style="color:lightgray">Kein Datum hinterlegt</span>' ?></td>
+                                                    <td><?= isset($daten['patname']) ? e($daten['patname']) : '<span style="color:lightgray">Kein Name hinterlegt</span>' ?> * <?= isset($daten['patgebdat']) ? e($daten['patgebdat']) : '<span style="color:lightgray">Kein Datum hinterlegt</span>' ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -219,7 +219,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <td>von: <?= !empty($transp_von_display) ? htmlspecialchars($transp_von_display) : '<span style="color:lightgray">Kein Ort hinterlegt</span>' ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>nach: <?= !empty($transp_nach_display) ? htmlspecialchars($transp_nach_display) : (!empty($ziel) ? $ziel : '<span style="color:lightgray">Kein Zielort hinterlegt</span>') ?></td>
+                                                    <td>nach: <?= !empty($transp_nach_display) ? htmlspecialchars($transp_nach_display) : (!empty($ziel) ? e($ziel) : '<span style="color:lightgray">Kein Zielort hinterlegt</span>') ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -241,27 +241,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 <?php if ($daten['prot_by'] == 0): // Rettungsdienst-Protokoll 
                                                 ?>
                                                     <tr>
-                                                        <td><?= !empty($fzgTransp) ? $fzgTransp : '<span style="color:lightgray">Kein Transportmittel hinterlegt</span>' ?></td>
+                                                        <td><?= !empty($fzgTransp) ? e($fzgTransp) : '<span style="color:lightgray">Kein Transportmittel hinterlegt</span>' ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td><?= $daten['fzg_transp_perso'] ?? '<span style="color:lightgray">Kein Transportführer hinterlegt</span>' ?>, <?= $daten['fzg_transp_perso_2'] ?? '<span style="color:lightgray">Kein Fahrzeugführer hinterlegt</span>' ?></td>
+                                                        <td><?= isset($daten['fzg_transp_perso']) ? e($daten['fzg_transp_perso']) : '<span style="color:lightgray">Kein Transportführer hinterlegt</span>' ?>, <?= isset($daten['fzg_transp_perso_2']) ? e($daten['fzg_transp_perso_2']) : '<span style="color:lightgray">Kein Fahrzeugführer hinterlegt</span>' ?></td>
                                                     </tr>
                                                     <?php if (!empty($daten['fzg_transp_perso_3'])): ?>
                                                         <tr>
-                                                            <td>Praktikant: <?= $daten['fzg_transp_perso_3'] ?></td>
+                                                            <td>Praktikant: <?= e($daten['fzg_transp_perso_3']) ?></td>
                                                         </tr>
                                                     <?php endif; ?>
                                                 <?php else: // Notarzt-Protokoll
                                                 ?>
                                                     <tr>
-                                                        <td><?= !empty($fzgNA) ? $fzgNA : '<span style="color:lightgray">Kein Notarztzubringer hinterlegt</span>' ?></td>
+                                                        <td><?= !empty($fzgNA) ? e($fzgNA) : '<span style="color:lightgray">Kein Notarztzubringer hinterlegt</span>' ?></td>
                                                     </tr>
                                                     <tr>
-                                                        <td><?= $daten['fzg_na_perso'] ?? '<span style="color:lightgray">Kein Notarzt hinterlegt</span>' ?>, <?= $daten['fzg_na_perso_2'] ?? '<span style="color:lightgray">Kein Fahrzeugführer/HEMS hinterlegt</span>' ?></td>
+                                                        <td><?= isset($daten['fzg_na_perso']) ? e($daten['fzg_na_perso']) : '<span style="color:lightgray">Kein Notarzt hinterlegt</span>' ?>, <?= isset($daten['fzg_na_perso_2']) ? e($daten['fzg_na_perso_2']) : '<span style="color:lightgray">Kein Fahrzeugführer/HEMS hinterlegt</span>' ?></td>
                                                     </tr>
                                                     <?php if (!empty($daten['fzg_na_perso_3'])): ?>
                                                         <tr>
-                                                            <td>Praktikant: <?= $daten['fzg_na_perso_3'] ?></td>
+                                                            <td>Praktikant: <?= e($daten['fzg_na_perso_3']) ?></td>
                                                         </tr>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
@@ -301,10 +301,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <table class="container-fluid">
                                             <tbody>
                                                 <tr>
-                                                    <td>Einsatz-Nr.: <?= $daten['enr'] ?></td>
+                                                    <td>Einsatz-Nr.: <?= e($daten['enr']) ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Beginn: <?= $daten['edatum'] ?? '<span style="color:lightgray">Kein Datum hinterlegt</span>' ?>, <?= $daten['ezeit'] ?? '<span style="color:lightgray">keine Zeit hinterlegt</span>' ?></td>
+                                                    <td>Beginn: <?= isset($daten['edatum']) ? e($daten['edatum']) : '<span style="color:lightgray">Kein Datum hinterlegt</span>' ?>, <?= isset($daten['ezeit']) ? e($daten['ezeit']) : '<span style="color:lightgray">keine Zeit hinterlegt</span>' ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -322,7 +322,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <table class="container-fluid">
                                             <tbody>
                                                 <tr>
-                                                    <td><?= $daten['pfname'] ?? '<span style="color:lightgray">Kein Protokollant hinterlegt</span>' ?></td>
+                                                    <td><?= isset($daten['pfname']) ? e($daten['pfname']) : '<span style="color:lightgray">Kein Protokollant hinterlegt</span>' ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td>
@@ -366,7 +366,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <div class="edivi__freigabe-buttons">
                             <div class="row">
                                 <div class="col">
-                                    <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
+                                    <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>">zurück</a>
                                 </div>
                                 <div class="col">
                                     <a href="#" id="final">Abschließen!</a>

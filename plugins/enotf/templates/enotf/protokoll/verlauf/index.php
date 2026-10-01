@@ -133,7 +133,7 @@ $totalVitals = EdiviVitalwert::where('enr', $enr)
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
     <!-- Chart.js (lokales Bundle statt CDN — rendert auch ohne Außenanbindung) -->
@@ -231,7 +231,7 @@ $totalVitals = EdiviVitalwert::where('enr', $enr)
                     <div class="col">
                         <div class="flex justify-content-between align-items-center">
                             <div class="flex gap-2">
-                                <a href="list?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
+                                <a href="list?enr=<?= rawurlencode($enr) ?>&action=manage" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-list"></i> Verlauf bearbeiten
                                 </a>
                             </div>
@@ -727,7 +727,7 @@ $totalVitals = EdiviVitalwert::where('enr', $enr)
 
         function addValues() {
             <?php if (!$ist_freigegeben): ?>
-                window.location.href = 'add?enr=<?= $enr ?>';
+                window.location.href = 'add?enr=<?= rawurlencode($enr) ?>';
             <?php else: ?>
                 showAlert('Diese Dokumentation ist bereits freigegeben und kann nicht mehr bearbeitet werden.', {
                     type: 'warning',

@@ -49,7 +49,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 7) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -231,7 +231,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
     <script>
     initEnotfZugangPage({
         basePath: '<?= BASE_PATH ?>',
-        enr:      '<?= $enr ?>',
+        enr:      <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
         art:      'pvk',
         ort:      'Ellbeuge',
     });

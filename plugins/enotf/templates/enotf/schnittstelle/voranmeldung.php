@@ -9,6 +9,7 @@ use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
 use App\Integrations\DiscordWebhook;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Models\Edivi;
 use Plugin\Enotf\Models\EdiviPoi;
@@ -63,21 +64,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
         'ziel'
     ];
 
-    $allFilled = true;
+    $valid = true;
     foreach ($requiredFields as $field) {
         if (!isset($_POST[$field]) || $_POST[$field] === '' || $_POST[$field] === 'NULL') {
-            $allFilled = false;
+            $valid = false;
             break;
         }
     }
 
-    if ($allFilled) {
+    // Erlaubte Werte wie im Formular. Das Alter rechnet das Formular aus dem
+    // Geburtsdatum, die GCS ist leer oder liegt zwischen 3 und 15. /D, damit
+    // $ keinen Zeilenumbruch am Ende zulässt.
+    $formats = [
+        'priority'     => '/^[012]$/D',
+        'kreislauf'    => '/^[01]$/D',
+        'intubiert'    => '/^[01]$/D',
+        'arrival_date' => '/^(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4})$/D',
+        'arrival_time' => '/^([01]\d|2[0-3]):[0-5]\d$/D',
+        '_AGE_'        => '/^(\d{1,2}|1[0-4]\d|150)?$/D',
+        '_GCS_'        => '/^([3-9]|1[0-5])?$/D',
+        'fahrzeug'     => '/^.{1,255}$/suD',
+        'diagnose'     => '/^.{1,255}$/suD',
+        'ziel'         => '/^.{1,255}$/suD',
+        'text'         => '/^.{0,1000}$/suD',
+    ];
+    foreach ($formats as $field => $pattern) {
+        $value = $_POST[$field] ?? '';
+        if (!is_string($value) || preg_match($pattern, $value) !== 1) {
+            $valid = false;
+            break;
+        }
+    }
+
+    if ($valid) {
         // Datum normalisieren: DD.MM.YYYY → YYYY-MM-DD (falls Browser kein natives date-input hat)
         $rawDate = $_POST['arrival_date'];
         if (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $rawDate, $m)) {
             $rawDate = $m[3] . '-' . str_pad($m[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($m[1], 2, '0', STR_PAD_LEFT);
         }
         $arrivalDateTime = $rawDate . ' ' . $_POST['arrival_time'] . ':00';
+        $arrival = DateTime::createFromFormat('!Y-m-d H:i:s', $arrivalDateTime);
+        $valid = $arrival !== false && $arrival->format('Y-m-d H:i:s') === $arrivalDateTime;
+    }
+
+    if ($valid) {
         $prereg = EdiviPrereg::create([
             'priority' => $_POST['priority'],
             'arrival' => $arrivalDateTime,
@@ -229,8 +259,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             ]);
         }
 
-        Redirects::redirect($defaultUrl, []);
-        exit();
+        // Zurück an den Controller statt header() und exit.
+        return Response::redirect($defaultUrl);
     } else {
         $formError = "Bitte füllen Sie alle Pflichtfelder korrekt aus.";
     }
@@ -400,7 +430,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 5) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -432,7 +462,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                                                 // POI-Krankenhäuser mit poi_ prefix ausgeben
                                                 foreach ($krankenhaeuserPois as $row) {
-                                                    echo '<option value="poi_' . $row['id'] . '">' . htmlspecialchars($row['name']) . '</option>';
+                                                    echo '<option value="poi_' . (int) $row['id'] . '">' . htmlspecialchars($row['name']) . '</option>';
                                                 }
                                                 ?>
                                             </select>
@@ -477,13 +507,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row">
                                         <div class="col">
                                             <label for="diagnose" class="edivi__description">Diagnose</label>
-                                            <input type="text" name="diagnose" id="diagnose" class="w-100 ignis-input" maxlength="255" placeholder="..." value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly required>
+                                            <input type="text" name="diagnose" id="diagnose" class="w-100 ignis-input" maxlength="255" placeholder="..." value="<?= e($diagnose_haupt_text) ?>" readonly required>
                                         </div>
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col">
                                             <label for="text" class="edivi__description">Anmeldetext</label>
-                                            <textarea name="text" id="text" rows="3" class="w-100 ignis-input" style="resize: none" placeholder="..."></textarea>
+                                            <textarea name="text" id="text" maxlength="1000" rows="3" class="w-100 ignis-input" style="resize: none" placeholder="..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -505,7 +535,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <div class="col">
                                             <label for="_AGE_" class="edivi__description">Alter</label>
                                             <input type="text" name="_AGE_" id="_AGE_" class="w-100 ignis-input" value="0" readonly>
-                                            <input type="hidden" name="patgebdat" id="patgebdat" value="<?= $daten['patgebdat'] ?>">
+                                            <input type="hidden" name="patgebdat" id="patgebdat" value="<?= e($daten['patgebdat']) ?>">
                                         </div>
                                         <div class="col">
                                             <label for="_GCS_" class="edivi__description">GCS</label>
@@ -582,7 +612,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="edivi__freigabe-buttons">
                         <div class="row">
                             <div class="col">
-                                <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
+                                <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>">zurück</a>
                             </div>
                             <div class="col">
                                 <button type="submit">versenden</button>

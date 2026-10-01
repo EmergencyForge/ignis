@@ -40,7 +40,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 7) . '/assets/components/enotf/_head.php';
     ?>
     <style>
@@ -445,7 +445,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
     })();
 
     (function() {
-        const enr = <?= json_encode($enr) ?>;
+        const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         const basePath = <?= json_encode(BASE_PATH) ?>;
         const isReadOnly = <?= $ist_freigegeben ? 'true' : 'false' ?>;
 

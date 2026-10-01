@@ -59,7 +59,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                         <small>Art ändern</small>
                     </a>
 
-                    <button onclick="openShareProtocol(<?= $daten['id'] ?>, '<?= $enr ?>')" id="share" class="edivi__iconlink">
+                    <button onclick="openShareProtocol(<?= (int) $daten['id'] ?>, <?= e(json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)) ?>)" id="share" class="edivi__iconlink">
                         <i class="fa-solid fa-share-nodes"></i><br>
                         <small>Teilen</small>
                     </button>
@@ -78,11 +78,11 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <?php endif; ?>
 
                 <?php if (Permissions::check(['admin', 'edivi.edit'])) : ?>
-                    <button onclick="openQMActions(<?= $daten['id'] ?>, '<?= $enr ?>', '<?= htmlspecialchars($daten['patname'] ?? 'Unbekannt') ?>')" id="qma" class="edivi__iconlink">
+                    <button onclick="openQMActions(<?= (int) $daten['id'] ?>, <?= e(json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)) ?>, <?= e(json_encode($daten['patname'] ?? 'Unbekannt', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)) ?>)" id="qma" class="edivi__iconlink">
                         <i class="fa-solid fa-exclamation"></i><br>
                         <small>QM-Aktion</small>
                     </button>
-                    <button onclick="openQMLog(<?= $daten['id'] ?>, '<?= $enr ?>', '<?= htmlspecialchars($daten['patname'] ?? 'Unbekannt') ?>')" id="qml" class="edivi__iconlink">
+                    <button onclick="openQMLog(<?= (int) $daten['id'] ?>, <?= e(json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)) ?>, <?= e(json_encode($daten['patname'] ?? 'Unbekannt', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)) ?>)" id="qml" class="edivi__iconlink">
                         <i class="fa-solid fa-clock-rotate-left"></i><br>
                         <small>QM-Log</small>
                     </button>
@@ -176,7 +176,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
     (function() {
         const SYNC_TIMEOUT = 120; // Sekunden ohne Sync = rot
         const POLL_INTERVAL = 10000; // alle 10 Sekunden prüfen
-        const enr = '<?= $enr ?>';
+        const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
         function setStatusLabel(el, text) {
             el.dataset.ignisTooltip = text;
@@ -230,7 +230,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
             <div class="row">
                 <div class="w-1/12 text-end px-3"><i class="fa-solid fa-info"></i></div>
                 <div class="col">
-                    Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
+                    Das Protokoll wurde durch <strong><?= e($daten['freigeber_name']) ?></strong> am <strong><?= e($daten['last_edit']) ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
                 </div>
             </div>
         </div>
@@ -240,7 +240,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
             <div class="row">
                 <div class="w-1/12 text-end px-3"><i class="fa-solid fa-info"></i></div>
                 <div class="col">
-                    Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr gelöscht. Es kann nicht mehr bearbeitet werden.
+                    Das Protokoll wurde durch <strong><?= e($daten['freigeber_name']) ?></strong> am <strong><?= e($daten['last_edit']) ?></strong> Uhr gelöscht. Es kann nicht mehr bearbeitet werden.
                 </div>
             </div>
         </div>

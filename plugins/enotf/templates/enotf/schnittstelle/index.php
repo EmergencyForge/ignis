@@ -86,13 +86,13 @@ if ($ziel) {
                             }
 
                             if ($row['geschlecht'] == 1) {
-                                $row['geschlecht'] = '<i class="fa-solid fa-venus"></i>';
+                                $geschlechtIcon = '<i class="fa-solid fa-venus"></i>';
                             } elseif ($row['geschlecht'] == 0) {
-                                $row['geschlecht'] = '<i class="fa-solid fa-mars"></i>';
+                                $geschlechtIcon = '<i class="fa-solid fa-mars"></i>';
                             } elseif ($row['geschlecht'] == 2) {
-                                $row['geschlecht'] = '<i class="fa-solid fa-mars-and-venus"></i>';
+                                $geschlechtIcon = '<i class="fa-solid fa-mars-and-venus"></i>';
                             } else {
-                                $row['geschlecht'] = '<i class="fa-solid fa-question" style="opacity:0.5"></i>';
+                                $geschlechtIcon = '<i class="fa-solid fa-question" style="opacity:0.5"></i>';
                             }
 
                             if (empty($row['alter'])) {
@@ -100,30 +100,30 @@ if ($ziel) {
                             }
 
                             if ($row['kreislauf'] == 1) {
-                                $row['kreislauf'] = 'stabil';
+                                $kreislaufHtml = 'stabil';
                             } else {
-                                $row['kreislauf'] = '<span style="color:red">instabil</span>';
+                                $kreislaufHtml = '<span style="color:red">instabil</span>';
                             }
 
                             if ($row['intubiert'] == 0) {
-                                $row['intubiert'] = 'nein';
+                                $intubiertHtml = 'nein';
                             } else {
-                                $row['intubiert'] = '<span style="color:red">ja</span>';
+                                $intubiertHtml = '<span style="color:red">ja</span>';
                             }
 
                         ?>
                             <tr class="<?= $rowClass ?>">
                                 <td class="edivi__arrivalboard-time">
-                                    <span><?= $row['arrival'] ?></span><br>
-                                    <?= $row['fahrzeug'] ?>
+                                    <span><?= e($row['arrival']) ?></span><br>
+                                    <?= e($row['fahrzeug']) ?>
                                 </td>
-                                <td><?= $row['diagnose'] ?></td>
-                                <td class="edivi__arrivalboard-gender"><?= $row['geschlecht'] ?><br>
-                                    <?= $row['alter'] ?></td>
-                                <td class="edivi__arrivalboard-text"><?= $row['text'] ?></td>
-                                <td class="text-center"><?= $row['kreislauf'] ?></td>
-                                <td class="text-center"><?= $row['gcs'] ?></td>
-                                <td class="text-center"><?= $row['intubiert'] ?></td>
+                                <td><?= e($row['diagnose']) ?></td>
+                                <td class="edivi__arrivalboard-gender"><?= $geschlechtIcon ?><br>
+                                    <?= e($row['alter']) ?></td>
+                                <td class="edivi__arrivalboard-text"><?= e($row['text']) ?></td>
+                                <td class="text-center"><?= $kreislaufHtml ?></td>
+                                <td class="text-center"><?= e($row['gcs']) ?></td>
+                                <td class="text-center"><?= $intubiertHtml ?></td>
                             </tr>
                         <?php
                         }
@@ -226,7 +226,7 @@ if ($ziel) {
 
         (function() {
             var basePath = '<?= BASE_PATH ?>';
-            var ziel = <?= json_encode($ziel) ?>;
+            var ziel = <?= json_encode($ziel, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             var knownIds = new Set(<?= json_encode(array_map(function ($r) {
                                         return (int)$r['id'];
                                     }, $result)) ?>);

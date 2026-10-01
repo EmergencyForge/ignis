@@ -75,7 +75,7 @@ use App\Helpers\Flash;
                                     $icon = htmlspecialchars($row['icon']);
                                     $colWidth = htmlspecialchars($row['col_width']);
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon edit-btn' data-dialog-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon edit-btn' data-dialog-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='" . e($row['category_slug']) . "' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>

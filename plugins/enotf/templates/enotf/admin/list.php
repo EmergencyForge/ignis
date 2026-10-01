@@ -103,16 +103,16 @@ use App\Helpers\Flash;
                                             $status = "<span class='ignis-chip ignis-chip--secondary'>Ungesehen</span>";
                                             break;
                                         case 1:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--warn'>in Prüfung</span>";
+                                            $status = "<span title='Prüfer: " . e($row['bearbeiter']) . "' class='ignis-chip ignis-chip--warn'>in Prüfung</span>";
                                             break;
                                         case 2:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--ok'>Geprüft</span>";
+                                            $status = "<span title='Prüfer: " . e($row['bearbeiter']) . "' class='ignis-chip ignis-chip--ok'>Geprüft</span>";
                                             break;
                                         case 4:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--dark'>Ausgeblendet</span>";
+                                            $status = "<span title='Prüfer: " . e($row['bearbeiter']) . "' class='ignis-chip ignis-chip--dark'>Ausgeblendet</span>";
                                             break;
                                         default:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='ignis-chip ignis-chip--danger'>Ungenügend</span>";
+                                            $status = "<span title='Prüfer: " . e($row['bearbeiter']) . "' class='ignis-chip ignis-chip--danger'>Ungenügend</span>";
                                             break;
                                     }
 
@@ -171,7 +171,7 @@ use App\Helpers\Flash;
                                     echo "<tr" . ($isFederated ? " style='opacity:0.85;'" : "") . ">";
                                     echo "<td>" . htmlspecialchars($row['enr'] ?? '') . $fedBadge . "</td>";
                                     echo "<td>" . $patname . "</td>";
-                                    echo "<td><span style='display:none'>" . ($row['sendezeit'] ?? '') . "</span>" . $date . "</td>";
+                                    echo "<td><span style='display:none'>" . e($row['sendezeit']) . "</span>" . $date . "</td>";
                                     echo "<td>" . htmlspecialchars($row['pfname'] ?? '') . " " . $freigabe_status . $hu_status . "</td>";
                                     echo "<td>" . $status . "</td>";
                                     if ($isFederated) {

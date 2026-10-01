@@ -55,7 +55,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -146,8 +146,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <script>
     initEnotfDiagnosePage({
         basePath:      '<?= BASE_PATH ?>',
-        enr:           '<?= $enr ?>',
-        initialValues: <?= json_encode($diagnose_weitere) ?>,
+        enr:           <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
+        initialValues: <?= json_encode($diagnose_weitere, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>,
         readonly:      <?= $ist_freigegeben ? 'true' : 'false' ?>,
     });
     </script>

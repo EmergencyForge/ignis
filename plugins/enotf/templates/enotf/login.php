@@ -321,7 +321,7 @@ $hasPrefill = !empty($prefill);
 
     <script>
         // Name suggestions data from PHP
-        const nameSuggestions = <?= json_encode($fullnames, JSON_UNESCAPED_UNICODE) ?>;
+        const nameSuggestions = <?= json_encode($fullnames, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         const basePath = <?= json_encode(BASE_PATH) ?>;
 
         // Setup custom dropdown for name inputs
@@ -616,7 +616,7 @@ $hasPrefill = !empty($prefill);
         // Char-Lock: Positions-Wähler → Hidden-Fields befüllen beim Submit
         <?php if ($charLocked && !$hasPrefill): ?>
         (function() {
-            var charName = <?= json_encode($charName) ?>;
+            var charName = <?= json_encode($charName, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             var form = document.getElementById('login-form-new');
             if (!form) return;
 

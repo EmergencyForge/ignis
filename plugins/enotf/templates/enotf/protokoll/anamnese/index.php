@@ -73,7 +73,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -110,7 +110,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="anamnese" class="edivi__description" style="display: none;">Anamnese</label>
-                                            <textarea name="anamnese" id="anamnese" class="w-100 ignis-input" style="height: 50vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= $daten['anmerkungen'] ?></textarea>
+                                            <textarea name="anamnese" id="anamnese" class="w-100 ignis-input" style="height: 50vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= e($daten['anmerkungen']) ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -132,9 +132,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                                                                                                             $sb_datetime = trim($sb_datum . ' ' . $sb_zeit);
                                                                                                             if ($sb_datetime !== '' && !empty($sb_opts)) {
-                                                                                                                echo $sb_datetime . ' (' . implode(', ', $sb_opts) . ')';
+                                                                                                                echo e($sb_datetime . ' (' . implode(', ', $sb_opts) . ')');
                                                                                                             } elseif ($sb_datetime !== '') {
-                                                                                                                echo $sb_datetime;
+                                                                                                                echo e($sb_datetime);
                                                                                                             } else {
                                                                                                                 echo implode(', ', $sb_opts);
                                                                                                             }

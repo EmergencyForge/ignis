@@ -127,7 +127,7 @@ $currentDateTime = date('Y-m-d\TH:i');
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -189,7 +189,7 @@ $currentDateTime = date('Y-m-d\TH:i');
                             </div>
                             <div class="row edivi__vitalparam-mainbuttons">
                                 <div class="col">
-                                    <a href="index?enr=<?= $enr ?>">Abbrechen</a>
+                                    <a href="index?enr=<?= rawurlencode($enr) ?>">Abbrechen</a>
                                 </div>
                                 <div class="col" style="border-left: 2px solid #191919;">
                                     <button type="submit" form="vitalsForm">

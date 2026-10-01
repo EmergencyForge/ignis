@@ -46,7 +46,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -60,7 +60,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col d-flex flex-column" id="edivi__content">
                     <div class="row" style="flex-grow: 1;">
                         <div class="w-10/12 edivi__box py-1 px-3" style="margin: 10px">
-                            <textarea name="anmerkungen" id="anmerkungen" class="w-100 ignis-input" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= $daten['anmerkungen'] ?></textarea>
+                            <textarea name="anmerkungen" id="anmerkungen" class="w-100 ignis-input" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= e($daten['anmerkungen']) ?></textarea>
                         </div>
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col">
@@ -142,7 +142,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const enr = <?= json_encode($enr) ?>;
+            const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             const textarea = document.getElementById('anmerkungen');
             const lineWarning = document.getElementById('anmerkungen-line-warning');
 

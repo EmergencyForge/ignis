@@ -2,13 +2,22 @@
 date_default_timezone_set('Europe/Berlin');
 require_once __DIR__ . '/../../../assets/config/config.php';
 
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Models\Edivi;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $action = $_POST["action"];
-    $enr = $_POST["enr"];
+    $enr = $_POST["enr"] ?? '';
+
+    // Format wie eNOTF v2 (CreateController) und das Eingabefeld in create.php.
+    // Höchstens 40 Zeichen: mit Suffix "_N" passt die ENR noch in die
+    // 50 Zeichen von intra_edivi_vitalparameter_einzelwerte.enr. Ohne /D ließe
+    // $ einen Zeilenumbruch am Ende durch.
+    if (!is_string($enr) || strlen($enr) > 40 || !preg_match('/^[0-9_]+$/D', $enr)) {
+        return Response::text('Ungültige Einsatznummer.', 422);
+    }
     $prot_by = isset($_POST["prot_by"]) ? (int)$_POST["prot_by"] : 0;
     $force_create = isset($_POST["force_create"]) ? (int)$_POST["force_create"] : 0;
 
@@ -28,8 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($existing && !empty($existing[$fzgField])) {
         // Wenn force_create nicht gesetzt ist, zum existierenden Protokoll weiterleiten
         if ($force_create !== 1) {
-            header("Location: " . EnotfUrl::protokoll($enr));
-            exit();
+            return Response::redirect(EnotfUrl::protokoll($enr));
         }
 
         // force_create ist gesetzt - neue Einsatznummer mit Suffix generieren
@@ -81,8 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         Edivi::where('enr', $enr)->update($updateFields);
 
-        header("Location: " . EnotfUrl::protokoll($enr));
-        exit();
+        return Response::redirect(EnotfUrl::protokoll($enr));
     }
 
     // Neues Protokoll erstellen (entweder komplett neu oder mit Suffix)
@@ -130,6 +137,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     Capsule::table('intra_edivi')->insert($insertData);
 
-    header("Location: " . EnotfUrl::protokoll($enr));
-    exit();
+    return Response::redirect(EnotfUrl::protokoll($enr));
 }

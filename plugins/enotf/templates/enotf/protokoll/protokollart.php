@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 5) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="row my-5 mx-5">
                         <div class="col text-center">
-                            <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>" class="edivi__nidabutton-secondary w-100" style="display:inline-block">zurück</a>
+                            <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>" class="edivi__nidabutton-secondary w-100" style="display:inline-block">zurück</a>
                         </div>
                     </div>
                 </div>

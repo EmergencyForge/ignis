@@ -231,7 +231,9 @@ jobs:
         run: |
           set +e
           composer audit 2>&1 | tee audit-output.txt
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
 
       - name: Save audit result
         if: always()
@@ -313,8 +315,9 @@ jobs:
         run: |
           set +e
           vendor/bin/phpunit --testsuite Unit --log-junit phpunit-unit-${{ matrix.php-version }}.xml 2>&1 | tee phpunit-unit-${{ matrix.php-version }}.log
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit ${PIPESTATUS[0]}
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
 
       - name: Upload test results
         if: always()
@@ -351,8 +354,8 @@ jobs:
           --health-retries=10
 
     env:
-      # tests/bootstrap.php liest TEST_DB_* aus .env.test und mappt auf DB_*.
-      # In CI setzen wir sie direkt als env, damit kein .env.test committet werden muss.
+      # tests/bootstrap.php mappt TEST_DB_* auf DB_*, aus .env.test oder wie
+      # hier aus der Umgebung. DB_* brauchen composer install und Phinx.
       TEST_DB_HOST: 127.0.0.1
       TEST_DB_PORT: 3306
       TEST_DB_USER: root
@@ -445,8 +448,9 @@ jobs:
         run: |
           set +e
           vendor/bin/phpunit --testsuite Integration --log-junit phpunit-integration.xml 2>&1 | tee phpunit-integration.log
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit ${PIPESTATUS[0]}
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
 
       - name: Run Feature tests (HTTP End-to-End)
         if: always()
@@ -454,8 +458,9 @@ jobs:
         run: |
           set +e
           vendor/bin/phpunit --testsuite Feature --log-junit phpunit-feature.xml 2>&1 | tee phpunit-feature.log
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit ${PIPESTATUS[0]}
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
 
       # Zusätzlicher Coverage-Pass über ALLE Suites in einem Lauf, damit ein
       # konsistenter Gesamt-Report entsteht. PCOV-Overhead ist klein genug,
@@ -472,7 +477,9 @@ jobs:
             --coverage-text=coverage/summary.txt \
             --coverage-clover coverage/clover.xml \
             2>&1 | tee coverage/run.log
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
 
       - name: Upload test results
         if: always()
@@ -678,6 +685,7 @@ jobs:
         with:
           name: phpstan-result
           path: ignis/phpstan-result.json
+          retention-days: 1
 
       # Erst hochladen, dann scheitern: der PR-Kommentar soll die Fundstellen
       # auch dann nennen, wenn der Job rot ist. Bis hierher hat PHPStan nur
@@ -689,7 +697,6 @@ jobs:
         run: |
           echo "::error::PHPStan meldet Fehler — siehe Annotationen oben."
           exit 1
-          retention-days: 1
 
   # ─────────────────────────────────────────────
   # 5. PR Report – Zusammenfassung aller Checks
@@ -1053,6 +1060,7 @@ jobs:
         if: always()
         run: |
           if [ "${{ needs.build.result }}" = "failure" ]; then exit 1; fi
+          if [ "${{ needs.security-audit.result }}" = "failure" ]; then exit 1; fi
           if [ "${{ needs.phpstan.result }}" = "failure" ]; then exit 1; fi
           if [ "${{ needs.phpunit-unit.result }}" = "failure" ]; then exit 1; fi
           if [ "${{ needs.phpunit-integration.result }}" = "failure" ]; then exit 1; fi

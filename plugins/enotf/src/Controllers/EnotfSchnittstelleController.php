@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Controllers;
 
 use App\Http\Controllers\Controller;
+use EmergencyForge\Http\Response;
 
 use App\Http\FiveMSupport;
 
@@ -41,7 +42,7 @@ class EnotfSchnittstelleController extends Controller
         $this->renderView('enotf/schnittstelle/klinikcode', []);
     }
 
-    public function voranmeldung(): void
+    public function voranmeldung(): ?Response
     {
         FiveMSupport::prepareCookiesAndHeaders();
         // PIN-Middleware: nur wenn ENOTF_USE_PIN aktiv und Session keinen Bypass hat
@@ -57,7 +58,8 @@ class EnotfSchnittstelleController extends Controller
             header('Location: ' . \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen'));
             exit;
         }
-        $this->renderView('enotf/schnittstelle/voranmeldung', []);
+        // Nach erfolgreichem POST gibt das Template seinen Redirect zurück.
+        return $this->renderView('enotf/schnittstelle/voranmeldung', []);
     }
 
     public function hospitalAvailability(): void

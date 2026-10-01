@@ -35,18 +35,21 @@ if ($row === null) {
                 <div class='edivi__box edivi__log-comment mb-3 flex align-items-center gap-3'>
                     <div class="flex h-8 w-8 align-items-center justify-center"><i class="fa-solid fa-circle-info"></i></div>
                     <div class='col'>
-                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= $log_row['timestamp'] ?></small>
+                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= e($log_row['timestamp']) ?></small>
                         <p class='mb-0'><?= htmlspecialchars($log_row['kommentar']) ?></p>
                     </div>
                 </div>
             <?php
             } else if ($log_row['log_aktion'] == 1) {
+                // Statusänderungen schreibt qm-actions-modal.php als Status-Chip,
+                // Einträge vor April 2026 stehen als Bootstrap-Badge in der Tabelle.
+                // Nur diese festen Formen bleiben Markup, alles andere wird escaped.
             ?>
                 <div class='edivi__box edivi__log-comment mb-3 flex align-items-center gap-3'>
                     <div class="flex h-8 w-8 align-items-center justify-center"><i class="fa-solid fa-gear"></i></div>
                     <div class='col'>
-                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= $log_row['timestamp'] ?></small>
-                        <p class='mb-0'><?= $log_row['kommentar'] ?></p>
+                        <small style="opacity:.6" class='mb-0'><b><?= htmlspecialchars($log_row['bearbeiter']) ?></b> | <?= e($log_row['timestamp']) ?></small>
+                        <p class='mb-0'><?= preg_match('~^<span class="(?:ignis-chip(?: ignis-chip--\w+)?|badge(?: (?:text-)?bg-\w+)?)"(?: style="line-height: var\(--bs-body-line-height\); border-radius: 0;")?>[\p{L} ]+</span>$~uD', (string) $log_row['kommentar']) === 1 ? $log_row['kommentar'] : e($log_row['kommentar']) ?></p>
                     </div>
                 </div>
     <?php

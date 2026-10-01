@@ -46,7 +46,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -84,7 +84,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3_2') ?>" class="active">
                                 <span>An</span>
                             </a>
-                            <a href="#" id="freigabeButton" data-enr="<?= $daten['enr'] ?>">
+                            <a href="#" id="freigabeButton" data-enr="<?= e($daten['enr']) ?>">
                                 <span>Freigabe</span>
                             </a>
                         </div>
@@ -132,7 +132,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center py-5">
-                    <p class="mb-4">Klinikcode für Protokoll #<?= $daten['enr'] ?></p>
+                    <p class="mb-4">Klinikcode für Protokoll #<?= e($daten['enr']) ?></p>
                     <div id="codeDisplay" class="display-3 fw-bold text-[#7ba3d4] mb-4" style="letter-spacing: 0.5rem;">
                         <div class="spinner-border" role="status">
                             <span class="sr-only">Lädt...</span>
@@ -238,7 +238,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             fetch('<?= BASE_PATH ?>api/enotf/patient-sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ enr: '<?= $enr ?>' })
+                body: JSON.stringify({ enr: <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?> })
             })
             .then(r => r.json())
             .then(data => {

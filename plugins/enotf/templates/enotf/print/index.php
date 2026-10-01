@@ -118,7 +118,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[#<?= $daten['enr'] ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
+    <title>[#<?= e($daten['enr']) ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <!-- vendor.css liefert FontAwesome für die Topbar-Icons -->
     <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css" />
@@ -139,8 +139,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <!-- Metas -->
     <meta name="theme-color" content="#ffaf2f" />
     <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
-    <meta property="og:url" content="<?= $prot_url ?>" />
-    <meta property="og:title" content="[#<?= $daten['enr'] ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?>" />
+    <meta property="og:url" content="<?= e($prot_url) ?>" />
+    <meta property="og:title" content="[#<?= e($daten['enr']) ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?>" />
     <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
     <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 </head>
@@ -150,7 +150,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         <div class="row">
             <div class="col">
                 <?php if (!isset($_SESSION['klinik_access_enr'])): ?>
-                    <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>" class="topbar-btn">
+                    <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>" class="topbar-btn">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
                 <?php endif; ?>
@@ -179,7 +179,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="text" class="w-100 print__field" value="<?= htmlspecialchars($printFullname) ?>" readonly>
                         </div>
                         <div class="print__field-wrapper" data-field-name="Geburtsdatum">
-                            <input type="text" class="w-100 print__field" id="patgebdat" data-date="<?= $daten['patgebdat'] ?>" value="<?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?>" readonly>
+                            <input type="text" class="w-100 print__field" id="patgebdat" data-date="<?= e($daten['patgebdat']) ?>" value="<?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -246,7 +246,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="row border border-dark border-top-0">
                     <div class="col-5">
                         <div class="print__field-wrapper" data-field-name="Einsatz-Nr">
-                            <input type="text" class="w-100 print__field" value="<?= $daten['enr'] ?>" readonly>
+                            <input type="text" class="w-100 print__field" value="<?= e($daten['enr']) ?>" readonly>
                         </div>
                     </div>
                     <div class="col">
@@ -267,7 +267,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper" data-field-name="Rufname">
-                            <input type="text" class="w-100 print__field" value="<?= $fahrzeugname ?>" readonly>
+                            <input type="text" class="w-100 print__field" value="<?= e($fahrzeugname) ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -279,13 +279,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <div class="row">
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="Einsatz-Datum/Zeit">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($daten['edatum']) ? date('d.m.Y', strtotime($daten['edatum'])) . " " . $daten['ezeit'] : '' . " " . $daten['ezeit'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field" value="<?= e(!empty($daten['edatum']) ? date('d.m.Y', strtotime($daten['edatum'])) . " " . $daten['ezeit'] : '' . " " . $daten['ezeit']) ?>" readonly>
                                 </div>
                                 <div class="print__field-wrapper" data-field-name="Einsatz-Ort">
-                                    <input type="text" class="w-100 print__field" value="<?= $einsatzort_display ?>" readonly>
+                                    <input type="text" class="w-100 print__field" value="<?= e($einsatzort_display) ?>" readonly>
                                 </div>
                                 <div class="print__field-wrapper" data-field-name="Transp.-Ziel">
-                                    <input type="text" class="w-100 print__field" value="<?= $transportziel_display ?>" readonly>
+                                    <input type="text" class="w-100 print__field" value="<?= e($transportziel_display) ?>" readonly>
                                 </div>
                                 <?php
                                 $versorgungsarten = [
@@ -311,23 +311,23 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <?php if ($daten['prot_by'] === 0) : ?>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Fahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= e($daten['fzg_transp_perso']) ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Beifahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso_2'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= e($daten['fzg_transp_perso_2']) ?>" readonly>
                                     </div>
                                 </div>
                             <?php else : ?>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Fahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= e($daten['fzg_na_perso']) ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Beifahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso_2'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= e($daten['fzg_na_perso_2']) ?>" readonly>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -358,7 +358,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             <div class="col">
                 <h6 class="print__heading">Symptombeginn</h6>
                 <div style="display: flex; align-items: flex-start; gap: 6pt; padding: 2pt 0;">
-                    <strong style="font-size: 9pt;"><?= $sb_display ?></strong>
+                    <strong style="font-size: 9pt;"><?= e($sb_display) ?></strong>
                     <div style="font-size: 7pt; line-height: 1.4;">
                         <div>
                             <?php if (!empty($daten['symptombeginn_geschaetzt'])) : ?>
@@ -395,7 +395,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="row">
                     <div class="col">
                         <div class="print__field-wrapper">
-                            <textarea rows="22" style="resize:none" class="w-100 print__textbox" readonly><?= $daten['anmerkungen'] ?></textarea>
+                            <textarea rows="22" style="resize:none" class="w-100 print__textbox" readonly><?= e($daten['anmerkungen']) ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -868,39 +868,39 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <div class="row">
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="/Min" data-vp-name="AF">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['atemfreq'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['atemfreq']) ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="%" data-vp-name="SpO2">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['spo2'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['spo2']) ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="/Min" data-vp-name="HF">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['herzfreq'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['herzfreq']) ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="mmHg" data-vp-name="etCO2">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['etco2'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['etco2']) ?>" readonly>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="mmHg" data-vp-name="RR">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['rrsys'] ?><?= !empty($daten['rrdias']) ? '/' . $daten['rrdias'] : '' ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['rrsys']) ?><?= !empty($daten['rrdias']) ? '/' . e($daten['rrdias']) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="<?= htmlspecialchars($bzUnit) ?>" data-vp-name="BZ">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['bz'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['bz']) ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="°C" data-vp-name="Temp">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['temp'] ?>" readonly>
+                                    <input type="text" class="w-100 print__field-vitals" value="<?= e($daten['temp']) ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -1581,7 +1581,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             foreach ($medikamente as $med) {
                                 $displayEinheit = $med['einheit'];
                                 if ($displayEinheit === 'mcg') {
-                                    $displayEinheit = '&micro;g';
+                                    $displayEinheit = 'µg';
                                 } else if ($displayEinheit === 'IE') {
                                     $displayEinheit = 'I.E.';
                                 }
@@ -1606,7 +1606,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper">
-                            <textarea rows="18" style="resize:none" class="w-100 print__textbox" readonly><?= displayAllMedikamente($daten['medis'] ?? ''); ?></textarea>
+                            <textarea rows="18" style="resize:none" class="w-100 print__textbox" readonly><?= e(displayAllMedikamente($daten['medis'] ?? '')) ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -1960,7 +1960,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper">
-                            <textarea rows="8" style="resize:none" class="w-100 print__textbox" readonly><?= displayAllZugaengeText($daten['c_zugang'] ?? ''); ?></textarea>
+                            <textarea rows="8" style="resize:none" class="w-100 print__textbox" readonly><?= e(displayAllZugaengeText($daten['c_zugang'] ?? '')) ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -2042,7 +2042,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </tr>
                             <tr>
                                 <td colspan="2">
-                                    O2-Gabe L/min<br><span style="font-weight:600;font-size:11pt"><?= $daten['o2gabe'] ?? '' ?></span>
+                                    O2-Gabe L/min<br><span style="font-weight:600;font-size:11pt"><?= e($daten['o2gabe']) ?></span>
                                 </td>
                             </tr>
                         </table>
@@ -2235,7 +2235,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="col">
                         <h6 class="print__heading">Beteiligte Einsatzmittel</h6>
                         <div class="print__field-wrapper" data-field-name="Bet. EM">
-                            <input type="text" class="w-100 print__field" value="<?= $daten['fzg_sonst'] ?>" readonly>
+                            <input type="text" class="w-100 print__field" value="<?= e($daten['fzg_sonst']) ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -2288,7 +2288,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="row border border-dark border-top-0">
                     <div class="col">
                         <h6 class="print__heading">Protokollant / Unterschrift</h6>
-                        <span style="font-size:11pt;font-family: 'Freehand', sans-serif"><?= $daten['pfname'] ?? '&nbsp' ?></span>
+                        <span style="font-size:11pt;font-family: 'Freehand', sans-serif"><?= $daten['pfname'] !== null ? e($daten['pfname']) : '&nbsp' ?></span>
                     </div>
                 </div>
                 <div class="row border border-dark border-top-0">

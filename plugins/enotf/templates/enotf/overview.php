@@ -139,8 +139,8 @@ $currentDate = date('d.m.Y');
                                                 <a href="<?= EnotfUrl::protokoll($row['enr']) ?>" class="edivi__einsatz-link" draggable="false">
                                                     <div class="row edivi__einsatz edivi__einsatz-set">
                                                         <div class="w-2/12 edivi__einsatz-type px-3"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:10px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
-                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
-                                                        <div class="w-8/12 edivi__einsatz-name px-3"><span>Patient:</span><strong><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></strong><?php if (!empty($zielInfo)): ?><small><i class="fa-solid fa-bed" style="margin-right:4px;"></i><?= $zielInfo ?></small><?php endif; ?></div>
+                                                        <div class="col edivi__einsatz-enr"><span>#<?= e($row['enr']) ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= e($row['edatum']) ?><br><?= e($row['ezeit']) ?> Uhr</div>
+                                                        <div class="w-8/12 edivi__einsatz-name px-3"><span>Patient:</span><strong><?= e($row['patname']) ?> * <?= e($row['patgebdat']) ?></strong><?php if (!empty($zielInfo)): ?><small><i class="fa-solid fa-bed" style="margin-right:4px;"></i><?= $zielInfo ?></small><?php endif; ?></div>
                                                     </div>
                                                 </a>
                                             </div>

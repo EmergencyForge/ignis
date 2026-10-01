@@ -49,7 +49,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 7) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -135,7 +135,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="edivi__freigabe-buttons">
                         <div class="row">
                             <div class="col">
-                                <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
+                                <a href="<?= e(Redirects::getRedirectUrl($defaultUrl)) ?>">zurück</a>
                             </div>
                             <div class="col">
                                 <a href="#" id="delete-btn">Löschen</a>
@@ -526,6 +526,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 });
         }
 
+        // Medikamente kommen aus dem Protokoll (save-fields nimmt auch medis an), also als Text einsetzen.
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        }
+
         function displayMedikamente(medikamente) {
             const listContainer = document.getElementById('medis-list');
             listContainer.innerHTML = '';
@@ -549,10 +556,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 medDiv.innerHTML = `
                     <div class="flex justify-content-between align-items-center text-light">
                         <div class="medikament-compact">
-                            <span style="color:#a2a2a2">${med.zeit}</span>
-                            <span>${med.wirkstoff}</span>
-                            <span>${med.dosierung} ${med.einheit}</span>
-                            <span>${med.applikation}</span>
+                            <span style="color:#a2a2a2">${escapeHtml(med.zeit)}</span>
+                            <span>${escapeHtml(med.wirkstoff)}</span>
+                            <span>${escapeHtml(med.dosierung)} ${escapeHtml(med.einheit)}</span>
+                            <span>${escapeHtml(med.applikation)}</span>
                         </div>
                     </div>
                 `;

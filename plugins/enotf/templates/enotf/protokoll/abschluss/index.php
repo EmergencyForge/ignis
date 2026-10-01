@@ -179,7 +179,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -237,7 +237,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                                 ->map(fn ($row) => (array) $row)
                                                                 ->all();
                                                             foreach ($fahrzeuge as $row) {
-                                                                echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                                echo '<option value="' . e($row['identifier']) . '">' . e($row['name']) . '</option>';
                                                             }
                                                             ?>
                                                         </select>
@@ -256,11 +256,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                                                             foreach ($fahrzeuge as $row) {
                                                                 if ($row['identifier'] == $daten['fzg_transp'] && $row['active'] == 1) {
-                                                                    echo '<option value="' . $row['identifier'] . '" selected>' . $row['name'] . '</option>';
+                                                                    echo '<option value="' . e($row['identifier']) . '" selected>' . e($row['name']) . '</option>';
                                                                 } elseif ($row['identifier'] == $daten['fzg_transp'] && $row['active'] == 0) {
-                                                                    echo '<option value="' . $row['identifier'] . '" selected disabled>' . $row['name'] . '</option>';
+                                                                    echo '<option value="' . e($row['identifier']) . '" selected disabled>' . e($row['name']) . '</option>';
                                                                 } else {
-                                                                    echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                                    echo '<option value="' . e($row['identifier']) . '">' . e($row['name']) . '</option>';
                                                                 }
                                                             }
                                                             ?>
@@ -269,21 +269,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                                 <div class="col">
                                                     <label for="fzg_transp_perso" class="edivi__description">Besatzung Transpormittel</label>
-                                                    <input type="text" name="fzg_transp_perso" id="fzg_transp_perso" class="w-100 ignis-input" placeholder="Transportführer RTW/KTW" value="<?= $daten['fzg_transp_perso'] ?>">
+                                                    <input type="text" name="fzg_transp_perso" id="fzg_transp_perso" class="w-100 ignis-input" placeholder="Transportführer RTW/KTW" value="<?= e($daten['fzg_transp_perso']) ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_transp_row_2">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-100 ignis-input" placeholder="Fahrzeugführer RTW/KTW" value="<?= $daten['fzg_transp_perso_2'] ?>">
+                                                    <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-100 ignis-input" placeholder="Fahrzeugführer RTW/KTW" value="<?= e($daten['fzg_transp_perso_2']) ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_transp_row_3">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_transp_perso_3" id="fzg_transp_perso_3" class="w-100 ignis-input" placeholder="Praktikant RTW/KTW" value="<?= $daten['fzg_transp_perso_3'] ?>">
+                                                    <input type="text" name="fzg_transp_perso_3" id="fzg_transp_perso_3" class="w-100 ignis-input" placeholder="Praktikant RTW/KTW" value="<?= e($daten['fzg_transp_perso_3']) ?>">
                                                 </div>
                                             </div>
                                             <div class="row mt-2" id="fzg_na_row">
@@ -303,7 +303,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                                 ->map(fn ($row) => (array) $row)
                                                                 ->all();
                                                             foreach ($fahrzeuge as $row) {
-                                                                echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                                echo '<option value="' . e($row['identifier']) . '">' . e($row['name']) . '</option>';
                                                             }
                                                             ?>
                                                         </select>
@@ -322,11 +322,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                                                             foreach ($fahrzeuge as $row) {
                                                                 if ($row['identifier'] == $daten['fzg_na'] && $row['active'] == 1) {
-                                                                    echo '<option value="' . $row['identifier'] . '" selected>' . $row['name'] . '</option>';
+                                                                    echo '<option value="' . e($row['identifier']) . '" selected>' . e($row['name']) . '</option>';
                                                                 } elseif ($row['identifier'] == $daten['fzg_na'] && $row['active'] == 0) {
-                                                                    echo '<option value="' . $row['identifier'] . '" selected disabled>' . $row['name'] . '</option>';
+                                                                    echo '<option value="' . e($row['identifier']) . '" selected disabled>' . e($row['name']) . '</option>';
                                                                 } else {
-                                                                    echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                                    echo '<option value="' . e($row['identifier']) . '">' . e($row['name']) . '</option>';
                                                                 }
                                                             }
                                                             ?>
@@ -335,27 +335,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                                 <div class="col">
                                                     <label for="fzg_na_perso" class="edivi__description">Besatzung Notarztzubringer</label>
-                                                    <input type="text" name="fzg_na_perso" id="fzg_na_perso" class="w-100 ignis-input" placeholder="Notarzt" value="<?= $daten['fzg_na_perso'] ?>">
+                                                    <input type="text" name="fzg_na_perso" id="fzg_na_perso" class="w-100 ignis-input" placeholder="Notarzt" value="<?= e($daten['fzg_na_perso']) ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_na_row_2">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-100 ignis-input" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_2'] ?>">
+                                                    <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-100 ignis-input" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= e($daten['fzg_na_perso_2']) ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_na_row_3">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_na_perso_3" id="fzg_na_perso_3" class="w-100 ignis-input" placeholder="Praktikant NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_3'] ?>">
+                                                    <input type="text" name="fzg_na_perso_3" id="fzg_na_perso_3" class="w-100 ignis-input" placeholder="Praktikant NEF/HEMS-TC" value="<?= e($daten['fzg_na_perso_3']) ?>">
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="fzg_sonst" class="edivi__description">Sonstige Fahrzeuge</label>
-                                                    <input type="text" name="fzg_sonst" id="fzg_sonst" class="w-100 ignis-input" placeholder="Weitere Rettungsmittel" value="<?= $daten['fzg_sonst'] ?>">
+                                                    <input type="text" name="fzg_sonst" id="fzg_sonst" class="w-100 ignis-input" placeholder="Weitere Rettungsmittel" value="<?= e($daten['fzg_sonst']) ?>">
                                                 </div>
                                             </div>
                                         </div>
@@ -472,7 +472,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         // Felder basierend auf Protokollart aktivieren/deaktivieren
         document.addEventListener('DOMContentLoaded', function() {
-            const protBy = <?= json_encode($daten['prot_by']) ?>;
+            const protBy = <?= json_encode($daten['prot_by'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             const istFreigegeben = <?= json_encode($ist_freigegeben) ?>;
 
             console.log('Protokollart (prot_by):', protBy);
@@ -528,7 +528,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         });
 
         // Setup custom name autocomplete for Protokollant
-        const pfnameSuggestions = <?= json_encode($fullnames, JSON_UNESCAPED_UNICODE) ?>;
+        const pfnameSuggestions = <?= json_encode($fullnames, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
         function setupNameAutocomplete(inputId, dropdownId, suggestions) {
             const input = document.getElementById(inputId);
@@ -609,7 +609,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             fetch('<?= BASE_PATH ?>api/enotf/patient-sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ enr: '<?= $enr ?>' })
+                body: JSON.stringify({ enr: <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?> })
             })
             .then(r => r.json())
             .then(data => {

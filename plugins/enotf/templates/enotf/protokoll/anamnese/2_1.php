@@ -46,7 +46,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
 <head>
     <?php
-    $SITE_TITLE = "[#" . $daten['enr'] . "] &rsaquo; eNOTF";
+    $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
 </head>
@@ -98,7 +98,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label class="edivi__interactbutton-text">Zeit</label>
                             <input type="text" name="symptombeginn_zeit" id="symptombeginn_zeit"
                                 class="edivi__interactbutton-input"
-                                value="<?= $daten['symptombeginn_zeit'] ?? '' ?>"
+                                value="<?= e($daten['symptombeginn_zeit']) ?>"
                                 placeholder="HH:MM" maxlength="5" inputmode="numeric"
                                 pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
                                 data-ignore-autosave>
@@ -148,7 +148,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const enr = <?= json_encode($enr) ?>;
+            const enr = <?= json_encode($enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
             const _now = new Date();
             const heute = String(_now.getDate()).padStart(2, '0') + '.' + String(_now.getMonth() + 1).padStart(2, '0') + '.' + _now.getFullYear();
             const datumInput = document.getElementById('symptombeginn_datum');

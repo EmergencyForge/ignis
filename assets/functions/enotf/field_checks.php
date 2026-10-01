@@ -6,7 +6,7 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
 <script>
     // ──── Conditions-Daten von PHP (global für notify.php) ────
     var CONDITIONS = <?= json_encode($_enotfConditions) ?>;
-    var _enotfCurrentTransportziel = <?= json_encode($_enotfTransportziel) ?>;
+    var _enotfCurrentTransportziel = <?= json_encode($_enotfTransportziel, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
 
     /**
      * Berechnet welche HTML-Felder bei der aktuellen Versorgungsart Pflicht sind.

@@ -172,7 +172,8 @@ final class EditorDocumentTest extends FeatureTestCase
 
         $this->assertSame(EditorDocument::STATUS_DRAFT, $document->status);
         $this->assertSame('Ein Dokument', $document->title);
-        $this->assertSame($this->templateContent(), $document->content);
+        // assertEquals: MySQL sortiert die Schlüssel einer JSON-Spalte um, MariaDB nicht.
+        $this->assertEquals($this->templateContent(), $document->content);
         $this->assertMatchesRegularExpression('/^\d{7}$/', $document->docid);
     }
 

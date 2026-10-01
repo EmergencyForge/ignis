@@ -12,7 +12,7 @@ use PDOException;
  * Base TestCase für Integration-Tests, die eine echte DB-Verbindung brauchen.
  *
  * Verhalten:
- *   - Liest DB-Credentials aus $_ENV (gemappt aus .env.test im Bootstrap).
+ *   - Liest DB-Credentials aus $_ENV (im Bootstrap aus TEST_DB_* gemappt).
  *   - Stellt sicher, dass die Test-DB existiert. Wenn nicht: legt sie an
  *     und fährt einmalig Phinx-Migrations dagegen. Idempotent — beim
  *     nächsten Test-Lauf ist die DB schon da und der Setup-Schritt skippt.
