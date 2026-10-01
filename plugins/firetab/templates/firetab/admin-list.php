@@ -33,7 +33,7 @@ $statusMap = [
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz-QM</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item" aria-current="page">Einsatz-QM</span></nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Feuerwehr</p>

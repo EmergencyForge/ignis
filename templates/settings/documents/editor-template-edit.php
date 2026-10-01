@@ -47,7 +47,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span>
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/documents/editor-templates">Dokumentvorlagen</a></span>
-                <span class="ignis-breadcrumb__item is-active"><?= $isEdit ? 'Bearbeiten' : 'Anlegen' ?></span>
+                <span class="ignis-breadcrumb__item" aria-current="page"><?= $isEdit ? 'Bearbeiten' : 'Anlegen' ?></span>
             </nav>
 
             <div class="page-header twplus-page-header mb-4">

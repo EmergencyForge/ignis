@@ -22,7 +22,7 @@ $SITE_TITLE = 'Dokumentvorlagen';
             <nav class="ignis-breadcrumb">
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span>
-                <span class="ignis-breadcrumb__item is-active">Dokumentvorlagen</span>
+                <span class="ignis-breadcrumb__item" aria-current="page">Dokumentvorlagen</span>
             </nav>
 
             <div class="page-header twplus-page-header mb-4">

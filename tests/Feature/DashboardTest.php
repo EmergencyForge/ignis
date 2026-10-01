@@ -89,7 +89,7 @@ final class DashboardTest extends FeatureTestCase
 
         $this->assertOk($page);
         $this->assertBodyContains('<title>Schnellzugriffe', $page);
-        $this->assertBodyContains('<span class="ignis-breadcrumb__item is-active">Schnellzugriffe</span>', $page);
+        $this->assertBodyContains('<span class="ignis-breadcrumb__item" aria-current="page">Schnellzugriffe</span>', $page);
         $this->assertBodyContains('href="/settings/dashboard/index" class="ignis-btn ignis-btn--secondary"', $page);
         $this->assertMatchesRegularExpression('~<div\s+id="hosting-self-test"\s+class="ignis-alert ignis-alert--warn mb-4"[^>]*\shidden~', $page->body);
         $this->assertBodyNotContains('alert-warning', $page);

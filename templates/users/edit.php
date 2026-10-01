@@ -25,7 +25,7 @@ $bodyId = 'benutzer';
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
-                        <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($target->username) ?></span>
+                        <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($target->username) ?></span>
                     </nav>
                     <div class="twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">

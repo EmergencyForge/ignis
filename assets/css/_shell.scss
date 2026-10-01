@@ -451,14 +451,10 @@ html.is-collapsed body.ignis-app--legacy {
     .ignis-sidebar__link { color: var(--text); }
     .ignis-sidebar__quick { opacity: 1; }
   }
-
-  &.is-active {
-    background: var(--surface-3);
-
-    .ignis-sidebar__link { color: var(--text); }
-    .ignis-sidebar__link > i:first-child { color: var(--accent); }
-  }
 }
+
+// Der aktive Eintrag trägt aria-current am Link. Die graue Pille dafür
+// kommt aus ef.shell(), ohne Akzent.
 
 .ignis-sidebar__link {
   display: flex;
@@ -537,12 +533,17 @@ html.is-collapsed body.ignis-app--legacy {
   opacity: 0;
   transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease;
 
+  // Grau wie die übrige Navigation, Akzent nur im Fokusring.
   &:hover,
   &:focus-visible {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--fill-2);
+    color: var(--text);
     opacity: 1;
-    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-focus);
+    outline-offset: -2px;
   }
 }
 

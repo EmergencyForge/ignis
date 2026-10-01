@@ -42,7 +42,7 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active"><?= $isEdit ? 'Bearbeiten' : 'Anlegen' ?></span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item" aria-current="page"><?= $isEdit ? 'Bearbeiten' : 'Anlegen' ?></span></nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1><?= htmlspecialchars($SITE_TITLE) ?></h1><p class="twplus-page-header__description"><?= $isEdit ? 'Stammdaten und taktisches Zeichen von ' . htmlspecialchars((string) $vehicle['name']) . '.' : 'Funkrufname, Kennung und Stammdaten eines neuen Fahrzeugs.' ?></p></div>
             </div>

@@ -24,7 +24,7 @@ $pgPath = 'mci/board';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>mci/index">MANV-Board</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($lage['einsatznummer']) ?></span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>mci/index">MANV-Board</a></span> <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($lage['einsatznummer']) ?></span></nav>
             <header class="twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Aktive MANV-Lage</p>

@@ -28,7 +28,7 @@ $pgLabel = 'Benutzer';
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item is-active">Benutzer</span>
+                        <span class="ignis-breadcrumb__item" aria-current="page">Benutzer</span>
                     </nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">

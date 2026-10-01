@@ -38,7 +38,7 @@ $canConfigure = Permissions::check(['admin', 'dashboard.manage']);
 ob_start();
 ?>
   <div class="twplus-page">
-    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Schnellzugriffe</span></nav>
+    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Schnellzugriffe</span></nav>
 
     <div class="page-header twplus-page-header mb-4">
       <div class="twplus-page-header__copy">

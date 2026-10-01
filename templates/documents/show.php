@@ -27,7 +27,7 @@ $SITE_TITLE = $document->title;
                         </a>
                     </span>
                 <?php endif; ?>
-                <span class="ignis-breadcrumb__item is-active">Dokument</span>
+                <span class="ignis-breadcrumb__item" aria-current="page">Dokument</span>
             </nav>
 
             <div class="page-header twplus-page-header mb-4">

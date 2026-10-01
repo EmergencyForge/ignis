@@ -63,7 +63,9 @@ final class ShellTest extends FeatureTestCase
         $this->assertOk($response);
         $this->assertBodyContains('<title>Benutzer &rsaquo;', $response);
         $this->assertMatchesRegularExpression('~href="/users/list"[^>]*aria-current="page"~', $response->body);
-        $this->assertSame(1, substr_count($response->body, 'aria-current="page"'), 'Genau ein Eintrag ist aktiv.');
+        // Die Brotkrumen markieren die aktuelle Krume ebenso, gezählt wird nur die Seitenleiste.
+        $this->assertSame(1, preg_match_all('~class="ignis-sidebar__link"[^>]*aria-current="page"~', $response->body), 'Genau ein Eintrag ist aktiv.');
+        $this->assertStringNotContainsString('ignis-sidebar__row is-active', $response->body);
         $this->assertMatchesRegularExpression('~href="/personnel/create"[^>]*data-ignis-drawer~', $response->body);
         $this->assertBodyContains('data-quick-action-target="role-create"', $response);
         $this->assertBodyContains('ignis-topbar__new', $response);

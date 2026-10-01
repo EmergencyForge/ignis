@@ -75,7 +75,7 @@ final class VehicleShowTest extends FeatureTestCase
 
         $this->assertOk($page);
         $this->assertBodyContains('<title>Fahrzeug: LS-FW 833', $page);
-        $this->assertBodyContains('<span class="ignis-breadcrumb__item is-active">LS-FW 833</span>', $page);
+        $this->assertBodyContains('<span class="ignis-breadcrumb__item" aria-current="page">LS-FW 833</span>', $page);
         $this->assertBodyContains('<h1 class="ignis-detail__title">', $page);
         $this->assertBodyContains('Florian Detail 1/83/3', $page);
         $this->assertBodyContains('Einsatzbereit', $page);
@@ -133,7 +133,7 @@ final class VehicleShowTest extends FeatureTestCase
         $this->assertBodyContains('<h3 class="ignis-empty__title">Keine Beladeliste für den Typ OHNE-LISTE</h3>', $page);
         $this->assertBodyContains('<h3 class="ignis-empty__title">Kein taktisches Zeichen</h3>', $page);
         $this->assertBodyContains('Noch keine Aktivität.', $page);
-        $this->assertBodyContains('<span class="ignis-breadcrumb__item is-active">Leer 1</span>', $page);
+        $this->assertBodyContains('<span class="ignis-breadcrumb__item" aria-current="page">Leer 1</span>', $page);
     }
 
     #[Test]

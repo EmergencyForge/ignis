@@ -22,7 +22,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/mail/mailboxes">Postfächer</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($mailbox->address) ?></span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/mail/mailboxes">Postfächer</a></span> <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($mailbox->address) ?></span></nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <h1>Adresse ändern</h1>
