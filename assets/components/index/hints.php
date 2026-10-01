@@ -28,7 +28,7 @@ if ($hintTasks === null && $dashboardProtocols === null && $dashboardVehicles ==
 
 $hintDown = $dashboardVehicles['down'] ?? [];
 $hintOpen = $dashboardProtocols['open'] ?? 0;
-$hintAny  = $hintOpen > 0 || $hintDown !== [] || $hintTasks !== [] || $hintTasksFailed;
+$hintAny  = $hintOpen > 0 || $hintDown !== [] || ($hintTasks ?? []) !== [] || $hintTasksFailed;
 ?>
 <section class="ignis-bezel ignis-hints" aria-labelledby="dashboard-hints-title" data-ignis-reveal>
     <div class="ignis-bezel__head">

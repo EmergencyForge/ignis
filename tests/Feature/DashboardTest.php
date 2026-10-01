@@ -121,6 +121,19 @@ final class DashboardTest extends FeatureTestCase
     }
 
     #[Test]
+    public function ohne_recht_auf_aufgaben_steht_der_ruhige_hinweis(): void
+    {
+        $this->login(['vehicles.view']);
+        $this->onlyTheseRows();
+        $this->vehicle('RTW 1/83-1', '2');
+
+        $body = $this->get('/index')->body;
+
+        $this->assertStringContainsString('<section class="ignis-bezel ignis-hints"', $body);
+        $this->assertStringContainsString('Nichts wartet auf dich', $body);
+    }
+
+    #[Test]
     public function eigene_antraege_stehen_als_tabellenkarte(): void
     {
         $this->login();
