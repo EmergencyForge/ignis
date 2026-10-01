@@ -23,7 +23,7 @@ use App\Helpers\Flash;
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <h1 class="mb-0">Krankenhaus-Fachrichtungen</h1>

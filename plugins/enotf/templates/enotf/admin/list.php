@@ -72,7 +72,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
                         <nav class="ignis-segmented" aria-label="Status">
                             <a href="?view=0"<?= !$viewUnprocessed ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= count($result) ?></span></a>
                             <a href="?view=1"<?= $viewUnprocessed ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-triangle-exclamation" data-tone="warn" aria-hidden="true"></i>Unbearbeitet <span class="ignis-segmented__count"><?= $countUnprocessed ?></span></a>
@@ -87,7 +87,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
             </div>
             <?php Flash::render(); ?>
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>

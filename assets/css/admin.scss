@@ -2299,7 +2299,9 @@ td.dt-empty {
 }
 
 @media (max-width: 991.98px) {
-  .page-header {
+  // twplus-page-header bricht selbst um. In einer Spalte würde die
+  // Flex-Basis seiner Kopie (240px) zur Höhe, unter dem Text stünde eine Lücke.
+  .page-header:not(.twplus-page-header) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
