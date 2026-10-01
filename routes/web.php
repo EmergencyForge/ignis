@@ -556,7 +556,7 @@ foreach ($legacyApiPaths as $legacyPath => $target) {
 
 // eNOTF v1 postet sein Anlege-Formular an dieses Skript (Form-Action in
 // plugins/enotf/templates/enotf/create.php). Es bleibt, wo es liegt, und
-// bekommt hier seine Route; es antwortet weiterhin selbst per header().
+// bekommt hier seine Route; seine Antwort gibt es per return zurück.
 $router->match(['GET', 'POST'], '/assets/functions/enotf/enrbridge', $rootScript('assets/functions/enotf/enrbridge.php'));
 
 // ----------------------------------------------------------------------------
