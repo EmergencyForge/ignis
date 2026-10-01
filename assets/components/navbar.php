@@ -35,6 +35,7 @@ $navbarSystemNav = str_starts_with($navbarPath, '/settings/system/') && $navbarP
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/shell.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer-form.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/palette.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/breadcrumb.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/notifications.js"></script>
 <?php if ($navbarSystemNav): ?>
     <div class="twplus-page" style="padding-bottom:0;">
