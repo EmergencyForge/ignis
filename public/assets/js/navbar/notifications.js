@@ -4,8 +4,8 @@
  * Fragt alle 30 s GET /api/notifications/poll ab (nur bei sichtbarem Tab)
  * und hält die Marken `.notification-poll-badge` (Punkt an der Glocke in
  * der Topbar, Zähler am Sidebar-Eintrag „Posteingang"), das aria-label der Glocke,
- * den Zähler im Browsertitel und einen Toast für eine neue Meldung
- * aktuell. Ändert sich der Zähler, geht das Event `ignis:inbox-count`
+ * den Zähler im Browsertitel, einen Toast und den Lichtlauf an der Glocke
+ * für eine neue Meldung aktuell. Ändert sich der Zähler, geht das Event `ignis:inbox-count`
  * am window heraus; shell.js lädt darauf das Popover der Glocke neu.
  *
  * Andere Skripte setzen den Zähler über window.intraNotifSetCount(count).
@@ -66,6 +66,10 @@ function init() {
                 if (fresh) {
                     toasted[fresh.id] = true;
                     if (typeof window.showToast === 'function') window.showToast(fresh.title, 'info');
+                    // Eine neue Meldung ist eine Änderung: das Licht läuft einmal
+                    // über die Kante der Glocke (signal() aus motion.js, das
+                    // shell.js lädt). Nie beim Laden, nur hier im Polling.
+                    window.ignis?.motion?.signal?.(document.querySelector('details[data-ignis-inbox] > summary'));
                 }
             }
             setCount(data.unreadCount);
