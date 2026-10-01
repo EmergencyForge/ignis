@@ -80,7 +80,7 @@ final class TabletLoginController
             'success'    => true,
             'token'      => $token,
             'expires_in' => self::TTL,
-            'login_url'  => ProtocolDetection::buildFullUrl('auth/tablet'),
+            'login_url'  => ProtocolDetection::buildPublicUrl('auth/tablet'),
         ])->withHeader('Cache-Control', 'no-store');
     }
 

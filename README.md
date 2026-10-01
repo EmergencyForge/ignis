@@ -68,6 +68,9 @@ wird (ab Werk aus). Der FiveM-Server schickt `POST /api/tablet/login-token`
 mit dem API-Schlüssel im Header `X-API-Key` und `{"discord_id": "…"}` und
 bekommt einen Token, der 60 Sekunden und genau einmal gilt. Das Tablet öffnet
 damit `/auth/tablet?token=…` und ist angemeldet wie nach dem Discord-Login.
+Die vollständige Adresse steht als `login_url` in der Antwort; sie folgt der
+System-URL (`SYSTEM_URL`), nicht der Adresse, über die der FiveM-Server ignis
+anspricht.
 
 Es funktioniert nur für bestehende, aktive Benutzer, deren Discord-ID in
 ignis hinterlegt ist; ein Konto entsteht dabei nie. Teilen sich zwei aktive
