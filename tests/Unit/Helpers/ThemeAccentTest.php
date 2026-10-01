@@ -36,6 +36,18 @@ final class ThemeAccentTest extends TestCase
     }
 
     #[Test]
+    public function rote_betreiberfarbe_ist_mit_gefahr_verwechselbar(): void
+    {
+        foreach (['#dc2626', '#FF0000', '#b71c1c', '#e11d48', '#ff6347'] as $red) {
+            $this->assertTrue(Theme::accentLooksLikeDanger($red), "Wert: $red");
+        }
+        // Orange, Pink, Blau, ein fast graues Rotbraun, der Seed-Wert und Ungültiges nicht.
+        foreach (['#ff5722', '#ea580c', '#e91e63', '#2563eb', '#a0726b', '#d10000', '#f0500a', '', 'rot'] as $other) {
+            $this->assertFalse(Theme::accentLooksLikeDanger($other), "Wert: $other");
+        }
+    }
+
+    #[Test]
     public function token_standard_steht_in_den_tokens(): void
     {
         $tokens = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/_tokens.scss');

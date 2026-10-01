@@ -218,6 +218,12 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             oninput="updateColorPicker('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
                                                     </div>
                                                     <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
+                                                    <?php if ($config['config_key'] === 'SYSTEM_COLOR' && \App\Helpers\Theme::accentLooksLikeDanger((string) $config['config_value'])): ?>
+                                                        <div class="ignis-alert ignis-alert--warn mt-2" id="system-color-danger" role="status">
+                                                            <i class="fa-solid fa-triangle-exclamation ignis-alert__icon" aria-hidden="true"></i>
+                                                            <div class="ignis-alert__body">Diese Farbe ist kaum vom Rot zu unterscheiden, mit dem ignis Gefahr, Alarme und auf dem MANV-Board die Sichtungskategorie 1 anzeigt. Primärknöpfe und Fortschrittsbalken sehen damit wie Warnungen aus. Besser passt ein Ton, der sich klar von Rot abhebt.</div>
+                                                        </div>
+                                                    <?php endif; ?>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'SYSTEM_LOGO'):
                                                     $logoIsDefault = systemLogoIsDefault((string) $config['config_value']);

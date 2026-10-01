@@ -74,6 +74,22 @@ final class SystemPagesTest extends FeatureTestCase
         $this->assertBodyNotContains('btn-toolbar-group', $page);
     }
 
+    /** Ein rotes SYSTEM_COLOR sähe aus wie Gefahr, die Seite warnt davor. */
+    #[Test]
+    public function system_konfiguration_warnt_vor_roter_hauptfarbe(): void
+    {
+        $color = static function (string $value): void {
+            Capsule::table('intra_config')->where('config_key', 'SYSTEM_COLOR')->update(['config_value' => $value]);
+            (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
+        };
+
+        $color('#dc2626');
+        $this->assertBodyContains('id="system-color-danger" role="status"', $this->get('/settings/system/config'));
+
+        $color('#2563eb');
+        $this->assertBodyNotContains('system-color-danger', $this->get('/settings/system/config'));
+    }
+
     /**
      * Nicht editierbare Werte fehlen auf der Seite, bis auf API-Schlüssel
      * und Installations-ID: beide stehen zum Ablesen da, ohne Formularfeld.

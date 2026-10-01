@@ -148,6 +148,51 @@ final class Theme
             . ';--accent-rgb:' . $r . ', ' . $g . ', ' . $b . '}</style>';
     }
 
+    /**
+     * Ob die angepasste Akzentfarbe so rot ist, dass Primärknopf und
+     * Fortschritt wie Gefahr aussehen. Gefahr liegt in oklch bei H 22, das
+     * Orange von ignis bei H 38. Ein Farbton bis 12° um H 22 gilt als rot,
+     * ein fast graues Rot (Chroma unter 0,1) nicht.
+     *
+     * @param string|null $configured Testhaken; null liest SYSTEM_COLOR.
+     */
+    public static function accentLooksLikeDanger(?string $configured = null): bool
+    {
+        $accent = self::customAccent($configured);
+        if ($accent === null) {
+            return false;
+        }
+
+        [$chroma, $hue] = self::chromaAndHue(self::rgb($accent));
+
+        return $chroma >= 0.1 && abs($hue - 22) <= 12;
+    }
+
+    /**
+     * Chroma und Farbton (Grad) in oklch, nach Björn Ottosson.
+     *
+     * @param array{int,int,int} $rgb
+     * @return array{float,float}
+     */
+    private static function chromaAndHue(array $rgb): array
+    {
+        [$r, $g, $b] = array_map(static function (int $channel): float {
+            $c = $channel / 255;
+
+            return $c <= 0.04045 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+        }, $rgb);
+
+        $l = (0.4122214708 * $r + 0.5363325363 * $g + 0.0514459929 * $b) ** (1 / 3);
+        $m = (0.2119034982 * $r + 0.6806995451 * $g + 0.1073969566 * $b) ** (1 / 3);
+        $s = (0.0883024619 * $r + 0.2817188376 * $g + 0.6299787005 * $b) ** (1 / 3);
+
+        $a  = 1.9779984951 * $l - 2.4285922050 * $m + 0.4505937099 * $s;
+        $bb = 0.0259040371 * $l + 0.7827717662 * $m - 0.8086757660 * $s;
+        $hue = rad2deg(atan2($bb, $a));
+
+        return [sqrt($a * $a + $bb * $bb), $hue < 0 ? $hue + 360 : $hue];
+    }
+
     private static function customAccent(?string $configured): ?string
     {
         $value = $configured ?? (defined('SYSTEM_COLOR') ? (string) SYSTEM_COLOR : '');
