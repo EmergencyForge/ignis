@@ -2,6 +2,10 @@
 /**
  * View: MANV-Board (Live-Dashboard einer Lage)
  *
+ * Oben die Patienten an der Einsatzstelle als Board (.ignis-board) mit
+ * einer Spalte je Sichtungskategorie im Ton der Kategorie, darunter
+ * dieselben Patienten als sortierbare Tabelle.
+ *
  * Die Patiententabelle sortiert auf dem Server (App\Support\ListQuery,
  * MciController::board, ?sort=&dir=), die Kopfzellen sind Links; Standard
  * ist Sichtungskategorie, dann Patientennummer.
@@ -60,22 +64,85 @@ $pgPath = 'mci/board';
                 </div>
             </div>
 
-            <dl class="twplus-stats mb-4" aria-label="Patienten nach Sichtung">
-                <div class="twplus-stats__item">
-                    <dt class="twplus-stats__label">Gesamt</dt>
-                    <dd class="twplus-stats__value"><?= (int) $stats['total_patienten'] ?></dd>
+            <div class="ignis-kpis mb-4">
+                <div class="ignis-kpi">
+                    <div class="ignis-kpi__top"><span class="ignis-kpi__label"><i class="fa-solid fa-user-injured" aria-hidden="true"></i>An der Einsatzstelle</span></div>
+                    <div class="ignis-kpi__value"><?= count($patienten) ?></div>
+                    <div class="ignis-kpi__sub"><?= (int) $stats['total_patienten'] ?> gesichtet insgesamt</div>
                 </div>
-                <?php foreach (['sk1' => 'SK1', 'sk2' => 'SK2', 'sk3' => 'SK3', 'sk4' => 'SK4', 'sk5' => 'SK5', 'sk6' => 'SK6'] as $skKey => $skLabel): ?>
-                    <div class="twplus-stats__item">
-                        <dt class="twplus-stats__label"><span class="ignis-chip ignis-chip--<?= $skKey ?>"><?= $skLabel ?></span></dt>
-                        <dd class="twplus-stats__value"><?= (int) ($stats[$skKey] ?? 0) ?></dd>
-                    </div>
+                <div class="ignis-kpi">
+                    <div class="ignis-kpi__top"><span class="ignis-kpi__label"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i>Transportiert</span></div>
+                    <div class="ignis-kpi__value"><?= (int) $stats['transportiert'] ?></div>
+                </div>
+            </div>
+
+            <?php
+            // Board nach Sichtung: jede Spalte trägt den Ton ihrer Kategorie,
+            // keine im Akzent. SK1 bis SK3 stehen immer, die übrigen nur,
+            // wenn dort jemand liegt.
+            $boardLanes = [
+                'SK1' => ['SK1 Rot', 'danger'],
+                'SK2' => ['SK2 Gelb', 'warn'],
+                'SK3' => ['SK3 Grün', 'ok'],
+                'SK4' => ['SK4 Blau', 'info'],
+                'SK5' => ['SK5 Tot', ''],
+                'tot' => ['Tot', ''],
+                'SK6' => ['SK6 Unverletzt', ''],
+                ''    => ['Ohne Sichtung', ''],
+            ];
+            $boardPatients = array_fill_keys(array_keys($boardLanes), []);
+            foreach ($patienten as $boardPatient) {
+                $boardKey = (string) ($boardPatient['sichtungskategorie'] ?? '');
+                $boardPatients[isset($boardLanes[$boardKey]) ? $boardKey : ''][] = $boardPatient;
+            }
+            ?>
+            <div class="ignis-board mb-4" aria-label="Patienten nach Sichtung">
+                <?php foreach ($boardLanes as $laneKey => [$laneTitle, $laneTone]):
+                    $lanePatients = $boardPatients[$laneKey];
+                    if ($lanePatients === [] && !in_array($laneKey, ['SK1', 'SK2', 'SK3'], true)) {
+                        continue;
+                    }
+                    $laneId = 'lane-' . ($laneKey === '' ? 'ohne' : strtolower($laneKey));
+                ?>
+                    <section class="ignis-lane" aria-labelledby="<?= $laneId ?>">
+                        <header class="ignis-lane__head"<?= $laneTone !== '' ? ' data-tone="' . $laneTone . '"' : '' ?>>
+                            <i class="fa-solid fa-user-injured" aria-hidden="true"></i>
+                            <h2 class="ignis-lane__title" id="<?= $laneId ?>"><?= $laneTitle ?></h2>
+                            <span class="ignis-lane__count" aria-label="<?= count($lanePatients) ?> Patienten"><?= count($lanePatients) ?></span>
+                        </header>
+                        <?php if ($lanePatients !== []): ?>
+                            <ul class="ignis-lane__list">
+                                <?php foreach ($lanePatients as $patient):
+                                    $canTransport       = !in_array($patient['sichtungskategorie'] ?? '', ['SK4', 'SK5', 'SK6', 'tot'], true);
+                                    $isTransportVehicle = isset($patient['fahrzeug_rd_type']) && (int) $patient['fahrzeug_rd_type'] >= 1;
+                                ?>
+                                    <li>
+                                        <article class="ignis-task">
+                                            <h3 class="ignis-task__title"><a href="<?= BASE_PATH ?>mci/patient-view?id=<?= (int) $patient['id'] ?>"><?= htmlspecialchars(trim(($patient['name'] ?? '') . ' ' . ($patient['vorname'] ?? '')) ?: 'Unbekannt') ?></a></h3>
+                                            <?php if (!empty($patient['verletzungen'])): ?>
+                                                <p class="ignis-task__text"><?= htmlspecialchars($patient['verletzungen']) ?></p>
+                                            <?php endif; ?>
+                                            <div class="ignis-task__foot">
+                                                <span class="ignis-mono"><?= htmlspecialchars($patient['patienten_nummer']) ?></span>
+                                                <?php if (!empty($patient['transportmittel_rufname'])): ?>
+                                                    <span class="ignis-task__meta"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i><?= htmlspecialchars($patient['fahrzeug_rufname'] ?? $patient['transportmittel_rufname']) ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($canTransport && $isTransportVehicle && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
+                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary transport-btn" data-patient-id="<?= (int) $patient['id'] ?>" data-patient-nr="<?= htmlspecialchars($patient['patienten_nummer']) ?>"><i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i>Abfahrt</button>
+                                                <?php elseif (!empty($patient['transportziel'])): ?>
+                                                    <span class="ignis-chip ignis-chip--sm" data-tone="ok"><span class="ignis-dot" aria-hidden="true"></span>Bereit</span>
+                                                <?php else: ?>
+                                                    <span class="ignis-chip ignis-chip--sm" data-tone="warn"><span class="ignis-dot" aria-hidden="true"></span>Wartend</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </article>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </section>
                 <?php endforeach; ?>
-                <div class="twplus-stats__item">
-                    <dt class="twplus-stats__label">Transportiert</dt>
-                    <dd class="twplus-stats__value"><?= (int) $stats['transportiert'] ?></dd>
-                </div>
-            </dl>
+            </div>
 
             <div class="twplus-table-card mb-4">
                 <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
