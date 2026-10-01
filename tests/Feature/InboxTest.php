@@ -68,7 +68,7 @@ final class InboxTest extends FeatureTestCase
         // Der Eintrag führt über open zum Ziel; der Zähler steht an der Glocke und in der Sidebar.
         $this->assertMatchesRegularExpression('~href="/inbox/(\d+)/open" class="ignis-inbox__link"~', $page->body);
         $this->assertBodyContains('aria-label="Posteingang, 1 ungelesen"', $page);
-        $this->assertBodyContains('class="ignis-topbar__badge notification-poll-badge">1<', $page);
+        $this->assertBodyContains('class="ignis-btn__dot notification-poll-badge" data-count="1">', $page);
         $this->assertBodyContains('class="ignis-sidebar__count notification-poll-badge">1<', $page);
         $this->assertBodyContains('data-ignis-inbox="/inbox/popover"', $page);
         $this->assertBodyNotContains('notifications/index', $page);
