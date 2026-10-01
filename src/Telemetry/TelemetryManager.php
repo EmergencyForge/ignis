@@ -412,7 +412,7 @@ class TelemetryManager
     }
 
     /**
-     * @return array<string, mixed> bool, message: string}
+     * @return array{success: bool, message: string}
      */
     public function sendHeartbeat(bool $force = false): array
     {

@@ -184,7 +184,7 @@ class GlobalAnnouncementManager
     /**
      * Aktualisiert den lokalen Cache mit Daten vom Hub
      *
-     * @return array<string, mixed> bool, message: string}
+     * @return array{success: bool, message: string, count?: int}
      */
     public function refreshCache(): array
     {
@@ -313,7 +313,7 @@ class GlobalAnnouncementManager
     /**
      * Gibt Cache-Informationen zurück (für Debug-Zwecke)
      *
-     * @return array<string, mixed> int, last_fetch: string|null, error?: string}
+     * @return array{count: int, last_fetch: string|null, error?: string}
      */
     public function getCacheInfo(): array
     {

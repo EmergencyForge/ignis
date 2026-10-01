@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'send_heartbeat':
             if ($telemetry->isEnabled()) {
                 $result = $telemetry->sendHeartbeat(true);
-                $message = $result['success'] ? 'Heartbeat erfolgreich gesendet.' : ($result['message'] ?? 'Heartbeat konnte nicht gesendet werden.');
+                $message = $result['success'] ? 'Heartbeat erfolgreich gesendet.' : $result['message'];
                 $messageType = $result['success'] ? 'ok' : 'danger';
             } else {
                 $message = 'Telemetrie ist deaktiviert.';
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = 'Ankündigungen-Cache aktualisiert. ' . ($result['count'] ?? 0) . ' Ankündigungen geladen.';
                 $messageType = 'ok';
             } else {
-                $message = 'Cache-Aktualisierung fehlgeschlagen: ' . ($result['message'] ?? 'Unbekannter Fehler');
+                $message = 'Cache-Aktualisierung fehlgeschlagen: ' . $result['message'];
                 $messageType = 'danger';
             }
             break;

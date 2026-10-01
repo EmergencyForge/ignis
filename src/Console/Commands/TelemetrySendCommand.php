@@ -53,12 +53,12 @@ final class TelemetrySendCommand extends Command
         $output->writeln('<info>Sende Telemetrie-Heartbeat …</info>');
         $result = $this->telemetry->sendHeartbeat();
 
-        if (!empty($result['success'])) {
-            $output->writeln('<info>' . ($result['message'] ?? 'OK') . '</info>');
+        if ($result['success']) {
+            $output->writeln('<info>' . $result['message'] . '</info>');
             return Command::SUCCESS;
         }
 
-        $output->writeln('<error>' . ($result['message'] ?? 'Heartbeat fehlgeschlagen') . '</error>');
+        $output->writeln('<error>' . $result['message'] . '</error>');
         return Command::FAILURE;
     }
 }
