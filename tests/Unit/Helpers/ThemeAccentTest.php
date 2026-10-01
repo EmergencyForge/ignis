@@ -10,20 +10,31 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * SYSTEM_COLOR wirkt nur, wenn der Betreiber die Farbe geändert hat; sonst
- * entscheiden die Tokens, damit der helle Satz seinen eigenen Akzent behält.
+ * entscheiden die Tokens. Der Tag gilt im Skin und steht hinter den
+ * Stylesheets, weil der Skin-Block in ui.css denselben Selektor hat.
  */
 final class ThemeAccentTest extends TestCase
 {
     #[Test]
-    public function angepasste_farbe_landet_als_style_tag_auf_root(): void
+    public function angepasste_farbe_landet_als_style_tag_im_skin(): void
     {
         $tag = Theme::accentStyleTag('#2563EB');
 
         $this->assertSame(
-            '<style id="ignis-accent">:root{--accent:#2563eb;--accent-hover:#2157cf;--accent-rgb:37, 99, 235}</style>',
+            '<style id="ignis-accent">body[data-ui-skin="core"]{--accent:#2563eb;--accent-hover:#2157cf;--accent-rgb:37, 99, 235}</style>',
             $tag,
         );
         $this->assertSame('#2563eb', Theme::accentHex('#2563EB'));
+    }
+
+    #[Test]
+    public function head_gibt_den_tag_hinter_den_stylesheets_aus(): void
+    {
+        foreach (['admin', 'mitarbeiter'] as $head) {
+            $src = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/components/_base/' . $head . '/head.php');
+
+            $this->assertGreaterThan((int) strrpos($src, 'rel="stylesheet"'), (int) strpos($src, 'Theme::accentStyleTag()'), $head);
+        }
     }
 
     #[Test]

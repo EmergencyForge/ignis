@@ -12,10 +12,10 @@ use App\Session\SessionManager;
  *
  * Die Stylesheets kennen die Farben nur als Tokens (assets/css/_tokens.scss).
  * Der Betreiber legt in der Systemkonfiguration SYSTEM_COLOR fest; head.php
- * legt diesen Wert per accentStyleTag() als <style> über --accent, bevor
- * ein Stylesheet lädt. Solange die Farbe auf einem der Auslieferungswerte
- * steht, bleibt der Tag weg, damit der helle Satz seinen eigenen,
- * dunkleren Akzent behält.
+ * legt diesen Wert per accentStyleTag() hinter den Stylesheets im Skin über
+ * --accent, preferences.js rechnet daraus Füllung, Schrift und Fokus.
+ * Solange die Farbe auf einem der Auslieferungswerte steht, bleibt der Tag
+ * weg.
  *
  * Der Modus (dark, light, system) steht in intra_users.theme und in der
  * Session. headScript() setzt ihn als data-theme am <html>, bevor ein
@@ -128,9 +128,12 @@ final class Theme
     }
 
     /**
-     * <style>-Tag, das --accent, --accent-hover und --accent-rgb auf :root
-     * setzt. Leer, wenn SYSTEM_COLOR fehlt, ungültig ist oder auf einem
-     * Auslieferungswert steht.
+     * <style>-Tag, das --accent, --accent-hover und --accent-rgb im Skin
+     * setzt. Der Selektor ist derselbe wie der des Skin-Blocks in ui.css,
+     * deshalb muss der Tag hinter den Stylesheets stehen. Seiten ohne Skin
+     * (eNOTF, fireTab) behalten das Orange der Tokens. Leer, wenn
+     * SYSTEM_COLOR fehlt, ungültig ist oder auf einem Auslieferungswert
+     * steht.
      *
      * @param string|null $configured Testhaken; null liest SYSTEM_COLOR.
      */
@@ -144,7 +147,7 @@ final class Theme
         [$r, $g, $b] = self::rgb($accent);
         $hover = sprintf('#%02x%02x%02x', (int) round($r * 0.88), (int) round($g * 0.88), (int) round($b * 0.88));
 
-        return '<style id="ignis-accent">:root{--accent:' . $accent . ';--accent-hover:' . $hover
+        return '<style id="ignis-accent">body[data-ui-skin="core"]{--accent:' . $accent . ';--accent-hover:' . $hover
             . ';--accent-rgb:' . $r . ', ' . $g . ', ' . $b . '}</style>';
     }
 

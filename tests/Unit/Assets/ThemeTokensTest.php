@@ -34,7 +34,7 @@ final class ThemeTokensTest extends TestCase
      */
     private const EXCEPTIONS = [
         '_tokens.scss'      => 'die Tokens selbst',
-        '_look-aliases.scss' => 'Token-Block des Skins, trägt den hellen Akzent #f0500a',
+        '_look-aliases.scss' => 'Token-Block des Skins, trägt den Akzent #f0500a',
         '_enotf-skin.scss'  => 'eNOTF-Skin der ignis-Komponenten, aus ui.scss herausgelöst',
         'divi.scss'         => 'eNOTF-Stylesheet (nur von eNOTF v1/v2 geladen)',
         'print.scss'        => 'eNOTF-Druckansicht',
@@ -165,6 +165,7 @@ final class ThemeTokensTest extends TestCase
 
     /** Skin-Farben, die hell und dunkel gleich bleiben, mit Grund. */
     private const SKIN_FIXED = [
+        '--accent'    => 'hell wie dunkel dasselbe Orange, preferences.js rechnet die Rollen je Modus',
         '--on-accent' => 'Tinte steht hell wie dunkel auf demselben Orange',
     ];
 

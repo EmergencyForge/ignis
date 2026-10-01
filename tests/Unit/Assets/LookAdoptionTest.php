@@ -81,8 +81,10 @@ final class LookAdoptionTest extends TestCase
 
     /**
      * Tinte auf Orange und die Reihen Cyan, Sand, Grau stehen im Skin, nie
-     * auf :root, dort lesen die eNOTF-Seiten mit. Hell bleibt der Akzent
-     * #f0500a, mit dem dunkleren #cc3f00 bekäme der Knopf weiße Schrift.
+     * auf :root, dort lesen die eNOTF-Seiten mit. Der Akzent #f0500a steht
+     * für beide Modi im Skin-Block, mit dem dunkleren #cc3f00 bekäme der
+     * Knopf im Hellen weiße Schrift. Der helle Block setzt ihn nicht noch
+     * einmal, sonst käme SYSTEM_COLOR dort nicht an.
      */
     public function testFunkeValuesOfIgnisLiveInTheSkin(): void
     {
@@ -90,12 +92,13 @@ final class LookAdoptionTest extends TestCase
         self::assertMatchesRegularExpression('/^oklch\((0?\.2|20%) \.03 40\)$/', $skin['--on-accent'] ?? '');
         self::assertMatchesRegularExpression('/^(white|#fff)$/', $skin['--accent-press'] ?? '');
         self::assertSame('var(--accent-base)', $skin['--accent-fill'] ?? null);
+        self::assertSame('#f0500a', $skin['--accent'] ?? null);
         self::assertMatchesRegularExpression('/^oklch\((0?\.78|78%) \.12 210\)$/', $skin['--series-1'] ?? '');
         self::assertMatchesRegularExpression('/^oklch\((0?\.82|82%) \.07 75\)$/', $skin['--series-2'] ?? '');
         self::assertSame('var(--series-4)', $skin['--series-3'] ?? null);
 
         $light = $this->skinBlock('[data-theme=light] body[data-ui-skin=core]') + $this->skinBlock('[data-theme="light"] body[data-ui-skin="core"]');
-        self::assertSame('#f0500a', $light['--accent'] ?? null);
+        self::assertArrayNotHasKey('--accent', $light);
         self::assertMatchesRegularExpression('/^oklch\((0?\.58|58%) \.11 215\)$/', $light['--series-1'] ?? '');
         self::assertMatchesRegularExpression('/^oklch\((0?\.6|60%) \.09 72\)$/', $light['--series-2'] ?? '');
         self::assertSame('var(--series-4)', $light['--series-3'] ?? null);

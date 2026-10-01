@@ -6,6 +6,11 @@
 // Namen, die das Paket selbst als Rolle liefert (--border-strong und die
 // Töne mit -soft), stehen hier nicht, sonst überschrieben sie die Rolle.
 @mixin aliases {
+  // Orange in beiden Modi. Das hellere #cc3f00 aus _tokens.scss gilt nur
+  // ohne Skin, auf ihm bekäme der Primärknopf weiße Schrift statt Tinte.
+  // Eine eigene SYSTEM_COLOR legt Theme::accentStyleTag() mit demselben
+  // Selektor hinter ui.css.
+  --accent: #f0500a;
   // Bei 20deg lag der zweite Verlaufston nach dem Gamut-Schnitt nur 8° vom
   // ersten entfernt, bei 32deg sind es 16°.
   --accent-hue: 40;
@@ -80,11 +85,8 @@
   --sidebar-w: 256px;
 }
 
-// Für den hellen Skin-Block hinter ef.look(). Das helle #cc3f00 aus
-// _tokens.scss gilt nur noch für Seiten ohne Skin. Auf ihm bekäme der
-// Primärknopf weiße Schrift statt Tinte.
+// Für den hellen Skin-Block hinter ef.look().
 @mixin light {
-  --accent: #f0500a;
   --series-1: oklch(.58 .11 215);
   --series-2: oklch(.60 .09 72);
   // look() setzt hell die dritte Reihe von Lex.
