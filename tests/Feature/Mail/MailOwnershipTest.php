@@ -151,7 +151,8 @@ final class MailOwnershipTest extends FeatureTestCase
         $this->assertCount(1, $audit);
         $this->assertSame('Postfach-Konto zugeordnet', $audit[0]->action);
         $this->assertStringNotContainsString($mailbox->address, (string) $audit[0]->details . (string) $audit[0]->context);
-        $this->assertSame(['mailbox_id' => $mailbox->id, 'von' => $paul['user']->id, 'auf' => $newUser->id], json_decode((string) $audit[0]->context, true));
+        // assertEquals: MySQL sortiert die Schlüssel einer JSON-Spalte um, MariaDB nicht.
+        $this->assertEquals(['mailbox_id' => $mailbox->id, 'von' => $paul['user']->id, 'auf' => $newUser->id], json_decode((string) $audit[0]->context, true));
         $this->assertSame(1, Capsule::table('intra_notifications')->where('user_id', $paul['user']->id)->where('type', 'system')->count());
 
         $this->loginAs($newUser);
