@@ -56,9 +56,9 @@ $SITE_TITLE = 'Fahrzeuge';
                     $pgLabel = 'Fahrzeuge';
                     $canManage = Permissions::check(['admin', 'vehicles.manage']);
                     $rdTypes = [
-                        1 => ['warn', 'RD - Mit NA'],
-                        2 => ['ok', 'RD - Ohne NA'],
-                        3 => ['danger', 'Feuerwehr'],
+                        1 => 'RD - Mit NA',
+                        2 => 'RD - Ohne NA',
+                        3 => 'Feuerwehr',
                     ];
                     ?>
                     <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
@@ -168,7 +168,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                     <tr><td colspan="<?= $canManage ? 8 : 7 ?>"><?php require dirname(__DIR__, 3) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($vehicles as $row):
-                                    [$rdChip, $rdLabel] = $rdTypes[(int) $row['rd_type']] ?? ['secondary', 'Andere'];
+                                    $rdLabel = $rdTypes[(int) $row['rd_type']] ?? 'Andere';
                                     $isActive    = (int) $row['active'] !== 0;
                                     $openDefects = (int) ($row['open_defects'] ?? 0);
                                     $minOperable = $row['min_operable'];
@@ -211,7 +211,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <td class="ignis-table__num"><?= (int) $row['priority'] ?></td>
                                         <td><span data-vehicle-card="<?= $rowId ?>"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
                                         <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '-' ?></td>
-                                        <td><span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span></td>
+                                        <td><span class="ignis-chip"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>
                                                 <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" data-ignis-tooltip="Offene Defekte anzeigen" aria-label="<?= $openDefects ?> offene Defekte anzeigen"><?= $openDefects ?></a>

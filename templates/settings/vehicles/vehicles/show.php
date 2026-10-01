@@ -25,11 +25,11 @@ $plate     = trim((string) ($vehicle['kennzeichen'] ?? ''));
 $heading   = $plate !== '' ? $plate : (string) $vehicle['name'];
 
 $rdTypes = [
-    1 => ['warn', 'RD - Mit NA'],
-    2 => ['ok', 'RD - Ohne NA'],
-    3 => ['danger', 'Feuerwehr'],
+    1 => 'RD - Mit NA',
+    2 => 'RD - Ohne NA',
+    3 => 'Feuerwehr',
 ];
-[$rdChip, $rdLabel] = $rdTypes[(int) ($vehicle['rd_type'] ?? 0)] ?? ['secondary', 'Andere'];
+$rdLabel = $rdTypes[(int) ($vehicle['rd_type'] ?? 0)] ?? 'Andere';
 $isActive = (int) ($vehicle['active'] ?? 0) !== 0;
 
 // Taktisches Zeichen: die Felder, die der Generator kennt (wie _preview.php).
@@ -63,7 +63,7 @@ $bodyId = 'fahrzeuge';
                         <?php else: ?>
                             <span class="ignis-chip ignis-chip--dot ignis-chip--danger">Außer Dienst</span>
                         <?php endif; ?>
-                        <span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span>
+                        <span class="ignis-chip"><?= $rdLabel ?></span>
                         <?php if (!empty($vehicle['current_status'])): ?>
                             <span class="ignis-chip ignis-chip--secondary" data-ignis-tooltip="Status aus <?= htmlspecialchars((string) ($vehicle['status_source'] ?? 'EMD'), ENT_QUOTES) ?>">Status <?= htmlspecialchars((string) $vehicle['current_status']) ?></span>
                         <?php endif; ?>

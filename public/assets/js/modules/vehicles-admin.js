@@ -267,7 +267,6 @@
     function bindVehicleImport(cfg) {
         const IMPORT_API   = cfg.importApi;
         const rdTypeLabels = { 0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr' };
-        const rdTypeBadges = { 0: 'dark',   1: 'warn',       2: 'ok',          3: 'danger'    };
         const loadingSkeleton = (label) => `
             <div class="twplus-skeleton" role="status" aria-label="${label}">
                 <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
@@ -446,7 +445,7 @@
 
         function renderVehicleRow(v, delay, hasExisting) {
             const e        = v.existing;
-            const rdBadge  = `<span class="ignis-chip ignis-chip--${rdTypeBadges[v.rd_type] || 'dark'}" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
+            const rdBadge  = `<span class="ignis-chip" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
             const deptInfo = v.department ? `<span style="font-size:var(--fs-xs);color:var(--text-dimmed);"><i class="fa-solid fa-building mr-1"></i>${escHtml(v.department)}</span>` : '';
 
             let existingInfo = '';
@@ -456,7 +455,7 @@
                         <span class="text-tertiary-text">Bestehendes Fahrzeug:</span>
                         <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')})
                         — ${escHtml(e.identifier || '-')}
-                        <span class="ignis-chip ignis-chip--${rdTypeBadges[e.rd_type] || 'dark'}" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
+                        <span class="ignis-chip" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
                     </div>
                 `;
             }
