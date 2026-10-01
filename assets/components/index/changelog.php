@@ -29,7 +29,7 @@ try {
 
 $annE = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 ?>
-<section class="ignis-card intra__announcements mt-10" data-section="announcements" aria-labelledby="dashboard-announcements-title">
+<section class="ignis-card intra__announcements" data-ignis-reveal data-section="announcements" aria-labelledby="dashboard-announcements-title">
     <div class="ignis-card__header">
         <h2 class="ignis-card__title" id="dashboard-announcements-title">Ankündigungen</h2>
         <div class="ignis-card__actions">
