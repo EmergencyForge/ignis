@@ -38,9 +38,12 @@
 // Formulare setzen die Labels direkt). ef.base() stylt beides nur verschachtelt
 // unter .ignis-field .ignis-field__label — ohne diese Kopie blieben Stern und
 // Fehlertext in den ueber ein Dutzend Formularen ohne Huelle farblos.
-.ignis-field__required {
+// Der Stern nimmt --accent-text, das Orange hält hell auf Weiß nur 3,6 : 1.
+// Die zweite Zeile überschreibt die verschachtelte Regel aus ef.base().
+.ignis-field__required,
+.ignis-field .ignis-field__label .ignis-field__required {
   margin-left: 0.15rem;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .ignis-field__error {
@@ -83,7 +86,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--accent);
+  color: var(--accent-text);
   font: inherit;
   font-size: var(--fs-sm);
   text-decoration: none;

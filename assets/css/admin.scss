@@ -970,12 +970,15 @@ select.form-select option {
 
   &:hover:not(.disabled):not(.current) {
     background: var(--fill-2);
-    color: var(--white);
+    color: var(--content-text);
   }
 
+  // Die aktuelle Seite wie das aktive Segment: heller, grauer Rand.
   &.current {
-    background: var(--accent);
-    color: var(--white) !important;
+    background: var(--surface-4);
+    border-color: var(--border-ui);
+    box-shadow: inset 0 1px 0 var(--hi);
+    color: var(--content-text) !important;
   }
 
   &.disabled {
@@ -1036,10 +1039,9 @@ select.form-select option {
         width: 2.4rem;
         height: 2.4rem;
         border-radius: var(--radius-lg, 8px);
-        background: rgba(var(--accent-rgb), 0.14);
-        border: 1px solid rgba(var(--accent-rgb), 0.25);
-        color: var(--accent);
-        color: var(--white);
+        background: var(--surface-4);
+        border: 1px solid var(--border-subtle);
+        color: var(--secondary-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1067,8 +1069,8 @@ select.form-select option {
     &__eyebrow {
         display: block;
         margin-bottom: 0.08rem;
-        color: var(--accent);
-        font-size: 0.6rem;
+        color: var(--accent-text);
+        font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.075em;
         text-transform: uppercase;
@@ -1386,7 +1388,7 @@ select.form-select option {
   table.dataTable thead th.sorting_asc::before,
   table.dataTable thead th.sorting_desc::after {
     opacity: 1;
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   table.dataTable tbody tr {

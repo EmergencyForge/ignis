@@ -157,7 +157,7 @@ html.is-collapsed body.ignis-app--legacy {
     // 2rem: die Kleinbuchstaben der Wortmarke werden so rund 17px hoch, wie bei der alten.
     .ignis-wordmark { height: 2rem; aspect-ratio: 188 / 97.5; }
 
-    &:hover { color: var(--accent); }
+    &:hover { color: var(--accent-text); }
   }
 
   // Feld, Lupe und Tastenchip kommen aus .ignis-search und .ignis-kbd im Skin.
@@ -283,7 +283,7 @@ html.is-collapsed body.ignis-app--legacy {
 
   &__check {
     margin-left: auto;
-    color: var(--accent) !important;
+    color: var(--accent-text) !important;
   }
 
   &__count {
@@ -291,7 +291,7 @@ html.is-collapsed body.ignis-app--legacy {
     padding: 0 0.4rem;
     border-radius: 999px;
     background: var(--accent-soft);
-    color: var(--accent);
+    color: var(--accent-text);
     font-size: var(--fs-xs);
     font-weight: 600;
 

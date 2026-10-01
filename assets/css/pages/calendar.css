@@ -49,9 +49,8 @@
 
 .fc .fc-button-primary:hover,
 .fc .fc-button:hover:not(:disabled) {
-    background: var(--surface);
-    border-color: var(--accent);
-    color: var(--white);
+    background: var(--fill-2);
+    color: var(--content-text);
 }
 
 .fc .fc-button-primary:disabled,
@@ -63,9 +62,10 @@
 
 .fc .fc-button-primary:not(:disabled).fc-button-active,
 .fc .fc-button-active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--white);
+    background: var(--surface-4);
+    border-color: var(--border-ui);
+    box-shadow: inset 0 1px 0 var(--hi);
+    color: var(--content-text);
 }
 
 /* Wochentag-Header */
@@ -92,7 +92,7 @@
 }
 
 .fc .fc-day-today .fc-daygrid-day-number {
-    color: var(--accent);
+    color: var(--accent-text);
     font-weight: 700;
 }
 
@@ -248,7 +248,7 @@
     opacity: 1;
     background: rgba(var(--accent-rgb), 0.15);
     border-color: var(--accent);
-    color: var(--accent);
+    color: var(--accent-text);
 }
 
 .ignis-chip--toggle:hover {
@@ -295,9 +295,8 @@
 }
 
 .attendee-list__organizer {
-    color: var(--accent);
-    font-size: 0.7rem;
-    opacity: 0.85;
+    color: var(--accent-text);
+    font-size: 0.75rem;
 }
 
 .attendee-status {

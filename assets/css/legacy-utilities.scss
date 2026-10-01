@@ -410,7 +410,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 .alert-secondary{ color: var(--text); background-color: var(--fill-3); border-color: var(--fill-4); }
 
 // ── Background-Utilities ────────────────────────────────────────────
-.bg-primary   { background-color: var(--accent) !important; color: var(--white) !important; }
+.bg-primary   { background-color: var(--accent-fill) !important; color: var(--on-accent) !important; }
 .bg-success   { background-color: var(--ok) !important; color: var(--white) !important; }
 .bg-danger    { background-color: var(--danger) !important; color: var(--white) !important; }
 .bg-warning   { background-color: var(--warn) !important; color: var(--white) !important; }
@@ -419,7 +419,7 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 .bg-dark      { background-color: var(--bg-2) !important; color: var(--text) !important; }
 .bg-light     { background-color: var(--surface-3) !important; color: var(--text) !important; }
 
-.text-bg-primary   { background-color: var(--accent) !important; color: var(--white) !important; }
+.text-bg-primary   { background-color: var(--accent-fill) !important; color: var(--on-accent) !important; }
 .text-bg-success   { background-color: var(--ok) !important; color: var(--white) !important; }
 .text-bg-danger    { background-color: var(--danger) !important; color: var(--white) !important; }
 .text-bg-warning   { background-color: var(--warn) !important; color: var(--white) !important; }
@@ -494,10 +494,12 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
         }
     }
 
+    // Die aktuelle Seite wie das aktive Segment: heller, grauer Rand.
     .page-item.active .page-link {
-        background-color: var(--accent);
-        border-color: var(--accent);
-        color: var(--white);
+        background-color: var(--surface-4);
+        border-color: var(--border-ui);
+        box-shadow: inset 0 1px 0 var(--hi);
+        color: var(--content-text);
     }
 
     .page-item.disabled .page-link {
