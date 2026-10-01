@@ -96,7 +96,7 @@ $pgPath = 'mci/board';
                 $boardPatients[isset($boardLanes[$boardKey]) ? $boardKey : ''][] = $boardPatient;
             }
             ?>
-            <div class="ignis-board mb-4" aria-label="Patienten nach Sichtung">
+            <div class="ignis-board mb-4" role="group" aria-label="Patienten nach Sichtung">
                 <?php foreach ($boardLanes as $laneKey => [$laneTitle, $laneTone]):
                     $lanePatients = $boardPatients[$laneKey];
                     if ($lanePatients === [] && !in_array($laneKey, ['SK1', 'SK2', 'SK3'], true)) {
@@ -108,7 +108,7 @@ $pgPath = 'mci/board';
                         <header class="ignis-lane__head"<?= $laneTone !== '' ? ' data-tone="' . $laneTone . '"' : '' ?>>
                             <i class="fa-solid fa-user-injured" aria-hidden="true"></i>
                             <h2 class="ignis-lane__title" id="<?= $laneId ?>"><?= $laneTitle ?></h2>
-                            <span class="ignis-lane__count" aria-label="<?= count($lanePatients) ?> Patienten"><?= count($lanePatients) ?></span>
+                            <span class="ignis-lane__count"><?= count($lanePatients) ?><span class="ignis-sr-only"> Patienten</span></span>
                         </header>
                         <?php if ($lanePatients !== []): ?>
                             <ul class="ignis-lane__list">

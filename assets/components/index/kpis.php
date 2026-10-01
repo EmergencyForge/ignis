@@ -23,7 +23,7 @@ if ($dashboardIncidents === null && $dashboardVehicles === null && $dashboardPro
         <div class="ignis-kpi" data-ignis-reveal>
             <div class="ignis-kpi__top">
                 <span class="ignis-kpi__label"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i>Einsätze heute</span>
-                <?= $dashboardDelta ?>
+                <?= $dashboardDelta ?><span class="ignis-sr-only"> ggü. gestern um diese Zeit</span>
             </div>
             <div class="ignis-kpi__value"><span data-ignis-count><?= $dashboardIncidents['today'] ?></span></div>
             <div class="ignis-kpi__sub"><?= match (true) {

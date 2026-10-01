@@ -84,6 +84,9 @@ final class DashboardTest extends FeatureTestCase
         $this->assertStringContainsString('1 ohne Statusmeldung', $body);
         $this->assertMatchesRegularExpression('~<a class="ignis-kpi" href="/enotf/admin/list\?view=2" data-tone="danger" data-ignis-reveal>.*?fa-triangle-exclamation.*?eNOTF-Protokolle offen</span>.*?<span data-ignis-count>1</span>~s', $body);
 
+        // Delta gegen gestern: die Richtung als Text, der Pfeil nur als Bild.
+        $this->assertStringContainsString('<span class="ignis-delta"><span class="ignis-sr-only">plus </span><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>3</span><span class="ignis-sr-only"> ggü. gestern um diese Zeit</span>', $body);
+
         // Einsätze: Sparklines aus echten Zählungen, der letzte Tag ist heute.
         $this->assertMatchesRegularExpression('~data-ignis-spark data-values="[\d,]*3" data-label="Einsätze je Tag in den letzten sieben Tagen"~', $body);
         $this->assertStringContainsString('assets/js/ui/spark.js', $body);

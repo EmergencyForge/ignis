@@ -23,14 +23,17 @@ $dashboardVehicles  = Overview::vehicles();
 $dashboardProtocols = Overview::openProtocols($dashboardPlugins, $dashboardNow);
 
 // Delta der Einsätze gegen gestern bis zur selben Uhrzeit, in der Kachel
-// und im Fuß der Schale. Mehr Einsätze sind weder gut noch schlecht.
+// und im Fuß der Schale. Mehr Einsätze sind weder gut noch schlecht. Die
+// Richtung steht als Text für Screenreader in der Pille, ein aria-label an
+// einem span lesen sie nicht vor.
 $dashboardDelta = '';
 if ($dashboardIncidents !== null) {
     $dashboardDiff = $dashboardIncidents['today'] - $dashboardIncidents['yesterday'];
-    $dashboardDelta = '<span class="ignis-delta" aria-label="'
-        . ($dashboardDiff === 0 ? 'so viele wie gestern um diese Zeit' : ($dashboardDiff > 0 ? 'plus ' : 'minus ') . abs($dashboardDiff) . ' gegenüber gestern um diese Zeit') . '">'
-        . ($dashboardDiff === 0 ? '' : '<i class="fa-solid fa-arrow-' . ($dashboardDiff > 0 ? 'up' : 'down') . '" aria-hidden="true"></i>')
-        . abs($dashboardDiff) . '</span>';
+    $dashboardDelta = '<span class="ignis-delta">' . match (true) {
+        $dashboardDiff > 0 => '<span class="ignis-sr-only">plus </span><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>' . $dashboardDiff,
+        $dashboardDiff < 0 => '<span class="ignis-sr-only">minus </span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i>' . -$dashboardDiff,
+        default            => '<span aria-hidden="true">0</span><span class="ignis-sr-only">unverändert</span>',
+    } . '</span>';
 }
 
 // Die Seite rendert durch die Hülle (templates/layouts/admin.php):

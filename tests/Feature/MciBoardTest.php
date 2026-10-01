@@ -59,8 +59,8 @@ final class MciBoardTest extends FeatureTestCase
         $this->assertBodyContains('ignis-chip ignis-chip--sk1', $board);
 
         // Board nach Sichtung: Spalten im Ton ihrer Kategorie, keine im Akzent.
-        $this->assertBodyContains('<div class="ignis-board mb-4" aria-label="Patienten nach Sichtung">', $board);
-        $this->assertMatchesRegularExpression('~<header class="ignis-lane__head" data-tone="danger">.*?id="lane-sk1">SK1 Rot</h2>\s*<span class="ignis-lane__count" aria-label="2 Patienten">2</span>~s', $board->body);
+        $this->assertBodyContains('<div class="ignis-board mb-4" role="group" aria-label="Patienten nach Sichtung">', $board);
+        $this->assertMatchesRegularExpression('~<header class="ignis-lane__head" data-tone="danger">.*?id="lane-sk1">SK1 Rot</h2>\s*<span class="ignis-lane__count">2<span class="ignis-sr-only"> Patienten</span></span>~s', $board->body);
         $this->assertMatchesRegularExpression('~data-tone="warn">.*?SK2 Gelb</h2>.*?data-tone="ok">.*?SK3 Grün</h2>~s', $board->body);
         $this->assertBodyNotContains('ignis-lane__head--active', $board);
         $this->assertBodyNotContains('id="lane-sk4"', $board);
