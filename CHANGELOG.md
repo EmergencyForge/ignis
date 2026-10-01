@@ -1,5 +1,19 @@
 # Changelog
 
+## Unveröffentlicht
+
+ignis sieht neu aus. Mit dem UI-Paket 0.7.0 kommt der Look „Funke“, und die Oberfläche wird dunkler und ruhiger. Seitenleiste, Kopfzeile, Reiter und Filter sind grau, Farbe haben nur noch Daten, Status und die eine Hauptaktion einer Seite. Der aktive Eintrag in der Seitenleiste, aktive Reiter und der gewählte Mail-Ordner sind deshalb nicht mehr orange. Primärknöpfe sind orange mit dunkler Schrift. Der Seiteninhalt liegt auf einer etwas helleren Fläche mit runden Ecken neben der Seitenleiste, alle Ecken sind runder als bisher. Die Grundschrift ist 14 px groß. Knöpfe und Eingabefelder sind in der Dichte „Luftig“ 40 px hoch, in „Kompakt“ 36 px und auf Touch-Geräten immer 44 px.
+
+Das Dashboard ist jetzt eine Übersicht über den Dienst. Oben stehen Kacheln für die Einsätze von heute, die einsatzbereiten Fahrzeuge und die eNOTF-Protokolle, die noch nicht freigegeben sind; ist eines offen, wird die Kachel rot. Darunter zeigen kleine Kurven die Einsätze je Stunde und je Tag, und die Fahrzeuge stehen mit ihrem Status in einer Liste. Rechts sammeln sich Hinweise, etwa zu offenen Protokollen oder zu Fahrzeugen in Status 6. Diagramme sind cyan, sandfarben und grau, Orange kommt darin nicht vor, damit nichts davon wie ein Alarm wirkt. Was jemand ohne die passenden Rechte nicht sehen darf, fehlt auf dem Dashboard.
+
+Die Statusfilter in den Listen (Benutzer, Anträge, Fahrzeuge, Mängel, Posteingang, eNOTF-Prüfliste und fireTab-Verwaltung) zeigen, wie viele Einträge hinter jedem Filter stehen. Das MANV-Board ordnet die Patienten in Spalten nach Sichtungskategorie, jede Spalte in der Farbe ihrer Kategorie. Die Suche in der Kopfzeile zeigt ihr Kürzel Strg K, die Glocke trägt einen Punkt, solange etwas ungelesen ist, und eine neue Meldung lässt einmal einen Lichtstreifen über sie laufen. Auf der Anmeldeseite steht das Formular in einem eigenen Rahmen.
+
+Die eNOTF-Protokollseiten sehen absichtlich genauso aus wie vorher, ebenso die fireTab-App auf dem Tablet. Die eNOTF-Verwaltung mit Prüfliste, POIs, Medikamenten und Schnellzugriff hat dagegen den neuen Look, und ihre Statusfilter sind dieselben wie in den übrigen Listen.
+
+Auf dem Handy laufen Listen nicht mehr über den rechten Rand, die Tabelle scrollt in ihrer Karte, und unter den Seitentiteln ist die große Lücke verschwunden. Im dreispaltigen Mail-Postfach hat der Betreff mehr Platz. Die System-Konfiguration warnt, wenn die Hauptfarbe so rot ist, dass Knöpfe und Fortschrittsbalken wie Warnungen aussehen.
+
+Plugins mit eigenen Styles finden die Änderungen an Farben, Ecken und Bausteinen in der README des UI-Pakets im Abschnitt „Funke (0.7.0)“ unter „Beim Umstieg“.
+
 ## 2026.0.14-beta
 
 Weitere Stellen, an denen ein präparierter Link oder ein eingebettetes Bild etwas auslösen konnte, gehen nur noch über ein Formular mit Sicherheitstoken: Benutzerkonten löschen und deaktivieren, eNOTF-Vitalwerte löschen und der EMD-Fahrzeugimport. Die ungenutzte Seite, die Vitalwerte endgültig löschen wollte, ist entfernt. Die eNOTF-Voranmeldung schrieb jedes abgeschickte Formular samt Diagnose und Freitext in eine Logdatei neben dem Template; das entfällt, und das Update löscht die alte Datei. Der Updater lehnt Download-Adressen mit `../` ab, über die sich vorher ein Paket aus einem fremden Repository laden ließ. Cron-Webhooks prüfen ihr Ziel jetzt auch für IPv6 und schicken den Request an genau die geprüfte Adresse, damit eine zwischendurch geänderte DNS-Antwort nicht doch ins interne Netz führt (cron-scheduler 0.1.1). Der Dokumenteditor bringt das Sicherheitsupdate von TipTap 3.31.4 mit (editor 0.3.1).
