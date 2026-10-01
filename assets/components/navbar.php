@@ -14,8 +14,9 @@
  * Dieser Include bleibt für Seiten, die ihr <html> noch selbst bauen und
  * ihn weiter einbinden — die Admin-Seiten von eNOTF. Sie bekommen
  * dieselben Komponenten; `ignis-app--legacy` am <body> schaltet die
- * Hülle von Raster auf feste Positionierung, weil der Inhalt hier kein
- * <main> hat, sondern als Geschwister hinter der Sidebar folgt.
+ * Hülle von Raster auf feste Positionierung, weil der Inhalt hier als
+ * Geschwister hinter der Sidebar folgt. Die Seiten legen ihren Inhalt
+ * samt Footer selbst in <main class="ignis-main">, die Tafel.
  *
  * Neue und umgestellte Seiten setzen stattdessen `$layout = 'admin'`
  * (Controller::renderView()).

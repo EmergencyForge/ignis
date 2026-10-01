@@ -62,6 +62,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
 
 <body data-theme="dark" data-page="edivi">
     <?php include dirname(__DIR__, 5) . "/assets/components/navbar.php"; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -268,6 +269,7 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
         });
     </script>
     <?php include dirname(__DIR__, 5) . "/assets/components/footer.php"; ?>
+    </main>
 </body>
 
 </html>

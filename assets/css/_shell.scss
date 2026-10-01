@@ -10,7 +10,8 @@
 //
 // `body.ignis-app--legacy` ist der Modus des Shims navbar.php für Seiten,
 // die ihr <html> noch selbst bauen (eNOTF-Admin): kein Raster, Topbar und
-// Sidebar fest positioniert, der Inhalt rückt per Padding beiseite.
+// Sidebar fest positioniert, die Tafel (.ignis-main) rückt per Padding
+// beiseite.
 //
 // Nur Tokens aus _tokens.scss (ThemeTokensTest); die Maße --sidebar-w,
 // --sidebar-w-collapsed und --topbar-h stehen dort.
@@ -57,11 +58,18 @@ html.is-collapsed body.ignis-app {
   > .container { max-width: none; padding-inline: 0; }
 }
 
-// Shim-Modus: Inhalt ohne <main>, deshalb feste Leisten und Padding.
+// Shim-Modus: ohne Raster, deshalb feste Leisten und Padding. Die Tafel
+// steht wie im Raster unter der Topbar neben der Sidebar und reicht bis
+// zum unteren Fensterrand.
 body.ignis-app--legacy {
   display: block;
-  padding: calc(var(--topbar-h) + var(--space-md)) var(--space-md) var(--space-md) calc(var(--sidebar-w) + var(--space-md) + var(--sidebar-inset, 0px));
+  padding: var(--topbar-h) 0 0 calc(var(--sidebar-w) + var(--sidebar-inset, 0px));
   transition: padding-left 0.18s var(--ease-out-expo);
+
+  .ignis-main {
+    box-sizing: border-box;
+    min-height: calc(100vh - var(--topbar-h));
+  }
 
   .ignis-topbar {
     position: fixed;
@@ -81,7 +89,7 @@ body.ignis-app--legacy {
 }
 
 html.is-collapsed body.ignis-app--legacy {
-  padding-left: calc(var(--sidebar-w-collapsed) + var(--space-md) + var(--sidebar-inset, 0px));
+  padding-left: calc(var(--sidebar-w-collapsed) + var(--sidebar-inset, 0px));
 
   .ignis-sidebar { width: var(--sidebar-w-collapsed); }
 }
@@ -548,7 +556,7 @@ html.is-collapsed body.ignis-app--legacy {
 
   body.ignis-app--legacy,
   html.is-collapsed body.ignis-app--legacy {
-    padding-left: var(--space-md);
+    padding-left: 0;
   }
 
   .ignis-sidebar,

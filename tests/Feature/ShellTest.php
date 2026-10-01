@@ -126,6 +126,7 @@ final class ShellTest extends FeatureTestCase
         $this->assertBodyContains("document.body.dataset.uiSkin = 'core'", $response);
         $this->assertBodyContains('class="ignis-topbar"', $response);
         $this->assertBodyContains('id="ignisSidebar"', $response);
+        $this->assertBodyContains('<main class="ignis-main">', $response);
         $this->assertBodyContains('documentElement.dataset.theme = "dark"', $response);
     }
 }

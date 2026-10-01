@@ -17,6 +17,7 @@ use App\Helpers\Flash;
 
 <body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="flex flex-wrap -mx-3">
@@ -201,6 +202,7 @@ use App\Helpers\Flash;
         }
     </script>
     <?php include dirname(__DIR__, 5) . '/assets/components/footer.php'; ?>
+    </main>
 </body>
 
 </html>
