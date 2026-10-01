@@ -22,12 +22,16 @@ class VehicleDefectLog extends Model
 {
     protected $table = 'intra_fahrzeuge_defect_log';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'        => 'integer',
         'defect_id' => 'integer',
         'user_id'   => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<VehicleDefect, $this>
+     */
     public function defect(): BelongsTo
     {
         return $this->belongsTo(VehicleDefect::class, 'defect_id', 'id');

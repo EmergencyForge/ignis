@@ -8,7 +8,7 @@ use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Exceptions\ValidationException as RespectValidationException;
-use Respect\Validation\Validator;
+use Respect\Validation\Validatable;
 
 /**
  * Basis-Klasse für deklarative Request-Validation (Form-Request-Pattern,
@@ -36,7 +36,7 @@ use Respect\Validation\Validator;
 abstract class FormRequest
 {
     /**
-     * @return array<string, Validator>
+     * @return array<string, Validatable>
      */
     abstract protected function rules(): array;
 

@@ -24,6 +24,7 @@ class Notification extends Model
 {
     protected $table = 'intra_notifications';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'      => 'integer',
         'user_id' => 'integer',

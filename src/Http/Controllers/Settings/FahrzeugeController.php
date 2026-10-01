@@ -748,6 +748,9 @@ class FahrzeugeController extends Controller
         return $wachen;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectVehicleData(
         string $name,
         string $kennzeichen,

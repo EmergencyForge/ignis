@@ -22,11 +22,15 @@ class CronRun extends Model
 {
     protected $table = 'intra_cron_runs';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'     => 'integer',
         'job_id' => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<CronJob, $this>
+     */
     public function job(): BelongsTo
     {
         return $this->belongsTo(CronJob::class, 'job_id', 'id');

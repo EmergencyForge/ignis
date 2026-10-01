@@ -29,7 +29,7 @@ class ImportQueueItemRequest extends FormRequest
             v::key('queue_id',     v::stringVal()->intVal()->positive()),
             v::key('existing_id',  v::optional(v::stringVal()->intVal()->positive()), false),
             v::key('veh_type',     v::optional(v::stringType()->length(0, 64)), false),
-            v::key('rd_type',      v::optional(v::stringVal()->intVal()->between(0, 3, true)), false),
+            v::key('rd_type',      v::optional(v::stringVal()->intVal()->between(0, 3)), false),
             v::key('allowed_jobs', v::optional(v::stringType()->length(0, 500)), false),
             // Routing-Felder
             v::key('action',       v::optional(v::stringType()), false),

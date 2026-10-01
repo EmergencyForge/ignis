@@ -20,6 +20,9 @@ class KbTag extends Model
 {
     protected $table = 'intra_kb_tags';
 
+    /**
+     * @return BelongsToMany<KbEntry, $this>
+     */
     public function entries(): BelongsToMany
     {
         return $this->belongsToMany(KbEntry::class, 'intra_kb_entry_tags', 'tag_id', 'entry_id');

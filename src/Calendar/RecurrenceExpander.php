@@ -121,7 +121,7 @@ final class RecurrenceExpander
     /**
      * Parst eine RRULE-Subset-String zu einem Assoc-Array. NULL bei Parser-Fail.
      *
-     * @return array{freq:string,interval:int,byday?:array,count?:int,until?:string}|null
+     * @return array{freq:string,interval:int,byday?:list<string>,count?:int,until?:string}|null
      */
     private static function parseRule(string $rule): ?array
     {
@@ -164,6 +164,9 @@ final class RecurrenceExpander
         return $out;
     }
 
+    /**
+     * @param array{freq:string,interval:int,byday?:list<string>,count?:int,until?:string} $rule
+     */
     private static function nextOccurrence(DateTimeImmutable $current, array $rule): DateTimeImmutable
     {
         $interval = $rule['interval'];
@@ -178,20 +181,20 @@ final class RecurrenceExpander
 
     /**
      * Laedt Exception-Rows fuer ein Master-Event als YYYY-MM-DD-Map.
+     *
+     * @return array<string, CalendarEvent>
      */
     private static function loadExceptions(CalendarEvent $master): array
     {
         $map = [];
         try {
+            /** @var \Illuminate\Database\Eloquent\Collection<int, CalendarEvent> $rows */
             $rows = CalendarEvent::query()
                 ->where('parent_event_id', $master->id)
                 ->whereNull('recurrence_rule')
                 ->get();
             foreach ($rows as $row) {
-                $key = $row->starts_at instanceof DateTimeInterface
-                    ? $row->starts_at->format('Y-m-d')
-                    : substr((string) $row->starts_at, 0, 10);
-                $map[$key] = $row;
+                $map[$row->starts_at->format('Y-m-d')] = $row;
             }
         } catch (\Throwable) {
             // ignore — leere Map ist sicher

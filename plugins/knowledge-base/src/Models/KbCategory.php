@@ -24,16 +24,25 @@ class KbCategory extends Model
 {
     protected $table = 'intra_kb_categories';
 
+    /**
+     * @return BelongsTo<self, $this>
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id', 'id');
     }
 
+    /**
+     * @return HasMany<self, $this>
+     */
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id', 'id');
     }
 
+    /**
+     * @return HasMany<KbEntry, $this>
+     */
     public function entries(): HasMany
     {
         return $this->hasMany(KbEntry::class, 'category_id', 'id');

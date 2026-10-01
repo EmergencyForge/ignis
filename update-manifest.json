@@ -11,6 +11,8 @@
     "fahrtenbuch",
     "mitarbeiter",
     "manv",
-    "settings"
+    "settings",
+    "templates/enotf/schnittstelle/php_errors.log",
+    "plugins/enotf/templates/enotf/schnittstelle/php_errors.log"
   ]
 }

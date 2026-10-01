@@ -78,6 +78,9 @@ abstract class FormRequest
             static::rules()->assert($input);
         } catch (NestedValidationException $e) {
             $messages = static::messages();
+            // Respect verspricht string[], liefert bei verschachtelten
+            // Regeln aber je Feld ein Array von Meldungen.
+            /** @var array<string, string|array<string, string>> $errors */
             $errors   = $messages !== []
                 ? $e->getMessages($messages)
                 : $e->getMessages();

@@ -13,6 +13,9 @@ use Tests\TestCase;
 
 class FormRequestTest extends TestCase
 {
+    /**
+     * @param array<string, mixed> $body
+     */
     private function postJson(array $body): Request
     {
         return new Request(

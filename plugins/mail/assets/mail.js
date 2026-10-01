@@ -82,10 +82,27 @@
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { markRead(document); });
-    } else {
+    // Meldung aus mail-compose.js (leave()), die den Reload nach dem Senden überdauert.
+    function showCarriedSnack() {
+        var carried = null;
+        try {
+            carried = JSON.parse(sessionStorage.getItem('ignis.mail.snack') || 'null');
+            sessionStorage.removeItem('ignis.mail.snack');
+        } catch (e) {
+            return;
+        }
+        if (carried && carried.text) snack(carried.kind || 'success', carried.text);
+    }
+
+    function onReady() {
         markRead(document);
+        showCarriedSnack();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+        onReady();
     }
     document.addEventListener('ignis:preview', function (event) { markRead(event.target); });
 

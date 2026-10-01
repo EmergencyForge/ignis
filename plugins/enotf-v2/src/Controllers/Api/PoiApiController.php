@@ -58,8 +58,7 @@ final class PoiApiController
         $search = trim((string) ($request->query['search'] ?? ''));
 
         try {
-            $query = EdiviPoi::query()
-                ->active()
+            $query = EdiviPoi::active()
                 ->orderBy('name');
 
             if ($search !== '') {
@@ -133,7 +132,7 @@ final class PoiApiController
             Edivi::query()->where('enr', $enr)->update([
                 $poiColumn     => $poi,
                 $adresseColumn => json_encode($adresse, JSON_UNESCAPED_UNICODE),
-                'last_edit'    => DB::raw('NOW()'),
+                'last_edit'    => DB::connection()->raw('NOW()'),
             ]);
         } catch (\Throwable $e) {
             Logger::error('EnotfV2: poi/save-address Fehler', ['error' => $e->getMessage()]);

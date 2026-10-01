@@ -40,6 +40,7 @@ final class MailAdminController extends Controller
     use RendersPages;
 
     private const PATTERNS = ['initial_dot_last', 'first_dot_last'];
+    public const MAX_SEND_COOLDOWN = 3600;
 
     public function __construct(
         private readonly MailAddressRules $rules,
@@ -233,11 +234,14 @@ final class MailAdminController extends Controller
             'pattern'   => $text('pattern') ?? '',
             'allowed'   => trim($text('allowed') ?? ''),
             'signature' => $text('signature'),
+            'cooldown'  => trim($text('cooldown') ?? ''),
         ];
 
         $error = null;
-        if (in_array(null, [$text('domain'), $text('pattern'), $text('allowed'), $form['signature']], true)) {
+        if (in_array(null, [$text('domain'), $text('pattern'), $text('allowed'), $form['signature'], $text('cooldown')], true)) {
             $error = 'Ungültige Eingabe.';
+        } elseif (preg_match('/^\d{1,4}$/', $form['cooldown']) !== 1 || (int) $form['cooldown'] > self::MAX_SEND_COOLDOWN) {
+            $error = 'Die Sendepause muss eine ganze Zahl von 0 bis ' . self::MAX_SEND_COOLDOWN . ' Sekunden sein.';
         } elseif (!MailAddressRules::isDomain($form['domain'])) {
             $error = 'Die Standard-Domain ist keine gültige Domain (z. B. ignis.ef).';
         } elseif (!in_array($form['pattern'], self::PATTERNS, true)) {
@@ -259,6 +263,7 @@ final class MailAdminController extends Controller
             'MAIL_ADDRESS_PATTERN'   => $form['pattern'],
             'MAIL_ALLOWED_DOMAINS'   => implode(', ', array_values(array_diff(MailAddressRules::parseDomains($form['allowed']), [$form['domain']]))),
             'MAIL_DEFAULT_SIGNATURE' => SignatureText::toJson((string) $form['signature']),
+            'MAIL_SEND_COOLDOWN'     => (string) (int) $form['cooldown'],
         ];
         $before  = Capsule::table('intra_config')->whereIn('config_key', array_keys($values))->pluck('config_value', 'config_key')->all();
         $changed = [];
@@ -283,7 +288,7 @@ final class MailAdminController extends Controller
             Flash::info('Keine Änderungen.');
         } else {
             self::audit('Mail-Einstellungen geändert', implode(', ', array_keys($changed)), $changed);
-            Flash::success('Mail-Einstellungen gespeichert. Sie gelten für neue Postfächer.');
+            Flash::success('Mail-Einstellungen gespeichert. Domain und Muster gelten für neue Postfächer.');
         }
 
         return Response::redirect(MailController::basePath() . 'settings/mail');
@@ -377,7 +382,7 @@ final class MailAdminController extends Controller
             ->all();
     }
 
-    /** @return array{domain:string, pattern:string, allowed:string, signature:string} */
+    /** @return array{domain:string, pattern:string, allowed:string, signature:string, cooldown:string} */
     private function currentSettings(): array
     {
         $values = Capsule::table('intra_config')->where('category', 'mail')->pluck('config_value', 'config_key')->all();
@@ -387,6 +392,7 @@ final class MailAdminController extends Controller
             'pattern'   => (string) ($values['MAIL_ADDRESS_PATTERN'] ?? 'initial_dot_last'),
             'allowed'   => (string) ($values['MAIL_ALLOWED_DOMAINS'] ?? ''),
             'signature' => SignatureText::toText((string) ($values['MAIL_DEFAULT_SIGNATURE'] ?? '')),
+            'cooldown'  => (string) ($values['MAIL_SEND_COOLDOWN'] ?? '10'),
         ];
     }
 

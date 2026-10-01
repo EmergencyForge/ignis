@@ -29,6 +29,7 @@ class FireIncidentVehicle extends Model
 {
     protected $table = 'intra_fire_incident_vehicles';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'             => 'integer',
         'incident_id'    => 'integer',
@@ -38,6 +39,9 @@ class FireIncidentVehicle extends Model
         'created_at'     => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<FireIncident, $this>
+     */
     public function incident(): BelongsTo
     {
         return $this->belongsTo(FireIncident::class, 'incident_id', 'id');

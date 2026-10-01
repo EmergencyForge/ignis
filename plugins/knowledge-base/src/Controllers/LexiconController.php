@@ -432,7 +432,7 @@ class LexiconController extends Controller
                     'is_pinned'        => $is_pinned,
                     'hide_editor'      => $hide_editor,
                     'updated_by'       => $_SESSION['userid'],
-                    'updated_at'       => Capsule::raw('NOW()'),
+                    'updated_at'       => Capsule::connection()->raw('NOW()'),
                 ]));
 
                 Capsule::table('intra_kb_entry_tags')->where('entry_id', $editId)->delete();
@@ -525,7 +525,7 @@ class LexiconController extends Controller
             $affected = KbEntry::where('id', $id)->update([
                 'is_archived' => $isArchived,
                 'updated_by'  => $_SESSION['userid'],
-                'updated_at'  => Capsule::raw('NOW()'),
+                'updated_at'  => Capsule::connection()->raw('NOW()'),
             ]);
             if ($affected > 0) {
                 Flash::success($action === 'archive' ? 'Eintrag archiviert' : 'Eintrag wiederhergestellt');
@@ -564,7 +564,7 @@ class LexiconController extends Controller
             $affected = KbEntry::where('id', $id)->update([
                 'is_pinned'  => $isPinned,
                 'updated_by' => $_SESSION['userid'],
-                'updated_at' => Capsule::raw('NOW()'),
+                'updated_at' => Capsule::connection()->raw('NOW()'),
             ]);
             if ($affected > 0) {
                 Flash::success($action === 'pin' ? 'Eintrag angepinnt' : 'Eintrag gelöst');
@@ -601,7 +601,7 @@ class LexiconController extends Controller
 
         try {
             KbEntry::where('id', $id)->update([
-                'hide_editor' => Capsule::raw('NOT hide_editor'),
+                'hide_editor' => Capsule::connection()->raw('NOT hide_editor'),
             ]);
             $hideEditor = Capsule::table('intra_kb_entries')->where('id', $id)->value('hide_editor');
             Flash::success(!empty($hideEditor)

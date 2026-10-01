@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * Eloquent-Model für `intra_fahrzeuge_import_queue` — vom FiveM-Server
  * gemeldete Fahrzeuge, die auf Admin-Entscheidung (importieren,
@@ -20,18 +22,24 @@ namespace App\Models;
  * @property string|null $job
  * @property string      $status
  * @property int|null    $processed_by
+ *
+ * @method static Builder<static> pending()
  */
 class VehicleImportQueueItem extends Model
 {
     protected $table = 'intra_fahrzeuge_import_queue';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'      => 'integer',
         'rd_type' => 'integer',
     ];
 
-    public function scopePending($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopePending(Builder $query): void
     {
-        return $query->where('status', 'pending');
+        $query->where('status', 'pending');
     }
 }

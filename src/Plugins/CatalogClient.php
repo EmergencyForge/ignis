@@ -89,7 +89,10 @@ final class CatalogClient
         return $response === null ? null : ['status' => $response['status'], 'body' => $response['body']];
     }
 
-    /** @param array<string,mixed> $entry @return array<string,mixed>|null */
+    /**
+     * @param array<string,mixed> $entry
+     * @return array<string,mixed>|null
+     */
     private function normalize(array $entry): ?array
     {
         $slug = trim((string) ($entry['slug'] ?? $entry['id'] ?? ''));

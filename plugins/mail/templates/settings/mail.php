@@ -1,10 +1,10 @@
 <?php
 /**
  * View: Mail-Einstellungen (`mail.admin`) — Standard-Domain, erlaubte
- * Domains, Adressmuster und Standard-Signatur. Domain und Muster gelten
+ * Domains, Adressmuster, Sendepause und Standard-Signatur. Domain und Muster gelten
  * für neue Postfächer; bestehende Adressen ändert die Postfachverwaltung.
  *
- * @var array{domain:string, pattern:string, allowed:string, signature:string} $form
+ * @var array{domain:string, pattern:string, allowed:string, signature:string, cooldown:string} $form
  */
 
 use Plugin\Mail\SignatureText;
@@ -49,6 +49,11 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                         <label for="mail-allowed" class="ignis-field__label">Weitere erlaubte Domains</label>
                         <input type="text" id="mail-allowed" name="allowed" class="ignis-input ignis-mono" autocapitalize="none" spellcheck="false" value="<?= htmlspecialchars($form['allowed']) ?>">
                         <p class="ignis-field__hint">Durch Komma getrennt. Wer „Domain eines Postfachs wählen“ darf, stellt Postfächer und Verteiler darauf um.</p>
+                    </div>
+                    <div>
+                        <label for="mail-cooldown" class="ignis-field__label">Sendepause je Postfach (Sekunden)</label>
+                        <input type="number" id="mail-cooldown" name="cooldown" class="ignis-input" required min="0" max="<?= \Plugin\Mail\Controllers\MailAdminController::MAX_SEND_COOLDOWN ?>" step="1" value="<?= htmlspecialchars($form['cooldown']) ?>">
+                        <p class="ignis-field__hint">Ein Postfach sendet höchstens eine Mail in dieser Zeit. 0 schaltet die Pause ab, Entwürfe speichern zählt nicht.</p>
                     </div>
                     <div>
                         <label for="mail-signature" class="ignis-field__label">Standard-Signatur</label>

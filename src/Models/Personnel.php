@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -36,6 +37,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Rank|null $dienstgradModel
  * @property-read FdSkill|null    $fwQualiModel
  * @property-read AmbSkill|null    $rdQualiModel
+ *
+ * @method static Builder<static> active(array<int> $archiveDienstgradIds = [])
+ * @method static Builder<static> archived(array<int> $archiveDienstgradIds = [])
  */
 class Personnel extends Model
 {
@@ -45,6 +49,7 @@ class Personnel extends Model
     public const GENDER_FEMALE = 1;
     public const GENDER_DIVERSE = 2;
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'          => 'integer',
         'geschlecht'  => 'integer',
@@ -61,17 +66,25 @@ class Personnel extends Model
      * BelongsTo-Relation auf Rank. Methoden-Name endet auf `Model`,
      * weil das Property `dienstgrad` schon die FK-ID hält und sonst Eloquent
      * sich verschluckt.
+     *
+     * @return BelongsTo<Rank, $this>
      */
     public function dienstgradModel(): BelongsTo
     {
         return $this->belongsTo(Rank::class, 'dienstgrad', 'id');
     }
 
+    /**
+     * @return BelongsTo<FdSkill, $this>
+     */
     public function fwQualiModel(): BelongsTo
     {
         return $this->belongsTo(FdSkill::class, 'qualifw2', 'id');
     }
 
+    /**
+     * @return BelongsTo<AmbSkill, $this>
+     */
     public function rdQualiModel(): BelongsTo
     {
         return $this->belongsTo(AmbSkill::class, 'qualird', 'id');
@@ -101,21 +114,27 @@ class Personnel extends Model
      * Akzeptiert die Archive-Rank-IDs als Argument, weil das Model
      * sie nicht implizit kennt.
      *
+     * @param Builder<self> $query
      * @param array<int> $archiveDienstgradIds
      */
-    public function scopeActive($query, array $archiveDienstgradIds = [])
+    public function scopeActive(Builder $query, array $archiveDienstgradIds = []): void
     {
         if ($archiveDienstgradIds === []) {
-            return $query;
+            return;
         }
-        return $query->whereNotIn('dienstgrad', $archiveDienstgradIds);
+        $query->whereNotIn('dienstgrad', $archiveDienstgradIds);
     }
 
-    public function scopeArchived($query, array $archiveDienstgradIds = [])
+    /**
+     * @param Builder<self> $query
+     * @param array<int> $archiveDienstgradIds
+     */
+    public function scopeArchived(Builder $query, array $archiveDienstgradIds = []): void
     {
         if ($archiveDienstgradIds === []) {
-            return $query->whereRaw('1 = 0'); // empty result
+            $query->whereRaw('1 = 0'); // empty result
+            return;
         }
-        return $query->whereIn('dienstgrad', $archiveDienstgradIds);
+        $query->whereIn('dienstgrad', $archiveDienstgradIds);
     }
 }

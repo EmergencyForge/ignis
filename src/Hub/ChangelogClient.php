@@ -250,7 +250,7 @@ final class ChangelogClient
                     'tags'         => $item['tags'] === [] ? null : json_encode($item['tags'], JSON_UNESCAPED_UNICODE),
                     'pinned'       => $item['pinned'] ? 1 : 0,
                     'published_at' => $this->normalizeDate($item['published_at']),
-                    'fetched_at'   => Capsule::raw('NOW()'),
+                    'fetched_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             }
             $connection->commit();

@@ -26,6 +26,8 @@ class EnotfV2Url
 
     /**
      * Top-Level-Seiten: overview, login, loggedout, create, …
+     *
+     * @param array<string, mixed> $params
      */
     public static function page(string $page, array $params = []): string
     {
@@ -47,6 +49,8 @@ class EnotfV2Url
 
     /**
      * v2-API-Endpoint: /api/enotf-v2/{path}
+     *
+     * @param array<string, mixed> $params
      */
     public static function api(string $path, array $params = []): string
     {
@@ -59,6 +63,8 @@ class EnotfV2Url
      * ungenutzt (delete-protocol, delete-vehicle-session, check-conflict
      * und die Session-Endpoints haben v2-Pendants), bleibt aber als
      * Helfer für punktuelle v1-Aufrufe erhalten.
+     *
+     * @param array<string, mixed> $params
      */
     public static function v1Api(string $path, array $params = []): string
     {
@@ -66,6 +72,9 @@ class EnotfV2Url
         return self::appendParams($url, $params);
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     private static function appendParams(string $url, array $params): string
     {
         if (empty($params)) {

@@ -87,6 +87,9 @@ final class AttendeeResolver
         };
     }
 
+    /**
+     * @return Collection<int, Personnel>
+     */
     private static function resolveExplicit(CalendarEvent $event): Collection
     {
         $ids = CalendarAttendee::where('event_id', $event->id)
@@ -95,11 +98,17 @@ final class AttendeeResolver
         if ($ids === []) {
             return new Collection();
         }
-        return Personnel::query()
+        /** @var Collection<int, Personnel> $personnel */
+        $personnel = Personnel::query()
             ->whereIn('id', $ids)
             ->get();
+
+        return $personnel;
     }
 
+    /**
+     * @return Collection<int, Personnel>
+     */
     private static function resolveByRoles(CalendarEvent $event): Collection
     {
         $roleIds = $event->visibilityRoles()->pluck('intra_users_roles.id')->all();
@@ -118,9 +127,12 @@ final class AttendeeResolver
             return new Collection();
         }
 
-        return Personnel::query()
+        /** @var Collection<int, Personnel> $personnel */
+        $personnel = Personnel::query()
             ->whereIn('discordtag', $discordIds)
             ->get();
+
+        return $personnel;
     }
 
     private static function countByRoles(CalendarEvent $event): int

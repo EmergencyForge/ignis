@@ -45,10 +45,11 @@ final class CalendarBackfillAbsencesCommand extends Command
 
         $typeIds = array_map(static fn ($t) => (int) $t->id, $absenceTypes);
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Form> $approved */
         $approved = Form::query()
+            ->with('daten', 'typ')
             ->whereIn('antragstyp_id', $typeIds)
             ->where('cirs_status', Form::STATUS_ACCEPTED)
-            ->with('daten', 'typ')
             ->get();
 
         if ($approved->isEmpty()) {

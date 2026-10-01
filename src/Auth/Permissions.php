@@ -7,6 +7,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 class Permissions
 {
+    /**
+     * @return list<string>
+     */
     public static function retrieveFromDatabase(int $userId): array
     {
         try {
@@ -43,6 +46,9 @@ class Permissions
         return [];
     }
 
+    /**
+     * @param list<string>|string $requiredPermissions
+     */
     public static function check(array|string $requiredPermissions): bool
     {
         $perms = SessionManager::permissions();

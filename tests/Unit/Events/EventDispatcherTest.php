@@ -18,6 +18,9 @@ use Tests\TestCase;
  */
 final class OrderProbeEvent extends Event
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(public readonly array $data = [])
     {
     }

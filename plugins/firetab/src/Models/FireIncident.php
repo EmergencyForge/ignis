@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\Firetab\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -58,6 +59,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null    $created_by
  * @property \DateTime|null $updated_at
  * @property int|null    $updated_by
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
+ *
+ * @method static Builder<static> active()
+ * @method static Builder<static> finalized()
  */
 class FireIncident extends EloquentModel
 {
@@ -89,6 +95,7 @@ class FireIncident extends EloquentModel
         self::STATUS_HIDDEN       => 'bg-dark',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'                => 'integer',
         'leader_id'         => 'integer',
@@ -112,6 +119,8 @@ class FireIncident extends EloquentModel
 
     /**
      * Beziehung: alle Fahrzeuge die an diesem Einsatz beteiligt sind/waren.
+     *
+     * @return HasMany<FireIncidentVehicle, $this>
      */
     public function vehicles(): HasMany
     {
@@ -120,19 +129,23 @@ class FireIncident extends EloquentModel
 
     /**
      * Convenience: nur aktive Einsätze (nicht abgeschlossen, nicht archiviert).
+     *
+     * @param Builder<self> $query
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('finalized', 0)->where('archived', 0);
+        $query->where('finalized', 0)->where('archived', 0);
     }
 
     /**
      * Convenience: nur abgeschlossene, nicht archivierte Einsätze
      * (für QM-Übersicht).
+     *
+     * @param Builder<self> $query
      */
-    public function scopeFinalized($query)
+    public function scopeFinalized(Builder $query): void
     {
-        return $query->where('finalized', 1)->where('archived', 0);
+        $query->where('finalized', 1)->where('archived', 0);
     }
 
     public function statusLabel(): string

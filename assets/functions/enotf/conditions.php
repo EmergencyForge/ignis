@@ -21,6 +21,9 @@
  *   - Addition: Eintrag in enotf_get_condition_additions() → neue Pflichtfelder
  */
 
+/**
+ * @return array<string, array<string, mixed>>
+ */
 function enotf_get_base_required(): array
 {
     return [
@@ -271,6 +274,8 @@ function enotf_get_base_required(): array
 
 /**
  * Overrides: Welche Basis-Pflichtfelder werden bei einer Versorgungsart OPTIONAL?
+ *
+ * @return array<int, list<string>>
  */
 function enotf_get_condition_overrides(): array
 {
@@ -292,6 +297,8 @@ function enotf_get_condition_overrides(): array
 
 /**
  * Additions: Welche ZUSÄTZLICHEN Felder werden bei einer Versorgungsart Pflicht?
+ *
+ * @return array<int, array<string, array<string, mixed>>>
  */
 function enotf_get_condition_additions(): array
 {
@@ -338,6 +345,8 @@ function enotf_get_condition_additions(): array
 
 /**
  * Gibt die aktiven Pflichtfelder zurück: Basis - Overrides + Additions.
+ *
+ * @return array<string, array<string, mixed>>
  */
 function enotf_get_active_required(?int $transportziel): array
 {
@@ -379,6 +388,8 @@ function enotf_get_nav_requires(?int $transportziel, int $section): string
 
 /**
  * Gibt die komplette Konfiguration als JSON-fähiges Array zurück.
+ *
+ * @return array{base: array<string, array<string, mixed>>, overrides: array<int, list<string>>, additions: array<int, array<string, array<string, mixed>>>}
  */
 function enotf_get_conditions_for_js(): array
 {

@@ -250,6 +250,9 @@ class LoginController extends EnotfV2Controller
 
     /**
      * Flaches crew-Array → Struktur für SessionManager::loginEnotfCrew().
+     *
+     * @param array<string, mixed> $crew
+     * @return array{fahrer: array{name: mixed, quali: mixed}, beifahrer: array{name: mixed, quali: mixed}, praktikant: array{name: mixed, quali: mixed}}
      */
     private function crewArrayToStruct(array $crew): array
     {

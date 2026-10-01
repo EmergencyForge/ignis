@@ -25,8 +25,6 @@ use Tests\FixtureFactory;
  */
 final class InboxTest extends FeatureTestCase
 {
-    private int $userId = 0;
-
     /**
      * @param list<string> $permissions
      */
@@ -36,7 +34,7 @@ final class InboxTest extends FeatureTestCase
         $this->actingAs($user->id, ['permissions' => $permissions, 'cirs_username' => $user->username]);
         NavigationCounters::reset();
 
-        return $this->userId = $user->id;
+        return $user->id;
     }
 
     private function manager(): NotificationManager

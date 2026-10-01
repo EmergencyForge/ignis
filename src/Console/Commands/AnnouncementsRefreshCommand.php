@@ -53,9 +53,9 @@ final class AnnouncementsRefreshCommand extends Command
 
         $output->writeln('<info>Aktualisiere Announcements-Cache …</info>');
         $result = $this->announcements->refreshCache();
-        $output->writeln(($result['success'] ?? false)
-            ? '<info>' . ($result['message'] ?? 'OK') . '</info>'
-            : '<error>' . ($result['message'] ?? 'Refresh fehlgeschlagen') . '</error>'
+        $output->writeln($result['success']
+            ? '<info>' . $result['message'] . '</info>'
+            : '<error>' . $result['message'] . '</error>'
         );
 
         $keepDays = (int) $input->getOption('keep-days');

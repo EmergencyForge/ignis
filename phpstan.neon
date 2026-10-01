@@ -4,9 +4,10 @@ includes:
 parameters:
     level: 6
 
-    # Der Registrierungsmodus kommt aus der Instanz-Datenbank.
+    # Registrierungsmodus und System-URL kommen aus der Instanz-Datenbank.
     dynamicConstantNames:
         - REGISTRATION_MODE
+        - SYSTEM_URL
 
     paths:
         - .

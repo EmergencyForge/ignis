@@ -96,7 +96,7 @@ final class CronController extends Controller
         CronJob::query()
             ->where('id', $jobId)
             ->update([
-                'active'     => Capsule::raw('1 - active'),
+                'active'     => Capsule::connection()->raw('1 - active'),
                 'fail_count' => 0,
             ]);
 
@@ -202,7 +202,7 @@ final class CronController extends Controller
                 'config'       => $configJson,
                 'active'       => 1,
                 'is_builtin'   => 0,
-                'next_run_at'  => Capsule::raw('UTC_TIMESTAMP()'),
+                'next_run_at'  => Capsule::connection()->raw('UTC_TIMESTAMP()'),
             ]);
             Flash::set('success', 'created');
         } catch (\PDOException $e) {

@@ -10,7 +10,7 @@
  * v2-Endpoint /api/enotf-v2/check-conflict. force_create=1 nach der
  * Modal-Bestätigung erzeugt eine Suffix-ENR (_1, _2, …).
  *
- * @var array $crew
+ * @var array<string, mixed> $crew
  */
 
 use Plugin\EnotfV2\Helpers\EnotfV2Url;

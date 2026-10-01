@@ -212,7 +212,7 @@ $currentDate = date('d.m.Y');
 
                                     $statStyles = [
                                         'open' => ['Offen', 'danger'],
-                                        'in_progress' => ['In Bearbeitung', 'warning'],
+                                        'in_progress' => ['In Bearbeitung', 'warn'],
                                         'deferred' => ['Aufgeschoben', 'primary']
                                     ];
                                     ?>

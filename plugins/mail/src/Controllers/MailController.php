@@ -386,11 +386,16 @@ final class MailController extends Controller
         // zwei gleichzeitige Sende-Requests stellen nicht doppelt zu, und ein
         // Anhang, der gleichzeitig hochlädt, wartet auf die Sperre und sieht
         // danach „gesendet“ (AttachmentStorage::store()).
+        $cooldownSeconds = (int) Capsule::table('intra_config')->where('config_key', 'MAIL_SEND_COOLDOWN')->value('config_value');
         try {
-            $result = Capsule::connection()->transaction(function () use ($draft, $mailbox, $fields): array {
+            $result = Capsule::connection()->transaction(function () use ($draft, $mailbox, $fields, $cooldownSeconds): array|Response {
                 $locked = Message::query()->whereKey($draft->id)->lockForUpdate()->first();
                 if ($locked === null || $locked->status !== 'draft' || $locked->sender_mailbox_id !== $mailbox->id) {
                     throw new DomainException('bereits gesendet');
+                }
+                $cooldown = $this->sendCooldown($mailbox, $cooldownSeconds);
+                if ($cooldown !== null) {
+                    return $cooldown;
                 }
 
                 return $this->mailer->sendDraft(
@@ -407,6 +412,9 @@ final class MailController extends Controller
             return self::alreadySent();
         } catch (InvalidArgumentException $e) {
             return self::json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+        if ($result instanceof Response) {
+            return $result;
         }
 
         // Die Glocke erst nach dem Commit: keine Benachrichtigung zu einer
@@ -1168,6 +1176,37 @@ final class MailController extends Controller
         }
 
         return Response::json($data, $status)->withHeader('Cache-Control', 'private, no-store');
+    }
+
+    /**
+     * Sendepause je Postfach: höchstens eine Mail alle MAIL_SEND_COOLDOWN
+     * Sekunden (0 = aus). Nur in der Versand-Transaktion aufrufen: die Sperre
+     * auf dem Postfach lässt gleichzeitige Sendungen nacheinander laufen, die
+     * zweite sieht dann das `sent_at` der ersten.
+     *
+     * Vor der Sperre darf die Transaktion nichts ohne Sperre lesen: unter
+     * REPEATABLE READ legt das erste solche Lesen den Snapshot fest, und
+     * eine Mail, die während des Wartens auf die Sperre rausging, bliebe
+     * unsichtbar. Deshalb kommt `$cooldown` von außerhalb.
+     */
+    private function sendCooldown(Mailbox $mailbox, int $cooldown): ?Response
+    {
+        if ($cooldown <= 0) {
+            return null;
+        }
+
+        Mailbox::query()->whereKey($mailbox->id)->lockForUpdate()->first(['id']);
+        $lastSent = Message::query()->where('sender_mailbox_id', $mailbox->id)->where('status', 'sent')->max('sent_at');
+        $wait = $lastSent === null ? 0 : (int) strtotime((string) $lastSent) + $cooldown - time();
+        if ($wait <= 0) {
+            return null;
+        }
+
+        return self::json([
+            'success'     => false,
+            'message'     => 'Bitte warte noch ' . $wait . ($wait === 1 ? ' Sekunde' : ' Sekunden') . ' bis zur nächsten Mail.',
+            'retry_after' => $wait,
+        ], 429)->withHeader('Retry-After', (string) $wait);
     }
 
     private static function alreadySent(): Response

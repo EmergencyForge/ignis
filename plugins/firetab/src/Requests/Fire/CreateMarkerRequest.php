@@ -23,8 +23,8 @@ class CreateMarkerRequest extends FormRequest
         return v::keySet(
             v::key('incident_id',  v::stringVal()->intVal()->positive()),
             v::key('marker_type',  v::stringType()->notBlank()->length(1, 64)),
-            v::key('pos_x',        v::stringVal()->floatVal()->between(0.0, 100.0, true)),
-            v::key('pos_y',        v::stringVal()->floatVal()->between(0.0, 100.0, true)),
+            v::key('pos_x',        v::stringVal()->floatVal()->between(0.0, 100.0)),
+            v::key('pos_y',        v::stringVal()->floatVal()->between(0.0, 100.0)),
             v::key('description',  v::optional(v::stringType()->length(0, 500)), false),
             // Taktische Symbol-Felder — alle optional, reine String-Werte
             v::key('grundzeichen', v::optional(v::stringType()->length(0, 64)), false),

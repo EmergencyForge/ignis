@@ -49,6 +49,7 @@ class NotificationControllerTest extends TestCase
     public function poll_returns_unread_count_and_new_notifications(): void
     {
         $manager = new class extends NotificationManager {
+            /** @var array<string, mixed> */
             public array $lastCall = [];
             public function __construct() {}
             public function getNewSince(int $userId, string $since): array
@@ -122,6 +123,7 @@ class NotificationControllerTest extends TestCase
     public function mark_read_delegates_to_manager_and_returns_success(): void
     {
         $manager = new class extends NotificationManager {
+            /** @var array<string, mixed> */
             public array $lastCall = [];
             public function __construct() {}
             public function markAsRead(int $notificationId, int $userId): bool

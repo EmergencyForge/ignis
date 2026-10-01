@@ -230,7 +230,7 @@ class FiretabController extends Controller
             ->leftJoin('intra_fire_incident_vehicles as v', 'i.id', '=', 'v.incident_id')
             ->leftJoin('intra_fire_incident_sitreps as s', 'i.id', '=', 's.incident_id')
             ->whereExists(function ($q) use ($vehicleId) {
-                $q->select(Capsule::raw(1))
+                $q->select(Capsule::connection()->raw(1))
                     ->from('intra_fire_incident_vehicles as iv')
                     ->whereColumn('iv.incident_id', 'i.id')
                     ->where('iv.vehicle_id', $vehicleId);
@@ -243,8 +243,8 @@ class FiretabController extends Controller
             ->select(
                 'i.*',
                 'm.fullname as leader_name',
-                Capsule::raw('COUNT(DISTINCT v.id) as vehicle_count'),
-                Capsule::raw('COUNT(DISTINCT s.id) as sitrep_count')
+                Capsule::connection()->raw('COUNT(DISTINCT v.id) as vehicle_count'),
+                Capsule::connection()->raw('COUNT(DISTINCT s.id) as sitrep_count')
             )
             ->get()
             ->map(fn ($r) => (array) $r)
@@ -548,6 +548,9 @@ class FiretabController extends Controller
 
     // ── Individual action methods ──────────────────────────
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionAddVehicle(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -592,6 +595,9 @@ class FiretabController extends Controller
         Flash::success('Einsatzmittel hinzugefügt.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionRemoveVehicle(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -623,6 +629,9 @@ class FiretabController extends Controller
         Flash::success('Fahrzeug entfernt.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionAddSitrep(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -665,6 +674,9 @@ class FiretabController extends Controller
         Flash::success('Lagemeldung gespeichert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionFinalize(int $id, array $incident): void
     {
         $inc = Capsule::table('intra_fire_incidents')->where('id', $id)
@@ -678,7 +690,7 @@ class FiretabController extends Controller
 
         Capsule::table('intra_fire_incidents')->where('id', $id)->update([
             'finalized'    => 1,
-            'finalized_at' => Capsule::raw('NOW()'),
+            'finalized_at' => Capsule::connection()->raw('NOW()'),
             'finalized_by' => $_SESSION['userid'] ?? null,
             'status'       => 0,
         ]);
@@ -710,6 +722,9 @@ class FiretabController extends Controller
         Flash::success('Protokoll zur QM-Sichtung markiert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionSetStatus(int $id, array $incident): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
@@ -723,7 +738,7 @@ class FiretabController extends Controller
         Capsule::table('intra_fire_incidents')->where('id', $id)->update([
             'status'     => $status,
             'updated_by' => $_SESSION['userid'] ?? null,
-            'updated_at' => Capsule::raw('NOW()'),
+            'updated_at' => Capsule::connection()->raw('NOW()'),
         ]);
 
         $this->logAction($id, 'status_changed', "QM-Status geändert zu '" . (FireIncident::STATUS_LABELS[$status] ?? 'Unbekannt') . "'");
@@ -751,6 +766,9 @@ class FiretabController extends Controller
         Flash::success('Status aktualisiert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUpdateNotes(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -762,13 +780,16 @@ class FiretabController extends Controller
         Capsule::table('intra_fire_incidents')->where('id', $id)->update([
             'notes'      => $notes ?: null,
             'updated_by' => $_SESSION['userid'] ?? null,
-            'updated_at' => Capsule::raw('NOW()'),
+            'updated_at' => Capsule::connection()->raw('NOW()'),
         ]);
 
         $this->logAction($id, 'data_updated', 'Einsatzgeschehen aktualisiert');
         Flash::success('Einsatzgeschehen gespeichert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUpdateCore(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -807,13 +828,16 @@ class FiretabController extends Controller
             'owner_name'      => $ownerName ?: null,
             'owner_contact'   => $ownerContact ?: null,
             'updated_by'      => $_SESSION['userid'] ?? null,
-            'updated_at'      => Capsule::raw('NOW()'),
+            'updated_at'      => Capsule::connection()->raw('NOW()'),
         ]);
 
         $this->logAction($id, 'data_updated', 'Stammdaten aktualisiert');
         Flash::success('Einsatzdaten gespeichert.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionAddAsu(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -850,7 +874,7 @@ class FiretabController extends Controller
                 'supervisor'       => $asuData['supervisor'],
                 'mission_location' => $asuData['missionLocation'],
                 'mission_date'     => $missionDate,
-                'timestamp'        => Capsule::raw('NOW()'),
+                'timestamp'        => Capsule::connection()->raw('NOW()'),
                 'data'             => $asuDataJson,
             ]);
 
@@ -865,6 +889,9 @@ class FiretabController extends Controller
         }
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUpdateAsu(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -908,7 +935,7 @@ class FiretabController extends Controller
                     'supervisor'       => $asuData['supervisor'],
                     'mission_location' => $asuData['missionLocation'],
                     'mission_date'     => $missionDate,
-                    'timestamp'        => Capsule::raw('NOW()'),
+                    'timestamp'        => Capsule::connection()->raw('NOW()'),
                     'data'             => $asuDataJson,
                 ]);
 
@@ -919,6 +946,9 @@ class FiretabController extends Controller
         }
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionDeleteAsu(int $id, array $incident): void
     {
         if ($incident['finalized']) {
@@ -946,6 +976,9 @@ class FiretabController extends Controller
         Flash::success('ASU-Protokoll gelöscht.');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionArchive(int $id, array $incident): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
@@ -955,7 +988,7 @@ class FiretabController extends Controller
 
         Capsule::table('intra_fire_incidents')->where('id', $id)->update([
             'archived'    => 1,
-            'archived_at' => Capsule::raw('NOW()'),
+            'archived_at' => Capsule::connection()->raw('NOW()'),
             'archived_by' => $_SESSION['userid'] ?? null,
         ]);
 
@@ -970,6 +1003,9 @@ class FiretabController extends Controller
         $this->redirect('einsatz/admin/list');
     }
 
+    /**
+     * @param array<string, mixed> $incident
+     */
     private function actionUnarchive(int $id, array $incident): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {

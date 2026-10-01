@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * `intra_edivi_qmlog` — QM-Kommentare und Statuswechsel-Log.
@@ -25,7 +26,10 @@ class EdiviQmLog extends Model
     public const AKTION_KOMMENTAR     = 0;
     public const AKTION_STATUSWECHSEL = 1;
 
-    public function protokoll()
+    /**
+     * @return BelongsTo<Edivi, $this>
+     */
+    public function protokoll(): BelongsTo
     {
         return $this->belongsTo(Edivi::class, 'protokoll_id');
     }

@@ -16,9 +16,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int            $event_id
  * @property int            $mitarbeiter_id
  * @property string         $response       'pending'|'accepted'|'declined'|'tentative'
- * @property \DateTime|null $responded_at
+ * @property-read \DateTime|null $responded_at
+ * @property-write \DateTimeInterface|string|null $responded_at
  * @property bool           $is_organizer
  * @property \DateTime      $created_at
+ * @property-read Personnel|null $mitarbeiter
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class CalendarAttendee extends EloquentModel
 {
@@ -34,6 +38,7 @@ class CalendarAttendee extends EloquentModel
     public const RESPONSE_DECLINED  = 'declined';
     public const RESPONSE_TENTATIVE = 'tentative';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'             => 'integer',
         'event_id'       => 'integer',
@@ -43,11 +48,17 @@ class CalendarAttendee extends EloquentModel
         'created_at'     => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<CalendarEvent, $this>
+     */
     public function event(): BelongsTo
     {
         return $this->belongsTo(CalendarEvent::class, 'event_id');
     }
 
+    /**
+     * @return BelongsTo<Personnel, $this>
+     */
     public function mitarbeiter(): BelongsTo
     {
         return $this->belongsTo(Personnel::class, 'mitarbeiter_id');

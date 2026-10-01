@@ -36,7 +36,7 @@
  * Kataloge (Diagnosen, Einsatzorte, Übergabeorte, …) kommen aus
  * Plugin\EnotfV2\Catalogs\*.
  *
- * @var array  $protokoll
+ * @var array<string, mixed> $protokoll
  * @var string $enr
  * @var bool   $istGesperrt
  */

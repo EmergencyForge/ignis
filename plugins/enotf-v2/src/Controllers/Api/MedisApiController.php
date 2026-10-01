@@ -248,7 +248,7 @@ final class MedisApiController
         try {
             Edivi::query()->where('enr', $enr)->update([
                 'medis'     => $json,
-                'last_edit' => DB::raw('NOW()'),
+                'last_edit' => DB::connection()->raw('NOW()'),
             ]);
         } catch (\Throwable $e) {
             Logger::error('EnotfV2: medis-Write fehlgeschlagen', ['enr' => $enr, 'error' => $e->getMessage()]);

@@ -5,7 +5,7 @@
  * Erwartet im Scope (vom UserController via extract()):
  *   @var \App\Models\User                                                    $target
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role>     $availableRoles
- *   @var \Illuminate\Support\Collection|array                                $auditEntries
+ *   @var \Illuminate\Support\Collection<int, \stdClass>|array{}             $auditEntries
  */
 
 use App\Auth\Gate;
@@ -130,8 +130,17 @@ $bodyId = 'benutzer';
 
 
     <?php if (Gate::allows('user.delete', $target)): ?>
+    <!-- POST mit CSRF-Token statt Link: ein GET darf nichts ändern. -->
+    <form id="formToggleActive" method="POST" action="<?= BASE_PATH ?>users/toggle-active" hidden>
+        <?= csrf_field() ?>
+        <input type="hidden" name="id" value="<?= (int) $target->id ?>">
+        <input type="hidden" name="action" value="<?= $target->is_active ? 'deactivate' : 'reactivate' ?>">
+    </form>
+    <form id="formDeleteUser" method="POST" action="<?= BASE_PATH ?>users/delete" hidden>
+        <?= csrf_field() ?>
+        <input type="hidden" name="id" value="<?= (int) $target->id ?>">
+    </form>
     <script>
-        const userId = <?= (int) $target->id ?>;
         const username = <?= json_encode($target->username, JSON_UNESCAPED_UNICODE) ?>;
 
         const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -145,7 +154,7 @@ $bodyId = 'benutzer';
                        <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Der Benutzer kann sich nicht mehr einloggen, kann aber jederzeit reaktiviert werden. Alle Daten bleiben erhalten.</p>`,
                 confirmText: 'Deaktivieren',
             });
-            if (ok) window.location.href = 'toggle-active?id=' + userId + '&action=deactivate';
+            if (ok) document.getElementById('formToggleActive').submit();
         });
 
         document.getElementById('btnReactivate')?.addEventListener('click', async () => {
@@ -155,7 +164,7 @@ $bodyId = 'benutzer';
                        <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Der Benutzer kann sich danach wieder einloggen.</p>`,
                 confirmText: 'Reaktivieren',
             });
-            if (ok) window.location.href = 'toggle-active?id=' + userId + '&action=reactivate';
+            if (ok) document.getElementById('formToggleActive').submit();
         });
 
         document.getElementById('btnDeleteUser')?.addEventListener('click', async () => {
@@ -167,7 +176,7 @@ $bodyId = 'benutzer';
                 confirmText: 'Endgültig löschen',
                 danger: true,
             });
-            if (ok) window.location.href = 'delete?id=' + userId;
+            if (ok) document.getElementById('formDeleteUser').submit();
         });
     </script>
     <?php endif; ?>

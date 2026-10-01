@@ -7,6 +7,7 @@ namespace App\Http\Validation;
 use App\Models\FormField;
 use EmergencyForge\Http\Exceptions\ValidationException;
 use Respect\Validation\Exceptions\ValidationException as RespectValidationException;
+use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
@@ -83,7 +84,7 @@ final class AntragFieldValidator
         return $validated;
     }
 
-    private static function validatorFor(FormField $feld): v
+    private static function validatorFor(FormField $feld): Validatable
     {
         return match ($feld->feldtyp) {
             'email'    => v::stringType()->email()->length(1, self::MAX_EMAIL_LENGTH),
@@ -98,7 +99,7 @@ final class AntragFieldValidator
         };
     }
 
-    private static function selectRule(FormField $feld): v
+    private static function selectRule(FormField $feld): Validatable
     {
         $options = $feld->selectOptions();
         if ($options === []) {

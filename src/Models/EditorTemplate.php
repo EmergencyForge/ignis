@@ -29,6 +29,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon      $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read int $documents_count  nur mit withCount('documents')
+ *
+ * @method static Builder<static> active()
  */
 class EditorTemplate extends Model
 {
@@ -57,11 +59,10 @@ class EditorTemplate extends Model
      * deaktivierte bleibt stehen, damit bereits ausgestellte Dokumente
      * ihre Herkunft behalten.
      *
-     * @param  Builder<EditorTemplate>  $query
-     * @return Builder<EditorTemplate>
+     * @param Builder<self> $query
      */
-    public function scopeActive(Builder $query): Builder
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('is_active', true);
+        $query->where('is_active', true);
     }
 }

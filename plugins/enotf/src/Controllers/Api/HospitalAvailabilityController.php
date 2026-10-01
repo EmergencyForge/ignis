@@ -42,7 +42,7 @@ final class HospitalAvailabilityController
                     'd.id as department_id',
                     'd.name as department_name',
                     'd.sort_order',
-                    DB::raw("COALESCE(a.status, 'not_staffed') as status"),
+                    DB::connection()->raw("COALESCE(a.status, 'not_staffed') as status"),
                     'a.updated_at',
                     'a.updated_by'
                 )
@@ -139,7 +139,7 @@ final class HospitalAvailabilityController
                     'updated_by'    => $updatedBy,
                 ],
                 ['department_id'],
-                ['status', 'updated_by', 'updated_at' => DB::raw('CURRENT_TIMESTAMP')]
+                ['status', 'updated_by', 'updated_at' => DB::connection()->raw('CURRENT_TIMESTAMP')]
             );
 
             return Response::json([

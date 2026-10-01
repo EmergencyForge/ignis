@@ -3,19 +3,19 @@
  * View: Mitarbeiter-Profil (Detailseite)
  *
  * Erwartet im Scope (vom PersonnelController::show() via extract()):
- *   @var \App\Models\Mitarbeiter      $mitarbeiter   Eloquent-Model mit Eager-Loaded Relations
- *   @var array                        $row           Mitarbeiter-Attribute (Legacy-Scope-Vertrag für Partials)
- *   @var array                        $dginfo        Dienstgrad-Attribute oder []
- *   @var array                        $rdginfo       RdQuali-Attribute (mind. 'none' => 1)
- *   @var array                        $fwginfo       FwQuali-Attribute (mind. 'none' => 1, 'shortname' => '-')
+ *   @var \App\Models\Personnel      $mitarbeiter   Eloquent-Model mit Eager-Loaded Relations
+ *   @var array<string, mixed>         $row           Mitarbeiter-Attribute (Legacy-Scope-Vertrag für Partials)
+ *   @var array<string, mixed>         $dginfo        Dienstgrad-Attribute oder []
+ *   @var array<string, mixed>         $rdginfo       RdQuali-Attribute (mind. 'none' => 1)
+ *   @var array<string, mixed>         $fwginfo       FwQuali-Attribute (mind. 'none' => 1, 'shortname' => '-')
  *   @var string                       $bfqualtext    Shortname der FW-Quali
  *   @var string                       $dienstgradText Anzeigename Dienstgrad (geschlechts-bedingt)
  *   @var string                       $rdqualtext    Anzeigename RD-Quali
  *   @var string                       $geburtstag    DD.MM.YYYY
  *   @var string                       $einstellungsdatum DD.MM.YYYY
  *   @var string                       $accountStatus 'none'|'pending'|'active'|'inactive'
- *   @var array|null                   $panelakte     Verlinkter User oder null
- *   @var array|null                   $pendingInvite Pending Registration-Code oder null
+ *   @var array<string, mixed>|null    $panelakte     Verlinkter User oder null
+ *   @var array<string, mixed>|null    $pendingInvite Pending Registration-Code oder null
  *
  * Bindet folgende Legacy-Partials ein, die unverändert bleiben:
  *   - assets/components/profiles/checks.php

@@ -20,6 +20,9 @@ class CharacterControllerTest extends TestCase
         $this->controller = $this->resolve(CharacterController::class);
     }
 
+    /**
+     * @param array<string, mixed> $body
+     */
     private function jsonRequest(string $method, string $path, array $body): Request
     {
         // Request mit eingebettetem JSON-Body — der Constructor akzeptiert

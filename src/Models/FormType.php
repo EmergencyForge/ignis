@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -23,12 +24,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \DateTime   $erstellt_am
  * @property int|null    $erstellt_von
  * @property-read \Illuminate\Database\Eloquent\Collection<int, FormField> $felder
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Antrag>      $antraege
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Form>        $antraege
+ *
+ * @method static Builder<static> active()
  */
 class FormType extends Model
 {
     protected $table = 'intra_antrag_typen';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'           => 'integer',
         'aktiv'        => 'boolean',
@@ -40,15 +44,21 @@ class FormType extends Model
     /**
      * Felder-Definitionen für dieses Antragstyp-Formular,
      * sortiert nach Sortierungsfeld.
+     *
+     * @return HasMany<FormField, $this>
      */
     public function felder(): HasMany
     {
-        return $this->hasMany(FormField::class, 'antragstyp_id', 'id')
-            ->orderBy('sortierung');
+        $felder = $this->hasMany(FormField::class, 'antragstyp_id', 'id');
+        $felder->orderBy('sortierung');
+
+        return $felder;
     }
 
     /**
      * Alle Anträge dieses Typs (am häufigsten via Form::with('typ') geladen).
+     *
+     * @return HasMany<Form, $this>
      */
     public function antraege(): HasMany
     {
@@ -57,10 +67,12 @@ class FormType extends Model
 
     /**
      * Convenience-Scope: nur aktive Antragstypen, sortiert für die Auswahl-View.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('aktiv', 1)
+        $query->where('aktiv', 1)
             ->orderBy('sortierung')
             ->orderBy('name');
     }

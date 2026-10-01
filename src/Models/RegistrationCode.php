@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent-Model für `intra_registration_codes` — Einladungs- und
@@ -14,18 +16,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string      $code
  * @property string|null $label
  * @property int|null    $created_by
- * @property \DateTime   $created_at
+ * @property Carbon|null $created_at
  * @property int|null    $used_by
- * @property \DateTime|null $used_at
- * @property \DateTime|null $expires_at
+ * @property Carbon|null    $used_at
+ * @property Carbon|null    $expires_at
  * @property bool        $is_used
  * @property-read User|null $creator
  * @property-read User|null $usedByUser
+ *
+ * @method static Builder<static> unused()
  */
 class RegistrationCode extends Model
 {
     protected $table = 'intra_registration_codes';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'created_by' => 'integer',
@@ -38,6 +43,8 @@ class RegistrationCode extends Model
 
     /**
      * Beziehung: Code → User der ihn erstellt hat.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
@@ -46,6 +53,8 @@ class RegistrationCode extends Model
 
     /**
      * Beziehung: Code → User der ihn eingelöst hat (falls bereits benutzt).
+     *
+     * @return BelongsTo<User, $this>
      */
     public function usedByUser(): BelongsTo
     {
@@ -66,8 +75,11 @@ class RegistrationCode extends Model
         return true;
     }
 
-    public function scopeUnused($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopeUnused(Builder $query): void
     {
-        return $query->where('is_used', 0);
+        $query->where('is_used', 0);
     }
 }

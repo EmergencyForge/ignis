@@ -14,6 +14,8 @@ class MANVPatient
 {
     /**
      * Erstellt einen neuen Patienten
+     *
+     * @param array<string, mixed> $data
      */
     public function create(array $data): int
     {
@@ -40,6 +42,8 @@ class MANVPatient
 
     /**
      * Aktualisiert einen Patienten
+     *
+     * @param array<string, mixed> $data
      */
     public function update(int $id, array $data): bool
     {
@@ -97,6 +101,8 @@ class MANVPatient
 
     /**
      * Ruft einen Patienten ab
+     *
+     * @return array<string, mixed>|null
      */
     public function getById(int $id): ?array
     {
@@ -106,6 +112,8 @@ class MANVPatient
 
     /**
      * Ruft alle Patienten einer MANV-Lage ab
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getByLage(int $lageId, ?string $kategorie = null, ?\App\Support\ListQuery $list = null): array
     {
@@ -154,6 +162,8 @@ class MANVPatient
 
     /**
      * Sucht Patienten
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function search(int $lageId, string $searchTerm): array
     {

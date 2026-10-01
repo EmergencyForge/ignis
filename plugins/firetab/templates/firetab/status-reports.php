@@ -7,7 +7,7 @@
  * @var string|null $statusSource
  * @var int|null    $activeIncidentId
  * @var string|null $activeIncidentNumber
- * @var array       $statusConfig
+ * @var array<int, array<string, string>> $statusConfig
  */
 
 use App\Helpers\Flash;

@@ -40,7 +40,7 @@ final class EnotfController
             DB::table('intra_edivi_prereg')
                 ->where('active', 1)
                 ->whereNotNull('arrival')
-                ->where('arrival', '<', DB::raw('NOW() - INTERVAL 10 MINUTE'))
+                ->where('arrival', '<', DB::connection()->raw('NOW() - INTERVAL 10 MINUTE'))
                 ->update(['active' => 0]);
 
             $query = DB::table('intra_edivi_prereg')
@@ -460,7 +460,7 @@ final class EnotfController
                 $fields['ziel_poi']     = $zielPoi;
                 $fields['ziel_adresse'] = $zielAdresse;
             }
-            $fields['last_edit'] = DB::raw('NOW()');
+            $fields['last_edit'] = DB::connection()->raw('NOW()');
 
             Edivi::where('enr', $enr)->update($fields);
 
@@ -526,7 +526,7 @@ final class EnotfController
             Edivi::where('enr', $enr)->update([
                 'hidden_user'    => 1,
                 'freigeber_name' => $freigeber,
-                'last_edit'      => DB::raw('NOW()'),
+                'last_edit'      => DB::connection()->raw('NOW()'),
                 'freigegeben'    => 1,
             ]);
 
@@ -655,7 +655,7 @@ final class EnotfController
                 ->where('id', $requestId)
                 ->update([
                     'status'      => 'rejected',
-                    'response_at' => DB::raw('NOW()'),
+                    'response_at' => DB::connection()->raw('NOW()'),
                     'response_by' => $_SESSION['fahrername'],
                 ]);
 
@@ -716,7 +716,7 @@ final class EnotfController
                 'source_vehicle'     => $_SESSION['protfzg'],
                 'target_vehicle'     => $targetVehicle,
                 'status'             => 'pending',
-                'created_at'         => DB::raw('NOW()'),
+                'created_at'         => DB::connection()->raw('NOW()'),
             ]);
 
             return Response::json([
@@ -750,7 +750,7 @@ final class EnotfController
             return Response::json(['success' => false, 'error' => 'Ungültiges JSON'], 400);
         }
 
-        if (!isset($data['intraRP_API_Key']) || $data['intraRP_API_Key'] !== API_KEY) {
+        if (!isset($data['intraRP_API_Key']) || $data['intraRP_API_Key'] !== constant('API_KEY')) {
             return Response::json(['success' => false, 'error' => 'Nicht autorisiert', 'hint' => 'API-Key stimmt nicht überein'], 401);
         }
 
@@ -768,7 +768,7 @@ final class EnotfController
                 ->select(
                     'e.id', 'e.enr as missionNumber', 'e.patname as name', 'e.patgebdat as birthdate',
                     'e.transportziel', 'e.prot_by', 'e.fzg_transp', 'e.fzg_na', 'e.created_at',
-                    DB::raw('COALESCE(fzg_t.name, fzg_na_tbl.name) AS vehicle_callsign')
+                    DB::connection()->raw('COALESCE(fzg_t.name, fzg_na_tbl.name) AS vehicle_callsign')
                 )
                 ->where(function ($q) {
                     $q->whereNull('e.billing_sent')->orWhere('e.billing_sent', 0);
@@ -800,7 +800,7 @@ final class EnotfController
 
             DB::table('intra_edivi')
                 ->whereIn('id', $ids)
-                ->update(['billing_sent' => 1, 'billing_sent_at' => DB::raw('NOW()')]);
+                ->update(['billing_sent' => 1, 'billing_sent_at' => DB::connection()->raw('NOW()')]);
 
             return Response::json(['success' => true, 'count' => count($result), 'protocols' => $result]);
         } catch (PDOException $e) {
@@ -1019,7 +1019,7 @@ final class EnotfController
      */
     private function writeProtokollField(string $enr, string $field, mixed $value): void
     {
-        Edivi::where('enr', $enr)->update([$field => $value, 'last_edit' => DB::raw('NOW()')]);
+        Edivi::where('enr', $enr)->update([$field => $value, 'last_edit' => DB::connection()->raw('NOW()')]);
 
         // Namensänderung → patname + pat_synced synchron halten (Side-Effect)
         if ($field === 'pat_vorname' || $field === 'pat_nachname') {
@@ -1142,7 +1142,7 @@ final class EnotfController
                 ->where('id', $requestId)
                 ->update([
                     'status'       => 'accepted',
-                    'response_at'  => DB::raw('NOW()'),
+                    'response_at'  => DB::connection()->raw('NOW()'),
                     'response_by'  => $_SESSION['fahrername'],
                     'action_taken' => $actionTaken,
                     'new_enr'      => $newEnr,
@@ -1221,7 +1221,7 @@ final class EnotfController
         Edivi::where('enr', $enr)->update([
             'freigeber_name' => $value,
             'freigegeben'    => 1,
-            'last_edit'      => DB::raw('NOW()'),
+            'last_edit'      => DB::connection()->raw('NOW()'),
         ]);
 
         try {
@@ -1315,7 +1315,12 @@ final class EnotfController
         return ($name !== '' && $quali !== '') ? "{$name} ({$quali})" : null;
     }
 
-    /** Share-Merge: Quelldaten in bestehendes Protokoll übernehmen. */
+    /**
+     * Share-Merge: Quelldaten in bestehendes Protokoll übernehmen.
+     *
+     * @param array<string, mixed> $reqData
+     * @return array{error: string|null}
+     */
     private function handleShareMerge(
         array $reqData, string $targetEnr, string $currentVehicle, bool $isDoctorVehicle,
         string $fzgField, string $persoField1, string $persoField2, string $persoField3,
@@ -1358,7 +1363,12 @@ final class EnotfController
         return ['error' => null];
     }
 
-    /** Share-New: Neues Protokoll aus Quelldaten + aktuellem Fahrzeug erstellen. */
+    /**
+     * Share-New: Neues Protokoll aus Quelldaten + aktuellem Fahrzeug erstellen.
+     *
+     * @param array<string, mixed> $reqData
+     * @return array{new_enr: string}
+     */
     private function handleShareNewProtocol(
         array $reqData, string $currentVehicle, string $fzgField,
         string $persoField1, string $persoField2, string $persoField3,

@@ -69,9 +69,8 @@ final class ComponentClassTest extends TestCase
 
     /**
      * Vokabular vor dem Redesign (docs/specs/2026-09-28-gemeinsames-css.md).
-     * ef.base-legacy-aliases('ignis') erzeugt diese Klassen noch eine Version
-     * lang als Sicherheitsnetz für übersehenes Markup — im Quellcode selbst
-     * haben sie nichts mehr zu suchen.
+     * Das Stylesheet kennt diese Klassen nicht mehr, im Quellcode haben sie
+     * nichts zu suchen.
      */
     private const OLD_VOCABULARY = [
         'ignis-btn--accent',
@@ -93,6 +92,11 @@ final class ComponentClassTest extends TestCase
         'ignis-alert--error',
         'ignis-chip--success',
         'ignis-chip--warning',
+        'ignis-chip--error',
+        'ignis-chip--note',
+        'ignis-snack--success',
+        'ignis-snack--warning',
+        'ignis-snack--error',
         'ignis-filter-links',
     ];
 
@@ -199,15 +203,12 @@ final class ComponentClassTest extends TestCase
 
     /**
      * Die Migration auf das neue Vokabular (docs/specs/2026-09-28-gemeinsames-css.md)
-     * ist abgeschlossen; ef.base-legacy-aliases('ignis') bleibt nur eine
-     * Version lang als Netz für übersehenes Markup. Quellcode, der die alten
-     * Namen neu einführt, soll hier durchfallen statt sich auf den Alias zu
-     * verlassen.
+     * ist abgeschlossen, die Aliase aus ef.base-legacy-aliases() sind raus.
+     * Quellcode, der die alten Namen neu einführt, fällt hier durch.
      *
      * public/assets/js/ui ist gebautes Paket-Modul (WebPackages), kein
-     * ignis-Quellcode — ein altes Klassenliteral dort (z.B. datetimepicker.js'
-     * "Übernehmen"-Knopf) ist ein Paket-Befund, den dieses Repo nicht beheben
-     * kann, und läuft über denselben Alias weiter.
+     * ignis-Quellcode — ein altes Klassenliteral dort ist ein Paket-Befund,
+     * den dieses Repo nicht beheben kann.
      */
     public function testNoOldVocabularyClassNamesInSource(): void
     {
@@ -229,6 +230,11 @@ final class ComponentClassTest extends TestCase
         sort($hits);
 
         $this->assertSame([], $hits, "Diese Dateien tragen noch altes Vokabular:\n  " . implode("\n  ", $hits));
+    }
+
+    public function testTheLegacyAliasesStayRemoved(): void
+    {
+        $this->assertStringNotContainsString('base-legacy-aliases', (string) file_get_contents(self::ROOT . '/assets/css/ui.scss'));
     }
 
 }

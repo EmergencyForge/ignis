@@ -29,10 +29,14 @@ class CronJob extends Model
 {
     protected $table = 'intra_cron_jobs';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id' => 'integer',
     ];
 
+    /**
+     * @return HasMany<CronRun, $this>
+     */
     public function runs(): HasMany
     {
         return $this->hasMany(CronRun::class, 'job_id', 'id');

@@ -11,6 +11,7 @@ use Tests\IntegrationTestCase;
 
 class RegistrationCodeModelTest extends IntegrationTestCase
 {
+    /** @var list<int> */
     private array $cleanupIds = [];
 
     protected function tearDown(): void
@@ -21,6 +22,9 @@ class RegistrationCodeModelTest extends IntegrationTestCase
         parent::tearDown();
     }
 
+    /**
+     * @param array<string, mixed> $overrides
+     */
     private function makeCode(array $overrides = []): RegistrationCode
     {
         $code = new RegistrationCode();
@@ -81,7 +85,7 @@ class RegistrationCodeModelTest extends IntegrationTestCase
         $code = $this->makeCode();
         $reloaded = RegistrationCode::find($code->id);
 
-        $this->assertIsBool($reloaded->is_used);
+        $this->assertIsBool($reloaded->getAttribute('is_used'));
         $this->assertInstanceOf(\DateTimeInterface::class, $reloaded->created_at);
     }
 }

@@ -147,6 +147,29 @@ class ProtocolDetection
         return $baseUrl . $fullPath;
     }
 
+    /**
+     * Wie buildFullUrl(), aber mit SYSTEM_URL statt dem Host des Requests,
+     * sobald SYSTEM_URL eingerichtet ist. Für Links, die jemand anderes
+     * öffnet als der Aufrufer: ein Server, der ignis über eine interne
+     * Adresse anspricht, bekäme sonst eine, die der Spieler nicht erreicht.
+     * SYSTEM_URL ohne Schema gilt als https.
+     */
+    public static function buildPublicUrl(string $path): string
+    {
+        $systemUrl = defined('SYSTEM_URL') ? rtrim((string) constant('SYSTEM_URL'), '/') : '';
+        if ($systemUrl === '' || $systemUrl === 'CHANGE_ME') {
+            return self::buildFullUrl($path);
+        }
+        if (preg_match('#^https?://#i', $systemUrl) !== 1) {
+            $systemUrl = 'https://' . $systemUrl;
+        }
+
+        return $systemUrl . self::buildPath($path);
+    }
+
+    /**
+     * @return list<string>  Warnungen, leer bei gültiger Konfiguration
+     */
     public static function validateBasePathConfiguration(): array
     {
         $warnings = [];

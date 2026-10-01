@@ -33,6 +33,9 @@ class EnotfUrl
     // Top-Level-Seiten: overview, login, create, lockscreen, loggedout, fahrzeuginfo, hospital-availability
     // ---------------------------------------------------------------
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function page(string $page, array $params = []): string
     {
         $base = self::basePath();
@@ -126,6 +129,9 @@ class EnotfUrl
     // Admin
     // ---------------------------------------------------------------
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function admin(string $page = 'list', array $params = []): string
     {
         $base = self::basePath();
@@ -143,6 +149,7 @@ class EnotfUrl
      * @deprecated Zielverwaltung wurde in POIs konsolidiert. Diese Helper-
      * Methode liefert dauerhaft die POI-URL — wer noch darauf verweist,
      * erreicht das gleiche Ziel im neuen System.
+     * @param array<string, mixed> $params
      */
     public static function adminZielverwaltung(string $action = '', array $params = []): string
     {
@@ -153,6 +160,9 @@ class EnotfUrl
     // Schnittstelle
     // ---------------------------------------------------------------
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public static function schnittstelle(string $page = '', array $params = []): string
     {
         $base = self::basePath();
@@ -177,6 +187,9 @@ class EnotfUrl
     // Hilfsmethoden
     // ---------------------------------------------------------------
 
+    /**
+     * @param array<string, mixed> $params
+     */
     private static function appendParams(string $url, array $params): string
     {
         if (empty($params)) {

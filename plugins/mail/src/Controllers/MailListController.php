@@ -13,6 +13,7 @@ use App\Models\Role;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Plugin\Mail\MailAddressRules;
 use Plugin\Mail\MailDirectory;
@@ -27,7 +28,7 @@ use Plugin\Mail\Models\MailList;
  *   aktive, nicht gesperrte Postfächer; wer schon Mitglied ist, bleibt es
  *   (zugestellt wird einem gesperrten Mitglied trotzdem nichts).
  * - dynamisch: eine Regel aus Rolle, Dienstgrad, RD- und FW-Qualifikation
- *   (ODER-verknüpft, MailDirectory), aufgelöst beim Senden.
+ *   und Fachdienst (ODER-verknüpft, MailDirectory), aufgelöst beim Senden.
  *
  * `senders` legt fest, wer an den Verteiler schreiben darf: alle mit
  * Mail-Zugang oder nur die Verteiler-Verwaltung (MailController prüft das
@@ -68,7 +69,7 @@ final class MailListController extends Controller
     {
         return $this->form(null, [
             'name' => '', 'local' => '', 'domain' => $this->rules->defaultDomain(), 'kind' => 'static', 'senders' => MailList::SENDERS_ALL,
-            'members' => [], 'role_ids' => [], 'rank_ids' => [], 'rd_quali_ids' => [], 'fw_quali_ids' => [],
+            'members' => [], 'role_ids' => [], 'rank_ids' => [], 'rd_quali_ids' => [], 'fw_quali_ids' => [], 'fachdienst_ids' => [],
         ]);
     }
 
@@ -155,11 +156,11 @@ final class MailListController extends Controller
         $error ??= $this->rules->validate($address, null, $list->exists ? $list->id : null, $keep);
 
         $rule = [];
-        foreach ($this->criteriaModels() as $key => $model) {
-            $rule[$key] = array_values(array_map('intval', $model::query()->whereKey($form[$key])->pluck('id')->all()));
+        foreach ($this->criteriaQueries() as $key => $query) {
+            $rule[$key] = array_values(array_map('intval', $query->whereIn('id', $form[$key])->pluck('id')->all()));
         }
         if ($error === null && $form['kind'] === 'dynamic' && array_merge(...array_values($rule)) === []) {
-            $error = 'Ein dynamischer Verteiler braucht mindestens eine Rolle, einen Dienstgrad oder eine Qualifikation.';
+            $error = 'Ein dynamischer Verteiler braucht mindestens eine Rolle, einen Dienstgrad, eine Qualifikation oder einen Fachdienst.';
         }
         if ($error !== null) {
             Flash::error($error);
@@ -276,18 +277,26 @@ final class MailListController extends Controller
 
     // ── Anzeige ───────────────────────────────────────────────────
 
-    /** @return array<string, class-string<\App\Models\Model>> */
-    private function criteriaModels(): array
+    /** @return array<string, QueryBuilder> Kriterium => Abfrage mit `id` und `name`, sortiert */
+    private function criteriaQueries(): array
     {
-        return ['role_ids' => Role::class, 'rank_ids' => Rank::class, 'rd_quali_ids' => AmbSkill::class, 'fw_quali_ids' => FdSkill::class];
+        $byPriority = static fn (string $model): QueryBuilder => $model::query()->toBase()->orderBy('priority')->select(['id', 'name']);
+
+        return [
+            'role_ids'       => $byPriority(Role::class),
+            'rank_ids'       => $byPriority(Rank::class),
+            'rd_quali_ids'   => $byPriority(AmbSkill::class),
+            'fw_quali_ids'   => $byPriority(FdSkill::class),
+            'fachdienst_ids' => Capsule::table('intra_mitarbeiter_fdquali')->orderBy('sgnr')->select(['id', 'sgname as name']),
+        ];
     }
 
     /** @return array<string, array<int,string>> Kriterium => Id => Name */
     private function criteria(): array
     {
         $names = [];
-        foreach ($this->criteriaModels() as $key => $model) {
-            $names[$key] = array_map('strval', $model::query()->orderBy('priority')->pluck('name', 'id')->all());
+        foreach ($this->criteriaQueries() as $key => $query) {
+            $names[$key] = array_map('strval', $query->pluck('name', 'id')->all());
         }
 
         return $names;
@@ -324,7 +333,7 @@ final class MailListController extends Controller
      */
     private static function ruleSummary(array $rule, array $names): string
     {
-        $labels = ['role_ids' => 'Rolle', 'rank_ids' => 'Dienstgrad', 'rd_quali_ids' => 'RD', 'fw_quali_ids' => 'FW'];
+        $labels = ['role_ids' => 'Rolle', 'rank_ids' => 'Dienstgrad', 'rd_quali_ids' => 'RD', 'fw_quali_ids' => 'FW', 'fachdienst_ids' => 'Fachdienst'];
         $parts  = [];
         foreach ($labels as $key => $label) {
             $values = array_map(static fn ($id): string => $names[$key][(int) $id] ?? 'gelöscht', (array) ($rule[$key] ?? []));

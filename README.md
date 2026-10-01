@@ -58,3 +58,37 @@ Für nginx gibt es keine Durchreichung: `root` muss auf `public/` zeigen.
 `try_files`-Regeln. `/api/health` meldet außerdem fehlende PHP-Erweiterungen,
 HTTP-Transport, eingeschränkte Prozessfunktionen und unter `rewrite`, ob der
 Document-Root auf `public/` zeigt.
+
+### Anmeldung über ignisTab
+
+Discord-OAuth funktioniert im Browser von FiveM nicht. Für das Tablet-Skript
+ignisTab gibt es deshalb eine eigene Anmeldung, die unter Einstellungen ›
+System-Konfiguration › Funktionen mit `TABLET_LOGIN_ENABLED` eingeschaltet
+wird (ab Werk aus). Der FiveM-Server schickt `POST /api/tablet/login-token`
+mit dem API-Schlüssel im Header `X-API-Key` und `{"discord_id": "…"}` und
+bekommt einen Token, der 60 Sekunden und genau einmal gilt. Das Tablet öffnet
+damit `/auth/tablet?token=…` und ist angemeldet wie nach dem Discord-Login.
+Die vollständige Adresse steht als `login_url` in der Antwort; sie folgt der
+System-URL (`SYSTEM_URL`), nicht der Adresse, über die der FiveM-Server ignis
+anspricht.
+
+Es funktioniert nur für bestehende, aktive Benutzer, deren Discord-ID in
+ignis hinterlegt ist; ein Konto entsteht dabei nie. Teilen sich zwei aktive
+Konten dieselbe Discord-ID, gibt es keinen Token (409, `ambiguous_user`). Pro
+Discord-ID gibt es höchstens zehn Token pro Minute. Die Discord-ID stammt vom
+FiveM-Server, sie ist also nur so verlässlich wie dessen Discord-Pflicht.
+
+### Entwicklung: gemeinsame Pakete
+
+Einige Bausteine (UI, Editor, Cron, Mail und weitere) liegen im Paket-Repo
+WebPackages. Composer bindet sie über Pfad-Repositories aus dem
+Nachbar-Checkout `../WebPackages` ein, Vite baut UI und Editor von dort aus
+dem Quelltext.
+
+Die CI (`php.yml`, `build-release.yml`, `image.yml`) checkt WebPackages nicht
+von `main` aus, sondern den Tag aus `.github/webpackages-ref`. Ein
+ignis-Commit baut damit immer gegen denselben Paketstand, und ein Bruch auf
+WebPackages-`main` färbt ignis nicht rot. Braucht ignis neuere Pakete, kommt
+der neue Tag in diese Datei, im selben Commit wie `composer.lock` und das neu
+gebaute Dist. Die Schritte stehen in der Datei selbst. Lokal gilt der Ref
+nicht: gebaut wird aus dem Nachbar-Checkout, wie er gerade ausgecheckt ist.

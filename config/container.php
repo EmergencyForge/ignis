@@ -188,7 +188,6 @@ return [
     \App\Http\Controllers\Api\HealthController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelProfileController::class    => \DI\autowire(),
     \App\Http\Controllers\Api\AnnouncementController::class        => \DI\autowire(),
-    \App\Http\Controllers\Api\KnowledgebaseController::class       => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\SystemController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\TelemetryApiController::class        => \DI\autowire(),

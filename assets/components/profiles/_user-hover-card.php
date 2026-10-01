@@ -6,7 +6,7 @@
  *
  * Erwartet:
  *   @var \App\Models\User                 $user
- *   @var \App\Models\Mitarbeiter|null     $linkedMitarbeiter
+ *   @var \App\Models\Personnel|null     $linkedMitarbeiter
  */
 
 $role          = $user->userRole;

@@ -56,8 +56,7 @@ final class SessionApiController
             return Response::json(['success' => false, 'error' => 'Fahrzeug-Kennung fehlt'], 400);
         }
 
-        $session = EnotfSession::query()
-            ->active()
+        $session = EnotfSession::active()
             ->where('vehicle_identifier', $vehicleIdentifier)
             ->orderByDesc('updated_at')
             ->first();

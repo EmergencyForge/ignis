@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
             exit();
         } else {
             $message = 'Keine Werte zum Speichern gefunden oder Fehler beim Speichern.';
-            $messageType = 'warning';
+            $messageType = 'warn';
         }
     } catch (Exception $e) {
         $message = 'Fehler: ' . $e->getMessage();

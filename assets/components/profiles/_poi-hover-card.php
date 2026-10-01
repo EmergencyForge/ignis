@@ -6,7 +6,7 @@
  *
  * Erwartet:
  *   @var object             $poi          Row aus intra_edivi_pois
- *   @var array<int,array>   $departments  Optional, Departments mit Status
+ *   @var array<int, array<string, mixed>> $departments  Optional, Departments mit Status
  */
 
 $base = defined('BASE_PATH') ? BASE_PATH : '/';

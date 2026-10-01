@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -24,11 +25,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $badge  Pfad zum Badge-Bild
  * @property bool   $archive
  * @property \DateTime $created_at
+ *
+ * @method static Builder<static> active()
  */
 class Rank extends Model
 {
     protected $table = 'intra_mitarbeiter_dienstgrade';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'priority'   => 'integer',
@@ -36,6 +40,9 @@ class Rank extends Model
         'created_at' => 'datetime',
     ];
 
+    /**
+     * @return HasMany<Personnel, $this>
+     */
     public function mitarbeiter(): HasMany
     {
         return $this->hasMany(Personnel::class, 'dienstgrad', 'id');
@@ -58,9 +65,11 @@ class Rank extends Model
     /**
      * Convenience-Scope: nur nicht-archivierte Dienstgrade, sortiert nach
      * Priority. Wird für Selektoren in Forms benutzt.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('archive', 0)->orderBy('priority');
+        $query->where('archive', 0)->orderBy('priority');
     }
 }

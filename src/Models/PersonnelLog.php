@@ -25,6 +25,7 @@ class PersonnelLog extends Model
 
     protected $primaryKey = 'logid';
 
+    /** @var array<string, string> */
     protected $casts = [
         'logid'    => 'integer',
         'profilid' => 'integer',

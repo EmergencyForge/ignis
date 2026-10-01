@@ -78,6 +78,8 @@ class EnotfSession
 
     /**
      * Aktualisiert die Crew-Daten einer bestehenden Session.
+     *
+     * @param array<string, mixed> $crew
      */
     public function updateCrew(int $sessionId, array $crew): void
     {

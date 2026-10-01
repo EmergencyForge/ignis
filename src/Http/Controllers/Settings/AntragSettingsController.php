@@ -43,7 +43,7 @@ class AntragSettingsController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('index.php');
 
-        $typen = Capsule::select("
+        $typen = Capsule::connection()->select("
             SELECT
                 at.*,
                 COUNT(DISTINCT af.id) as anzahl_felder,
@@ -66,7 +66,7 @@ class AntragSettingsController extends Controller
 
         Capsule::table('intra_antrag_typen')
             ->where('id', $id)
-            ->update(['aktiv' => Capsule::raw('NOT aktiv')]);
+            ->update(['aktiv' => Capsule::connection()->raw('NOT aktiv')]);
 
         $this->audit('Antragstyp umgeschaltet', '[ID: ' . $id . ']', $id);
         Flash::set('success', 'Status erfolgreich geändert');

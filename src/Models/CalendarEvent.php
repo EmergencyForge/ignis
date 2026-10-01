@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent-Model fuer `intra_calendar_events` — Termine, role-getaggte
@@ -20,9 +21,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string         $title
  * @property string|null    $description
  * @property string|null    $location
- * @property \DateTime      $starts_at
- * @property \DateTime      $ends_at
+ * @property-read Carbon   $starts_at
+ * @property-write Carbon|string $starts_at  Eloquent nimmt auch 'Y-m-d H:i:s'
+ * @property-read Carbon   $ends_at
+ * @property-write Carbon|string $ends_at
  * @property bool           $all_day
+ * @property bool           $track_attendance
  * @property string         $color
  * @property string         $category
  * @property string         $visibility           'private'|'attendees'|'role'|'all'
@@ -30,10 +34,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null       $source_ref_id
  * @property int            $created_by
  * @property string|null    $recurrence_rule
- * @property \DateTime|null $recurrence_until
+ * @property Carbon|null    $recurrence_until
  * @property int|null       $parent_event_id
- * @property \DateTime      $created_at
- * @property \DateTime      $updated_at
+ * @property Carbon         $created_at
+ * @property Carbon         $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CalendarAttendee> $attendees
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Role>             $visibilityRoles
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
+ *
+ * @method static Builder<static> inRange(DateTimeInterface $from, DateTimeInterface $to)
+ * @method static Builder<static> visibleTo(int $userId, ?int $roleId, ?int $mitarbeiterId)
  */
 class CalendarEvent extends EloquentModel
 {
@@ -71,6 +82,7 @@ class CalendarEvent extends EloquentModel
         'orange', 'blue', 'green', 'red', 'purple', 'gray',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'               => 'integer',
         'source_ref_id'    => 'integer',
@@ -85,11 +97,17 @@ class CalendarEvent extends EloquentModel
         'updated_at'       => 'datetime',
     ];
 
+    /**
+     * @return HasMany<CalendarAttendee, $this>
+     */
     public function attendees(): HasMany
     {
         return $this->hasMany(CalendarAttendee::class, 'event_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -98,6 +116,8 @@ class CalendarEvent extends EloquentModel
     /**
      * Mehrere Rollen die ein Event sehen duerfen (visibility='role').
      * Pivot-Tabelle: intra_calendar_event_roles.
+     *
+     * @return BelongsToMany<Role, $this>
      */
     public function visibilityRoles(): BelongsToMany
     {
@@ -109,11 +129,17 @@ class CalendarEvent extends EloquentModel
         );
     }
 
+    /**
+     * @return BelongsTo<self, $this>
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_event_id');
     }
 
+    /**
+     * @return HasMany<self, $this>
+     */
     public function exceptions(): HasMany
     {
         return $this->hasMany(self::class, 'parent_event_id');
@@ -123,13 +149,15 @@ class CalendarEvent extends EloquentModel
      * Scope: Events, die im Bereich [from, to] liegen oder sich damit ueberschneiden.
      * Recurring-Series werden NICHT expandiert — das macht der RecurrenceExpander
      * spaeter. Hier reicht "starts_at <= to AND (ends_at >= from OR recurrence_until >= from)".
+     *
+     * @param Builder<self> $query
      */
-    public function scopeInRange(Builder $query, DateTimeInterface $from, DateTimeInterface $to): Builder
+    public function scopeInRange(Builder $query, DateTimeInterface $from, DateTimeInterface $to): void
     {
         $fromStr = $from->format('Y-m-d H:i:s');
         $toStr   = $to->format('Y-m-d H:i:s');
 
-        return $query->where(function (Builder $q) use ($fromStr, $toStr) {
+        $query->where(function (Builder $q) use ($fromStr, $toStr) {
             $q->where(function (Builder $sq) use ($fromStr, $toStr) {
                 // Single-Event-Overlap
                 $sq->whereNull('recurrence_rule')
@@ -152,10 +180,12 @@ class CalendarEvent extends EloquentModel
      * Logik in CalendarPolicy::view(). Role-Membership-Check braucht
      * eine Subquery auf die Pivot-Tabelle, weil ein Event mehrere Rollen
      * tragen kann.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeVisibleTo(Builder $query, int $userId, ?int $roleId, ?int $mitarbeiterId): Builder
+    public function scopeVisibleTo(Builder $query, int $userId, ?int $roleId, ?int $mitarbeiterId): void
     {
-        return $query->where(function (Builder $q) use ($userId, $roleId, $mitarbeiterId) {
+        $query->where(function (Builder $q) use ($userId, $roleId, $mitarbeiterId) {
             $q->where('created_by', $userId)
                 ->orWhere('visibility', self::VISIBILITY_ALL);
 

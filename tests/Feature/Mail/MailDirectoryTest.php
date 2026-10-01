@@ -14,7 +14,7 @@ use Tests\FixtureFactory;
 
 /**
  * Verteiler und Adressbuch: statische und dynamische Mitglieder (Rolle,
- * Dienstgrad, RD-/FW-Qualifikation), gesperrte Postfächer bekommen nichts,
+ * Dienstgrad, RD-/FW-Qualifikation, Fachdienst), gesperrte Postfächer bekommen nichts,
  * `senders = managers` nimmt nur Post von der Verteiler-Verwaltung, und
  * das Adressbuch zeigt nur, was der Nutzer anschreiben darf.
  */
@@ -94,6 +94,29 @@ final class MailDirectoryTest extends FeatureTestCase
 
         $this->assertSame(['d.dienstgrad@ignis.ef', 'f.fw@ignis.ef', 'r.rd@ignis.ef', 'r.rolle@ignis.ef'], $this->members($list));
         $this->assertSame([], $this->members($this->list('leer@ignis.ef', 'dynamic', [])));
+    }
+
+    #[Test]
+    public function dynamische_regel_nach_fachdienst(): void
+    {
+        $atemschutz = $this->fachdienst(901, 'Atemschutz');
+        $this->fachdienst(902, 'Gefahrgut');
+
+        $mit     = $this->mitarbeiter('Anja Atemschutz', ['fachdienste' => '["901","210"]']);
+        $zahlen  = $this->mitarbeiter('Alois Altdaten', ['fachdienste' => '[901]']);
+        $anderer = $this->mitarbeiter('Gero Gefahrgut', ['fachdienste' => '["902"]']);
+        $kaputt  = $this->mitarbeiter('Kai Kaputt', ['fachdienste' => 'kein json']);
+        $ohne    = $this->mitarbeiter('Olaf Ohne');
+        foreach ([$mit, $zahlen, $anderer, $kaputt, $ohne] as $person) {
+            $this->provision($person);
+        }
+
+        $list = $this->list('atemschutz@ignis.ef', 'dynamic', ['fachdienst_ids' => [$atemschutz]]);
+
+        $this->assertSame(['a.altdaten@ignis.ef', 'a.atemschutz@ignis.ef'], $this->members($list));
+        // Ein Fachdienst, den niemand hat, heißt: niemand, nicht alle.
+        $keiner = $this->fachdienst(904, 'Taucher');
+        $this->assertSame([], $this->members($this->list('taucher@ignis.ef', 'dynamic', ['fachdienst_ids' => [$keiner]])));
     }
 
     #[Test]

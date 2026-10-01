@@ -20,6 +20,11 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
  *     gespeichert werden dürfen.
  *
  *   - $perPage = 25: Default für Pagination.
+ *
+ * Statische Aufrufe wie `Edivi::where()` reicht Eloquent per __callStatic
+ * an einen frischen Builder weiter; der Mixin macht das für PHPStan sichtbar.
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>
  */
 abstract class Model extends EloquentModel
 {

@@ -20,11 +20,15 @@ class FormData extends Model
 {
     protected $table = 'intra_antraege_daten';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'        => 'integer',
         'antrag_id' => 'integer',
     ];
 
+    /**
+     * @return BelongsTo<Form, $this>
+     */
     public function antrag(): BelongsTo
     {
         return $this->belongsTo(Form::class, 'antrag_id', 'id');

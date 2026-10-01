@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -18,11 +19,17 @@ class HospitalDepartment extends Model
 {
     protected $table = 'intra_edivi_hospital_departments';
 
-    public function poi()
+    /**
+     * @return BelongsTo<EdiviPoi, $this>
+     */
+    public function poi(): BelongsTo
     {
         return $this->belongsTo(EdiviPoi::class, 'poi_id');
     }
 
+    /**
+     * @return HasOne<HospitalAvailability, $this>
+     */
     public function availability(): HasOne
     {
         return $this->hasOne(HospitalAvailability::class, 'department_id');

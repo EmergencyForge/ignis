@@ -15,6 +15,8 @@ class MANVLage
 {
     /**
      * Erstellt eine neue MANV-Lage
+     *
+     * @param array<string, mixed> $data
      */
     public function create(array $data): int
     {
@@ -34,6 +36,8 @@ class MANVLage
 
     /**
      * Aktualisiert eine MANV-Lage
+     *
+     * @param array<string, mixed> $data
      */
     public function update(int $id, array $data): bool
     {
@@ -70,6 +74,8 @@ class MANVLage
 
     /**
      * Ruft eine MANV-Lage ab
+     *
+     * @return array<string, mixed>|null
      */
     public function getById(int $id): ?array
     {
@@ -79,6 +85,8 @@ class MANVLage
 
     /**
      * Ruft alle MANV-Lagen ab
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getAll(?string $status = null): array
     {
@@ -105,6 +113,8 @@ class MANVLage
 
     /**
      * Ruft Statistiken für eine MANV-Lage ab
+     *
+     * @return array<string, mixed>
      */
     public function getStatistics(int $lageId): array
     {

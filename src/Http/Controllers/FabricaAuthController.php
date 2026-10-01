@@ -41,8 +41,7 @@ final class FabricaAuthController
             );
             SessionManager::clearRegistrationCode();
             $_SESSION['fabrica_login'] = $login + ['localUserId' => (int) $user->id];
-            SessionManager::loginUser($user->toArray(), []);
-            SessionManager::setPermissions(\App\Auth\Permissions::retrieveFromDatabase((int) $user->id));
+            SessionManager::loginAccount($user->toArray());
             return $this->privateResponse(Response::redirect(SessionManager::pullRedirectUrl() ?? (defined('BASE_PATH') ? (string) BASE_PATH : '/')));
         } catch (DomainException $e) {
             SessionManager::logoutUser();

@@ -12,7 +12,7 @@
  *     Login-Link.
  *
  * @var bool  $hasCrewSession
- * @var array $crew  {vehicle, vehicle_label, members[]}
+ * @var array<string, mixed> $crew  {vehicle, vehicle_label, members[]}
  */
 
 use Plugin\EnotfV2\Helpers\EnotfV2Url;

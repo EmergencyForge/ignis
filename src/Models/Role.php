@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int         $priority
  * @property string      $name
  * @property string|null $color
- * @property array|null  $permissions
+ * @property list<string>|null $permissions
  * @property bool        $is_default
  * @property bool        $admin
  * @property \DateTime|null $created_at
@@ -23,6 +23,7 @@ class Role extends Model
 {
     protected $table = 'intra_users_roles';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'          => 'integer',
         'priority'    => 'integer',
@@ -48,6 +49,8 @@ class Role extends Model
 
     /**
      * Beziehung: Role → User. Der Foreign Key in `intra_users` heißt `role`.
+     *
+     * @return HasMany<User, $this>
      */
     public function users(): HasMany
     {

@@ -37,6 +37,8 @@ final class OldVocabularyRenderTest extends FeatureTestCase
         '/settings/system/config',
         '/settings/system/updater',
         '/settings/system/cron',
+        '/settings/system/telemetry',
+        '/settings/system/plugins',
         '/calendar',
         '/forms/admin/list',
         '/personnel/list',
@@ -57,7 +59,7 @@ final class OldVocabularyRenderTest extends FeatureTestCase
     /** Alte Suffixe je Komponentenfamilie — "info"/"warn" sind für Chip/Alert gültiges NEUES Vokabular, für Btn nicht, deshalb getrennte Listen. */
     private const OLD_SUFFIXES = [
         'btn'   => ['accent', 'soft-[a-z]+', 'outline-[a-z]+', 'success', 'info', 'warning'],
-        'chip'  => ['success', 'warning', 'accent'],
+        'chip'  => ['success', 'warning', 'error', 'note', 'accent'],
         'alert' => ['success', 'warning', 'error'],
         'snack' => ['success', 'warning', 'error'],
     ];

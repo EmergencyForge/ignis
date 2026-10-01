@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -18,16 +19,24 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * created_at/updated_at werden von der DB gepflegt (Defaults/ON UPDATE),
  * daher timestamps=false aus der Basisklasse.
+ *
+ * @method static Builder<static> active()
  */
 class EnotfSession extends Model
 {
     protected $table = 'intra_enotf_sessions';
 
-    public function scopeActive($query)
+    /**
+     * @param Builder<self> $query
+     */
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('active', 1);
+        $query->where('active', 1);
     }
 
+    /**
+     * @return HasMany<EnotfSessionMember, $this>
+     */
     public function members(): HasMany
     {
         return $this->hasMany(EnotfSessionMember::class, 'session_id');

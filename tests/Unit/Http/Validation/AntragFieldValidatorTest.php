@@ -14,6 +14,8 @@ class AntragFieldValidatorTest extends TestCase
 {
     /**
      * Baut einen FormField-Eloquent-Stub ohne DB-Persistenz.
+     *
+     * @param array<string, mixed> $attrs
      */
     private function field(array $attrs): FormField
     {

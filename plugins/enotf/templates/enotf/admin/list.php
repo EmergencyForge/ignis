@@ -158,8 +158,10 @@ use App\Helpers\Flash;
                                         $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$jsArgs})' class='ignis-btn ignis-btn--sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$jsArgs})' class='ignis-btn ignis-btn--sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> "
                                             // Löschen per POST mit CSRF-Token und Rückfrage (vorher ein
                                             // GET-Link ohne beides). Fester Pfad statt EnotfUrl::admin():
-                                            // dessen .php-Variante leitet per 301 um, und ein 301 macht aus
-                                            // dem POST ein GET.
+                                            // das liefert, weil useCleanUrls() fest false ist, die
+                                            // .php-Variante. public/index.php schreibt die bei POST nur
+                                            // intern auf die Route um (einen 301 bekommen nur GET/HEAD),
+                                            // der feste Pfad trifft die Route direkt, ohne den Umweg.
                                             . "<form method='POST' action='" . htmlspecialchars(BASE_PATH . 'enotf/admin/delete', ENT_QUOTES) . "' style='display:inline'"
                                             . " onsubmit=\"event.preventDefault(); var f = this; showConfirm('Protokoll wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Protokoll löschen'}).then(function (ok) { if (ok) f.submit(); });\">"
                                             . csrf_field()

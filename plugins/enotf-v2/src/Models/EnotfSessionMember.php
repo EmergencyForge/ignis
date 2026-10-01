@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * `intra_enotf_session_members` — ein Browser/Gerät pro Crew-Mitglied.
@@ -20,7 +21,10 @@ class EnotfSessionMember extends Model
 
     public const POSITIONS = ['fahrer', 'beifahrer', 'praktikant'];
 
-    public function session()
+    /**
+     * @return BelongsTo<EnotfSession, $this>
+     */
+    public function session(): BelongsTo
     {
         return $this->belongsTo(EnotfSession::class, 'session_id');
     }

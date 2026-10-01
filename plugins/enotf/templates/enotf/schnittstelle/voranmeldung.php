@@ -50,16 +50,8 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('Y-m-d');
 
-// LOGGING: Prüfe ob POST-Request
-$logFile = __DIR__ . '/php_errors.log';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] POST-Request erhalten\n", FILE_APPEND);
-    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] POST data: " . print_r($_POST, true) . "\n", FILE_APPEND);
-}
-
+// Formulardaten nicht loggen: sie enthalten Patientendaten (Diagnose, Freitext).
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new'] == "1") {
-    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Verarbeite neue Voranmeldung...\n", FILE_APPEND);
-
     $requiredFields = [
         'priority',
         'arrival_date',
@@ -75,13 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
     foreach ($requiredFields as $field) {
         if (!isset($_POST[$field]) || $_POST[$field] === '' || $_POST[$field] === 'NULL') {
             $allFilled = false;
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Fehlendes Pflichtfeld: {$field}\n", FILE_APPEND);
             break;
         }
     }
 
     if ($allFilled) {
-        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Alle Pflichtfelder gefüllt, führe INSERT aus...\n", FILE_APPEND);
         // Datum normalisieren: DD.MM.YYYY → YYYY-MM-DD (falls Browser kein natives date-input hat)
         $rawDate = $_POST['arrival_date'];
         if (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $rawDate, $m)) {
@@ -102,17 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             'ziel' => $_POST['ziel']
         ]);
 
-        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] INSERT ausgeführt\n", FILE_APPEND);
-
-        // LOGGING: Voranmeldung wurde gespeichert
-        $logFile = __DIR__ . '/../schnittstelle/php_errors.log';
-        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Voranmeldung gespeichert, ID: " . $prereg->id . "\n", FILE_APPEND);
-
         // Discord Webhook Benachrichtigung senden
         try {
             $preregId = $prereg->id;
-
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Discord Webhook wird vorbereitet...\n", FILE_APPEND);
 
             // Diagnose-Label holen
             $diagnose_labels = [
@@ -238,13 +220,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             ];
 
             // Domain-Event feuern — Listener dispatchen Discord-Webhook-Job
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Firing EnotfPreregistered event...\n", FILE_APPEND);
             app(\App\Events\EventDispatcher::class)->fire(
                 new \Plugin\Enotf\Events\EnotfPreregistered($preregData)
             );
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Event fired\n", FILE_APPEND);
         } catch (\Throwable $e) {
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] EXCEPTION: " . $e->getMessage() . "\n", FILE_APPEND);
             \App\Logging\Logger::error('EnotfPreregistered: Event-Fire Fehler', [
                 'error' => $e->getMessage(),
             ]);
@@ -253,7 +232,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
         Redirects::redirect($defaultUrl, []);
         exit();
     } else {
-        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Pflichtfelder nicht alle gefüllt\n", FILE_APPEND);
         $formError = "Bitte füllen Sie alle Pflichtfelder korrekt aus.";
     }
 }

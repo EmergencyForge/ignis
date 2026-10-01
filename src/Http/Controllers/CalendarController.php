@@ -243,15 +243,9 @@ class CalendarController extends Controller
             return Response::json(['success' => false, 'message' => 'Nicht gefunden'], 404);
         }
 
-        $startsAt = $event->starts_at instanceof \DateTimeInterface
-            ? $event->starts_at->format('Y-m-d\TH:i')
-            : substr((string) $event->starts_at, 0, 16);
-        $endsAt = $event->ends_at instanceof \DateTimeInterface
-            ? $event->ends_at->format('Y-m-d\TH:i')
-            : substr((string) $event->ends_at, 0, 16);
-        $until = $event->recurrence_until instanceof \DateTimeInterface
-            ? $event->recurrence_until->format('Y-m-d')
-            : ($event->recurrence_until ? substr((string) $event->recurrence_until, 0, 10) : null);
+        $startsAt = $event->starts_at->format('Y-m-d\TH:i');
+        $endsAt = $event->ends_at->format('Y-m-d\TH:i');
+        $until = $event->recurrence_until?->format('Y-m-d');
 
         return Response::json([
             'success' => true,
@@ -583,6 +577,8 @@ class CalendarController extends Controller
 
     /**
      * Uebernimmt validierte Felder in das Event-Model (nicht gespeichert).
+     *
+     * @param array<string, mixed> $data
      */
     private function buildFromValidated(CalendarEvent $event, array $data): CalendarEvent
     {
@@ -606,6 +602,8 @@ class CalendarController extends Controller
     /**
      * Synct die Pivot-Tabelle intra_calendar_event_roles. Bei
      * visibility != 'role' werden alle Pivot-Rows entfernt.
+     *
+     * @param array<int> $roleIds
      */
     private function syncVisibilityRoles(CalendarEvent $event, array $roleIds): void
     {
@@ -621,6 +619,8 @@ class CalendarController extends Controller
      * es alle persistierten Attendees. Bei 'attendees' fuegt es Differenzen
      * hinzu/entfernt sie. Der Ersteller ist immer als Organizer-Attendee drin
      * (egal welche Visibility).
+     *
+     * @param array<int> $mitarbeiterIds
      */
     private function syncAttendees(CalendarEvent $event, array $mitarbeiterIds, int $creatorUserId): void
     {
@@ -692,6 +692,8 @@ class CalendarController extends Controller
 
     /**
      * Konvertiert ein Event in das FullCalendar-EventInput-Format.
+     *
+     * @return array<string, mixed>
      */
     private function toFullCalendarEvent(CalendarEvent $event, bool $isRecurring, ?int $seriesId, ?string $myResponse = null): array
     {
@@ -729,7 +731,7 @@ class CalendarController extends Controller
     private function formatForFullCalendar(mixed $value, bool $allDay, bool $isEnd = false): string
     {
         if ($value instanceof \DateTimeInterface) {
-            $dt = $value;
+            $dt = \DateTimeImmutable::createFromInterface($value);
         } else {
             try {
                 $dt = new \DateTimeImmutable((string) $value);
@@ -797,6 +799,8 @@ class CalendarController extends Controller
      * Nicht-blockierender Konflikt-Hint nach store/update — wenn Attendees
      * im Zeitraum bereits andere Termine haben, gibt's eine Flash::warning
      * mit Kurz-Zusammenfassung. Der Save selbst ist bereits durch.
+     *
+     * @param array<int> $attendeeIds
      */
     private function flashConflictHint(CalendarEvent $event, array $attendeeIds): void
     {

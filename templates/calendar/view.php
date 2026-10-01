@@ -10,7 +10,7 @@
  * Wrappers, nur die Brotkrumen bleiben draußen.
  *
  * @var \App\Models\CalendarEvent  $event
- * @var array<int,array{mitarbeiter:\App\Models\Mitarbeiter,response:?string,is_organizer:bool}> $attendeesData
+ * @var array<int,array{mitarbeiter:\App\Models\Personnel,response:?string,is_organizer:bool}> $attendeesData
  * @var int     $attendeeCount
  * @var bool    $showAttendeeList
  * @var bool    $canRespond

@@ -809,9 +809,9 @@ class MciController extends Controller
     {
         $rows = Capsule::table('intra_users as u')
             ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
-            ->select('u.id', Capsule::raw('COALESCE(m.fullname, u.fullname) as fullname'))
-            ->whereNotNull(Capsule::raw('COALESCE(m.fullname, u.fullname)'))
-            ->orderBy(Capsule::raw('COALESCE(m.fullname, u.fullname)'))
+            ->select('u.id', Capsule::connection()->raw('COALESCE(m.fullname, u.fullname) as fullname'))
+            ->whereNotNull(Capsule::connection()->raw('COALESCE(m.fullname, u.fullname)'))
+            ->orderBy(Capsule::connection()->raw('COALESCE(m.fullname, u.fullname)'))
             ->get()
             ->map(fn ($r) => (array) $r)
             ->all();

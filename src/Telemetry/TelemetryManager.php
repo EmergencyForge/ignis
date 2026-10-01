@@ -43,7 +43,7 @@ class TelemetryManager
                 ->where('config_key', 'TELEMETRY_ENABLED')
                 ->update([
                     'config_value' => 'true',
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             return true;
         } catch (\PDOException $e) {
@@ -59,7 +59,7 @@ class TelemetryManager
                 ->where('config_key', 'TELEMETRY_ENABLED')
                 ->update([
                     'config_value' => 'false',
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
             return true;
         } catch (\PDOException $e) {
@@ -120,6 +120,9 @@ class TelemetryManager
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function collectData(): array
     {
         return [
@@ -133,6 +136,9 @@ class TelemetryManager
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectSystemInfo(): array
     {
         return [
@@ -157,6 +163,9 @@ class TelemetryManager
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectStats(): array
     {
         $stats = [
@@ -211,7 +220,7 @@ class TelemetryManager
             try {
                 $stats['active_users'] = (int) Capsule::table('intra_session_logs')
                     ->whereRaw('created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)')
-                    ->count(Capsule::raw('DISTINCT user_id'));
+                    ->count(Capsule::connection()->raw('DISTINCT user_id'));
             } catch (\PDOException $e) {
                 // Fallback: Alle User zählen
                 $stats['active_users'] = $stats['total_users'];
@@ -294,6 +303,9 @@ class TelemetryManager
         return $stats;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function collectModuleInfo(): array
     {
         $modules = [
@@ -399,6 +411,9 @@ class TelemetryManager
         return (time() - strtotime($lastHeartbeat)) >= self::HEARTBEAT_INTERVAL;
     }
 
+    /**
+     * @return array{success: bool, message: string}
+     */
     public function sendHeartbeat(bool $force = false): array
     {
         if (!$this->isEnabled()) {
@@ -524,6 +539,9 @@ class TelemetryManager
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getDataPreview(): array
     {
         return $this->collectData();

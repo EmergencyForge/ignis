@@ -24,6 +24,9 @@ class LogbookPolicyTest extends TestCase
         $_SESSION = [];
     }
 
+    /**
+     * @param list<string> $permissions
+     */
     private function loginAdmin(array $permissions = []): void
     {
         $_SESSION['userid']      = 42;
@@ -42,6 +45,9 @@ class LogbookPolicyTest extends TestCase
         $_SESSION['einsatz_operator_name'] = $operator;
     }
 
+    /**
+     * @param array<string, mixed> $attrs
+     */
     private function makeFahrt(array $attrs): LogbookEntry
     {
         $f = new LogbookEntry();

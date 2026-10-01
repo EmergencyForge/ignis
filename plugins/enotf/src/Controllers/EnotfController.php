@@ -234,6 +234,9 @@ class EnotfController extends Controller
     /**
      * Konvertiert das flache crew-Array (fahrername/fahrerquali/...) ins
      * strukturierte Format, das SessionManager::loginEnotfCrew() erwartet.
+     *
+     * @param array<string, mixed> $crew
+     * @return array{fahrer: array{name: mixed, quali: mixed}, beifahrer: array{name: mixed, quali: mixed}, praktikant: array{name: mixed, quali: mixed}}
      */
     private function crewArrayToStruct(array $crew): array
     {
@@ -357,7 +360,7 @@ class EnotfController extends Controller
                 ->update([
                     'hidden_user'    => 1,
                     'freigeber_name' => $freigeberName,
-                    'last_edit'      => Capsule::raw('NOW()'),
+                    'last_edit'      => Capsule::connection()->raw('NOW()'),
                     'freigegeben'    => 1,
                 ]);
 
@@ -465,7 +468,7 @@ class EnotfController extends Controller
                 ->map(fn ($r) => (array) $r)
                 ->all();
         } else {
-            $rows = Capsule::select(
+            $rows = Capsule::connection()->select(
                 "SELECT c.*,
                         COUNT(t.id) as tile_count,
                         SUM(t.amount) as total_items
@@ -561,7 +564,7 @@ class EnotfController extends Controller
             }
         }
 
-        $rows = Capsule::select("
+        $rows = Capsule::connection()->select("
             SELECT
                 p.id as poi_id,
                 p.name as hospital_name,

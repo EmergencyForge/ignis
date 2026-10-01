@@ -11,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 
 class UpdateProfileRequestTest extends TestCase
 {
+    /**
+     * @return array<string, mixed>
+     */
     private function validBase(): array
     {
         return [

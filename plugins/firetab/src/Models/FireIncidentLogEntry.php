@@ -27,6 +27,9 @@ class FireIncidentLogEntry extends Model
 {
     protected $table = 'intra_fire_incident_log';
 
+    /**
+     * @return BelongsTo<FireIncident, $this>
+     */
     public function incident(): BelongsTo
     {
         return $this->belongsTo(FireIncident::class, 'incident_id', 'id');

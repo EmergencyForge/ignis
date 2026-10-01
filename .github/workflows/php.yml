@@ -11,6 +11,9 @@ name: PHP CI
 # PACKAGES_APP_KEY). Kein Rueckfall auf GITHUB_TOKEN: der kann ein fremdes
 # privates Repo nicht lesen und wuerde den Fehler nur bis zum Checkout
 # verschleppen, wo er als "gibt es nicht" ankommt statt als "darf ich nicht".
+#
+# Welchen Stand von WebPackages die Jobs auschecken, steht in
+# .github/webpackages-ref, dort steht auch, wie man ihn anhebt.
 
 on:
   push:
@@ -44,6 +47,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -61,6 +71,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 
@@ -109,6 +120,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -126,6 +144,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 
@@ -171,6 +190,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -188,6 +214,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 
@@ -235,6 +262,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -252,6 +286,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 
@@ -343,6 +378,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -360,6 +402,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 
@@ -465,6 +508,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -491,6 +541,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
           persist-credentials: false
@@ -564,6 +615,13 @@ jobs:
         with:
           path: ignis
 
+      - name: WebPackages-Stand lesen
+        id: webpackages
+        run: |
+          ref=$(grep -v '^#' .github/webpackages-ref | tr -d '[:space:]')
+          test -n "$ref" || { echo "::error::.github/webpackages-ref nennt keinen Ref"; exit 1; }
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       # Ein Installations-Token der App ef-package-read statt eines
       # persoenlichen Tokens: es laeuft nicht ab, haengt an der App und nicht
       # an einem Konto, und die App darf nur Contents lesen, und das nur auf
@@ -581,6 +639,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: EmergencyForge/WebPackages
+          ref: ${{ steps.webpackages.outputs.ref }}
           token: ${{ steps.packages.outputs.token }}
           path: WebPackages
 

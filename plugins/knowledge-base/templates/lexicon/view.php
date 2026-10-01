@@ -1,7 +1,7 @@
 <?php
 use App\Auth\Permissions;
 use App\Helpers\Flash;
-use App\KnowledgeBase\KBHelper;
+use Plugin\KnowledgeBase\KBHelper;
 
 $layout = 'admin';
 $bodyId = 'lexicon';

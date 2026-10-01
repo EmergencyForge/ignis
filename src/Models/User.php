@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -20,14 +21,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool        $is_active
  * @property \DateTime|null $deactivated_at
  * @property int|null    $deactivated_by
- * @property array|null  $theme_config
+ * @property array<string, mixed>|null $theme_config
  * @property string      $theme  dark|light|system, siehe ProfileController::theme()
  * @property-read Role|null $userRole
+ * @property-read Personnel|null $mitarbeiter
+ *
+ * @method static Builder<static> active()
+ * @method static Builder<static> inactive()
  */
 class User extends Model
 {
     protected $table = 'intra_users';
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'             => 'integer',
         'aktenid'        => 'integer',
@@ -53,6 +59,8 @@ class User extends Model
      * Foreign Key heißt `role` (nicht `role_id`), daher explizit angegeben.
      * Die Methode heißt absichtlich `userRole`, weil `role` mit der Spalte
      * kollidieren würde.
+     *
+     * @return BelongsTo<Role, $this>
      */
     public function userRole(): BelongsTo
     {
@@ -62,6 +70,8 @@ class User extends Model
     /**
      * Beziehung: User → Mitarbeiter über aktenid → intra_mitarbeiter.id.
      * Optional — nicht jeder User hat ein verknüpftes Mitarbeiter-Profil.
+     *
+     * @return BelongsTo<Personnel, $this>
      */
     public function mitarbeiter(): BelongsTo
     {
@@ -70,17 +80,21 @@ class User extends Model
 
     /**
      * Convenience: Aktive User-Filter für Queries.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): void
     {
-        return $query->where('is_active', 1);
+        $query->where('is_active', 1);
     }
 
     /**
      * Convenience: Inaktive (deaktivierte) User.
+     *
+     * @param Builder<self> $query
      */
-    public function scopeInactive($query)
+    public function scopeInactive(Builder $query): void
     {
-        return $query->where('is_active', 0);
+        $query->where('is_active', 0);
     }
 }

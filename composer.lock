@@ -770,11 +770,11 @@
         },
         {
             "name": "emergencyforge/cron-scheduler",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "ec3088c3840751f2a56f8f41672c533bd0db94f8"
+                "reference": "6a31cef1a84cbff1ee4f630a265c4a12d737756f"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -810,11 +810,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.3.0",
+            "version": "0.3.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "ea526247f3c0cf1cb49c9419208a3d084c5ea29e"
+                "reference": "1aa569cf8e3e8532bc4f6b411ad22975f487e7df"
             },
             "require": {
                 "php": ">=8.3",
@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
+                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",

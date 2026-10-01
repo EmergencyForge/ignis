@@ -59,10 +59,12 @@ class UserModelTest extends IntegrationTestCase
     public function user_casts_are_applied(): void
     {
         $user = User::find($this->userId);
-        $this->assertIsBool($user->is_active);
-        $this->assertIsBool($user->full_admin);
-        $this->assertIsInt($user->id);
-        $this->assertIsInt($user->role);
+        // getAttribute() statt Property: PHPStan kennt die Typen aus der
+        // PHPDoc und hielte die Prüfung sonst für überflüssig.
+        $this->assertIsBool($user->getAttribute('is_active'));
+        $this->assertIsBool($user->getAttribute('full_admin'));
+        $this->assertIsInt($user->getAttribute('id'));
+        $this->assertIsInt($user->getAttribute('role'));
     }
 
     #[Test]

@@ -19,6 +19,7 @@ namespace App\Helpers;
  */
 class Flash
 {
+    /** @var array<string, string> */
     private static array $defaultTitles = [
         'success' => 'Erfolg!',
         'danger' => 'Fehler!',
@@ -60,6 +61,9 @@ class Flash
         ];
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public static function get(): ?array
     {
         if (!isset($_SESSION['flash'])) {
@@ -143,6 +147,8 @@ class Flash
      *
      * Die Texte sind reiner Text; Parameter werden roh eingesetzt und erst
      * in render() escaped.
+     *
+     * @param array<string, string|int> $params
      */
     public static function set(string $type, string $key, array $params = []): void
     {

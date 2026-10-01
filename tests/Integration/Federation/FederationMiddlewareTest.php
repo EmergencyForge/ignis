@@ -38,6 +38,9 @@ final class FederationMiddlewareTest extends IntegrationTestCase
         parent::tearDown();
     }
 
+    /**
+     * @param array<string, mixed> $overrides
+     */
     private function insertLink(array $overrides = []): string
     {
         $key = $overrides['api_key_incoming'] ?? bin2hex(random_bytes(16));

@@ -256,6 +256,8 @@ abstract class FeatureTestCase extends IntegrationTestCase
     /**
      * Markiert den Test als "eingeloggt als User X". Session-Keys die die
      * existierenden Middlewares/Controller lesen werden gesetzt.
+     *
+     * @param array<string, mixed> $extraSession
      */
     protected function actingAs(int $userId, array $extraSession = []): self
     {
@@ -324,12 +326,12 @@ abstract class FeatureTestCase extends IntegrationTestCase
         );
     }
 
-    protected function assertBodyNotContains(string $needle, Response $response): void
+    protected function assertBodyNotContains(string $needle, Response $response, string $message = ''): void
     {
         $this->assertStringNotContainsString(
             $needle,
             $response->body,
-            "Response body unexpectedly contains '$needle'",
+            $message !== '' ? $message : "Response body unexpectedly contains '$needle'",
         );
     }
 

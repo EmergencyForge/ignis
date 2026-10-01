@@ -82,9 +82,13 @@ function normalize_groesse_pretty(string $raw): string
     return $pretty;
 }
 
+/**
+ * @param mixed $zugangJson  Spalte aus intra_edivi, JSON oder "0"
+ * @return string
+ */
 function displayAllZugaenge($zugangJson)
 {
-    if (!isset($zugangJson) || $zugangJson === null) {
+    if (!isset($zugangJson)) {
         return '';
     }
     if ($zugangJson === '0') {
@@ -115,9 +119,13 @@ function displayAllZugaenge($zugangJson)
     return implode('<br>', $displays);
 }
 
+/**
+ * @param mixed $zugangJson  Spalte aus intra_edivi, JSON oder "0"
+ * @return string
+ */
 function displayAllZugaengeText($zugangJson)
 {
-    if (!isset($zugangJson) || $zugangJson === null) {
+    if (!isset($zugangJson)) {
         return '';
     }
     if ($zugangJson === '0') {
@@ -148,9 +156,14 @@ function displayAllZugaengeText($zugangJson)
     return implode("\n", $displays);
 }
 
+/**
+ * @param mixed $zugangJson  Spalte aus intra_edivi, JSON oder "0"
+ * @param string|null $filterArt
+ * @return string
+ */
 function displayZugaengeByArt($zugangJson, $filterArt = null)
 {
-    if (!isset($zugangJson) || $zugangJson === null) {
+    if (!isset($zugangJson)) {
         return '';
     }
     if ($zugangJson === '0') {
@@ -193,9 +206,14 @@ function displayZugaengeByArt($zugangJson, $filterArt = null)
 }
 
 // Oder als Text-Version für Textareas:
+/**
+ * @param mixed $zugangJson  Spalte aus intra_edivi, JSON oder "0"
+ * @param string|null $filterArt
+ * @return string
+ */
 function displayZugaengeByArtText($zugangJson, $filterArt = null)
 {
-    if (!isset($zugangJson) || $zugangJson === null) {
+    if (!isset($zugangJson)) {
         return '';
     }
     if ($zugangJson === '0') {
@@ -237,9 +255,13 @@ function displayZugaengeByArtText($zugangJson, $filterArt = null)
     return implode("\n", $displays);
 }
 
+/**
+ * @param mixed $medikamenteJson  Spalte aus intra_edivi, JSON oder "0"
+ * @return array<int, array<string, mixed>>
+ */
 function getCurrentMedikamente($medikamenteJson)
 {
-    if (empty($medikamenteJson) || $medikamenteJson === '0') {
+    if (empty($medikamenteJson)) {
         return [];
     }
 
@@ -255,9 +277,13 @@ function getCurrentMedikamente($medikamenteJson)
     return [];
 }
 
+/**
+ * @param mixed $medikamenteJson  Spalte aus intra_edivi, JSON oder "0"
+ * @return string
+ */
 function displayAllMedikamente($medikamenteJson)
 {
-    if (!isset($medikamenteJson) || $medikamenteJson === null) {
+    if (!isset($medikamenteJson)) {
         return '';
     }
 
@@ -297,6 +323,10 @@ function displayAllMedikamente($medikamenteJson)
     return implode("\n", $displays);
 }
 
+/**
+ * @param mixed $medikamenteJson  Spalte aus intra_edivi, JSON oder "0"
+ * @return bool
+ */
 function hasAnyMedikamente($medikamenteJson)
 {
     $medikamente = getCurrentMedikamente($medikamenteJson);

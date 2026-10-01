@@ -227,7 +227,7 @@ final class SystemController
                 ->update([
                     'config_value' => $newApiKey,
                     'updated_by'   => $_SESSION['userid'] ?? null,
-                    'updated_at'   => Capsule::raw('NOW()'),
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
                 ]);
 
             if ($affected === 0) {

@@ -3,9 +3,9 @@
  * Beladelisten-Kategorie-Karte — gemeinsame Partial für Admin + User-View.
  *
  * Erwartet im Scope:
- *   @var array  $category       Row aus intra_fahrzeuge_beladung_categories
+ *   @var array<string, mixed> $category       Row aus intra_fahrzeuge_beladung_categories
  *                              (mit `tile_count` und `total_items` aus dem JOIN)
- *   @var array  $tiles          Tiles dieser Kategorie
+ *   @var list<array<string, mixed>> $tiles          Tiles dieser Kategorie
  *                              (vorab geladen, NICHT pro Karte neu — N+1)
  *   @var string $mode           'admin' | 'user'
  *

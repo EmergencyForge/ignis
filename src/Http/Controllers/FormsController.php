@@ -45,8 +45,7 @@ class FormsController extends Controller
      */
     public function selectType(): void
     {
-        $typen = FormType::query()
-            ->active()
+        $typen = FormType::active()
             ->withCount('felder')
             ->get();
 
@@ -81,10 +80,7 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        $felder = FormField::query()
-            ->where('antragstyp_id', $typId)
-            ->orderBy('sortierung')
-            ->get();
+        $felder = $typ->felder;
 
         $this->renderView('forms/create', [
             'typ'         => $typ,
@@ -119,10 +115,7 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        $felder = FormField::query()
-            ->where('antragstyp_id', $typId)
-            ->orderBy('sortierung')
-            ->get();
+        $felder = $typ->felder;
 
         // Validierung: Typ-Check pro Feld, Pflichtfeld-Check, Mass-Assignment-
         // Schutz. Readonly-Felder werden hier bewusst NICHT aus $_POST gezogen
@@ -423,7 +416,7 @@ class FormsController extends Controller
                 'm.dienstnr',
                 'm.geschlecht',
                 'm.discordtag',
-                Capsule::raw("CASE WHEN m.geschlecht = 1 THEN dg.name_m ELSE dg.name_w END AS dienstgrad_name")
+                Capsule::connection()->raw("CASE WHEN m.geschlecht = 1 THEN dg.name_m ELSE dg.name_w END AS dienstgrad_name")
             )
             ->first();
 

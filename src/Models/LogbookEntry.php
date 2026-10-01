@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null    $created_by
  * @property \DateTime   $created_at
  * @property \DateTime   $updated_at
+ *
+ * @mixin \Illuminate\Database\Eloquent\Builder<static>  siehe App\Models\Model
  */
 class LogbookEntry extends EloquentModel
 {
@@ -68,6 +70,7 @@ class LogbookEntry extends EloquentModel
         'sonstige'       => 'secondary',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'id'         => 'integer',
         'vehicle_id' => 'integer',
@@ -82,6 +85,8 @@ class LogbookEntry extends EloquentModel
      * Beziehung zum Fahrzeug (intra_fahrzeuge). Kein eigenes Eloquent-Model
      * für Fahrzeuge in dieser Phase — wir geben null oder eine stdClass via
      * Capsule, wenn wir Daten brauchen.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function vehicle(): BelongsTo
     {

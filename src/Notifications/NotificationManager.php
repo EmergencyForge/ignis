@@ -207,14 +207,15 @@ class NotificationManager
     public function forUser(int $userId, bool $unreadOnly = false, int $limit = 50, int $offset = 0, ?string $type = null): array
     {
         try {
-            return $this->builder($userId, $unreadOnly, $type)
+            /** @var \Illuminate\Database\Eloquent\Collection<int, Notification> $rows */
+            $rows = $this->builder($userId, $unreadOnly, $type)
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')
                 ->limit($limit)
                 ->offset($offset)
-                ->get()
-                ->map(fn (Notification $n): array => $this->decorate($n->getAttributes()))
-                ->all();
+                ->get();
+
+            return $rows->map(fn (Notification $n): array => $this->decorate($n->getAttributes()))->all();
         } catch (\PDOException $e) {
             Logger::error('Failed to get notifications: ' . $e->getMessage());
             return [];
@@ -326,7 +327,7 @@ class NotificationManager
 
             return $query->update([
                 'is_read' => 1,
-                'read_at' => Capsule::raw('NOW()'),
+                'read_at' => Capsule::connection()->raw('NOW()'),
             ]);
         } catch (\PDOException $e) {
             Logger::error('Failed to mark notification as read: ' . $e->getMessage());
@@ -430,13 +431,13 @@ class NotificationManager
         try {
             $unreadCount = $this->count($userId);
 
-            $newNotifications = $this->builder($userId, true)
+            /** @var \Illuminate\Database\Eloquent\Collection<int, Notification> $rows */
+            $rows = $this->builder($userId, true)
                 ->where('created_at', '>', $since)
                 ->orderByDesc('created_at')
                 ->limit(5)
-                ->get(['id', 'type', 'title', 'message', 'link', 'created_at'])
-                ->map(fn (Notification $n): array => $this->decorate($n->getAttributes()))
-                ->all();
+                ->get(['id', 'type', 'title', 'message', 'link', 'created_at']);
+            $newNotifications = $rows->map(fn (Notification $n): array => $this->decorate($n->getAttributes()))->all();
 
             return [
                 'unreadCount' => $unreadCount,

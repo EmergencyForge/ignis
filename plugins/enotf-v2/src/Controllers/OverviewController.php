@@ -37,35 +37,29 @@ class OverviewController extends EnotfV2Controller
 
         $vehicle = (string) $_SESSION['protfzg'];
 
-        $protokolle = Edivi::query()
-            ->offenFuerFahrzeug($vehicle)
+        $protokolle = Edivi::offenFuerFahrzeug($vehicle)
             ->orderBy('created_at')
             ->get([
                 'patname', 'patgebdat', 'edatum', 'ezeit', 'enr', 'prot_by',
                 'freigegeben', 'pfname', 'createdby', 'ziel_poi', 'ziel_adresse',
             ])
-            ->map(fn ($m) => $m->toArray())
-            ->all();
+            ->toArray();
 
-        $categories = QuicklinkCategory::query()
-            ->active()
+        $categories = QuicklinkCategory::active()
             ->orderBy('sort_order')
             ->get()
-            ->map(fn ($m) => $m->toArray())
-            ->all();
+            ->toArray();
 
         // Alle aktiven Links in EINEM Query holen und nach Kategorie
         // gruppieren — ein Query pro Kategorie summiert sich auf der
         // latenzbehafteten Remote-Dev-DB spürbar.
         $linksByCategory = array_fill_keys(array_column($categories, 'slug'), []);
         if ($linksByCategory !== []) {
-            $links = Quicklink::query()
+            $links = Quicklink::active()
                 ->whereIn('category_slug', array_keys($linksByCategory))
-                ->active()
                 ->orderBy('sort_order')
                 ->get()
-                ->map(fn ($m) => $m->toArray())
-                ->all();
+                ->toArray();
             foreach ($links as $link) {
                 $linksByCategory[$link['category_slug']][] = $link;
             }
@@ -98,12 +92,11 @@ class OverviewController extends EnotfV2Controller
                 $freigeberName .= ', ' . $_SESSION['beifahrername'];
             }
 
-            Edivi::query()
-                ->offenFuerFahrzeug((string) $_SESSION['protfzg'])
+            Edivi::offenFuerFahrzeug((string) $_SESSION['protfzg'])
                 ->update([
                     'hidden_user'    => 1,
                     'freigeber_name' => $freigeberName,
-                    'last_edit'      => Capsule::raw('NOW()'),
+                    'last_edit'      => Capsule::connection()->raw('NOW()'),
                     'freigegeben'    => 1,
                 ]);
         } catch (\Throwable $e) {

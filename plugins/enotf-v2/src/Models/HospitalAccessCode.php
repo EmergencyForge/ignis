@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Models;
 
 use App\Models\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * `intra_edivi_hospital_access_codes` — Zugangscode je Klinik-POI für
@@ -18,7 +19,10 @@ class HospitalAccessCode extends Model
 {
     protected $table = 'intra_edivi_hospital_access_codes';
 
-    public function poi()
+    /**
+     * @return BelongsTo<EdiviPoi, $this>
+     */
+    public function poi(): BelongsTo
     {
         return $this->belongsTo(EdiviPoi::class, 'poi_id');
     }
