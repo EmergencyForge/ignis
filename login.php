@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
         ?>
         <aside class="twplus-login__visual" aria-hidden="true">
             <div class="ignis-login-preview">
-                <div class="ignis-login-preview__frame" data-ignis-enter>
+                <div class="ignis-login-preview__frame">
                     <div class="ignis-login-preview__bar">
                         <span class="ignis-login-preview__bar-dot"></span>
                         <span class="ignis-login-preview__bar-dot"></span>
@@ -176,16 +176,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         <span class="ignis-login-preview__nav-row"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i>Kalender</span>
                     </nav>
                     <div class="ignis-login-preview__main">
-                        <div class="ignis-login-preview__stats" data-ignis-enter>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>128</b><span>Mitarbeiter</span></div>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>7</b><span>Offene Anträge</span></div>
+                        <div class="ignis-login-preview__stats" data-ignis-reveal>
+                            <div class="ignis-login-preview__stat"><b data-ignis-count>12</b><span>Einsätze heute</span></div>
                             <div class="ignis-login-preview__stat"><b data-ignis-count>23</b><span>Fahrzeuge bereit</span></div>
+                            <div class="ignis-login-preview__stat"><b data-ignis-count>7</b><span>Offene Anträge</span></div>
+                            <div class="ignis-login-preview__stat"><b data-ignis-count>128</b><span>Mitarbeiter</span></div>
                         </div>
-                        <div class="ignis-login-preview__list" data-ignis-enter>
+                        <div class="ignis-login-preview__bezel" data-ignis-reveal>
+                            <p class="ignis-login-preview__bezel-title">Einsätze</p>
+                            <div class="ignis-login-preview__sparks">
+                                <div class="ignis-login-preview__spark"><span>Einsätze/Std</span><svg viewBox="0 0 100 32" preserveAspectRatio="none"><polyline points="0,26 14,22 28,23 42,15 57,18 71,10 85,13 100,4"/></svg></div>
+                                <div class="ignis-login-preview__spark"><span>Einsätze, 7 Tage</span><svg viewBox="0 0 100 32" preserveAspectRatio="none"><polyline points="0,20 14,19 28,16 42,17 57,12 71,11 85,8 100,6"/></svg></div>
+                            </div>
+                        </div>
+                        <div class="ignis-login-preview__list" data-ignis-reveal>
                             <p class="ignis-login-preview__list-title">Letzte Einsätze</p>
                             <div class="ignis-login-preview__row is-highlight"><i></i><span>B3 Wohnungsbrand · HLF 20 · 14:32</span><b></b></div>
                             <div class="ignis-login-preview__row"><i></i><span>Technische Hilfe · RW · 12:58</span><b></b></div>
-                            <div class="ignis-login-preview__row"><i></i><span>Sicherstellung · MZF · 11:20</span><b></b></div>
                             <div class="ignis-login-preview__row"><i></i><span>Kleinbrand · TLF 16 · 09:47</span><b></b></div>
                         </div>
                     </div>

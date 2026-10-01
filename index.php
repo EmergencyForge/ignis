@@ -34,8 +34,8 @@ ob_start();
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
             <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
 
-            <div class="grid grid-cols-1 gap-6 mt-10" data-ignis-enter>
-                <section class="ignis-card" data-section="documents" aria-labelledby="dashboard-documents-title">
+            <div class="grid grid-cols-1 gap-6 mt-10">
+                <section class="ignis-card" data-ignis-reveal data-section="documents" aria-labelledby="dashboard-documents-title">
                     <div class="ignis-card__header">
                         <h2 class="ignis-card__title" id="dashboard-documents-title">Eigene Dokumente</h2>
                     </div>
@@ -43,7 +43,7 @@ ob_start();
                         <?php include __DIR__ . '/assets/components/index/documents.php' ?>
                     </div>
                 </section>
-                <section class="ignis-card" data-section="applications" aria-labelledby="dashboard-applications-title">
+                <section class="ignis-card" data-ignis-reveal data-section="applications" aria-labelledby="dashboard-applications-title">
                     <div class="ignis-card__header">
                         <h2 class="ignis-card__title" id="dashboard-applications-title">Eigene Anträge</h2>
                         <div class="ignis-card__actions">
@@ -55,7 +55,7 @@ ob_start();
                     </div>
                 </section>
                 <?php if ($dashboardEnotf): ?>
-                    <section class="ignis-card" data-section="enotf" aria-labelledby="dashboard-enotf-title">
+                    <section class="ignis-card" data-ignis-reveal data-section="enotf" aria-labelledby="dashboard-enotf-title">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title" id="dashboard-enotf-title">Eigene eNOTF-Protokolle</h2>
                         </div>
@@ -65,7 +65,7 @@ ob_start();
                     </section>
                 <?php endif; ?>
                 <?php if ($dashboardFiretab): ?>
-                    <section class="ignis-card" data-section="firetab" aria-labelledby="dashboard-firetab-title">
+                    <section class="ignis-card" data-ignis-reveal data-section="firetab" aria-labelledby="dashboard-firetab-title">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title" id="dashboard-firetab-title">Eigene fireTab-Protokolle</h2>
                         </div>
