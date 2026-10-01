@@ -372,7 +372,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
         const params = new URLSearchParams();
         params.set('q', document.getElementById('searchQuery').value || '');
         const file = document.getElementById('searchFile').value;
-        const activeScope = document.querySelector('#inboxScopeFilter [data-scope].is-active');
+        const activeScope = document.querySelector('#inboxScopeFilter [data-scope][aria-pressed="true"]');
         if (activeScope && activeScope.dataset.scope !== 'all') {
             params.set('level', activeScope.dataset.scope);
         }
@@ -408,8 +408,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
     // ── Scope-Filter (Alle/Critical/Error/Warning) ──
     document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(btn => {
         btn.addEventListener('click', async function () {
-            document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('is-active'));
-            this.classList.add('is-active');
+            document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.setAttribute('aria-pressed', String(b === this)));
             const scope = this.dataset.scope;
             if (scope === 'all') {
                 renderGroups(initialGroups);
@@ -427,8 +426,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
     document.getElementById('resetBtn').addEventListener('click', function () {
         document.getElementById('searchQuery').value = '';
         document.getElementById('searchFile').value = '';
-        document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('is-active'));
-        document.querySelector('#inboxScopeFilter [data-scope="all"]').classList.add('is-active');
+        document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scope === 'all')));
         renderGroups(initialGroups);
     });
 

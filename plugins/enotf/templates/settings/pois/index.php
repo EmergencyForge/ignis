@@ -40,11 +40,11 @@ use App\Helpers\Flash;
                     </div>
                     <?php Flash::render(); ?>
                     <div class="mb-3">
-                        <nav class="ignis-segmented" id="statusFilter" aria-label="Status">
-                            <button type="button" class="is-active" data-filter="">Alle</button>
-                            <button type="button" data-filter="Ja">Aktiv</button>
-                            <button type="button" data-filter="Nein">Inaktiv</button>
-                        </nav>
+                        <div class="ignis-segmented" id="statusFilter" role="group" aria-label="Status">
+                            <button type="button" aria-pressed="true" data-filter="">Alle</button>
+                            <button type="button" aria-pressed="false" data-filter="Ja">Aktiv</button>
+                            <button type="button" aria-pressed="false" data-filter="Nein">Inaktiv</button>
+                        </div>
                     </div>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-pois">
@@ -145,8 +145,7 @@ use App\Helpers\Flash;
 
             document.querySelectorAll('#statusFilter button').forEach(function(btn) {
                 btn.addEventListener('click', function() {
-                    document.querySelectorAll('#statusFilter button').forEach(function(b) { b.classList.remove('is-active'); });
-                    this.classList.add('is-active');
+                    document.querySelectorAll('#statusFilter button').forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
                     table.column(6).search(this.dataset.filter).draw();
                 });
             });

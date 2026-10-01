@@ -109,12 +109,12 @@ $SITE_TITLE = 'System-Konfiguration';
                     </div>
 
                     <div class="ignis-list-toolbar">
-                        <nav class="ignis-segmented" id="categoryFilter" aria-label="Kategorie">
-                            <button type="button" class="is-active" data-category="">Alle</button>
+                        <div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Kategorie">
+                            <button type="button" aria-pressed="true" data-category="">Alle</button>
                             <?php foreach ($configByCategory as $category => $configs): ?>
-                                <button type="button" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
+                                <button type="button" aria-pressed="false" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
                             <?php endforeach; ?>
-                        </nav>
+                        </div>
                     </div>
 
                     <form method="post" id="configForm">
@@ -332,8 +332,7 @@ $SITE_TITLE = 'System-Konfiguration';
         // Kategorie-Filter: blendet die Karten der anderen Kategorien aus.
         document.querySelectorAll('#categoryFilter button').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#categoryFilter button').forEach(function(b) { b.classList.remove('is-active'); });
-                this.classList.add('is-active');
+                document.querySelectorAll('#categoryFilter button').forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
                 var cat = this.dataset.category;
                 document.querySelectorAll('.config-section').forEach(function(section) {
                     section.hidden = !!cat && section.dataset.configCategory !== cat;
