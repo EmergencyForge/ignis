@@ -5,8 +5,8 @@
  *
  * Loads autoloader, baut den Service-Container, setzt Test-Environment.
  *
- * Optionaler .env.test-Pfad: Wenn vorhanden, werden TEST_DB_*-Variablen
- * auf DB_* gemappt, sodass Integration-Tests gegen die Test-DB laufen können.
+ * TEST_DB_*-Variablen (aus .env.test oder der Umgebung) werden auf DB_*
+ * gemappt, sodass Integration-Tests gegen die Test-DB laufen können.
  * Unit-Tests funktionieren auch ohne .env.test, weil PHP-DI lazy ist und
  * PDO erst bei Auflösung verbindet.
  */
@@ -50,15 +50,17 @@ $envTest = __DIR__ . '/../.env.test';
 if (is_file($envTest)) {
     $dotenv = Dotenv\Dotenv::createImmutable(dirname($envTest), '.env.test');
     $dotenv->load();
+}
 
-    // TEST_DB_* → DB_* mappen, damit PDO-Factory im Container die nutzen kann
-    foreach (['HOST', 'PORT', 'USER', 'PASS', 'NAME'] as $key) {
-        $src = "TEST_DB_$key";
-        $dst = "DB_$key";
-        if (isset($_ENV[$src]) && $_ENV[$src] !== '') {
-            $_ENV[$dst] = $_ENV[$src];
-            putenv("$dst={$_ENV[$src]}");
-        }
+// TEST_DB_* → DB_* mappen, damit PDO-Factory im Container die nutzen kann.
+// Die CI setzt TEST_DB_* in der Prozess-Umgebung, die ohne E in
+// variables_order nicht in $_ENV landet; env_value() liest auch getenv().
+// DB_* selbst bleibt außen vor: im App-Container zeigt es auf die App-DB.
+foreach (['HOST', 'PORT', 'USER', 'PASS', 'NAME'] as $key) {
+    $value = env_value("TEST_DB_$key");
+    if ($value !== null && $value !== '') {
+        $_ENV["DB_$key"] = $value;
+        putenv("DB_$key=$value");
     }
 }
 
