@@ -32,8 +32,8 @@ final class EnotfV1EscapingTest extends TestCase
             '"Eintrag mit ENR $enr nicht gefunden"' => 'Antwort ist text/plain, kein HTML.',
         ],
         'plugins/enotf/templates/enotf/admin/qm-log-modal.php' => [
-            'preg_match(\'~^<span class="ignis-chip(?: ignis-chip--\w+)?">[\p{L} ]+</span>$~u\', (string) $log_row[\'kommentar\']) === 1 ? $log_row[\'kommentar\'] : e($log_row[\'kommentar\'])'
-                => 'Statusänderungen speichert qm-actions-modal.php als festen Status-Chip; nur dieses Muster bleibt Markup.',
+            'preg_match(\'~^<span class="(?:ignis-chip(?: ignis-chip--\w+)?|badge(?: (?:text-)?bg-\w+)?)"(?: style="line-height: var\(--bs-body-line-height\); border-radius: 0;")?>[\p{L} ]+</span>$~uD\', (string) $log_row[\'kommentar\']) === 1 ? $log_row[\'kommentar\'] : e($log_row[\'kommentar\'])'
+                => 'Statusänderungen speichert qm-actions-modal.php als festen Status-Chip, ältere Einträge als Bootstrap-Badge; nur diese Muster bleiben Markup.',
         ],
     ];
 

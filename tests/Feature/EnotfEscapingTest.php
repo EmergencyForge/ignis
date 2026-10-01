@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -21,6 +22,8 @@ final class EnotfEscapingTest extends FeatureTestCase
 
     private string $fahrzeug;
 
+    private int $protokollId;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,7 +38,7 @@ final class EnotfEscapingTest extends FeatureTestCase
             'protfzg'       => $this->fahrzeug,
         ]);
 
-        Capsule::table('intra_edivi')->insert([
+        $this->protokollId = (int) Capsule::table('intra_edivi')->insertGetId([
             'enr'              => self::ENR,
             'patname'          => '<script>alert("patname")</script>',
             'anmerkungen'      => '</textarea><script>alert("anmerkungen")</script>',
@@ -83,5 +86,38 @@ final class EnotfEscapingTest extends FeatureTestCase
 
         $this->assertNothingRaw($response);
         $this->assertBodyContains('value="7&quot;&gt;&lt;img src=x onerror=alert(1)&gt;" readonly', $response);
+    }
+
+    /** @return array<string, array{string, bool}> */
+    public static function qmStatus(): array
+    {
+        $style = ' style="line-height: var(--bs-body-line-height); border-radius: 0;"';
+
+        return [
+            'Chip'                => ['<span class="ignis-chip ignis-chip--warn">in Prüfung</span>', true],
+            'Badge bis 04/2026'   => ['<span class="badge text-bg-warning"' . $style . '>in Prüfung</span>', true],
+            'Badge bis 04/2025'   => ['<span class="badge bg-success"' . $style . '>Freigegeben</span>', true],
+            'Badge ohne Farbe'    => ['<span class="badge"' . $style . '>Ungesehen</span>', true],
+            'Badge ohne Style'    => ['<span class="badge text-bg-dark">Ausgeblendet</span>', true],
+            'Markup'              => ['<img src=x onerror=alert(1)>', false],
+            'Badge mit Attribut'  => ['<span class="badge" onmouseover="alert(1)">Ungesehen</span>', false],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('qmStatus')]
+    public function qm_log_laesst_nur_status_chips_und_alte_badges_als_markup(string $kommentar, bool $markup): void
+    {
+        Capsule::table('intra_edivi_qmlog')->insert([
+            'protokoll_id' => $this->protokollId,
+            'kommentar'    => $kommentar,
+            'bearbeiter'   => 'QM',
+            'log_aktion'   => 1,
+        ]);
+
+        $response = $this->get('/enotf/admin/qm-log-modal', ['query' => ['id' => (string) $this->protokollId]]);
+
+        $this->assertOk($response);
+        $this->assertBodyContains("<p class='mb-0'>" . ($markup ? $kommentar : e($kommentar)) . '</p>', $response);
     }
 }
