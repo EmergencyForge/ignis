@@ -1,1 +1,1 @@
-import"./_dialog.js";window.intraConfirm=window.showConfirm,window.intraAlert=window.showAlert,window.intraPrompt=window.showPrompt;
+import{t as e}from"./_dialog.js";window.intraConfirm=window.showConfirm,window.intraAlert=window.showAlert,window.intraPrompt=window.showPrompt;var t=e;export{e as Dialog,t as default};
