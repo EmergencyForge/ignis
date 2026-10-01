@@ -41,6 +41,9 @@ final class EmptyPartialTest extends TestCase
         $html = $this->render(['variant' => 'first', 'tone' => 'info', 'title' => 'Noch keine Mitarbeitenden', 'ghostColumns' => 3]);
         self::assertSame(5, substr_count($html, '<div><i></i><i></i><i></i><i></i><i></i></div>'));
         self::assertStringContainsString('class="ignis-empty__ghost" aria-hidden="true" style="--ghost-cols: 3"', $html);
+        self::assertStringStartsWith('<section class="ignis-bezel" aria-label="Erste Schritte"><div class="ignis-bezel__head"><i class="fa-solid fa-flag" aria-hidden="true"></i><h2 class="ignis-bezel__title">Erste Schritte</h2></div><div class="ignis-bezel__well ignis-bezel__well--flush"><div class="ignis-empty ignis-empty--first" data-tone="info">', $html);
+        self::assertStringEndsWith('</div></div></section>', $html);
+        self::assertStringNotContainsString('ignis-bezel', $this->render(['variant' => 'sm', 'title' => 'T']));
     }
 
     public function testQueryTipsCodeAndActions(): void

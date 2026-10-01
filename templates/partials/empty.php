@@ -56,6 +56,15 @@ if ($emptyVariant === 'inline') {
     return;
 }
 
+// Der erste Start sitzt in einer Schale „Erste Schritte“. In der Mulde
+// --flush reicht die angedeutete Liste bis an den Rand.
+if ($emptyVariant === 'first') {
+    $emptyBezelHeading = max(2, $emptyHeading - 1);
+    echo '<section class="ignis-bezel" aria-label="Erste Schritte"><div class="ignis-bezel__head"><i class="fa-solid fa-flag" aria-hidden="true"></i>'
+        . '<h' . $emptyBezelHeading . ' class="ignis-bezel__title">Erste Schritte</h' . $emptyBezelHeading . '></div>'
+        . '<div class="ignis-bezel__well ignis-bezel__well--flush">';
+}
+
 $emptyClass = 'ignis-empty' . ($emptyVariant === 'default' ? '' : ' ignis-empty--' . $emptyVariant);
 echo '<div class="' . $emptyClass . '" data-tone="' . $emptyTone . '">';
 
@@ -125,3 +134,6 @@ if (($empty['code'] ?? '') !== '') {
     echo '<p class="ignis-empty__code">' . $emptyE($empty['code']) . '</p>';
 }
 echo '</div>';
+if ($emptyVariant === 'first') {
+    echo '</div></section>';
+}
