@@ -82,7 +82,7 @@ final class DashboardTest extends FeatureTestCase
         $this->assertMatchesRegularExpression('~Einsätze heute</span>.*?<div class="ignis-kpi__value"><span data-ignis-count>3</span>~s', $body);
         $this->assertMatchesRegularExpression('~Fahrzeuge einsatzbereit</span>.*?<span data-ignis-count>1</span> <span class="ignis-unit">von 2</span>~s', $body);
         $this->assertStringContainsString('1 ohne Statusmeldung', $body);
-        $this->assertMatchesRegularExpression('~<a class="ignis-kpi" href="/enotf/admin/list" data-tone="danger" data-ignis-reveal>.*?fa-triangle-exclamation.*?eNOTF-Protokolle offen</span>.*?<span data-ignis-count>1</span>~s', $body);
+        $this->assertMatchesRegularExpression('~<a class="ignis-kpi" href="/enotf/admin/list\?view=2" data-tone="danger" data-ignis-reveal>.*?fa-triangle-exclamation.*?eNOTF-Protokolle offen</span>.*?<span data-ignis-count>1</span>~s', $body);
 
         // Einsätze: Sparklines aus echten Zählungen, der letzte Tag ist heute.
         $this->assertMatchesRegularExpression('~data-ignis-spark data-values="[\d,]*3" data-label="Einsätze je Tag in den letzten sieben Tagen"~', $body);
@@ -114,7 +114,7 @@ final class DashboardTest extends FeatureTestCase
 
         $body = $this->get('/index')->body;
 
-        $this->assertMatchesRegularExpression('~<a class="ignis-kpi" href="/enotf/admin/list" data-tone="ok" data-ignis-reveal>.*?fa-circle-check.*?alle freigegeben~s', $body);
+        $this->assertMatchesRegularExpression('~<a class="ignis-kpi" href="/enotf/admin/list\?view=2" data-tone="ok" data-ignis-reveal>.*?fa-circle-check.*?alle freigegeben~s', $body);
         $this->assertStringNotContainsString('Fahrzeuge einsatzbereit', $body);
         $this->assertStringNotContainsString('role="meter"', $body);
         $this->assertStringContainsString('Nichts wartet auf dich', $body);

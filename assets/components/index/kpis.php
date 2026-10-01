@@ -48,7 +48,7 @@ if ($dashboardIncidents === null && $dashboardVehicles === null && $dashboardPro
     <?php endif; ?>
     <?php if ($dashboardProtocols !== null): ?>
         <?php $dashboardOpen = $dashboardProtocols['open']; ?>
-        <a class="ignis-kpi" href="<?= BASE_PATH ?>enotf/admin/list" data-tone="<?= $dashboardOpen > 0 ? 'danger' : 'ok' ?>" data-ignis-reveal>
+        <a class="ignis-kpi" href="<?= BASE_PATH ?>enotf/admin/list?view=2" data-tone="<?= $dashboardOpen > 0 ? 'danger' : 'ok' ?>" data-ignis-reveal>
             <div class="ignis-kpi__top">
                 <span class="ignis-kpi__label"><i class="fa-solid <?= $dashboardOpen > 0 ? 'fa-triangle-exclamation' : 'fa-circle-check' ?>" aria-hidden="true"></i>eNOTF-Protokolle offen</span>
             </div>

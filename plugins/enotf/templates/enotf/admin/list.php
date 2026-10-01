@@ -46,9 +46,13 @@ if (\App\Federation\FederationMiddleware::isEnabled()) {
     }
 }
 
-// Zähler der Segmente: unbearbeitet heißt ungesehen oder in Prüfung, wie der Filter unten.
-$viewUnprocessed = isset($_GET['view']) && $_GET['view'] == 1;
-$countUnprocessed = count(array_filter($result, static fn (array $row): bool => in_array((int) $row['protokoll_status'], [0, 1], true)));
+// Segmente: unbearbeitet heißt ungesehen oder in Prüfung. Nicht freigegeben
+// zählt wie die Alarmkachel des Dashboards (App\Support\Overview::openProtocols).
+$view = in_array($_GET['view'] ?? '', ['1', '2'], true) ? (int) $_GET['view'] : 0;
+$isUnprocessed = static fn (array $row): bool => in_array((int) $row['protokoll_status'], [0, 1], true);
+$isUnreleased = static fn (array $row): bool => (int) $row['freigegeben'] === 0 && (int) $row['hidden_user'] !== 1;
+$countUnprocessed = count(array_filter($result, $isUnprocessed));
+$countUnreleased = count(array_filter($result, $isUnreleased));
 ?>
 
 <!DOCTYPE html>
@@ -74,8 +78,9 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
                 <div class="header-actions">
                     <div class="flex flex-wrap items-center gap-3">
                         <nav class="ignis-segmented" aria-label="Status">
-                            <a href="?view=0"<?= !$viewUnprocessed ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= count($result) ?></span></a>
-                            <a href="?view=1"<?= $viewUnprocessed ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-triangle-exclamation" data-tone="warn" aria-hidden="true"></i>Unbearbeitet <span class="ignis-segmented__count"><?= $countUnprocessed ?></span></a>
+                            <a href="?view=0"<?= $view === 0 ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= count($result) ?></span></a>
+                            <a href="?view=1"<?= $view === 1 ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-triangle-exclamation" data-tone="warn" aria-hidden="true"></i>Unbearbeitet <span class="ignis-segmented__count"><?= $countUnprocessed ?></span></a>
+                            <a href="?view=2"<?= $view === 2 ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-circle-xmark" data-tone="danger" aria-hidden="true"></i>Nicht freigegeben <span class="ignis-segmented__count"><?= $countUnreleased ?></span></a>
                         </nav>
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
                             <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--secondary ignis-btn--sm">
@@ -143,10 +148,8 @@ $countUnprocessed = count(array_filter($result, static fn (array $row): bool => 
                                             break;
                                     }
 
-                                    if ($viewUnprocessed) {
-                                        if ($row['protokoll_status'] != 0 && $row['protokoll_status'] != 1) {
-                                            continue;
-                                        }
+                                    if (($view === 1 && !$isUnprocessed($row)) || ($view === 2 && !$isUnreleased($row))) {
+                                        continue;
                                     }
 
                                     $patname = htmlspecialchars((string) ($row['patname'] ?? 'Unbekannt'), ENT_QUOTES);

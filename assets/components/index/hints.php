@@ -53,7 +53,7 @@ $hintAny  = $hintOpen > 0 || $hintDown !== [] || ($hintTasks ?? []) !== [] || $h
                         <span class="ignis-progress__value" aria-hidden="true"><?= $hintShare ?> %</span>
                     </div>
                 <?php endif; ?>
-                <a class="ignis-btn ignis-btn--accent-soft ignis-btn--sm ignis-hint__action" href="<?= BASE_PATH ?>enotf/admin/list">Protokolle ansehen</a>
+                <a class="ignis-btn ignis-btn--accent-soft ignis-btn--sm ignis-hint__action" href="<?= BASE_PATH ?>enotf/admin/list?view=2">Protokolle ansehen</a>
             </div>
         <?php endif; ?>
         <?php if ($hintDown !== []): ?>
