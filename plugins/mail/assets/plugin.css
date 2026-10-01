@@ -18,7 +18,8 @@
 .ignis-mail__folder i { width: 1.1em; text-align: center; color: var(--tertiary-text); }
 .ignis-mail__folder span:first-of-type { flex: 1 1 auto; }
 .ignis-mail__folder:hover { background: var(--fill-2); color: var(--content-text); }
-.ignis-mail__folder.is-active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+/* Ordner sind Navigation und bleiben grau wie die Einstellungs-Navigation. */
+.ignis-mail__folder.is-active { background: var(--fill-2); box-shadow: inset 0 0 0 1px var(--border-ui); color: var(--content-text); font-weight: 500; }
 .ignis-mail__folder.is-active i { color: inherit; }
 .ignis-mail__tools { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
 .ignis-mail__tool { display: flex; align-items: center; gap: 10px; padding: 6px 10px; color: var(--secondary-text); font-size: var(--fs-sm, 13px); text-decoration: none; }
@@ -45,13 +46,14 @@
     body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench] { grid-template-columns: 12rem minmax(0, 1fr) minmax(320px, 26rem); }
     body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench].is-preview-wide { grid-template-columns: 12rem minmax(0, 1fr) minmax(400px, 45%); }
     body[data-ui-skin] .ignis-mail.ignis-workbench[data-ignis-workbench] .ignis-preview { display: block; }
-    /* Feste Spalten, der Betreff bekommt den Rest. Die Aktionsspalte
-       trägt den „Vorschau“-Knopf (~77px) plus Zellenabstand; darunter ragte
-       er bei 1440px über den Rand. Jede Zeile einzeilig mit Ellipse. */
+    /* Feste Spalten, der Betreff bekommt den Rest. Jede Zeile einzeilig mit
+       Ellipse. Der Lesebereich steht daneben, die Zeile öffnet ihn per Klick
+       oder Enter. Die Spalte mit dem „Vorschau“-Knopf fällt deshalb weg, mit
+       ihr blieben dem Betreff bei 1440px keine 60px. */
     .ignis-mail__list table { table-layout: fixed; width: 100%; }
     .ignis-mail__list th:nth-child(1), .ignis-mail__list td:nth-child(1) { width: 10rem; }
-    .ignis-mail__list th:nth-child(3), .ignis-mail__list td:nth-child(3) { width: 8.5rem; }
-    .ignis-mail__list th:nth-child(4), .ignis-mail__list td:nth-child(4) { width: 7rem; }
+    .ignis-mail__list th:nth-child(3), .ignis-mail__list td:nth-child(3) { width: 9.5rem; }
+    .ignis-mail__list th:nth-child(4), .ignis-mail__list td:nth-child(4) { display: none; }
     .ignis-mail__party, .ignis-mail__subject { overflow: hidden; }
     .ignis-mail__party a { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
