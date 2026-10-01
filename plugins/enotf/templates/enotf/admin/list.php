@@ -76,8 +76,8 @@ $countUnreleased = count(array_filter($result, $isUnreleased));
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <nav class="ignis-segmented" aria-label="Status">
+                    <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+                        <nav class="ignis-segmented max-w-full" aria-label="Status">
                             <a href="?view=0"<?= $view === 0 ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= count($result) ?></span></a>
                             <a href="?view=1"<?= $view === 1 ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-triangle-exclamation" data-tone="warn" aria-hidden="true"></i>Unbearbeitet <span class="ignis-segmented__count"><?= $countUnprocessed ?></span></a>
                             <a href="?view=2"<?= $view === 2 ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-circle-xmark" data-tone="danger" aria-hidden="true"></i>Nicht freigegeben <span class="ignis-segmented__count"><?= $countUnreleased ?></span></a>
