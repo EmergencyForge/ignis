@@ -70,9 +70,10 @@ bekommt einen Token, der 60 Sekunden und genau einmal gilt. Das Tablet öffnet
 damit `/auth/tablet?token=…` und ist angemeldet wie nach dem Discord-Login.
 
 Es funktioniert nur für bestehende, aktive Benutzer, deren Discord-ID in
-ignis hinterlegt ist; ein Konto entsteht dabei nie. Pro Discord-ID gibt es
-höchstens zehn Token pro Minute. Die Discord-ID stammt vom FiveM-Server, sie
-ist also nur so verlässlich wie dessen Discord-Pflicht.
+ignis hinterlegt ist; ein Konto entsteht dabei nie. Teilen sich zwei aktive
+Konten dieselbe Discord-ID, gibt es keinen Token (409, `ambiguous_user`). Pro
+Discord-ID gibt es höchstens zehn Token pro Minute. Die Discord-ID stammt vom
+FiveM-Server, sie ist also nur so verlässlich wie dessen Discord-Pflicht.
 
 ### Entwicklung: gemeinsame Pakete
 

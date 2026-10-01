@@ -45,11 +45,17 @@ final class TabletLoginController
             return Response::json(['success' => false, 'error' => 'invalid_discord_id'], 422);
         }
 
-        // Nur bestehende, aktive Konten; hier entsteht nie ein neues.
-        $userId = User::query()->where('discord_id', $discordId)->where('is_active', 1)->value('id');
-        if ($userId === null) {
+        // Nur bestehende, aktive Konten; hier entsteht nie ein neues. Die
+        // Discord-ID ist in intra_users nicht eindeutig: teilen sich zwei
+        // aktive Konten eine, bekommt keines einen Token.
+        $userIds = User::query()->where('discord_id', $discordId)->where('is_active', 1)->limit(2)->pluck('id')->all();
+        if ($userIds === []) {
             return Response::json(['success' => false, 'error' => 'unknown_user'], 404);
         }
+        if (count($userIds) > 1) {
+            return Response::json(['success' => false, 'error' => 'ambiguous_user'], 409);
+        }
+        $userId = $userIds[0];
 
         $now = time();
         Capsule::table(self::TABLE)->where('expires_at', '<', date('Y-m-d H:i:s', $now))->delete();

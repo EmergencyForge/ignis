@@ -120,6 +120,25 @@ final class TabletLoginTest extends FeatureTestCase
         $this->assertSame(0, $this->tokenCount($inactive));
     }
 
+    /** Die Discord-ID ist nicht eindeutig; bei zwei aktiven Konten gibt es keinen Token. */
+    #[Test]
+    public function eine_discord_id_mit_zwei_aktiven_konten_bekommt_keinen_token(): void
+    {
+        $first = FixtureFactory::user();
+        $second = FixtureFactory::user(['discord_id' => $first->discord_id]);
+
+        $response = $this->requestToken(['discord_id' => (string) $first->discord_id]);
+
+        $this->assertStatus(409, $response);
+        $this->assertSame(['success' => false, 'error' => 'ambiguous_user'], $this->assertJsonResponse($response));
+        $this->assertSame(0, $this->tokenCount($first) + $this->tokenCount($second));
+
+        // Ein deaktiviertes zweites Konto stört nicht.
+        $second->is_active = false;
+        $second->save();
+        $this->assertSame($first->id, Capsule::table('intra_tablet_login_tokens')->where('token_hash', hash('sha256', $this->tokenFor($first)))->value('user_id'));
+    }
+
     #[Test]
     public function die_discord_id_wird_streng_geprueft(): void
     {
