@@ -311,10 +311,18 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                 const addressStr = addressParts.join(' ');
 
-                item.innerHTML = `
-                <div class="poi-item-name">${poi.name}</div>
-                ${addressStr ? '<div class="poi-item-address">' + addressStr + '</div>' : ''}
-            `;
+                // Als Text einsetzen: Name und Adresse kommen frei aus der POI-Verwaltung.
+                const nameEl = document.createElement('div');
+                nameEl.className = 'poi-item-name';
+                nameEl.textContent = poi.name;
+                item.appendChild(nameEl);
+
+                if (addressStr) {
+                    const addressEl = document.createElement('div');
+                    addressEl.className = 'poi-item-address';
+                    addressEl.textContent = addressStr;
+                    item.appendChild(addressEl);
+                }
 
                 item.addEventListener('click', function() {
                     selectPOI(poi);

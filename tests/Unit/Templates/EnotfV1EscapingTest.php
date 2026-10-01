@@ -82,6 +82,16 @@ final class EnotfV1EscapingTest extends TestCase
         self::assertSame([2, 6, 7, 8, 11, 13, 15], array_column(self::violations($src), 0));
     }
 
+    /** Die POI-Vorschläge in Rettdaten setzen Name und Adresse als Text, nicht per innerHTML. */
+    public function testPoiSuggestionsAreText(): void
+    {
+        $root = dirname(__DIR__, 3);
+        foreach (['1', '2'] as $page) {
+            $src = (string) file_get_contents("$root/plugins/enotf/templates/enotf/protokoll/rettdaten/$page.php");
+            self::assertDoesNotMatchRegularExpression('~\.innerHTML\s*=[^;]*(?:\bpoi\.|addressStr)~', $src, "rettdaten/$page.php");
+        }
+    }
+
     /** @return list<array{int, string}> Zeile und Ausdruck jeder ungeschützten Ausgabe */
     private static function violations(string $src): array
     {
