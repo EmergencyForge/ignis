@@ -93,8 +93,8 @@ final class VersionStore
         $content = file_get_contents($this->file);
         $current = json_decode((string) $content, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Failed to parse version.json: ' . json_last_error_msg());
+        if (!is_array($current)) {
+            throw new Exception('Failed to parse version.json: ' . (json_last_error() === JSON_ERROR_NONE ? 'not a JSON object' : json_last_error_msg()));
         }
         $this->current = $current;
     }

@@ -57,6 +57,26 @@ final class VersionStoreTest extends TestCase
         self::assertSame('v0.5.0', $store->current()['version']);
     }
 
+    /** Gültiges JSON, aber kein Objekt: früher ein TypeError statt der Meldung. */
+    #[Test]
+    public function a_version_json_that_is_no_object_is_an_error(): void
+    {
+        $file = $this->tree('storage') . '/version.json';
+
+        $messages = [];
+        foreach (['null', '"v2026.0.9"', '5'] as $json) {
+            file_put_contents($file, $json);
+            try {
+                new VersionStore($file);
+                $messages[] = 'keine Exception';
+            } catch (\Exception $e) {
+                $messages[] = $e->getMessage();
+            }
+        }
+
+        self::assertSame(array_fill(0, 3, 'Failed to parse version.json: not a JSON object'), $messages);
+    }
+
     #[Test]
     public function the_prerelease_flag_wins_over_the_name(): void
     {
