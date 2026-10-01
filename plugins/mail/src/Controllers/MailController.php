@@ -386,13 +386,14 @@ final class MailController extends Controller
         // zwei gleichzeitige Sende-Requests stellen nicht doppelt zu, und ein
         // Anhang, der gleichzeitig hochlädt, wartet auf die Sperre und sieht
         // danach „gesendet“ (AttachmentStorage::store()).
+        $cooldownSeconds = (int) Capsule::table('intra_config')->where('config_key', 'MAIL_SEND_COOLDOWN')->value('config_value');
         try {
-            $result = Capsule::connection()->transaction(function () use ($draft, $mailbox, $fields): array|Response {
+            $result = Capsule::connection()->transaction(function () use ($draft, $mailbox, $fields, $cooldownSeconds): array|Response {
                 $locked = Message::query()->whereKey($draft->id)->lockForUpdate()->first();
                 if ($locked === null || $locked->status !== 'draft' || $locked->sender_mailbox_id !== $mailbox->id) {
                     throw new DomainException('bereits gesendet');
                 }
-                $cooldown = $this->sendCooldown($mailbox);
+                $cooldown = $this->sendCooldown($mailbox, $cooldownSeconds);
                 if ($cooldown !== null) {
                     return $cooldown;
                 }
@@ -1182,10 +1183,14 @@ final class MailController extends Controller
      * Sekunden (0 = aus). Nur in der Versand-Transaktion aufrufen: die Sperre
      * auf dem Postfach lässt gleichzeitige Sendungen nacheinander laufen, die
      * zweite sieht dann das `sent_at` der ersten.
+     *
+     * Vor der Sperre darf die Transaktion nichts ohne Sperre lesen: unter
+     * REPEATABLE READ legt das erste solche Lesen den Snapshot fest, und
+     * eine Mail, die während des Wartens auf die Sperre rausging, bliebe
+     * unsichtbar. Deshalb kommt `$cooldown` von außerhalb.
      */
-    private function sendCooldown(Mailbox $mailbox): ?Response
+    private function sendCooldown(Mailbox $mailbox, int $cooldown): ?Response
     {
-        $cooldown = (int) Capsule::table('intra_config')->where('config_key', 'MAIL_SEND_COOLDOWN')->value('config_value');
         if ($cooldown <= 0) {
             return null;
         }
