@@ -144,14 +144,14 @@ $pgPath = 'mci/board';
                 <?php endforeach; ?>
             </div>
 
-            <div class="twplus-table-card mb-4">
+            <div class="ignis-card ignis-card--table mb-4">
                 <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
                     <h2 class="ignis-card__title mb-0"><i class="fas fa-users mr-2"></i>Patienten an der Einsatzstelle</h2>
                     <a href="<?= BASE_PATH ?>mci/resources?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
                         <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                     </a>
                 </div>
-                <div class="twplus-table-card__scroll">
+                <div class="ignis-card__scroll">
                         <table id="patientenTable" class="ignis-table">
                             <thead>
                                 <tr>

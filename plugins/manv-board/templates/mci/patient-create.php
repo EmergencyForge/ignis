@@ -35,7 +35,7 @@ $bodyPage = 'edivi';
 
             <form method="POST" action="">
                 <?= csrf_field() ?>
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Personalien</h5>
                     </div>
@@ -66,7 +66,7 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Sichtungskategorie</h5>
                     </div>
@@ -96,7 +96,7 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Transport</h5>
                     </div>
@@ -144,7 +144,7 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Medizinische Informationen</h5>
                     </div>

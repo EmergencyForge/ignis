@@ -34,11 +34,11 @@ $bodyPage = 'edivi';
             </header>
 
 
-            <div class="twplus-table-card mb-4">
+            <div class="ignis-card ignis-card--table mb-4">
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Fahrzeuge (<?= count($fahrzeuge) ?>)</h5>
                 </div>
-                <div class="twplus-table-card__scroll">
+                <div class="ignis-card__scroll">
                     <?php if (empty($fahrzeuge)): ?>
                         <?php
                         $empty = [
