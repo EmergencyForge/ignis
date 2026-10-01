@@ -179,6 +179,10 @@ final class LookAdoptionTest extends TestCase
         );
         self::assertStringContainsString('.ignis-chip--sk1{--tone-soft:var(--danger-soft);--tone-line:var(--danger-line);--tone-text:var(--danger-text)}', $css);
         self::assertStringContainsString('.ignis-chip--sk4{--tone-soft:var(--info-soft);', $css);
+
+        // Die Knöpfe der Schnell-Sichtung tragen dieselben Töne.
+        self::assertStringContainsString('.ignis-btn--sk3{--tone-soft:var(--ok-soft);--tone-line:var(--ok-line);--tone-text:var(--ok-text)}', $css);
+        self::assertMatchesRegularExpression('/\.ignis-btn:is\(\.ignis-btn--sk1,[^)]*\.ignis-btn--sk5\)\{background:var\(--tone-soft\);border-color:var\(--tone-line\);color:var\(--tone-text\)\}/', $css);
     }
 
     public function testEmptyStatesAreBuilt(): void

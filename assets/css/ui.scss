@@ -100,6 +100,20 @@ body[data-ui-skin="core"] {
     border-color: var(--tone-line);
     color: var(--tone-text);
   }
+
+  // Die Schnell-Sichtung zeigt dieselben Töne als leise Knöpfe. SK6 ist ein
+  // sekundärer Knopf, wie sein Chip neutral ist.
+  @each $sk, $tone in (sk1: danger, sk2: warn, sk3: ok, sk4: info) {
+    .ignis-btn--#{$sk} { --tone-soft: var(--#{$tone}-soft); --tone-line: var(--#{$tone}-line); --tone-text: var(--#{$tone}-text); }
+  }
+  .ignis-btn--sk5 { --tone-soft: var(--fill-3); --tone-line: var(--border-strong); --tone-text: var(--content-text); }
+  .ignis-btn:is(.ignis-btn--sk1, .ignis-btn--sk2, .ignis-btn--sk3, .ignis-btn--sk4, .ignis-btn--sk5) {
+    background: var(--tone-soft);
+    border-color: var(--tone-line);
+    color: var(--tone-text);
+
+    &:hover:not(:disabled) { background: var(--tone-soft); border-color: var(--tone-text); }
+  }
 }
 
 // Hell: Akzenttext und Fokusring dunkler statt heller, sonst fehlt Kontrast
