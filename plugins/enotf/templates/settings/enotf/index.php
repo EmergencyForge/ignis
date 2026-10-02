@@ -19,10 +19,11 @@ use App\Helpers\Flash;
 
 <body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">eNOTF</span></nav>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">eNOTF</span></nav>
                     <div class="page-header mb-4">
                         <h1>Schnellzugriff-Verwaltung</h1>
                         <div class="header-actions">
@@ -40,10 +41,10 @@ use App\Helpers\Flash;
                     </div>
                     <?php Flash::render(); ?>
                     <div class="mb-3">
-                        <div class="btn-toolbar-group" id="statusFilter">
-                            <button class="ignis-btn active" data-filter="">Alle</button>
-                            <button class="ignis-btn" data-filter="Ja">Aktiv</button>
-                            <button class="ignis-btn" data-filter="Nein">Inaktiv</button>
+                        <div class="ignis-segmented" id="statusFilter" role="group" aria-label="Status">
+                            <button type="button" aria-pressed="true" data-filter="">Alle</button>
+                            <button type="button" aria-pressed="false" data-filter="Ja">Aktiv</button>
+                            <button type="button" aria-pressed="false" data-filter="Nein">Inaktiv</button>
                         </div>
                     </div>
                     <div class="intra__tile px-3 py-2">
@@ -116,12 +117,12 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="quicklink-url" class="ignis-field__label">URL</label>
                                 <input type="text" class="ignis-input" name="url" id="quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="ignis-field__hint text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-icon" class="ignis-field__label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="ignis-input" name="icon" id="quicklink-icon" placeholder="fa-solid fa-link" required>
-                                <small class="ignis-field__hint text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-category" class="ignis-field__label">Kategorie</label>
@@ -177,12 +178,12 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="create-quicklink-url" class="ignis-field__label">URL</label>
                                 <input type="text" class="ignis-input" name="url" id="create-quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="ignis-field__hint text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-icon" class="ignis-field__label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="ignis-input" name="icon" id="create-quicklink-icon" placeholder="fa-solid fa-link" value="fa-solid fa-link" required>
-                                <small class="ignis-field__hint text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="ignis-field__hint text-tertiary-text">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-category" class="ignis-field__label">Kategorie</label>
@@ -255,10 +256,9 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
     <script>
-        document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(btn) {
+        document.querySelectorAll('#statusFilter button').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
-                this.classList.add('active');
+                document.querySelectorAll('#statusFilter button').forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
                 var filter = this.dataset.filter;
                 document.querySelectorAll('#table-quicklinks tbody tr').forEach(function(row) {
                     if (!filter) { row.style.display = ''; return; }
@@ -271,6 +271,7 @@ use App\Helpers\Flash;
     </script>
 
     <?php include dirname(__DIR__, 5) . '/assets/components/footer.php'; ?>
+    </main>
 </body>
 
 </html>

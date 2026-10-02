@@ -12,6 +12,7 @@
  *
  * @var \Illuminate\Support\Collection<int, array<string,mixed>> $vehicles  Zeilen der aktuellen Seite
  * @var \App\Support\ListQuery                                    $list
+ * @var array<int|string,int>                                     $counts    Fahrzeuge je Aktiv-Wert für die Segmente, '' sind alle
  */
 
 use App\Auth\Permissions;
@@ -28,8 +29,8 @@ $SITE_TITLE = 'Fahrzeuge';
         <!-- ------------ -->
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Fahrzeuge</span></nav>
+                <div class="flex-1 min-w-0 mb-5 px-3">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Fahrzeuge</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Fahrzeugverwaltung</h1><p class="twplus-page-header__description">Fahrzeuge, Kennungen und Stammdaten verwalten.</p></div>
                         <div class="header-actions twplus-page-header__actions">
@@ -42,7 +43,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                 </button>
                                 <button type="button" class="ignis-btn ignis-btn--secondary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
-                                    <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
+                                    <span class="ignis-chip ignis-chip--count ml-1" id="importBadge" hidden>0</span>
                                 </button>
                                 <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/create" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
@@ -55,9 +56,9 @@ $SITE_TITLE = 'Fahrzeuge';
                     $pgLabel = 'Fahrzeuge';
                     $canManage = Permissions::check(['admin', 'vehicles.manage']);
                     $rdTypes = [
-                        1 => ['warn', 'RD - Mit NA'],
-                        2 => ['ok', 'RD - Ohne NA'],
-                        3 => ['danger', 'Feuerwehr'],
+                        1 => 'RD - Mit NA',
+                        2 => 'RD - Ohne NA',
+                        3 => 'Feuerwehr',
                     ];
                     ?>
                     <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
@@ -79,7 +80,7 @@ $SITE_TITLE = 'Fahrzeuge';
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Aktiv">
                             <?php foreach (['' => 'Alle', '1' => 'Aktiv', '0' => 'Inaktiv'] as $activeKey => $activeLabel): ?>
-                                <a href="<?= htmlspecialchars($list->url($pgPath, ['active' => $activeKey === '' ? null : $activeKey, 'page' => null])) ?>"<?= $list->filter('active') === $activeKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $activeLabel ?></a>
+                                <a href="<?= htmlspecialchars($list->url($pgPath, ['active' => $activeKey === '' ? null : $activeKey, 'page' => null])) ?>"<?= $list->filter('active') === (string) $activeKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $activeLabel ?> <span class="ignis-segmented__count"><?= $counts[$activeKey] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>
@@ -159,7 +160,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                                 ? 'Fahrzeuge brauchst du für Protokolle, Mängel und das Fahrtenbuch.'
                                                 : 'Fahrzeuge braucht ignis für Protokolle, Mängel und das Fahrtenbuch. Anlegen darf, wer die Fahrzeugverwaltung von der Administration bekommen hat.',
                                             'actions'      => $canManage
-                                                ? [['label' => 'Fahrzeug erstellen', 'href' => BASE_PATH . 'settings/vehicles/vehicles/create', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
+                                                ? [['label' => 'Fahrzeug erstellen', 'href' => BASE_PATH . 'settings/vehicles/vehicles/create', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
                                                 : [],
                                         ];
                                     }
@@ -167,7 +168,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                     <tr><td colspan="<?= $canManage ? 8 : 7 ?>"><?php require dirname(__DIR__, 3) . '/partials/empty.php'; ?></td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($vehicles as $row):
-                                    [$rdChip, $rdLabel] = $rdTypes[(int) $row['rd_type']] ?? ['secondary', 'Andere'];
+                                    $rdLabel = $rdTypes[(int) $row['rd_type']] ?? 'Andere';
                                     $isActive    = (int) $row['active'] !== 0;
                                     $openDefects = (int) ($row['open_defects'] ?? 0);
                                     $minOperable = $row['min_operable'];
@@ -210,12 +211,12 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <td class="ignis-table__num"><?= (int) $row['priority'] ?></td>
                                         <td><span data-vehicle-card="<?= $rowId ?>"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
                                         <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '-' ?></td>
-                                        <td><span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span></td>
+                                        <td><span class="ignis-chip"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>
                                                 <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" data-ignis-tooltip="Offene Defekte anzeigen" aria-label="<?= $openDefects ?> offene Defekte anzeigen"><?= $openDefects ?></a>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-3)]">—</span>
+                                                <span class="text-tertiary-text">—</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>

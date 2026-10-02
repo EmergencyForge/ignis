@@ -10,7 +10,8 @@
 //
 // `body.ignis-app--legacy` ist der Modus des Shims navbar.php für Seiten,
 // die ihr <html> noch selbst bauen (eNOTF-Admin): kein Raster, Topbar und
-// Sidebar fest positioniert, der Inhalt rückt per Padding beiseite.
+// Sidebar fest positioniert, die Tafel (.ignis-main) rückt per Padding
+// beiseite.
 //
 // Nur Tokens aus _tokens.scss (ThemeTokensTest); die Maße --sidebar-w,
 // --sidebar-w-collapsed und --topbar-h stehen dort.
@@ -57,11 +58,18 @@ html.is-collapsed body.ignis-app {
   > .container { max-width: none; padding-inline: 0; }
 }
 
-// Shim-Modus: Inhalt ohne <main>, deshalb feste Leisten und Padding.
+// Shim-Modus: ohne Raster, deshalb feste Leisten und Padding. Die Tafel
+// steht wie im Raster unter der Topbar neben der Sidebar. Ab 901 px endet
+// sie 8 px über dem unteren Fensterrand, schmaler reicht sie bis zum Rand.
 body.ignis-app--legacy {
   display: block;
-  padding: calc(var(--topbar-h) + var(--space-md)) var(--space-md) var(--space-md) calc(var(--sidebar-w) + var(--space-md) + var(--sidebar-inset, 0px));
+  padding: var(--topbar-h) 0 0 calc(var(--sidebar-w) + var(--sidebar-inset, 0px));
   transition: padding-left 0.18s var(--ease-out-expo);
+
+  .ignis-main {
+    box-sizing: border-box;
+    min-height: calc(100vh - var(--topbar-h));
+  }
 
   .ignis-topbar {
     position: fixed;
@@ -81,9 +89,15 @@ body.ignis-app--legacy {
 }
 
 html.is-collapsed body.ignis-app--legacy {
-  padding-left: calc(var(--sidebar-w-collapsed) + var(--space-md) + var(--sidebar-inset, 0px));
+  padding-left: calc(var(--sidebar-w-collapsed) + var(--sidebar-inset, 0px));
 
   .ignis-sidebar { width: var(--sidebar-w-collapsed); }
+}
+
+// Ab 901 px lässt die Tafel unten 8 px Grund stehen (ef.look()). Ohne den
+// Abzug scrollt eine kurze Seite um genau diese 8 px.
+@media (min-width: 901px) {
+  body.ignis-app--legacy .ignis-main { min-height: calc(100vh - var(--topbar-h) - 8px); }
 }
 
 // =====================================================
@@ -149,50 +163,11 @@ html.is-collapsed body.ignis-app--legacy {
     // 2rem: die Kleinbuchstaben der Wortmarke werden so rund 17px hoch, wie bei der alten.
     .ignis-wordmark { height: 2rem; aspect-ratio: 188 / 97.5; }
 
-    &:hover { color: var(--accent); }
+    &:hover { color: var(--accent-text); }
   }
 
-  &__search {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex: 0 1 30rem;
-    height: 32px;
-    padding: 0 0.65rem;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--input-bg);
-    color: var(--text-3);
-
-    &:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-  }
-
-  &__search-input {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    background: transparent;
-    color: var(--input-text);
-    font: inherit;
-    font-size: var(--fs-base);
-    outline: none;
-
-    &::placeholder { color: var(--input-placeholder); }
-    &::-webkit-search-cancel-button { appearance: none; }
-  }
-
-  &__kbd {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    padding: 0 0.3rem;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-2);
-    color: var(--text-3);
-    white-space: nowrap;
-  }
+  // Feld, Lupe und Tastenchip kommen aus .ignis-search und .ignis-kbd im Skin.
+  &__search-input::-webkit-search-cancel-button { appearance: none; }
 
   &__spacer { flex: 1; }
 
@@ -221,33 +196,8 @@ html.is-collapsed body.ignis-app--legacy {
     letter-spacing: 0.02em;
   }
 
-  // Glocke: der Zähler sitzt als Marke an der Ecke des Knopfs.
-  &__bell {
-    > summary { position: relative; }
-
-    .ignis-topbar__badge {
-      position: absolute;
-      top: 2px;
-      right: 0;
-    }
-  }
-
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.1rem;
-    height: 1.1rem;
-    padding: 0 0.3rem;
-    border-radius: 999px;
-    background: var(--accent);
-    color: var(--on-accent);
-    font-size: 0.62rem;
-    font-weight: 600;
-    line-height: 1;
-
-    &[hidden] { display: none; }
-  }
+  // Glocke: der Punkt für Ungelesenes sitzt an der Ecke des Knopfs.
+  &__bell > summary { position: relative; }
 }
 
 // Wortmarke im Akzentverlauf: nur wenn das Standardlogo aktiv ist (Topbar
@@ -293,7 +243,7 @@ html.is-collapsed body.ignis-app--legacy {
     min-width: 13rem;
     padding: 0.25rem;
     background: var(--surface);
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--border-control);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
@@ -339,7 +289,7 @@ html.is-collapsed body.ignis-app--legacy {
 
   &__check {
     margin-left: auto;
-    color: var(--accent) !important;
+    color: var(--accent-text) !important;
   }
 
   &__count {
@@ -347,7 +297,7 @@ html.is-collapsed body.ignis-app--legacy {
     padding: 0 0.4rem;
     border-radius: 999px;
     background: var(--accent-soft);
-    color: var(--accent);
+    color: var(--accent-text);
     font-size: var(--fs-xs);
     font-weight: 600;
 
@@ -451,14 +401,10 @@ html.is-collapsed body.ignis-app--legacy {
     .ignis-sidebar__link { color: var(--text); }
     .ignis-sidebar__quick { opacity: 1; }
   }
-
-  &.is-active {
-    background: var(--surface-3);
-
-    .ignis-sidebar__link { color: var(--text); }
-    .ignis-sidebar__link > i:first-child { color: var(--accent); }
-  }
 }
+
+// Der aktive Eintrag trägt aria-current am Link. Die graue Pille dafür
+// kommt aus ef.shell(), ohne Akzent.
 
 .ignis-sidebar__link {
   display: flex;
@@ -537,12 +483,17 @@ html.is-collapsed body.ignis-app--legacy {
   opacity: 0;
   transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease;
 
+  // Grau wie die übrige Navigation, Akzent nur im Fokusring.
   &:hover,
   &:focus-visible {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--fill-2);
+    color: var(--text);
     opacity: 1;
-    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-focus);
+    outline-offset: -2px;
   }
 }
 
@@ -611,7 +562,7 @@ html.is-collapsed body.ignis-app--legacy {
 
   body.ignis-app--legacy,
   html.is-collapsed body.ignis-app--legacy {
-    padding-left: var(--space-md);
+    padding-left: 0;
   }
 
   .ignis-sidebar,
@@ -642,10 +593,7 @@ html.is-collapsed body.ignis-app--legacy {
   }
 
   .ignis-topbar__username,
-  .ignis-topbar__kbd,
   .ignis-topbar__new-label { display: none; }
-
-  .ignis-topbar__search { flex: 1 1 auto; }
 
   .ignis-main { padding-bottom: var(--space-lg); }
 }
@@ -677,7 +625,7 @@ html.is-collapsed body.ignis-app--legacy {
   overflow: auto;
   padding: 0.25rem;
   background: var(--surface);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-control);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   color: var(--text);

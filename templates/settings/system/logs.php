@@ -165,7 +165,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Fehlerprotokoll</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Fehlerprotokoll</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Fehlerprotokoll</h1><p class="twplus-page-header__description">Fehler suchen, gruppierte Ereignisse untersuchen und fehlgeschlagene Jobs behandeln.</p></div>
                         <div class="header-actions twplus-page-header__actions">
@@ -179,8 +179,8 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <div class="ignis-card logs-lookup-hero mb-3">
                         <div class="ignis-card__body flex flex-wrap items-center gap-3">
                             <div class="shrink-0">
-                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-[var(--info)]" aria-hidden="true"></i>Error-ID Lookup</div>
-                                <div class="text-xs text-[var(--text-3)]">
+                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-info-text" aria-hidden="true"></i>Error-ID Lookup</div>
+                                <div class="text-xs text-tertiary-text">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
                                 </div>
                             </div>
@@ -209,19 +209,19 @@ $SITE_TITLE = 'Fehlerprotokoll';
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Letzte 24h</dt>
-                            <dd class="twplus-stats__value text-[var(--warn)]"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-warn-text"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Letzte 7 Tage</dt>
-                            <dd class="twplus-stats__value text-[var(--warn)]"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-warn-text"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Critical</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Error</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
                     </dl>
 
@@ -229,12 +229,12 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <div class="ignis-card">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title"><i class="fa-solid fa-inbox mr-2" aria-hidden="true"></i>Letzte Fehler <span class="ignis-card__subtitle">Gruppiert nach Exception und Datei, Klick klappt auf.</span></h2>
-                            <nav class="ignis-segmented" id="inboxScopeFilter" aria-label="Stufe">
-                                <button type="button" class="is-active" data-scope="all">Alle</button>
-                                <button type="button" data-scope="CRITICAL">Critical</button>
-                                <button type="button" data-scope="ERROR">Error</button>
-                                <button type="button" data-scope="WARNING">Warning</button>
-                            </nav>
+                            <div class="ignis-segmented" id="inboxScopeFilter" role="group" aria-label="Stufe">
+                                <button type="button" aria-pressed="true" data-scope="all">Alle</button>
+                                <button type="button" aria-pressed="false" data-scope="CRITICAL">Critical</button>
+                                <button type="button" aria-pressed="false" data-scope="ERROR">Error</button>
+                                <button type="button" aria-pressed="false" data-scope="WARNING">Warning</button>
+                            </div>
                         </div>
                         <div class="ignis-card__body">
 
@@ -295,7 +295,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <div class="ignis-card mt-3">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title flex flex-wrap items-center gap-2">
-                                <i class="fa-solid fa-hexagon-exclamation text-[var(--warn)]" aria-hidden="true"></i>
+                                <i class="fa-solid fa-hexagon-exclamation text-warn-text" aria-hidden="true"></i>
                                 Fehlgeschlagene Hintergrund-Jobs
                                 <?php if ($failedTotal > 0): ?>
                                     <span class="ignis-chip ignis-chip--dot ignis-chip--danger"><?= (int) $failedTotal ?></span>

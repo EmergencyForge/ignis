@@ -47,7 +47,7 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                 $navCounter = is_string($navItem['counter'] ?? null) ? $navItem['counter'] : null;
                 $navCount = $navCounter !== null ? NavigationCounters::for($navCounter) : null;
             ?>
-                <div class="ignis-sidebar__row<?= $navItem['active'] ? ' is-active' : '' ?>">
+                <div class="ignis-sidebar__row">
                     <a
                         href="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
                         class="ignis-sidebar__link"

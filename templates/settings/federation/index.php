@@ -294,7 +294,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                     </div>
                                 </div>
                             <?php else: ?>
-                                <div class="text-gray-400" style="font-size:var(--fs-sm);">
+                                <div class="text-tertiary-text" style="font-size:var(--fs-sm);">
                                     <i class="fa-solid fa-circle-info"></i> Instanzvernetzung ist deaktiviert. Aktiviere sie, um Verbindungen zu anderen Instanzen herzustellen.
                                 </div>
                             <?php endif; ?>

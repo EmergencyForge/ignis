@@ -8,6 +8,7 @@
  *   @var \Illuminate\Support\Collection<int, \App\Models\User> $users  Zeilen der aktuellen Seite
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles  (keyBy id)
  *   @var \App\Support\ListQuery $list
+ *   @var array<string,int> $counts  Zeilen je Status für die Segmente, '' sind alle
  */
 
 use App\Auth\Gate;
@@ -25,10 +26,10 @@ $pgLabel = 'Benutzer';
         <!-- ------------ -->
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item is-active">Benutzer</span>
+                        <span class="ignis-breadcrumb__item" aria-current="page">Benutzer</span>
                     </nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">
@@ -57,7 +58,7 @@ $pgLabel = 'Benutzer';
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Status">
                             <?php foreach (['' => 'Alle', 'active' => 'Aktiv', 'inactive' => 'Deaktiviert'] as $statusKey => $statusLabel): ?>
-                                <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => $statusKey === '' ? null : $statusKey, 'page' => null])) ?>"<?= $list->filter('status') === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $statusLabel ?></a>
+                                <a href="<?= htmlspecialchars($list->url($pgPath, ['status' => $statusKey === '' ? null : $statusKey, 'page' => null])) ?>"<?= $list->filter('status') === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $statusLabel ?> <span class="ignis-segmented__count"><?= $counts[$statusKey] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>

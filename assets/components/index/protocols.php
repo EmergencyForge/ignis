@@ -76,7 +76,7 @@ $protokollStatus = [
                         <span class="ignis-chip ignis-chip--sm ignis-chip--ok" data-ignis-tooltip="Freigegeben von: <?= htmlspecialchars((string) $row['freigeber_name']) ?>">F</span>
                     <?php endif; ?>
                 </td>
-                <td><?= !empty($row['bearbeiter']) ? htmlspecialchars((string) $row['bearbeiter']) : '<span class="text-[var(--text-3)]">—</span>' ?></td>
+                <td><?= !empty($row['bearbeiter']) ? htmlspecialchars((string) $row['bearbeiter']) : '<span class="text-tertiary-text">—</span>' ?></td>
                 <td><?= (new DateTime((string) $row['sendezeit']))->format('d.m.Y | H:i') ?></td>
                 <td class="ignis-table__actions">
                     <div class="ignis-row-actions">

@@ -62,7 +62,7 @@ function openDocumentViewer(docid) {
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
-                chipsEl.innerHTML = '<span class="text-[#d46b6b]">Fehler: ' + (data.error || 'Unbekannt') + '</span>';
+                chipsEl.innerHTML = '<span class="text-danger-text">Fehler: ' + (data.error || 'Unbekannt') + '</span>';
                 return;
             }
             const doc = data.document;
@@ -113,7 +113,7 @@ function openDocumentViewer(docid) {
             buttonsEl.innerHTML = btns;
         })
         .catch(err => {
-            chipsEl.innerHTML = '<span class="text-[#d46b6b]">Fehler: ' + err.message + '</span>';
+            chipsEl.innerHTML = '<span class="text-danger-text">Fehler: ' + err.message + '</span>';
         });
 }
 

@@ -145,9 +145,9 @@ final class FormPagesTest extends FeatureTestCase
             $this->assertOk($page);
             $this->assertBodyContains('<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">', $page);
             // Halbbreite: eine Zelle ohne Spannweite, Label über Wert.
-            $this->assertMatchesRegularExpression('~<div class="min-w-0">\s*<div class="text-xs text-\[var\(--text-3\)\]">Urlaub von</div>\s*<div class="whitespace-pre-line break-words">2026-03-10</div>~', $page->body);
+            $this->assertMatchesRegularExpression('~<div class="min-w-0">\s*<div class="text-xs text-tertiary-text">Urlaub von</div>\s*<div class="whitespace-pre-line break-words">2026-03-10</div>~', $page->body);
             // Vollbreite: die Textarea nimmt beide Spalten.
-            $this->assertMatchesRegularExpression('~<div class="md:col-span-2 min-w-0">\s*<div class="text-xs text-\[var\(--text-3\)\]">Grund</div>~', $page->body);
+            $this->assertMatchesRegularExpression('~<div class="md:col-span-2 min-w-0">\s*<div class="text-xs text-tertiary-text">Grund</div>~', $page->body);
             // Reihenfolge wie im Formular.
             $this->assertLessThan(strpos($page->body, '>Grund</div>'), strpos($page->body, '>Urlaub von</div>'));
             $this->assertLessThan(strpos($page->body, '>Vertretung geklärt</div>'), strpos($page->body, '>Grund</div>'));

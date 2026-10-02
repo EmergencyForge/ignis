@@ -157,14 +157,14 @@
                                     <i class="fa-solid fa-shapes"></i>
                                 </div>
                                 <h5 class="mb-2">Keine Vorlagen vorhanden</h5>
-                                <p class="text-[var(--text-dimmed,#818189)]">Erstelle eine Vorlage beim Bearbeiten eines Fahrzeugs über das <i class="fa-solid fa-floppy-disk"></i> Icon neben dem TZ-Formular.</p>
+                                <p class="text-tertiary-text">Erstelle eine Vorlage beim Bearbeiten eines Fahrzeugs über das <i class="fa-solid fa-floppy-disk"></i> Icon neben dem TZ-Formular.</p>
                             </div>
                         `;
                         return;
                     }
 
                     let html = `
-                        <p class="text-[var(--text-dimmed,#818189)] mb-3" style="font-size:var(--fs-sm);">
+                        <p class="text-tertiary-text mb-3" style="font-size:var(--fs-sm);">
                             Vorlagen definieren das taktische Zeichen für einen Fahrzeugtyp. Der <strong>Name (tz_name)</strong> bleibt immer individuell pro Fahrzeug.
                         </p>
                         <div class="tz-template-list">
@@ -174,14 +174,14 @@
                         const fields = [t.grundzeichen, t.organisation, t.fachaufgabe, t.einheit, t.symbol].filter(Boolean);
                         const fieldSummary = fields.length > 0
                             ? fields.map((f) => `<span class="ignis-chip ignis-chip--dark" style="font-size:0.65rem;">${escHtml(f)}</span>`).join(' ')
-                            : '<span class="text-[var(--text-dimmed,#818189)]">Keine Felder</span>';
+                            : '<span class="text-tertiary-text">Keine Felder</span>';
 
                         html += `
                             <div class="intra__tile p-3 mb-2 flex items-center justify-between gap-3" id="tz-tpl-${t.id}">
                                 <div class="grow" style="min-width:0;">
                                     <div class="flex items-center gap-2 mb-1">
                                         <strong>${escHtml(t.name)}</strong>
-                                        ${t.typ ? `<span class="text-[var(--text-dimmed,#818189)]" style="font-size:var(--fs-sm);">Typ: ${escHtml(t.typ)}</span>` : ''}
+                                        ${t.typ ? `<span class="text-tertiary-text" style="font-size:var(--fs-sm);">Typ: ${escHtml(t.typ)}</span>` : ''}
                                     </div>
                                     <div class="flex flex-wrap gap-1">${fieldSummary}</div>
                                 </div>
@@ -267,7 +267,6 @@
     function bindVehicleImport(cfg) {
         const IMPORT_API   = cfg.importApi;
         const rdTypeLabels = { 0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr' };
-        const rdTypeBadges = { 0: 'dark',   1: 'warn',       2: 'ok',          3: 'danger'    };
         const loadingSkeleton = (label) => `
             <div class="twplus-skeleton" role="status" aria-label="${label}">
                 <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
@@ -283,7 +282,7 @@
                     const badge = document.getElementById('importBadge');
                     if (badge) {
                         badge.textContent = data.import_queue_count;
-                        badge.classList.remove('hidden');
+                        badge.hidden = false;
                     }
                 }
             })
@@ -328,7 +327,7 @@
                         <i class="fa-solid fa-satellite-dish"></i>
                     </div>
                     <h5 class="mb-3">Fahrzeugdaten von EMD anfordern</h5>
-                    <p class="text-[var(--text-dimmed,#818189)] mb-4">
+                    <p class="text-tertiary-text mb-4">
                         Beim nächsten EMD-Sync werden die Fahrzeugdaten der Leitstelle angefordert.<br>
                         Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug prüfen und importieren.
                     </p>
@@ -347,7 +346,7 @@
                         <i class="fa-solid fa-satellite-dish"></i>
                     </div>
                     <h5 class="mb-3">Warte auf EMD-Daten...</h5>
-                    <p class="text-[var(--text-dimmed,#818189)] mb-4">
+                    <p class="text-tertiary-text mb-4">
                         Die Anforderung wurde gesendet. Die Fahrzeugdaten werden beim nächsten Sync übermittelt.<br>
                         <small>Dies kann 5–10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
                     </p>
@@ -408,9 +407,9 @@
             const existingVehicles = vehicles.filter((v) => v.existing);
 
             let html = `<div class="flex items-center justify-between mb-3">
-                <span class="text-[var(--text-dimmed,#818189)]">${vehicles.length} Fahrzeuge empfangen</span>
+                <span class="text-tertiary-text">${vehicles.length} Fahrzeuge empfangen</span>
                 <div class="flex items-center gap-2">
-                    <span class="text-[var(--text-dimmed,#818189)]" id="importProgress"></span>
+                    <span class="text-tertiary-text" id="importProgress"></span>
                     <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="ignoreAllRemaining()" data-ignis-tooltip="Alle verbleibenden Fahrzeuge ignorieren">
                         <i class="fa-solid fa-forward-fast mr-1"></i>Alle ignorieren
                     </button>
@@ -446,17 +445,17 @@
 
         function renderVehicleRow(v, delay, hasExisting) {
             const e        = v.existing;
-            const rdBadge  = `<span class="ignis-chip ignis-chip--${rdTypeBadges[v.rd_type] || 'dark'}" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
+            const rdBadge  = `<span class="ignis-chip" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
             const deptInfo = v.department ? `<span style="font-size:var(--fs-xs);color:var(--text-dimmed);"><i class="fa-solid fa-building mr-1"></i>${escHtml(v.department)}</span>` : '';
 
             let existingInfo = '';
             if (hasExisting && e) {
                 existingInfo = `
                     <div class="mt-2 p-2 rounded" style="background:rgba(255,255,255,0.03);font-size:var(--fs-xs);border:1px solid rgba(255,255,255,0.06);">
-                        <span class="text-[var(--text-dimmed,#818189)]">Bestehendes Fahrzeug:</span>
+                        <span class="text-tertiary-text">Bestehendes Fahrzeug:</span>
                         <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')})
                         — ${escHtml(e.identifier || '-')}
-                        <span class="ignis-chip ignis-chip--${rdTypeBadges[e.rd_type] || 'dark'}" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
+                        <span class="ignis-chip" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
                     </div>
                 `;
             }
@@ -512,11 +511,11 @@
                     <div class="import-row-edit hidden mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
                         <div class="flex flex-wrap -mx-3 g-2" style="font-size:var(--fs-sm);">
                             <div class="w-4/12 px-3">
-                                <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">Typ</label>
+                                <label class="ignis-field__label mb-0 text-tertiary-text">Typ</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
                             </div>
                             <div class="w-4/12 px-3">
-                                <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">RD-Typ</label>
+                                <label class="ignis-field__label mb-0 text-tertiary-text">RD-Typ</label>
                                 <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
                                     <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
                                     <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
@@ -525,7 +524,7 @@
                                 </select>
                             </div>
                             <div class="w-4/12 px-3">
-                                <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">Erlaubte Jobs</label>
+                                <label class="ignis-field__label mb-0 text-tertiary-text">Erlaubte Jobs</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
                             </div>
                         </div>
@@ -633,12 +632,12 @@
                             <i class="fa-solid fa-check-circle"></i>
                         </div>
                         <h5>Import abgeschlossen</h5>
-                        <p class="text-[var(--text-dimmed,#818189)]">Alle Fahrzeuge wurden verarbeitet.</p>
+                        <p class="text-tertiary-text">Alle Fahrzeuge wurden verarbeitet.</p>
                         <button class="ignis-btn ignis-btn--secondary" onclick="location.reload()">Seite neu laden</button>
                     </div>
                 `;
                 const badge = document.getElementById('importBadge');
-                if (badge) badge.classList.add('hidden');
+                if (badge) badge.hidden = true;
             }
         }
 

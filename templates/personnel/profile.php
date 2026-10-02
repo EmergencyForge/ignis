@@ -47,7 +47,7 @@ $bodyId = 'mitarbeiter';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <header class="twplus-page-header twplus-page-header--detail mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal / <a href="<?= BASE_PATH ?>personnel/list">Mitarbeiter</a></p>

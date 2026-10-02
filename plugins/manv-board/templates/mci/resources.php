@@ -34,11 +34,11 @@ $bodyPage = 'edivi';
             </header>
 
 
-            <div class="twplus-table-card mb-4">
+            <div class="ignis-card ignis-card--table mb-4">
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Fahrzeuge (<?= count($fahrzeuge) ?>)</h5>
                 </div>
-                <div class="twplus-table-card__scroll">
+                <div class="ignis-card__scroll">
                     <?php if (empty($fahrzeuge)): ?>
                         <?php
                         $empty = [
@@ -47,7 +47,7 @@ $bodyPage = 'edivi';
                             'heading' => 2,
                             'title'   => 'Noch keine Fahrzeuge',
                             'text'    => 'Füge das erste Fahrzeug hinzu, um Ressourcen der Lage zuzuordnen.',
-                            'actions' => [['label' => 'Fahrzeug hinzufügen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-dialog-target' => '#createModal']]],
+                            'actions' => [['label' => 'Fahrzeug hinzufügen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-dialog-target' => '#createModal']]],
                         ];
                         require dirname(__DIR__, 4) . '/templates/partials/empty.php';
                         ?>
@@ -127,7 +127,7 @@ $bodyPage = 'edivi';
         <!-- Create Modal -->
         <div data-dialog-source class="modal twplus-dialog-surface" id="createModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content bg-[rgba(0,0,0,0.3)]">
+                <div class="modal-content bg-well">
                     <form method="POST" action="">
                         <?= csrf_field() ?>
                         <input type="hidden" name="action" value="create">
@@ -150,7 +150,7 @@ $bodyPage = 'edivi';
                                         autocomplete="off" required>
                                 </div>
                                 <input type="hidden" id="fahrzeug_id" name="fahrzeug_id">
-                                <small class="text-gray-400">Beginnen Sie zu tippen - Vorschläge werden automatisch angezeigt</small>
+                                <small class="text-tertiary-text">Beginnen Sie zu tippen - Vorschläge werden automatisch angezeigt</small>
                                 <div id="search_results" class="ignis-list-group mt-2" style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden;"></div>
                             </div>
 
@@ -172,19 +172,19 @@ $bodyPage = 'edivi';
                                 <div>
                                     <label for="bezeichnung" class="ignis-field__label">Rufname / Kennung *</label>
                                     <input type="text" class="ignis-input" id="bezeichnung" name="bezeichnung" required readonly>
-                                    <small class="text-gray-400">Eindeutiger Rufname zur Identifikation</small>
+                                    <small class="text-tertiary-text">Eindeutiger Rufname zur Identifikation</small>
                                 </div>
                                 <div>
                                     <label for="fahrzeugtyp" class="ignis-field__label">Fahrzeugtyp</label>
                                     <input type="text" class="ignis-input" id="fahrzeugtyp" name="fahrzeugtyp" readonly>
-                                    <small class="text-gray-400">Art des Fahrzeugs</small>
+                                    <small class="text-tertiary-text">Art des Fahrzeugs</small>
                                 </div>
                             </div>
 
                             <div class="mt-3 mb-3">
                                 <label for="lokalisation" class="ignis-field__label">Lokalisation / Position</label>
                                 <input type="text" class="ignis-input" id="lokalisation" name="lokalisation" placeholder="z.B. Verletztensammelstelle, Haltepunkt Nord...">
-                                <small class="text-gray-400">Optional: Wo befindet sich das Fahrzeug an der Einsatzstelle?</small>
+                                <small class="text-tertiary-text">Optional: Wo befindet sich das Fahrzeug an der Einsatzstelle?</small>
                             </div>
                             <div class="mb-3">
                                 <label for="notizen" class="ignis-field__label">Notizen</label>
@@ -202,7 +202,7 @@ $bodyPage = 'edivi';
 
         <!-- Quick-Add-Form-Body als <template> -->
         <template id="quickAddRessourceFormTemplate">
-            <p class="text-gray-400 mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
+            <p class="text-tertiary-text mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
             <div class="mb-3">
                 <label for="quick_bezeichnung" class="ignis-field__label">Rufname / Kennung *</label>
                 <input type="text" class="ignis-input" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>

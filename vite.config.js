@@ -81,9 +81,9 @@ const { emergencyForgeUi } = await import(pathToFileURL(resolve(packagesDir, 'pa
 // palette.js sind Produktdateien (Routen, Sidebar, Suche) und bleiben
 // hier. tests/Unit/Assets/UiPackageTest.php hält den Ordner sauber.
 const uiPackageModules = [
-    'accordion', 'alert', 'chip', 'colorpicker', 'combobox', 'datepicker',
+    'accordion', 'alert', 'breadcrumb', 'chip', 'colorpicker', 'combobox', 'datepicker',
     'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'file',
-    'form', 'login-preview', 'multi-select', 'snackbar', 'tabs', 'tooltip', 'workbench',
+    'form', 'login-preview', 'multi-select', 'snackbar', 'spark', 'tabs', 'tooltip', 'workbench',
 ];
 const uiProductFiles = {
     dialog:   'assets/js/ui/dialog-compat.js',

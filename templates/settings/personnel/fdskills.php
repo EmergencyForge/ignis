@@ -14,7 +14,7 @@ $SITE_TITLE = 'FW-Qualifikationen';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <div class="twplus-page-header mb-5">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>FW-Qualifikationen</h1><p class="twplus-page-header__description">Feuerwehrtechnische Qualifikationen und ihre Sortierung verwalten.</p></div>
                         <div class="twplus-page-header__actions">

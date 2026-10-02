@@ -45,7 +45,7 @@ if (!isset($useGlobalBind)) {
     <?php if ($showPreview): ?>
         <div class="mb-3">
             <label class="ignis-field__label">Vorschau</label>
-            <div class="text-center p-3 bg-[rgba(255,255,255,0.04)] rounded">
+            <div class="text-center p-3 bg-fill-1 rounded">
                 <div id="<?= $prefix ?>tz-preview" style="display: inline-block;">
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
@@ -189,21 +189,21 @@ if (!isset($useGlobalBind)) {
         <label for="<?= $prefix ?>typ" class="ignis-field__label">Typ</label>
         <input type="text" class="ignis-input" name="typ" id="<?= $prefix ?>typ"
             placeholder="z.B. HLF20, RTW, DLK23/12">
-        <small class="text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+        <small class="text-tertiary-text">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
     </div>
 
     <div class="mb-3">
         <label for="<?= $prefix ?>text" class="ignis-field__label">Text</label>
         <input type="text" class="ignis-input" name="text" id="<?= $prefix ?>text"
             placeholder="z.B. LF20, RTW 1/82-1">
-        <small class="text-[var(--text-dimmed,#818189)]">Wird auf dem taktischen Zeichen angezeigt</small>
+        <small class="text-tertiary-text">Wird auf dem taktischen Zeichen angezeigt</small>
     </div>
 
     <div class="mb-3">
         <label for="<?= $prefix ?>tz_name" class="ignis-field__label">Name</label>
         <input type="text" class="ignis-input" name="tz_name" id="<?= $prefix ?>tz_name"
             placeholder="z.B. Einsatzabschnitt Nord">
-        <small class="text-[var(--text-dimmed,#818189)]">Name des taktischen Zeichens</small>
+        <small class="text-tertiary-text">Name des taktischen Zeichens</small>
     </div>
 </div>
 

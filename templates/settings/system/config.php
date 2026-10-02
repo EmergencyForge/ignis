@@ -99,7 +99,7 @@ $SITE_TITLE = 'System-Konfiguration';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Konfiguration</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Konfiguration</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">System</p>
@@ -109,12 +109,12 @@ $SITE_TITLE = 'System-Konfiguration';
                     </div>
 
                     <div class="ignis-list-toolbar">
-                        <nav class="ignis-segmented" id="categoryFilter" aria-label="Kategorie">
-                            <button type="button" class="is-active" data-category="">Alle</button>
+                        <div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Kategorie">
+                            <button type="button" aria-pressed="true" data-category="">Alle</button>
                             <?php foreach ($configByCategory as $category => $configs): ?>
-                                <button type="button" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
+                                <button type="button" aria-pressed="false" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
                             <?php endforeach; ?>
-                        </nav>
+                        </div>
                     </div>
 
                     <form method="post" id="configForm">
@@ -201,7 +201,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     <div class="flex items-center gap-2">
                                                         <input
                                                             type="color"
-                                                            class="h-10 w-14 shrink-0 cursor-pointer rounded-md border border-[var(--border)] bg-transparent p-0"
+                                                            class="h-10 w-14 shrink-0 cursor-pointer rounded-md border border-border-subtle bg-transparent p-0"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>_picker"
                                                             aria-label="Farbe wählen"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
@@ -218,6 +218,12 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             oninput="updateColorPicker('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
                                                     </div>
                                                     <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
+                                                    <?php if ($config['config_key'] === 'SYSTEM_COLOR' && \App\Helpers\Theme::accentLooksLikeDanger((string) $config['config_value'])): ?>
+                                                        <div class="ignis-alert ignis-alert--warn mt-2" id="system-color-danger" role="status">
+                                                            <i class="fa-solid fa-triangle-exclamation ignis-alert__icon" aria-hidden="true"></i>
+                                                            <div class="ignis-alert__body">Diese Farbe ist kaum vom Rot zu unterscheiden, mit dem ignis Gefahr, Alarme und auf dem MANV-Board die Sichtungskategorie 1 anzeigt. Primärknöpfe und Fortschrittsbalken sehen damit wie Warnungen aus. Besser passt ein Ton, der sich klar von Rot abhebt.</div>
+                                                        </div>
+                                                    <?php endif; ?>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'SYSTEM_LOGO'):
                                                     $logoIsDefault = systemLogoIsDefault((string) $config['config_value']);
@@ -250,7 +256,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             <img
                                                                 src="<?= systemLogoUrl((string) $config['config_value']) ?>"
                                                                 alt="Vorschau des Logos"
-                                                                class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
+                                                                class="max-h-[100px] max-w-[200px] rounded-md border border-border-subtle bg-surface-2 p-2"
                                                                 id="logo_preview"
                                                                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
                                                         </div>
@@ -270,7 +276,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         <img
                                                             src="<?= htmlspecialchars($config['config_value']) ?>"
                                                             alt="Vorschau des Link-Bildes"
-                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-2"
+                                                            class="max-h-[100px] max-w-[200px] rounded-md border border-border-subtle bg-surface-2 p-2"
                                                             id="meta_image_preview"
                                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
                                                     </div>
@@ -326,8 +332,7 @@ $SITE_TITLE = 'System-Konfiguration';
         // Kategorie-Filter: blendet die Karten der anderen Kategorien aus.
         document.querySelectorAll('#categoryFilter button').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#categoryFilter button').forEach(function(b) { b.classList.remove('is-active'); });
-                this.classList.add('is-active');
+                document.querySelectorAll('#categoryFilter button').forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
                 var cat = this.dataset.category;
                 document.querySelectorAll('.config-section').forEach(function(section) {
                     section.hidden = !!cat && section.dataset.configCategory !== cat;

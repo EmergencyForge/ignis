@@ -99,6 +99,22 @@ final class StyleLiteralsTest extends TestCase
         self::assertSame([], $bad);
     }
 
+    /**
+     * Die Farben des Looks sind oklch-Werte. Am Hex-Wächter in
+     * ThemeTokensTest kämen sie vorbei, deshalb stehen sie nur im
+     * Token-Block des Skins.
+     */
+    public function testOklchColoursStayInTheSkinTokens(): void
+    {
+        $bad = [];
+        foreach ($this->sources() as $name => $code) {
+            if ($name !== '_look-aliases.scss' && preg_match_all('/\boklch\(/', $code, $m)) {
+                $bad[] = $name . ': ' . count($m[0]);
+            }
+        }
+        self::assertSame([], $bad);
+    }
+
     public function testSemanticColoursAreNotRgbTriples(): void
     {
         $bad = [];
@@ -108,5 +124,29 @@ final class StyleLiteralsTest extends TestCase
             }
         }
         self::assertSame([], $bad);
+    }
+
+    /**
+     * Im hellen Skin hält das Orange auf Weiß nur 3,6 : 1. Schrift im Akzent
+     * nimmt deshalb --accent-text, eine Fläche im Akzent trägt --on-accent
+     * statt Weiß.
+     */
+    public function testAccentTextAndFillsUseTheirRoles(): void
+    {
+        $text = array_values(array_filter($this->values('color'), static fn (string $entry): bool =>
+            preg_match('/: var\(--accent\)/', $entry) === 1));
+        self::assertSame([], $text, 'Schrift im Akzent: var(--accent-text)');
+
+        $white = [];
+        foreach ($this->sources() as $name => $code) {
+            preg_match_all('/([^{};]*)\{([^{}]*)\}/', $code, $blocks, PREG_SET_ORDER);
+            foreach ($blocks as [, $selector, $body]) {
+                if (preg_match('/(?<![-\w])background(?:-color)?\s*:\s*var\(--accent\)/', $body) === 1
+                    && preg_match('/(?<![-\w])color\s*:\s*(?:var\(--white\)|white|#fff\b)/', $body) === 1) {
+                    $white[] = $name . ': ' . trim($selector);
+                }
+            }
+        }
+        self::assertSame([], $white, 'Weiß auf dem Akzent: Fläche var(--accent-fill), Schrift var(--on-accent)');
     }
 }

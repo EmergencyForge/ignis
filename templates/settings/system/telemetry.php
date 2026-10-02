@@ -155,7 +155,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                             </div>
                             <div class="flex-1" style="min-width: 240px;">
                                 <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
-                                <div class="text-gray-400" style="font-size: 0.78rem; line-height: 1.45;">
+                                <div class="text-tertiary-text" style="font-size: 0.78rem; line-height: 1.45;">
                                     Für schnellen Support: Im ıgnıs-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
                                 </div>
                             </div>
@@ -238,7 +238,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                     </span>
                                 </div>
                                 <div class="ignis-card__body">
-                                    <p class="text-gray-400">
+                                    <p class="text-tertiary-text">
                                         Telemetrie hilft uns, ıgnıs weiterzuentwickeln.
                                         Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt -
                                         keine persönlichen Daten, Namen oder IP-Adressen.
@@ -275,25 +275,25 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                     <h6>Status</h6>
                                     <table class="table twplus-table">
                                         <tr>
-                                            <td class="text-gray-400">Installation-ID:</td>
+                                            <td class="text-tertiary-text">Installation-ID:</td>
                                             <td>
                                                 <code class="text-sm uuid-blur" data-ignis-tooltip="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-gray-400">Letzter Heartbeat:</td>
-                                            <td><?= $lastHeartbeat ? \App\Helpers\DateTimeHelper::formatShortLocal($lastHeartbeat) : '<span class="text-gray-400">Noch nie</span>' ?></td>
+                                            <td class="text-tertiary-text">Letzter Heartbeat:</td>
+                                            <td><?= $lastHeartbeat ? \App\Helpers\DateTimeHelper::formatShortLocal($lastHeartbeat) : '<span class="text-tertiary-text">Noch nie</span>' ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="text-gray-400">Hub-Server:</td>
+                                            <td class="text-tertiary-text">Hub-Server:</td>
                                             <td><code class="text-sm"><?= htmlspecialchars($hubUrl) ?></code></td>
                                         </tr>
                                     </table>
 
                                     <?php if ($previewData): ?>
                                         <details class="mt-3">
-                                            <summary class="text-gray-400" style="cursor: pointer;">Datenvorschau anzeigen</summary>
-                                            <pre class="bg-[rgba(0,0,0,0.3)] text-white p-3 rounded mt-2 text-sm" style="max-height: 300px; overflow: auto;"><?= htmlspecialchars(json_encode($previewData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
+                                            <summary class="text-tertiary-text" style="cursor: pointer;">Datenvorschau anzeigen</summary>
+                                            <pre class="bg-well p-3 rounded mt-2 text-sm" style="max-height: 300px; overflow: auto;"><?= htmlspecialchars(json_encode($previewData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
                                         </details>
                                     <?php endif; ?>
                                 </div>
@@ -310,7 +310,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                     </span>
                                 </div>
                                 <div class="ignis-card__body">
-                                    <p class="text-gray-400">
+                                    <p class="text-tertiary-text">
                                         Globale Ankündigungen informieren dich über wichtige Updates,
                                         Sicherheitshinweise und News vom ıgnıs-Team.
                                     </p>
@@ -341,12 +341,12 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                     <h6>Cache-Status</h6>
                                     <table class="table mb-3 twplus-table">
                                         <tr>
-                                            <td class="text-gray-400">Einträge im Cache:</td>
+                                            <td class="text-tertiary-text">Einträge im Cache:</td>
                                             <td><?= $cacheInfo['count'] ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="text-gray-400">Letzter Abruf:</td>
-                                            <td><?= $cacheInfo['last_fetch'] ? \App\Helpers\DateTimeHelper::formatShortLocal($cacheInfo['last_fetch']) : '<span class="text-gray-400">Noch nie</span>' ?></td>
+                                            <td class="text-tertiary-text">Letzter Abruf:</td>
+                                            <td><?= $cacheInfo['last_fetch'] ? \App\Helpers\DateTimeHelper::formatShortLocal($cacheInfo['last_fetch']) : '<span class="text-tertiary-text">Noch nie</span>' ?></td>
                                         </tr>
                                     </table>
 
@@ -374,7 +374,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                     <!-- Debug (kann später entfernt werden) -->
                                     <div class="ignis-alert text-sm py-1 mb-2">
                                         Cache: <?= count($allCached) ?> | Aktiv: <?= count($currentAnnouncements) ?>
-                                        <?php if ($debugError): ?> | <span class="text-[#d46b6b]">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
+                                        <?php if ($debugError): ?> | <span class="text-danger-text">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
                                     </div>
 
                                     <?php if (!empty($currentAnnouncements)): ?>
@@ -391,7 +391,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                                         <strong><?= htmlspecialchars($ann['title']) ?></strong>
                                                     </div>
                                                     <?php if (!empty($ann['message'])): ?>
-                                                        <small class="text-gray-400"><?= htmlspecialchars($ann['message']) ?></small>
+                                                        <small class="text-tertiary-text"><?= htmlspecialchars($ann['message']) ?></small>
                                                     <?php endif; ?>
                                                 </div>
                                             <?php endforeach; ?>
@@ -405,7 +405,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                             </details>
                                         </div>
                                     <?php else: ?>
-                                        <p class="text-gray-400 text-sm mb-0">Keine Ankündigungen.</p>
+                                        <p class="text-tertiary-text text-sm mb-0">Keine Ankündigungen.</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -418,12 +418,12 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
 
     <!-- Read-only Info-Modal: Body wandert in <template>, Dialog wird in JS gebaut. -->
     <template id="datenschutzModalTemplate">
-        <p class="text-gray-400 text-sm mb-3">
+        <p class="text-tertiary-text text-sm mb-3">
             Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
         </p>
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
-                <h6 class="text-[#6abf76]"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
+                <h6 class="text-ok-text"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
                 <ul class="text-sm mb-0">
                     <li>Anonyme Installation-ID (UUID)</li>
                     <li>Server- und Systemname</li>
@@ -434,7 +434,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                 </ul>
             </div>
             <div>
-                <h6 class="text-[#d46b6b]"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
+                <h6 class="text-danger-text"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
                 <ul class="text-sm mb-0">
                     <li>Namen, E-Mails, Discord-IDs</li>
                     <li>IP-Adressen der Nutzer</li>

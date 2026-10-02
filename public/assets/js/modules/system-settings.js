@@ -108,7 +108,7 @@
       const step = opts.steps[currentStep++];
       progressBar.style.width   = step.percent + '%';
       progressText.textContent  = step.percent + '%';
-      statusText.innerHTML      = '<small class="text-gray-400">' + step.text + '</small>';
+      statusText.innerHTML      = '<small class="text-tertiary-text">' + step.text + '</small>';
     };
     const interval = setInterval(advance, 2000);
     advance();
@@ -129,7 +129,7 @@
       if (result.success) {
         progressBar.style.width  = '100%';
         progressText.textContent = '100%';
-        statusText.innerHTML     = '<small class="text-[#6abf76]"><i class="fa-solid fa-check-circle"></i> Update abgeschlossen!</small>';
+        statusText.innerHTML     = '<small class="text-ok-text"><i class="fa-solid fa-check-circle"></i> Update abgeschlossen!</small>';
         setTimeout(opts.onSuccess, 1500);
       } else {
         showFailure(modalElement, progressBar, statusText, opts.failureTitle, result.message || 'Unbekannter Fehler beim Update.');
@@ -148,12 +148,12 @@
       progressWrap.classList.add('ignis-progress--danger');
     }
 
-    statusText.innerHTML = '<small class="text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle"></i> </small>';
+    statusText.innerHTML = '<small class="text-danger-text"><i class="fa-solid fa-exclamation-triangle"></i> </small>';
     statusText.querySelector('small').appendChild(document.createTextNode(message));
 
     setTimeout(() => {
       modalElement.querySelector('.modal-header').innerHTML =
-        '<h5 class="modal-title text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle mr-2"></i>' + title + '</h5>' +
+        '<h5 class="modal-title text-danger-text"><i class="fa-solid fa-exclamation-triangle mr-2"></i>' + title + '</h5>' +
         '<button type="button" class="btn-close" data-dialog-dismiss></button>';
       const alertInfo = modalElement.querySelector('.modal-body .ignis-alert--info');
       if (alertInfo) alertInfo.classList.add('hidden');

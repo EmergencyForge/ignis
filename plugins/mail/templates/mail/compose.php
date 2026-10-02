@@ -36,7 +36,7 @@ $fullPage   = !\App\Helpers\Layout::wantsFragment();
 <?php if ($fullPage): ?>
 <div class="container-full relative" id="mainpageContainer">
     <div class="twplus-page">
-        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= htmlspecialchars($base) ?>mail">Mail</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($title) ?></span></nav>
+        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= htmlspecialchars($base) ?>mail">Mail</a></span> <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($title) ?></span></nav>
         <div class="page-header twplus-page-header mb-4">
             <div class="twplus-page-header__copy">
                 <h1><?= htmlspecialchars($title) ?></h1>

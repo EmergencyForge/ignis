@@ -38,7 +38,7 @@ $canConfigure = Permissions::check(['admin', 'dashboard.manage']);
 ob_start();
 ?>
   <div class="twplus-page">
-    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Schnellzugriffe</span></nav>
+    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Schnellzugriffe</span></nav>
 
     <div class="page-header twplus-page-header mb-4">
       <div class="twplus-page-header__copy">
@@ -92,7 +92,7 @@ ob_start();
         <section class="mb-8">
           <h2 class="mb-3"><?= htmlspecialchars((string) $category['title']) ?></h2>
           <?php if ($category['tiles'] === []): ?>
-            <p class="text-sm text-[var(--text-3)]">Noch keine Verlinkungen in dieser Kategorie.</p>
+            <p class="text-sm text-tertiary-text">Noch keine Verlinkungen in dieser Kategorie.</p>
           <?php endif; ?>
           <div class="twplus-link-grid">
             <?php foreach ($category['tiles'] as $tile): ?>

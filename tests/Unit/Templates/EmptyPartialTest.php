@@ -41,6 +41,9 @@ final class EmptyPartialTest extends TestCase
         $html = $this->render(['variant' => 'first', 'tone' => 'info', 'title' => 'Noch keine Mitarbeitenden', 'ghostColumns' => 3]);
         self::assertSame(5, substr_count($html, '<div><i></i><i></i><i></i><i></i><i></i></div>'));
         self::assertStringContainsString('class="ignis-empty__ghost" aria-hidden="true" style="--ghost-cols: 3"', $html);
+        self::assertStringStartsWith('<section class="ignis-bezel" aria-label="Erste Schritte"><div class="ignis-bezel__head"><i class="fa-solid fa-flag" aria-hidden="true"></i><h2 class="ignis-bezel__title">Erste Schritte</h2></div><div class="ignis-bezel__well ignis-bezel__well--flush"><div class="ignis-empty ignis-empty--first" data-tone="info">', $html);
+        self::assertStringEndsWith('</div></div></section>', $html);
+        self::assertStringNotContainsString('ignis-bezel', $this->render(['variant' => 'sm', 'title' => 'T']));
     }
 
     public function testQueryTipsCodeAndActions(): void
@@ -77,7 +80,7 @@ final class EmptyPartialTest extends TestCase
             'title' => 'ignis ist fast startklar',
             'steps' => [['label' => 'Wache hinterlegt', 'state' => 'done'], ['label' => 'Fahrzeuge anlegen', 'state' => 'current'], ['label' => 'Vorlage wählen', 'state' => 'todo']],
         ]);
-        self::assertStringContainsString('<span>1 von 3 erledigt</span><i style="--progress: 33%"></i>', $html);
+        self::assertStringContainsString('<span aria-hidden="true">1 von 3 erledigt</span><div class="ignis-progress ignis-progress--sm" role="progressbar" aria-label="1 von 3 erledigt" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="--value:0.33"><div class="ignis-progress__bar"></div></div>', $html);
         self::assertStringContainsString('<li data-state="current">', $html);
     }
 

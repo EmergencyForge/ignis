@@ -17,11 +17,12 @@ use App\Helpers\Flash;
 
 <body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">POIs</span></nav>
+                <div class="flex-1 min-w-0 mb-5 px-3">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">POIs</span></nav>
                     <div class="page-header mb-4">
                         <h1>POI-Verwaltung</h1>
                         <div class="header-actions">
@@ -39,10 +40,10 @@ use App\Helpers\Flash;
                     </div>
                     <?php Flash::render(); ?>
                     <div class="mb-3">
-                        <div class="btn-toolbar-group" id="statusFilter">
-                            <button class="ignis-btn active" data-filter="">Alle</button>
-                            <button class="ignis-btn" data-filter="Ja">Aktiv</button>
-                            <button class="ignis-btn" data-filter="Nein">Inaktiv</button>
+                        <div class="ignis-segmented" id="statusFilter" role="group" aria-label="Status">
+                            <button type="button" aria-pressed="true" data-filter="">Alle</button>
+                            <button type="button" aria-pressed="false" data-filter="Ja">Aktiv</button>
+                            <button type="button" aria-pressed="false" data-filter="Nein">Inaktiv</button>
                         </div>
                     </div>
                     <div class="intra__tile py-2 px-3">
@@ -142,10 +143,9 @@ use App\Helpers\Flash;
                 language: window.IgnisDataTableLang('POIs')
             });
 
-            document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(btn) {
+            document.querySelectorAll('#statusFilter button').forEach(function(btn) {
                 btn.addEventListener('click', function() {
-                    document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
-                    this.classList.add('active');
+                    document.querySelectorAll('#statusFilter button').forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
                     table.column(6).search(this.dataset.filter).draw();
                 });
             });
@@ -201,6 +201,7 @@ use App\Helpers\Flash;
         }
     </script>
     <?php include dirname(__DIR__, 5) . '/assets/components/footer.php'; ?>
+    </main>
 </body>
 
 </html>

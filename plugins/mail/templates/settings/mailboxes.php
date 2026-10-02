@@ -17,7 +17,7 @@ $pgLabel    = 'Postfächer';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Postfächer</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Postfächer</span></nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Mail</p>

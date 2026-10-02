@@ -16,13 +16,14 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <div class="mb-3">
                         <h1 class="mb-0">Krankenhaus-Zugangscodes</h1>
-                        <p class="text-[var(--text-dimmed,#818189)] mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
+                        <p class="text-tertiary-text mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
                     </div>
 
                     <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
@@ -59,14 +60,14 @@ use App\Helpers\Flash;
                                         <td>
                                             <?php if ($hospital['code']): ?>
                                                 <div class="flex items-center gap-2">
-                                                    <code class="text-[#6abf76]"><?= htmlspecialchars($hospital['code']) ?></code>
+                                                    <code class="text-ok-text"><?= htmlspecialchars($hospital['code']) ?></code>
                                                     <button class="ignis-btn ignis-btn--sm ignis-btn--secondary copy-code-btn"
                                                             data-code="<?= htmlspecialchars($hospital['code']) ?>"
                                                             title="Code kopieren">
                                                         <i class="fa-solid fa-copy"></i>
                                                     </button>
                                                 </div>
-                                                <small class="text-[var(--text-dimmed,#818189)] block mt-1">
+                                                <small class="text-tertiary-text block mt-1">
                                                     Aktualisiert: <?= \App\Helpers\DateTimeHelper::formatShortLocal($hospital['code_updated']) ?>
                                                 </small>
                                             <?php else: ?>
@@ -85,7 +86,7 @@ use App\Helpers\Flash;
                                 <?php endforeach; ?>
                                 <?php if (empty($hospitals)): ?>
                                     <tr>
-                                        <td colspan="5" class="text-center text-[var(--text-dimmed,#818189)]">Keine Krankenhäuser vorhanden</td>
+                                        <td colspan="5" class="text-center text-tertiary-text">Keine Krankenhäuser vorhanden</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -174,6 +175,7 @@ use App\Helpers\Flash;
         });
     </script>
     <?php include dirname(__DIR__, 5) . '/assets/components/footer.php'; ?>
+    </main>
 </body>
 
 </html>

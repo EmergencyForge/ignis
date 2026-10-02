@@ -314,15 +314,15 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                     <?php if (!empty($entry['category_name']) || !empty($entryTags)): ?>
                         <div class="flex flex-wrap items-center gap-2 mb-3">
                             <?php if (!empty($entry['category_name'])): ?>
-                                <span class="text-gray-500 text-sm">
+                                <span class="text-tertiary-text text-sm">
                                     <i class="fa-solid fa-folder"></i>
                                     <?php if (!empty($entry['parent_category_name'])): ?>
                                         <?php if (!empty($entry['parent_category_icon'])): ?><i class="<?= htmlspecialchars($entry['parent_category_icon']) ?>"></i> <?php endif; ?>
-                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-gray-500"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
+                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-tertiary-text"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
                                         <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem;"></i>
                                     <?php endif; ?>
                                     <?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?>
-                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-gray-500"><?= htmlspecialchars($entry['category_name']) ?></a>
+                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-tertiary-text"><?= htmlspecialchars($entry['category_name']) ?></a>
                                 </span>
                             <?php endif; ?>
                             <?php foreach ($entryTags as $etag): ?>
@@ -514,7 +514,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                                 <div class="twplus-link-card__body">
                                                     <div class="twplus-link-card__title"><?= htmlspecialchars($rel['title']) ?></div>
                                                     <?php if (!empty($rel['subtitle'])): ?>
-                                                        <small class="text-gray-500"><?= htmlspecialchars(mb_strimwidth($rel['subtitle'], 0, 80, '...')) ?></small>
+                                                        <small class="text-tertiary-text"><?= htmlspecialchars(mb_strimwidth($rel['subtitle'], 0, 80, '...')) ?></small>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="ml-2 flex flex-col gap-1 items-end">

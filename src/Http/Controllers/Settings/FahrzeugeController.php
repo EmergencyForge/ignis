@@ -53,7 +53,7 @@ class FahrzeugeController extends Controller
             'active'      => 'f.active',
         ], 'priority', 'asc', 25, ['active']);
 
-        $build = function (bool $withDefects) use ($list): \Illuminate\Database\Query\Builder {
+        $build = function (bool $withDefects, bool $filterActive = true) use ($list): \Illuminate\Database\Query\Builder {
             $query = Capsule::table('intra_fahrzeuge as f')->select(
                 $withDefects
                     ? [
@@ -71,7 +71,7 @@ class FahrzeugeController extends Controller
                         ->orWhere('f.veh_type', 'LIKE', $list->like());
                 });
             }
-            if (in_array($list->filter('active'), ['0', '1'], true)) {
+            if ($filterActive && in_array($list->filter('active'), ['0', '1'], true)) {
                 $query->where('f.active', (int) $list->filter('active'));
             }
 
@@ -84,9 +84,12 @@ class FahrzeugeController extends Controller
             $vehicles = $list->paginate($build(false));
         }
 
+        $byActive = ListQuery::countBy($build(false, false), 'f.active');
+
         $this->renderView('settings/vehicles/vehicles/index', [
             'vehicles' => $vehicles->map(static fn ($row) => (array) $row),
             'list'     => $list,
+            'counts'   => ['' => array_sum($byActive)] + $byActive,
         ]);
     }
 
@@ -702,11 +705,11 @@ class FahrzeugeController extends Controller
             false,
         );
 
-        $this->audit(
-            'Defekt gemeldet [ID: ' . $defectId . ']',
-            'Fahrzeug-ID: ' . $data['vehicle_id'] . ' | ' . $data['title'],
-            (int) $data['vehicle_id'],
-            ['defect_id' => $defectId],
+        $this->audit(
+            'Defekt gemeldet [ID: ' . $defectId . ']',
+            'Fahrzeug-ID: ' . $data['vehicle_id'] . ' | ' . $data['title'],
+            (int) $data['vehicle_id'],
+            ['defect_id' => $defectId],
         );
         Flash::success($data['vehicle_operable'] ? 'Mangel gemeldet.' : 'Mangel gemeldet, Fahrzeug außer Dienst.');
         $this->redirect('settings/vehicles/defects/index?vehicle=' . $data['vehicle_id']);

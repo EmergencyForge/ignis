@@ -17,14 +17,8 @@ $mode    = $mode    ?? 'user';
 $canEdit = $canEdit ?? ($mode === 'admin');
 $tiles   = $tiles   ?? [];
 
-$typeMap = [
-    0 => ['label' => 'Notfallrucksack', 'chip' => 'primary'],
-    1 => ['label' => 'Innenfach',       'chip' => 'danger'],
-    2 => ['label' => 'Außenfach',       'chip' => 'warn'],
-];
-$typeMeta = $typeMap[(int) ($category['type'] ?? -1)]
-    ?? ['label' => 'Unbekannt', 'chip' => ''];
-$typeChipClass = $typeMeta['chip'] ? ' ignis-chip--' . $typeMeta['chip'] : '';
+// Die Art ist eine Kategorie und steht deshalb im neutralen Chip.
+$typeLabel = [0 => 'Notfallrucksack', 1 => 'Innenfach', 2 => 'Außenfach'][(int) ($category['type'] ?? -1)] ?? 'Unbekannt';
 
 // Search-Daten als data-attribut für Live-Filter (alle Tile-Titel + Kategorie-Titel
 // als ein lowercased Suchstring zusammengefügt)
@@ -47,7 +41,7 @@ foreach ($tiles as $t) {
             <h3 class="beladung-category-card__name"><?= htmlspecialchars($category['title'] ?? '') ?></h3>
         </div>
         <div class="beladung-category-card__meta">
-            <span class="ignis-chip<?= $typeChipClass ?>"><?= htmlspecialchars($typeMeta['label']) ?></span>
+            <span class="ignis-chip"><?= htmlspecialchars($typeLabel) ?></span>
             <?php if (!empty($category['veh_type'])): ?>
                 <span class="ignis-chip ignis-chip--dark"><?= htmlspecialchars($category['veh_type']) ?></span>
             <?php endif; ?>

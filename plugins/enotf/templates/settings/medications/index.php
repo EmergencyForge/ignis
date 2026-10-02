@@ -17,11 +17,12 @@ use App\Helpers\Flash;
 
 <body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Medikamente</span></nav>
+                <div class="flex-1 min-w-0 mb-5 px-3">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Medikamente</span></nav>
                     <div class="page-header mb-4">
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
@@ -65,8 +66,8 @@ use App\Helpers\Flash;
                                     <tr>
                                         <td <?= $dimmed ?>><?= (int)$row['priority'] ?></td>
                                         <td <?= $dimmed ?>><?= $wirkstoff ?></td>
-                                        <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-[var(--text-dimmed,#818189)]">-</span>' ?></td>
-                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-[var(--text-dimmed,#818189)]">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-tertiary-text">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-tertiary-text">-</span>' ?></td>
                                         <td><?= $medActive ?></td>
                                         <td><?= $actions ?></td>
                                     </tr>
@@ -164,6 +165,7 @@ use App\Helpers\Flash;
         }
     </script>
     <?php include dirname(__DIR__, 5) . '/assets/components/footer.php'; ?>
+    </main>
 </body>
 
 </html>

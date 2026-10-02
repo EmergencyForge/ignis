@@ -43,7 +43,7 @@
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-[#6abf76] mr-1"></i>' +
+          btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-ok-text mr-1"></i>' +
             '<code class="select-all">' + data.inviteUrl + '</code></span>';
           const resultEl = document.getElementById('inviteResult');
           if (resultEl) resultEl.innerHTML = '';

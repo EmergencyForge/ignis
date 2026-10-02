@@ -14,7 +14,7 @@ $SITE_TITLE = 'Antragstypen';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Antragstypen</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Antragstypen</span></nav>
 
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1>Antragstypen verwalten</h1><p class="twplus-page-header__description">Formulare, Felder, Status und Sortierung konfigurieren.</p></div>
@@ -38,7 +38,7 @@ $SITE_TITLE = 'Antragstypen';
                     'heading' => 2,
                     'title'   => 'Noch keine Antragstypen',
                     'text'    => 'Antragstypen legen fest, welche Anträge Mitarbeitende stellen können.',
-                    'actions' => [['label' => 'Neuer Antragstyp', 'href' => BASE_PATH . 'settings/forms/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                    'actions' => [['label' => 'Neuer Antragstyp', 'href' => BASE_PATH . 'settings/forms/create', 'style' => 'secondary', 'icon' => 'fa-plus']],
                 ];
                 require dirname(__DIR__, 2) . '/partials/empty.php';
                 ?>
@@ -80,7 +80,7 @@ $SITE_TITLE = 'Antragstypen';
                                             <i class="<?= htmlspecialchars($typ['icon']) ?> text-xl" aria-hidden="true"></i>
                                         </td>
                                         <td><a href="<?= htmlspecialchars($editUrl) ?>"><strong><?= htmlspecialchars($typ['name']) ?></strong></a></td>
-                                        <td class="text-[var(--text-3)]">
+                                        <td class="text-tertiary-text">
                                             <?= htmlspecialchars(mb_substr($beschreibung, 0, 80)) ?><?= mb_strlen($beschreibung) > 80 ? '…' : '' ?>
                                         </td>
                                         <td class="ignis-table__num"><?= (int)$typ['anzahl_felder'] ?></td>

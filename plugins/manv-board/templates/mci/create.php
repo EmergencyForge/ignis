@@ -32,7 +32,7 @@ $bodyPage = 'edivi';
 
             <form method="POST" action="">
                 <?= csrf_field() ?>
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Grunddaten</h5>
                     </div>
@@ -41,7 +41,7 @@ $bodyPage = 'edivi';
                             <div>
                                 <label for="einsatznummer" class="ignis-field__label">Einsatznummer *</label>
                                 <input type="text" class="ignis-input" id="einsatznummer" name="einsatznummer" required>
-                                <small class="mt-1 block text-xs text-gray-400">z.B. 2025-12345</small>
+                                <small class="mt-1 block text-xs text-tertiary-text">z.B. 2025-12345</small>
                             </div>
                             <div>
                                 <label for="einsatzbeginn" class="ignis-field__label">Einsatzbeginn</label>
@@ -55,7 +55,7 @@ $bodyPage = 'edivi';
                         <div class="mt-4">
                             <label for="einsatzort" class="ignis-field__label">Einsatzort *</label>
                             <input type="text" class="ignis-input" id="einsatzort" name="einsatzort" required>
-                            <small class="mt-1 block text-xs text-gray-400">z.B. Hauptstraße 123, Musterstadt</small>
+                            <small class="mt-1 block text-xs text-tertiary-text">z.B. Hauptstraße 123, Musterstadt</small>
                         </div>
 
                         <div class="mt-4">
@@ -65,7 +65,7 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Einsatzleitung</h5>
                     </div>
@@ -99,7 +99,7 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-section-card mb-4">
+                <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Notizen</h5>
                     </div>

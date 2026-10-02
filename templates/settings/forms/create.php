@@ -14,7 +14,7 @@ $SITE_TITLE = 'Neuer Antragstyp';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/forms/list">Antragstypen</a></span> <span class="ignis-breadcrumb__item is-active">Neu</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/forms/list">Antragstypen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Neu</span></nav>
 
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1>Neuen Antragstyp erstellen</h1><p class="twplus-page-header__description">Grunddaten festlegen; Formularfelder werden anschließend ergänzt.</p></div>
@@ -49,7 +49,7 @@ $SITE_TITLE = 'Neuer Antragstyp';
                         <div class="mb-3">
                             <label for="icon" class="ignis-field__label">Icon</label>
                             <div class="flex items-center gap-2">
-                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--fill-1)] text-[var(--text-2)]" aria-hidden="true">
+                                <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-fill-1 text-secondary-text" aria-hidden="true">
                                     <i id="icon-preview" class="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?>"></i>
                                 </span>
                                 <input type="text"

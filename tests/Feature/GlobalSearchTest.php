@@ -207,7 +207,9 @@ final class GlobalSearchTest extends FeatureTestCase
         $this->login(['calendar.view', 'calendar.create']);
 
         $page = $this->get('/index')->body;
-        $this->assertMatchesRegularExpression('~<div class="ignis-topbar__search" role="search"\s+data-endpoint="/api/system/global-search"\s+data-ignis-actions="~', $page);
+        $this->assertMatchesRegularExpression('~<div class="ignis-topbar__search ignis-search" role="search"\s+data-endpoint="/api/system/global-search"\s+data-ignis-actions="~', $page);
+        // preferences.js tauscht „Strg K“ auf dem Mac gegen „⌘K“, dafür muss der Chip so heißen.
+        $this->assertStringContainsString('<kbd class="ignis-kbd" aria-hidden="true">Strg K</kbd>', $page);
         $this->assertSame(1, preg_match('~data-ignis-actions="([^"]*)"~', $page, $m));
         $actions = json_decode(html_entity_decode($m[1], ENT_QUOTES), true);
         $this->assertIsArray($actions);

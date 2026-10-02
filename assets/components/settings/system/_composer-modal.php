@@ -23,7 +23,7 @@
                     </div>
                     <div id="composer-status-text" class="text-center">
                         <p class="mb-2">Composer-Abhängigkeiten werden installiert...</p>
-                        <small class="text-gray-400">Dies kann einige Minuten dauern. Bitte warten Sie.</small>
+                        <small class="text-tertiary-text">Dies kann einige Minuten dauern. Bitte warten Sie.</small>
                     </div>
                 </div>
 

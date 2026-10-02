@@ -17,6 +17,7 @@ use App\Helpers\Flash;
 
 <body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 6) . '/assets/components/navbar.php'; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
@@ -95,7 +96,7 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="category-slug" class="ignis-field__label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="ignis-input" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
-                                <small class="ignis-field__hint text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
+                                <small class="ignis-field__hint text-tertiary-text">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
                                 <label for="category-sort-order" class="ignis-field__label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
@@ -133,7 +134,7 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="create-category-slug" class="ignis-field__label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="ignis-input" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
-                                <small class="ignis-field__hint text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
+                                <small class="ignis-field__hint text-tertiary-text">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-category-sort-order" class="ignis-field__label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
@@ -185,6 +186,7 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
     <?php include dirname(__DIR__, 6) . '/assets/components/footer.php'; ?>
+    </main>
 </body>
 
 </html>

@@ -60,7 +60,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                         </a>
                     </span>
                 <?php endif; ?>
-                <span class="ignis-breadcrumb__item is-active">Dokument bearbeiten</span>
+                <span class="ignis-breadcrumb__item" aria-current="page">Dokument bearbeiten</span>
             </nav>
 
             <div class="page-header twplus-page-header mb-4">

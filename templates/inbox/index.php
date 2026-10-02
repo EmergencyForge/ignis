@@ -10,6 +10,7 @@
  *   @var string                                                      $type     aktiver Typ-Filter, leer für alle
  *   @var array<string,\App\Notifications\NotificationTypeInterface>  $types    Typen, die der Nutzer sehen darf
  *   @var int                                                         $unread   ungelesene Einträge insgesamt
+ *   @var array{all:int, unread:int, types:array<string,int>}        $counts   Zähler der Segmente
  *
  * Ein Eintrag mit Ziel ist ein Link über /inbox/{id}/open (setzt gelesen,
  * geht weiter); daneben ein Knopf „Gelesen" für Einträge ohne Ziel oder
@@ -69,14 +70,14 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
 
             <div class="ignis-list-toolbar">
                 <nav class="ignis-segmented" aria-label="Gelesen">
-                    <a href="<?= htmlspecialchars($list->url($pgPath, ['filter' => null, 'page' => null])) ?>"<?= !$unreadOnly ? ' class="is-active" aria-current="true"' : '' ?>>Alle</a>
-                    <a href="<?= htmlspecialchars($list->url($pgPath, ['filter' => 'unread', 'page' => null])) ?>"<?= $unreadOnly ? ' class="is-active" aria-current="true"' : '' ?>>Ungelesen<?= $unread > 0 ? ' (' . $unread . ')' : '' ?></a>
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['filter' => null, 'page' => null])) ?>"<?= !$unreadOnly ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= $counts['all'] ?></span></a>
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['filter' => 'unread', 'page' => null])) ?>"<?= $unreadOnly ? ' class="is-active" aria-current="true"' : '' ?>>Ungelesen <span class="ignis-segmented__count"><?= $counts['unread'] ?></span></a>
                 </nav>
                 <span class="ignis-list-toolbar__spacer"></span>
                 <nav class="ignis-segmented" aria-label="Typ">
-                    <a href="<?= htmlspecialchars($list->url($pgPath, ['type' => null, 'page' => null])) ?>"<?= $type === '' ? ' class="is-active" aria-current="true"' : '' ?>>Alle Typen</a>
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['type' => null, 'page' => null])) ?>"<?= $type === '' ? ' class="is-active" aria-current="true"' : '' ?>>Alle Typen <span class="ignis-segmented__count"><?= $counts['types'][''] ?></span></a>
                     <?php foreach ($types as $typeKey => $typeHandler): ?>
-                        <a href="<?= htmlspecialchars($list->url($pgPath, ['type' => $typeKey, 'page' => null])) ?>"<?= $type === $typeKey ? ' class="is-active" aria-current="true"' : '' ?>><i class="<?= htmlspecialchars($typeHandler->icon()) ?>" aria-hidden="true"></i> <?= htmlspecialchars($typeHandler->label()) ?></a>
+                        <a href="<?= htmlspecialchars($list->url($pgPath, ['type' => $typeKey, 'page' => null])) ?>"<?= $type === $typeKey ? ' class="is-active" aria-current="true"' : '' ?>><i class="<?= htmlspecialchars($typeHandler->icon()) ?>" aria-hidden="true"></i> <?= htmlspecialchars($typeHandler->label()) ?> <span class="ignis-segmented__count"><?= $counts['types'][$typeKey] ?? 0 ?></span></a>
                     <?php endforeach; ?>
                 </nav>
             </div>

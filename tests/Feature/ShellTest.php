@@ -63,10 +63,24 @@ final class ShellTest extends FeatureTestCase
         $this->assertOk($response);
         $this->assertBodyContains('<title>Benutzer &rsaquo;', $response);
         $this->assertMatchesRegularExpression('~href="/users/list"[^>]*aria-current="page"~', $response->body);
-        $this->assertSame(1, substr_count($response->body, 'aria-current="page"'), 'Genau ein Eintrag ist aktiv.');
+        // Die Brotkrumen markieren die aktuelle Krume ebenso, gezählt wird nur die Seitenleiste.
+        $this->assertSame(1, preg_match_all('~class="ignis-sidebar__link"[^>]*aria-current="page"~', $response->body), 'Genau ein Eintrag ist aktiv.');
+        $this->assertStringNotContainsString('ignis-sidebar__row is-active', $response->body);
         $this->assertMatchesRegularExpression('~href="/personnel/create"[^>]*data-ignis-drawer~', $response->body);
         $this->assertBodyContains('data-quick-action-target="role-create"', $response);
         $this->assertBodyContains('ignis-topbar__new', $response);
+    }
+
+    #[Test]
+    public function neu_ist_nur_ohne_eigenen_primaerknopf_der_seite_primaer(): void
+    {
+        $this->login();
+
+        // Die Benutzerliste hat keinen Primärknopf, die Mitarbeiterliste „Mitarbeiter anlegen“.
+        $this->assertBodyContains('class="ignis-btn ignis-btn--primary ignis-btn--sm ignis-topbar__new"', $this->get('/users/list'));
+        $personnel = $this->get('/personnel/list');
+        $this->assertBodyContains('class="ignis-btn ignis-btn--secondary ignis-btn--sm ignis-topbar__new"', $personnel);
+        $this->assertSame(1, substr_count($personnel->body, 'ignis-btn--primary'));
     }
 
     #[Test]
@@ -124,6 +138,7 @@ final class ShellTest extends FeatureTestCase
         $this->assertBodyContains("document.body.dataset.uiSkin = 'core'", $response);
         $this->assertBodyContains('class="ignis-topbar"', $response);
         $this->assertBodyContains('id="ignisSidebar"', $response);
+        $this->assertBodyContains('<main class="ignis-main">', $response);
         $this->assertBodyContains('documentElement.dataset.theme = "dark"', $response);
     }
 }

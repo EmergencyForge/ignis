@@ -36,7 +36,7 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
         <div class="twplus-page">
             <nav class="ignis-breadcrumb mb-4">
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>calendar">Kalender</a></span>
-                <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($event->title) ?></span>
+                <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($event->title) ?></span>
             </nav>
 
             <div data-calendar-event-detail>

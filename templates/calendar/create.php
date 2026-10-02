@@ -25,7 +25,7 @@ $SITE_TITLE = 'Termin anlegen';
             <nav class="ignis-breadcrumb">
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                 <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>calendar">Kalender</a></span>
-                <span class="ignis-breadcrumb__item is-active">Termin anlegen</span>
+                <span class="ignis-breadcrumb__item" aria-current="page">Termin anlegen</span>
             </nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Organisation</p><h1>Termin anlegen</h1><p class="twplus-page-header__description">Titel, Zeitraum, Sichtbarkeit und Einladungen; auf Wunsch als Serie.</p></div>

@@ -110,4 +110,25 @@ final class UserListTest extends FeatureTestCase
         $this->assertBodyContains('26–26 von 26 Benutzer', $second);
         $this->assertBodyContains('aria-current="page">2<', $second);
     }
+
+    /**
+     * Die Segmente des Statusfilters zählen mit der Suche, aber ohne den
+     * gewählten Status. Sonst stünde neben „Aktiv“ eine 0, sobald man auf
+     * „Deaktiviert“ filtert.
+     */
+    #[Test]
+    public function statusfilter_zeigt_zaehler_mit_der_suche(): void
+    {
+        $this->login();
+        FixtureFactory::user(['username' => 'zq_segment_a']);
+        FixtureFactory::user(['username' => 'zq_segment_b', 'is_active' => false]);
+        FixtureFactory::user(['username' => 'zq_segment_c', 'is_active' => false]);
+
+        foreach ([[], ['status' => 'inactive']] as $filter) {
+            $body = $this->get('/users/list', ['query' => ['q' => 'zq_segment_'] + $filter])->body;
+            $this->assertStringContainsString('>Alle <span class="ignis-segmented__count">3</span></a>', $body);
+            $this->assertStringContainsString('>Aktiv <span class="ignis-segmented__count">1</span></a>', $body);
+            $this->assertStringContainsString('>Deaktiviert <span class="ignis-segmented__count">2</span></a>', $body);
+        }
+    }
 }

@@ -38,9 +38,12 @@
 // Formulare setzen die Labels direkt). ef.base() stylt beides nur verschachtelt
 // unter .ignis-field .ignis-field__label — ohne diese Kopie blieben Stern und
 // Fehlertext in den ueber ein Dutzend Formularen ohne Huelle farblos.
-.ignis-field__required {
+// Der Stern nimmt --accent-text, das Orange hält hell auf Weiß nur 3,6 : 1.
+// Die zweite Zeile überschreibt die verschachtelte Regel aus ef.base().
+.ignis-field__required,
+.ignis-field .ignis-field__label .ignis-field__required {
   margin-left: 0.15rem;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .ignis-field__error {
@@ -83,7 +86,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--accent);
+  color: var(--accent-text);
   font: inherit;
   font-size: var(--fs-sm);
   text-decoration: none;
@@ -170,13 +173,3 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-
-// Sichtungskategorien des MANV-Boards (plugins/manv-board): volle Fläche in
-// der Bedeutungsfarbe, weil die Farbe hier das Signal ist.
-.ignis-chip--sk1 { background: var(--danger); color: var(--white); }
-.ignis-chip--sk2 { background: var(--warn); color: var(--bg); }
-.ignis-chip--sk3 { background: var(--ok); color: var(--white); }
-.ignis-chip--sk4 { background: var(--info); color: var(--white); }
-.ignis-chip--sk5,
-.ignis-chip--tot { background: var(--text); color: var(--bg); }
-.ignis-chip--sk6 { background: var(--fill-4); color: var(--text); }

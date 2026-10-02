@@ -16,7 +16,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/forms/list">Antragstypen</a></span> <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($typ['name']) ?></span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/forms/list">Antragstypen</a></span> <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($typ['name']) ?></span></nav>
 
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1><p class="twplus-page-header__description">Grundeinstellungen und Formularfelder des Antragstyps verwalten.</p></div>
@@ -81,7 +81,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                             'icon'    => 'fa-list',
                             'title'   => 'Noch keine Formularfelder',
                             'text'    => 'Felder legen fest, was Mitarbeitende im Antrag ausfüllen.',
-                            'actions' => [['label' => 'Feld hinzufügen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-forms-add-field' => '']]],
+                            'actions' => [['label' => 'Feld hinzufügen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-forms-add-field' => '']]],
                         ];
                         require dirname(__DIR__, 2) . '/partials/empty.php';
                         ?>
@@ -132,10 +132,10 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <?= $feld['pflichtfeld'] ? '<i class="fa-solid fa-check text-[var(--ok)]" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-xmark text-[var(--text-3)]" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
+                                                    <?= $feld['pflichtfeld'] ? '<i class="fa-solid fa-check text-ok-text" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-xmark text-tertiary-text" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
                                                 </td>
                                                 <td>
-                                                    <?= $feld['readonly'] ? '<i class="fa-solid fa-lock text-[var(--warn)]" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-lock-open text-[var(--text-3)]" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
+                                                    <?= $feld['readonly'] ? '<i class="fa-solid fa-lock text-warn-text" aria-hidden="true"></i><span class="sr-only">Ja</span>' : '<i class="fa-solid fa-lock-open text-tertiary-text" aria-hidden="true"></i><span class="sr-only">Nein</span>' ?>
                                                 </td>
                                                 <td class="ignis-table__actions">
                                                     <div class="ignis-row-actions">

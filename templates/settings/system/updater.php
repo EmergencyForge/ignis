@@ -269,7 +269,7 @@ $SITE_TITLE = 'System Updates';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Updates</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Updates</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Wartung</p><h1>System-Updates</h1><p class="twplus-page-header__description">Version, verfügbare Releases und Update-Kanal verwalten.</p></div>
                     </div>
@@ -308,7 +308,7 @@ $SITE_TITLE = 'System Updates';
                                         <dt>Aktualisiert am:</dt>
                                         <dd>
                                             <?= htmlspecialchars($currentVersion['updated_at']) ?>
-                                            <small class="text-[var(--text-3)]">(vor <?= $versionAge ?> Tagen)</small>
+                                            <small class="text-tertiary-text">(vor <?= $versionAge ?> Tagen)</small>
                                         </dd>
 
                                         <dt>Build-Nummer:</dt>
@@ -486,7 +486,7 @@ $SITE_TITLE = 'System Updates';
                                     <?php if (!empty($updateInfo['release_notes'])): ?>
                                         <hr>
                                         <h6>Release-Notizen:</h6>
-                                        <div class="max-h-[400px] overflow-y-auto rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-3">
+                                        <div class="max-h-[400px] overflow-y-auto rounded-md border border-border-subtle bg-surface-2 p-3">
                                             <?= $updater->getFormattedReleaseNotes($updateInfo['release_notes']) ?>
                                         </div>
                                     <?php endif; ?>
@@ -509,8 +509,8 @@ $SITE_TITLE = 'System Updates';
 
                     <?php if ($isDevMode): ?>
                         <!-- Dev Mode: Branch Update -->
-                        <div class="ignis-card mb-4 border-[var(--warn)]">
-                            <div class="ignis-card__header bg-[var(--warn-soft)]">
+                        <div class="ignis-card mb-4 border-warn-line">
+                            <div class="ignis-card__header bg-warn-soft">
                                 <h2 class="ignis-card__title"><i class="fa-solid fa-code-branch mr-2" aria-hidden="true"></i>Entwickler-Modus: Branch-Update</h2>
                             </div>
                             <div class="ignis-card__body">
@@ -536,12 +536,12 @@ $SITE_TITLE = 'System Updates';
                                     </div>
 
                                     <?php if ($devBranchInfo): ?>
-                                        <div class="ignis-card bg-[var(--surface-2)] mb-3">
+                                        <div class="ignis-card bg-surface-2 mb-3">
                                             <div class="ignis-card__body">
                                                 <h6><i class="fa-solid fa-code-commit mr-2"></i>Neuester Commit auf <code><?= htmlspecialchars($selectedBranch) ?></code></h6>
                                                 <dl class="mb-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
                                                     <dt>SHA:</dt>
-                                                    <dd><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-[var(--text-3)]">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
+                                                    <dd><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-tertiary-text">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
 
                                                     <dt>Nachricht:</dt>
                                                     <dd><?= htmlspecialchars($devBranchInfo['commit']['message'] ?? '') ?></dd>

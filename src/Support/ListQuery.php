@@ -158,6 +158,33 @@ final class ListQuery
             ->get();
     }
 
+    /**
+     * Zeilen je Wert einer Spalte, für die Zähler im Segmentfilter. Die
+     * Abfrage trägt Suche und übrige Filter, aber nicht den Filter, dessen
+     * Segmente gezählt werden. Schlüssel ist der Wert, aus "0" und "1"
+     * macht PHP 0 und 1.
+     *
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     * @param EloquentBuilder<TModel>|QueryBuilder $builder
+     * @return array<int|string,int>
+     */
+    public static function countBy(EloquentBuilder|QueryBuilder $builder, string $column): array
+    {
+        $query = clone ($builder instanceof EloquentBuilder ? $builder->toBase() : $builder);
+        $rows  = $query->reorder()
+            ->select($query->raw($column . ' AS segment'))
+            ->selectRaw('COUNT(*) AS n')
+            ->groupBy($column)
+            ->get();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row->segment] = (int) $row->n;
+        }
+
+        return $counts;
+    }
+
     // ── Seitenzustand ─────────────────────────────────────────────────
 
     public function total(): int

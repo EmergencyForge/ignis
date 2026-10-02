@@ -42,6 +42,8 @@ final class VehicleListTest extends FeatureTestCase
         $default = $this->get(self::PATH, ['query' => ['q' => 'Sortier']]);
         $this->assertOk($default);
         $this->assertBodyNotContains('DataTable(', $default);
+        // Der Zähler der EMD-Warteschlange ist versteckt, bis vehicles-admin.js eine Zahl hat.
+        $this->assertBodyContains('<span class="ignis-chip ignis-chip--count ml-1" id="importBadge" hidden>0</span>', $default);
         $this->assertBodyContains('aria-sort="ascending" class="ignis-table__num"><a class="ignis-table__sort is-asc" href="/settings/vehicles/vehicles/index?q=Sortier&amp;sort=priority&amp;dir=desc">Priorität', $default);
         $this->assertLessThan($this->pos($default->body, 'Sortier Alpha'), $this->pos($default->body, 'Sortier Zulu'));
 

@@ -7,6 +7,52 @@ use App\Auth\Permissions;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use App\Helpers\Flash;
+
+$result = Capsule::table('intra_edivi')
+    ->where('hidden', '<>', 1)
+    ->get()
+    ->map(fn ($r) => (array) $r)
+    ->all();
+
+// Append federated eNOTF protocols (read-only)
+if (\App\Federation\FederationMiddleware::isEnabled()) {
+    try {
+        $fedRows = Capsule::table('intra_federation_cache_enotf as fce')
+            ->join('intra_federation_links as fl', function ($join) {
+                $join->on('fl.instance_id', '=', 'fce.source_instance_id')
+                    ->where('fl.is_active', 1);
+            })
+            ->orderByDesc('fce.protocol_date')
+            ->select('fce.cached_data', 'fl.instance_name')
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->all();
+        foreach ($fedRows as $fedRow) {
+            $p = json_decode($fedRow['cached_data'], true);
+            if (!$p) continue;
+            $p['_federation_source'] = $fedRow['instance_name'];
+            $p['_federation_readonly'] = true;
+            // Ensure expected keys exist
+            $p['protokoll_status'] = $p['protokoll_status'] ?? 2;
+            $p['freigegeben'] = $p['freigegeben'] ?? 1;
+            $p['hidden_user'] = $p['hidden_user'] ?? 0;
+            $p['bearbeiter'] = $p['bearbeiter'] ?? '';
+            $p['freigeber_name'] = $p['freigeber_name'] ?? '';
+            $p['id'] = 'fed_' . ($p['id'] ?? 0);
+            $result[] = $p;
+        }
+    } catch (\PDOException $e) {
+        // Silently skip
+    }
+}
+
+// Segmente: unbearbeitet heißt ungesehen oder in Prüfung. Nicht freigegeben
+// zählt wie die Alarmkachel des Dashboards (App\Support\Overview::openProtocols).
+$view = in_array($_GET['view'] ?? '', ['1', '2'], true) ? (int) $_GET['view'] : 0;
+$isUnprocessed = static fn (array $row): bool => in_array((int) $row['protokoll_status'], [0, 1], true);
+$isUnreleased = static fn (array $row): bool => (int) $row['freigegeben'] === 0 && (int) $row['hidden_user'] !== 1;
+$countUnprocessed = count(array_filter($result, $isUnprocessed));
+$countUnreleased = count(array_filter($result, $isUnreleased));
 ?>
 
 <!DOCTYPE html>
@@ -20,20 +66,22 @@ use App\Helpers\Flash;
 
 <body data-theme="dark" data-page="edivi">
     <?php include dirname(__DIR__, 5) . "/assets/components/navbar.php"; ?>
+    <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container my-4">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">eNOTF QM</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item" aria-current="page">eNOTF QM</span></nav>
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
-                    <div class="flex items-center gap-3">
-                        <div class="btn-toolbar-group">
-                            <a href="?view=0" class="ignis-btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
-                            <a href="?view=1" class="ignis-btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
-                        </div>
+                    <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+                        <nav class="ignis-segmented max-w-full" aria-label="Status">
+                            <a href="?view=0"<?= $view === 0 ? ' class="is-active" aria-current="true"' : '' ?>>Alle <span class="ignis-segmented__count"><?= count($result) ?></span></a>
+                            <a href="?view=1"<?= $view === 1 ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-triangle-exclamation" data-tone="warn" aria-hidden="true"></i>Unbearbeitet <span class="ignis-segmented__count"><?= $countUnprocessed ?></span></a>
+                            <a href="?view=2"<?= $view === 2 ? ' class="is-active" aria-current="true"' : '' ?>><i class="fa-solid fa-circle-xmark" data-tone="danger" aria-hidden="true"></i>Nicht freigegeben <span class="ignis-segmented__count"><?= $countUnreleased ?></span></a>
+                        </nav>
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
                             <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--secondary ignis-btn--sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
@@ -44,7 +92,7 @@ use App\Helpers\Flash;
             </div>
             <?php Flash::render(); ?>
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>
@@ -57,44 +105,6 @@ use App\Helpers\Flash;
                             </thead>
                             <tbody>
                                 <?php
-                                $result = Capsule::table('intra_edivi')
-                                    ->where('hidden', '<>', 1)
-                                    ->get()
-                                    ->map(fn ($r) => (array) $r)
-                                    ->all();
-
-                                // Append federated eNOTF protocols (read-only)
-                                if (\App\Federation\FederationMiddleware::isEnabled()) {
-                                    try {
-                                        $fedRows = Capsule::table('intra_federation_cache_enotf as fce')
-                                            ->join('intra_federation_links as fl', function ($join) {
-                                                $join->on('fl.instance_id', '=', 'fce.source_instance_id')
-                                                    ->where('fl.is_active', 1);
-                                            })
-                                            ->orderByDesc('fce.protocol_date')
-                                            ->select('fce.cached_data', 'fl.instance_name')
-                                            ->get()
-                                            ->map(fn ($r) => (array) $r)
-                                            ->all();
-                                        foreach ($fedRows as $fedRow) {
-                                            $p = json_decode($fedRow['cached_data'], true);
-                                            if (!$p) continue;
-                                            $p['_federation_source'] = $fedRow['instance_name'];
-                                            $p['_federation_readonly'] = true;
-                                            // Ensure expected keys exist
-                                            $p['protokoll_status'] = $p['protokoll_status'] ?? 2;
-                                            $p['freigegeben'] = $p['freigegeben'] ?? 1;
-                                            $p['hidden_user'] = $p['hidden_user'] ?? 0;
-                                            $p['bearbeiter'] = $p['bearbeiter'] ?? '';
-                                            $p['freigeber_name'] = $p['freigeber_name'] ?? '';
-                                            $p['id'] = 'fed_' . ($p['id'] ?? 0);
-                                            $result[] = $p;
-                                        }
-                                    } catch (\PDOException $e) {
-                                        // Silently skip
-                                    }
-                                }
-
                                 foreach ($result as $row) {
                                     $datetime = new DateTime($row['sendezeit']);
                                     $date = $datetime->format('d.m.Y | H:i');
@@ -138,10 +148,8 @@ use App\Helpers\Flash;
                                             break;
                                     }
 
-                                    if (isset($_GET['view']) && $_GET['view'] == 1) {
-                                        if ($row['protokoll_status'] != 0 && $row['protokoll_status'] != 1) {
-                                            continue;
-                                        }
+                                    if (($view === 1 && !$isUnprocessed($row)) || ($view === 2 && !$isUnreleased($row))) {
+                                        continue;
                                     }
 
                                     $patname = htmlspecialchars((string) ($row['patname'] ?? 'Unbekannt'), ENT_QUOTES);
@@ -155,7 +163,7 @@ use App\Helpers\Flash;
                                     if ($isFederated) {
                                         $actions = "<span style='font-size:var(--fs-xs);color:var(--text-dimmed);'>read-only</span>";
                                     } elseif (Permissions::check(['admin', 'edivi.edit'])) {
-                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$jsArgs})' class='ignis-btn ignis-btn--sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$jsArgs})' class='ignis-btn ignis-btn--sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> "
+                                        $actions = "<button type='button' aria-label='QM-Aktionen öffnen' data-ignis-tooltip='QM-Aktionen öffnen' onclick='openQMActions({$jsArgs})' class='ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm'><i class='fa-solid fa-exclamation' aria-hidden='true'></i></button> <button type='button' aria-label='QM-Log öffnen' data-ignis-tooltip='QM-Log öffnen' onclick='openQMLog({$jsArgs})' class='ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm'><i class='fa-solid fa-clock-rotate-left' aria-hidden='true'></i></button> "
                                             // Löschen per POST mit CSRF-Token und Rückfrage (vorher ein
                                             // GET-Link ohne beides). Fester Pfad statt EnotfUrl::admin():
                                             // das liefert, weil useCleanUrls() fest false ist, die
@@ -166,7 +174,7 @@ use App\Helpers\Flash;
                                             . " onsubmit=\"event.preventDefault(); var f = this; showConfirm('Protokoll wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Protokoll löschen'}).then(function (ok) { if (ok) f.submit(); });\">"
                                             . csrf_field()
                                             . "<input type='hidden' name='id' value='" . (int) $row['id'] . "'>"
-                                            . "<button type='submit' title='Protokoll löschen' aria-label='Protokoll löschen' class='ignis-btn ignis-btn--sm btn-outline-danger ignis-btn--icon'><i class='fa-solid fa-trash'></i></button></form>";
+                                            . "<button type='submit' aria-label='Protokoll löschen' data-ignis-tooltip='Protokoll löschen' class='ignis-btn ignis-btn--ghost-danger ignis-btn--icon ignis-btn--sm'><i class='fa-solid fa-trash' aria-hidden='true'></i></button></form>";
                                     }
                                     echo "<tr" . ($isFederated ? " style='opacity:0.85;'" : "") . ">";
                                     echo "<td>" . htmlspecialchars($row['enr'] ?? '') . $fedBadge . "</td>";
@@ -177,7 +185,7 @@ use App\Helpers\Flash;
                                     if ($isFederated) {
                                         echo "<td>{$actions}</td>";
                                     } else {
-                                        echo "<td><a title='Protokoll ansehen' href='" . EnotfUrl::protokoll($row['enr']) . "' class='ignis-btn ignis-btn--sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
+                                        echo "<td><a aria-label='Protokoll ansehen' data-ignis-tooltip='Protokoll ansehen' href='" . EnotfUrl::protokoll($row['enr']) . "' class='ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm' target='_blank'><i class='fa-solid fa-eye' aria-hidden='true'></i></a> {$actions}</td>";
                                     }
                                     echo "</tr>";
                                 }
@@ -264,6 +272,7 @@ use App\Helpers\Flash;
         });
     </script>
     <?php include dirname(__DIR__, 5) . "/assets/components/footer.php"; ?>
+    </main>
 </body>
 
 </html>

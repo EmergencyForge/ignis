@@ -86,12 +86,48 @@ body[data-ui-skin="core"] {
   @include ef.auth('ignis');
   @include ef.look('ignis');
   @include ef.empty('ignis');
+
+  // Ab 901 px endet die Kopfzeile rechts mit der Tafel, 8 px vor dem
+  // Fensterrand. Schmaler liegt die Tafel randlos, dann gilt das Polster
+  // aus ef.shell().
+  @media (min-width: 901px) {
+    .ignis-topbar { padding-right: 8px; }
+  }
+
+  // Sichtungskategorien des MANV-Boards im Rand-Rezept des Chips. Mit nur
+  // einer Klasse verlören sie gegen den neutralen Chip des Skins und wären
+  // alle grau. SK5 und tot sind grau, heben sich aber vom neutralen Chip
+  // ab, den SK6 trägt.
+  @each $sk, $tone in (sk1: danger, sk2: warn, sk3: ok, sk4: info) {
+    .ignis-chip--#{$sk} { --tone-soft: var(--#{$tone}-soft); --tone-line: var(--#{$tone}-line); --tone-text: var(--#{$tone}-text); }
+  }
+  .ignis-chip:is(.ignis-chip--sk5, .ignis-chip--tot) { --tone-soft: var(--fill-3); --tone-line: var(--border-strong); --tone-text: var(--content-text); }
+  .ignis-chip:is(.ignis-chip--sk1, .ignis-chip--sk2, .ignis-chip--sk3, .ignis-chip--sk4, .ignis-chip--sk5, .ignis-chip--tot) {
+    background: var(--tone-soft);
+    border-color: var(--tone-line);
+    color: var(--tone-text);
+  }
+
+  // Die Schnell-Sichtung zeigt dieselben Töne als leise Knöpfe. SK6 ist ein
+  // sekundärer Knopf, wie sein Chip neutral ist.
+  @each $sk, $tone in (sk1: danger, sk2: warn, sk3: ok, sk4: info) {
+    .ignis-btn--#{$sk} { --tone-soft: var(--#{$tone}-soft); --tone-line: var(--#{$tone}-line); --tone-text: var(--#{$tone}-text); }
+  }
+  .ignis-btn--sk5 { --tone-soft: var(--fill-3); --tone-line: var(--border-strong); --tone-text: var(--content-text); }
+  .ignis-btn:is(.ignis-btn--sk1, .ignis-btn--sk2, .ignis-btn--sk3, .ignis-btn--sk4, .ignis-btn--sk5) {
+    background: var(--tone-soft);
+    border-color: var(--tone-line);
+    color: var(--tone-text);
+
+    &:hover:not(:disabled) { background: var(--tone-soft); border-color: var(--tone-text); }
+  }
 }
 
 // Hell: Akzenttext und Fokusring dunkler statt heller, sonst fehlt Kontrast
 // auf hellem Grund. preferences.js setzt dieselben Werte inline und gewinnt;
 // das hier gilt, bis das Skript gelaufen ist.
 [data-theme="light"] body[data-ui-skin="core"] {
+  @include look-aliases.light;
   --accent-text: color-mix(in srgb, var(--accent-base) 75%, black);
   --accent-focus: color-mix(in srgb, var(--accent-base) 75%, black);
 }

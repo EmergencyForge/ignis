@@ -33,8 +33,6 @@ $bodyPage = 'edivi';
 <?php ob_start(); ?>
     <style>
         .quick-action-btn { margin: 0.25rem; }
-        .bg-sk5 { background-color: #000 !important; color: #fff !important; }
-        .bg-sk6 { background-color: #9b59b6 !important; color: #fff !important; }
         .patient-header {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
@@ -73,7 +71,7 @@ $bodyPage = 'edivi';
                         <h4>
                             <?= htmlspecialchars($patient['vorname'] ?? '') ?> <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
                         </h4>
-                        <p class="mb-0 text-gray-400">
+                        <p class="mb-0 text-tertiary-text">
                             MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?>
                         </p>
                     </div>
@@ -83,7 +81,7 @@ $bodyPage = 'edivi';
                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? 'Ungesichtet') ?>
                             </span>
                         </h2>
-                        <small class="text-gray-400">
+                        <small class="text-tertiary-text">
                             <?php if (!empty($patient['sichtungskategorie_zeit'])): ?>
                                 Gesichtet: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['sichtungskategorie_zeit']) ?>
                             <?php endif; ?>
@@ -92,28 +90,28 @@ $bodyPage = 'edivi';
                 </div>
             </div>
 
-            <div class="twplus-section-card mb-4">
+            <div class="ignis-card mb-4">
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
                 <div class="ignis-card__body twplus-mobile-actions justify-center">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-btn">
-                        <i class="fas fa-circle mr-1"></i>SK1 - Rot
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--sk1 quick-action-btn">
+                        <i class="fas fa-circle" aria-hidden="true"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--secondary quick-action-btn">
-                        <i class="fas fa-circle mr-1"></i>SK2 - Gelb
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--sk2 quick-action-btn">
+                        <i class="fas fa-circle" aria-hidden="true"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--primary quick-action-btn">
-                        <i class="fas fa-circle mr-1"></i>SK3 - Grün
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--sk3 quick-action-btn">
+                        <i class="fas fa-circle" aria-hidden="true"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--secondary quick-action-btn">
-                        <i class="fas fa-circle mr-1"></i>SK4 - Blau
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--sk4 quick-action-btn">
+                        <i class="fas fa-circle" aria-hidden="true"></i>SK4 - Blau
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn quick-action-btn" style="background-color: #000; color: #fff; border-color: #fff;">
-                        <i class="fas fa-circle mr-1"></i>SK5 - Schwarz
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn ignis-btn--sk5 quick-action-btn">
+                        <i class="fas fa-circle" aria-hidden="true"></i>SK5 - Schwarz
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn quick-action-btn" style="background-color: #9b59b6; color: #fff;">
-                        <i class="fas fa-circle mr-1"></i>SK6 - Lila
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn ignis-btn--secondary quick-action-btn">
+                        <i class="fas fa-circle" aria-hidden="true"></i>SK6 - Lila
                     </a>
                 </div>
             </div>
@@ -122,7 +120,7 @@ $bodyPage = 'edivi';
                 <?= csrf_field() ?>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <div class="twplus-section-card mb-4">
+                        <div class="ignis-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Personalien</h5>
                             </div>
@@ -151,7 +149,7 @@ $bodyPage = 'edivi';
                             </div>
                         </div>
 
-                        <div class="twplus-section-card mb-4">
+                        <div class="ignis-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Sichtungskategorie</h5>
                             </div>
@@ -159,12 +157,12 @@ $bodyPage = 'edivi';
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
                                     <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie">
-                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-[#d46b6b]">SK1 - Rot</option>
-                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-[#ddb84a]">SK2 - Gelb</option>
-                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-[#6abf76]">SK3 - Grün</option>
-                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-[#5bb8cc]">SK4 - Blau</option>
-                                        <option value="SK5" <?= ($patient['sichtungskategorie'] ?? '') === 'SK5' ? 'selected' : '' ?> style="background-color: #000; color: #fff;">SK5 - Schwarz (Tot)</option>
-                                        <option value="SK6" <?= ($patient['sichtungskategorie'] ?? '') === 'SK6' ? 'selected' : '' ?> style="color: #9b59b6;">SK6 - Lila</option>
+                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-danger-text">SK1 - Rot</option>
+                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-warn-text">SK2 - Gelb</option>
+                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-ok-text">SK3 - Grün</option>
+                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-info-text">SK4 - Blau</option>
+                                        <option value="SK5" <?= ($patient['sichtungskategorie'] ?? '') === 'SK5' ? 'selected' : '' ?>>SK5 - Schwarz (Tot)</option>
+                                        <option value="SK6" <?= ($patient['sichtungskategorie'] ?? '') === 'SK6' ? 'selected' : '' ?>>SK6 - Lila</option>
                                     </select>
                                 </div>
                             </div>
@@ -172,7 +170,7 @@ $bodyPage = 'edivi';
                     </div>
 
                     <div>
-                        <div class="twplus-section-card mb-4">
+                        <div class="ignis-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0"><?= $canTransport ? 'Transport' : 'Fahrzeugzuweisung' ?></h5>
                             </div>
@@ -223,7 +221,7 @@ $bodyPage = 'edivi';
 
                                 <?php if ($canTransport && !empty($patient['transport_abfahrt'])): ?>
                                     <div class="info-box">
-                                        <small class="text-gray-400">
+                                        <small class="text-tertiary-text">
                                             <i class="fas fa-clock mr-1"></i>
                                             Abfahrt: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['transport_abfahrt']) ?>
                                         </small>
@@ -232,7 +230,7 @@ $bodyPage = 'edivi';
                             </div>
                         </div>
 
-                        <div class="twplus-section-card mb-4">
+                        <div class="ignis-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Medizinische Informationen</h5>
                             </div>

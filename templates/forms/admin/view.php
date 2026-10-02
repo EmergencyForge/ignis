@@ -27,7 +27,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>forms/admin/list">Anträge</a></span> <span class="ignis-breadcrumb__item is-active">#<?= htmlspecialchars($caseId) ?></span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>forms/admin/list">Anträge</a></span> <span class="ignis-breadcrumb__item" aria-current="page">#<?= htmlspecialchars($caseId) ?></span></nav>
 
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
@@ -72,7 +72,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
                                         <?php if (!empty($antrag->cirs_manager)): ?>
                                             <?= htmlspecialchars($antrag->cirs_manager) ?>
                                         <?php else: ?>
-                                            <span class="text-[var(--text-3)]">Noch nicht zugewiesen</span>
+                                            <span class="text-tertiary-text">Noch nicht zugewiesen</span>
                                         <?php endif; ?>
                                     </div>
                                     <small class="form-hint block">Wird beim Speichern auf „<?= htmlspecialchars($currentUserFullname) ?>" gesetzt.</small>

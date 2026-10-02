@@ -14,7 +14,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>mail">Mail</a></span> <span class="ignis-breadcrumb__item is-active">Verteiler</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>mail">Mail</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Verteiler</span></nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Mail</p>
@@ -33,7 +33,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                         'variant' => 'first', 'tone' => 'info', 'icon' => 'fa-people-group', 'ghostColumns' => 4,
                         'title'   => 'Noch keine Verteiler',
                         'text'    => 'Ein Verteiler bündelt Postfächer unter einer Adresse, etwa „wache1@…“ für alle auf Wache 1.',
-                        'actions' => [['label' => 'Verteiler anlegen', 'href' => $base . 'mail/lists/create', 'style' => 'primary', 'icon' => 'fa-plus']],
+                        'actions' => [['label' => 'Verteiler anlegen', 'href' => $base . 'mail/lists/create', 'style' => 'secondary', 'icon' => 'fa-plus']],
                     ];
                     require dirname(__DIR__, 5) . '/templates/partials/empty.php';
                     ?>

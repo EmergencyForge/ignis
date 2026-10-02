@@ -47,6 +47,7 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutP
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer-form.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/workbench.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/palette.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/breadcrumb.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/notifications.js"></script>
     <?= $layoutHead ?>
 </head>

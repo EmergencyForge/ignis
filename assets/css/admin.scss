@@ -213,19 +213,6 @@ div.btn:active {
   box-shadow: none;
 }
 
-.btn-soft-primary {
-  background: color-mix(in oklab, var(--info) 15%, transparent) !important;
-  color: var(--info) !important;
-  border: none !important;
-}
-
-.btn-soft-primary:hover {
-  background: color-mix(in oklab, var(--info) 25%, transparent) !important;
-  color: var(--info) !important;
-  transform: none;
-  box-shadow: none;
-}
-
 .btn-soft-success {
   background: color-mix(in oklab, var(--ok) 15%, transparent) !important;
   color: var(--ok) !important;
@@ -511,38 +498,6 @@ div.btn.disabled {
 
 .badge-status.status-away {
   color: var(--warn);
-}
-
-.btn-toolbar-group {
-  display: inline-flex;
-  gap: 2px;
-  background: var(--bg-2);
-  border-radius: var(--radius-md);
-  padding: 3px;
-}
-
-.btn-toolbar-group .btn,
-.btn-toolbar-group .ignis-btn {
-  border-radius: var(--radius-sm);
-  border: none !important;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-  background: transparent;
-  color: var(--text-3);
-}
-
-.btn-toolbar-group .btn:hover,
-.btn-toolbar-group .ignis-btn:hover {
-  transform: none;
-  box-shadow: none;
-  color: var(--text-2);
-  background: var(--fill-1);
-}
-
-.btn-toolbar-group .btn.active,
-.btn-toolbar-group .ignis-btn.active {
-  background: var(--accent) !important;
-  color: var(--white) !important;
 }
 
 textarea.form-control,
@@ -927,7 +882,7 @@ select.form-select option {
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  color: var(--white);
+  color: var(--input-text);
   padding: 0.45rem 0.75rem 0.45rem 2.2rem;
   font-size: 0.82rem;
   min-width: 220px;
@@ -960,7 +915,7 @@ select.form-select option {
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
-  color: var(--white);
+  color: var(--input-text);
   padding: 0.4rem 2rem 0.4rem 0.65rem;
   font-size: 0.82rem;
   -webkit-appearance: none;
@@ -1002,12 +957,15 @@ select.form-select option {
 
   &:hover:not(.disabled):not(.current) {
     background: var(--fill-2);
-    color: var(--white);
+    color: var(--content-text);
   }
 
+  // Die aktuelle Seite wie das aktive Segment: heller, grauer Rand.
   &.current {
-    background: var(--accent);
-    color: var(--white) !important;
+    background: var(--surface-4);
+    border-color: var(--border-ui);
+    box-shadow: inset 0 1px 0 var(--hi);
+    color: var(--content-text) !important;
   }
 
   &.disabled {
@@ -1068,10 +1026,9 @@ select.form-select option {
         width: 2.4rem;
         height: 2.4rem;
         border-radius: var(--radius-lg, 8px);
-        background: rgba(var(--accent-rgb), 0.14);
-        border: 1px solid rgba(var(--accent-rgb), 0.25);
-        color: var(--accent);
-        color: var(--white);
+        background: var(--surface-4);
+        border: 1px solid var(--border-subtle);
+        color: var(--secondary-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1099,8 +1056,8 @@ select.form-select option {
     &__eyebrow {
         display: block;
         margin-bottom: 0.08rem;
-        color: var(--accent);
-        font-size: 0.6rem;
+        color: var(--accent-text);
+        font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.075em;
         text-transform: uppercase;
@@ -1176,7 +1133,6 @@ select.form-select option {
 .beladung-category-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
     border-radius: var(--radius-lg);
     overflow: hidden;
     transition: opacity 0.15s ease;
@@ -1418,7 +1374,7 @@ select.form-select option {
   table.dataTable thead th.sorting_asc::before,
   table.dataTable thead th.sorting_desc::after {
     opacity: 1;
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   table.dataTable tbody tr {
@@ -2299,7 +2255,9 @@ td.dt-empty {
 }
 
 @media (max-width: 991.98px) {
-  .page-header {
+  // twplus-page-header bricht selbst um. In einer Spalte würde die
+  // Flex-Basis seiner Kopie (240px) zur Höhe, unter dem Text stünde eine Lücke.
+  .page-header:not(.twplus-page-header) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;

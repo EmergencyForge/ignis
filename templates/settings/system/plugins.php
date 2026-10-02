@@ -36,7 +36,7 @@ $SITE_TITLE = 'Plugins';
                     </a>
                 </div>
 
-                <p class="text-gray-400 mb-4" style="max-width: 720px;">
+                <p class="text-tertiary-text mb-4" style="max-width: 720px;">
                     Module, die als Plugin ausgeliefert werden, lassen sich hier einzeln
                     aktivieren oder deaktivieren. Beim Deaktivieren verschwinden Navigation,
                     Routen und Berechtigungen des Moduls — <strong>alle Daten und Tabellen
@@ -102,7 +102,7 @@ $SITE_TITLE = 'Plugins';
                                         <span class="ignis-chip ignis-chip--info" data-ignis-tooltip="Dieses Plugin ist fester Bestandteil und kann nicht deaktiviert werden.">Erforderlich</span>
                                     <?php endif; ?>
                                 </div>
-                                <div class="text-gray-400 mt-1" style="font-size: 0.82rem;">
+                                <div class="text-tertiary-text mt-1" style="font-size: 0.82rem;">
                                     von <?= htmlspecialchars($m->vendor) ?>
                                     <?php if ($m->depends !== []): ?>
                                         &middot; benötigt: <?= htmlspecialchars(implode(', ', $m->depends)) ?>
@@ -117,7 +117,7 @@ $SITE_TITLE = 'Plugins';
                                     </div>
                                 <?php endif; ?>
                                 <?php if (!$row['bundled']): ?>
-                                    <div class="text-gray-500 mt-1" style="font-size: 0.78rem;">
+                                    <div class="text-tertiary-text mt-1" style="font-size: 0.78rem;">
                                         <i class="fa-solid fa-scale-balanced mr-1"></i>Community-Plugin — Nutzung auf eigenes Risiko.
                                         EmergencyForge übernimmt keine Gewähr für Funktion, Sicherheit oder mögliche Datenverluste.
                                         Support leistet ausschließlich der jeweilige Herausgeber.
@@ -177,7 +177,7 @@ $SITE_TITLE = 'Plugins';
                             <h2 id="plugin-catalog-heading" class="m-0">Aus dem Katalog</h2>
                         </div>
                         <?php if ($catalogFetchedAt !== null): ?>
-                            <span class="text-gray-500" style="font-size:0.75rem;">
+                            <span class="text-tertiary-text" style="font-size:0.75rem;">
                                 Stand <?= htmlspecialchars((new DateTimeImmutable($catalogFetchedAt))->setTimezone(new DateTimeZone('Europe/Berlin'))->format('d.m.Y H:i')) ?>
                                 <?= $catalogStale ? ' · Cache' : '' ?>
                             </span>
@@ -230,7 +230,7 @@ $SITE_TITLE = 'Plugins';
                                     </div>
                                     <div class="ignis-card__body">
                                         <p class="ignis-card__text"><?= htmlspecialchars((string) ($plugin['description'] ?: 'Keine Beschreibung hinterlegt.')) ?></p>
-                                        <div class="text-gray-500" style="font-size:0.72rem;font-family:var(--mono);">
+                                        <div class="text-tertiary-text" style="font-size:0.72rem;font-family:var(--mono);">
                                             SHA256 <?= $plugin['sha256'] !== '' ? htmlspecialchars(substr((string) $plugin['sha256'], 0, 12)) . '…' : 'fehlt' ?>
                                         </div>
                                     </div>

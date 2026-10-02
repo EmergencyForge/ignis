@@ -10,9 +10,9 @@ declare(strict_types=1);
  * hinein; beim Tippen öffnet palette.js die Palette darunter, gespeist aus
  * GET /api/system/global-search und den Aktionen in data-ignis-actions), rechts das
  * Neu-Menü mit den Schnellaktionen der Navigation, die der Betrachter
- * sehen darf, die Glocke mit dem Zähler der ungelesenen Benachrichtigungen
- * (das Popover lädt shell.js beim ersten Öffnen von GET /inbox/popover,
- * den Zähler hält notifications.js aktuell) und das Kontomenü mit
+ * sehen darf, die Glocke mit einem Punkt für Ungelesenes und der Zahl im
+ * aria-label (das Popover lädt shell.js beim ersten Öffnen von GET
+ * /inbox/popover, Punkt und Zahl hält notifications.js aktuell) und das Kontomenü mit
  * Darstellungswechsel und Abmelden. Die Menüs sind <details>, damit sie
  * ohne JS funktionieren; shell.js schließt sie bei Klick daneben.
  *
@@ -71,6 +71,10 @@ $topLogoIsDefault = systemLogoIsDefault();
 $topGroups  = $topLoggedIn ? Navigation::groups() : [];
 $topActions = Navigation::quickActions($topGroups);
 
+// Ein Primärknopf je Ansicht. Bringt die Seite einen mit, ist „Neu“
+// sekundär. Im Shim (navbar.php) ist der Inhalt noch nicht bekannt.
+$topNewStyle = isset($layoutContent) && !str_contains((string) $layoutContent, 'ignis-btn--primary') ? 'primary' : 'secondary';
+
 // Einträge der Palette ohne Server (assets/js/ui/palette.js): „X anlegen"
 // aus den Schnellaktionen und „Gehe zu" aus der sichtbaren Navigation,
 // als JSON am Suchfeld. Die Treffer aus dem Datenbestand kommen von
@@ -115,12 +119,13 @@ foreach ($topGroups as $topGroup) {
     </div>
 
     <?php if ($topLoggedIn): ?>
-        <div class="ignis-topbar__search" role="search"
+        <?php // Tastenchip „Strg K“, preferences.js schreibt auf dem Mac „⌘K“ daraus. ?>
+        <div class="ignis-topbar__search ignis-search" role="search"
             data-endpoint="<?= htmlspecialchars($topBasePath . 'api/system/global-search', ENT_QUOTES) ?>"
             data-ignis-actions="<?= htmlspecialchars((string) json_encode($topPalette, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES) ?>">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" class="ignis-topbar__search-input" data-ignis-global-search placeholder="Suchen oder Schnellaktion starten" aria-label="Suche" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
-            <kbd class="ignis-topbar__kbd" aria-hidden="true">Ctrl K</kbd>
+            <input type="search" class="ignis-topbar__search-input" data-ignis-global-search placeholder="Suchen" aria-label="Suche" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
+            <kbd class="ignis-kbd" aria-hidden="true">Strg K</kbd>
         </div>
     <?php endif; ?>
 
@@ -129,7 +134,7 @@ foreach ($topGroups as $topGroup) {
 
     <?php if ($topActions !== []): ?>
         <details class="ignis-menu ignis-menu--right" data-ignis-menu>
-            <summary class="ignis-btn ignis-btn--primary ignis-btn--sm ignis-topbar__new"><i class="fa-solid fa-plus" aria-hidden="true"></i> <span class="ignis-topbar__new-label">Neu</span> <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i></summary>
+            <summary class="ignis-btn ignis-btn--<?= $topNewStyle ?> ignis-btn--sm ignis-topbar__new"><i class="fa-solid fa-plus" aria-hidden="true"></i> <span class="ignis-topbar__new-label">Neu</span> <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i></summary>
             <div class="ignis-menu__panel" role="menu">
                 <?php foreach ($topActions as $topAction): ?>
                     <?php if ($topAction['type'] === 'drawer' || $topAction['type'] === 'link'): ?>
@@ -148,9 +153,10 @@ foreach ($topGroups as $topGroup) {
 
     <?php if ($topLoggedIn): ?>
         <details class="ignis-menu ignis-menu--right ignis-topbar__bell" data-ignis-menu data-ignis-inbox="<?= htmlspecialchars($topBasePath . 'inbox/popover', ENT_QUOTES) ?>">
-            <summary class="ignis-topbar__toggle" aria-label="Posteingang<?= $topUnread > 0 ? ', ' . $topUnread . ' ungelesen' : '' ?>" data-ignis-tooltip="Posteingang" data-placement="bottom">
+            <?php // Ungelesenes zeigt ein Punkt, die Zahl steht im aria-label und am Eintrag der Seitenleiste. ?>
+            <summary class="ignis-btn ignis-btn--secondary ignis-btn--icon" aria-label="Posteingang<?= $topUnread > 0 ? ', ' . $topUnread . ' ungelesen' : '' ?>" data-ignis-tooltip="Posteingang" data-placement="bottom">
                 <i class="fa-solid fa-bell" aria-hidden="true"></i>
-                <span class="ignis-topbar__badge notification-poll-badge"<?= $topUnread > 0 ? '' : ' hidden' ?>><?= $topUnread > 99 ? '99+' : $topUnread ?></span>
+                <span class="ignis-btn__dot notification-poll-badge" data-count="<?= $topUnread ?>"<?= $topUnread > 0 ? '' : ' hidden' ?>></span>
             </summary>
             <div class="ignis-menu__panel ignis-inbox-popover" role="region" aria-label="Posteingang">
                 <div class="ignis-inbox-popover__loading" aria-hidden="true"><span class="ignis-skeleton" style="width:50%"></span><span class="ignis-skeleton"></span><span class="ignis-skeleton" style="width:70%"></span></div>

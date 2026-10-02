@@ -8,9 +8,9 @@
 // Das ist die einzige Datei unter assets/css mit Hex-Farben. Alle anderen
 // Stylesheets greifen über var(--…) auf diese Werte zu; tests/Unit/Assets/
 // ThemeTokensTest.php prüft das, ebenso, dass jeder Farbwert von hier unten
-// einen hellen Gegenwert hat. Die Akzentfarbe kommt aus SYSTEM_COLOR und wird
-// in head.php als <style> über --accent gelegt, wenn der Betreiber sie
-// geändert hat; sonst gelten die Werte hier.
+// einen hellen Gegenwert hat. Eine eigene Akzentfarbe aus SYSTEM_COLOR legt
+// head.php nur im Skin über --accent (Theme::accentStyleTag()), Seiten ohne
+// Skin behalten die Werte hier.
 //
 // Alte Namen (--main-color, --body-bg, --text-dimmed, …) leben als Aliase in
 // _tokens-legacy.scss, das nur style.scss lädt.

@@ -418,7 +418,7 @@ import { bindEventForm } from './calendar-form.js';
     function showSubscribeDialog(initialUrl) {
         let currentUrl = initialUrl;
         const body = `
-            <p class="text-sm text-[var(--text-dimmed,#818189)] mb-3">
+            <p class="text-sm text-tertiary-text mb-3">
                 Mit dieser URL kannst du deinen ıgnıs-Kalender in Apple Calendar,
                 Google Calendar oder Outlook abonnieren. Der Sync läuft dann
                 automatisch — neue Termine erscheinen ohne Reload.
@@ -429,7 +429,7 @@ import { bindEventForm } from './calendar-form.js';
                     <i class="fa-solid fa-copy"></i> Kopieren
                 </button>
             </div>
-            <details class="text-xs text-[var(--text-dimmed,#818189)]">
+            <details class="text-xs text-tertiary-text">
                 <summary class="cursor-pointer">Anleitung anzeigen</summary>
                 <ul class="mt-2 ml-4 list-disc space-y-1">
                     <li><b>Google Calendar</b>: Andere Kalender → + → Per URL → URL einfügen</li>

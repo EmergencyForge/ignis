@@ -35,7 +35,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Fahrtenbuch</span></nav>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Fahrtenbuch</span></nav>
 
                 <div class="page-header twplus-page-header mb-4">
                     <div class="twplus-page-header__copy">
@@ -226,7 +226,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                 'title'   => 'Noch keine Fahrten eingetragen',
                                 'text'    => 'Fahrten erscheinen hier, sobald jemand eine einträgt.',
                                 'actions' => $canManage
-                                    ? [['label' => 'Fahrt eintragen', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-logbook-create' => '']]]
+                                    ? [['label' => 'Fahrt eintragen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-logbook-create' => '']]]
                                     : [],
                             ];
                         require dirname(__DIR__) . '/partials/empty.php';
@@ -262,7 +262,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                         )) ?>">
                                             <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
                                             <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
-                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-[var(--text-3)]">—</span>' ?></td>
+                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-tertiary-text">—</span>' ?></td>
                                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                                             <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                                             <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>

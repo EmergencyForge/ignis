@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div id="update-status-text" class="text-center">
-                    <small class="text-gray-400">Update wird vorbereitet...</small>
+                    <small class="text-tertiary-text">Update wird vorbereitet...</small>
                 </div>
                 <div class="ignis-alert ignis-alert--info mt-3 mb-0">
                     <small>

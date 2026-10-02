@@ -256,6 +256,7 @@ class FormsController extends Controller
                     ->orWhere('intra_antrag_typen.name', 'LIKE', $list->like());
             });
         }
+        $byStatus = ListQuery::countBy($query, 'intra_antraege.cirs_status');
         if ($list->filter('status') !== '' && isset(self::STATUS_DISPLAY[(int) $list->filter('status')])) {
             $query->where('intra_antraege.cirs_status', (int) $list->filter('status'));
         }
@@ -264,6 +265,7 @@ class FormsController extends Controller
             'antraege'      => $list->paginate($query),
             'statusDisplay' => self::STATUS_DISPLAY,
             'list'          => $list,
+            'counts'        => ['' => array_sum($byStatus)] + $byStatus,
         ]);
     }
 

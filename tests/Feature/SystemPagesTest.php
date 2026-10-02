@@ -66,12 +66,28 @@ final class SystemPagesTest extends FeatureTestCase
         $page = $this->get('/settings/system/config');
 
         $this->assertOk($page);
-        $this->assertBodyContains('<nav class="ignis-segmented" id="categoryFilter" aria-label="Kategorie">', $page);
-        $this->assertBodyContains('<button type="button" class="is-active" data-category="">Alle</button>', $page);
+        $this->assertBodyContains('<div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Kategorie">', $page);
+        $this->assertBodyContains('<button type="button" aria-pressed="true" data-category="">Alle</button>', $page);
         $this->assertBodyContains('name="save_config" class="ignis-btn ignis-btn--primary"', $page);
         $this->assertBodyNotContains('form-select', $page);
         $this->assertBodyNotContains('input-group', $page);
         $this->assertBodyNotContains('btn-toolbar-group', $page);
+    }
+
+    /** Ein rotes SYSTEM_COLOR sähe aus wie Gefahr, die Seite warnt davor. */
+    #[Test]
+    public function system_konfiguration_warnt_vor_roter_hauptfarbe(): void
+    {
+        $color = static function (string $value): void {
+            Capsule::table('intra_config')->where('config_key', 'SYSTEM_COLOR')->update(['config_value' => $value]);
+            (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
+        };
+
+        $color('#dc2626');
+        $this->assertBodyContains('id="system-color-danger" role="status"', $this->get('/settings/system/config'));
+
+        $color('#2563eb');
+        $this->assertBodyNotContains('system-color-danger', $this->get('/settings/system/config'));
     }
 
     /**
@@ -144,7 +160,8 @@ final class SystemPagesTest extends FeatureTestCase
         $logs = $this->get('/settings/system/logs');
         $this->assertOk($logs);
         $this->assertBodyContains('<title>Fehlerprotokoll', $logs);
-        $this->assertBodyContains('<nav class="ignis-segmented" id="inboxScopeFilter" aria-label="Stufe">', $logs);
+        $this->assertBodyContains('<div class="ignis-segmented" id="inboxScopeFilter" role="group" aria-label="Stufe">', $logs);
+        $this->assertBodyContains('<button type="button" aria-pressed="true" data-scope="all">Alle</button>', $logs);
         $this->assertBodyContains('<select id="searchFile" class="ignis-input">', $logs);
         $this->assertBodyContains('<table class="ignis-table" id="table-log-files">', $logs);
         $this->assertBodyNotContains('input-group', $logs);

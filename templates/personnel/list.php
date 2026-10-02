@@ -29,8 +29,8 @@ $pgLabel = 'Mitarbeiter';
         <!-- ------------ -->
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
+                <div class="flex-1 min-w-0 mb-5 px-3">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Mitarbeiter</span></nav>
                     <div class="page-header twplus-page-header twplus-page-header--list mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal</p>
@@ -165,7 +165,7 @@ $pgLabel = 'Mitarbeiter';
                                                 ? 'Lege Mitarbeitende an oder lass sie sich per Discord anmelden. Qualifikationen und Dienstzeiten hängen danach am Profil.'
                                                 : 'Mitarbeitende erscheinen hier, sobald sie sich per Discord anmelden oder angelegt werden. Das Recht zum Anlegen vergibt die Administration.',
                                             'actions'      => $canCreate
-                                                ? [['label' => 'Mitarbeitende anlegen', 'href' => BASE_PATH . 'personnel/create', 'style' => 'primary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
+                                                ? [['label' => 'Mitarbeitende anlegen', 'href' => BASE_PATH . 'personnel/create', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-ignis-drawer' => '']]]
                                                 : [],
                                         ];
                                     }
@@ -200,14 +200,14 @@ $pgLabel = 'Mitarbeiter';
                                             <?php if (!$isRdNone): ?>
                                                 <span class="ignis-chip ignis-chip--category"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-3)]">-</span>
+                                                <span class="text-tertiary-text">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td data-label="FW-Qualifikation">
                                             <?php if (!$isFwNone): ?>
                                                 <span class="ignis-chip ignis-chip--category"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-3)]">-</span>
+                                                <span class="text-tertiary-text">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td data-label="Einstellung"><?= htmlspecialchars($einstellungsdatum) ?></td>

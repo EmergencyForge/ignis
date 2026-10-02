@@ -48,13 +48,13 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                             </thead>
                             <tbody>
                                 <?php if (empty($categories)): ?>
-                                    <tr><td colspan="5" class="text-center text-gray-500">Keine Kategorien vorhanden.</td></tr>
+                                    <tr><td colspan="5" class="text-center text-tertiary-text">Keine Kategorien vorhanden.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($categories as $cat): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($cat['name']) ?></td>
-                                            <td><?= $cat['parent_name'] ? htmlspecialchars($cat['parent_name']) : '<span class="text-gray-500">-</span>' ?></td>
-                                            <td><?= !empty($cat['icon']) ? '<i class="' . htmlspecialchars($cat['icon']) . '"></i>' : '<span class="text-gray-500">-</span>' ?></td>
+                                            <td><?= $cat['parent_name'] ? htmlspecialchars($cat['parent_name']) : '<span class="text-tertiary-text">-</span>' ?></td>
+                                            <td><?= !empty($cat['icon']) ? '<i class="' . htmlspecialchars($cat['icon']) . '"></i>' : '<span class="text-tertiary-text">-</span>' ?></td>
                                             <td><?= (int)$cat['entry_count'] ?></td>
                                             <td>
                                                 <div class="flex gap-1">
@@ -93,7 +93,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                             </thead>
                             <tbody>
                                 <?php if (empty($tags)): ?>
-                                    <tr><td colspan="3" class="text-center text-gray-500">Keine Tags vorhanden.</td></tr>
+                                    <tr><td colspan="3" class="text-center text-tertiary-text">Keine Tags vorhanden.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($tags as $tag): ?>
                                         <tr>
@@ -143,7 +143,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="catIcon" class="ignis-field__label">Icon <span class="text-gray-500 text-sm">(optional)</span></label>
+                        <label for="catIcon" class="ignis-field__label">Icon <span class="text-tertiary-text text-sm">(optional)</span></label>
                         <input type="text" class="ignis-input" id="catIcon" placeholder="z.B. fa-solid fa-heart-pulse">
                         <div class="ignis-field__hint">Font Awesome Klasse. Vorschau: <i id="catIconPreview" class="ml-1"></i></div>
                     </div>

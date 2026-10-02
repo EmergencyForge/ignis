@@ -23,11 +23,11 @@ $pgLabel = 'Einträge';
         <!-- ------------ -->
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+                <div class="flex-1 min-w-0 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
-                        <span class="ignis-breadcrumb__item is-active">Audit Log</span>
+                        <span class="ignis-breadcrumb__item" aria-current="page">Audit Log</span>
                     </nav>
                     <div class="twplus-page-header mb-5">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Sicherheit</p><h1>Audit Log</h1><p class="twplus-page-header__description">Systemweite Änderungen mit Zeitpunkt, Modul und verantwortlichem Benutzer.</p></div>

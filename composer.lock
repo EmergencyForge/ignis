@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
+                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -7772,15 +7772,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

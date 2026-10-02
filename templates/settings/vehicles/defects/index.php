@@ -55,7 +55,14 @@ try {
     $tableExists = false;
 }
 
+// Zähler der Statussegmente, mit dem Fahrzeugfilter, aber ohne den Status selbst.
+$statusCounts = [];
 if ($tableExists) {
+    $statusCounts = \App\Support\ListQuery::countBy(
+        Capsule::table('intra_fahrzeuge_defects as d')->when($filterVehicle > 0, static fn ($q) => $q->where('d.vehicle_id', $filterVehicle)),
+        'd.status',
+    );
+    $statusCounts[''] = array_sum($statusCounts);
     $lastLogSub = Capsule::table('intra_fahrzeuge_defect_log as l')
         ->leftJoin('intra_users as u', 'l.user_id', '=', 'u.id')
         ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
@@ -133,7 +140,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Defekt-Meldungen</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Defekt-Meldungen</span></nav>
 
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">
@@ -163,23 +170,23 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                     <dl class="twplus-stats twplus-stats--five" aria-label="Defektstatistik">
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Offen</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= (int)$stats['open_count'] ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= (int)$stats['open_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">In Bearbeitung</dt>
-                            <dd class="twplus-stats__value text-[var(--warn)]"><?= (int)$stats['in_progress_count'] ?></dd>
+                            <dd class="twplus-stats__value text-warn-text"><?= (int)$stats['in_progress_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Aufgeschoben</dt>
-                            <dd class="twplus-stats__value text-[var(--info)]"><?= (int)$stats['deferred_count'] ?></dd>
+                            <dd class="twplus-stats__value text-info-text"><?= (int)$stats['deferred_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Gelöst</dt>
-                            <dd class="twplus-stats__value text-[var(--ok)]"><?= (int)$stats['resolved_count'] ?></dd>
+                            <dd class="twplus-stats__value text-ok-text"><?= (int)$stats['resolved_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Nicht einsatzfähig</dt>
-                            <dd class="twplus-stats__value text-[var(--danger)]"><?= (int)$stats['not_operable_open'] ?></dd>
+                            <dd class="twplus-stats__value text-danger-text"><?= (int)$stats['not_operable_open'] ?></dd>
                         </div>
                     </dl>
 
@@ -207,8 +214,8 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Status">
-                            <?php foreach (['' => 'Alle'] + array_map(static fn (array $s): string => $s[0], $statusLabels) as $statusKey => $statusLabel): ?>
-                                <a href="<?= htmlspecialchars($listUrl(['status' => $statusKey === '' ? null : $statusKey])) ?>"<?= $filterStatus === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= htmlspecialchars($statusLabel) ?></a>
+                            <?php foreach (['' => ['Alle', '']] + $statusLabels as $statusKey => [$statusLabel, $statusTone]): ?>
+                                <a href="<?= htmlspecialchars($listUrl(['status' => $statusKey === '' ? null : $statusKey])) ?>"<?= $filterStatus === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?php if ($statusTone !== ''): ?><i class="fa-solid <?= ['danger' => 'fa-circle-xmark', 'warn' => 'fa-triangle-exclamation', 'info' => 'fa-circle-pause', 'ok' => 'fa-circle-check'][$statusTone] ?>" data-tone="<?= $statusTone ?>" aria-hidden="true"></i><?php endif; ?><?= htmlspecialchars($statusLabel) ?> <span class="ignis-segmented__count"><?= $statusCounts[$statusKey] ?? 0 ?></span></a>
                             <?php endforeach; ?>
                         </nav>
                     </form>
@@ -642,8 +649,8 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         wrapper.querySelector('.detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
                         wrapper.querySelector('.detail-assigned').textContent = d.assigned_name || '—';
                         wrapper.querySelector('.detail-operable').innerHTML = d.vehicle_operable == 1
-                            ? '<span class="text-[var(--ok)]"><i class="fa-solid fa-check"></i> Ja</span>'
-                            : '<span class="text-[var(--danger)]"><i class="fa-solid fa-ban"></i> Nein</span>';
+                            ? '<span class="text-ok-text"><i class="fa-solid fa-check"></i> Ja</span>'
+                            : '<span class="text-danger-text"><i class="fa-solid fa-ban"></i> Nein</span>';
 
                         var resWrap = wrapper.querySelector('.detail-resolution-wrap');
                         if (d.resolution_note) {
