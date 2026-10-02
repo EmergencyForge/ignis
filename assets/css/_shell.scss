@@ -59,8 +59,8 @@ html.is-collapsed body.ignis-app {
 }
 
 // Shim-Modus: ohne Raster, deshalb feste Leisten und Padding. Die Tafel
-// steht wie im Raster unter der Topbar neben der Sidebar und reicht bis
-// zum unteren Fensterrand.
+// steht wie im Raster unter der Topbar neben der Sidebar. Ab 901 px endet
+// sie 8 px über dem unteren Fensterrand, schmaler reicht sie bis zum Rand.
 body.ignis-app--legacy {
   display: block;
   padding: var(--topbar-h) 0 0 calc(var(--sidebar-w) + var(--sidebar-inset, 0px));
