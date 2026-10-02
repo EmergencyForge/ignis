@@ -37,7 +37,7 @@ final class UiPackageTest extends TestCase
     private const PACKAGE_MODULES = [
         'accordion', 'alert', 'breadcrumb', 'chip', 'colorpicker', 'combobox', 'datepicker',
         'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'file',
-        'form', 'login-preview', 'multi-select', 'snackbar', 'spark', 'tabs', 'tooltip', 'workbench',
+        'form', 'login-stage', 'multi-select', 'preferences', 'snackbar', 'spark', 'tabs', 'timepicker', 'tooltip', 'workbench',
     ];
 
     public function testOnlyTheProductFilesLiveUnderAssetsJsUi(): void

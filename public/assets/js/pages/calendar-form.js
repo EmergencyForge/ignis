@@ -124,8 +124,8 @@ export function syncPickerType(scope, allDay) {
 }
 
 export function readPickerValue(slot) {
-    // Datetime-Picker schreibt seinen Wert in einen versteckten <input>
-    const dtpHidden = slot.querySelector('[data-ignis-datetimepicker] input[type="hidden"]');
+    // Der Datetime-Picker hält seinen Wert im (versteckten) datetime-local-Feld.
+    const dtpHidden = slot.querySelector('[data-ignis-datetimepicker] input');
     if (dtpHidden && dtpHidden.value) return dtpHidden.value;
     // Datepicker = direktes <input type="date">
     const dpInput = slot.querySelector('input[type="date"]');

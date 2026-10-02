@@ -1,1 +1,0 @@
-import"./_motion.js";document.querySelectorAll(`.ignis-login-preview`).forEach(e=>{let t=()=>e.classList.toggle(`is-paused`,document.hidden);document.addEventListener(`visibilitychange`,t),t()});
