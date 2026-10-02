@@ -87,6 +87,13 @@ body[data-ui-skin="core"] {
   @include ef.look('ignis');
   @include ef.empty('ignis');
 
+  // Ab 901 px endet die Kopfzeile rechts mit der Tafel, 8 px vor dem
+  // Fensterrand. Schmaler liegt die Tafel randlos, dann gilt das Polster
+  // aus ef.shell().
+  @media (min-width: 901px) {
+    .ignis-topbar { padding-right: 8px; }
+  }
+
   // Sichtungskategorien des MANV-Boards im Rand-Rezept des Chips. Mit nur
   // einer Klasse verlören sie gegen den neutralen Chip des Skins und wären
   // alle grau. SK5 und tot sind grau, heben sich aber vom neutralen Chip

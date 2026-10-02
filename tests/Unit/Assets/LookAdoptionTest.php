@@ -204,6 +204,15 @@ final class LookAdoptionTest extends TestCase
         );
     }
 
+    /** Ab 901 px endet die Kopfzeile rechts wie die Tafel 8 px vor dem Rand. */
+    public function testTheTopbarEndsWithThePanel(): void
+    {
+        self::assertMatchesRegularExpression(
+            '/@media\s*\([^)]*901px[^)]*\)\s*\{\s*body\[data-ui-skin=core\] \.ignis-topbar\s*\{\s*padding-right:\s*8px/',
+            (string) file_get_contents(self::CSS),
+        );
+    }
+
     public function testTheSidebarFloatsOnDesktop(): void
     {
         $css = (string) file_get_contents(self::CSS);
