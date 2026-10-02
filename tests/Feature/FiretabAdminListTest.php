@@ -151,6 +151,31 @@ final class FiretabAdminListTest extends FeatureTestCase
     }
 
     /**
+     * Ohne Namen am Einsatz löst die Liste den Einsatzleiter selbst auf. Der
+     * Aufruf gab die Leiter-ID als PDO weiter und warf einen TypeError.
+     */
+    #[Test]
+    public function einsatzleiter_ohne_namen_bricht_die_liste_nicht_ab(): void
+    {
+        $this->login(['fire.incident.qm']);
+        $stamp = uniqid();
+        $leader = (int) Capsule::table('intra_mitarbeiter')->insertGetId([
+            'fullname' => '', 'dienstnr' => "LEER-$stamp",
+            'gebdatum' => '1990-01-01', 'einstdatum' => '2024-01-01', 'geschlecht' => 0,
+            'charakterid' => "LEER-$stamp",
+            'dienstgrad' => Capsule::table('intra_mitarbeiter_dienstgrade')->min('id'),
+            'qualifw2' => Capsule::table('intra_mitarbeiter_fwquali')->min('id'),
+            'qualird' => Capsule::table('intra_mitarbeiter_rdquali')->min('id'),
+        ]);
+        $id = $this->incident("LEER-$stamp", 'Weg 1', 'TH1', 1);
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update(['leader_id' => $leader]);
+
+        $page = $this->get(self::LIST, ['query' => ['q' => "LEER-$stamp"]]);
+        $this->assertOk($page);
+        $this->assertBodyContains('data-ignis-select value="' . $id . '"', $page);
+    }
+
+    /**
      * Ein Einsatz im Verbund-Cache, wie ihn FederationSyncService ablegt.
      */
     private function federatedIncident(string $instance, string $name, bool $active, string $number, string $location, string $keyword, int $hoursAgo): void

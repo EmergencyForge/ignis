@@ -127,4 +127,18 @@ final class FiretabAppTest extends FeatureTestCase
         $this->assertBodyContains('<div class="ignis-progress asu-progress relative mt-2">', $asu);
         $this->assertBodyNotContains('btn-group-sm', $asu);
     }
+
+    /**
+     * Ohne Namen am Einsatz löst die Ansicht den Einsatzleiter selbst auf. Der
+     * Aufruf gab die Leiter-ID als PDO weiter und warf einen TypeError.
+     */
+    #[Test]
+    public function einsatzleiter_ohne_namen_bricht_die_ansicht_nicht_ab(): void
+    {
+        $this->loginVehicle();
+        $id = $this->incident();
+        Capsule::table('intra_mitarbeiter')->where('id', $this->person->id)->update(['fullname' => '']);
+
+        $this->assertOk($this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'stammdaten']]));
+    }
 }

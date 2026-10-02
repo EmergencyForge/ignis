@@ -156,7 +156,7 @@ final class KnowledgebaseController
         }
 
         $name  = trim((string) $input['name']);
-        $color = $input['color'] ?? '#6c757d';
+        $color = KbTag::safeColor($input['color'] ?? null);
 
         if (!empty($input['id'])) {
             KbTag::where('id', (int) $input['id'])->update(['name' => $name, 'color' => $color]);

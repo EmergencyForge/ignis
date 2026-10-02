@@ -20,6 +20,17 @@ class KbTag extends Model
 {
     protected $table = 'intra_kb_tags';
 
+    public const DEFAULT_COLOR = '#6c757d';
+
+    /**
+     * Die Farbe landet in style-Attributen. Nur Hex-Werte, sonst ließe sich
+     * über den Tag-Namen hinaus CSS einschleusen.
+     */
+    public static function safeColor(mixed $color): string
+    {
+        return is_string($color) && preg_match('/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i', $color) === 1 ? $color : self::DEFAULT_COLOR;
+    }
+
     /**
      * @return BelongsToMany<KbEntry, $this>
      */
