@@ -1,6 +1,6 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.0.15-beta
 
 ignis sieht neu aus. Mit dem UI-Paket 0.7.1 wird das Grau kühler, die Ecken werden runder, und Farbe haben nur noch Daten, Status und die eine Hauptaktion einer Seite. Seitenleiste, Kopfzeile, Reiter und Filter sind grau, der aktive Eintrag in der Seitenleiste, aktive Reiter und der gewählte Mail-Ordner sind deshalb nicht mehr orange. Primärknöpfe sind orange mit dunkler Schrift, und jede Seite hat höchstens einen davon. Seitenleiste und Kopfzeile liegen ohne eigene Fläche auf einem dunkleren Grund und gehen ineinander über. Darauf liegt der Seiteninhalt als hellere Fläche mit runden Ecken und leichtem Schatten, rechts und unten bleibt ein schmaler Rand frei. Auf dem Handy reicht der Inhalt bis an den Bildschirmrand. Die Grundschrift ist 14 px groß. Knöpfe und Eingabefelder sind in der Dichte „Komfortabel“ 40 px hoch, in „Kompakt“ 36 px und auf Touch-Geräten immer 44 px.
 
@@ -13,6 +13,8 @@ Die eNOTF-Protokollseiten sehen absichtlich genauso aus wie vorher, ebenso die f
 Auf dem Handy laufen Listen nicht mehr über den rechten Rand, die Tabelle scrollt in ihrer Karte, und unter den Seitentiteln ist die große Lücke verschwunden. Im dreispaltigen Mail-Postfach hat der Betreff mehr Platz.
 
 Eine eigene Hauptfarbe aus der System-Konfiguration (`SYSTEM_COLOR`) kam bisher nicht an, ignis blieb orange. Jetzt färbt sie im hellen wie im dunklen Modus Primärknöpfe, Fortschrittsbalken und den Fokusrahmen, die Schrift auf dem Knopf wählt ignis so, dass sie lesbar bleibt. Die eNOTF-Protokollseiten und die fireTab-App bleiben orange. Die System-Konfiguration warnt, wenn die Hauptfarbe so rot ist, dass Knöpfe und Fortschrittsbalken wie Warnungen aussehen.
+
+Der Kalender öffnete sich seit der Umstellung auf das UI-Paket nicht mehr, die Seite blieb leer. Er lädt wieder. Im Posteingang landeten Benachrichtigungen zwischen Mitternacht und zwei Uhr unter „Gestern“, und die angezeigten Uhrzeiten lagen zwei Stunden daneben, wenn die Datenbank in UTC läuft. Beides richtet sich jetzt nach der Ortszeit.
 
 Plugins mit eigenen Styles finden die Änderungen an Farben, Ecken und Bausteinen in der README des UI-Pakets im Abschnitt „Funke (0.7.0)“ unter „Beim Umstieg“.
 
