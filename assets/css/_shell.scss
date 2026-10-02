@@ -94,6 +94,12 @@ html.is-collapsed body.ignis-app--legacy {
   .ignis-sidebar { width: var(--sidebar-w-collapsed); }
 }
 
+// Ab 901 px lässt die Tafel unten 8 px Grund stehen (ef.look()). Ohne den
+// Abzug scrollt eine kurze Seite um genau diese 8 px.
+@media (min-width: 901px) {
+  body.ignis-app--legacy .ignis-main { min-height: calc(100vh - var(--topbar-h) - 8px); }
+}
+
 // =====================================================
 // Topbar
 // =====================================================

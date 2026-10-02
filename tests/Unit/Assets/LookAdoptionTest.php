@@ -192,6 +192,18 @@ final class LookAdoptionTest extends TestCase
         self::assertStringContainsString('.ignis-empty', (string) file_get_contents(self::CSS));
     }
 
+    /**
+     * Ab 901 px lässt die Tafel unten 8 px Grund stehen. Im Shim-Modus zieht
+     * die Mindesthöhe sie ab, sonst scrollt eine kurze Seite um 8 px.
+     */
+    public function testShimMainLeavesRoomForTheBottomGap(): void
+    {
+        self::assertMatchesRegularExpression(
+            '/@media\s*\([^)]*901px[^)]*\)\s*\{\s*body\.ignis-app--legacy \.ignis-main\s*\{\s*min-height:\s*calc\(100vh - var\(--topbar-h\) - 8px\)/',
+            (string) file_get_contents(self::CSS),
+        );
+    }
+
     public function testTheSidebarFloatsOnDesktop(): void
     {
         $css = (string) file_get_contents(self::CSS);
