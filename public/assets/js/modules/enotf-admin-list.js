@@ -1,181 +1,155 @@
 /**
- * enotf-admin-list.js — Inline-Script aus templates/enotf/admin/list.php
- * extrahiert. Verhalten 1:1 erhalten — DataTable-Config, QM-Modals,
- * QM-Log-Modal, Bulk-Delete-Mehrstufiger-Flow.
+ * enotf-admin-list.js — QM-Dialoge und das Löschen leerer Protokolle auf
+ * der eNOTF-Prüfliste (plugins/enotf/templates/enotf/admin/list.php).
+ * Sortieren, Suchen und Blättern macht der Server (App\Support\ListQuery).
  *
  * Aufruf vom Template:
  *   initEnotfAdminListPage({
- *       basePath:    '<?= BASE_PATH ?>',
- *       qmActionsApi:'<?= BASE_PATH ?>enotf/admin/qm-actions-modal',
- *       qmLogApi:    '<?= BASE_PATH ?>enotf/admin/qm-log-modal',
+ *       qmActionsApi: '<?= BASE_PATH ?>enotf/admin/qm-actions-modal',
+ *       qmLogApi:     '<?= BASE_PATH ?>enotf/admin/qm-log-modal',
  *       bulkDeleteApi:'<?= BASE_PATH ?>api/enotf/bulk-delete-empty',
  *   });
  *
- * Modals (qmActionsModal, qmLogModal, bulkDeleteModal) laufen ueber das
- * Ignis-Dialog-System: Markup liegt als [data-dialog-source] im Template,
- * geoeffnet/geschlossen wird via Dialog.openElement/closeElement.
+ * Die Knöpfe einer Zeile tragen data-enotf-qm="actions" oder "log" mit
+ * data-id, data-enr und data-patname. Die Dialoge (qmActionsModal,
+ * qmLogModal, bulkDeleteModal) liegen als [data-dialog-source] im Template
+ * und öffnen über Dialog.openElement. Das Markup des Löschablaufs ruft
+ * showBulkDeleteModal, previewBulkDelete und executeBulkDelete auf, deshalb
+ * bleiben die drei global.
  */
 (function (global) {
     'use strict';
 
-    const $ = global.jQuery || global.$;
+    // Antworten des Servers landen per innerHTML im Dialog, also escapen.
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[c]);
+
+    const loadingSkeleton = (label) => `
+        <div class="twplus-skeleton" role="status" aria-label="${esc(label)}">
+            <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+            <div class="twplus-skeleton__line"></div>
+            <div class="twplus-skeleton__line"></div>
+        </div>`;
+
+    const errorAlert = (text) => `
+        <div class="ignis-alert ignis-alert--danger">
+            <i class="fa-solid fa-exclamation-circle"></i> ${esc(text)}
+        </div>`;
+
+    const backButton = `
+        <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
+            <i class="fa-solid fa-arrow-left"></i> Zurück
+        </button>`;
+
+    const setContent = (id, html) => { document.getElementById(id).innerHTML = html; };
 
     global.initEnotfAdminListPage = function (cfg) {
-        const QM_ACTIONS_API   = cfg.qmActionsApi   || (cfg.basePath + 'enotf/admin/qm-actions-modal');
-        const QM_LOG_API       = cfg.qmLogApi       || (cfg.basePath + 'enotf/admin/qm-log-modal');
-        const BULK_DELETE_API  = cfg.bulkDeleteApi  || (cfg.basePath + 'api/enotf/bulk-delete-empty');
+        // ── QM-Aktionen und QM-Log: das Markup kommt vom Server ──────
+        const qmDialogs = {
+            actions: { id: 'qmActions', title: 'QM-Funktionen', url: cfg.qmActionsApi, loading: 'QM-Aktionen werden geladen', failed: 'Fehler beim Laden der QM-Aktionen: ' },
+            log:     { id: 'qmLog',     title: 'QM-Log',        url: cfg.qmLogApi,     loading: 'QM-Log wird geladen',       failed: 'Fehler beim Laden des QM-Logs: ' },
+        };
 
-        const loadingSkeleton = (label) => `
-            <div class="twplus-skeleton" role="status" aria-label="${label}">
-                <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
-                <div class="twplus-skeleton__line"></div>
-                <div class="twplus-skeleton__line"></div>
-            </div>`;
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-enotf-qm]');
+            const dialog = button ? qmDialogs[button.dataset.enotfQm] : null;
+            if (!dialog) return;
 
-        $(document).ready(function () {
-            const table = $('#table-protokoll').DataTable({
-                stateSave:  true,
-                paging:     true,
-                lengthMenu: [10, 20, 50, 100],
-                pageLength: 20,
-                order:      [[2, 'desc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language:   global.IgnisDataTableLang('Protokolle'),
-            });
+            const { id, enr, patname } = button.dataset;
+            document.getElementById(dialog.id + 'ModalLabel').textContent = `${dialog.title} [#${enr}] ${patname}`;
+            setContent(dialog.id + 'Content', loadingSkeleton(dialog.loading));
+            global.Dialog.openElement('#' + dialog.id + 'Modal');
 
-            // ── QM-Actions-Modal ─────────────────────────────────────
-            global.openQMActions = function (id, enr, patname) {
-                document.getElementById('qmActionsModalLabel').textContent = `QM-Funktionen [#${enr}] ${patname}`;
-                document.getElementById('qmActionsContent').innerHTML = loadingSkeleton('QM-Aktionen werden geladen');
-                global.Dialog.openElement('#qmActionsModal');
-
-                fetch(`${QM_ACTIONS_API}?id=${id}`)
-                    .then((r) => r.text())
-                    .then((html) => { document.getElementById('qmActionsContent').innerHTML = html; })
-                    .catch((err) => {
-                        document.getElementById('qmActionsContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--danger">
-                                Fehler beim Laden der QM-Aktionen: ${err.message}
-                            </div>`;
-                    });
-            };
-
-            // ── QM-Log-Modal ─────────────────────────────────────────
-            global.openQMLog = function (id, enr, patname) {
-                document.getElementById('qmLogModalLabel').textContent = `QM-Log [#${enr}] ${patname}`;
-                document.getElementById('qmLogContent').innerHTML = loadingSkeleton('QM-Log wird geladen');
-                global.Dialog.openElement('#qmLogModal');
-
-                fetch(`${QM_LOG_API}?id=${id}`)
-                    .then((r) => r.text())
-                    .then((html) => { document.getElementById('qmLogContent').innerHTML = html; })
-                    .catch((err) => {
-                        document.getElementById('qmLogContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--danger">
-                                Fehler beim Laden des QM-Logs: ${err.message}
-                            </div>`;
-                    });
-            };
-
-            // ── QM-Actions Form-Submit (delegated, weil Form via AJAX nachgeladen) ──
-            $(document).on('submit', '#qmActionsForm', function (e) {
-                e.preventDefault();
-                const formData    = new FormData(this);
-                const submitBtn   = this.querySelector('input[type="submit"]');
-                const originalText = submitBtn.value;
-
-                submitBtn.value    = 'Speichere...';
-                submitBtn.disabled = true;
-
-                fetch(this.action, { method: 'POST', body: formData })
-                    .then((r) => r.json())
-                    .then((data) => {
-                        if (data.success) {
-                            global.Dialog.closeElement('#qmActionsModal');
-                            location.reload();
-                        } else {
-                            global.showAlert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'), {
-                                type: 'error', title: 'Fehler',
-                            });
-                        }
-                    })
-                    .catch((err) => {
-                        global.showAlert('Fehler beim Speichern: ' + err.message, { type: 'error', title: 'Fehler' });
-                    })
-                    .finally(() => {
-                        submitBtn.value    = originalText;
-                        submitBtn.disabled = false;
-                    });
-            });
+            fetch(`${dialog.url}?id=${encodeURIComponent(id)}`)
+                .then((r) => r.text())
+                .then((html) => setContent(dialog.id + 'Content', html))
+                .catch((err) => setContent(dialog.id + 'Content', errorAlert(dialog.failed + err.message)));
         });
 
-        // ── Bulk-Delete-Modal (Mehrstufiger Flow) ────────────────────
+        // Das Formular der QM-Aktionen kommt nachgeladen, deshalb am document.
+        document.addEventListener('submit', (event) => {
+            const form = event.target;
+            if (form.id !== 'qmActionsForm') return;
+            event.preventDefault();
 
-        global.showBulkDeleteModal = function () {
-            document.getElementById('bulkDeleteContent').innerHTML = loadingSkeleton('Felder werden geladen');
-            document.getElementById('bulkDeleteFooter').style.display = 'none';
+            const submitBtn    = form.querySelector('input[type="submit"]');
+            const originalText = submitBtn.value;
+            submitBtn.value    = 'Speichere...';
+            submitBtn.disabled = true;
 
-            global.Dialog.openElement('#bulkDeleteModal');
-
-            fetch(BULK_DELETE_API)
+            fetch(form.action, { method: 'POST', body: new FormData(form) })
                 .then((r) => r.json())
                 .then((data) => {
-                    if (data.success && data.fields) {
-                        let fieldsHtml = '';
-                        for (const [key, label] of Object.entries(data.fields)) {
-                            const checked = key === 'patname' ? 'checked' : '';
-                            fieldsHtml += `
-                                <div class="ignis-checkbox">
-                                    <input class="bulk-field-checkbox" type="checkbox" value="${key}" id="field_${key}" ${checked}>
-                                    <label for="field_${key}">${label}</label>
-                                </div>`;
-                        }
-
-                        document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--info">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <strong>Felder auswählen</strong>
-                                <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird.</p>
-                            </div>
-                            <form id="bulkDeleteFieldsForm">
-                                <div class="mb-3">
-                                    <label class="ignis-field__label font-bold">Zeitraum:</label>
-                                    <select class="ignis-input" id="timePeriod">
-                                        <option value="7">Letzte 7 Tage</option>
-                                        <option value="30" selected>Letzte 30 Tage</option>
-                                        <option value="90">Letzte 90 Tage</option>
-                                        <option value="180">Letzte 180 Tage</option>
-                                        <option value="all">Insgesamt (alle Protokolle)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
-                                    ${fieldsHtml}
-                                </div>
-                                <button type="button" class="ignis-btn ignis-btn--secondary" onclick="previewBulkDelete()">
-                                    <i class="fa-solid fa-search"></i> Vorschau anzeigen
-                                </button>
-                            </form>`;
+                    if (data.success) {
+                        global.Dialog.closeElement('#qmActionsModal');
+                        location.reload();
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--danger">
-                                <i class="fa-solid fa-exclamation-circle"></i>
-                                Fehler: ${data.message || 'Unbekannter Fehler'}
-                            </div>`;
+                        global.showAlert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'), { type: 'error', title: 'Fehler' });
                     }
                 })
                 .catch((err) => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="ignis-alert ignis-alert--danger">
-                            <i class="fa-solid fa-exclamation-circle"></i>
-                            Fehler: ${err.message}
-                        </div>`;
+                    global.showAlert('Fehler beim Speichern: ' + err.message, { type: 'error', title: 'Fehler' });
+                })
+                .finally(() => {
+                    submitBtn.value    = originalText;
+                    submitBtn.disabled = false;
                 });
+        });
+
+        // ── Leere Protokolle löschen: Felder, Vorschau, Ergebnis ─────
+        const showFooter = (visible) => { document.getElementById('bulkDeleteFooter').style.display = visible ? 'flex' : 'none'; };
+
+        global.showBulkDeleteModal = function () {
+            setContent('bulkDeleteContent', loadingSkeleton('Felder werden geladen'));
+            showFooter(false);
+            global.Dialog.openElement('#bulkDeleteModal');
+
+            fetch(cfg.bulkDeleteApi)
+                .then((r) => r.json())
+                .then((data) => {
+                    if (!data.success || !data.fields) {
+                        setContent('bulkDeleteContent', errorAlert('Fehler: ' + (data.message || 'Unbekannter Fehler')));
+                        return;
+                    }
+
+                    const fieldsHtml = Object.entries(data.fields).map(([key, label]) => `
+                        <div class="ignis-checkbox">
+                            <input class="bulk-field-checkbox" type="checkbox" value="${esc(key)}" id="field_${esc(key)}"${key === 'patname' ? ' checked' : ''}>
+                            <label for="field_${esc(key)}">${esc(label)}</label>
+                        </div>`).join('');
+
+                    setContent('bulkDeleteContent', `
+                        <div class="ignis-alert ignis-alert--info">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <strong>Felder auswählen</strong>
+                            <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird.</p>
+                        </div>
+                        <form id="bulkDeleteFieldsForm">
+                            <div class="mb-3">
+                                <label class="ignis-field__label font-bold" for="timePeriod">Zeitraum:</label>
+                                <select class="ignis-input" id="timePeriod">
+                                    <option value="7">Letzte 7 Tage</option>
+                                    <option value="30" selected>Letzte 30 Tage</option>
+                                    <option value="90">Letzte 90 Tage</option>
+                                    <option value="180">Letzte 180 Tage</option>
+                                    <option value="all">Insgesamt (alle Protokolle)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <span class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</span>
+                                ${fieldsHtml}
+                            </div>
+                            <button type="button" class="ignis-btn ignis-btn--secondary" onclick="previewBulkDelete()">
+                                <i class="fa-solid fa-search"></i> Vorschau anzeigen
+                            </button>
+                        </form>`);
+                })
+                .catch((err) => setContent('bulkDeleteContent', errorAlert('Fehler: ' + err.message)));
         };
 
         global.previewBulkDelete = function () {
-            const checkboxes     = document.querySelectorAll('.bulk-field-checkbox:checked');
-            const selectedFields = Array.from(checkboxes).map((cb) => cb.value);
+            const selectedFields = Array.from(document.querySelectorAll('.bulk-field-checkbox:checked')).map((cb) => cb.value);
             const timePeriod     = document.getElementById('timePeriod').value;
 
             if (selectedFields.length === 0) {
@@ -183,64 +157,54 @@
                 return;
             }
 
-            document.getElementById('bulkDeleteContent').innerHTML = loadingSkeleton('Vorschau wird geladen');
+            setContent('bulkDeleteContent', loadingSkeleton('Vorschau wird geladen'));
 
             const formData = new FormData();
             selectedFields.forEach((field) => formData.append('fields[]', field));
             formData.append('preview', '1');
             formData.append('timePeriod', timePeriod);
 
-            fetch(BULK_DELETE_API, { method: 'POST', body: formData })
+            fetch(cfg.bulkDeleteApi, { method: 'POST', body: formData })
                 .then((r) => r.json())
                 .then((data) => {
                     if (!data.success) {
-                        document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--danger">
-                                <i class="fa-solid fa-exclamation-circle"></i>
-                                Fehler: ${data.message || 'Unbekannter Fehler'}
-                            </div>
-                            <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
-                                <i class="fa-solid fa-arrow-left"></i> Zurück
-                            </button>`;
+                        setContent('bulkDeleteContent', errorAlert('Fehler: ' + (data.message || 'Unbekannter Fehler')) + backButton);
                         return;
                     }
 
                     if (data.count === 0) {
-                        document.getElementById('bulkDeleteContent').innerHTML = `
+                        setContent('bulkDeleteContent', `
                             <div class="ignis-alert ignis-alert--info">
                                 <i class="fa-solid fa-circle-info"></i>
                                 <strong>Keine leeren Protokolle gefunden</strong>
                                 <p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p>
-                            </div>
-                            <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
-                                <i class="fa-solid fa-arrow-left"></i> Zurück
-                            </button>`;
+                            </div>${backButton}`);
                         return;
                     }
 
-                    const protocolsList = data.protocols.map((p) => {
+                    const rows = data.protocols.map((p) => {
                         const date = new Date(p.sendezeit);
                         const dateStr = date.toLocaleDateString('de-DE') + ' ' +
                             date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                         return `
                             <tr>
-                                <td>${p.enr}</td>
-                                <td>${p.patname || '<em>Unbekannt</em>'}</td>
-                                <td>${dateStr}</td>
-                                <td>${p.pfname || ''}</td>
+                                <td>${esc(p.enr)}</td>
+                                <td>${p.patname ? esc(p.patname) : '<em>Unbekannt</em>'}</td>
+                                <td>${esc(dateStr)}</td>
+                                <td>${esc(p.pfname)}</td>
                             </tr>`;
                     }).join('');
 
-                    document.getElementById('bulkDeleteContent').innerHTML = `
+                    setContent('bulkDeleteContent', `
                         <div class="ignis-alert ignis-alert--warn">
                             <i class="fa-solid fa-exclamation-triangle"></i>
                             <strong>Achtung!</strong>
-                            <p class="mb-0 mt-2">Es wurden <strong>${data.count} leere Protokolle</strong> gefunden.</p>
-                            <p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p>
+                            <p class="mb-0 mt-2">Es wurden <strong>${esc(data.count)} leere Protokolle</strong> gefunden.</p>
+                            <p class="mb-0 mt-2"><small>Leere Felder: ${esc(data.selectedFieldsLabel)}</small></p>
                         </div>
-                        <div style="max-height: 400px; overflow: auto;">
-                            <table class="table table-striped">
-                                <thead style="position: sticky; top: 0; background: rgba(0,0,0,0.3);">
+                        <div class="overflow-x-auto" style="max-height: 400px; overflow-y: auto;">
+                            <table class="ignis-table">
+                                <thead>
                                     <tr>
                                         <th>Einsatznummer</th>
                                         <th>Patient</th>
@@ -248,27 +212,18 @@
                                         <th>Protokollant</th>
                                     </tr>
                                 </thead>
-                                <tbody>${protocolsList}</tbody>
+                                <tbody>${rows}</tbody>
                             </table>
-                        </div>`;
-                    document.getElementById('bulkDeleteFooter').style.display = 'flex';
+                        </div>`);
+                    showFooter(true);
                     global.bulkDeleteSelectedFields = selectedFields;
                     global.bulkDeleteTimePeriod     = timePeriod;
                 })
-                .catch((err) => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="ignis-alert ignis-alert--danger">
-                            <i class="fa-solid fa-exclamation-circle"></i>
-                            Fehler: ${err.message}
-                        </div>
-                        <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
-                            <i class="fa-solid fa-arrow-left"></i> Zurück
-                        </button>`;
-                });
+                .catch((err) => setContent('bulkDeleteContent', errorAlert('Fehler: ' + err.message) + backButton));
         };
 
-        global.executeBulkDelete = function () {
-            const deleteButton = event.target;
+        // Bekommt den Knopf aus onclick="executeBulkDelete(this)".
+        global.executeBulkDelete = function (deleteButton) {
             const originalText = deleteButton.innerHTML;
 
             if (!global.bulkDeleteSelectedFields || global.bulkDeleteSelectedFields.length === 0) {
@@ -283,37 +238,29 @@
             global.bulkDeleteSelectedFields.forEach((field) => formData.append('fields[]', field));
             formData.append('timePeriod', global.bulkDeleteTimePeriod || '30');
 
-            fetch(BULK_DELETE_API, { method: 'POST', body: formData })
+            const failed = (message) => {
+                setContent('bulkDeleteContent', errorAlert('Fehler beim Löschen: ' + message));
+                deleteButton.innerHTML = originalText;
+                deleteButton.disabled  = false;
+            };
+
+            fetch(cfg.bulkDeleteApi, { method: 'POST', body: formData })
                 .then((r) => r.json())
                 .then((data) => {
-                    if (data.success) {
-                        document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--ok">
-                                <i class="fa-solid fa-check-circle"></i>
-                                <strong>Erfolgreich!</strong>
-                                <p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich gelöscht.</p>
-                            </div>`;
-                        document.getElementById('bulkDeleteFooter').style.display = 'none';
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="ignis-alert ignis-alert--danger">
-                                <i class="fa-solid fa-exclamation-circle"></i>
-                                Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}
-                            </div>`;
-                        deleteButton.innerHTML = originalText;
-                        deleteButton.disabled  = false;
+                    if (!data.success) {
+                        failed(data.message || 'Unbekannter Fehler');
+                        return;
                     }
+                    setContent('bulkDeleteContent', `
+                        <div class="ignis-alert ignis-alert--ok">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <strong>Erfolgreich!</strong>
+                            <p class="mb-0 mt-2">${esc(data.deleted)} Protokoll(e) wurden erfolgreich gelöscht.</p>
+                        </div>`);
+                    showFooter(false);
+                    setTimeout(() => location.reload(), 2000);
                 })
-                .catch((err) => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="ignis-alert ignis-alert--danger">
-                            <i class="fa-solid fa-exclamation-circle"></i>
-                            Fehler beim Löschen: ${err.message}
-                        </div>`;
-                    deleteButton.innerHTML = originalText;
-                    deleteButton.disabled  = false;
-                });
+                .catch((err) => failed(err.message));
         };
     };
 })(window);

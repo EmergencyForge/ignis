@@ -1,5 +1,13 @@
 # Changelog
 
+## Unveröffentlicht
+
+Die eNOTF-Prüfliste ist neu aufgebaut wie die übrigen Listen. Sie lädt nicht mehr alle Protokolle auf einmal, sondern blättert auf dem Server, sucht über Einsatznummer, Patient und Protokollant und sortiert nach jeder Spalte. Die Filter „Alle“, „Unbearbeitet“ und „Nicht freigegeben“ zeigen weiter ihre Anzahl, der Link von der Dashboard-Kachel führt wie bisher auf die offenen Protokolle. Nach dem Löschen eines Protokolls bleibt die Liste bei derselben Suche, Sortierung und Seite. Protokolle aus dem Verbund stehen wie bisher nur lesend dabei.
+
+Im QM-Dialog der Prüfliste ließ sich nichts speichern, der Dialog meldete jedes Mal einen Fehler. Status und Kommentar werden jetzt gespeichert. Speichern darf nur, wer Protokolle bearbeiten darf.
+
+Kleine Eingabefelder sind wirklich klein: in Tabellenzeilen und neben kleinen Knöpfen 32 px hoch, auf Touch-Geräten 44 px. In normalen Formularen und Filterleisten haben Felder und Knöpfe dieselbe Höhe.
+
 ## 2026.0.16-beta
 
 Das Dashboard schnitt seinen Inhalt ab: Die helle Inhaltsfläche endete nach einer Fensterhöhe, und die Kacheln darunter liefen über ihren Rand hinaus. Eine alte Regel aus der ersten Version machte die Seite genau ein Fenster hoch. Jetzt wächst die Fläche mit dem Inhalt, der Footer steht wie auf allen Seiten unten in ihr.
