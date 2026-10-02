@@ -1,6 +1,6 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.0.17-beta
 
 Die eNOTF-Prüfliste ist neu aufgebaut wie die übrigen Listen. Sie lädt nicht mehr alle Protokolle auf einmal, sondern blättert auf dem Server, sucht über Einsatznummer, Patient und Protokollant und sortiert nach jeder Spalte. Die Filter „Alle“, „Unbearbeitet“ und „Nicht freigegeben“ zeigen weiter ihre Anzahl, der Link von der Dashboard-Kachel führt wie bisher auf die offenen Protokolle. Nach dem Löschen eines Protokolls bleibt die Liste bei derselben Suche, Sortierung und Seite. Protokolle aus dem Verbund stehen wie bisher nur lesend dabei.
 
