@@ -32,15 +32,8 @@ $bodyPage = 'edivi';
 ?>
 <?php ob_start(); ?>
     <style>
-        .quick-action-btn { margin: 0.25rem; }
-        .patient-header {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
         .info-box {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--well);
             border-radius: 6px;
             padding: 1rem;
             margin-bottom: 1rem;
@@ -64,29 +57,27 @@ $bodyPage = 'edivi';
                 </div>
             <?php endif; ?>
 
-            <div class="patient-header twplus-detail-hero mb-6">
-                <div class="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 class="mb-2"><?= htmlspecialchars($patient['patienten_nummer']) ?></h1>
-                        <h4>
-                            <?= htmlspecialchars($patient['vorname'] ?? '') ?> <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
-                        </h4>
-                        <p class="mb-0 text-tertiary-text">
-                            MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?>
-                        </p>
-                    </div>
-                    <div class="md:text-right">
-                        <h2>
-                            <span class="ignis-chip ignis-chip--<?= $skColor ?> text-2xl">
-                                <?= htmlspecialchars($patient['sichtungskategorie'] ?? 'Ungesichtet') ?>
-                            </span>
-                        </h2>
+            <div class="twplus-detail-hero mb-6">
+                <div>
+                    <h1 class="mb-2"><?= htmlspecialchars($patient['patienten_nummer']) ?></h1>
+                    <h4>
+                        <?= htmlspecialchars($patient['vorname'] ?? '') ?> <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
+                    </h4>
+                    <p class="mb-0 text-tertiary-text">
+                        MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?>
+                    </p>
+                </div>
+                <div class="md:text-right">
+                    <h2>
+                        <span class="ignis-chip ignis-chip--<?= $skColor ?>">
+                            <?= htmlspecialchars($patient['sichtungskategorie'] ?? 'Ungesichtet') ?>
+                        </span>
+                    </h2>
+                    <?php if (!empty($patient['sichtungskategorie_zeit'])): ?>
                         <small class="text-tertiary-text">
-                            <?php if (!empty($patient['sichtungskategorie_zeit'])): ?>
-                                Gesichtet: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['sichtungskategorie_zeit']) ?>
-                            <?php endif; ?>
+                            Gesichtet: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['sichtungskategorie_zeit']) ?>
                         </small>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -94,23 +85,23 @@ $bodyPage = 'edivi';
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
-                <div class="ignis-card__body twplus-mobile-actions justify-center">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--sk1 quick-action-btn">
+                <div class="ignis-card__body flex flex-wrap gap-2">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--sk1">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--sk2 quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--sk2">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--sk3 quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--sk3">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--sk4 quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--sk4">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK4 - Blau
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn ignis-btn--sk5 quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn ignis-btn--sk5">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK5 - Schwarz
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn ignis-btn--secondary quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn ignis-btn--secondary">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK6 - Lila
                     </a>
                 </div>
@@ -119,8 +110,8 @@ $bodyPage = 'edivi';
             <form method="POST" action="">
                 <?= csrf_field() ?>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                        <div class="ignis-card mb-4">
+                    <div class="flex flex-col gap-4">
+                        <div class="ignis-card">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Personalien</h5>
                             </div>
@@ -149,7 +140,7 @@ $bodyPage = 'edivi';
                             </div>
                         </div>
 
-                        <div class="ignis-card mb-4">
+                        <div class="ignis-card">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Sichtungskategorie</h5>
                             </div>
@@ -169,8 +160,8 @@ $bodyPage = 'edivi';
                         </div>
                     </div>
 
-                    <div>
-                        <div class="ignis-card mb-4">
+                    <div class="flex flex-col gap-4">
+                        <div class="ignis-card">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0"><?= $canTransport ? 'Transport' : 'Fahrzeugzuweisung' ?></h5>
                             </div>
@@ -230,7 +221,7 @@ $bodyPage = 'edivi';
                             </div>
                         </div>
 
-                        <div class="ignis-card mb-4">
+                        <div class="ignis-card">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Medizinische Informationen</h5>
                             </div>
@@ -248,12 +239,12 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-sticky-actions justify-between">
+                <div class="twplus-sticky-actions">
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
+                        <i class="fas fa-arrow-left"></i>Zurück
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
-                        <i class="fas fa-save mr-2"></i>Änderungen speichern
+                    <button type="submit" class="ignis-btn ignis-btn--secondary">
+                        <i class="fas fa-save"></i>Änderungen speichern
                     </button>
                 </div>
             </form>

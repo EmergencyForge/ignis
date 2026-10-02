@@ -170,11 +170,7 @@ $SITE_TITLE = 'Wissensdatenbank';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Wissensdatenbank</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Wissensdatenbank</span></nav>
                     <div class="twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Nachschlagewerk</p>

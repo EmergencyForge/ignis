@@ -48,7 +48,7 @@ $SITE_TITLE = 'Rollen';
                                     <th scope="col">ID</th>
                                     <th scope="col">Priorität</th>
                                     <th scope="col">Bezeichnung</th>
-                                    <th scope="col"></th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,7 +62,7 @@ $SITE_TITLE = 'Rollen';
                                         <td><?= (int) $role->id ?></td>
                                         <td><?= (int) $role->priority ?></td>
                                         <td><span class="ignis-chip<?= $chipMod ?>"><?= htmlspecialchars($role->name) ?></span></td>
-                                        <td>
+                                        <td class="ignis-table__actions">
                                             <?php if ($editable): ?>
                                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon"
                                                         data-ignis-tooltip="Rolle bearbeiten"

@@ -68,7 +68,7 @@ $operable  = (string) old('vehicle_operable', '1');
                         <label for="defect-description" class="ignis-field__label">Beschreibung</label>
                         <textarea name="description" id="defect-description" class="ignis-input" rows="4" maxlength="5000" placeholder="Was genau, seit wann, unter welchen Umständen?"><?= htmlspecialchars((string) old('description')) ?></textarea>
                     </div>
-                    <fieldset class="mb-3">
+                    <fieldset class="ignis-field mb-3">
                         <legend class="ignis-field__label">Fahrzeug noch einsatzfähig?</legend>
                         <div class="flex gap-3">
                             <label class="ignis-radio"><input type="radio" name="vehicle_operable" value="1"<?= $operable !== '0' ? ' checked' : '' ?>><span>Ja</span></label>

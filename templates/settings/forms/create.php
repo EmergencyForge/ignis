@@ -45,8 +45,8 @@ $SITE_TITLE = 'Neuer Antragstyp';
                         <small class="form-hint block">Optional: hilft Benutzern zu verstehen, wann sie diesen Antrag nutzen sollten.</small>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div class="mb-3">
+                    <div class="mb-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
                             <label for="icon" class="ignis-field__label">Icon</label>
                             <div class="flex items-center gap-2">
                                 <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border-subtle bg-fill-1 text-secondary-text" aria-hidden="true">
@@ -65,7 +65,7 @@ $SITE_TITLE = 'Neuer Antragstyp';
                             </small>
                         </div>
 
-                        <div class="mb-3">
+                        <div>
                             <label for="sortierung" class="ignis-field__label">Sortierung</label>
                             <input type="number"
                                 class="ignis-input"

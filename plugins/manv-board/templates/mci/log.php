@@ -23,7 +23,7 @@ $bodyPage = 'edivi';
                 </div>
                 <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left mr-2"></i>Zurück
+                        <i class="fas fa-arrow-left"></i>Zurück
                     </a>
                 </div>
             </header>

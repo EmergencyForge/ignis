@@ -22,6 +22,8 @@ $SITE_TITLE = 'Plugins';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Plugins</span></nav>
+
             <div class="mb-6">
                 <div class="twplus-page-header mb-4">
                     <div class="twplus-page-header__copy">
@@ -81,8 +83,8 @@ $SITE_TITLE = 'Plugins';
                     <?php $m = $row['manifest']; ?>
                     <div class="twplus-stacked-list__item">
                         <span class="twplus-stacked-list__icon"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i></span>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <div class="flex-1" style="min-width: 260px;">
+                        <div class="flex min-w-0 flex-1 flex-wrap items-center gap-3">
+                            <div class="flex-1" style="min-width: min(260px, 100%);">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <strong><?= htmlspecialchars($m->name) ?></strong>
                                     <span class="ignis-chip"><?= htmlspecialchars($m->version) ?></span>

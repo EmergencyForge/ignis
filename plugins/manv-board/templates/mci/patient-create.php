@@ -84,14 +84,14 @@ $bodyPage = 'edivi';
                             </select>
                         </div>
                         <div class="ignis-alert ignis-alert--info">
-                            <small>
+                            <div class="ignis-alert__body">
                                 <strong>SK1 (Rot):</strong> Akute Lebensgefahr - Sofortbehandlung und sofortiger Transport nach Stabilisierung, wenn keine Transportkapazität vorhanden dann → SK4<br>
                                 <strong>SK2 (Gelb):</strong> Nicht auszuschließende schwere Folgeschäden oder akutes, nicht lebensbedrohliches Problem - Behandlung und Transport nach individueller Dringlichkeit<br>
                                 <strong>SK3 (Grün):</strong> Spätere Behandlung bei nicht akuten Problemen ohne erwartbare Folgeschäden - Transport nach Verfügbarkeiten<br>
                                 <strong>SK4 (Blau):</strong> Akute Lebensgefahr ohne Möglichkeit der zeitnahen Versorgung (prä-)klinisch oder keine erwartbare Überlebenschance - Betreuung und ggf. Sedierung<br>
                                 <strong>SK5 (Schwarz):</strong> Verstorbene Person - Keine medizinische Maßnahme erforderlich, Leichnam sichern und dokumentieren<br>
                                 <strong>SK6 (Lila):</strong> Beteiligter / Betroffener ohne Verletzung / Erkrankung - ggf. Betreuung oder Unterbringung
-                            </small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -160,12 +160,12 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-sticky-actions justify-between">
+                <div class="twplus-sticky-actions">
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
+                        <i class="fas fa-arrow-left"></i>Zurück
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
-                        <i class="fas fa-save mr-2"></i>Patient anlegen
+                    <button type="submit" class="ignis-btn ignis-btn--secondary">
+                        <i class="fas fa-save"></i>Patient anlegen
                     </button>
                 </div>
             </form>

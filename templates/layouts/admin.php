@@ -33,7 +33,7 @@ $layoutMotion = preg_match('~/settings/vehicles/vehicles(?:/\d+)?$~', \App\Helpe
 $layoutThemeFade = \App\Helpers\Theme::consumeTransition();
 $layoutTheme = \App\Helpers\Theme::mode();
 $layoutPath  = \App\Helpers\Navigation::currentPath();
-$layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutPath !== '/settings/system/index';
+$layoutSystemNav = str_starts_with($layoutPath, '/settings/system/');
 ?>
 <!DOCTYPE html>
 <html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-page-motion="<?= $layoutMotion ?>">

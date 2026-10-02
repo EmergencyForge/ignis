@@ -100,13 +100,13 @@ foreach ($announcements as $ann) {
     if ($ann['type'] === 'warning') $hasWarning = true;
 }
 
-// Icon-Box-Farben für Announcement-Typen
+// Icon-Box-Farben für Announcement-Typen, passend zum Chip des Typs
 $iconBoxColors = [
-    'critical' => ['bg' => 'rgba(176, 58, 58, 0.12)', 'color' => '#d46b6b'],
-    'warning'  => ['bg' => 'rgba(196, 154, 42, 0.12)', 'color' => '#ddb84a'],
-    'update'   => ['bg' => 'rgba(74, 111, 165, 0.12)', 'color' => '#7ba3d4'],
-    'info'     => ['bg' => 'rgba(42, 127, 143, 0.12)', 'color' => '#5bb8cc'],
-    'success'  => ['bg' => 'rgba(58, 125, 68, 0.12)', 'color' => '#6abf76'],
+    'critical' => ['bg' => 'var(--danger-soft)', 'color' => 'var(--danger-text)'],
+    'warning'  => ['bg' => 'var(--warn-soft)', 'color' => 'var(--warn-text)'],
+    'update'   => ['bg' => 'var(--accent-soft)', 'color' => 'var(--accent-text)'],
+    'info'     => ['bg' => 'var(--info-soft)', 'color' => 'var(--info-text)'],
+    'success'  => ['bg' => 'var(--ok-soft)', 'color' => 'var(--ok-text)'],
 ];
 
 // Announcement IDs für "Verstanden" Button sammeln
@@ -116,12 +116,12 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 <!-- EmergencyForge Announcements — Inhalt liegt versteckt im DOM und wird
      über die Dialog-Komponente (assets/js/ui/dialog.js) geöffnet. -->
 <div id="efAnnouncementsBody" class="ef-announcements-body twplus-stacked-list" hidden data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
-                <?php foreach ($announcements as $index => $ann):
+                <?php foreach ($announcements as $ann):
                     $config = $typeConfig[$ann['type']] ?? $typeConfig['info'];
                     $isAdminOnly = !empty($ann['admin_only']);
                     $iconColors = $iconBoxColors[$ann['type']] ?? $iconBoxColors['info'];
                 ?>
-                    <div class="announcement-item twplus-stacked-list__item <?= $index > 0 ? 'border-t' : '' ?>"
+                    <div class="announcement-item twplus-stacked-list__item"
                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                         <div class="flex gap-3">
                             <!-- Icon -->
@@ -134,7 +134,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                                 <div class="flex items-center flex-wrap gap-2 mb-2">
                                     <span class="ignis-chip ignis-chip--<?= $config['badge'] ?>"><?= $config['label'] ?></span>
                                     <?php if ($isAdminOnly): ?>
-                                        <span class="ignis-chip ef-badge-admin">
+                                        <span class="ignis-chip">
                                             <i class="fa-solid fa-shield-halved mr-1"></i>Nur für Admins
                                         </span>
                                     <?php endif; ?>
@@ -233,7 +233,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         align-items: center;
         justify-content: center;
         background: #b03a3a;
-        border: 2px solid #1c1b21;
+        border: 2px solid var(--surface);
         border-radius: 999px;
         font-size: 0.7rem;
         font-weight: 700;
@@ -252,12 +252,8 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         transition: background-color 0.15s ease;
     }
 
-    .ef-announcements-body .announcement-item.border-top {
-        border-top: 1px solid rgba(255, 255, 255, 0.03) !important;
-    }
-
     .ef-announcements-body .announcement-item:hover {
-        background-color: rgba(255, 255, 255, 0.02);
+        background-color: var(--fill-1);
     }
 
     .ef-announcements-body .ef-announcement-icon {
@@ -274,31 +270,26 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     .ef-announcements-body .ef-announcement-title {
         font-weight: 500;
         font-size: 0.88rem;
-        color: #fff;
+        color: var(--content-text);
         margin-bottom: 0.25rem;
-    }
-
-    .ef-announcements-body .ef-badge-admin {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--text-dimmed, #818189);
     }
 
     .ef-announcements-body .ef-meta-text {
         font-size: 0.72rem;
-        color: var(--text-dimmed, #818189);
+        color: var(--tertiary-text);
     }
 
+    /* Trennlinie darüber zieht schon der letzte Listeneintrag */
     .ef-announcements-body .ef-announcements-source {
         padding: 0.65rem 1.25rem;
-        border-top: 1px solid var(--darkgray, #3d3a44);
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--fill-1);
     }
 
     /* Markdown Formatierung */
     .ef-announcements-body .announcement-message {
         line-height: 1.6;
         font-size: 0.8rem;
-        color: var(--text-dimmed, #818189);
+        color: var(--tertiary-text);
     }
 
     .ef-announcements-body .announcement-message p {
@@ -311,11 +302,11 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
     .ef-announcements-body .announcement-message strong {
         font-weight: 600;
-        color: var(--text-normal, #bbbac1);
+        color: var(--secondary-text);
     }
 
     .ef-announcements-body .announcement-message code {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--fill-3);
         padding: 0.2em 0.4em;
         border-radius: 4px;
         font-family: 'Courier New', monospace;
@@ -323,7 +314,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     }
 
     .ef-announcements-body .announcement-message pre {
-        background: var(--body-bg-darker, #232128);
+        background: var(--fill-2);
         padding: 0.75rem;
         border-radius: 6px;
         overflow-x: auto;
@@ -346,16 +337,16 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     }
 
     .ef-announcements-body .announcement-message a {
-        color: #7ba3d4;
+        color: var(--link);
         text-decoration: underline;
     }
 
     .ef-announcements-body .announcement-message a:hover {
-        color: #92b5e0;
+        color: var(--content-text);
     }
 
     .ef-announcements-body .announcement-message blockquote {
-        border-left: 3px solid var(--darkgray, #3d3a44);
+        border-left: 3px solid var(--border-subtle);
         padding-left: 1rem;
         margin-left: 0;
         margin-bottom: 0.75rem;
@@ -372,7 +363,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         font-weight: 500;
-        color: #fff;
+        color: var(--content-text);
     }
 
     .ef-announcements-body .announcement-message h1 {
@@ -393,7 +384,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
     .ef-announcements-body .announcement-message hr {
         margin: 1rem 0;
-        border-color: var(--darkgray, #3d3a44);
+        border-color: var(--border-subtle);
         opacity: 0.5;
     }
 

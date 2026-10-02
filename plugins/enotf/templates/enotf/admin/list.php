@@ -71,7 +71,7 @@ $countUnreleased = count(array_filter($result, $isUnreleased));
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container my-4">
+        <div class="twplus-page">
             <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item" aria-current="page">eNOTF QM</span></nav>
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>

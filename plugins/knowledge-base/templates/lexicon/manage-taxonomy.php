@@ -5,14 +5,8 @@ $bodyId = 'lexicon';
 $SITE_TITLE = 'KB Kategorien & Tags';
 ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="twplus-page my-5">
-            <nav class="admin-breadcrumb">
-                <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <a href="<?= BASE_PATH ?>lexicon/index">Wissensdatenbank</a>
-                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <span class="current">Kategorien & Tags</span>
-            </nav>
+        <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>lexicon/index">Wissensdatenbank</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Kategorien & Tags</span></nav>
 
             <header class="twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">

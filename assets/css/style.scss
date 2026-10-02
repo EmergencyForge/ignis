@@ -59,9 +59,15 @@ h6, .h6 { font-size: 0.85rem; }
 // von h2, eine Klasse an der Überschrift gewinnt also weiter.
 :where(body.ignis-app) h2 { font-size: 20px; line-height: 28px; }
 
-p {
+// Feld-Hinweise stehen dicht unter ihrem Feld und bekommen den Absatzrand
+// nicht. :where() hält die Spezifität bei der eines nackten p. Ihr Reset
+// liegt in einer Ebene, damit Abstände wie mb-2 im Template noch greifen.
+p:where(:not(.ignis-field__hint)) {
   margin-top: 0;
   margin-bottom: 1rem;
+}
+@layer base {
+  p.ignis-field__hint { margin: 0; }
 }
 
 // Verhindert horizontales Scrollen der gesamten Page durch zu breite Tabellen.

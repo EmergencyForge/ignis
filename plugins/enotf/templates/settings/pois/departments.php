@@ -21,7 +21,7 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 min-w-0 mb-5 px-3">
                     <div class="flex justify-between items-center mb-3">

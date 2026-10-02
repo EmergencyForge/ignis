@@ -150,6 +150,7 @@
         const type  = cell.dataset.type;
         const raw   = cell.dataset.raw || cell.textContent.trim();
         const originalText = cell.textContent.trim();
+        const originalHtml = cell.innerHTML;
 
         cell.classList.add('inline-editing');
 
@@ -175,7 +176,7 @@
           input.type = 'text';
           input.className = 'ignis-input';
           input.value = currentData[field] !== undefined ? currentData[field] : originalText;
-          if (originalText === 'Keine' || originalText === 'N. hinterlegt') {
+          if (originalText === '—') {
             input.value = currentData[field] || '';
           }
 
@@ -246,7 +247,11 @@
               } else if (type === 'date') {
                 cell.textContent = d[field === 'gebdatum' ? 'gebdatum' : field] || newValue;
               } else {
-                cell.textContent = newValue || (field === 'zusatzqual' ? 'Keine' : 'N. hinterlegt');
+                if (newValue) {
+                  cell.textContent = newValue;
+                } else {
+                  cell.innerHTML = '<span class="text-tertiary-text">—</span>';
+                }
               }
               if (d) {
                 const pn = document.getElementById('display-profilename');
@@ -273,7 +278,7 @@
             const opts = JSON.parse(cell.dataset.options);
             cell.textContent = opts[currentData[field]] || originalText;
           } else {
-            cell.textContent = originalText;
+            cell.innerHTML = originalHtml;
           }
         }
 

@@ -84,22 +84,23 @@ $SITE_TITLE = 'Beladelisten';
         <!-- ------------ -->
         <div class="twplus-page">
             <div>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Beladelisten</span></nav>
                     <div class="twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Beladelisten</h1><p class="twplus-page-header__description">Kategorien und Gegenstände nach Fahrzeugtyp organisieren.</p></div>
                         <div class="twplus-page-header__actions">
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button class="ignis-btn ignis-btn--primary mr-2" onclick="openAddBeladungCategoryModal()">
-                                    <i class="fa-solid fa-plus"></i> Neue Kategorie
-                                </button>
                                 <button class="ignis-btn ignis-btn--secondary" onclick="openAddBeladungTileModal()">
                                     <i class="fa-solid fa-plus"></i> Neuer Gegenstand
+                                </button>
+                                <button class="ignis-btn ignis-btn--primary" onclick="openAddBeladungCategoryModal()">
+                                    <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
                             <?php endif; ?>
                         </div>
                     </div>
 
                     <!-- Filter + Live-Suche -->
-                    <div class="ignis-card twplus-toolbar mb-4">
+                    <div class="ignis-card mb-4">
                         <div class="ignis-card__body">
                             <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-12">
                                 <div class="md:col-span-6">
@@ -130,10 +131,10 @@ $SITE_TITLE = 'Beladelisten';
                                     </select>
                                 </div>
                                 <div class="md:col-span-2 flex flex-wrap gap-2">
-                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
+                                    <button class="ignis-btn ignis-btn--secondary" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
                                         <i class="fa-solid fa-undo"></i>
                                     </button>
-                                    <button class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
+                                    <button class="ignis-btn ignis-btn--secondary" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
                                         <i class="fa-solid fa-eye-slash"></i> <span id="toggle-text">Leer</span>
                                     </button>
                                 </div>

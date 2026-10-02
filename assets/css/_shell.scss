@@ -49,11 +49,7 @@ html.is-collapsed body.ignis-app {
   width: 100%;
   max-width: 88rem;
   margin-inline: auto;
-  padding-inline: 1rem;
   background-color: transparent !important;
-
-  @media (min-width: 640px) { padding-inline: 1.5rem; }
-  @media (min-width: 1024px) { padding-inline: 2rem; }
 
   > .container { max-width: none; padding-inline: 0; }
 }
@@ -537,6 +533,8 @@ html.is-collapsed body.ignis-app--legacy {
   font-size: var(--fs-xs);
   white-space: nowrap;
   overflow: hidden;
+  // Bei überlaufender Sidebar scrollt sie, statt die Zeile zu stauchen.
+  flex-shrink: 0;
 }
 
 .ignis-sidebar__version-mark {

@@ -21,14 +21,14 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
                 <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">eNOTF</span></nav>
                     <div class="page-header mb-4">
                         <h1>Schnellzugriff-Verwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <div class="flex gap-2">
+                                <div class="flex flex-wrap gap-2">
                                     <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>

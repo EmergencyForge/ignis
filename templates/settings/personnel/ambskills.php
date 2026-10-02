@@ -14,8 +14,9 @@ $SITE_TITLE = 'RD-Qualifikationen';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 min-w-0 mb-5 px-3">
-                    <div class="twplus-page-header mb-5">
+                <div class="flex-1 min-w-0 px-3">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">RD-Qualifikationen</span></nav>
+                    <div class="twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>RD-Qualifikationen</h1><p class="twplus-page-header__description">Rettungsdienstliche Qualifikationen, Kürzel und Zertifizierbarkeit verwalten.</p></div>
                         <div class="twplus-page-header__actions">
                         <?php if (Permissions::check('admin')) : ?>
@@ -36,7 +37,7 @@ $SITE_TITLE = 'RD-Qualifikationen';
                                     <th scope="col">Abkürzung</th>
                                     <th scope="col">Leer?</th>
                                     <th scope="col">Zertifiziert?</th>
-                                    <th scope="col"></th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -56,7 +57,7 @@ $SITE_TITLE = 'RD-Qualifikationen';
                                     $abkDisplay = $abk !== '' ? htmlspecialchars($abk) : "<span style='opacity:.5'>-</span>";
 
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' data-ignis-tooltip='Qualifikation bearbeiten' aria-label='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon' onclick='openEditQualirdModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-abkuerzung='" . htmlspecialchars($abk) . "' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' data-ignis-tooltip='Qualifikation bearbeiten' aria-label='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon' onclick='openEditQualirdModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-abkuerzung='" . htmlspecialchars($abk) . "' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>
@@ -67,7 +68,7 @@ $SITE_TITLE = 'RD-Qualifikationen';
                                         <td <?= $dimmed ?>><?= $abkDisplay ?></td>
                                         <td><?= $dgActive ?></td>
                                         <td><?= $cert ?></td>
-                                        <td><?= $actions ?></td>
+                                        <td class="ignis-table__actions"><div class="ignis-row-actions"><?= $actions ?></div></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

@@ -35,3 +35,13 @@ $systemSettingsItems = [
         <?php endforeach; ?>
     </ul>
 </aside>
+<script>
+    // Auf schmalen Bildschirmen scrollt die Leiste seitlich; der aktive Reiter soll darin sichtbar sein.
+    (() => {
+        const nav = document.currentScript.previousElementSibling;
+        const active = nav.querySelector('.is-active');
+        if (active && nav.scrollWidth > nav.clientWidth) {
+            nav.scrollLeft += active.getBoundingClientRect().left - nav.getBoundingClientRect().left - (nav.clientWidth - active.offsetWidth) / 2;
+        }
+    })();
+</script>

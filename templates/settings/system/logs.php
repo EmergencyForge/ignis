@@ -76,6 +76,9 @@ $SITE_TITLE = 'Fehlerprotokoll';
             font-size: 0.7rem;
             opacity: 0.5;
             margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .logs-group-row .count-cell { text-align: center; }
         .logs-group-row .time-cell { text-align: right; font-size: 0.72rem; opacity: 0.65; }
@@ -178,7 +181,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     <!-- ───────────── HERO: Error-ID Lookup (primärer Use-Case) ───────────── -->
                     <div class="ignis-card logs-lookup-hero mb-3">
                         <div class="ignis-card__body flex flex-wrap items-center gap-3">
-                            <div class="shrink-0">
+                            <div class="min-w-0">
                                 <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-info-text" aria-hidden="true"></i>Error-ID Lookup</div>
                                 <div class="text-xs text-tertiary-text">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
@@ -227,7 +230,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
 
                     <!-- ───────────── Browse / Filter / Inbox ───────────── -->
                     <div class="ignis-card">
-                        <div class="ignis-card__header">
+                        <div class="ignis-card__header flex-wrap gap-2">
                             <h2 class="ignis-card__title"><i class="fa-solid fa-inbox mr-2" aria-hidden="true"></i>Letzte Fehler <span class="ignis-card__subtitle">Gruppiert nach Exception und Datei, Klick klappt auf.</span></h2>
                             <div class="ignis-segmented" id="inboxScopeFilter" role="group" aria-label="Stufe">
                                 <button type="button" aria-pressed="true" data-scope="all">Alle</button>
@@ -294,14 +297,14 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     ?>
                     <div class="ignis-card mt-3">
                         <div class="ignis-card__header">
-                            <h2 class="ignis-card__title flex flex-wrap items-center gap-2">
-                                <i class="fa-solid fa-hexagon-exclamation text-warn-text" aria-hidden="true"></i>
+                            <h2 class="ignis-card__title">
+                                <i class="fa-solid fa-triangle-exclamation text-warn-text" aria-hidden="true"></i>
                                 Fehlgeschlagene Hintergrund-Jobs
                                 <?php if ($failedTotal > 0): ?>
-                                    <span class="ignis-chip ignis-chip--dot ignis-chip--danger"><?= (int) $failedTotal ?></span>
+                                    <span class="ignis-chip ignis-chip--dot ignis-chip--danger ml-2"><?= (int) $failedTotal ?></span>
                                 <?php endif; ?>
                                 <?php if ($failed24h > 0): ?>
-                                    <span class="ignis-chip ignis-chip--dot ignis-chip--warn"><?= (int) $failed24h ?> in 24h</span>
+                                    <span class="ignis-chip ignis-chip--dot ignis-chip--warn ml-2"><?= (int) $failed24h ?> in 24h</span>
                                 <?php endif; ?>
                             </h2>
                             <div class="ignis-card__actions">

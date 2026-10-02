@@ -1418,7 +1418,7 @@ td.dt-empty {
 // Action-Spalte (letztes <td> in DataTables) bekommt eine Mindestbreite,
 // damit Icon-Buttons nicht beim Schmaler-Werden des Tile-Containers (z.B.
 // wenn Flyout offen ist) am rechten Rand abgeschnitten werden.
-.dt-container table.dataTable td:last-child {
+.dt-container table.dataTable td:last-child:not(.dt-empty) {
   white-space: nowrap;
   text-align: right;
   padding-right: 0.5rem;
@@ -1474,33 +1474,6 @@ td.dt-empty {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-}
-
-.admin-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  margin-bottom: 0.6rem;
-}
-
-.admin-breadcrumb a {
-  color: var(--text-3);
-  text-decoration: none;
-  transition: color 0.1s;
-}
-
-.admin-breadcrumb a:hover {
-  color: var(--text-2);
-}
-
-.admin-breadcrumb .separator {
-  color: var(--fill-4);
-  font-size: 0.65rem;
-}
-
-.admin-breadcrumb .current {
-  color: var(--text-2);
 }
 
 .stats-chip {
@@ -2326,12 +2299,6 @@ td.dt-empty {
     gap: 0.35rem;
   }
 
-  .admin-breadcrumb {
-    font-size: 0.72rem;
-    gap: 0.3rem;
-    margin-bottom: 0.4rem;
-  }
-
   .intra__tile {
     padding: 0.75rem;
     border-radius: var(--radius-lg);
@@ -2380,7 +2347,18 @@ td.dt-empty {
 
   .dt-layout-row {
     flex-direction: column;
+    align-items: stretch;
     gap: 0.5rem;
+  }
+
+  .dt-layout-end {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  // Sonst bricht „Letzte“ bei 390 px in eine zweite Zeile.
+  .dt-paging-button {
+    padding-inline: 0.5rem;
   }
 
   .modal-dialog {
@@ -2444,11 +2422,6 @@ td.dt-empty {
   min-width: 0;
 }
 
-.table tbody td {
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
 .card-title {
   overflow-wrap: break-word;
   word-break: break-word;
@@ -2462,9 +2435,4 @@ td.dt-empty {
 
 .sidebar-link-text {
   min-width: 0;
-}
-
-.admin-breadcrumb {
-  overflow: hidden;
-  flex-wrap: wrap;
 }

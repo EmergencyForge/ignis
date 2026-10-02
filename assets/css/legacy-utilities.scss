@@ -189,6 +189,10 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
     }
 }
 
+// Tailwind-Paar `-mx-3` > `px-3`: px-3 ist hier 1rem und hebt -0.75rem
+// sonst nicht auf, der Inhalt rückt 4px ein.
+.-mx-3 > .px-3 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+
 // ── Typography-Utilities ───────────────────────────────────────────
 .text-start  { text-align: left !important; }
 .text-end    { text-align: right !important; }

@@ -56,7 +56,7 @@ $bodyId = 'mitarbeiter';
                         </div>
                     </header>
 
-                    <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                    <div class="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-border-subtle px-3 py-2">
                         <span class="font-semibold" style="font-size: var(--fs-sm);">Konto-Status:</span>
                         <?php if ($accountStatus === 'active'): ?>
                             <span class="ignis-chip ignis-chip--ok"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
@@ -103,8 +103,8 @@ $bodyId = 'mitarbeiter';
 
                     <?php include __DIR__ . '/../../assets/components/profiles/checks.php' ?>
 
-                    <div class="flex flex-wrap -mx-3">
-                        <div class="w-full p-3 shadow-sm border ma-basedata px-3 ignis-card lg:w-5/12">
+                    <div class="grid grid-cols-1 gap-4 mb-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+                        <div class="p-3 shadow-sm border ma-basedata ignis-card">
                             <form id="profil" method="post">
                                 <?= csrf_field() ?>
                                 <div class="flex flex-wrap -mx-3">
@@ -138,8 +138,8 @@ $bodyId = 'mitarbeiter';
 
                                 <div class="w-full text-center">
                                     <?php if ($canEdit): ?>
-                                        <div class="mb-3 mx-auto" style="max-width: 260px;">
-                                            <div class="ignis-file ignis-file--dropzone ignis-file--photo" id="pfp-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars($profileImage, ENT_QUOTES) ?>">
+                                        <div class="mt-2 mb-3 mx-auto" style="max-width: 260px;">
+                                            <div class="ignis-file ignis-file--dropzone ignis-file--photo" id="pfp-dropzone" data-ignis-file data-max-bytes="2097152"<?= !empty($row['pfp']) ? ' data-ignis-file-current="' . htmlspecialchars($row['pfp'], ENT_QUOTES) . '"' : '' ?>>
                                                 <input type="file" id="pfp-upload" name="pfp" accept="image/png,image/jpeg,image/webp" class="ignis-file__input">
                                                 <label for="pfp-upload" class="ignis-file__zone">
                                                     <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
@@ -197,16 +197,16 @@ $bodyId = 'mitarbeiter';
                                             <?php if (defined('CHAR_ID') && CHAR_ID): ?>
                                                 <tr>
                                                     <td class="font-bold">Charakter-ID</td>
-                                                    <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="charakterid" data-type="text"' : '' ?>><?= htmlspecialchars($row['charakterid'] ?? '') ?></td>
+                                                    <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="charakterid" data-type="text"' : '' ?>><?= htmlspecialchars($row['charakterid'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
                                                 </tr>
                                             <?php endif; ?>
                                             <tr>
                                                 <td class="font-bold">Discord-ID</td>
-                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="discordtag" data-type="text"' : '' ?>><?= htmlspecialchars($row['discordtag'] ?? 'N. hinterlegt') ?></td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="discordtag" data-type="text"' : '' ?>><?= htmlspecialchars($row['discordtag'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Telefonnummer</td>
-                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="telefonnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['telefonnr'] ?? '') ?></td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="telefonnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['telefonnr'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Dienstnummer</td>
@@ -214,7 +214,7 @@ $bodyId = 'mitarbeiter';
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Position</td>
-                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="zusatzqual" data-type="text"' : '' ?>><?= htmlspecialchars($row['zusatz'] ?? 'Keine') ?></td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="zusatzqual" data-type="text"' : '' ?>><?= htmlspecialchars($row['zusatz'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Einstellungsdatum</td>
@@ -229,7 +229,7 @@ $bodyId = 'mitarbeiter';
                                 </div>
                             </form>
                         </div>
-                        <div class="mt-4 flex-1 px-3 lg:ml-4 lg:mt-0">
+                        <div>
                             <div class="p-3 shadow-sm border ma-comments mb-3 ignis-card">
                                 <div class="comment-settings mb-3">
                                     <h4>Kommentare/Notizen</h4>
@@ -249,9 +249,7 @@ $bodyId = 'mitarbeiter';
                                 </details>
                             </div>
                         </div>
-                    </div>
-                    <div class="flex flex-wrap -mx-3 mt-3 mb-4">
-                        <div class="flex-1 p-3 shadow-sm border ma-documents px-3 ignis-card">
+                        <div class="p-3 shadow-sm border ma-documents ignis-card lg:col-span-2">
                             <h4>Dokumente</h4>
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/main.php' ?>
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/editor.php' ?>

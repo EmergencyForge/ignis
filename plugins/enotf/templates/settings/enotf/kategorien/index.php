@@ -19,20 +19,21 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 6) . '/assets/components/navbar.php'; ?>
     <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
-                <div class="mb-6 flex items-center justify-between">
-                    <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
-                    <?php if (Permissions::check('admin')) : ?>
-                        <div class="flex gap-2">
-                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                                <i class="fa-solid fa-arrow-left"></i> Zurück
-                            </a>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/enotf/index">eNOTF</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Kategorien</span></nav>
+                <div class="page-header mb-4">
+                    <h1>Schnellzugriff-Kategorien Verwaltung</h1>
+                    <div class="header-actions">
+                        <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                            <i class="fa-solid fa-arrow-left"></i> Zurück
+                        </a>
+                        <?php if (Permissions::check('admin')) : ?>
                             <button type="button" class="ignis-btn ignis-btn--primary" data-dialog-target="#createCategoryModal">
                                 <i class="fa-solid fa-plus"></i> Kategorie erstellen
                             </button>
-                        </div>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <?php Flash::render(); ?>
                 <div class="intra__tile px-3 py-2">

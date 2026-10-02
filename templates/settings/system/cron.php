@@ -111,7 +111,7 @@ $SITE_TITLE = 'Cron-Jobs';
                                     <?php if (!($job['handler_available'] ?? true)): ?>
                                         <span class="ignis-chip ignis-chip--warn" data-ignis-tooltip="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
                                     <?php endif; ?>
-                                    <div class="max-w-[220px] break-all text-xs text-tertiary-text"><?= htmlspecialchars($job['handler']) ?></div>
+                                    <div class="max-w-[260px] truncate text-xs text-tertiary-text" data-ignis-tooltip="<?= htmlspecialchars($job['handler']) ?>"><?= htmlspecialchars($job['handler']) ?></div>
                                 </td>
                                 <td>
                                     <?php if ($isActive): ?>
@@ -121,10 +121,14 @@ $SITE_TITLE = 'Cron-Jobs';
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span class="ignis-chip ignis-chip--dot ignis-chip--<?= $runChip ?>"><?= $runText ?></span>
-                                    <div class="text-xs text-tertiary-text">
-                                        <?= htmlspecialchars(DateTimeHelper::formatShort($job['last_run_at'] ?? null)) ?>
-                                    </div>
+                                    <?php if (empty($job['last_run_at']) && empty($job['last_status'])): ?>
+                                        <span class="text-tertiary-text">Noch nie</span>
+                                    <?php else: ?>
+                                        <span class="ignis-chip ignis-chip--dot ignis-chip--<?= $runChip ?>"><?= $runText ?></span>
+                                        <div class="text-xs text-tertiary-text">
+                                            <?= htmlspecialchars(DateTimeHelper::formatShort($job['last_run_at'] ?? null)) ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-xs">
                                     <?= htmlspecialchars(DateTimeHelper::formatShort($job['next_run_at'] ?? null)) ?>

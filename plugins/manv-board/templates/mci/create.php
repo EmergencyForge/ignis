@@ -111,12 +111,12 @@ $bodyPage = 'edivi';
                     </div>
                 </div>
 
-                <div class="twplus-sticky-actions justify-between">
+                <div class="twplus-sticky-actions">
                     <a href="<?= BASE_PATH ?>mci/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left mr-2"></i>Zurück
+                        <i class="fas fa-arrow-left"></i>Zurück
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
-                        <i class="fas fa-save mr-2"></i>MANV-Lage anlegen
+                    <button type="submit" class="ignis-btn ignis-btn--secondary">
+                        <i class="fas fa-save"></i>MANV-Lage anlegen
                     </button>
                 </div>
             </form>

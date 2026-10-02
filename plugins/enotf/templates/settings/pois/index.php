@@ -19,7 +19,7 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 min-w-0 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">POIs</span></nav>
@@ -27,7 +27,7 @@ use App\Helpers\Flash;
                         <h1>POI-Verwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
-                                <div class="flex gap-2">
+                                <div class="flex flex-wrap gap-2">
                                     <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-btn ignis-btn--secondary">
                                         <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
                                     </a>
@@ -90,7 +90,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td <?= $dimmed ?>><?= $strasse ?></td>
                                         <td <?= $dimmed ?>><?= $hnr ?></td>
-                                        <td <?= $dimmed ?>><?= htmlspecialchars($row['ort']) ?></td>
+                                        <td <?= $dimmed ?>><?= ($row['ort'] ?? '') !== '' ? htmlspecialchars($row['ort']) : '-' ?></td>
                                         <td <?= $dimmed ?>><?= $ortsteil ?></td>
                                         <td <?= $dimmed ?>><?= $typ ?></td>
                                         <td><?= $poiActive ?></td>

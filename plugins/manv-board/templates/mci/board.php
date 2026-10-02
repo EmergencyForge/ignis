@@ -40,13 +40,13 @@ $pgPath = 'mci/board';
                 </div>
                 <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>mci/log?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost">
-                        <i class="fas fa-history mr-2"></i>Aktionslog
+                        <i class="fas fa-history"></i>Aktionslog
                     </a>
                     <a href="<?= BASE_PATH ?>mci/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--secondary">
-                        <i class="fas fa-edit mr-2"></i>Bearbeiten
+                        <i class="fas fa-edit"></i>Bearbeiten
                     </a>
                     <a href="<?= BASE_PATH ?>mci/patient-create?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--primary">
-                        <i class="fas fa-user-plus mr-2"></i>Neuer Patient
+                        <i class="fas fa-user-plus"></i>Neuer Patient
                     </a>
                 </div>
             </header>
@@ -148,7 +148,7 @@ $pgPath = 'mci/board';
                 <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
                     <h2 class="ignis-card__title mb-0"><i class="fas fa-users mr-2"></i>Patienten an der Einsatzstelle</h2>
                     <a href="<?= BASE_PATH ?>mci/resources?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
-                        <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
+                        <i class="fas fa-truck"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                     </a>
                 </div>
                 <div class="ignis-card__scroll">

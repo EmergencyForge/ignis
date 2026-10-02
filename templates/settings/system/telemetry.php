@@ -106,6 +106,8 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Telemetrie &amp; Ankündigungen</span></nav>
+
             <div class="mb-6">
                     <div class="twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">System</p><h1>Telemetrie &amp; Ankündigungen</h1><p class="twplus-page-header__description">Support-Verbindung, Datentransparenz und globale Hinweise verwalten.</p></div>
@@ -233,7 +235,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                             <div class="ignis-card h-full">
                                 <div class="ignis-card__header flex items-center justify-between">
                                     <span><i class="fas fa-chart-line mr-2"></i>Telemetrie</span>
-                                    <span class="ignis-chip bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
+                                    <span class="ignis-chip<?= $telemetryEnabled ? ' ignis-chip--ok' : '' ?>">
                                         <?= $telemetryEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
@@ -305,7 +307,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                             <div class="ignis-card h-full">
                                 <div class="ignis-card__header flex items-center justify-between">
                                     <span><i class="fas fa-bullhorn mr-2"></i>Globale Ankündigungen</span>
-                                    <span class="ignis-chip bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
+                                    <span class="ignis-chip<?= $announcementsEnabled ? ' ignis-chip--ok' : '' ?>">
                                         <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
@@ -315,7 +317,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                         Sicherheitshinweise und News vom ıgnıs-Team.
                                     </p>
 
-                                    <div class="mb-3 flex gap-2">
+                                    <div class="mb-3 flex flex-wrap gap-2">
                                         <form method="POST" class="inline">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="action" value="toggle_announcements">
@@ -350,7 +352,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                         </tr>
                                     </table>
 
-                                    <h6>Aktuelle Ankündigungen</h6>
+                                    <h6 class="mt-4">Aktuelle Ankündigungen</h6>
                                     <?php
                                     // Defensiv: Sicherstellen dass $announcements ein Objekt ist
                                     if (!($announcements instanceof \App\Telemetry\GlobalAnnouncementManager)) {
@@ -371,31 +373,29 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                     }
                                     ?>
 
-                                    <!-- Debug (kann später entfernt werden) -->
-                                    <div class="ignis-alert text-sm py-1 mb-2">
-                                        Cache: <?= count($allCached) ?> | Aktiv: <?= count($currentAnnouncements) ?>
-                                        <?php if ($debugError): ?> | <span class="text-danger-text">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
-                                    </div>
+                                    <?php if ($debugError): ?>
+                                        <div class="ignis-alert ignis-alert--danger text-sm mb-2">Ankündigungen konnten nicht geladen werden: <?= htmlspecialchars($debugError) ?></div>
+                                    <?php endif; ?>
 
                                     <?php if (!empty($currentAnnouncements)): ?>
-                                        <div class="list-group list-group-flush">
+                                        <ul class="twplus-stacked-list">
                                             <?php foreach ($currentAnnouncements as $ann): ?>
-                                                <div class="list-group-item px-0">
-                                                    <div class="flex flex-wrap items-center gap-1">
-                                                        <span class="ignis-chip bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?>">
-                                                            <?= htmlspecialchars($ann['type']) ?>
-                                                        </span>
-                                                        <?php if (!empty($ann['admin_only'])): ?>
-                                                            <span class="ignis-chip ignis-chip--dark"><i class="fas fa-shield-halved"></i></span>
+                                                <li class="twplus-stacked-list__item">
+                                                    <div class="twplus-stacked-list__body">
+                                                        <div class="twplus-stacked-list__title flex flex-wrap items-center gap-1">
+                                                            <span class="ignis-chip ignis-chip--<?= ['critical' => 'danger', 'warning' => 'warn'][$ann['type']] ?? 'info' ?>"><?= htmlspecialchars(ucfirst($ann['type'])) ?></span>
+                                                            <?php if (!empty($ann['admin_only'])): ?>
+                                                                <span class="ignis-chip"><i class="fa-solid fa-shield-halved mr-1" aria-hidden="true"></i>Nur für Admins</span>
+                                                            <?php endif; ?>
+                                                            <?= htmlspecialchars($ann['title']) ?>
+                                                        </div>
+                                                        <?php if (!empty($ann['message'])): ?>
+                                                            <div class="twplus-stacked-list__meta"><?= htmlspecialchars($ann['message']) ?></div>
                                                         <?php endif; ?>
-                                                        <strong><?= htmlspecialchars($ann['title']) ?></strong>
                                                     </div>
-                                                    <?php if (!empty($ann['message'])): ?>
-                                                        <small class="text-tertiary-text"><?= htmlspecialchars($ann['message']) ?></small>
-                                                    <?php endif; ?>
-                                                </div>
+                                                </li>
                                             <?php endforeach; ?>
-                                        </div>
+                                        </ul>
                                     <?php elseif (!empty($allCached)): ?>
                                         <div class="ignis-alert ignis-alert--warn text-sm">
                                             <?= count($allCached) ?> im Cache, aber durch Filter ausgeblendet.

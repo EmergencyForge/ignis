@@ -29,7 +29,7 @@ $SITE_TITLE = 'Fahrzeuge';
         <!-- ------------ -->
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 min-w-0 mb-5 px-3">
+                <div class="flex-1 min-w-0 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Fahrzeuge</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Fahrzeugverwaltung</h1><p class="twplus-page-header__description">Fahrzeuge, Kennungen und Stammdaten verwalten.</p></div>
@@ -210,7 +210,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <?php endif; ?>
                                         <td class="ignis-table__num"><?= (int) $row['priority'] ?></td>
                                         <td><span data-vehicle-card="<?= $rowId ?>"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
-                                        <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '-' ?></td>
+                                        <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '<span class="text-tertiary-text">—</span>' ?></td>
                                         <td><span class="ignis-chip"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>

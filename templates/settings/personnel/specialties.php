@@ -14,8 +14,9 @@ $SITE_TITLE = 'Fachdienste';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 min-w-0 mb-5 px-3">
-                    <div class="twplus-page-header mb-5">
+                <div class="flex-1 min-w-0 px-3">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Fachdienste</span></nav>
+                    <div class="twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>Fachdienste verwalten</h1><p class="twplus-page-header__description">Sachgebiete und Fachdienst-Zuordnungen zentral pflegen.</p></div>
                         <div class="twplus-page-header__actions">
                         <?php if (Permissions::check('admin')) : ?>
@@ -32,7 +33,7 @@ $SITE_TITLE = 'Fachdienste';
                                     <th scope="col">Sachgebiet</th>
                                     <th scope="col">Bezeichnung</th>
                                     <th scope="col">Inaktiv?</th>
-                                    <th scope="col"></th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -45,14 +46,14 @@ $SITE_TITLE = 'Fachdienste';
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' data-ignis-tooltip='Fachdienst bearbeiten' aria-label='Fachdienst bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon' onclick='openEditQualifdModal(this)' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' data-ignis-tooltip='Fachdienst bearbeiten' aria-label='Fachdienst bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon' onclick='openEditQualifdModal(this)' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>
                                         <td <?= $dimmed ?>><?= (int)$row['sgnr'] ?></td>
                                         <td <?= $dimmed ?>><?= htmlspecialchars($row['sgname']) ?></td>
                                         <td><?= $dgActive ?></td>
-                                        <td><?= $actions ?></td>
+                                        <td class="ignis-table__actions"><div class="ignis-row-actions"><?= $actions ?></div></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

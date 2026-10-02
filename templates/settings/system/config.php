@@ -258,7 +258,9 @@ $SITE_TITLE = 'System-Konfiguration';
                                                                 alt="Vorschau des Logos"
                                                                 class="max-h-[100px] max-w-[200px] rounded-md border border-border-subtle bg-surface-2 p-2"
                                                                 id="logo_preview"
-                                                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
+                                                                onload="this.hidden = false; this.nextElementSibling.hidden = true"
+                                                                onerror="this.hidden = true; this.nextElementSibling.hidden = false">
+                                                            <span class="ignis-field__hint" hidden>Bild nicht gefunden</span>
                                                         </div>
                                                     </details>
 
@@ -271,14 +273,16 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         oninput="updateMetaImagePreview(this.value)">
                                                     <div class="ignis-field__hint">Vollständige URL zum Bild für Link-Vorschau.</div>
-                                                    <div class="mt-2">
+                                                    <div class="mt-2"<?= trim((string) $config['config_value']) === '' ? ' hidden' : '' ?>>
                                                         <span class="ignis-field__label block mb-1">Vorschau</span>
                                                         <img
                                                             src="<?= htmlspecialchars($config['config_value']) ?>"
                                                             alt="Vorschau des Link-Bildes"
                                                             class="max-h-[100px] max-w-[200px] rounded-md border border-border-subtle bg-surface-2 p-2"
                                                             id="meta_image_preview"
-                                                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EBild nicht gefunden%3C/text%3E%3C/svg%3E'">
+                                                            onload="this.hidden = false; this.nextElementSibling.hidden = true"
+                                                            onerror="this.hidden = true; this.nextElementSibling.hidden = false">
+                                                        <span class="ignis-field__hint" hidden>Bild nicht gefunden</span>
                                                     </div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'REGISTRATION_MODE'): ?>
@@ -356,7 +360,10 @@ $SITE_TITLE = 'System-Konfiguration';
         }
 
         function updateMetaImagePreview(value) {
-            document.getElementById('meta_image_preview').src = value;
+            var img = document.getElementById('meta_image_preview');
+            // Ohne URL keine Vorschau
+            img.parentElement.hidden = value.trim() === '';
+            img.src = value;
         }
 
         // System-Logo-Dropzone: eigener fetch()-Upload statt Teil der grossen

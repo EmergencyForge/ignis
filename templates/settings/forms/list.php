@@ -74,7 +74,7 @@ $SITE_TITLE = 'Antragstypen';
                                                 name="sortierung[<?= (int)$typ['id'] ?>]"
                                                 id="sort-<?= (int) $typ['id'] ?>"
                                                 value="<?= (int)$typ['sortierung'] ?>"
-                                                class="ignis-input ignis-input--sm ignis-table__num">
+                                                class="ignis-input ignis-input--sm ignis-table__num min-w-18">
                                         </td>
                                         <td class="text-center">
                                             <i class="<?= htmlspecialchars($typ['icon']) ?> text-xl" aria-hidden="true"></i>

@@ -85,7 +85,7 @@ $formFields = [
                         </div>
                         <div>
                             <label for="cm_telefonnr" class="ignis-field__label">Telefonnummer</label>
-                            <input class="ignis-input" type="text" name="telefonnr" id="cm_telefonnr"<?= \App\Support\FormErrors::attributes($formErrors, 'telefonnr', 'cm_telefonnr') ?> value="<?= htmlspecialchars((string) old('telefonnr', '0176 00 00 00 0')) ?>">
+                            <input class="ignis-input" type="text" name="telefonnr" id="cm_telefonnr"<?= \App\Support\FormErrors::attributes($formErrors, 'telefonnr', 'cm_telefonnr') ?> value="<?= htmlspecialchars((string) old('telefonnr')) ?>" placeholder="0176 00 00 00 0">
                             <?= \App\Support\FormErrors::hint($formErrors, 'telefonnr', 'cm_telefonnr', 'ignis') ?>
                         </div>
                         <div class="dienstnr-container">

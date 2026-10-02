@@ -151,7 +151,7 @@ return [
                     'label'        => 'Fahrzeuge',
                     'href'         => BASE_PATH . 'settings/vehicles/vehicles/index',
                     'icon'         => 'fa-solid fa-truck',
-                    'match'        => ['/settings/vehicles/vehicles'],
+                    'match'        => ['/settings/vehicles/vehicles', '/settings/vehicles/vehload/index'],
                     'quick_action' => [
                         'type'        => 'drawer',
                         'target'      => BASE_PATH . 'settings/vehicles/vehicles/create',

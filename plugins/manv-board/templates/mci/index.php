@@ -16,22 +16,11 @@ $bodyPage = 'edivi';
 <?php ob_start(); ?>
     <style>
         .manv-card {
-            transition: transform 0.2s;
             cursor: pointer;
         }
 
-        .manv-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .status-badge {
-            font-size: 0.875rem;
-            padding: 0.25rem 0.75rem;
-        }
-
         .stat-box {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--well);
             border-radius: 8px;
             padding: 1rem;
             margin-bottom: 0.5rem;
@@ -44,7 +33,7 @@ $bodyPage = 'edivi';
                 <div class="twplus-page-header__copy">
                     <?php if ($statusFilter !== 'aktiv'): ?>
                         <a href="<?= BASE_PATH ?>mci/index" class="ignis-btn ignis-btn--ghost mb-3 no-underline hover:no-underline">
-                            <i class="fas fa-arrow-left mr-2"></i>Zurück zu aktiven Lagen
+                            <i class="fas fa-arrow-left"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
                     <p class="twplus-page-header__eyebrow">Einsatzführung</p>
@@ -59,7 +48,7 @@ $bodyPage = 'edivi';
                 </div>
                 <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--secondary ignis-btn--lg no-underline hover:no-underline">
-                        <i class="fas fa-plus mr-2"></i>Neue MANV-Lage anlegen
+                        <i class="fas fa-plus"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
             </header>
@@ -104,7 +93,7 @@ $bodyPage = 'edivi';
                                 <h5 class="mb-0">
                                     <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
                                 </h5>
-                                <span class="ignis-chip <?= $statusClass ?> status-badge"><?= $statusText ?></span>
+                                <span class="ignis-chip <?= $statusClass ?>"><?= $statusText ?></span>
                             </div>
                             <div class="ignis-card__body">
                                 <h6 class="ignis-card__subtitle mb-4 text-tertiary-text">
@@ -161,10 +150,10 @@ $bodyPage = 'edivi';
                     </div>
                     <div class="twplus-section-card__body flex flex-wrap gap-2">
                         <a href="<?= BASE_PATH ?>mci/index?status=abgeschlossen" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
-                            <i class="fas fa-archive mr-2"></i>Abgeschlossene Lagen anzeigen
+                            <i class="fas fa-archive"></i>Abgeschlossene Lagen anzeigen
                         </a>
                         <a href="<?= BASE_PATH ?>mci/index?status=archiviert" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
-                            <i class="fas fa-archive mr-2"></i>Archivierte Lagen anzeigen
+                            <i class="fas fa-archive"></i>Archivierte Lagen anzeigen
                         </a>
                     </div>
                 </div>

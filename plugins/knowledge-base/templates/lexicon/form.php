@@ -427,7 +427,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                         <?php endif; ?>
 
                         <!-- Submit Buttons -->
-                        <div class="twplus-sticky-actions justify-between">
+                        <div class="twplus-sticky-actions">
                             <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>

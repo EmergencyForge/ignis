@@ -47,7 +47,7 @@ if (!isset($useGlobalBind)) {
             <label class="ignis-field__label">Vorschau</label>
             <div class="text-center p-3 bg-fill-1 rounded">
                 <div id="<?= $prefix ?>tz-preview" style="display: inline-block;">
-                    <span style="font-size: 48px; color: #999;">Kein Symbol</span>
+                    <span class="text-tertiary-text text-sm">Kein Symbol</span>
                 </div>
             </div>
             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary mt-2 w-full" id="<?= $prefix ?>preview-btn">
@@ -228,7 +228,7 @@ if (!isset($useGlobalBind)) {
             const previewContainer = document.getElementById('<?= $prefix ?>tz-preview');
 
             if (!grundzeichen) {
-                previewContainer.innerHTML = '<span style="font-size: 48px; color: #999;">Kein Symbol</span>';
+                previewContainer.innerHTML = '<span class="text-tertiary-text text-sm">Kein Symbol</span>';
                 return;
             }
 

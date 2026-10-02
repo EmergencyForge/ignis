@@ -95,7 +95,7 @@ $bodyPage = 'edivi';
 
             <div class="twplus-mobile-actions mb-4">
                 <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                    <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
+                    <i class="fas fa-arrow-left"></i>Zurück zum Board
                 </a>
             </div>
         </div>
@@ -193,7 +193,7 @@ $bodyPage = 'edivi';
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--secondary"><i class="fas fa-plus"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
                 </div>

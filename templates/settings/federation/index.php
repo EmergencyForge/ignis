@@ -253,8 +253,9 @@ $SITE_TITLE = 'Instanzvernetzung';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Instanzvernetzung</span></nav>
                     <div class="twplus-page-header mb-6">
-                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Vernetzung</p><h1><i class="fa-solid fa-link" style="color:var(--main-color);margin-right:0.5rem"></i>Instanzvernetzung</h1><p class="twplus-page-header__description">Verbundene Installationen, Freigaben und Synchronisierung verwalten.</p></div>
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Vernetzung</p><h1>Instanzvernetzung</h1><p class="twplus-page-header__description">Verbundene Installationen, Freigaben und Synchronisierung verwalten.</p></div>
                     </div>
 
                     <!-- Federation Toggle -->

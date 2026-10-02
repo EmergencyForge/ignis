@@ -159,9 +159,9 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                         <span class="ignis-field__label">Bis</span>
                         <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
                     </label>
-                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">Filtern</button>
+                    <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                     <?php if ($hasFilter): ?>
-                        <a href="<?= BASE_PATH ?>logbook/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost">Zurücksetzen</a>
+                        <a href="<?= BASE_PATH ?>logbook/index" class="ignis-btn ignis-btn--ghost">Zurücksetzen</a>
                     <?php endif; ?>
                 </form>
 

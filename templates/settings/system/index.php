@@ -90,6 +90,7 @@ $bodyId = 'settings-system';
 ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">System</span></nav>
             <header class="twplus-page-header">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Administration</p>
@@ -98,50 +99,44 @@ $bodyId = 'settings-system';
                 </div>
             </header>
 
-
-            <div class="twplus-settings-layout">
-                <?php include __DIR__ . '/../../../assets/components/settings/system/_navigation.php'; ?>
-                <main>
-                    <dl class="twplus-stats" aria-label="Systeminformationen">
-                        <div class="twplus-stats__item">
-                            <dt class="twplus-stats__label">Version</dt>
-                            <dd class="twplus-stats__value text-base"><?= htmlspecialchars($currentVersion) ?></dd>
-                        </div>
-                        <?php if ($buildNumber !== ''): ?>
-                            <div class="twplus-stats__item">
-                                <dt class="twplus-stats__label">Build</dt>
-                                <dd class="twplus-stats__value text-base"><?= htmlspecialchars($buildNumber) ?></dd>
-                            </div>
-                        <?php endif; ?>
-                        <?php if ($lastUpdate !== ''): ?>
-                            <div class="twplus-stats__item">
-                                <dt class="twplus-stats__label">Letztes Update</dt>
-                                <dd class="twplus-stats__value text-base"><?= htmlspecialchars($lastUpdate) ?></dd>
-                            </div>
-                        <?php endif; ?>
-                        <div class="twplus-stats__item">
-                            <dt class="twplus-stats__label">PHP</dt>
-                            <dd class="twplus-stats__value text-base"><?= htmlspecialchars(PHP_VERSION) ?></dd>
-                        </div>
-                    </dl>
-
-                    <div class="twplus-link-grid">
-                        <?php foreach ($cards as $card): ?>
-                            <a href="<?= htmlspecialchars($card['href']) ?>"
-                               class="twplus-link-card">
-                                <span class="twplus-link-card__icon"><i class="<?= htmlspecialchars($card['icon']) ?>" aria-hidden="true"></i></span>
-                                <span class="twplus-link-card__body">
-                                    <span class="twplus-link-card__title"><?= htmlspecialchars($card['title']) ?></span>
-                                    <?php if (!empty($card['badge'])): ?>
-                                        <span class="ignis-chip ignis-chip--warn mt-1"><i class="fa-solid fa-arrow-up"></i> <?= htmlspecialchars($card['badge']) ?></span>
-                                    <?php endif; ?>
-                                    <span class="twplus-link-card__description"><?= htmlspecialchars($card['desc']) ?></span>
-                                </span>
-                                <i class="fa-solid fa-chevron-right twplus-link-card__arrow" aria-hidden="true"></i>
-                            </a>
-                        <?php endforeach; ?>
+            <dl class="twplus-stats twplus-stats--wide" aria-label="Systeminformationen">
+                <div class="twplus-stats__item">
+                    <dt class="twplus-stats__label">Version</dt>
+                    <dd class="twplus-stats__value"><?= htmlspecialchars($currentVersion) ?></dd>
+                </div>
+                <?php if ($buildNumber !== ''): ?>
+                    <div class="twplus-stats__item">
+                        <dt class="twplus-stats__label">Build</dt>
+                        <dd class="twplus-stats__value"><?= htmlspecialchars($buildNumber) ?></dd>
                     </div>
-                </main>
+                <?php endif; ?>
+                <?php if ($lastUpdate !== ''): ?>
+                    <div class="twplus-stats__item">
+                        <dt class="twplus-stats__label">Letztes Update</dt>
+                        <dd class="twplus-stats__value"><?= htmlspecialchars($lastUpdate) ?></dd>
+                    </div>
+                <?php endif; ?>
+                <div class="twplus-stats__item">
+                    <dt class="twplus-stats__label">PHP</dt>
+                    <dd class="twplus-stats__value"><?= htmlspecialchars(PHP_VERSION) ?></dd>
+                </div>
+            </dl>
+
+            <div class="twplus-link-grid">
+                <?php foreach ($cards as $card): ?>
+                    <a href="<?= htmlspecialchars($card['href']) ?>"
+                       class="twplus-link-card">
+                        <span class="twplus-link-card__icon"><i class="<?= htmlspecialchars($card['icon']) ?>" aria-hidden="true"></i></span>
+                        <span class="twplus-link-card__body">
+                            <span class="twplus-link-card__title"><?= htmlspecialchars($card['title']) ?></span>
+                            <?php if (!empty($card['badge'])): ?>
+                                <span class="ignis-chip ignis-chip--warn mt-1"><i class="fa-solid fa-arrow-up"></i> <?= htmlspecialchars($card['badge']) ?></span>
+                            <?php endif; ?>
+                            <span class="twplus-link-card__description"><?= htmlspecialchars($card['desc']) ?></span>
+                        </span>
+                        <i class="fa-solid fa-chevron-right twplus-link-card__arrow" aria-hidden="true"></i>
+                    </a>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>

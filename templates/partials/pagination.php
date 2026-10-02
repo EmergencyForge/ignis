@@ -17,12 +17,11 @@ declare(strict_types=1);
  * Regel bei Includes).
  */
 ?>
+<?php // Ohne Treffer zeigt die Liste selbst ihren Leerzustand, die Fußzeile entfällt. ?>
+<?php if ($list->total() > 0): ?>
 <div class="ignis-list-footer">
     <p class="ignis-list-meta">
-        <?php // Ohne Treffer zeigt die Liste selbst ihren Leerzustand. ?>
-        <?php if ($list->total() > 0): ?>
-            <?= $list->from() ?>–<?= $list->to() ?> von <?= $list->total() ?> <?= htmlspecialchars($pgLabel) ?>
-        <?php endif; ?>
+        <?= $list->from() ?>–<?= $list->to() ?> von <?= $list->total() ?> <?= htmlspecialchars($pgLabel) ?>
     </p>
     <?php if ($list->lastPage() > 1): ?>
         <nav aria-label="Seiten">
@@ -56,3 +55,4 @@ declare(strict_types=1);
         </nav>
     <?php endif; ?>
 </div>
+<?php endif; ?>

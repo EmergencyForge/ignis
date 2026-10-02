@@ -19,7 +19,7 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 min-w-0 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Medikamente</span></nav>
@@ -67,7 +67,7 @@ use App\Helpers\Flash;
                                         <td <?= $dimmed ?>><?= (int)$row['priority'] ?></td>
                                         <td <?= $dimmed ?>><?= $wirkstoff ?></td>
                                         <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-tertiary-text">-</span>' ?></td>
-                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-tertiary-text">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? htmlspecialchars(implode(', ', array_map('trim', explode(',', (string) $row['dosierungen'])))) : '<span class="text-tertiary-text">-</span>' ?></td>
                                         <td><?= $medActive ?></td>
                                         <td><?= $actions ?></td>
                                     </tr>

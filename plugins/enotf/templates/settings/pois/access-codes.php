@@ -18,17 +18,18 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <main class="ignis-main">
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 min-w-0 mb-5 px-3">
-                    <div class="mb-3">
-                        <h1 class="mb-0">Krankenhaus-Zugangscodes</h1>
-                        <p class="text-tertiary-text mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/pois/index">POIs</a></span> <span class="ignis-breadcrumb__item" aria-current="page">Krankenhaus-Zugänge</span></nav>
+                    <div class="page-header mb-4">
+                        <h1>Krankenhaus-Zugangscodes</h1>
+                        <div class="header-actions">
+                            <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-btn ignis-btn--ghost">
+                                <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
+                            </a>
+                        </div>
                     </div>
-
-                    <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
-                        <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
-                    </a>
 
                     <?php Flash::render(); ?>
 
@@ -84,19 +85,16 @@ use App\Helpers\Flash;
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                                <?php if (empty($hospitals)): ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center text-tertiary-text">Keine Krankenhäuser vorhanden</td>
-                                    </tr>
-                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="ignis-alert ignis-alert--info mt-3">
-                        <i class="fa-solid fa-info-circle mr-2"></i>
-                        <strong>Hinweis:</strong> Die generierten Zugangscodes ermöglichen es Krankenhäusern, ihre Verfügbarkeiten über das externe Portal zu melden.
-                        Der Link zum Portal ist: <code><?= BASE_PATH ?>enotf/schnittstelle/hospital-availability.php</code>
+                        <i class="fa-solid fa-info-circle ignis-alert__icon" aria-hidden="true"></i>
+                        <div class="ignis-alert__body">
+                            <strong>Hinweis:</strong> Die generierten Zugangscodes ermöglichen es Krankenhäusern, ihre Verfügbarkeiten über das externe Portal zu melden.
+                            Der Link zum Portal ist: <code class="break-all"><?= BASE_PATH ?>enotf/schnittstelle/hospital-availability.php</code>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,8 +115,8 @@ use App\Helpers\Flash;
             <div class="ignis-field__hint">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
         </div>
         <div class="ignis-alert ignis-alert--info">
-            <i class="fa-solid fa-info-circle mr-2"></i>
-            <strong>Hinweis:</strong> Geben Sie diesen Code an das Krankenhaus weiter. Der Code kann jederzeit neu generiert werden.
+            <i class="fa-solid fa-info-circle ignis-alert__icon" aria-hidden="true"></i>
+            <div class="ignis-alert__body"><strong>Hinweis:</strong> Geben Sie diesen Code an das Krankenhaus weiter. Der Code kann jederzeit neu generiert werden.</div>
         </div>
     </template>
 
@@ -127,7 +125,7 @@ use App\Helpers\Flash;
             $('#table-access-codes').DataTable({
                 paging: true, lengthMenu: [10, 25, 50], pageLength: 10,
                 order: [[0, 'asc']], columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Einträge')
+                language: { ...window.IgnisDataTableLang('Einträge'), emptyTable: 'Keine Krankenhäuser vorhanden' }
             });
 
             function generateRandomCode(length = 12) {
