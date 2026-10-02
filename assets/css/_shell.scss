@@ -159,9 +159,11 @@ html.is-collapsed body.ignis-app--legacy {
 
     svg { height: 2.2rem; }
 
-    // Standardlogo: Seitenverhältnis aus der viewBox von ignis-wordmark.svg.
-    // 2rem: die Kleinbuchstaben der Wortmarke werden so rund 17px hoch, wie bei der alten.
-    .ignis-wordmark { height: 2rem; aspect-ratio: 188 / 97.5; }
+    // Standardlogo: der Schriftzug bleibt 2rem hoch, die Kleinbuchstaben
+    // also rund 17px wie bei der alten Wortmarke.
+    .ignis-lockup { --lockup-h: calc(2rem * 76 / 97.5); }
+    // Unter 360px reicht der Platz neben der Suche nur für das Zeichen.
+    @media (max-width: 359px) { .ignis-lockup__word { display: none; } }
 
     &:hover { color: var(--accent-text); }
   }
@@ -200,20 +202,43 @@ html.is-collapsed body.ignis-app--legacy {
   &__bell > summary { position: relative; }
 }
 
-// Wortmarke im Akzentverlauf: nur wenn das Standardlogo aktiv ist (Topbar
-// und Anmeldung), sonst bleibt ein hinterlegtes Betreiberlogo ein <img>.
-// Das SVG kommt als Maske herein, die Füllung ist der Verlauf; so trägt die
-// Marke den Akzent, statt fest orange eingefärbt zu sein.
-.ignis-wordmark {
-  display: inline-block;
-  background-image: linear-gradient(120deg, var(--content-text) 15%, var(--accent-fill) 55%, var(--accent-fill-2, var(--accent-fill)));
-  -webkit-mask: var(--wordmark) left center / contain no-repeat;
-  mask: var(--wordmark) left center / contain no-repeat;
+// Logo als zwei Masken: das Zeichen im Akzentverlauf, daneben der
+// Schriftzug in der Textfarbe. Topbar und Anmeldung zeigen es nur beim
+// Standardlogo (sonst bleibt ein Betreiberlogo ein <img>), der Footer immer.
+// Die Maske übernimmt vom SVG nur die Deckkraft, so folgt das Logo Theme und
+// Akzent, statt fest orange eingefärbt zu sein. Maße wie in ignis-lockup.svg
+// (283 x 98): Zeichen 76 hoch, Schriftzug 97,5 und oben bündig, Abstand 19.
+.ignis-lockup {
+  --lockup-h: 1.5rem;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: calc(var(--lockup-h) * 19 / 76);
+
+  > span {
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
+
+  // Kopf der Anmeldeschale: so breit wie das frühere Lockup dort.
+  &--login { --lockup-h: calc(92px * 76 / 283); }
+}
+.ignis-lockup__mark {
+  height: var(--lockup-h);
+  aspect-ratio: 1;
+  background-image: linear-gradient(135deg, var(--accent-fill), var(--accent-fill-2, var(--accent-fill)));
+}
+.ignis-lockup__word {
+  // Die Grundlinie des Logos liegt so unter dem Schriftzug wie bei der
+  // alten Wortmarke, nicht unter dem kürzeren Zeichen.
+  align-self: baseline;
+  height: calc(var(--lockup-h) * 97.5 / 76);
+  aspect-ratio: 188 / 97.5;
+  background: var(--content-text);
 }
 
 @media print {
-  // Kein Verlauf im Ausdruck, nur die Textfarbe (siehe print ohne Schatten/Verläufe).
-  .ignis-wordmark { background: var(--content-text); }
+  // Kein Akzent im Ausdruck, nur die Textfarbe (siehe print ohne Schatten/Verläufe).
+  .ignis-lockup__mark { background: var(--content-text); }
 }
 
 // =====================================================

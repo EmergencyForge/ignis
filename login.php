@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
             <div class="twplus-login__content">
                 <div class="twplus-login__brand">
                     <?php if ($loginLogoIsDefault): ?>
-                        <?php // Inline, damit das Lockup über currentColor die Textfarbe des Themes trägt. ?>
-                        <?= file_get_contents(__DIR__ . '/assets/img/ignis-lockup.svg') ?>
+                        <?php // Zeichen und Schriftzug als Masken, wie in der Topbar (siehe _shell.scss). ?>
+                        <span class="ignis-lockup ignis-lockup--login" role="img" aria-label="ignis"><span class="ignis-lockup__mark" style="--logo: url('<?= htmlspecialchars(BASE_PATH . 'assets/img/ignis-mark.svg', ENT_QUOTES) ?>')"></span><span class="ignis-lockup__word" style="--logo: url('<?= htmlspecialchars(BASE_PATH . 'assets/img/ignis-wordmark.svg', ENT_QUOTES) ?>')"></span></span>
                     <?php else: ?>
                         <img src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
                     <?php endif; ?>

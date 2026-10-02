@@ -301,11 +301,8 @@ body {
   color: var(--text-2);
 }
 
-// Seitenverhältnis aus der viewBox von ignis-wordmark.svg.
-.footer .ignis-wordmark {
-  height: 48px;
-  aspect-ratio: 188 / 97.5;
-}
+// Der Schriftzug bleibt 48px hoch wie die alte Wortmarke.
+.footer .ignis-lockup { --lockup-h: calc(48px * 76 / 97.5); }
 
 .footer a {
   color: inherit;

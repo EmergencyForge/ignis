@@ -80,11 +80,12 @@ final class BrandAssetsTest extends TestCase
 
     public function testMaskAspectRatiosMatchTheViewBoxes(): void
     {
-        // .ignis-wordmark--login gehörte zur alten, großen Marke im rechten
-        // Bildpanel der Anmeldung; seit der Vorschau (0.5.1) zeigt dort die
-        // Produktvorschau, die Modifikator-Klasse hat keinen Verbraucher mehr.
+        // Zeichen (96 x 96) und Schriftzug (188 x 97,5) in den Maßen von
+        // ignis-lockup.svg: Zeichen 76 hoch, Schriftzug 97,5, Abstand 19.
         $css = (string) file_get_contents(self::ROOT . '/public/assets/dist/ui.css');
-        self::assertMatchesRegularExpression('/\.ignis-wordmark\{[^}]*aspect-ratio:188\s*\/\s*97\.5/', $css);
+        self::assertMatchesRegularExpression('/\.ignis-lockup\{[^}]*gap:calc\(var\(--lockup-h\)\s*\*\s*19\s*\/\s*76\)/', $css);
+        self::assertMatchesRegularExpression('/\.ignis-lockup__mark\{[^}]*aspect-ratio:1[;}]/', $css);
+        self::assertMatchesRegularExpression('/\.ignis-lockup__word\{[^}]*height:calc\(var\(--lockup-h\)\s*\*\s*97\.5\s*\/\s*76\)[^}]*aspect-ratio:188\s*\/\s*97\.5/', $css);
     }
 
     public function testLoginDoesNotLoadACurrentColorLogoAsImage(): void

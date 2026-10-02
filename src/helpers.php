@@ -272,8 +272,8 @@ if (!function_exists('systemLogoIsDefault')) {
     /**
      * Ob SYSTEM_LOGO (oder $logo) auf ein mitgeliefertes Logo zeigt: leer,
      * die Wortmarke, Lockup oder Bildmarke, oder eines der alten
-     * intraRP-Standardlogos. Topbar und Anmeldung zeigen dann die Wortmarke
-     * im Akzentverlauf statt eines <img>.
+     * intraRP-Standardlogos. Topbar und Anmeldung zeigen dann Zeichen und
+     * Schriftzug als Masken statt eines <img>.
      */
     function systemLogoIsDefault(?string $logo = null): bool
     {

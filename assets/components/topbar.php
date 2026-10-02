@@ -61,10 +61,10 @@ $topThemes = [
 // Sidebar (NavigationCounters::for('inbox'), je Request gecacht).
 $topUnread = $topLoggedIn ? (int) (NavigationCounters::for('inbox') ?? 0) : 0;
 
-// Logo: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat; sonst die
-// Wortmarke. Die Standardwortmarke ist eine Maske mit dem Akzent-Verlauf
-// und passt sich so beiden Themes an; die alten intraRP-Standardlogos
-// zeigen ebenfalls auf sie. Die URL kommt escaped aus systemLogoUrl().
+// Logo: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat; sonst Zeichen
+// und Schriftzug als Masken (Zeichen im Akzentverlauf, Schriftzug in der
+// Textfarbe), so passt es sich beiden Themes an; die alten
+// intraRP-Standardlogos zeigen ebenfalls darauf. Die URL kommt escaped aus systemLogoUrl().
 $topLogo = systemLogoUrl();
 $topLogoIsDefault = systemLogoIsDefault();
 
@@ -110,8 +110,8 @@ foreach ($topGroups as $topGroup) {
     </button>
     <a href="<?= htmlspecialchars($topBasePath . 'index', ENT_QUOTES) ?>" class="ignis-topbar__mark" aria-label="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <?php if ($topLogoIsDefault): ?>
-            <?php // Standardlogo: als Verlaufsschrift statt <img>, damit es den Akzent trägt. ?>
-            <span class="ignis-wordmark" role="img" aria-label="ignis" style="--wordmark: url('<?= $topLogo ?>')"></span>
+            <?php // Standardlogo: Zeichen und Schriftzug als Masken statt <img>, damit es den Akzent trägt. ?>
+            <span class="ignis-lockup" role="img" aria-label="ignis"><span class="ignis-lockup__mark" style="--logo: url('<?= htmlspecialchars($topBasePath . 'assets/img/ignis-mark.svg', ENT_QUOTES) ?>')"></span><span class="ignis-lockup__word" style="--logo: url('<?= $topLogo ?>')"></span></span>
         <?php else: ?>
             <img src="<?= $topLogo ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
         <?php endif; ?>

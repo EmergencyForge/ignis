@@ -48,6 +48,6 @@ final class SystemLogoUsageTest extends TestCase
         $this->assertStringNotContainsString('text-white', $source);
         $this->assertStringNotContainsString('defaultLogo.webp', $source);
         $this->assertStringNotContainsString('rgba(255, 255, 255, 0.55)', $source);
-        $this->assertStringContainsString('class="ignis-wordmark"', $source);
+        $this->assertStringContainsString('class="ignis-lockup"', $source);
     }
 }

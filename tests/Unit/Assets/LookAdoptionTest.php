@@ -236,13 +236,15 @@ final class LookAdoptionTest extends TestCase
         self::assertMatchesRegularExpression('/body\.ignis-app\s*\{[^}]*grid-template-columns:\s*calc\(var\(--sidebar-w\) \+ var\(--sidebar-inset, ?0px\)\)/', $css);
     }
 
-    public function testTheWordmarkIsMaskedInTheAccentGradient(): void
+    public function testTheLogoMarkIsMaskedInTheAccentGradient(): void
     {
         $css = (string) file_get_contents(self::CSS);
+        self::assertMatchesRegularExpression('/\.ignis-lockup>span\s*\{[^}]*mask:[^}]*\}/', $css);
         self::assertMatchesRegularExpression(
-            '/\.ignis-wordmark\s*\{[^}]*background-image:\s*linear-gradient\([^}]*var\(--accent-fill\)[^}]*mask:[^}]*\}/',
+            '/\.ignis-lockup__mark\s*\{[^}]*background-image:\s*linear-gradient\([^}]*var\(--accent-fill\)[^}]*\}/',
             $css,
         );
+        self::assertMatchesRegularExpression('/\.ignis-lockup__word\s*\{[^}]*background:\s*var\(--content-text\)/', $css);
     }
 
     /**

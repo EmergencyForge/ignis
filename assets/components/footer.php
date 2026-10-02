@@ -11,8 +11,8 @@ $__footerBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
     <div class="container mx-auto">
         <div class="grid grid-cols-1 gap-3 items-end md:grid-cols-3">
             <div>
-                <?php // Wortmarke als Maske im Akzentverlauf (siehe _shell.scss), damit sie in beiden Themes steht. ?>
-                <span class="ignis-wordmark" role="img" aria-label="ignis" style="--wordmark: url('<?= htmlspecialchars(rtrim($__footerBasePath, '/') . '/assets/img/ignis-wordmark.svg', ENT_QUOTES) ?>')"></span>
+                <?php // Zeichen und Schriftzug als Masken (siehe _shell.scss), damit das Logo in beiden Themes steht. ?>
+                <span class="ignis-lockup" role="img" aria-label="ignis"><span class="ignis-lockup__mark" style="--logo: url('<?= htmlspecialchars(rtrim($__footerBasePath, '/') . '/assets/img/ignis-mark.svg', ENT_QUOTES) ?>')"></span><span class="ignis-lockup__word" style="--logo: url('<?= htmlspecialchars(rtrim($__footerBasePath, '/') . '/assets/img/ignis-wordmark.svg', ENT_QUOTES) ?>')"></span></span>
                 <p class="text-sm">Verwaltungsportal der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?></p>
             </div>
             <div class="text-center">
