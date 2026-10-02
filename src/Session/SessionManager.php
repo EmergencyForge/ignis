@@ -47,24 +47,17 @@ class SessionManager
         // Sicherheit: Verhindert Session-Fixation Angriffe (PHP 5.5.2+)
         @ini_set('session.use_strict_mode', '1');
 
-        // Sicherheit: CSRF-Schutz via SameSite (nur PHP 7.3+)
+        // Sicherheit: CSRF-Schutz via SameSite
         // WICHTIG: Für iframe-Nutzung (z.B. FiveM) muss SameSite=None + Secure gesetzt werden
-        if (PHP_VERSION_ID >= 70300) {
-            if (self::isIframeContext()) {
-                // iframe-Kontext: SameSite=None erlaubt Cross-Site Cookies
-                // Erfordert HTTPS (Secure-Flag)
-                @ini_set('session.cookie_samesite', 'None');
-                @ini_set('session.cookie_secure', '1');
-            } else {
-                // Normaler Kontext: Lax ist sicherer
-                @ini_set('session.cookie_samesite', 'Lax');
-                // Secure nur wenn HTTPS
-                if (self::isHttps()) {
-                    @ini_set('session.cookie_secure', '1');
-                }
-            }
+        if (self::isIframeContext()) {
+            // iframe-Kontext: SameSite=None erlaubt Cross-Site Cookies
+            // Erfordert HTTPS (Secure-Flag)
+            @ini_set('session.cookie_samesite', 'None');
+            @ini_set('session.cookie_secure', '1');
         } else {
-            // PHP < 7.3: Nur Secure setzen wenn HTTPS
+            // Normaler Kontext: Lax ist sicherer
+            @ini_set('session.cookie_samesite', 'Lax');
+            // Secure nur wenn HTTPS
             if (self::isHttps()) {
                 @ini_set('session.cookie_secure', '1');
             }
