@@ -30,8 +30,7 @@
   --series-3: var(--series-4);
 
   --bg: var(--canvas);
-  // Seitenleiste und Kopfzeile liegen ohne Fläche auf dem Grund. Die
-  // Übersicht setzt --bg-2 als Seitengrund (body#dashboard).
+  // Seitenleiste und Kopfzeile liegen ohne Fläche auf dem Grund.
   --bg-2: var(--canvas);
   --border: var(--border-subtle);
   --text: var(--content-text);
