@@ -1,5 +1,17 @@
 # Changelog
 
+## Unveröffentlicht
+
+Das Dashboard schnitt seinen Inhalt ab: Die helle Inhaltsfläche endete nach einer Fensterhöhe, und die Kacheln darunter liefen über ihren Rand hinaus. Eine alte Regel aus der ersten Version machte die Seite genau ein Fenster hoch. Jetzt wächst die Fläche mit dem Inhalt, der Footer steht wie auf allen Seiten unten in ihr.
+
+Kacheln, Links in der Seitenleiste, Tabellenköpfe und das Logo wurden beim Überfahren unterstrichen. Unterstrichen werden jetzt nur noch Textlinks.
+
+Kopfzeile, Footer und Anmeldung zeigen das ignis-Zeichen neben dem Schriftzug. Das Zeichen trägt die Hauptfarbe, der Schriftzug steht in der Textfarbe. Auf sehr schmalen Handys bleibt in der Kopfzeile nur das Zeichen. Ein eigenes Logo aus der System-Konfiguration bleibt, wie es ist.
+
+Alle Verwaltungsseiten wurden am Rechner und am Handy in beiden Themes durchgesehen. Im hellen Theme waren die Überschriften im Ankündigungsfenster weiß auf weiß, sie sind wieder lesbar. Die eNOTF-Einstellungen und die Prüfliste stehen jetzt in derselben Spalte wie die übrigen Seiten, der Footer schließt bündig an. Auf den MANV-Seiten, in Profil, Kalender, Fahrtenbuch, Beladelisten, Systemprotokoll, Cronjobs, Telemetrie und Plugins sitzen Abstände, Knöpfe und Kopfzeilen wieder richtig, und am Handy läuft nichts mehr aus dem Bild. Native Auswahlfelder haben denselben Pfeil wie die übrigen Dropdowns, Mehrfachauswahl und Datumsfelder sind so hoch wie die anderen Felder.
+
+Aktualisiert sind twig 3.30.0, monolog 3.12.1, league/oauth2-client 2.9.1 und phpstan 2.2.16, dazu das UI-Paket 0.7.2.
+
 ## 2026.0.15-beta
 
 ignis sieht neu aus. Mit dem UI-Paket 0.7.1 wird das Grau kühler, die Ecken werden runder, und Farbe haben nur noch Daten, Status und die eine Hauptaktion einer Seite. Seitenleiste, Kopfzeile, Reiter und Filter sind grau, der aktive Eintrag in der Seitenleiste, aktive Reiter und der gewählte Mail-Ordner sind deshalb nicht mehr orange. Primärknöpfe sind orange mit dunkler Schrift, und jede Seite hat höchstens einen davon. Seitenleiste und Kopfzeile liegen ohne eigene Fläche auf einem dunkleren Grund und gehen ineinander über. Darauf liegt der Seiteninhalt als hellere Fläche mit runden Ecken und leichtem Schatten, rechts und unten bleibt ein schmaler Rand frei. Auf dem Handy reicht der Inhalt bis an den Bildschirmrand. Die Grundschrift ist 14 px groß. Knöpfe und Eingabefelder sind in der Dichte „Komfortabel“ 40 px hoch, in „Kompakt“ 36 px und auf Touch-Geräten immer 44 px.

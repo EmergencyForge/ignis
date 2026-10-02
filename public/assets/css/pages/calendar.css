@@ -9,7 +9,6 @@
 
 #calendar-grid {
     font-family: 'Geist', sans-serif;
-    min-height: 600px;
 }
 
 .fc {
@@ -68,6 +67,19 @@
     color: var(--content-text);
 }
 
+/* Auf dem Handy steht der Titel ueber den Knoepfen, die Gruppen brechen um. */
+@media (max-width: 640px) {
+    .fc .fc-header-toolbar {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .fc .fc-toolbar-chunk:nth-child(2) {
+        order: -1;
+        flex-basis: 100%;
+    }
+}
+
 /* Wochentag-Header */
 .fc .fc-col-header-cell-cushion {
     color: var(--text-3);
@@ -75,7 +87,8 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 0.5rem 0;
+    /* Seitlich wie die Tagesnummern, sonst kleben die Kuerzel an der Linie. */
+    padding: 0.5rem;
     text-decoration: none;
 }
 

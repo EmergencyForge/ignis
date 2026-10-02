@@ -54,7 +54,7 @@
             const grundzeichen = findEl(root, prefix + 'grundzeichen').value;
 
             if (!grundzeichen) {
-                previewContainer.innerHTML = '<span style="font-size: 48px; color: #999;">Kein Symbol</span>';
+                previewContainer.innerHTML = '<span class="text-tertiary-text text-sm">Kein Symbol</span>';
                 return;
             }
 
