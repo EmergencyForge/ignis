@@ -68,7 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     <?php
     $SITE_TITLE = 'Login';
     include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
-    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/login-preview.js"></script>
+    <?php // Akzentrollen aus SYSTEM_COLOR wie auf allen anderen Seiten (dort über shell.js). ?>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/preferences.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/login-stage.js"></script>
 </head>
 
 <body id="alogin" class="relative" data-ui-skin="core">
@@ -155,53 +157,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
             </div>
         </section>
         <?php
-        // Reine Deko, keine echten Daten: die Anmeldung fragt nichts aus der
-        // Datenbank ab. Zahlen und Texte sind erfundene Beispielwerte, siehe
-        // packages/ui README "Login-Vorschau (0.5.1)" für den Markup-Vertrag.
+        // Reine Deko. Die Kontur ist das Zeichen aus ignis-mark.svg, die erste
+        // Teilfigur ist die Außenkontur, danach kommen die Buchstaben. Markup
+        // und Aussehen: login-stage() im UI-Paket.
+        preg_match('~\sd="([^"]+)"~', (string) file_get_contents(__DIR__ . '/assets/img/ignis-mark.svg'), $stageMark);
+        $stageMark = $stageMark[1] ?? '';
+        $stageShapes = preg_split('~(?<=Z)~', $stageMark, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $stageOperator = trim(RP_ORGTYPE . ' ' . SERVER_CITY);
         ?>
         <aside class="twplus-login__visual" aria-hidden="true">
-            <div class="ignis-login-preview">
-                <div class="ignis-login-preview__frame">
-                    <div class="ignis-login-preview__bar">
-                        <span class="ignis-login-preview__bar-dot"></span>
-                        <span class="ignis-login-preview__bar-dot"></span>
-                        <span class="ignis-login-preview__bar-dot"></span>
-                        <span class="ignis-login-preview__bar-title">Dashboard</span>
+            <div class="ignis-login-stage">
+                <div class="ignis-login-stage__heat"></div>
+                <canvas class="ignis-login-stage__sparks" data-ignis-login-sparks></canvas>
+                <div class="ignis-login-stage__emblem">
+                    <div class="ignis-login-stage__mark">
+                        <svg class="ignis-login-stage__glow" viewBox="0 0 96 96">
+                            <?php foreach ($stageShapes as $shape): ?><path class="ignis-login-stage__line" pathLength="1" d="<?= htmlspecialchars($shape, ENT_QUOTES) ?>"/><?php endforeach; ?>
+                        </svg>
+                        <svg viewBox="0 0 96 96">
+                            <linearGradient id="ignis-login-stage-trace" x1="0" y1="1" x2="1" y2="0"><stop offset="0"/><stop offset="1"/></linearGradient>
+                            <path class="ignis-login-stage__fill" d="<?= htmlspecialchars($stageMark, ENT_QUOTES) ?>"/>
+                            <?php foreach ($stageShapes as $shape): ?><path class="ignis-login-stage__line" pathLength="1" d="<?= htmlspecialchars($shape, ENT_QUOTES) ?>"/><?php endforeach; ?>
+                        </svg>
                     </div>
-                    <nav class="ignis-login-preview__nav">
-                        <span class="ignis-login-preview__nav-row is-active"><i class="fa-solid fa-gauge" aria-hidden="true"></i>Dashboard</span>
-                        <span class="ignis-login-preview__nav-row"><i class="fa-solid fa-users" aria-hidden="true"></i>Mitarbeiter</span>
-                        <span class="ignis-login-preview__nav-row"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i>Einsätze</span>
-                        <span class="ignis-login-preview__nav-row"><i class="fa-solid fa-truck" aria-hidden="true"></i>Fahrzeuge</span>
-                        <span class="ignis-login-preview__nav-row"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i>Kalender</span>
-                    </nav>
-                    <div class="ignis-login-preview__main">
-                        <div class="ignis-login-preview__stats" data-ignis-reveal>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>12</b><span>Einsätze heute</span></div>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>23</b><span>Fahrzeuge bereit</span></div>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>7</b><span>Offene Anträge</span></div>
-                            <div class="ignis-login-preview__stat"><b data-ignis-count>128</b><span>Mitarbeiter</span></div>
-                        </div>
-                        <div class="ignis-login-preview__bezel" data-ignis-reveal>
-                            <p class="ignis-login-preview__bezel-title">Einsätze</p>
-                            <div class="ignis-login-preview__sparks">
-                                <div class="ignis-login-preview__spark"><span>Einsätze/Std</span><svg viewBox="0 0 100 32" preserveAspectRatio="none"><polyline points="0,26 14,22 28,23 42,15 57,18 71,10 85,13 100,4"/></svg></div>
-                                <div class="ignis-login-preview__spark"><span>Einsätze, 7 Tage</span><svg viewBox="0 0 100 32" preserveAspectRatio="none"><polyline points="0,20 14,19 28,16 42,17 57,12 71,11 85,8 100,6"/></svg></div>
-                            </div>
-                        </div>
-                        <div class="ignis-login-preview__list" data-ignis-reveal>
-                            <p class="ignis-login-preview__list-title">Letzte Einsätze</p>
-                            <div class="ignis-login-preview__row is-highlight"><i></i><span>B3 Wohnungsbrand · HLF 20 · 14:32</span><b></b></div>
-                            <div class="ignis-login-preview__row"><i></i><span>Technische Hilfe · RW · 12:58</span><b></b></div>
-                            <div class="ignis-login-preview__row"><i></i><span>Kleinbrand · TLF 16 · 09:47</span><b></b></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="ignis-login-preview__toast ignis-login-preview__toast--a">
-                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Einsatzprotokoll gespeichert</span>
-                </div>
-                <div class="ignis-login-preview__toast ignis-login-preview__toast--b">
-                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Dienstplan aktualisiert</span>
+                    <p class="ignis-login-stage__caption">
+                        <?php if ($stageOperator !== ''): ?>
+                            <span class="ignis-login-stage__org"><?= htmlspecialchars($stageOperator) ?></span>
+                            <span class="ignis-login-stage__dot"></span>
+                        <?php endif; ?>
+                        <span class="ignis-login-stage__product">&#305;gn&#305;s</span>
+                    </p>
                 </div>
             </div>
         </aside>
