@@ -94,14 +94,6 @@ body[data-ui-skin="core"] {
     .ignis-topbar { padding-right: 8px; }
   }
 
-  // breadcrumb.js misst den Eintrag mit „…“ samt Trenner und richtet das
-  // Menü daran aus. Das <details> darin darf deshalb kein eigener
-  // Bezugsrahmen sein, und die 13rem Mindestbreite der ignis-Menüs darf die
-  // gemessene Höchstbreite nicht aushebeln. Sonst ragt das Menü bei 320 px
-  // links oder rechts aus dem Fenster.
-  .ignis-breadcrumb__more > .ignis-menu { position: static; }
-  .ignis-breadcrumb__menu { min-width: 0; }
-
   // Sichtungskategorien des MANV-Boards im Rand-Rezept des Chips. Mit nur
   // einer Klasse verlören sie gegen den neutralen Chip des Skins und wären
   // alle grau. SK5 und tot sind grau, heben sich aber vom neutralen Chip

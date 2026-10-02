@@ -216,13 +216,14 @@ final class LookAdoptionTest extends TestCase
     /**
      * breadcrumb.js aus dem Paket misst den Listeneintrag mit „…“ und
      * richtet das Menü an ihm aus. ignis macht jedes .ignis-menu zum
-     * Bezugsrahmen und gibt jedem Menü 13rem Mindestbreite, beides muss am
-     * Brotkrumenmenü weichen, sonst ragt es bei 320 px aus dem Fenster.
+     * Bezugsrahmen und gibt jedem Menü 13rem Mindestbreite. Beides hebt der
+     * Skin seit ui 0.7.1 am Brotkrumenmenü auf, das Dist muss diesen Stand
+     * haben, sonst ragt das Menü bei 320 px aus dem Fenster.
      */
     public function testTheBreadcrumbMenuAlignsToItsItem(): void
     {
         $css = (string) file_get_contents(self::CSS);
-        self::assertMatchesRegularExpression('/body\[data-ui-skin="?core"?\] \.ignis-breadcrumb__more\s*>\s*\.ignis-menu\s*\{[^}]*position:\s*static/', $css);
+        self::assertMatchesRegularExpression('/body\[data-ui-skin="?core"?\] \.ignis-breadcrumb__more\s*>\s*details\s*\{[^}]*position:\s*static/', $css);
         self::assertMatchesRegularExpression('/body\[data-ui-skin="?core"?\] \.ignis-breadcrumb__menu\s*\{[^}]*min-width:\s*0/', $css);
     }
 
