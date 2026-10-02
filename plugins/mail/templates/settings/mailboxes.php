@@ -34,9 +34,9 @@ $pgLabel    = 'Postfächer';
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Adresse oder Name" aria-label="Postfächer suchen">
                 </label>
-                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Suchen</button>
+                <button type="submit" class="ignis-btn ignis-btn--secondary">Suchen</button>
                 <?php if ($list->q !== ''): ?>
-                    <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
+                    <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
                 <?php endif; ?>
             </form>
 

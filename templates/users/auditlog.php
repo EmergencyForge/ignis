@@ -51,9 +51,9 @@ $pgLabel = 'Einträge';
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Filtern</button>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                         <?php if ($list->q !== '' || $list->filter('modul') !== ''): ?>
-                            <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'modul' => null, 'page' => null])) ?>">Zurücksetzen</a>
+                            <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'modul' => null, 'page' => null])) ?>">Zurücksetzen</a>
                         <?php endif; ?>
                     </form>
 

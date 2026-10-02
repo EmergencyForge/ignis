@@ -53,11 +53,11 @@ $SITE_TITLE = 'Cron-Jobs';
                 <div class="ignis-card__body">
                     <div class="flex items-center gap-2">
                         <label for="cron-endpoint-url" class="sr-only">Endpoint-URL</label>
-                        <input type="password" class="ignis-input ignis-input--sm ignis-mono" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly>
-                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Anzeigen" aria-label="Endpoint anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
+                        <input type="password" class="ignis-input ignis-mono" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly>
+                        <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Anzeigen" aria-label="Endpoint anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
                             <i class="fa-solid fa-eye" aria-hidden="true"></i>
                         </button>
-                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
+                        <button type="button" class="ignis-btn ignis-btn--secondary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
                             <i class="fa-solid fa-copy" aria-hidden="true"></i> Kopieren
                         </button>
                     </div>

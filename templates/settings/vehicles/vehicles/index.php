@@ -73,9 +73,9 @@ $SITE_TITLE = 'Fahrzeuge';
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Bezeichnung, Kennzeichen oder Typ" aria-label="Fahrzeuge suchen">
                         </label>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Suchen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary">Suchen</button>
                         <?php if ($list->q !== ''): ?>
-                            <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
+                            <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Aktiv">

@@ -1276,6 +1276,9 @@ select.form-select option {
         align-items: center;
         gap: 0.3rem;
         flex-shrink: 0;
+
+        // Platz für das 32 px hohe Mengenfeld, sonst wächst die Kachel beim Bearbeiten.
+        &:has(.beladung-tile__amount-edit) { min-height: 32px; }
     }
 
     // SortableJS Drag-States

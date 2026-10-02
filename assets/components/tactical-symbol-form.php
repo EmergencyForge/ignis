@@ -33,7 +33,7 @@ if (!isset($useGlobalBind)) {
     <div class="flex items-center justify-between mb-3">
         <h6 class="mb-0">Taktisches Zeichen</h6>
         <div class="flex gap-2">
-            <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
+            <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;">
                 <option value="">Vorlage laden...</option>
             </select>
             <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" data-ignis-tooltip="Aktuelle TZ-Konfiguration als Vorlage speichern" aria-label="Aktuelle TZ-Konfiguration als Vorlage speichern">

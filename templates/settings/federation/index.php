@@ -278,7 +278,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
                                         <label class="ignis-field__label" style="font-size:var(--fs-sm);">Instanz-ID</label>
-                                        <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--mono);font-size:var(--fs-xs);">
+                                        <input type="text" class="ignis-input" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--mono);font-size:var(--fs-xs);">
                                     </div>
                                     <div>
                                         <form method="post" class="flex items-end gap-2">
@@ -286,11 +286,11 @@ $SITE_TITLE = 'Instanzvernetzung';
                                             <input type="hidden" name="action" value="update_name">
                                             <div class="flex-1">
                                                 <label class="ignis-field__label" style="font-size:var(--fs-sm);">Instanzname</label>
-                                                <input type="text" name="instance_name" class="ignis-input ignis-input--sm"
+                                                <input type="text" name="instance_name" class="ignis-input"
                                                        value="<?= htmlspecialchars($instanceName) ?>"
                                                        placeholder="z.B. Berufsfeuerwehr Berlin">
                                             </div>
-                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary whitespace-nowrap">Speichern</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--secondary whitespace-nowrap">Speichern</button>
                                         </form>
                                     </div>
                                 </div>
@@ -319,7 +319,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                     </p>
                                     <?php if ($generatedToken): ?>
                                         <div class="mb-2">
-                                            <textarea class="ignis-input ignis-input--sm" rows="3" readonly
+                                            <textarea class="ignis-input" rows="3" readonly
                                                       style="font-family:var(--mono);font-size:var(--fs-xs);word-break:break-all;"
                                                       onclick="this.select()"><?= htmlspecialchars($generatedToken) ?></textarea>
                                         </div>
@@ -352,7 +352,7 @@ $SITE_TITLE = 'Instanzvernetzung';
                                     <form method="post">
                                         <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="pair_with_token">
-                                        <textarea name="connection_token" class="ignis-input ignis-input ignis-input--sm mb-2" rows="3"
+                                        <textarea name="connection_token" class="ignis-input mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
                                                   style="font-family:var(--mono);font-size:var(--fs-xs);"></textarea>
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
@@ -465,14 +465,14 @@ $SITE_TITLE = 'Instanzvernetzung';
                                     <div class="flex flex-wrap items-end gap-3">
                                         <div>
                                             <label class="ignis-field__label" style="font-size:var(--fs-xs);">Sync-Intervall (Min.)</label>
-                                            <input type="number" name="sync_interval_minutes" class="ignis-input ignis-input--sm" style="width:80px;"
+                                            <input type="number" name="sync_interval_minutes" class="ignis-input" style="width:80px;"
                                                    value="<?= (int)$link['sync_interval_minutes'] ?>" min="5" max="1440">
                                         </div>
                                         <div class="ignis-checkbox">
                                             <input type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
                                             <label for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
                                         </div>
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
+                                        <button type="submit" class="ignis-btn ignis-btn--secondary">
                                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                                         </button>
                                     </div>

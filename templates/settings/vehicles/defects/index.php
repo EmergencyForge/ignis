@@ -200,7 +200,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                             <input type="search" id="defectLocalSearch" class="ignis-input" placeholder="Titel, Fahrzeug, Kategorie, Melder" aria-label="Defekte durchsuchen"<?= empty($defects) ? ' disabled' : '' ?>>
                         </label>
                         <label for="defectVehicleFilter" class="sr-only">Fahrzeug</label>
-                        <select name="vehicle" id="defectVehicleFilter" class="ignis-input ignis-input--sm" data-custom-dropdown="true" style="width:auto;max-width:18rem;">
+                        <select name="vehicle" id="defectVehicleFilter" class="ignis-input" data-custom-dropdown="true" style="width:auto;max-width:18rem;">
                             <option value="">Alle Fahrzeuge</option>
                             <?php foreach ($vehicles as $v): ?>
                                 <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
@@ -208,9 +208,9 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Filtern</button>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                         <?php if ($filterVehicle > 0): ?>
-                            <a href="<?= htmlspecialchars($listUrl(['vehicle' => null])) ?>" class="ignis-btn ignis-btn--ghost ignis-btn--sm">Zurücksetzen</a>
+                            <a href="<?= htmlspecialchars($listUrl(['vehicle' => null])) ?>" class="ignis-btn ignis-btn--ghost">Zurücksetzen</a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
                         <nav class="ignis-segmented" aria-label="Status">

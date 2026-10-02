@@ -131,7 +131,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                     </label>
                     <label class="ignis-list-toolbar__field">
                         <span class="ignis-field__label">Fahrzeug</span>
-                        <select name="vehicle" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
+                        <select name="vehicle" class="ignis-input" data-custom-dropdown="true">
                             <option value="">Alle</option>
                             <?php foreach ($vehicles as $v): ?>
                                 <option value="<?= (int) $v['id'] ?>" <?= $filterVehicle === (int) $v['id'] ? 'selected' : '' ?>>
@@ -142,7 +142,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                     </label>
                     <label class="ignis-list-toolbar__field">
                         <span class="ignis-field__label">Fahrttyp</span>
-                        <select name="fahrttyp" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
+                        <select name="fahrttyp" class="ignis-input" data-custom-dropdown="true">
                             <option value="">Alle</option>
                             <?php foreach ($fahrttypen as $slug => $label): ?>
                                 <option value="<?= htmlspecialchars($slug) ?>" <?= $filterFahrttyp === $slug ? 'selected' : '' ?>>
@@ -153,11 +153,11 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                     </label>
                     <label class="ignis-list-toolbar__field">
                         <span class="ignis-field__label">Von</span>
-                        <input type="date" name="date_from" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
+                        <input type="date" name="date_from" class="ignis-input" value="<?= htmlspecialchars($filterDateFrom) ?>">
                     </label>
                     <label class="ignis-list-toolbar__field">
                         <span class="ignis-field__label">Bis</span>
-                        <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
+                        <input type="date" name="date_to" class="ignis-input" value="<?= htmlspecialchars($filterDateTo) ?>">
                     </label>
                     <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                     <?php if ($hasFilter): ?>

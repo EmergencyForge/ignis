@@ -60,7 +60,7 @@ final class LogbookListTest extends FeatureTestCase
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--danger">Einsatzfahrt</span>', $page);
         $this->assertBodyContains('<td class="ignis-table__num">12,5</td>', $page);
         $this->assertBodyContains('class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon fb-edit-btn"', $page);
-        $this->assertBodyContains('<select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="fb_fahrzeug" name="vehicle_id" required>', $page);
+        $this->assertBodyContains('<select class="ignis-input" data-custom-dropdown="true" id="fb_fahrzeug" name="vehicle_id" required>', $page);
         $this->assertBodyNotContains('form-select', $page);
         $this->assertBodyNotContains('input-group', $page);
     }

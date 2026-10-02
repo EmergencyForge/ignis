@@ -94,14 +94,14 @@ $pgLabel = 'Mitarbeiter';
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Filtern</button>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                         <?php if ($list->q !== '' || $list->filter('dg') !== '' || $list->filter('rd') !== '' || $list->filter('fw') !== ''): ?>
-                            <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'dg' => null, 'rd' => null, 'fw' => null, 'page' => null])) ?>">
+                            <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'dg' => null, 'rd' => null, 'fw' => null, 'page' => null])) ?>">
                                 <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
                             </a>
                         <?php endif; ?>
                         <span class="ignis-list-toolbar__spacer"></span>
-                        <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['export' => 'csv', 'page' => null])) ?>" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
+                        <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['export' => 'csv', 'page' => null])) ?>" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
                             <i class="fa-solid fa-file-csv"></i> CSV-Export
                         </a>
                     </form>
