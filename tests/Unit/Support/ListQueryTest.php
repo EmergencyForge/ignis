@@ -121,4 +121,19 @@ final class ListQueryTest extends TestCase
 
         ListQuery::fromQuery([], self::SORTABLE, 'missing');
     }
+
+    #[Test]
+    public function gleiche_werte_ordnet_die_eindeutige_spalte_in_derselben_richtung(): void
+    {
+        // Ohne zweite Spalte kann die Datenbank Zeilen mit gleichem Wert auf
+        // jeder Seite anders reihen. Die Verbindung wird nie geöffnet.
+        /** @var \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Query\Builder $builder */
+        $builder = (new \Illuminate\Database\MySqlConnection(static fn () => null))->table('u');
+
+        $sql = ListQuery::fromQuery(['sort' => 'name', 'dir' => 'desc'], self::SORTABLE, 'created', 'asc', 20, [], ['u.id'])
+            ->order($builder)
+            ->toSql();
+
+        $this->assertSame('select * from `u` order by `u`.`username` desc, `u`.`id` desc', $sql);
+    }
 }

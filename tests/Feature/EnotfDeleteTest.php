@@ -82,6 +82,6 @@ final class EnotfDeleteTest extends FeatureTestCase
         $this->assertOk($response);
         $this->assertStringNotContainsString('<img src=x onerror=alert(1)>', $response->body);
         $this->assertStringContainsString('&lt;img src=x onerror=alert(1)&gt;', $response->body);
-        $this->assertStringContainsString("action='" . BASE_PATH . "enotf/admin/delete'", $response->body);
+        $this->assertStringContainsString('action="' . BASE_PATH . 'enotf/admin/delete"', $response->body);
     }
 }

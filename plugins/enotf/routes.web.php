@@ -80,7 +80,8 @@ $router->get('/enotf/admin/list',     [EnotfAdminController::class, 'listAction'
 // Nur POST: CsrfMiddleware prüft keine GETs (siehe templates/enotf/admin/list.php).
 $router->post('/enotf/admin/delete',     [EnotfAdminController::class, 'destroy'], $enotfAdminAuth);
 
-$router->get('/enotf/admin/qm-actions-modal',     [EnotfAdminController::class, 'qmActionsModal'], $enotfAdminAuth);
+// GET liefert das Formular, POST speichert es (das Formular schickt an dieselbe Adresse).
+$router->match(['GET', 'POST'], '/enotf/admin/qm-actions-modal', [EnotfAdminController::class, 'qmActionsModal'], $enotfAdminAuth);
 
 $router->get('/enotf/admin/qm-log-modal',     [EnotfAdminController::class, 'qmLogModal'], $enotfAdminAuth);
 

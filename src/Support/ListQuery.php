@@ -44,6 +44,7 @@ final class ListQuery
      * @param array<string,mixed>  $query      $_GET
      * @param array<string,string> $sortable   URL-Schlüssel => Spalte oder Ausdruck für orderBy
      * @param list<string>         $filterKeys weitere Parameter, die die Liste durch alle URLs trägt
+     * @param list<string>         $tiebreak   eindeutige Spalten, die gleiche Werte der Sortierung ordnen
      */
     private function __construct(
         array $query,
@@ -52,6 +53,7 @@ final class ListQuery
         private readonly string $defaultDir,
         public readonly int $perPage,
         array $filterKeys,
+        private readonly array $tiebreak = [],
     ) {
         $this->q = self::scalar($query['q'] ?? null);
 
@@ -78,6 +80,7 @@ final class ListQuery
      * @param array<string,mixed>  $query
      * @param array<string,string> $sortable
      * @param list<string>         $filterKeys
+     * @param list<string>         $tiebreak
      */
     public static function fromQuery(
         array $query,
@@ -86,12 +89,13 @@ final class ListQuery
         string $defaultDir = 'asc',
         int $perPage = 25,
         array $filterKeys = [],
+        array $tiebreak = [],
     ): self {
         if (!isset($sortable[$defaultSort])) {
             throw new \InvalidArgumentException("ListQuery: Standard-Sortierung '$defaultSort' steht nicht in der Whitelist.");
         }
 
-        return new self($query, $sortable, $defaultSort, $defaultDir === 'desc' ? 'desc' : 'asc', max(1, $perPage), $filterKeys);
+        return new self($query, $sortable, $defaultSort, $defaultDir === 'desc' ? 'desc' : 'asc', max(1, $perPage), $filterKeys, $tiebreak);
     }
 
     private static function scalar(mixed $value): string
@@ -135,6 +139,11 @@ final class ListQuery
             $builder->orderByRaw($column . ' ' . $this->dir);
         } else {
             $builder->orderBy($column, $this->dir);
+        }
+        // Gleiche Werte brauchen eine feste Reihenfolge, sonst rutschen Zeilen
+        // beim Blättern auf die nächste Seite oder kommen doppelt.
+        foreach ($this->tiebreak as $tiebreakColumn) {
+            $builder->orderBy($tiebreakColumn, $this->dir);
         }
 
         return $builder;
