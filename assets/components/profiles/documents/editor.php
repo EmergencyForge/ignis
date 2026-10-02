@@ -32,7 +32,7 @@ $editorTemplates = DocumentPolicy::manage()
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken()) ?>">
             <div class="ignis-field" style="flex: 1 1 14rem;">
                 <label class="ignis-field__label" for="editor-template">Aus Vorlage anlegen</label>
-                <select class="ignis-input" id="editor-template" name="template_id" required>
+                <select class="ignis-input" data-custom-dropdown="true" id="editor-template" name="template_id" required>
                     <?php foreach ($editorTemplates as $tpl): ?>
                         <option value="<?= (int) $tpl->id ?>"><?= htmlspecialchars($tpl->name) ?></option>
                     <?php endforeach; ?>

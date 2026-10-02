@@ -184,7 +184,7 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
         <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
                 <label for="feldtyp" class="ignis-field__label">Feldtyp <span class="ignis-field__required">*</span></label>
-                <select class="ignis-input" id="feldtyp" name="feldtyp" required>
+                <select class="ignis-input" data-custom-dropdown="true" id="feldtyp" name="feldtyp" required>
                     <option value="text">Text (einzeilig)</option>
                     <option value="textarea">Textarea (mehrzeilig)</option>
                     <option value="number">Zahl</option>
@@ -198,14 +198,14 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
             </div>
             <div>
                 <label for="breite" class="ignis-field__label">Feldbreite</label>
-                <select class="ignis-input" id="breite" name="breite">
+                <select class="ignis-input" data-custom-dropdown="true" id="breite" name="breite">
                     <option value="full">Volle Breite</option>
                     <option value="half">Halbe Breite</option>
                 </select>
             </div>
             <div>
                 <label for="auto_fill" class="ignis-field__label">Auto-Fill</label>
-                <select class="ignis-input" id="auto_fill" name="auto_fill">
+                <select class="ignis-input" data-custom-dropdown="true" id="auto_fill" name="auto_fill">
                     <option value="">Kein Auto-Fill</option>
                     <option value="fullname_dienstnr">Name + Dienstnr.</option>
                     <option value="fullname">Name</option>

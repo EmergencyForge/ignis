@@ -80,7 +80,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
 
                                 <div class="mb-3">
                                     <label for="cirs_status" class="ignis-field__label">Status setzen <span class="ignis-field__required">*</span></label>
-                                    <select class="ignis-input" id="cirs_status" name="cirs_status" required>
+                                    <select class="ignis-input" data-custom-dropdown="true" id="cirs_status" name="cirs_status" required>
                                         <?php foreach (Form::STATUS_LABELS as $value => $label): ?>
                                             <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
                                                 <?= htmlspecialchars($label) ?>

@@ -65,7 +65,7 @@ class PersonalController extends Controller
             'view'    => 'settings/personnel/ranks',
             'path'    => 'settings/personnel/ranks',
             'module'  => 'Dienstgrade',
-            'label'   => 'Rank',
+            'label'   => 'Dienstgrad',
             'flash'   => 'rank',
         ],
         'fireSkills' => [

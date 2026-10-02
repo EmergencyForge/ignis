@@ -128,7 +128,7 @@
                         <form id="bulkDeleteFieldsForm">
                             <div class="mb-3">
                                 <label class="ignis-field__label font-bold" for="timePeriod">Zeitraum:</label>
-                                <select class="ignis-input" id="timePeriod">
+                                <select class="ignis-input" data-custom-dropdown="true" id="timePeriod">
                                     <option value="7">Letzte 7 Tage</option>
                                     <option value="30" selected>Letzte 30 Tage</option>
                                     <option value="90">Letzte 90 Tage</option>

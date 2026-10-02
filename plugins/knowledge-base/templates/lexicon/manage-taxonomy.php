@@ -127,7 +127,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                     </div>
                     <div class="mb-3">
                         <label for="catParent" class="ignis-field__label">Übergeordnete Kategorie</label>
-                        <select class="ignis-input" id="catParent">
+                        <select class="ignis-input" id="catParent" data-custom-dropdown="true">
                             <option value="">Keine (Hauptkategorie)</option>
                             <?php foreach ($categories as $cat): ?>
                                 <?php if (empty($cat['parent_id'])): ?>
@@ -170,7 +170,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                     </div>
                     <div class="mb-3">
                         <label for="tagColor" class="ignis-field__label">Farbe</label>
-                        <input type="color" class="ignis-input" id="tagColor" value="#6c757d" style="width: 4rem; height: 2.4rem; padding: 0.25rem;">
+                        <input type="text" class="ignis-input" id="tagColor" value="#6c757d" data-ignis-colorpicker>
                         <div class="ignis-field__hint">Vorschau: <span class="ignis-chip" id="tagPreview" style="background-color: #6c757d; color: #fff;">Beispiel-Tag</span></div>
                     </div>
                 </div>
@@ -190,9 +190,16 @@ $SITE_TITLE = 'KB Kategorien & Tags';
         document.getElementById('catIcon').addEventListener('input', function() {
             document.getElementById('catIconPreview').className = this.value + ' ml-1';
         });
-        document.getElementById('tagColor').addEventListener('input', function() {
-            document.getElementById('tagPreview').style.backgroundColor = this.value;
+        // Der Farbwähler meldet sich mit ignis:color-change, nicht mit input.
+        document.getElementById('tagColor').closest('.modal-content').addEventListener('ignis:color-change', function(e) {
+            document.getElementById('tagPreview').style.backgroundColor = e.detail.hex;
         });
+        // Wert von außen setzen geht nur über die Instanz des Farbwählers.
+        function setTagColor(hex) {
+            import(BASE_PATH + 'assets/js/ui/colorpicker.js').then(function(m) {
+                m.getColorpicker(document.getElementById('tagColor'))?.setValue(hex);
+            });
+        }
         document.getElementById('tagName').addEventListener('input', function() {
             document.getElementById('tagPreview').textContent = this.value || 'Beispiel-Tag';
         });
@@ -253,8 +260,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
         function showTagModal() {
             document.getElementById('tagId').value = '';
             document.getElementById('tagName').value = '';
-            document.getElementById('tagColor').value = '#6c757d';
-            document.getElementById('tagPreview').style.backgroundColor = '#6c757d';
+            setTagColor('#6c757d');
             document.getElementById('tagPreview').textContent = 'Beispiel-Tag';
             document.getElementById('tagModalLabel').textContent = 'Tag erstellen';
             tagModal.show();
@@ -263,8 +269,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
         function editTag(tag) {
             document.getElementById('tagId').value = tag.id;
             document.getElementById('tagName').value = tag.name;
-            document.getElementById('tagColor').value = tag.color;
-            document.getElementById('tagPreview').style.backgroundColor = tag.color;
+            setTagColor(tag.color);
             document.getElementById('tagPreview').textContent = tag.name;
             document.getElementById('tagModalLabel').textContent = 'Tag bearbeiten';
             tagModal.show();

@@ -7,6 +7,10 @@
 (function () {
   "use strict";
 
+  // Felder mit Picker aus dem UI-Paket bleiben unberührt: der Picker liest
+  // das versteckte Feld als Wertspeicher und braucht type="date".
+  var SELECTOR = 'input[type="date"]:not([data-ignis-datepicker])';
+
   var currentYearShort = new Date().getFullYear() % 100;
 
   /**
@@ -217,7 +221,7 @@
    * Initialize all existing date inputs
    */
   function initAllDateInputs() {
-    var dateInputs = document.querySelectorAll('input[type="date"]');
+    var dateInputs = document.querySelectorAll(SELECTOR);
     dateInputs.forEach(function (input) {
       if (input.getAttribute("data-date-input") === "true") {
         return;
@@ -234,14 +238,14 @@
       mutations.forEach(function (mutation) {
         mutation.addedNodes.forEach(function (node) {
           if (node.nodeType === 1) {
-            if (node.matches && node.matches('input[type="date"]')) {
+            if (node.matches && node.matches(SELECTOR)) {
               if (node.getAttribute("data-date-input") !== "true") {
                 initDateInput(node);
               }
             }
             var childDateInputs =
               node.querySelectorAll &&
-              node.querySelectorAll('input[type="date"]');
+              node.querySelectorAll(SELECTOR);
             if (childDateInputs) {
               childDateInputs.forEach(function (input) {
                 if (input.getAttribute("data-date-input") !== "true") {

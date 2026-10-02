@@ -209,7 +209,7 @@ $bodyPage = 'edivi';
             </div>
             <div class="mb-3">
                 <label for="quick_fahrzeugtyp" class="ignis-field__label">Fahrzeugtyp *</label>
-                <select class="ignis-input" id="quick_fahrzeugtyp" name="fahrzeugtyp" required>
+                <select class="ignis-input" id="quick_fahrzeugtyp" name="fahrzeugtyp" required data-custom-dropdown="true">
                     <option value="">Bitte wählen...</option>
                     <option value="RTW">RTW - Rettungswagen</option>
                     <option value="NAW">NAW - Notarztwagen</option>

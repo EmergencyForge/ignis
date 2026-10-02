@@ -10,6 +10,7 @@
  * @var list<string>                      $domains
  * @var list<\Plugin\Mail\Models\Mailbox> $mailboxes zur Wahl: zustellbare plus bisherige Mitglieder
  * @var array<string, array<int,string>>  $criteria  role_ids|rank_ids|rd_quali_ids|fw_quali_ids|fachdienst_ids => Id => Name
+ * @var array<int,string>                 $rankBadges Dienstgrad-Id => Abzeichen (intra_mitarbeiter_dienstgrade.badge)
  */
 
 use Plugin\Mail\MailAddressRules;
@@ -20,6 +21,7 @@ $bodyId     = 'mail';
 $SITE_TITLE = $list === null ? 'Verteiler anlegen' : 'Verteiler bearbeiten';
 $isDynamic  = $form['kind'] === 'dynamic';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+$rankBadge  = dirname(__DIR__, 5) . '/assets/components/profiles/_rank-badge.php';
 
 $options = array_map(static fn ($m): array => [
     'value' => (int) $m->id,
@@ -53,7 +55,7 @@ $groups = [
                         </div>
                         <div>
                             <label for="list-kind" class="ignis-field__label">Art</label>
-                            <select id="list-kind" name="kind" class="ignis-input">
+                            <select id="list-kind" name="kind" class="ignis-input" data-custom-dropdown="true">
                                 <option value="static"<?= $form['kind'] !== 'dynamic' ? ' selected' : '' ?>>Statisch: feste Mitglieder</option>
                                 <option value="dynamic"<?= $form['kind'] === 'dynamic' ? ' selected' : '' ?>>Dynamisch: Regel aus Rolle, Dienstgrad, Qualifikation, Fachdienst</option>
                             </select>
@@ -68,7 +70,7 @@ $groups = [
                         </div>
                         <div>
                             <label for="list-domain" class="ignis-field__label">Domain</label>
-                            <select id="list-domain" name="domain" class="ignis-input">
+                            <select id="list-domain" name="domain" class="ignis-input" data-custom-dropdown="true">
                                 <?php foreach ($domains as $domain): ?>
                                     <option value="<?= htmlspecialchars($domain) ?>"<?= $form['domain'] === $domain ? ' selected' : '' ?>>@<?= htmlspecialchars($domain) ?></option>
                                 <?php endforeach; ?>
@@ -79,7 +81,7 @@ $groups = [
 
                     <div>
                         <label for="list-senders" class="ignis-field__label">Wer darf schreiben</label>
-                        <select id="list-senders" name="senders" class="ignis-input">
+                        <select id="list-senders" name="senders" class="ignis-input" data-custom-dropdown="true">
                             <option value="<?= MailList::SENDERS_ALL ?>"<?= $form['senders'] !== MailList::SENDERS_MANAGERS ? ' selected' : '' ?>>Alle mit Mail-Zugang</option>
                             <option value="<?= MailList::SENDERS_MANAGERS ?>"<?= $form['senders'] === MailList::SENDERS_MANAGERS ? ' selected' : '' ?>>Nur Verteiler-Verwaltung (Recht mail.lists.manage)</option>
                         </select>
@@ -108,7 +110,7 @@ $groups = [
                                             <?php foreach ($criteria[$key] as $id => $name): ?>
                                                 <div class="ignis-checkbox">
                                                     <input type="checkbox" id="list-<?= $key ?>-<?= (int) $id ?>" name="<?= $key ?>[]" value="<?= (int) $id ?>"<?= in_array((int) $id, array_map('intval', (array) $form[$key]), true) ? ' checked' : '' ?>>
-                                                    <label for="list-<?= $key ?>-<?= (int) $id ?>"><?= htmlspecialchars($name) ?></label>
+                                                    <label for="list-<?= $key ?>-<?= (int) $id ?>"><?php if ($key === 'rank_ids') { $rankBadgeUrl = rank_badge_url($rankBadges[$id] ?? null); require $rankBadge; } ?><?= htmlspecialchars($name) ?></label>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>

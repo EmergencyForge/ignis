@@ -94,6 +94,7 @@ $bodyId = 'antrag-create';
                                     <?php elseif ($feld->feldtyp === 'select'): ?>
                                         <select
                                             class="ignis-input"
+                                            data-custom-dropdown="true"
                                             id="<?= $fieldId ?>"
                                             name="<?= $fieldId ?>"
                                             <?= $feld->pflichtfeld ? 'required' : '' ?>
@@ -112,7 +113,7 @@ $bodyId = 'antrag-create';
                                             name="<?= $fieldId ?>"
                                             placeholder="<?= htmlspecialchars($feld->platzhalter ?? '') ?>"
                                             value="<?= htmlspecialchars($auto_fill_value) ?>"
-                                            <?= $feld->feldtyp === 'date' ? 'data-ignis-datepicker' : '' ?>
+                                            <?= match ($feld->feldtyp) { 'date' => 'data-ignis-datepicker', 'time' => 'data-ignis-timepicker', default => '' } ?>
                                             <?= $feld->pflichtfeld ? 'required' : '' ?>
                                             <?= $feld->readonly ? 'readonly' : '' ?>>
                                     <?php endif; ?>

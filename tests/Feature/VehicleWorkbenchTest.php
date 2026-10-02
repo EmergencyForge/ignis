@@ -252,7 +252,7 @@ final class VehicleWorkbenchTest extends FeatureTestCase
         $list = $this->get(self::LIST, ['query' => ['q' => 'Haken']]);
         $this->assertBodyContains('action="/settings/vehicles/vehicles/status" class="ignis-bulkbar" data-ignis-bulkbar hidden', $list);
         $this->assertBodyContains('formaction="/settings/vehicles/vehicles/delete" data-ignis-bulk-confirm=', $list);
-        $this->assertBodyContains('<select name="emd_status" id="bulk-emd-status" class="ignis-input ignis-input--sm">', $list);
+        $this->assertBodyContains('<select name="emd_status" id="bulk-emd-status" class="ignis-input ignis-input--sm" data-custom-dropdown="true">', $list);
         $this->assertBodyContains('<option value="6">6 · Nicht einsatzbereit</option>', $list);
         $this->assertBodyContains('formaction="/settings/vehicles/vehicles/emd-status"', $list);
         $this->assertBodyContains('data-ignis-select-all', $list);

@@ -51,7 +51,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                     <div>
                         <?php if ($canChoose): ?>
                             <label for="mailbox-domain" class="ignis-field__label">Domain</label>
-                            <select id="mailbox-domain" name="domain" class="ignis-input"<?= $isOwn ? ' disabled' : '' ?>>
+                            <select id="mailbox-domain" name="domain" class="ignis-input" data-custom-dropdown="true"<?= $isOwn ? ' disabled' : '' ?>>
                                 <?php foreach ($domains as $domain): ?>
                                     <option value="<?= htmlspecialchars($domain) ?>"<?= $form['domain'] === $domain ? ' selected' : '' ?>>@<?= htmlspecialchars($domain) ?></option>
                                 <?php endforeach; ?>
@@ -82,7 +82,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                     </p>
                     <div>
                         <label for="mailbox-account" class="ignis-field__label">Konto</label>
-                        <select id="mailbox-account" name="user_id" class="ignis-input"<?= $isOwn ? ' disabled' : '' ?>>
+                        <select id="mailbox-account" name="user_id" class="ignis-input" data-custom-dropdown="true"<?= $isOwn ? ' disabled' : '' ?>>
                             <option value="">Keinem Konto zuordnen</option>
                             <?php if ($mailbox->user_id !== null && !isset($candidates[$mailbox->user_id])): ?>
                                 <option value="<?= (int) $mailbox->user_id ?>" selected><?= htmlspecialchars($account ?? ('Konto #' . $mailbox->user_id)) ?> (bisher)</option>

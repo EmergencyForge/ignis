@@ -51,11 +51,11 @@ $bodyPage = 'edivi';
                             </div>
                             <div>
                                 <label for="geburtsdatum" class="ignis-field__label">Geburtsdatum</label>
-                                <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum">
+                                <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum" data-ignis-datepicker>
                             </div>
                             <div>
                                 <label for="geschlecht" class="ignis-field__label">Geschlecht</label>
-                                <select class="ignis-input" id="geschlecht" name="geschlecht">
+                                <select class="ignis-input" id="geschlecht" name="geschlecht" data-custom-dropdown="true">
                                     <option value="unbekannt">Unbekannt</option>
                                     <option value="m">Männlich</option>
                                     <option value="w">Weiblich</option>
@@ -73,14 +73,14 @@ $bodyPage = 'edivi';
                     <div class="ignis-card__body">
                         <div class="mb-4">
                             <label for="sichtungskategorie" class="ignis-field__label">Kategorie *</label>
-                            <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie" required>
+                            <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie" required data-custom-dropdown="true">
                                 <option value="">Bitte wählen...</option>
-                                <option value="SK1" class="text-danger-text">SK1 - Rot (Akute Lebensgefahr)</option>
-                                <option value="SK2" class="text-warn-text">SK2 - Gelb (Nicht auszuschließende schwere Folgeschäden)</option>
-                                <option value="SK3" class="text-ok-text">SK3 - Grün (Spätere Behandlung)</option>
-                                <option value="SK4" class="text-info-text">SK4 - Blau (Akute Lebensgefahr ohne zeitnahe Versorgung)</option>
-                                <option value="SK5" style="background-color: #000; color: #fff;">SK5 - Schwarz (Tot)</option>
-                                <option value="SK6" style="color: #9b59b6;">SK6 - Lila (Beteiligter ohne Verletzung)</option>
+                                <option value="SK1" data-color="var(--danger)">SK1 - Rot (Akute Lebensgefahr)</option>
+                                <option value="SK2" data-color="var(--warn)">SK2 - Gelb (Nicht auszuschließende schwere Folgeschäden)</option>
+                                <option value="SK3" data-color="var(--ok)">SK3 - Grün (Spätere Behandlung)</option>
+                                <option value="SK4" data-color="var(--info)">SK4 - Blau (Akute Lebensgefahr ohne zeitnahe Versorgung)</option>
+                                <option value="SK5" data-color="var(--text-3)">SK5 - Schwarz (Tot)</option>
+                                <option value="SK6">SK6 - Lila (Beteiligter ohne Verletzung)</option>
                             </select>
                         </div>
                         <div class="ignis-alert ignis-alert--info">
@@ -103,7 +103,7 @@ $bodyPage = 'edivi';
                     <div class="ignis-card__body space-y-4">
                         <div>
                             <label for="transportmittel_id" class="ignis-field__label">Zugewiesenes Fahrzeug</label>
-                            <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
+                            <select class="ignis-input" id="transportmittel_id" name="transportmittel_id" data-custom-dropdown="true">
                                 <option value="">Noch nicht zugewiesen</option>
                                 <?php foreach ($fahrzeuge as $fzg): ?>
                                     <option value="<?= (int) $fzg['id'] ?>"
@@ -131,7 +131,7 @@ $bodyPage = 'edivi';
                         </div>
                         <div>
                             <label for="transportziel" class="ignis-field__label">Transportziel</label>
-                            <select class="ignis-input" id="transportziel" name="transportziel">
+                            <select class="ignis-input" id="transportziel" name="transportziel" data-custom-dropdown="true">
                                 <option value="">Bitte wählen...</option>
                                 <option value="Kein Transport">Kein Transport</option>
                                 <?php foreach ($krankenhaeuser as $kh): ?>

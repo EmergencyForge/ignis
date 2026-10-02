@@ -73,7 +73,7 @@ $bodyPage = 'edivi';
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="lna_mitarbeiter_id" class="ignis-field__label">Leitender Notarzt (LNA)</label>
-                                <select class="ignis-input" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
+                                <select class="ignis-input" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id" data-custom-dropdown="true">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
                                         <option value="<?= (int) $user['id'] ?>" data-name="<?= htmlspecialchars($user['fullname']) ?>">
@@ -85,7 +85,7 @@ $bodyPage = 'edivi';
                             </div>
                             <div>
                                 <label for="orgl_mitarbeiter_id" class="ignis-field__label">Organisatorischer Leiter (OrgL)</label>
-                                <select class="ignis-input" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
+                                <select class="ignis-input" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id" data-custom-dropdown="true">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
                                         <option value="<?= (int) $user['id'] ?>" data-name="<?= htmlspecialchars($user['fullname']) ?>">

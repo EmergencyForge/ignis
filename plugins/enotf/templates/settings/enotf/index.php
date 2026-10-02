@@ -126,7 +126,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-category" class="ignis-field__label">Kategorie</label>
-                                <select class="ignis-input" name="category" id="quicklink-category" required>
+                                <select class="ignis-input" name="category" id="quicklink-category" required data-custom-dropdown="true">
                                     <?php foreach ($activeCategories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
                                     <?php endforeach; ?>
@@ -134,7 +134,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-col-width" class="ignis-field__label">Spaltenbreite (Bootstrap)</label>
-                                <select class="ignis-input" name="col_width" id="quicklink-col-width" required>
+                                <select class="ignis-input" name="col_width" id="quicklink-col-width" required data-custom-dropdown="true">
                                     <option value="col">Automatisch (col)</option>
                                     <option value="col-6">Halbe Breite (col-6)</option>
                                     <option value="col-4">Ein Drittel (col-4)</option>
@@ -187,7 +187,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-category" class="ignis-field__label">Kategorie</label>
-                                <select class="ignis-input" name="category" id="create-quicklink-category" required>
+                                <select class="ignis-input" name="category" id="create-quicklink-category" required data-custom-dropdown="true">
                                     <?php foreach ($activeCategories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
                                     <?php endforeach; ?>
@@ -195,7 +195,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-col-width" class="ignis-field__label">Spaltenbreite (Bootstrap)</label>
-                                <select class="ignis-input" name="col_width" id="create-quicklink-col-width" required>
+                                <select class="ignis-input" name="col_width" id="create-quicklink-col-width" required data-custom-dropdown="true">
                                     <option value="col">Automatisch (col)</option>
                                     <option value="col-6" selected>Halbe Breite (col-6)</option>
                                     <option value="col-4">Ein Drittel (col-4)</option>

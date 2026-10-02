@@ -58,7 +58,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>grundzeichen" class="ignis-field__label">Grundzeichen</label>
-        <select class="ignis-input" name="grundzeichen" id="<?= $prefix ?>grundzeichen">
+        <select class="ignis-input" data-custom-dropdown="true" name="grundzeichen" id="<?= $prefix ?>grundzeichen">
             <option value="">-- Kein Zeichen --</option>
             <option value="abrollbehaelter">Abrollbehälter</option>
             <option value="amphibienfahrzeug">Amphibienfahrzeug</option>
@@ -93,7 +93,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>organisation" class="ignis-field__label">Organisation</label>
-        <select class="ignis-input" name="organisation" id="<?= $prefix ?>organisation">
+        <select class="ignis-input" data-custom-dropdown="true" name="organisation" id="<?= $prefix ?>organisation">
             <option value="">-- Keine --</option>
             <option value="bundeswehr">Bundeswehr</option>
             <option value="feuerwehr">Feuerwehr</option>
@@ -108,7 +108,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>fachaufgabe" class="ignis-field__label">Fachaufgabe</label>
-        <select class="ignis-input" name="fachaufgabe" id="<?= $prefix ?>fachaufgabe">
+        <select class="ignis-input" data-custom-dropdown="true" name="fachaufgabe" id="<?= $prefix ?>fachaufgabe">
             <option value="">-- Keine --</option>
             <option value="abwehr-wassergefahren">Abwehr von Wassergefahren</option>
             <option value="aerztliche-versorgung">Ärztliche Versorgung</option>
@@ -151,7 +151,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>einheit" class="ignis-field__label">Einheit</label>
-        <select class="ignis-input" name="einheit" id="<?= $prefix ?>einheit">
+        <select class="ignis-input" data-custom-dropdown="true" name="einheit" id="<?= $prefix ?>einheit">
             <option value="">-- Keine --</option>
             <option value="trupp">Trupp</option>
             <option value="staffel">Staffel</option>
@@ -165,7 +165,7 @@ if (!isset($useGlobalBind)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>symbol" class="ignis-field__label">Symbol</label>
-        <select class="ignis-input" name="symbol" id="<?= $prefix ?>symbol">
+        <select class="ignis-input" data-custom-dropdown="true" name="symbol" id="<?= $prefix ?>symbol">
             <option value="">-- Kein Symbol --</option>
             <option value="abc">ABC</option>
             <option value="angriff">Angriff</option>

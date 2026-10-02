@@ -141,6 +141,20 @@ final class MailListAdminTest extends FeatureTestCase
     }
 
     #[Test]
+    public function die_regel_zeigt_das_abzeichen_vor_dem_dienstgrad(): void
+    {
+        $plain  = $this->rank();
+        $badged = $plain->replicate();
+        $badged->name  = 'Rang_' . uniqid();
+        $badged->badge = 'assets/img/dienstgrade/bf/1.png';
+        $badged->save();
+
+        $body = $this->get('/mail/lists/create')->body;
+        $this->assertMatchesRegularExpression('~<label for="list-rank_ids-' . $badged->id . '"><img src="/assets/img/dienstgrade/bf/1\.png[^"]*" alt=""~', $body);
+        $this->assertStringContainsString('<label for="list-rank_ids-' . $plain->id . '">' . $plain->name . '</label>', $body);
+    }
+
+    #[Test]
     public function adresse_ist_ueber_postfaecher_verteiler_und_historie_eindeutig(): void
     {
         $bob = $this->member('Bob Empfang')['mailbox'];

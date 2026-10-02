@@ -11,14 +11,10 @@ $rdqsel = \App\Models\AmbSkill::query()
         <div class="twplus-form-section__hint">Aktuelle rettungsdienstliche Qualifikation.</div>
     </div>
     <div>
-    <select class="ignis-input" name="qualird" id="qualird">
-        <?php foreach ($rdqsel as $data) {
-            if ($rdq == $data['id']) {
-                echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
-            } else {
-                echo "<option value='{$data['id']}'>{$data['name']}</option>";
-            }
-        } ?>
+    <select class="ignis-input" data-custom-dropdown="true" name="qualird" id="qualird">
+        <?php foreach ($rdqsel as $data): ?>
+            <option value="<?= (int) $data['id'] ?>"<?= $rdq == $data['id'] ? ' selected' : '' ?>><?= htmlspecialchars($data['name']) ?></option>
+        <?php endforeach; ?>
     </select>
     </div>
 </div>

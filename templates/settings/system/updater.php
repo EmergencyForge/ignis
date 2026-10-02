@@ -523,7 +523,7 @@ $SITE_TITLE = 'System Updates';
                                 <?php if (!empty($devBranches)): ?>
                                     <div class="mb-3">
                                         <label for="dev-branch-select" class="ignis-field__label">Branch auswählen:</label>
-                                        <select class="ignis-input" id="dev-branch-select">
+                                        <select class="ignis-input" data-custom-dropdown="true" id="dev-branch-select">
                                             <option value="">-- Branch wählen --</option>
                                             <?php foreach ($devBranches as $branch): ?>
                                                 <option value="<?= htmlspecialchars($branch['name']) ?>"

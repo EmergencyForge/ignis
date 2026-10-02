@@ -418,7 +418,7 @@ class FormsController extends Controller
                 'm.dienstnr',
                 'm.geschlecht',
                 'm.discordtag',
-                Capsule::connection()->raw("CASE WHEN m.geschlecht = 1 THEN dg.name_m ELSE dg.name_w END AS dienstgrad_name")
+                Capsule::connection()->raw("CASE m.geschlecht WHEN 0 THEN dg.name_m WHEN 1 THEN dg.name_w ELSE dg.name END AS dienstgrad_name")
             )
             ->first();
 

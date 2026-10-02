@@ -96,7 +96,7 @@ $SITE_TITLE = 'Fahrzeuge';
                             <span class="ignis-bulkbar__spacer"></span>
                             <span class="ignis-bulkbar__group">
                                 <label for="bulk-status" class="sr-only">Status</label>
-                                <select name="status" id="bulk-status" class="ignis-input ignis-input--sm">
+                                <select name="status" id="bulk-status" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
                                     <option value="active">Aktiv</option>
                                     <option value="inactive">Inaktiv</option>
                                 </select>
@@ -104,7 +104,7 @@ $SITE_TITLE = 'Fahrzeuge';
                             </span>
                             <span class="ignis-bulkbar__group">
                                 <label for="bulk-emd-status" class="sr-only">EMD-Status</label>
-                                <select name="emd_status" id="bulk-emd-status" class="ignis-input ignis-input--sm">
+                                <select name="emd_status" id="bulk-emd-status" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
                                     <?php foreach (Vehicle::STATUS_LABELS as $code => $label): ?>
                                         <option value="<?= $code ?>"><?= $code ?> · <?= htmlspecialchars($label) ?></option>
                                     <?php endforeach; ?>
@@ -284,7 +284,7 @@ $SITE_TITLE = 'Fahrzeuge';
             </div>
             <div class="form-group mb-3">
                 <label for="fahrzeug-rd_type">Typ (Rettungsdienstlich)</label>
-                <select class="ignis-input" name="rd_type" id="fahrzeug-rd_type">
+                <select class="ignis-input" data-custom-dropdown="true" name="rd_type" id="fahrzeug-rd_type">
                     <option value="0">Andere</option>
                     <option value="1">Rettungsdienst mit NA</option>
                     <option value="2">Rettungsdienst ohne NA</option>

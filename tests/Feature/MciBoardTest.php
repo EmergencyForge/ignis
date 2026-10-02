@@ -76,4 +76,29 @@ final class MciBoardTest extends FeatureTestCase
         $unknown = $this->get('/mci/board', ['query' => ['id' => (string) $lageId, 'sort' => 'geburtsdatum', 'dir' => 'desc']]);
         $this->assertLessThan($this->pos($unknown->body, '>P-02<'), $this->pos($unknown->body, '>P-01<'));
     }
+
+    #[Test]
+    public function sichtung_zeigt_im_dropdown_den_farbpunkt_der_kategorie(): void
+    {
+        $user = FixtureFactory::user();
+        $this->actingAs($user->id, ['permissions' => ['mci.manage'], 'cirs_username' => $user->username]);
+
+        $lageId = (int) Capsule::table('intra_manv_lagen')->insertGetId([
+            'einsatznummer' => 'MANV-' . uniqid(), 'einsatzort' => 'B5', 'status' => 'aktiv', 'erstellt_von' => $user->id,
+        ]);
+        $patientId = (int) Capsule::table('intra_manv_patienten')->insertGetId([
+            'manv_lage_id' => $lageId, 'patienten_nummer' => 'P-01', 'sichtungskategorie' => 'SK2', 'erstellt_von' => $user->id,
+        ]);
+
+        $create = $this->get('/mci/patient-create', ['query' => ['lage_id' => (string) $lageId]]);
+        $this->assertOk($create);
+        $this->assertBodyContains('<select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie" required data-custom-dropdown="true">', $create);
+        $this->assertBodyContains('<option value="SK1" data-color="var(--danger)">SK1 - Rot', $create);
+        $this->assertBodyContains('<option value="SK4" data-color="var(--info)">SK4 - Blau', $create);
+
+        $view = $this->get('/mci/patient-view', ['query' => ['id' => (string) $patientId]]);
+        $this->assertOk($view);
+        $this->assertBodyContains('"SK2" selected data-color="var(--warn)">SK2 - Gelb</option>', $view);
+        $this->assertBodyContains('data-color="var(--ok)">SK3 - Grün</option>', $view);
+    }
 }

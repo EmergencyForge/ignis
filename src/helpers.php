@@ -308,6 +308,24 @@ if (!function_exists('systemLogoUrl')) {
     }
 }
 
+if (!function_exists('rank_badge_url')) {
+    /**
+     * URL zum Dienstgradabzeichen (intra_mitarbeiter_dienstgrade.badge),
+     * nicht escaped. http(s):// und // bleiben, alles andere läuft über
+     * asset(): BASE_PATH davor, auch für Pfade ohne führenden Schrägstrich,
+     * die sonst relativ zur aufgerufenen Seite aufgelöst würden.
+     */
+    function rank_badge_url(?string $badge): ?string
+    {
+        $badge = trim((string) $badge);
+        if ($badge === '') {
+            return null;
+        }
+
+        return preg_match('~^(https?:)?//~i', $badge) ? $badge : asset($badge);
+    }
+}
+
 if (!function_exists('env_value')) {
     /**
      * Liest eine Umgebungsvariable aus $_ENV, $_SERVER, getenv().

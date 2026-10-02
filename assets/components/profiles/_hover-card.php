@@ -29,8 +29,8 @@ $fwQuali    = trim($mitarbeiter->fwQualiLabel());
 
     <dl class="user-hover-card__meta">
         <?php if ($dienstgrad !== ''): ?>
-            <dt>Rank</dt>
-            <dd><?= htmlspecialchars($dienstgrad) ?></dd>
+            <dt>Dienstgrad</dt>
+            <dd><?php $rankBadgeUrl = $mitarbeiter->dienstgradModel?->badgeUrl(); include __DIR__ . '/_rank-badge.php'; ?><?= htmlspecialchars($dienstgrad) ?></dd>
         <?php endif; ?>
         <?php if ($rdQuali !== ''): ?>
             <dt>RD-Quali</dt>

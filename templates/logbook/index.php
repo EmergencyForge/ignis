@@ -153,11 +153,11 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                     </label>
                     <label class="ignis-list-toolbar__field">
                         <span class="ignis-field__label">Von</span>
-                        <input type="date" name="date_from" class="ignis-input" value="<?= htmlspecialchars($filterDateFrom) ?>">
+                        <input type="date" name="date_from" class="ignis-input" data-ignis-datepicker value="<?= htmlspecialchars($filterDateFrom) ?>">
                     </label>
                     <label class="ignis-list-toolbar__field">
                         <span class="ignis-field__label">Bis</span>
-                        <input type="date" name="date_to" class="ignis-input" value="<?= htmlspecialchars($filterDateTo) ?>">
+                        <input type="date" name="date_to" class="ignis-input" data-ignis-datepicker value="<?= htmlspecialchars($filterDateTo) ?>">
                     </label>
                     <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                     <?php if ($hasFilter): ?>

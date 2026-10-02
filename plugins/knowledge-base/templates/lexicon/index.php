@@ -194,7 +194,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                     <form method="GET" class="twplus-filter-bar mb-4">
                             <div class="twplus-filter-bar__field">
                                 <label for="type" class="ignis-field__label">Typ</label>
-                                <select name="type" id="type" class="ignis-input">
+                                <select name="type" id="type" class="ignis-input" data-custom-dropdown="true">
                                     <option value="all" <?= $typeFilter === 'all' ? 'selected' : '' ?>>Alle Typen</option>
                                     <option value="general" <?= $typeFilter === 'general' ? 'selected' : '' ?>>Allgemein</option>
                                     <option value="medication" <?= $typeFilter === 'medication' ? 'selected' : '' ?>>Medikamente</option>
@@ -204,7 +204,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                             <?php if (!empty($allCategories)): ?>
                             <div class="twplus-filter-bar__field">
                                 <label for="category" class="ignis-field__label">Kategorie</label>
-                                <select name="category" id="category" class="ignis-input">
+                                <select name="category" id="category" class="ignis-input" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <?php
                                     /** @param array<int, array<string, mixed>> $cats */
@@ -226,7 +226,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                             <?php if (!empty($allTags)): ?>
                             <div class="twplus-filter-bar__field">
                                 <label for="tag" class="ignis-field__label">Tag</label>
-                                <select name="tag" id="tag" class="ignis-input">
+                                <select name="tag" id="tag" class="ignis-input" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <?php foreach ($allTags as $t): ?>
                                         <option value="<?= $t['id'] ?>" <?= $tagFilter === (int)$t['id'] ? 'selected' : '' ?>><?= htmlspecialchars($t['name']) ?> (<?= $t['cnt'] ?>)</option>

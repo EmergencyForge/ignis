@@ -42,14 +42,14 @@ $val = function (string $field, string $default = '') use ($entry) {
     <!-- Abfahrt -->
     <div class="md:col-span-4">
         <label for="fb_abfahrt" class="ignis-field__label">Abfahrt <span class="ignis-field__required">*</span></label>
-        <input type="time" class="ignis-input" id="fb_abfahrt" name="abfahrt"
+        <input type="time" class="ignis-input" data-ignis-timepicker id="fb_abfahrt" name="abfahrt"
                value="<?= $isEdit ? $val('abfahrt') : date('H:i') ?>" required>
     </div>
 
     <!-- Ankunft -->
     <div class="md:col-span-4">
         <label for="fb_ankunft" class="ignis-field__label">Ankunft</label>
-        <input type="time" class="ignis-input" id="fb_ankunft" name="ankunft"
+        <input type="time" class="ignis-input" data-ignis-timepicker id="fb_ankunft" name="ankunft"
                value="<?= $val('ankunft') ?>">
     </div>
 

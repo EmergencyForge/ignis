@@ -188,7 +188,7 @@ $SITE_TITLE = 'Cron-Jobs';
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2 mb-3">
             <div>
                 <label class="ignis-field__label" for="cron-handler-type">Handler-Typ</label>
-                <select name="handler_type" id="cron-handler-type" class="ignis-input" required>
+                <select name="handler_type" id="cron-handler-type" class="ignis-input" data-custom-dropdown="true" required>
                     <option value="webhook">Webhook (HTTP-URL)</option>
                     <option value="console">Console-Command (aus Allowlist)</option>
                     <option value="job">Queue-Job (FQCN dispatchen)</option>

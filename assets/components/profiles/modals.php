@@ -178,7 +178,7 @@ async function toggleArchiveFromViewer(docid, archive) {
 
 <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
 <template id="newCommentFormTemplate">
-    <select class="ignis-input mb-2" name="noteType">
+    <select class="ignis-input mb-2" data-custom-dropdown="true" name="noteType">
         <option value="0">Allgemein</option>
         <option value="1">Positiv</option>
         <option value="2">Negativ</option>

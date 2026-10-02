@@ -65,16 +65,16 @@ $pgLabel = 'Mitarbeiter';
                         </label>
                         <label class="ignis-field" for="filterDienstgrad">
                             <span class="ignis-field__label text-sm">Dienstgrad</span>
-                            <select class="ignis-input" name="dg" id="filterDienstgrad">
+                            <select class="ignis-input" data-custom-dropdown="true" name="dg" id="filterDienstgrad">
                                 <option value="">Alle</option>
                                 <?php foreach ($dienstgrade as $dg): ?>
-                                    <option value="<?= (int) $dg->id ?>"<?= $list->filter('dg') === (string) $dg->id ? ' selected' : '' ?>><?= htmlspecialchars($dg->name) ?></option>
+                                    <option value="<?= (int) $dg->id ?>"<?= $list->filter('dg') === (string) $dg->id ? ' selected' : '' ?> data-image="<?= htmlspecialchars((string) $dg->badgeUrl()) ?>"><?= htmlspecialchars($dg->name) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
                         <label class="ignis-field" for="filterRDQuali">
                             <span class="ignis-field__label text-sm">RD-Qualifikation</span>
-                            <select class="ignis-input" name="rd" id="filterRDQuali">
+                            <select class="ignis-input" data-custom-dropdown="true" name="rd" id="filterRDQuali">
                                 <option value="">Alle</option>
                                 <?php foreach ($rdQualis as $rd): ?>
                                     <?php if (!$rd->none): ?>
@@ -85,7 +85,7 @@ $pgLabel = 'Mitarbeiter';
                         </label>
                         <label class="ignis-field" for="filterFWQuali">
                             <span class="ignis-field__label text-sm">FW-Qualifikation</span>
-                            <select class="ignis-input" name="fw" id="filterFWQuali">
+                            <select class="ignis-input" data-custom-dropdown="true" name="fw" id="filterFWQuali">
                                 <option value="">Alle</option>
                                 <?php foreach ($fwQualis as $fw): ?>
                                     <?php if (!$fw->none): ?>
@@ -180,7 +180,7 @@ $pgLabel = 'Mitarbeiter';
                                     $fwName    = $fw !== null ? $fw->name : '';
                                     $isRdNone  = $rd === null || $rd->none;
                                     $isFwNone  = $fw === null || $fw->none;
-                                    $badgeImg  = $m->dienstgradModel?->badge;
+                                    $rankBadgeUrl = $m->dienstgradModel?->badgeUrl();
                                     $profileUrl = BASE_PATH . 'personnel/profile?id=' . (int) $m->id;
                                 ?>
                                     <tr>
@@ -191,10 +191,7 @@ $pgLabel = 'Mitarbeiter';
                                             </a>
                                         </td>
                                         <td data-label="Dienstgrad" data-mobile-context>
-                                            <?php if (!empty($badgeImg)): ?>
-                                                <img src="<?= htmlspecialchars($badgeImg) ?>" height="16" width="auto" style="padding-right:5px" alt="Dienstgrad" loading="lazy" />
-                                            <?php endif; ?>
-                                            <?= htmlspecialchars($m->dienstgradLabel()) ?>
+                                            <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><?= htmlspecialchars($m->dienstgradLabel()) ?>
                                         </td>
                                         <td data-label="RD-Qualifikation">
                                             <?php if (!$isRdNone): ?>

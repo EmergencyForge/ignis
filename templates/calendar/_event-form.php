@@ -100,7 +100,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label for="evt-category" class="ignis-field__label">Kategorie</label>
-                    <select id="evt-category" name="category" class="ignis-input">
+                    <select id="evt-category" name="category" class="ignis-input" data-custom-dropdown="true">
                         <?php foreach ($categories as $key => $label): ?>
                             <?php if ($key === 'absence') continue; /* nur via Antrag-Sync */ ?>
                             <option value="<?= htmlspecialchars($key) ?>"<?= (string) old('category', 'general') === $key ? ' selected' : '' ?>><?= htmlspecialchars($label) ?></option>
@@ -109,7 +109,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
                 </div>
                 <div>
                     <label for="evt-color" class="ignis-field__label">Farbe</label>
-                    <select id="evt-color" name="color" class="ignis-input">
+                    <select id="evt-color" name="color" class="ignis-input" data-custom-dropdown="true">
                         <?php foreach ($colors as $color): ?>
                             <option value="<?= htmlspecialchars($color) ?>"<?= (string) old('color', 'orange') === $color ? ' selected' : '' ?>><?= htmlspecialchars($colorLabelsDe[$color] ?? ucfirst($color)) ?></option>
                         <?php endforeach; ?>
@@ -119,7 +119,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
 
             <div>
                 <label for="evt-visibility" class="ignis-field__label">Sichtbarkeit</label>
-                <select id="evt-visibility" name="visibility" class="ignis-input">
+                <select id="evt-visibility" name="visibility" class="ignis-input" data-custom-dropdown="true">
                     <?php foreach (['private' => 'Privat (nur ich)', 'attendees' => 'Eingeladene Mitarbeiter', 'role' => 'Bestimmte Rolle', 'all' => 'Alle (öffentlich)'] as $visKey => $visLabel): ?>
                         <option value="<?= $visKey ?>"<?= $oldVisibility === $visKey ? ' selected' : '' ?>><?= $visLabel ?></option>
                     <?php endforeach; ?>
@@ -162,7 +162,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
             <div data-recurrence-row style="display:none;" class="grid grid-cols-2 gap-3">
                 <div>
                     <label for="evt-rrule-freq" class="ignis-field__label">Frequenz</label>
-                    <select id="evt-rrule-freq" data-rrule="freq" class="ignis-input">
+                    <select id="evt-rrule-freq" data-rrule="freq" class="ignis-input" data-custom-dropdown="true">
                         <?php foreach (['DAILY' => 'Täglich', 'WEEKLY' => 'Wöchentlich', 'MONTHLY' => 'Monatlich'] as $freqKey => $freqLabel): ?>
                             <option value="<?= $freqKey ?>"<?= $ruleFreq === $freqKey ? ' selected' : '' ?>><?= $freqLabel ?></option>
                         <?php endforeach; ?>
@@ -184,7 +184,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
                 </div>
                 <div class="col-span-2">
                     <label for="evt-rrule-until" class="ignis-field__label">Bis Datum (optional)</label>
-                    <input type="date" id="evt-rrule-until" name="recurrence_until" class="ignis-input" value="<?= htmlspecialchars((string) old('recurrence_until')) ?>">
+                    <input type="date" id="evt-rrule-until" name="recurrence_until" class="ignis-input" data-ignis-datepicker value="<?= htmlspecialchars((string) old('recurrence_until')) ?>">
                 </div>
                 <input type="hidden" name="recurrence_rule" data-rrule-output value="<?= htmlspecialchars($oldRule) ?>">
             </div>

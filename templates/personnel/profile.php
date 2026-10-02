@@ -39,6 +39,8 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
 $layout = 'admin';
 $bodyId = 'mitarbeiter';
+// Abzeichen im Kopf und in der Profilkarte (assets/components/profiles/_rank-badge.php)
+$rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
 ?>
 <?php ob_start(); ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css" />
@@ -52,7 +54,7 @@ $bodyId = 'mitarbeiter';
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal / <a href="<?= BASE_PATH ?>personnel/list">Mitarbeiter</a></p>
                             <h1><?= htmlspecialchars($row['fullname']) ?></h1>
-                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '—')) ?> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars((string) ($row['dienstnr'] ?? ''), ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button> · <?= htmlspecialchars($dienstgradText) ?></p>
+                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '—')) ?> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars((string) ($row['dienstnr'] ?? ''), ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button> · <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><?= htmlspecialchars($dienstgradText) ?></p>
                         </div>
                     </header>
 
@@ -156,10 +158,7 @@ $bodyId = 'mitarbeiter';
 
                                     <p class="mt-3">
                                     <h4 class="mt-0" id="display-profilename"><?= htmlspecialchars($profileName) ?></h4>
-                                    <?php if (!empty($dginfo['badge'])): ?>
-                                        <img src="<?= htmlspecialchars($dginfo['badge']) ?>" height="16" width="auto" alt="Dienstgrad" id="display-dgbadge" />
-                                    <?php endif; ?>
-                                    <span id="display-dgtext"><?= htmlspecialchars($dienstgradText) ?></span><br>
+                                    <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><span id="display-dgtext"><?= htmlspecialchars($dienstgradText) ?></span><br>
                                     <?php if (empty($rdginfo['none'])): ?>
                                         <span style="text-transform:none" class="ignis-chip ignis-chip--warn" id="display-rdquali"><?= htmlspecialchars($rdqualtext) ?></span>
                                     <?php endif; ?>

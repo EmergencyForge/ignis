@@ -149,7 +149,7 @@ final class SystemPagesTest extends FeatureTestCase
         $this->assertBodyContains('Wochenstatistik', $page);
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--dot ignis-chip--danger">Fehler</span>', $page);
         $this->assertBodyContains('<td class="ignis-table__num">2</td>', $page);
-        $this->assertBodyContains('<select name="handler_type" id="cron-handler-type" class="ignis-input" required>', $page);
+        $this->assertBodyContains('<select name="handler_type" id="cron-handler-type" class="ignis-input" data-custom-dropdown="true" required>', $page);
         $this->assertBodyNotContains('badge-status', $page);
         $this->assertBodyNotContains('form-select', $page);
     }
@@ -162,7 +162,7 @@ final class SystemPagesTest extends FeatureTestCase
         $this->assertBodyContains('<title>Fehlerprotokoll', $logs);
         $this->assertBodyContains('<div class="ignis-segmented" id="inboxScopeFilter" role="group" aria-label="Stufe">', $logs);
         $this->assertBodyContains('<button type="button" aria-pressed="true" data-scope="all">Alle</button>', $logs);
-        $this->assertBodyContains('<select id="searchFile" class="ignis-input">', $logs);
+        $this->assertBodyContains('<select id="searchFile" class="ignis-input" data-custom-dropdown="true">', $logs);
         $this->assertBodyContains('<table class="ignis-table" id="table-log-files">', $logs);
         $this->assertBodyNotContains('input-group', $logs);
         $this->assertBodyNotContains('badge-status', $logs);

@@ -62,6 +62,12 @@ class Rank extends Model
         };
     }
 
+    /** URL zum Abzeichen für ein src-Attribut, null ohne Abzeichen. */
+    public function badgeUrl(): ?string
+    {
+        return rank_badge_url($this->badge);
+    }
+
     /**
      * Convenience-Scope: nur nicht-archivierte Dienstgrade, sortiert nach
      * Priority. Wird für Selektoren in Forms benutzt.

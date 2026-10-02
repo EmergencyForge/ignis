@@ -44,7 +44,7 @@ $operable  = (string) old('vehicle_operable', '1');
                 <div class="ignis-card__body">
                     <div class="mb-3">
                         <label for="defect-vehicle" class="ignis-field__label">Fahrzeug</label>
-                        <select name="vehicle_id" id="defect-vehicle" class="ignis-input" required<?= $vehicleId === '' ? ' autofocus' : '' ?>>
+                        <select name="vehicle_id" id="defect-vehicle" class="ignis-input" data-custom-dropdown="true" required<?= $vehicleId === '' ? ' autofocus' : '' ?>>
                             <option value="">Bitte wählen …</option>
                             <?php foreach ($vehicles as $v): ?>
                                 <option value="<?= (int) $v['id'] ?>"<?= $vehicleId === (string) $v['id'] ? ' selected' : '' ?>><?= htmlspecialchars((string) $v['name']) ?> — <?= htmlspecialchars((string) ($v['kennzeichen'] ?: $v['identifier'])) ?></option>
@@ -57,7 +57,7 @@ $operable  = (string) old('vehicle_operable', '1');
                     </div>
                     <div class="mb-3">
                         <label for="defect-category" class="ignis-field__label">Kategorie</label>
-                        <select name="category" id="defect-category" class="ignis-input" required>
+                        <select name="category" id="defect-category" class="ignis-input" data-custom-dropdown="true" required>
                             <option value="" disabled<?= old('category', '') === '' ? ' selected' : '' ?>>Bitte auswählen …</option>
                             <?php foreach ($categoryLabels as $key => $label): ?>
                                 <option value="<?= $key ?>"<?= old('category', '') === $key ? ' selected' : '' ?>><?= htmlspecialchars($label) ?></option>

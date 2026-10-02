@@ -112,7 +112,7 @@ $SITE_TITLE = 'Beladelisten';
                                 </div>
                                 <div class="md:col-span-2">
                                     <label for="fahrzeugtyp-filter" class="ignis-field__label mb-2">Fahrzeugtyp filtern:</label>
-                                    <select class="ignis-input" id="fahrzeugtyp-filter">
+                                    <select class="ignis-input" data-custom-dropdown="true" id="fahrzeugtyp-filter">
                                         <option value="">Alle anzeigen</option>
                                         <?php
                                         foreach ($vehTypes as $vehType) {
@@ -123,7 +123,7 @@ $SITE_TITLE = 'Beladelisten';
                                 </div>
                                 <div class="md:col-span-2">
                                     <label for="kategorie-filter" class="ignis-field__label mb-2">Kategorietyp filtern:</label>
-                                    <select class="ignis-input" id="kategorie-filter">
+                                    <select class="ignis-input" data-custom-dropdown="true" id="kategorie-filter">
                                         <option value="">Alle Typen</option>
                                         <option value="0">Nur Notfallrucksack</option>
                                         <option value="1">Nur Innenfach</option>
@@ -230,7 +230,7 @@ $SITE_TITLE = 'Beladelisten';
         </div>
         <div class="mb-3">
             <label for="bel-category-type" class="ignis-field__label">Typ</label>
-            <select class="ignis-input" id="bel-category-type" name="type">
+            <select class="ignis-input" data-custom-dropdown="true" id="bel-category-type" name="type">
                 <option value="0">Notfallrucksack</option>
                 <option value="1">Innenfach</option>
                 <option value="2">Außenfach</option>
@@ -250,7 +250,7 @@ $SITE_TITLE = 'Beladelisten';
     <template id="beladungTileFormTemplate">
         <div class="mb-3">
             <label for="bel-tile-category" class="ignis-field__label">Kategorie</label>
-            <select class="ignis-input" id="bel-tile-category" name="category" required>
+            <select class="ignis-input" data-custom-dropdown="true" id="bel-tile-category" name="category" required>
                 <?php
                 foreach ($categories as $cat) {
                     switch ($cat['type']) {

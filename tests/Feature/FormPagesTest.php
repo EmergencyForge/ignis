@@ -106,6 +106,37 @@ final class FormPagesTest extends FeatureTestCase
         $this->assertBodyNotContains('form-select', $page);
     }
 
+    /** 0 ist männlich, 1 weiblich, sonst neutral; vorher bekamen Frauen die männliche Form und alle anderen die weibliche. */
+    #[Test]
+    public function dienstgrad_im_antrag_folgt_dem_geschlecht(): void
+    {
+        $this->mitarbeiter();
+        $person = Personnel::query()->where('discordtag', $this->discordId)->firstOrFail();
+        $rank = Rank::query()->findOrFail($person->dienstgrad);
+        $rank->name = 'Brandmeister/-in'; $rank->name_m = 'Brandmeister'; $rank->name_w = 'Brandmeisterin';
+        $rank->save();
+
+        $feld = new FormField();
+        $feld->antragstyp_id = $this->typ->id;
+        $feld->feldname      = 'dg';
+        $feld->label         = 'Dienstgrad';
+        $feld->feldtyp       = 'text';
+        $feld->breite        = 'half';
+        $feld->pflichtfeld   = false;
+        $feld->sortierung    = 9;
+        $feld->auto_fill     = 'dienstgrad';
+        $feld->save();
+
+        foreach ([0 => 'Brandmeister', 1 => 'Brandmeisterin', 2 => 'Brandmeister/-in'] as $geschlecht => $erwartet) {
+            $person->geschlecht = $geschlecht;
+            $person->save();
+
+            $page = $this->get('/forms/create', ['query' => ['typ' => (string) $this->typ->id]]);
+
+            $this->assertMatchesRegularExpression('~id="dg"\s+name="dg"\s+placeholder=""\s+value="' . preg_quote($erwartet, '~') . '"~', $page->body, 'Geschlecht ' . $geschlecht);
+        }
+    }
+
     #[Test]
     public function detailansicht_und_bearbeitung_nach_dem_detailmuster(): void
     {
@@ -124,7 +155,7 @@ final class FormPagesTest extends FeatureTestCase
         $admin = $this->get('/forms/admin/view', ['query' => ['antrag' => $antrag->uniqueid]]);
         $this->assertOk($admin);
         $this->assertBodyContains('<form method="post" class="ignis-detail">', $admin);
-        $this->assertBodyContains('<select class="ignis-input" id="cirs_status" name="cirs_status" required>', $admin);
+        $this->assertBodyContains('<select class="ignis-input" data-custom-dropdown="true" id="cirs_status" name="cirs_status" required>', $admin);
         $this->assertBodyContains('name="save" class="ignis-btn ignis-btn--primary"', $admin);
         $this->assertBodyContains('<span class="ignis-mono">#' . $antrag->uniqueid . '</span>', $admin);
         $this->assertBodyNotContains('form-select', $admin);
@@ -183,7 +214,7 @@ final class FormPagesTest extends FeatureTestCase
         $this->assertBodyContains('<table class="ignis-table" id="table-antragsfelder">', $edit);
         $this->assertBodyContains('<code class="ignis-mono">von</code>', $edit);
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--warn">', $edit);
-        $this->assertBodyContains('<select class="ignis-input" id="feldtyp" name="feldtyp" required>', $edit);
+        $this->assertBodyContains('<select class="ignis-input" data-custom-dropdown="true" id="feldtyp" name="feldtyp" required>', $edit);
         $this->assertBodyNotContains('form-select', $edit);
         $this->assertBodyNotContains('table-hover', $edit);
     }

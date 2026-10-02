@@ -46,9 +46,7 @@ $SITE_TITLE = 'Dienstgrade';
                                     $dgActive = $archived
                                         ? "<span class='ignis-chip ignis-chip--dot ignis-chip--danger'>Ja</span>"
                                         : "<span class='ignis-chip ignis-chip--dot ignis-chip--ok'>Nein</span>";
-                                    $badge = $row['badge'] === null
-                                        ? ''
-                                        : "<img src='" . htmlspecialchars($row['badge']) . "' height='16px' width='auto' alt='Dienstgrad'>";
+                                    $rankBadgeUrl = rank_badge_url($row['badge']);
 
                                     $actions = Permissions::check('admin')
                                         ? "<button type='button' class='ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon' data-ignis-tooltip='Dienstgrad bearbeiten' aria-label='Dienstgrad bearbeiten' onclick='openEditDienstgradModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-badge='" . htmlspecialchars((string)$row['badge']) . "' data-priority='{$row['priority']}' data-archive='{$row['archive']}'><i class='fa-solid fa-pen'></i></button>"
@@ -56,7 +54,7 @@ $SITE_TITLE = 'Dienstgrade';
                                 ?>
                                     <tr<?= $archived ? ' class="is-muted"' : '' ?>>
                                         <td class="ignis-table__num"><?= (int)$row['priority'] ?></td>
-                                        <td><?= $badge ?></td>
+                                        <td><?php include __DIR__ . '/../../../assets/components/profiles/_rank-badge.php'; ?></td>
                                         <td><?= htmlspecialchars($row['name']) ?></td>
                                         <td><?= htmlspecialchars($row['name_m']) ?></td>
                                         <td><?= htmlspecialchars($row['name_w']) ?></td>
@@ -96,7 +94,7 @@ $SITE_TITLE = 'Dienstgrade';
             <div class="mb-3">
                 <label for="dienstgrad-badge" class="ignis-field__label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
                 <div class="flex items-center gap-2">
-                    <input type="text" class="ignis-input" name="badge" id="dienstgrad-badge" placeholder="assets/img/badges/…">
+                    <input type="text" class="ignis-input" name="badge" id="dienstgrad-badge" placeholder="assets/img/dienstgrade/bf/1.png">
                     <img id="dienstgrad-badge-preview" src="" alt="Vorschau des Badges" class="h-8 w-auto shrink-0" hidden>
                 </div>
             </div>
@@ -125,9 +123,11 @@ $SITE_TITLE = 'Dienstgrade';
             var input = dlgEl.querySelector('#dienstgrad-badge');
             var preview = dlgEl.querySelector('#dienstgrad-badge-preview');
             if (!input || !preview) return;
+            // Dieselbe Regel wie rank_badge_url(): http(s):// und // bleiben, sonst BASE_PATH davor.
+            var basePath = <?= json_encode(rtrim(BASE_PATH, '/') . '/') ?>;
             function update() {
                 var v = input.value.trim();
-                if (v) { preview.src = v; preview.hidden = false; }
+                if (v) { preview.src = /^(https?:)?\/\//i.test(v) ? v : basePath + v.replace(/^\/+/, ''); preview.hidden = false; }
                 else   { preview.hidden = true; }
             }
             input.addEventListener('blur', update);

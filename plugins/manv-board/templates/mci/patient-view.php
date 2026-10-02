@@ -126,11 +126,11 @@ $bodyPage = 'edivi';
                                 </div>
                                 <div class="mb-3">
                                     <label for="geburtsdatum" class="ignis-field__label">Geburtsdatum</label>
-                                    <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum" value="<?= htmlspecialchars($patient['geburtsdatum'] ?? '') ?>">
+                                    <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum" data-ignis-datepicker value="<?= htmlspecialchars($patient['geburtsdatum'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="geschlecht" class="ignis-field__label">Geschlecht</label>
-                                    <select class="ignis-input" id="geschlecht" name="geschlecht">
+                                    <select class="ignis-input" id="geschlecht" name="geschlecht" data-custom-dropdown="true">
                                         <option value="unbekannt" <?= ($patient['geschlecht'] ?? '') === 'unbekannt' ? 'selected' : '' ?>>Unbekannt</option>
                                         <option value="m" <?= ($patient['geschlecht'] ?? '') === 'm' ? 'selected' : '' ?>>Männlich</option>
                                         <option value="w" <?= ($patient['geschlecht'] ?? '') === 'w' ? 'selected' : '' ?>>Weiblich</option>
@@ -147,12 +147,12 @@ $bodyPage = 'edivi';
                             <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
-                                    <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie">
-                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-danger-text">SK1 - Rot</option>
-                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-warn-text">SK2 - Gelb</option>
-                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-ok-text">SK3 - Grün</option>
-                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-info-text">SK4 - Blau</option>
-                                        <option value="SK5" <?= ($patient['sichtungskategorie'] ?? '') === 'SK5' ? 'selected' : '' ?>>SK5 - Schwarz (Tot)</option>
+                                    <select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie" data-custom-dropdown="true">
+                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> data-color="var(--danger)">SK1 - Rot</option>
+                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> data-color="var(--warn)">SK2 - Gelb</option>
+                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> data-color="var(--ok)">SK3 - Grün</option>
+                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> data-color="var(--info)">SK4 - Blau</option>
+                                        <option value="SK5" <?= ($patient['sichtungskategorie'] ?? '') === 'SK5' ? 'selected' : '' ?> data-color="var(--text-3)">SK5 - Schwarz (Tot)</option>
                                         <option value="SK6" <?= ($patient['sichtungskategorie'] ?? '') === 'SK6' ? 'selected' : '' ?>>SK6 - Lila</option>
                                     </select>
                                 </div>
@@ -168,7 +168,7 @@ $bodyPage = 'edivi';
                             <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="transportmittel_id" class="ignis-field__label">Zugewiesenes Fahrzeug</label>
-                                    <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
+                                    <select class="ignis-input" id="transportmittel_id" name="transportmittel_id" data-custom-dropdown="true">
                                         <option value="" data-rdtype="">Noch nicht zugewiesen</option>
                                         <?php foreach ($verfuegbareFahrzeuge as $fzg):
                                             $selected = (($patient['transportmittel_rufname'] ?? '') === $fzg['bezeichnung']) ? 'selected' : '';
@@ -198,7 +198,7 @@ $bodyPage = 'edivi';
                                 <?php if ($canTransport): ?>
                                     <div class="mb-3">
                                         <label for="transportziel" class="ignis-field__label">Transportziel</label>
-                                        <select class="ignis-input" id="transportziel" name="transportziel">
+                                        <select class="ignis-input" id="transportziel" name="transportziel" data-custom-dropdown="true">
                                             <option value="">Bitte wählen...</option>
                                             <option value="Kein Transport" <?= (($patient['transportziel'] ?? '') === 'Kein Transport') ? 'selected' : '' ?>>Kein Transport</option>
                                             <?php foreach ($krankenhaeuser as $kh): ?>

@@ -75,7 +75,7 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
                     </div>
                     <div class="mb-3">
                         <label for="<?= $prefix ?>rd_type" class="ignis-field__label">Typ (Rettungsdienstlich)</label>
-                        <select class="ignis-input" name="rd_type" id="<?= $prefix ?>rd_type">
+                        <select class="ignis-input" data-custom-dropdown="true" name="rd_type" id="<?= $prefix ?>rd_type">
                             <?php foreach ($rdTypes as $rdValue => $rdLabel): ?>
                                 <option value="<?= $rdValue ?>"<?= $value('rd_type', '0') === (string) $rdValue ? ' selected' : '' ?>><?= htmlspecialchars($rdLabel) ?></option>
                             <?php endforeach; ?>
@@ -86,7 +86,7 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
                             Stationierung
                             <small class="form-hint">(Wache aus den POIs — im Fahrtenbuch nicht änderbar)</small>
                         </label>
-                        <select class="ignis-input" name="stationierung_poi_id" id="<?= $prefix ?>stationierung_poi_id">
+                        <select class="ignis-input" data-custom-dropdown="true" name="stationierung_poi_id" id="<?= $prefix ?>stationierung_poi_id">
                             <option value="">--- Keine Stationierung ---</option>
                             <?php foreach (($stationierungen ?? []) as $wache): ?>
                                 <option value="<?= (int) $wache['id'] ?>"<?= $value('stationierung_poi_id') === (string) $wache['id'] ? ' selected' : '' ?>><?= htmlspecialchars($wache['label']) ?></option>

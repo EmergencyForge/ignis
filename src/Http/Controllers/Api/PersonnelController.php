@@ -273,7 +273,7 @@ final class PersonnelController
                 ->leftJoin('intra_mitarbeiter_fwquali as fw', 'm.qualifw2', '=', 'fw.id')
                 ->select(
                     'm.*',
-                    'dg.name as dg_name', 'dg.name_m as dg_name_m', 'dg.name_w as dg_name_w', 'dg.badge as dg_badge',
+                    'dg.name as dg_name', 'dg.name_m as dg_name_m', 'dg.name_w as dg_name_w',
                     'rd.name as rd_name', 'rd.name_m as rd_name_m', 'rd.name_w as rd_name_w', 'rd.none as rd_none',
                     'fw.shortname as fw_shortname', 'fw.none as fw_none'
                 )
@@ -302,7 +302,6 @@ final class PersonnelController
                     'einstdatum'     => (new DateTime($updated['einstdatum']))->format('d.m.Y'),
                     'charakterid'    => $updated['charakterid'] ?? '',
                     'dgText'         => $dgText,
-                    'dgBadge'        => $updated['dg_badge'] ?? '',
                     'rdText'         => $rdText,
                     'rdNone'         => (bool) $updated['rd_none'],
                     'fwShortname'    => $updated['fw_shortname'] ?? '',

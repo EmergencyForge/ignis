@@ -251,7 +251,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                             </div>
                             <div class="md:w-56">
                                 <label for="searchFile" class="sr-only">Datei</label>
-                                <select id="searchFile" class="ignis-input">
+                                <select id="searchFile" class="ignis-input" data-custom-dropdown="true">
                                     <option value="">Alle Dateien</option>
                                     <?php foreach ($files as $f): ?>
                                         <option value="<?= htmlspecialchars($f['name']) ?>">

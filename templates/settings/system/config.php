@@ -42,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
             $value = $_POST[$key];
         }
 
+        // Der Farbwähler liefert Hex in Großbuchstaben, gespeichert ist oft Kleinschreibung.
+        if ($config['config_type'] === 'color' && strcasecmp((string) $oldValue, $value) === 0) continue;
+
         // Only update if value changed (strict comparison for type safety)
         if ($oldValue !== $value) {
             $updates[$key] = $value;
@@ -198,25 +201,12 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     <?php endif; ?>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'color'): ?>
-                                                    <div class="flex items-center gap-2">
-                                                        <input
-                                                            type="color"
-                                                            class="h-10 w-14 shrink-0 cursor-pointer rounded-md border border-border-subtle bg-transparent p-0"
-                                                            id="<?= htmlspecialchars($config['config_key']) ?>_picker"
-                                                            aria-label="Farbe wählen"
-                                                            value="<?= htmlspecialchars($config['config_value']) ?>"
-                                                            onchange="updateColorValue('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
-                                                        <input
-                                                            type="text"
-                                                            class="ignis-input ignis-mono"
-                                                            id="<?= htmlspecialchars($config['config_key']) ?>"
-                                                            name="<?= htmlspecialchars($config['config_key']) ?>"
-                                                            value="<?= htmlspecialchars($config['config_value']) ?>"
-                                                            pattern="^#[0-9A-Fa-f]{6}$"
-                                                            placeholder="#000000"
-                                                            data-ignis-tooltip="6-stelliger Hex-Farbcode (z.B. #ff0000)"
-                                                            oninput="updateColorPicker('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
-                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        data-ignis-colorpicker
+                                                        id="<?= htmlspecialchars($config['config_key']) ?>"
+                                                        name="<?= htmlspecialchars($config['config_key']) ?>"
+                                                        value="<?= htmlspecialchars($config['config_value']) ?>">
                                                     <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
                                                     <?php if ($config['config_key'] === 'SYSTEM_COLOR' && \App\Helpers\Theme::accentLooksLikeDanger((string) $config['config_value'])): ?>
                                                         <div class="ignis-alert ignis-alert--warn mt-2" id="system-color-danger" role="status">
@@ -288,6 +278,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'REGISTRATION_MODE'): ?>
                                                     <select
                                                         class="ignis-input"
+                                                        data-custom-dropdown="true"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>">
                                                         <option value="open" <?= $config['config_value'] === 'open' ? 'selected' : '' ?>>Offen (für jeden möglich)</option>
@@ -299,6 +290,7 @@ $SITE_TITLE = 'System-Konfiguration';
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'ENOTF_BZ_UNIT'): ?>
                                                     <select
                                                         class="ignis-input"
+                                                        data-custom-dropdown="true"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>">
                                                         <option value="mg/dl" <?= $config['config_value'] === 'mg/dl' ? 'selected' : '' ?>>mg/dl (Milligramm pro Deziliter)</option>
@@ -343,17 +335,6 @@ $SITE_TITLE = 'System-Konfiguration';
                 });
             });
         });
-
-        function updateColorValue(key, value) {
-            document.getElementById(key).value = value;
-            document.getElementById(key + '_picker').value = value;
-        }
-
-        function updateColorPicker(key, value) {
-            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-                document.getElementById(key + '_picker').value = value;
-            }
-        }
 
         function updateLogoPreview(value) {
             document.getElementById('logo_preview').src = value;

@@ -39,7 +39,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                         </div>
                         <div>
                             <label for="mail-pattern" class="ignis-field__label">Adressmuster</label>
-                            <select id="mail-pattern" name="pattern" class="ignis-input">
+                            <select id="mail-pattern" name="pattern" class="ignis-input" data-custom-dropdown="true">
                                 <option value="initial_dot_last"<?= $form['pattern'] !== 'first_dot_last' ? ' selected' : '' ?>>v.nachname (m.mueller, bei Dopplung ma.mueller)</option>
                                 <option value="first_dot_last"<?= $form['pattern'] === 'first_dot_last' ? ' selected' : '' ?>>vorname.nachname (max.mueller, bei Dopplung max.mueller2)</option>
                             </select>

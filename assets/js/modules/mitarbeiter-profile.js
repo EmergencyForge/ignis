@@ -158,6 +158,7 @@
         if (type === 'select') {
           input = document.createElement('select');
           input.className = 'ignis-input';
+          input.dataset.customDropdown = 'true';
           const opts = JSON.parse(cell.dataset.options);
           for (const k in opts) {
             const opt = document.createElement('option');
@@ -170,6 +171,7 @@
           input = document.createElement('input');
           input.type = 'date';
           input.className = 'ignis-input';
+          input.dataset.ignisDatepicker = '';
           input.value = currentData[field] || raw;
         } else {
           input = document.createElement('input');
@@ -208,10 +210,31 @@
           }
         }
 
-        input.focus();
-        if (input.select) input.select();
+        // Auswahl und Datum baut das UI-Paket im MutationObserver auf, also
+        // nach diesem Durchlauf. Das versteckte Feld meldet kein blur,
+        // gespeichert wird bei change. Escape am Auslöser oder ein Klick
+        // außerhalb von Zelle und Auswahlfenster bricht ab.
+        const picker = type === 'select' || type === 'date';
+        if (picker) {
+          queueMicrotask(function () {
+            const trigger = cell.querySelector('button');
+            if (!trigger) return;
+            trigger.focus();
+            trigger.addEventListener('keydown', function (e) {
+              if (e.key === 'Escape') cancel();
+            });
+          });
+        } else {
+          input.focus();
+          if (input.select) input.select();
+        }
+
+        function outside(e) {
+          if (!cell.contains(e.target) && !e.target.closest('.ignis-dropdown__panel, .ignis-datepicker__panel')) cancel();
+        }
 
         function save() {
+          document.removeEventListener('mousedown', outside);
           const newValue = input.value.trim();
           const oldValue = currentData[field] || '';
 
@@ -273,6 +296,7 @@
         }
 
         function cancel() {
+          document.removeEventListener('mousedown', outside);
           cell.classList.remove('inline-editing', 'dienstnr-container');
           if (type === 'select') {
             const opts = JSON.parse(cell.dataset.options);
@@ -282,6 +306,11 @@
           }
         }
 
+        if (picker) {
+          input.addEventListener('change', save);
+          document.addEventListener('mousedown', outside);
+          return;
+        }
         input.addEventListener('keydown', function (e) {
           if (e.key === 'Enter')  { e.preventDefault(); save(); }
           if (e.key === 'Escape') { cancel(); }
@@ -317,8 +346,6 @@
           if (data.success && data.display) {
             const dgt = document.getElementById('display-dgtext');
             if (dgt) dgt.textContent = data.display.dgText;
-            const dgb = document.getElementById('display-dgbadge');
-            if (dgb && data.display.dgBadge) dgb.src = data.display.dgBadge;
             const pn = document.getElementById('display-profilename');
             if (pn) pn.textContent = data.display.profileName;
             document.querySelector('#profileQualificationDrawer [data-ignis-drawer-close]')?.click();

@@ -44,7 +44,7 @@ $pgLabel = 'Einträge';
                         </label>
                         <label class="ignis-field" for="filterModul">
                             <span class="ignis-field__label text-sm">Modul</span>
-                            <select class="ignis-input" name="modul" id="filterModul">
+                            <select class="ignis-input" data-custom-dropdown="true" name="modul" id="filterModul">
                                 <option value="">Alle</option>
                                 <?php foreach ($modules as $module): ?>
                                     <option value="<?= htmlspecialchars($module) ?>"<?= $list->filter('modul') === $module ? ' selected' : '' ?>><?= htmlspecialchars($module) ?></option>

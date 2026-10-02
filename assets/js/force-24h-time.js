@@ -6,6 +6,10 @@
 (function () {
   "use strict";
 
+  // Felder mit Picker aus dem UI-Paket bleiben unberührt: der Picker liest
+  // das versteckte Feld als Wertspeicher und braucht type="time".
+  const SELECTOR = 'input[type="time"]:not([data-ignis-timepicker])';
+
   /**
    * Convert time input to text input with intelligent formatting
    */
@@ -189,7 +193,7 @@
    * Initialize all existing time inputs
    */
   function initAllTimeInputs() {
-    const timeInputs = document.querySelectorAll('input[type="time"]');
+    const timeInputs = document.querySelectorAll(SELECTOR);
     timeInputs.forEach(function (input) {
       // Skip if already initialized
       if (input.getAttribute("data-time-input") === "true") {
@@ -207,14 +211,14 @@
       mutations.forEach(function (mutation) {
         mutation.addedNodes.forEach(function (node) {
           if (node.nodeType === 1) {
-            if (node.matches && node.matches('input[type="time"]')) {
+            if (node.matches && node.matches(SELECTOR)) {
               if (node.getAttribute("data-time-input") !== "true") {
                 initTimeInput(node);
               }
             }
             const childTimeInputs =
               node.querySelectorAll &&
-              node.querySelectorAll('input[type="time"]');
+              node.querySelectorAll(SELECTOR);
             if (childTimeInputs) {
               childTimeInputs.forEach(function (input) {
                 if (input.getAttribute("data-time-input") !== "true") {

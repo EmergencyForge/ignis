@@ -65,7 +65,7 @@ class PersonalLogManager
         string $panelUser
     ): int {
         $content = sprintf(
-            'Rank wurde von <strong>%s</strong> auf <strong>%s</strong> geändert.',
+            'Dienstgrad wurde von <strong>%s</strong> auf <strong>%s</strong> geändert.',
             htmlspecialchars($oldRankName),
             htmlspecialchars($newRankName)
         );

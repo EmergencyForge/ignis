@@ -183,7 +183,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                 <div>
                                     <label for="type" class="ignis-field__label">Kategorie <span class="ignis-field__required">*</span></label>
-                                    <select name="type" id="type" class="ignis-input" required>
+                                    <select name="type" id="type" class="ignis-input" required data-custom-dropdown="true">
                                         <option value="general" <?= $formData['type'] === 'general' ? 'selected' : '' ?>>Allgemein</option>
                                         <option value="medication" <?= $formData['type'] === 'medication' ? 'selected' : '' ?>>Medikament</option>
                                         <option value="measure" <?= $formData['type'] === 'measure' ? 'selected' : '' ?>>Maßnahme</option>
@@ -192,7 +192,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                                 
                                 <div>
                                     <label for="competency_level" class="ignis-field__label">Freigabestufe</label>
-                                    <select name="competency_level" id="competency_level" class="ignis-input">
+                                    <select name="competency_level" id="competency_level" class="ignis-input" data-custom-dropdown="true">
                                         <option value="" <?= empty($formData['competency_level']) ? 'selected' : '' ?>>Keine Angabe</option>
                                         <option value="basis" <?= $formData['competency_level'] === 'basis' ? 'selected' : '' ?>>Basis - Basismaßnahmen</option>
                                         <option value="rettsan" <?= $formData['competency_level'] === 'rettsan' ? 'selected' : '' ?>>RettSan - Rettungssanitäter</option>
@@ -220,7 +220,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                 <div>
                                     <label for="category_id" class="ignis-field__label">Kategorie</label>
-                                    <select name="category_id" id="category_id" class="ignis-input">
+                                    <select name="category_id" id="category_id" class="ignis-input" data-custom-dropdown="true">
                                         <option value="">Keine Kategorie</option>
                                         <?php
                                         // Hierarchische Anzeige mit Einrückung

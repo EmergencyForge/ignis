@@ -324,6 +324,7 @@ final class MailListController extends Controller
             'domains'   => $domains,
             'mailboxes' => $mailboxes->all(),
             'criteria'  => $this->criteria(),
+            'rankBadges' => Rank::query()->toBase()->whereNotNull('badge')->pluck('badge', 'id')->all(),
         ], $status);
     }
 

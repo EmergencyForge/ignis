@@ -11,14 +11,10 @@ $bfqsel = \App\Models\FdSkill::query()
         <div class="twplus-form-section__hint">Aktuelle feuerwehrtechnische Qualifikation.</div>
     </div>
     <div>
-    <select class="ignis-input" name="qualifw2" id="qualifw2">
-        <?php foreach ($bfqsel as $data) {
-            if ($bfq2 == $data['id']) {
-                echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
-            } else {
-                echo "<option value='{$data['id']}'>{$data['name']}</option>";
-            }
-        } ?>
+    <select class="ignis-input" data-custom-dropdown="true" name="qualifw2" id="qualifw2">
+        <?php foreach ($bfqsel as $data): ?>
+            <option value="<?= (int) $data['id'] ?>"<?= $bfq2 == $data['id'] ? ' selected' : '' ?>><?= htmlspecialchars($data['name']) ?></option>
+        <?php endforeach; ?>
     </select>
     </div>
 </div>

@@ -274,7 +274,7 @@ $statusMap = [
                                 <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
                                         <label class="ignis-field__label font-bold">Zeitraum:</label>
-                                        <select class="ignis-input" id="timePeriod">
+                                        <select class="ignis-input" id="timePeriod" data-custom-dropdown="true">
                                             <option value="7">Letzte 7 Tage</option>
                                             <option value="30" selected>Letzte 30 Tage</option>
                                             <option value="90">Letzte 90 Tage</option>
@@ -284,7 +284,7 @@ $statusMap = [
                                     </div>
                                     <div>
                                         <label class="ignis-field__label font-bold">Status:</label>
-                                        <select class="ignis-input" id="statusFilter">
+                                        <select class="ignis-input" id="statusFilter" data-custom-dropdown="true">
                                             <option value="all" selected>Alle</option>
                                             <option value="unfinalized">Nur unfertige</option>
                                             <option value="finalized">Nur abgeschlossene</option>

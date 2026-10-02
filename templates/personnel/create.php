@@ -48,22 +48,22 @@ $formFields = [
                         </div>
                         <div>
                             <label for="cm_gebdatum" class="ignis-field__label">Geburtsdatum</label>
-                            <input class="ignis-input" type="date" name="gebdatum" id="cm_gebdatum"<?= \App\Support\FormErrors::attributes($formErrors, 'gebdatum', 'cm_gebdatum') ?> min="1900-01-01" value="<?= htmlspecialchars((string) old('gebdatum')) ?>" required>
+                            <input class="ignis-input" data-ignis-datepicker type="date" name="gebdatum" id="cm_gebdatum"<?= \App\Support\FormErrors::attributes($formErrors, 'gebdatum', 'cm_gebdatum') ?> min="1900-01-01" value="<?= htmlspecialchars((string) old('gebdatum')) ?>" required>
                             <?= \App\Support\FormErrors::hint($formErrors, 'gebdatum', 'cm_gebdatum', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_dienstgrad" class="ignis-field__label">Dienstgrad</label>
-                            <select class="ignis-input" name="dienstgrad" id="cm_dienstgrad"<?= \App\Support\FormErrors::attributes($formErrors, 'dienstgrad', 'cm_dienstgrad') ?> required>
+                            <select class="ignis-input" data-custom-dropdown="true" name="dienstgrad" id="cm_dienstgrad"<?= \App\Support\FormErrors::attributes($formErrors, 'dienstgrad', 'cm_dienstgrad') ?> required>
                                 <option value="" hidden<?= old('dienstgrad', '') === '' ? ' selected' : '' ?>>Bitte wählen</option>
                                 <?php foreach ($dienstgrade as $dg): ?>
-                                    <option value="<?= (int) $dg->id ?>"<?= (string) old('dienstgrad', '') === (string) $dg->id ? ' selected' : '' ?>><?= htmlspecialchars((string) $dg->name) ?></option>
+                                    <option value="<?= (int) $dg->id ?>"<?= (string) old('dienstgrad', '') === (string) $dg->id ? ' selected' : '' ?> data-image="<?= htmlspecialchars((string) $dg->badgeUrl()) ?>"><?= htmlspecialchars((string) $dg->name) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <?= \App\Support\FormErrors::hint($formErrors, 'dienstgrad', 'cm_dienstgrad', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_geschlecht" class="ignis-field__label">Geschlecht</label>
-                            <select name="geschlecht" id="cm_geschlecht"<?= \App\Support\FormErrors::attributes($formErrors, 'geschlecht', 'cm_geschlecht') ?> class="ignis-input" required>
+                            <select name="geschlecht" id="cm_geschlecht"<?= \App\Support\FormErrors::attributes($formErrors, 'geschlecht', 'cm_geschlecht') ?> class="ignis-input" data-custom-dropdown="true" required>
                                 <option value="" hidden<?= old('geschlecht', '') === '' ? ' selected' : '' ?>>Bitte wählen</option>
                                 <?php foreach (['Männlich', 'Weiblich', 'Divers'] as $genderKey => $genderLabel): ?>
                                     <option value="<?= $genderKey ?>"<?= (string) old('geschlecht', '') === (string) $genderKey ? ' selected' : '' ?>><?= $genderLabel ?></option>
@@ -97,7 +97,7 @@ $formFields = [
                         </div>
                         <div>
                             <label for="cm_einstdatum" class="ignis-field__label">Einstellungsdatum</label>
-                            <input class="ignis-input" type="date" name="einstdatum" id="cm_einstdatum"<?= \App\Support\FormErrors::attributes($formErrors, 'einstdatum', 'cm_einstdatum') ?> min="2022-01-01" value="<?= htmlspecialchars((string) old('einstdatum', date('Y-m-d'))) ?>" required>
+                            <input class="ignis-input" data-ignis-datepicker type="date" name="einstdatum" id="cm_einstdatum"<?= \App\Support\FormErrors::attributes($formErrors, 'einstdatum', 'cm_einstdatum') ?> min="2022-01-01" value="<?= htmlspecialchars((string) old('einstdatum', date('Y-m-d'))) ?>" required>
                             <?= \App\Support\FormErrors::hint($formErrors, 'einstdatum', 'cm_einstdatum', 'ignis') ?>
                         </div>
                     </div>

@@ -565,7 +565,7 @@ jobs:
 
       # Lockscreen-Weiterleitung unter Unterpfad und globaler CSRF-Patch für fetch/XHR.
       - name: Frontend tests
-        run: node --test tests/frontend/*.test.mjs
+        run: node --test tests/frontend/*.test.mjs plugins/*/tests/frontend/*.test.mjs
 
       - name: Build assets (SCSS + Vite)
         env:
