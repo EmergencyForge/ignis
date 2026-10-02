@@ -8,6 +8,16 @@ Im QM-Dialog der Prüfliste ließ sich nichts speichern, der Dialog meldete jede
 
 Kleine Eingabefelder sind wirklich klein: in Tabellenzeilen und neben kleinen Knöpfen 32 px hoch, auf Touch-Geräten 44 px. In normalen Formularen und Filterleisten haben Felder und Knöpfe dieselbe Höhe.
 
+Auswahl-, Datums- und Zeitfelder öffnen überall die Listen und Kalender von ignis statt der Steuerelemente des Browsers, auch in den Plugins MANV, Mail, Wissensdatenbank, fireTab und in den eNOTF-Einstellungen. Zeitfelder nehmen Eingaben wie „800“ oder „8:5“ an und haben eine Auswahl nach Stunden und Minuten im 24-Stunden-Format. Die Hauptfarbe in der System-Konfiguration und die Farbe von Schlagwörtern in der Wissensdatenbank wählt man mit dem Farbwähler von ignis. In der Sichtung des MANV-Boards tragen SK1 bis SK5 ihren Farbpunkt. Im Profil speichern Geschlecht und Geburtsdatum, sobald ein Wert gewählt ist. Die eNOTF-Protokollseiten und die fireTab-App auf dem Tablet behalten ihre Felder, außer im Fahrtenbuch: Dort wählt man die Uhrzeit jetzt ebenfalls mit der Auswahl von ignis.
+
+Vor jedem Dienstgrad steht sein Abzeichen, sofern eines hinterlegt ist: im Profil, in der Personalliste, in der Auswahl beim Anlegen und Filtern, in den Dienstgrad-Einstellungen und in den Regeln der Mail-Verteiler. Abzeichen laden jetzt auch, wenn ignis unter einem Unterpfad läuft.
+
+Die Anmeldeseite zeigt rechts das ignis-Zeichen als leuchtende Kontur über aufsteigender Glut, darunter Organisation und Stadt. Die nachgebaute Vorschau der Anwendung entfällt. Wer im System weniger Bewegung eingestellt hat, sieht ein ruhiges Bild. Eine eigene Hauptfarbe aus der System-Konfiguration färbt jetzt auch die Anmeldeseite.
+
+Die fireTab-Einsatzansicht und die QM-Liste brachen ab, wenn der Einsatzleiter keinen Namen hatte. Anträge übernahmen bei Männern die weibliche Dienstgradbezeichnung und umgekehrt. Die Farbe eines Schlagworts in der Wissensdatenbank wird beim Speichern geprüft, vorher ließ sich darüber CSS in die Seite schreiben. Das Profilprotokoll schreibt „Dienstgrad“ statt „Rank“.
+
+Aktualisiert ist das UI-Paket auf 0.8.0.
+
 ## 2026.0.16-beta
 
 Das Dashboard schnitt seinen Inhalt ab: Die helle Inhaltsfläche endete nach einer Fensterhöhe, und die Kacheln darunter liefen über ihren Rand hinaus. Eine alte Regel aus der ersten Version machte die Seite genau ein Fenster hoch. Jetzt wächst die Fläche mit dem Inhalt, der Footer steht wie auf allen Seiten unten in ihr.
