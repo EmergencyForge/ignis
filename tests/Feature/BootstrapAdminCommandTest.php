@@ -49,7 +49,8 @@ final class BootstrapAdminCommandTest extends FeatureTestCase
             'deactivated_by' => 1,
         ]);
 
-        self::assertSame(0, $tester->execute($args));
+        // Zweiter Aufruf wie ein neuer Start auf der Konsole.
+        self::assertSame(0, $this->commandTester('bootstrap:admin')->execute($args));
 
         self::assertSame(1, User::query()->where('discord_id', '999')->count());
 

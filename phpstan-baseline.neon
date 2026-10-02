@@ -607,12 +607,6 @@ parameters:
 			path: src/Policies/UserPolicy.php
 
 		-
-			message: '#^Comparison operation "\>\=" between int\<80300, 80599\> and 70300 is always true\.$#'
-			identifier: greaterOrEqual.alwaysTrue
-			count: 1
-			path: src/Session/SessionManager.php
-
-		-
 			message: '#^Offset ''page'' on non\-empty\-array\<string, int\|string\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
