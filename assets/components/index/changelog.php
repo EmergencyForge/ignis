@@ -98,6 +98,10 @@ $annE = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES
         font-weight: 600;
     }
 
+    .intra__announcements .announcements__title:hover {
+        text-decoration: underline;
+    }
+
     .intra__announcements .announcements__date {
         margin-left: auto;
         color: var(--text-3);

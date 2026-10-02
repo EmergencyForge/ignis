@@ -318,11 +318,11 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                     <i class="fa-solid fa-folder"></i>
                                     <?php if (!empty($entry['parent_category_name'])): ?>
                                         <?php if (!empty($entry['parent_category_icon'])): ?><i class="<?= htmlspecialchars($entry['parent_category_icon']) ?>"></i> <?php endif; ?>
-                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-tertiary-text"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
+                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-tertiary-text hover:underline"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
                                         <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem;"></i>
                                     <?php endif; ?>
                                     <?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?>
-                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-tertiary-text"><?= htmlspecialchars($entry['category_name']) ?></a>
+                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-tertiary-text hover:underline"><?= htmlspecialchars($entry['category_name']) ?></a>
                                 </span>
                             <?php endif; ?>
                             <?php foreach ($entryTags as $etag): ?>
