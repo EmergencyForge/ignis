@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.0.18-beta
+
+Die eNOTF-Messwerte zeigen wieder große Kacheln. Seit einer Umstellung im April waren SpO₂, Puls, Blutdruck und die übrigen Werte auf normale Feldhöhe geschrumpft, Beschriftung und Einheit lagen über dem Wert, und leere Pflichtfelder waren nicht mehr rot markiert. Das galt auch für „Verlauf“ beim Hinzufügen von Werten. In den Protokollboxen, auf der eNOTF-Anmeldung und beim Anlegen haben Textfelder wieder ihre größere Schrift und flache Fläche, schreibgeschützte Felder freigegebener Protokolle lassen sich nicht mehr anklicken, und der Teilen-Dialog hat wieder Tablet-Größe. Den Seiten für Klinikcodes und Bettenverfügbarkeit fehlten Schrift, Icons und jQuery, sie laden wieder vollständig. eNOTF v2 sieht unverändert aus.
+
+Die Fehlerseiten 404 und 403 sind neu: eine große Ziffernkontur, über die ein warmer Schein wandert, darunter die aufgerufene Adresse und der Weg zurück. „Vorherige Seite“ erscheint nur, wenn es im Tab eine vorherige Seite gibt. Ist ein Formular abgelaufen, heißt die Seite „Formular abgelaufen“.
+
+Aktualisiert ist das UI-Paket auf 0.8.1.
+
 ## 2026.0.17-beta
 
 Die eNOTF-Prüfliste ist neu aufgebaut wie die übrigen Listen. Sie lädt nicht mehr alle Protokolle auf einmal, sondern blättert auf dem Server, sucht über Einsatznummer, Patient und Protokollant und sortiert nach jeder Spalte. Die Filter „Alle“, „Unbearbeitet“ und „Nicht freigegeben“ zeigen weiter ihre Anzahl, der Link von der Dashboard-Kachel führt wie bisher auf die offenen Protokolle. Nach dem Löschen eines Protokolls bleibt die Liste bei derselben Suche, Sortierung und Seite. Protokolle aus dem Verbund stehen wie bisher nur lesend dabei.
