@@ -1,6 +1,6 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.0.19-beta
 
 Ein freigegebenes eNOTF-Protokoll wird wieder gesperrt angezeigt. Seit April brach das Sperr-Skript an einem leeren Selektor ab, Felder, Auswahllisten und Ankreuzfelder blieben bedienbar. Gespeichert wurde trotzdem nichts, der Server lehnt Änderungen an freigegebenen Protokollen ab.
 
