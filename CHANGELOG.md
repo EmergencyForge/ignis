@@ -1,8 +1,10 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.0.20-beta
 
 Texte in der Oberfläche, Meldungen und Seitentitel kommen ohne Gedankenstriche aus. Leere Werte zeigen „-“ oder einen kurzen Hinweis wie „keine Angabe“, Bereiche stehen als „1 bis 25“.
+
+Aktualisiert ist das UI-Paket auf 0.8.2.
 
 ## 2026.0.19-beta
 
