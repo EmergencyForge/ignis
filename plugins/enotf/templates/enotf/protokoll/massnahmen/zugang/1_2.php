@@ -147,30 +147,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
             });
         });
     </script>
-    <?php if ($ist_freigegeben) : ?>
-        <script>
-            var formElements = document.querySelectorAll('input, textarea');
-            var selectElements2 = document.querySelectorAll('select');
-            var inputElements2 = document.querySelectorAll('.btn-check');
-            var inputElements3 = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-
-            formElements.forEach(function(element) {
-                element.setAttribute('readonly', 'readonly');
-            });
-
-            selectElements2.forEach(function(element) {
-                element.setAttribute('disabled', 'disabled');
-            });
-
-            inputElements2.forEach(function(element) {
-                element.setAttribute('disabled', 'disabled');
-            });
-
-            inputElements3.forEach(function(element) {
-                element.setAttribute('disabled', 'disabled');
-            });
-        </script>
-    <?php endif; ?>
+    <?php if ($ist_freigegeben) : ?><script src="<?= BASE_PATH ?>assets/js/enotf-lock.js"></script><?php endif; ?>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
 </body>
 
