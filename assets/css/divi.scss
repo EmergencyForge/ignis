@@ -88,11 +88,6 @@ input[type="time"] {
   max-width: 50px;
 }
 
-.btn-check:disabled + .btn,
-.btn-check[disabled] + .btn {
-  opacity: 1 !important;
-}
-
 .nt-input {
   font-family: 'Geist Mono', ui-monospace, "Courier New", Courier, monospace;
 }
@@ -161,18 +156,7 @@ body {
   color: #fff;
 }
 
-#edivi__container .edivi__box .form-check-input {
-  --bs-form-check-bg: transparent;
-  --bs-form-check-bg-image: none;
-}
-
-#edivi__container .edivi__box .form-check-input:checked {
-  background-color: #fff;
-  border-color: #fff;
-}
-
-#edivi__container .modal,
-#edivi__container .modal input.form-control {
+#edivi__container .modal {
   color: #000 !important;
 }
 
@@ -187,13 +171,9 @@ body {
   padding: 0 0.5rem !important;
 }
 
-#edivi__container .edivi__overview-container .edivi__box textarea.form-control {
-  border: 0 !important;
-}
-
-#edivi__container .edivi__box input.form-control,
-#edivi__container .edivi__box select.form-select,
-#edivi__container .edivi__box textarea.form-control {
+// Text-Inputs und Textareas (.ignis-input) in den Boxen stehen in
+// assets/css/enotf-v1.css: v2 nutzt dieselbe Klasse und soll so bleiben.
+#edivi__container .edivi__box select.form-select {
   background: #333333;
   border-radius: 0;
   color: #fff;
@@ -201,59 +181,16 @@ body {
   font-size: 1.2rem;
 }
 
-#edivi__container .edivi__box input.form-control:hover,
 #edivi__container .edivi__box select.form-select:hover,
-#edivi__container .edivi__box textarea.form-control:hover,
-#edivi__container .edivi__box input.form-control:focus,
-#edivi__container .edivi__box select.form-select:focus,
-#edivi__container .edivi__box textarea.form-control:focus {
+#edivi__container .edivi__box select.form-select:focus {
   background: #333333;
   border: 0 !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-#edivi__container .edivi__box input.form-control[readonly],
-#edivi__container .edivi__box input.form-control[disabled],
 #edivi__container .edivi__box select.form-select[readonly],
-#edivi__container .edivi__box select.form-select[disabled],
-#edivi__container .edivi__box textarea.form-control[readonly],
-#edivi__container .edivi__box textarea.form-control[disabled] {
-  box-shadow: none !important;
-  caret-color: transparent;
-  user-select: none;
-  pointer-events: none;
-  cursor: default;
-}
-
-#edivi__container .edivi__medikamente input.form-control,
-#edivi__container .edivi__medikamente select.form-select,
-#edivi__container .edivi__medikamente textarea.form-control {
-  background: #333333;
-  border-radius: 0;
-  color: #fff;
-  border: 0;
-  font-size: 1.2rem;
-}
-
-#edivi__container .edivi__medikamente input.form-control:hover,
-#edivi__container .edivi__medikamente select.form-select:hover,
-#edivi__container .edivi__medikamente textarea.form-control:hover,
-#edivi__container .edivi__medikamente input.form-control:focus,
-#edivi__container .edivi__medikamente select.form-select:focus,
-#edivi__container .edivi__medikamente textarea.form-control:focus {
-  background: #333333;
-  border: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-#edivi__container .edivi__medikamente input.form-control[readonly],
-#edivi__container .edivi__medikamente input.form-control[disabled],
-#edivi__container .edivi__medikamente select.form-select[readonly],
-#edivi__container .edivi__medikamente select.form-select[disabled],
-#edivi__container .edivi__medikamente textarea.form-control[readonly],
-#edivi__container .edivi__medikamente textarea.form-control[disabled] {
+#edivi__container .edivi__box select.form-select[disabled] {
   box-shadow: none !important;
   caret-color: transparent;
   user-select: none;
@@ -347,11 +284,6 @@ body {
   margin: 0;
 }
 
-#edivi__container .edivi__box input.form-control::placeholder,
-#edivi__container .edivi__box textarea.form-control::placeholder {
-  color: #a2a2a2;
-}
-
 #edivi__container .edivi__box input {
   transition: border-left 0.3s ease-in-out;
 }
@@ -402,10 +334,6 @@ body {
   .edivi__box
   .edivi__verletzungen-col.edivi__verletzungen-green::after {
   background: var(--triage-green);
-}
-
-#edivi__container .btn {
-  border-radius: 0 !important;
 }
 
 .edivi__box.edivi__log-comment {
@@ -1546,8 +1474,7 @@ button#save-anamnese-btn {
   background-color: #f0f0f0;
 }
 
-#edivi__login input.form-control,
-#edivi__login textarea.form-control,
+// Text-Inputs (.ignis-input) auf den Login-Seiten: assets/css/enotf-v1.css
 #edivi__login select.form-select {
   background-color: #333333;
   border-radius: 0;
@@ -1556,16 +1483,10 @@ button#save-anamnese-btn {
   font-size: 1.2rem;
 }
 
-#edivi__login input.form-control:focus,
-#edivi__login textarea.form-control:focus,
 #edivi__login select.form-select:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
 }
 
-#edivi__login input.form-control[readonly],
-#edivi__login input.form-control[disabled],
-#edivi__login textarea.form-control[readonly],
-#edivi__login textarea.form-control[disabled],
 #edivi__login select.form-select[readonly],
 #edivi__login select.form-select[disabled] {
   box-shadow: none !important;
@@ -1575,17 +1496,11 @@ button#save-anamnese-btn {
   cursor: default;
 }
 
-#edivi__login input.form-control > option,
 #edivi__login select.form-select > option {
   background-color: #191919;
   color: #fff;
   padding: 10px;
   margin: 0;
-}
-
-#edivi__login input.form-control::placeholder,
-#edivi__login textarea.form-control::placeholder {
-  color: #a2a2a2;
 }
 
 .edivi__einsatz {
@@ -1781,14 +1696,6 @@ body#edivi__arrivalboard table th {
   margin-bottom: 15px;
 }
 
-.tile-item {
-  background: #252525;
-  border-radius: 4px;
-  padding: 8px 12px;
-  margin: 4px 0;
-  border-left: 3px solid #ffaf2f;
-}
-
 .badge-vehicle-type {
   font-size: 0.8em;
 }
@@ -1822,12 +1729,6 @@ body[data-page="verlauf"] .col.position-relative {
   flex-direction: column;
   min-height: 100vh;
   padding-bottom: 80px;
-}
-
-body[data-page="verlauf"] .input-group-text {
-  background: transparent !important;
-  color: #fff !important;
-  border: none !important;
 }
 
 body[data-page="verlauf"] .edivi__vitalparam-box {
@@ -1867,16 +1768,17 @@ body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input {
 
 // NIBP/RR als EIN Feld (wie SpO₂/BZ/Temperatur): der Rahmen liegt auf dem
 // Box-Container, die beiden Inputs sind randlos/transparent darin, der
-// „/"-Trenner ist reiner Text ohne eigenen Block. Rahmenfarbe #555 = das,
-// was admin.css (border-color var(--darkgray)) den übrigen .form-control-
-// Vitalfeldern gibt — so sind alle Boxen der Maske identisch gerahmt.
+// „/"-Trenner ist reiner Text ohne eigenen Block. Rahmenfarbe #555 wie bei
+// den Einzel-Vitalfeldern weiter unten, so sind alle Boxen der Maske
+// identisch gerahmt.
 body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] {
   border: 3px solid var(--enotf-border, #555555);
   background-color: #333333;
 }
 
-// [type]-Attribute halten die Spezifität über den 3px-Rahmenregeln der
-// Einzel-Inputs weiter unten (beide !important, sonst gewänne die spätere)
+// Die Vitalfeld-Regel weiter unten setzt für -shared bewusst weder Rahmen
+// noch Hintergrund. Mit !important dort gewänne sie über die ID gegen diese
+// Regel und zöge Rahmen in die NIBP-Box.
 body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input[type="text"].edivi__vitalparam-shared,
 body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input[type="number"].edivi__vitalparam-shared {
   border: 0 !important;
@@ -1912,126 +1814,71 @@ body[data-page="verlauf"] .edivi__vitalparam-box[data-before="NIBP/RR"] input {
   z-index: 2;
 }
 
-body[data-page="verlauf"] textarea.form-control.edivi__vitalparam {
+// Vitalfelder als große Kacheln (Wert 4rem mittig, Label/Einheit kommen aus
+// ::before/::after der Box). Gilt für v1 (.ignis-input) und v2 (.form-control),
+// deshalb ohne Klasse für den Feldtyp. Die ID ist nötig: ui.css lädt nach
+// divi.css und setzt in _enotf-skin.scss `#edivi__container .ignis-input`
+// mit Schriftgröße, Padding und Hintergrund. Rahmen, Hintergrund und
+// Textfarbe stehen ausgeschrieben, die --bs-*-Variablen liest nur
+// Bootstraps .form-control.
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam,
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam-shared {
   position: relative;
-  width: 100% !important;
   height: 100% !important;
-  background: none !important;
-  --bs-border-width: 3px;
-  --bs-border-color: #333333;
+  padding: 0.375rem 0.5rem;
   border-radius: 0 !important;
-  font-size: 1.5rem;
-  text-align: start;
-  --bs-body-color: #038c4a;
-}
-
-body[data-page="verlauf"] textarea.form-control.edivi__vitalparam::placeholder {
-  color: #5f5f5f !important;
-}
-
-body[data-page="verlauf"] textarea.form-control.edivi__vitalparam:active,
-body[data-page="verlauf"] textarea.form-control.edivi__vitalparam:focus {
-  background: #333333 !important;
-}
-
-body[data-page="verlauf"] input[type="text"].form-control.edivi__vitalparam,
-body[data-page="verlauf"] input[type="number"].form-control.edivi__vitalparam {
-  position: relative;
-  width: 100% !important;
-  height: 100% !important;
-  --bs-body-bg: transparent;
-  --bs-border-width: 3px;
-  --bs-border-color: #333333;
-  border-radius: 0 !important;
+  color: #fff;
   font-size: 4rem;
-  text-align: center;
+  line-height: 1.5;
   font-weight: 600;
-  --bs-body-color: #fff;
+  text-align: center;
 }
 
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam::placeholder,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam::placeholder {
-  color: #808080 !important;
+// Rahmen mit !important, sonst nimmt ihn die Hover-Regel (border: 0) weg
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam {
+  width: 100% !important;
+  background-color: #333333;
+  border: 3px solid var(--enotf-border, #555555) !important;
 }
 
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam:active,
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam:focus,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam:active,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam:focus {
-  background: #333333 !important;
-}
-
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam.edivi__vitalparam-required,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam.edivi__vitalparam-required {
-  border-color: rgba(220, 53, 69, 0.8) !important;
-  background-color: rgba(220, 53, 69, 0.3) !important;
-}
-
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam-shared,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared {
-  position: relative;
+// Rahmen und Hintergrund der NIBP-Hälften kommen von der Box (siehe oben)
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam-shared {
   width: 50% !important;
-  height: 100% !important;
-  --bs-body-bg: transparent;
-  border: 3px solid #333333 !important;
-  border-radius: 0 !important;
-  font-size: 4rem;
-  text-align: center;
-  font-weight: 600;
-  --bs-body-color: #fff;
 }
 
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam-shared::placeholder,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared::placeholder {
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam::placeholder,
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam-shared::placeholder {
   color: #808080 !important;
 }
 
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam-shared:active,
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam-shared:focus,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared:active,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared:focus {
-  background: #333333 !important;
+// Gesperrtes Protokoll: Fläche wie Bootstraps .form-control:disabled, das
+// gegen die ID-Regel oben nicht mehr ankommt
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam:disabled {
+  background-color: var(--bs-secondary-bg);
 }
 
-body[data-page="verlauf"]
-  input[type="text"].form-control.edivi__vitalparam-shared.edivi__vitalparam-required,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared.edivi__vitalparam-required {
+// Aktives Feld (Ziel des Keypads) erkennbar halten
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam:focus {
+  border-color: var(--accent, #ff4d00) !important;
+}
+
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam.edivi__vitalparam-required {
   border-color: rgba(220, 53, 69, 0.8) !important;
   background-color: rgba(220, 53, 69, 0.3) !important;
 }
 
-body[data-page="verlauf"] input[type="number"].form-control.edivi__vitalparam,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared {
+// verlauf/add nutzt type="number": ohne das reservieren die Spin-Buttons
+// Platz und der Platzhalter rutscht aus der Mitte
+body[data-page="verlauf"] #edivi__container input[type="number"].edivi__vitalparam,
+body[data-page="verlauf"] #edivi__container input[type="number"].edivi__vitalparam-shared {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam::-webkit-outer-spin-button,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam::-webkit-inner-spin-button,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared::-webkit-outer-spin-button,
-body[data-page="verlauf"]
-  input[type="number"].form-control.edivi__vitalparam-shared::-webkit-inner-spin-button {
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam::-webkit-outer-spin-button,
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam::-webkit-inner-spin-button,
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam-shared::-webkit-outer-spin-button,
+body[data-page="verlauf"] #edivi__container .edivi__vitalparam-shared::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -2644,11 +2491,6 @@ body[data-page="verlauf"] .value-indicator {
 #qmLogModal .edivi__admin option {
   background: #333333;
   color: #fff;
-}
-
-#qmActionsModal .form-control::placeholder,
-#qmLogModal .form-control::placeholder {
-  color: rgba(222, 226, 230, 0.75);
 }
 
 .edivi__iconlink-button {

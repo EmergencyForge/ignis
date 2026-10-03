@@ -210,52 +210,6 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .btn-primary-compact {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            margin-right: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary-compact:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-            color: white;
-            text-decoration: none;
-            background: linear-gradient(135deg, #5a6268, #495057);
-        }
-
-        .btn-secondary-compact {
-            background: rgba(108, 117, 125, 0.6);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-secondary-compact:hover {
-            background: rgba(108, 117, 125, 0.8);
-            color: white;
-            text-decoration: none;
-            transform: translateY(-1px);
-        }
-
         .stats-row {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 6px;

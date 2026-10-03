@@ -1,0 +1,123 @@
+/**
+ * eNOTF v1: Eingabefelder und Modal-Buttons im Tablet-Look
+ *
+ * Nur über assets/components/enotf/_head.php eingebunden, also nur auf den
+ * v1-Seiten. v2 nutzt dieselben Klassen (.ignis-input, .ignis-btn), soll aber
+ * aussehen wie bisher; deshalb stehen diese Regeln nicht in divi.scss oder
+ * enotf-modals.css, die auch v2 lädt.
+ *
+ * Die Vorlagen hießen früher .form-control und .btn, die alten Regeln greifen
+ * seit der Umstellung nicht mehr. Die Datei lädt nach ui.css, die IDs in den
+ * Selektoren halten trotzdem über `#edivi__container .ignis-input` aus
+ * _enotf-skin.scss (Schrift 1rem, Fläche #2a2a2a).
+ */
+
+/* Felder in den Protokoll-Boxen: flach #333 wie die Box, Schrift 1.2rem.
+   Innenabstand und Zeilenhöhe wie früher bei .form-control, mit dem Abstand
+   aus dem Skin (.6rem .85rem) wird die Einsatznummer abgeschnitten */
+#edivi__container .edivi__box input.ignis-input,
+#edivi__container .edivi__box textarea.ignis-input {
+    background: #333333;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: .375rem .5rem;
+    line-height: 1.5;
+}
+
+/* Felder auf Login, Anlegen, Übersicht, Fahrtenbuch und Fahrzeuginfo */
+#edivi__login input.ignis-input,
+#edivi__login textarea.ignis-input {
+    background-color: #333333;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: .375rem .5rem;
+    line-height: 1.5;
+}
+
+/* divi.scss nimmt den ignis-Feldern hier Rahmen und Schatten, ohne diesen
+   Ring sieht man nicht, welches Feld aktiv ist */
+#edivi__login input.ignis-input:focus,
+#edivi__login textarea.ignis-input:focus {
+    box-shadow: 0 0 0 1px #5783cf !important;
+}
+
+/* Schreibgeschützte Felder (vorbelegte Anzeigen, freigegebene Protokolle)
+   nehmen keinen Klick und keinen Cursor an */
+#edivi__container .edivi__box input.ignis-input[readonly],
+#edivi__container .edivi__box input.ignis-input[disabled],
+#edivi__container .edivi__box textarea.ignis-input[readonly],
+#edivi__container .edivi__box textarea.ignis-input[disabled],
+#edivi__login input.ignis-input[readonly],
+#edivi__login input.ignis-input[disabled],
+#edivi__login textarea.ignis-input[readonly],
+#edivi__login textarea.ignis-input[disabled] {
+    box-shadow: none !important;
+    caret-color: transparent;
+    user-select: none;
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Modals hängen an body, außerhalb von #edivi__container. Ohne diese Regeln
+   hätten Buttons und Felder dort die kleine Admin-Größe. Das Feld nimmt auf
+   den Login-Seiten die ID, sonst wäre es wie die übrigen Felder dort randlos
+   #333 auf #333. */
+body[id="edivi__login"] .modal-footer .ignis-btn,
+body[data-pin-enabled] .modal-footer .ignis-btn {
+    border-radius: 0;
+    font-size: 1rem;
+    padding: 8px 20px;
+}
+
+body[id="edivi__login"] .modal-footer .ignis-btn--secondary,
+body[data-pin-enabled] .modal-footer .ignis-btn--secondary {
+    background-color: var(--enotf-surface-light, #4a4a4a);
+    border-color: var(--enotf-surface-light, #4a4a4a);
+    color: var(--white, #fff);
+}
+
+body[id="edivi__login"] .modal-footer .ignis-btn--secondary:hover,
+body[data-pin-enabled] .modal-footer .ignis-btn--secondary:hover {
+    background-color: var(--enotf-border, #555);
+    border-color: var(--enotf-border, #555);
+}
+
+body[id="edivi__login"] .modal-footer .ignis-btn--primary,
+body[data-pin-enabled] .modal-footer .ignis-btn--primary,
+body[id="edivi__login"] .modal-footer .ignis-btn--danger,
+body[data-pin-enabled] .modal-footer .ignis-btn--danger {
+    background-color: var(--main-color, #d10000);
+    border-color: var(--main-color, #d10000);
+    color: var(--white, #fff);
+}
+
+body[id="edivi__login"] .modal-footer .ignis-btn--primary:hover,
+body[data-pin-enabled] .modal-footer .ignis-btn--primary:hover,
+body[id="edivi__login"] .modal-footer .ignis-btn--danger:hover,
+body[data-pin-enabled] .modal-footer .ignis-btn--danger:hover {
+    background-color: var(--main-color-dimmed, #660000);
+    border-color: var(--main-color-dimmed, #660000);
+}
+
+/* Rahmen und Fokusfarbe mit !important: divi.scss setzt bei Hover und Fokus
+   `border: 0` mit höherer Spezifität, dann wäre das Feld doch randlos.
+   Abstand und Zeilenhöhe wie auf der Startseite, auf der Übersicht liegt das
+   Modal sonst unter dem Skin-Abstand und der Login-Regel oben. */
+#edivi__login .modal-body .ignis-input,
+body[data-pin-enabled] .modal-body .ignis-input {
+    background-color: var(--enotf-surface, #333);
+    border: 1px solid var(--enotf-surface-light, #444) !important;
+    border-radius: 0;
+    color: var(--white, #fff);
+    font-size: 1rem;
+    padding: .375rem .75rem;
+    line-height: 1.4;
+}
+
+#edivi__login .modal-body .ignis-input:focus,
+body[data-pin-enabled] .modal-body .ignis-input:focus {
+    background-color: var(--enotf-surface-light, #3a3a3a);
+    border-color: var(--main-color, #d10000) !important;
+    box-shadow: none !important;
+    color: var(--white, #fff);
+}

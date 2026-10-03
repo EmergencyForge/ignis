@@ -43,6 +43,7 @@ final class ThemeTokensTest extends TestCase
         'enotf-modals.min.css'  => 'eNOTF, ohne SCSS-Quelle',
         'enotf-toast.css'       => 'eNOTF, ohne SCSS-Quelle',
         'enotf-toast.min.css'   => 'eNOTF, ohne SCSS-Quelle',
+        'enotf-v1.css'          => 'eNOTF v1, ohne SCSS-Quelle',
     ];
 
     /** Feste Werte, die in beiden Sätzen gleich bleiben (Text auf Akzent, Druck, Farbregler). */

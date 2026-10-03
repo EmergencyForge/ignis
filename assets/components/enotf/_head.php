@@ -13,7 +13,8 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
      2. vendor-enotf.css     — Bootstrap 5 (nur eNOTF)
      3. divi.min, ui.min     — eNOTF-spezifisches Styling
      4. enotf-modals/-toast  — eNOTF-Komponenten
-     5. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
+     5. enotf-v1.css         — Felder und Modal-Buttons, nur v1 (v2 lädt diesen Head nicht)
+     6. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
 <!-- Geist Sans + Geist Mono fuer das eNOTF-UI (Clock, Stempel,
@@ -28,6 +29,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= asset('public/assets/dist/ui.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/enotf-v1.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <!-- Core-Bundle: jQuery + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts).
      vendor-enotf.js liefert das vollständige Bootstrap 5 (nur eNOTF). -->

@@ -110,7 +110,12 @@ $status_config = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Krankenhaus-Verfügbarkeit &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
 
+    <!-- Bootstrap, FontAwesome und jQuery wie auf den übrigen eNOTF-Seiten
+         (_head.php); die Seite bindet den gemeinsamen Head nicht ein -->
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor-enotf.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
+    <script src="<?= BASE_PATH ?>public/assets/dist/vendor.js"></script>
 
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico" />
@@ -165,6 +170,8 @@ $status_config = [
         }
 
         .code-input {
+            display: block;
+            width: 100%;
             font-size: 2rem;
             font-weight: 700;
             letter-spacing: 0.5rem;
@@ -303,7 +310,7 @@ $status_config = [
             text-align: right;
         }
 
-        .form-label {
+        .ignis-field__label {
             color: #a2a2a2;
             font-size: 1rem;
             margin-bottom: 0.5rem;
