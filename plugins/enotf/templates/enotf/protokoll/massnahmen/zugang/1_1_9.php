@@ -200,7 +200,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
             var formElements = document.querySelectorAll('input, textarea');
             var selectElements2 = document.querySelectorAll('select');
             var inputElements2 = document.querySelectorAll('.btn-check');
-            var inputElements3 = document.querySelectorAll('.');
+            var inputElements3 = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
 
             formElements.forEach(function(element) {
                 element.setAttribute('readonly', 'readonly');

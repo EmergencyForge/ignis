@@ -1,5 +1,9 @@
 # Changelog
 
+## Unveröffentlicht
+
+Ein freigegebenes eNOTF-Protokoll wird wieder gesperrt angezeigt. Seit April brach das Sperr-Skript an einem leeren Selektor ab, Felder, Auswahllisten und Ankreuzfelder blieben bedienbar. Gespeichert wurde trotzdem nichts, der Server lehnt Änderungen an freigegebenen Protokollen ab.
+
 ## 2026.0.18-beta
 
 Die eNOTF-Messwerte zeigen wieder große Kacheln. Seit einer Umstellung im April waren SpO₂, Puls, Blutdruck und die übrigen Werte auf normale Feldhöhe geschrumpft, Beschriftung und Einheit lagen über dem Wert, und leere Pflichtfelder waren nicht mehr rot markiert. Das galt auch für „Verlauf“ beim Hinzufügen von Werten. In den Protokollboxen, auf der eNOTF-Anmeldung und beim Anlegen haben Textfelder wieder ihre größere Schrift und flache Fläche, schreibgeschützte Felder freigegebener Protokolle lassen sich nicht mehr anklicken, und der Teilen-Dialog hat wieder Tablet-Größe. Den Seiten für Klinikcodes und Bettenverfügbarkeit fehlten Schrift, Icons und jQuery, sie laden wieder vollständig. eNOTF v2 sieht unverändert aus.
