@@ -36,7 +36,7 @@ final class UiPackageTest extends TestCase
     /** Die Module des Pakets, wie vite.config.js sie baut. */
     private const PACKAGE_MODULES = [
         'accordion', 'alert', 'breadcrumb', 'chip', 'colorpicker', 'combobox', 'datepicker',
-        'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'file',
+        'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'error-stage', 'file',
         'form', 'login-stage', 'multi-select', 'preferences', 'snackbar', 'spark', 'tabs', 'timepicker', 'tooltip', 'workbench',
     ];
 
