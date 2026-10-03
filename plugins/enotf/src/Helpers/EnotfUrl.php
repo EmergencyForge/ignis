@@ -19,7 +19,7 @@ class EnotfUrl
 {
     public static function useCleanUrls(): bool
     {
-        // Clean URLs disabled — too many relative paths in protocol pages break.
+        // Clean URLs disabled: too many relative paths in protocol pages break.
         // Legacy query-parameter URLs work everywhere (Apache, Nginx, relative fetches).
         return false;
     }
@@ -147,7 +147,7 @@ class EnotfUrl
 
     /**
      * @deprecated Zielverwaltung wurde in POIs konsolidiert. Diese Helper-
-     * Methode liefert dauerhaft die POI-URL — wer noch darauf verweist,
+     * Methode liefert dauerhaft die POI-URL. Wer noch darauf verweist,
      * erreicht das gleiche Ziel im neuen System.
      * @param array<string, mixed> $params
      */

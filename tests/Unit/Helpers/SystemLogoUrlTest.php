@@ -51,7 +51,7 @@ final class SystemLogoUrlTest extends TestCase
 
     /**
      * Api\SystemController::uploadLogo() legt SYSTEM_LOGO ohne BASE_PATH ab
-     * (`/storage/branding/<datei>`) — genau wie jeder andere relative Pfad.
+     * (`/storage/branding/<datei>`), genau wie jeder andere relative Pfad.
      * Ein gebackenes BASE_PATH im Config-Wert wuerde hier doppelt landen.
      */
     #[Test]

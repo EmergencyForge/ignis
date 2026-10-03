@@ -24,12 +24,12 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * PersonnelController — Personalverwaltung (Mitarbeiter-Modul).
+ * PersonnelController: Personalverwaltung (Mitarbeiter-Modul).
  */
 class PersonnelController extends Controller
 {
     /**
-     * GET /mitarbeiter/list.php — Übersicht aktiver oder archivierter Mitarbeiter.
+     * GET /mitarbeiter/list.php: Übersicht aktiver oder archivierter Mitarbeiter.
      *
      * Filter-Logik:
      *   - Es gibt einen "Archiv-Rank" (intra_mitarbeiter_dienstgrade.archive=1)
@@ -104,7 +104,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /personnel/list?export=csv — die gefilterte Liste als CSV, dieselben
+     * GET /personnel/list?export=csv: die gefilterte Liste als CSV, dieselben
      * Spalten wie die Tabelle. Vorher baute der Browser die Datei aus den
      * sichtbaren DataTables-Zeilen; seit die Liste seitenweise kommt, muss
      * der Export den ganzen Filterstand nehmen.
@@ -139,7 +139,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /mitarbeiter/profile.php?id=X — Mitarbeiter-Detail mit Inline-Editor,
+     * GET /mitarbeiter/profile.php?id=X: Mitarbeiter-Detail mit Inline-Editor,
      * Kommentaren, Logs, Dokumenten und Fachdienste-Modal.
      *
      * Die View bindet eine Reihe alter Partials ein (assets/components/profiles/*),
@@ -178,11 +178,11 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /api/mitarbeiter/by-dienstnr/{nr}/card — Hover-Card-Fragment
+     * GET /api/mitarbeiter/by-dienstnr/{nr}/card: Hover-Card-Fragment
      * gelookupt per Dienstnummer statt per Datenbank-ID.
      *
      * Verwendung: Templates rendern Dienstnr-Strings (z.B. Tabellen,
-     * Einsatz-Listen) oft ohne ID — die Card wird dann ueber das Attribut
+     * Einsatz-Listen) oft ohne ID. Die Card wird dann ueber das Attribut
      * `data-dienstnr-card="042"` getriggert (siehe user-hover-card.js).
      * Selber Output wie `card()`, einfach ein zweiter Lookup-Pfad.
      */
@@ -279,7 +279,7 @@ class PersonnelController extends Controller
             }
         }
 
-        // Scope-Variablen für die Partials — die greifen via $row['fullname']
+        // Scope-Variablen für die Partials. Die greifen via $row['fullname']
         // etc. zu, statt aufs Eloquent-Model.
         $row = $mitarbeiter->getAttributes();
 
@@ -295,11 +295,11 @@ class PersonnelController extends Controller
         $einstellungsdatum = $mitarbeiter->einstdatum?->format('d.m.Y') ?? '';
 
         // Legacy-Scope-Variablen für die Partials in assets/components/profiles/:
-        //   $openedID    — die ID des angezeigten Profils (auch für hidden inputs in modals)
-        //   $editdg      — Rank-ID des aktuell EINGELOGGTEN Users (sein eigenes Profil)
-        //   $edituseric  — fullname des aktuell eingeloggten Users (für Audit-Anzeigen)
+        //   $openedID:    die ID des angezeigten Profils (auch für hidden inputs in modals)
+        //   $editdg:      Rank-ID des aktuell EINGELOGGTEN Users (sein eigenes Profil)
+        //   $edituseric:  fullname des aktuell eingeloggten Users (für Audit-Anzeigen)
         // Wenn der eingeloggte User selbst kein Mitarbeiter-Profil hat, bleiben
-        // editdg = null und edituseric = 'Unbekannt Unbekannt' — die Partials
+        // editdg = null und edituseric = 'Unbekannt Unbekannt'. Die Partials
         // zeigen dann eine Warnung, dass Profildaten fehlen.
         $openedID    = $id;
         $editdg      = null;
@@ -338,7 +338,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=1) — Legacy Update-Form.
+     * POST /mitarbeiter/profile.php (new=1): Legacy Update-Form.
      *
      * Wird in der aktuellen UI praktisch nicht mehr aufgerufen (Inline-Edit
      * läuft über api/personnel/update-profile.php), aber der Endpoint bleibt
@@ -390,7 +390,7 @@ class PersonnelController extends Controller
             $mitarbeiter->qualifw2 = $data['qualifw2'];
         }
 
-        // Generische Datenänderung erkennen — wenn irgendetwas anderes anders
+        // Generische Datenänderung erkennen: wenn irgendetwas anderes anders
         // ist, wird ein "Profil bearbeitet"-Eintrag geschrieben.
         $dataChanged = (
             $mitarbeiter->fullname   !== $data['fullname']   ||
@@ -427,7 +427,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=4) — Fachdienste-JSON-Update.
+     * POST /mitarbeiter/profile.php (new=4): Fachdienste-JSON-Update.
      */
     public function updateFachdienste(): void
     {
@@ -462,7 +462,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=5) — Notiz/Comment hinzufügen.
+     * POST /mitarbeiter/profile.php (new=5): Notiz/Comment hinzufügen.
      */
     public function addNote(): void
     {
@@ -475,7 +475,7 @@ class PersonnelController extends Controller
         $content = trim((string) ($_POST['content'] ?? ''));
         // noteType ist eine PersonalLogManager::TYPE_*-Konstante:
         //   0 = TYPE_NOTE (allgemeine Notiz), 1 = TYPE_POSITIVE, 2 = TYPE_NEGATIVE
-        // Wir akzeptieren alle drei Werte explizit — `> 0` würde die allgemeine
+        // Wir akzeptieren alle drei Werte explizit. `> 0` würde die allgemeine
         // Notiz (=0) fälschlich rausfiltern.
         $type = isset($_POST['noteType']) ? (int) $_POST['noteType'] : -1;
         $allowedTypes = [
@@ -498,7 +498,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=6) — Dokument für Mitarbeiter erstellen.
+     * POST /mitarbeiter/profile.php (new=6): Dokument für Mitarbeiter erstellen.
      *
      * Schreibt einen Eintrag in `intra_mitarbeiter_dokumente` und sendet eine
      * Notification an den Empfänger, sofern dessen Discord-ID einem System-User
@@ -592,7 +592,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /personnel/create — das Anlage-Formular, als Seite oder als
+     * GET /personnel/create: das Anlage-Formular, als Seite oder als
      * Fragment im Drawer (assets/js/ui/drawer-form.js).
      */
     public function create(): void
@@ -608,7 +608,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /personnel/create — legt den Mitarbeiter an. Ein normaler
+     * POST /personnel/create: legt den Mitarbeiter an. Ein normaler
      * Formular-Post: bei ungültiger Eingabe zurück aufs Formular mit der
      * Eingabe (old()) und der Meldung, bei Erfolg weiter zum Profil.
      * Vor I7 war das ein JSON-Endpunkt für das Modal der Liste.
@@ -694,7 +694,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /personnel/delete (id) — Mitarbeiter komplett löschen.
+     * POST /personnel/delete (id): Mitarbeiter komplett löschen.
      */
     public function destroy(): void
     {
@@ -723,7 +723,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /personnel/comment-delete (id) — Personal-Log-Eintrag löschen.
+     * POST /personnel/comment-delete (id): Personal-Log-Eintrag löschen.
      */
     public function deleteComment(): void
     {
@@ -747,7 +747,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /mitarbeiter/dokument-view.php?docid=X — PDF-Viewer mit Toolbar.
+     * GET /mitarbeiter/dokument-view.php?docid=X: PDF-Viewer mit Toolbar.
      *
      * Joint das Dokument mit Aussteller und Empfänger. Vorlage und
      * Kategorie kommen nicht mehr dazu: die Tabellen des alten
@@ -816,7 +816,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/dokument-delete.php — Dokument endgültig löschen.
+     * POST /mitarbeiter/dokument-delete.php: Dokument endgültig löschen.
      *
      * Erfordert CSRF-Token + personnel.documents.manage. Löscht die PDF-Datei
      * im Storage UND den DB-Eintrag.

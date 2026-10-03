@@ -14,7 +14,7 @@ use EmergencyForge\Http\Response;
  *
  * Verhalten:
  *   - Key kann im Header `X-API-Key`, in der Query `api_key` oder im
- *     JSON-Body `intraRP_API_Key` stehen — intraRP-FiveM-Clients nutzen
+ *     JSON-Body `intraRP_API_Key` stehen; intraRP-FiveM-Clients nutzen
  *     historisch den Body-Key, deshalb müssen wir das unterstützen
  *   - Vergleich gegen die Konstante `API_KEY` aus der DB-Config
  *   - Localhost-Bypass nur in Development-Umgebung (`APP_ENV=development`),

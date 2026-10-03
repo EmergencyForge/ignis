@@ -68,22 +68,22 @@ use App\Helpers\Flash;
                             <hr>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="ignis-field__label">Melder – Name</label>
+                            <label class="ignis-field__label">Name des Melders</label>
                             <input type="text" name="caller_name" class="ignis-input">
                         </div>
                         <div class="md:col-span-6">
-                            <label class="ignis-field__label">Melder – Kontakt</label>
+                            <label class="ignis-field__label">Kontakt des Melders</label>
                             <input type="text" name="caller_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">
                             <hr>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="ignis-field__label">Geschädigter/Eigentümer/Halter – Name</label>
+                            <label class="ignis-field__label">Name (Geschädigter/Eigentümer/Halter)</label>
                             <input type="text" name="owner_name" class="ignis-input">
                         </div>
                         <div class="md:col-span-6">
-                            <label class="ignis-field__label">Geschädigter/Eigentümer/Halter – Kontakt</label>
+                            <label class="ignis-field__label">Kontakt (Geschädigter/Eigentümer/Halter)</label>
                             <input type="text" name="owner_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">

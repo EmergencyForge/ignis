@@ -1,11 +1,11 @@
-# intraRP — Routes
+# intraRP: Routes
 
 Zentrale Definition aller HTTP-Routen für intraRP.
 
 ## Dateien
 
-- **web.php** — HTML-Routen (Controller rendern Templates, Browser-Zielgruppe)
-- **api.php** — JSON-Routen (Admin-API + FiveM-Server-Endpoints)
+- **web.php**: HTML-Routen (Controller rendern Templates, Browser-Zielgruppe)
+- **api.php**: JSON-Routen (Admin-API + FiveM-Server-Endpoints)
 
 Beide Dateien werden vom Front-Controller [`public/index.php`](../public/index.php) geladen und registrieren ihre Routen auf dem `$router`-Objekt.
 
@@ -52,7 +52,7 @@ $router->get('/users', [UserController::class, 'index']);
 $router->get('/users', 'App\\Http\\Controllers\\UserController@index');
 ```
 
-Bei (2) und (3) wird die Controller-Klasse über den DI-Container aufgelöst — Constructor-Injection von `PDO`, `Logger`, etc. funktioniert automatisch.
+Bei (2) und (3) wird die Controller-Klasse über den DI-Container aufgelöst. Constructor-Injection von `PDO`, `Logger`, etc. funktioniert automatisch.
 
 ## Route-Parameter
 

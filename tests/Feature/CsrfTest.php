@@ -14,7 +14,7 @@ use Tests\FixtureFactory;
  * Der CSRF-Schutz hängt global am Router.
  *
  * Vorher musste ihn jede Route einzeln anmelden, und elf von
- * vierundsechzig schreibenden taten das — die Rollenverwaltung nicht, der
+ * vierundsechzig schreibenden taten das. Die Rollenverwaltung nicht, der
  * Auslöser des Systemupdates nicht. Die Lücke war keine falsche Zeile,
  * sondern eine vergessene: genau die Sorte Fehler, die ein Test finden
  * muss, weil beim Lesen nichts auffällt.
@@ -84,7 +84,7 @@ final class CsrfTest extends FeatureTestCase
     {
         // Eine Seite mit zwei Formularen traegt in beiden denselben Token.
         // Solange er nach jeder Pruefung rotierte, war das zweite Formular
-        // nach dem Absenden des ersten tot — der Grund, warum der Schutz
+        // nach dem Absenden des ersten tot. Das war der Grund, warum der Schutz
         // nie flaechendeckend angezogen werden konnte.
         $this->login();
         $token = $this->csrfToken();

@@ -1,9 +1,9 @@
 /**
- * eNOTF v2 — Schritt-Umschalter für die ?t-Unterseiten (v1-Look).
+ * eNOTF v2: Schritt-Umschalter für die ?t-Unterseiten (v1-Look).
  *
  * v1 rendert jede Frage als eigene Unterseite (Full-Page-Reload pro
  * Klick). v2 rendert ALLE Schritte eines Themas in einer Seite und
- * schaltet client-seitig um — gleiche Optik (edivi__interactbutton-
+ * schaltet client-seitig um, gleiche Optik (edivi__interactbutton-
  * Spalten), aber ohne Server-Roundtrip. Autosave/names unverändert.
  *
  * Markup-Vertrag (Section-Template, z. B. erstbefund.php):
@@ -19,7 +19,7 @@
  *   </div>
  *
  * Verhalten (wie v1s Themen-Index-Seiten):
- *   - Einstieg OHNE ?q: KEIN Schritt aktiv — nur die Subnav-Spalte(n)
+ *   - Einstieg OHNE ?q: KEIN Schritt aktiv, nur die Subnav-Spalte(n)
  *     sind sichtbar (v1: erstbefund/atemwege/index.php zeigt auch nur
  *     die Navigation). Erst der Klick auf einen Subnav-Eintrag öffnet
  *     dessen Frage.

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * intraRP — JSON / API-Routes
+ * intraRP: JSON / API-Routes
  *
  * Wird vom Front-Controller nach web.php geladen. Routen sind hier unter
  * `/api/...` gruppiert, damit die AuthMiddleware sie automatisch als
@@ -49,7 +49,7 @@ $router->get('/api/_router/whoami', function ($request) {
 //
 //  Diese Routen werden vom FiveM-Game-Server gerufen. Backward-Compat:
 //  Beide Pfade (mit und ohne `.php`-Suffix) sind registriert, weil bestehende
-//  FiveM-Clients den alten URLs folgen — die `.php`-Files sind durch den
+//  FiveM-Clients den alten URLs folgen. Die `.php`-Files sind durch den
 //  Cutover gelöscht, der Router hängt sich via .htaccess-Fallback rein.
 // ----------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ use App\Http\Controllers\Api\CharacterController;
 use App\Http\Controllers\Api\EmdSyncController;
 use App\Http\Controllers\Api\NotificationController;
 
-// Browser-side: aktuelle Session-ID abfragen — kein Auth, läuft im
+// Browser-side: aktuelle Session-ID abfragen. Kein Auth, läuft im
 // User-Browser, wird dann an FiveM weitergereicht.
 $router->match(['GET', 'POST'], '/api/character/get-session-id',     [CharacterController::class, 'sessionId']);
 
@@ -74,7 +74,7 @@ $router->post('/api/emd/sync',
     [ApiKeyMiddleware::class]
 );
 // Legacy-Alias: vor langem umgezogener Redirect-Stub (api/emd-sync.php →
-// api/emd/sync.php) — wir honorieren den alten Pfad für den Fall dass noch
+// api/emd/sync.php). Wir honorieren den alten Pfad für den Fall dass noch
 // irgendwo ein FiveM-Script darauf zeigt.
 $router->post('/api/emd-sync.php',
     [EmdSyncController::class, 'sync'],
@@ -119,7 +119,7 @@ $router->get('/api/vehicles/{id:\d+}/card',
 //  Notifications (Browser-Session, Admin-UI)
 //
 //  Beide Endpoints laufen hinter Session-Auth. CSRF ist bewusst NICHT
-//  eingehängt — der bestehende Frontend-Code schickt keinen Token mit,
+//  eingehängt: der bestehende Frontend-Code schickt keinen Token mit,
 //  ein CSRF-Upgrade braucht koordinierte Frontend-Anpassung.
 // ----------------------------------------------------------------------------
 
@@ -147,7 +147,7 @@ $router->post('/api/notifications/mark-all-read',
 );
 
 // ----------------------------------------------------------------------------
-//  Kalender — FullCalendar-EventSource
+//  Kalender: FullCalendar-EventSource
 //
 //  Liefert ein Array von FullCalendar-EventInput-Objekten fuer den Range
 //  [from, to]. Recurring-Events werden serverseitig durch RecurrenceExpander
@@ -166,7 +166,7 @@ $router->get('/api/calendar/event',
     [new AuthMiddleware()]
 );
 
-// iCal-Subscribe — generiert Token bei Bedarf, gibt absolute URL zurueck.
+// iCal-Subscribe: generiert Token bei Bedarf, gibt absolute URL zurueck.
 $router->get('/api/calendar/subscribe-info',
     [\App\Http\Controllers\CalendarController::class, 'subscribeInfo'],
     [new AuthMiddleware()]
@@ -176,14 +176,14 @@ $router->post('/api/calendar/subscribe-regenerate',
     [new AuthMiddleware()]
 );
 
-// iCal-Feed — Token in der URL ist die Auth (Cookie-Auth funktioniert
+// iCal-Feed: Token in der URL ist die Auth (Cookie-Auth funktioniert
 // fuer externe Kalender-Apps nicht). Bewusst KEINE AuthMiddleware.
 $router->get('/api/calendar/ical/{token:[a-f0-9]{20,64}}',
     [\App\Http\Controllers\CalendarController::class, 'icalFeed'],
 );
 
 /*
- * BEISPIEL — Admin-API-Endpoint (Session + Permission)
+ * BEISPIEL: Admin-API-Endpoint (Session + Permission)
  *
  * CSRF steht nicht mehr im Stack: die Middleware haengt global am
  * Router (public/index.php) und deckt jede schreibende Route ab.

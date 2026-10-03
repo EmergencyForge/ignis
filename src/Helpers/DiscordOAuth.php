@@ -43,7 +43,7 @@ class DiscordOAuth
     }
 
     /**
-     * Die Adresse, an die Discord zurückschickt — normalerweise aus dem Request
+     * Die Adresse, an die Discord zurückschickt, normalerweise aus dem Request
      * hergeleitet. DISCORD_REDIRECT_URI schlägt die Herleitung, für Setups, wo
      * sie danebenliegt; der Wert muss so im Developer Portal stehen.
      */

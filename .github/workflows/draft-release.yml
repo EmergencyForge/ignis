@@ -33,7 +33,7 @@ jobs:
           CURRENT="${GITHUB_REF#refs/tags/}"
           PREVIOUS=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | grep -v "^${CURRENT}$" | head -1)
           if [ -z "$PREVIOUS" ]; then
-            # First release — use first commit
+            # First release: use the first commit
             PREVIOUS=$(git rev-list --max-parents=0 HEAD | head -1)
           fi
           echo "tag=$PREVIOUS" >> $GITHUB_OUTPUT
@@ -105,7 +105,7 @@ jobs:
 
           # Check if release already exists for this tag
           if gh release view "$VERSION" &>/dev/null; then
-            echo "Release $VERSION already exists — skipping draft creation"
+            echo "Release $VERSION already exists, skipping draft creation"
             exit 0
           fi
 

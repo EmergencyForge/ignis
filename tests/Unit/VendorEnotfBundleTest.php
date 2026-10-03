@@ -9,12 +9,12 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Die eNOTF-v1-Templates rufen `new bootstrap.Modal(...)` auf. Der Global
- * dafür kommt aus vendor-enotf.js — aber nur, wenn das Bundle ihn selbst
+ * dafür kommt aus vendor-enotf.js, aber nur, wenn das Bundle ihn selbst
  * setzt: `import 'bootstrap'` registriert die Data-API und sonst nichts,
  * window.bootstrap setzt allein der UMD-Bundle-Build.
  *
  * Das Ausbleiben ist still. Kein Build-Fehler, keine Konsolenmeldung beim
- * Laden — erst der Klick, der ein Modal öffnen soll, läuft ins Leere. Genau
+ * Laden. Erst der Klick, der ein Modal öffnen soll, läuft ins Leere. Genau
  * so starb das Konfliktmodal, und mit ihm fünfzehn weitere Aufrufstellen.
  */
 final class VendorEnotfBundleTest extends TestCase
@@ -43,7 +43,7 @@ final class VendorEnotfBundleTest extends TestCase
         $this->assertStringContainsString(
             'window.bootstrap=',
             $dist,
-            'Das Bundle im Repo ist älter als die Quelle — npm run build fehlt.'
+            'Das Bundle im Repo ist älter als die Quelle, npm run build fehlt.'
         );
     }
 

@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model fuer `intra_calendar_attendees` — explizit eingeladene
+ * Eloquent-Model fuer `intra_calendar_attendees`: explizit eingeladene
  * Mitarbeiter pro Event. Bei visibility='role' werden Attendees nicht
- * persistiert — siehe AttendeeResolver.
+ * persistiert, siehe AttendeeResolver.
  *
  * @property int            $id
  * @property int            $event_id

@@ -176,7 +176,7 @@ class Logger
         return $logger;
     }
 
-    // -- Convenience static methods (proxy to singleton) --
+    // Convenience static methods (proxy to singleton)
 
     /**
      * @param array<string, mixed> $context

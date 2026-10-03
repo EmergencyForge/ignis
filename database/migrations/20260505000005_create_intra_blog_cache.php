@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * intra_blog_cache + intra_blog_meta — lokaler Spiegel der Hub-Blog-API.
+ * intra_blog_cache + intra_blog_meta: lokaler Spiegel der Hub-Blog-API.
  *
  * Schwester-Tabelle zu `intra_changelog_cache` (Migration 20260505000001).
  * Reichere Item-Felder als der Changelog: Cover-Image, Author (name +
@@ -21,7 +21,7 @@ class CreateIntraBlogCache extends AbstractMigration
     {
         if (!$this->hasTable('intra_blog_cache')) {
             $this->table('intra_blog_cache', ['id' => false, 'primary_key' => ['id']])
-                // explizit NOT NULL — siehe intra_changelog_cache (MySQL 1171)
+                // explizit NOT NULL, siehe intra_changelog_cache (MySQL 1171)
                 ->addColumn('id', 'string', ['limit' => 80, 'null' => false])
                 ->addColumn('slug', 'string', ['limit' => 160])
                 ->addColumn('title', 'string', ['limit' => 255])

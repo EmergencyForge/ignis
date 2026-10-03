@@ -105,7 +105,7 @@ final class FormListTest extends FeatureTestCase
         $first = $this->get('/forms/admin/list', ['query' => ['q' => 'Seite Zwei']]);
         $this->assertBodyContains('P0000026', $first);
         $this->assertBodyNotContains('P0000001<', $first);
-        $this->assertBodyContains('1–25 von 26 Anträge', $first);
+        $this->assertBodyContains('1 bis 25 von 26 Anträge', $first);
 
         $second = $this->get('/forms/admin/list', ['query' => ['q' => 'Seite Zwei', 'page' => '2']]);
         $this->assertBodyContains('P0000001', $second);

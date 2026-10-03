@@ -1,4 +1,4 @@
-# database/ — Phinx-Migrations + Legacy-SQL-Wrapper.
+# database/: Phinx-Migrations + Legacy-SQL-Wrapper.
 # Alle PHP-Files hier werden ausschließlich von Phinx aus dem PSR-4-Autoloader
 # instanziiert, niemals via direktem HTTP-Request.
 #

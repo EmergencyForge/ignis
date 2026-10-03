@@ -1,4 +1,4 @@
-# templates/ — View-Templates, werden ausschließlich vom Controller via
+# templates/: View-Templates, werden ausschließlich vom Controller via
 # require eingebunden. Kein direkter HTTP-Zugriff erlaubt.
 
 <IfModule mod_authz_core.c>

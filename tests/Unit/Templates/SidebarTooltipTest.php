@@ -30,9 +30,9 @@ final class SidebarTooltipTest extends TestCase
         $source = (string) file_get_contents(self::SIDEBAR);
 
         // [^>] oder das Ende eines PHP-Echos in einem Attributwert (Fragezeichen
-        // vor dem Winkel) — sonst würde das die eigentliche Tag-Grenze vortäuschen.
+        // vor dem Winkel), sonst würde das die eigentliche Tag-Grenze vortäuschen.
         preg_match_all('/<(?:a|button|div)\b(?:[^>]|(?<=\?)>)*class="[^"]*ignis-sidebar__(?:quick|version)\b[^"]*"(?:[^>]|(?<=\?)>)*>/', $source, $elements);
-        $this->assertNotEmpty($elements[0], 'Keine ignis-sidebar__quick/__version-Elemente gefunden — Regex prüft nichts.');
+        $this->assertNotEmpty($elements[0], 'Keine ignis-sidebar__quick/__version-Elemente gefunden, die Regex prüft nichts.');
 
         foreach ($elements[0] as $element) {
             $this->assertStringContainsString('data-ignis-tooltip=', $element, $element);

@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 /**
- * fireTab — Web-Routen.
+ * fireTab: Web-Routen.
  *
  * Wird im FiveM-In-Game-Browser (CitizenFX CEF) angezeigt, also brauchen
  * die interaktiven Pages die FiveMCspMiddleware (CSP / X-Frame-Options
  * je nach User-Agent). Die Session-Cookie-Konfiguration für iframe
- * (SameSite=None + Secure) ist im SessionManager gekapselt — der
+ * (SameSite=None + Secure) ist im SessionManager gekapselt, der
  * erkennt `/einsatz/` in REQUEST_URI automatisch.
  *
  * Authentifizierung: Config-Flag FIRE_INCIDENT_REQUIRE_USER_AUTH entscheidet,
@@ -16,7 +16,7 @@ declare(strict_types=1);
  * Der Controller selbst ruft intern `ensure('fireIncident.xxx')` für Policy-
  * Checks auf, deshalb hier nur AuthMiddleware als äußeres Gate.
  *
- * Admin-Liste läuft auf einer eigenen Route mit hartem AuthMiddleware —
+ * Admin-Liste läuft auf einer eigenen Route mit hartem AuthMiddleware,
  * das ist kein FireTab-Browser, sondern das Back-Office.
  *
  * API-Endpoints `lagekarte-api.php` und `status-api.php` werden mit 308

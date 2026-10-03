@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * `php cli/intra.php calendar:backfill-absences`
  *
- * Spiegelt alle bereits genehmigten Urlaubsantraege in den Kalender —
+ * Spiegelt alle bereits genehmigten Urlaubsantraege in den Kalender,
  * gedacht als einmaliger Sync nach dem Phase-2-Deployment, damit Bestands-
  * Daten nicht erst beim naechsten Status-Wechsel sichtbar werden.
  *
@@ -39,7 +39,7 @@ final class CalendarBackfillAbsencesCommand extends Command
             ->all();
 
         if (empty($absenceTypes)) {
-            $output->writeln('<comment>Kein Antragstyp matcht "Urlaubsantrag/Urlaub/Freistellung" — Backfill uebersprungen.</comment>');
+            $output->writeln('<comment>Kein Antragstyp matcht "Urlaubsantrag/Urlaub/Freistellung". Backfill uebersprungen.</comment>');
             return Command::SUCCESS;
         }
 

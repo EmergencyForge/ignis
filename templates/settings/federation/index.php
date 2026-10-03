@@ -199,15 +199,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $link = $pairingService->getLink($linkId);
             if ($link && $link['consume_personnel']) {
                 $r = $syncService->syncPersonnel($linkId);
-                $messages[] = 'Personal: ' . ($r['success'] ? $r['records'] . ' Einträge' : 'Fehler — ' . ($r['error'] ?? ''));
+                $messages[] = 'Personal: ' . ($r['success'] ? $r['records'] . ' Einträge' : 'Fehler: ' . ($r['error'] ?? ''));
             }
             if ($link && $link['consume_enotf']) {
                 $r = $syncService->syncEnotf($linkId);
-                $messages[] = 'eNOTF: ' . ($r['success'] ? $r['records'] . ' Protokolle' : 'Fehler — ' . ($r['error'] ?? ''));
+                $messages[] = 'eNOTF: ' . ($r['success'] ? $r['records'] . ' Protokolle' : 'Fehler: ' . ($r['error'] ?? ''));
             }
             if ($link && $link['consume_fire']) {
                 $r = $syncService->syncFireIncidents($linkId);
-                $messages[] = 'Einsätze: ' . ($r['success'] ? $r['records'] . ' Einträge' : 'Fehler — ' . ($r['error'] ?? ''));
+                $messages[] = 'Einsätze: ' . ($r['success'] ? $r['records'] . ' Einträge' : 'Fehler: ' . ($r['error'] ?? ''));
             }
 
             if (empty($messages)) {

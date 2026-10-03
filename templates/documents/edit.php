@@ -12,12 +12,12 @@
  * Seitenwechsel würde den Zustand des Editors verwerfen, und die Autosave
  * alle 30 Sekunden hätte dasselbe Problem. Der CSRF-Token liegt in einem
  * versteckten Feld, das `document-editor.js` nach jeder Antwort
- * nachzieht — der Token rotiert bei jeder Prüfung.
+ * nachzieht, denn der Token rotiert bei jeder Prüfung.
  *
  * Ausstellen ist dagegen ein eigenes, klassisches Formular: ein einmaliger,
  * folgenreicher Schritt, nach dem die Weiterleitung auf das PDF genau
  * richtig ist. Sein Token wird erst unmittelbar vor dem Abschicken aus dem
- * Speichern-Feld übernommen — zwei von Hand gepflegte Felder würden
+ * Speichern-Feld übernommen. Zwei von Hand gepflegte Felder würden
  * auseinanderlaufen, sobald ein Autosave dazwischenkommt.
  *
  * Fehlt die Vorlage (gelöscht, Fremdschlüssel auf null), ist der Entwurf
@@ -68,7 +68,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     <p class="twplus-page-header__eyebrow">Dokumente</p>
                     <h1><?= htmlspecialchars($document->title) ?></h1>
                     <p class="twplus-page-header__description">
-                        Kennung <?= htmlspecialchars($document->docid) ?> — Entwurf. Gesperrte Abschnitte sind
+                        Kennung <?= htmlspecialchars($document->docid) ?> (Entwurf). Gesperrte Abschnitte sind
                         aus der Vorlage vorgegeben und lassen sich nicht ändern.
                     </p>
                 </div>
@@ -79,7 +79,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     <i class="fa-solid fa-triangle-exclamation ignis-alert__icon" aria-hidden="true"></i>
                     <div class="ignis-alert__body">
                         <strong>Schreibgeschützt</strong><br>
-                        Die Vorlage dieses Dokuments wurde gelöscht — der Entwurf kann nicht mehr gespeichert werden.
+                        Die Vorlage dieses Dokuments wurde gelöscht. Der Entwurf kann nicht mehr gespeichert werden.
                     </div>
                 </div>
             <?php endif; ?>
@@ -98,7 +98,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                         <div class="flex items-center gap-2" style="margin-left: auto;">
                             <span id="document-save-status" class="text-sm"></span>
                             <button type="button" id="document-save-button" class="ignis-btn ignis-btn--primary"
-                                    <?= $readOnly ? 'disabled data-ignis-tooltip="Kein Speichern möglich — Vorlage fehlt."' : '' ?>>
+                                    <?= $readOnly ? 'disabled data-ignis-tooltip="Kein Speichern möglich, die Vorlage fehlt."' : '' ?>>
                                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern
                             </button>
                             <button type="submit" form="document-issue-form" id="document-issue-button"
@@ -129,8 +129,8 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
             // dem Speichern-Feld, danach die Rückfrage.
             $tokenCopy = "document.getElementById('document-issue-csrf-input').value = "
                 . "document.getElementById('document-csrf-input').value; ";
-            $confirmText = 'Dokument "' . $document->title . '" wirklich ausstellen? Das ist unwiderruflich '
-                . '— der Entwurf kann danach nicht mehr bearbeitet werden.';
+            $confirmText = 'Dokument "' . $document->title . '" wirklich ausstellen? Das ist unwiderruflich, '
+                . 'der Entwurf kann danach nicht mehr bearbeitet werden.';
             ?>
             <form id="document-issue-form" method="POST" action="<?= htmlspecialchars($issueUrl) ?>"
                   onsubmit="<?= htmlspecialchars($tokenCopy, ENT_QUOTES) ?><?= confirm_attr($confirmText) ?>">

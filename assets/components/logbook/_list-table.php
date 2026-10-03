@@ -68,15 +68,15 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
                     <tr>
                         <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
                         <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
-                        <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-tertiary-text">—</span>' ?></td>
+                        <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-tertiary-text">-</span>' ?></td>
                         <?php if ($context === 'admin'): ?>
                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                         <?php endif; ?>
                         <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                         <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>
-                        <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float)$e['kilometer'], 1, ',', '.') : '—' ?></td>
+                        <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float)$e['kilometer'], 1, ',', '.') : '-' ?></td>
                         <td class="max-w-[200px] truncate"<?= ($e['grund'] ?? '') !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($e['grund']) . '"' : '' ?>>
-                            <?= htmlspecialchars($e['grund'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?>
+                            <?= htmlspecialchars($e['grund'] ?? '') ?: '<span class="text-tertiary-text">-</span>' ?>
                         </td>
                         <?php if ($canEdit || $canDelete): ?>
                             <td class="ignis-table__actions">

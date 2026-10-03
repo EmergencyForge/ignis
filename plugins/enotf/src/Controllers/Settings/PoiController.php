@@ -11,7 +11,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * PoiController — POIs (Points of Interest), Krankenhäuser, Fachrichtungen
+ * PoiController: POIs (Points of Interest), Krankenhäuser, Fachrichtungen
  * und Zugangscodes für das Verfügbarkeits-Portal.
  */
 class PoiController extends Controller
@@ -116,7 +116,7 @@ class PoiController extends Controller
     public function destroy(): void
     {
         $this->requireAuth();
-        // Original-Code prüft hier vehicles.manage — vermutlich Tippfehler im
+        // Original-Code prüft hier vehicles.manage, vermutlich Tippfehler im
         // Legacy. Wir behalten das Verhalten als pois.manage bei.
         $this->ensureManage();
 
@@ -312,7 +312,7 @@ class PoiController extends Controller
 
             if ($poiId && $newCode !== '') {
                 try {
-                    // Upsert: unique key auf poi_id — bestehender Code wird
+                    // Upsert: unique key auf poi_id, bestehender Code wird
                     // überschrieben, updated_at dabei aufgefrischt.
                     Capsule::table('intra_edivi_hospital_access_codes')->upsert(
                         ['poi_id' => $poiId, 'code' => $newCode],

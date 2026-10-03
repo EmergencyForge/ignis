@@ -17,7 +17,7 @@ use EmergencyForge\Http\Response;
  *     Redirect zu /login.php, bei API-Routes 401 JSON.
  *
  *  2) **Config-gated**: Wird mit einem Config-Flag parametrisiert (z.B.
- *     `ENOTF_REQUIRE_USER_AUTH`) — greift nur, wenn das Flag `true` ist.
+ *     `ENOTF_REQUIRE_USER_AUTH`). Greift nur, wenn das Flag `true` ist.
  *     Bei `false` passiert die Middleware transparent durch. Wird für
  *     Module verwendet, deren Auth-Anforderung deploy-seitig konfigurierbar
  *     ist (eNOTF, Fire-Incidents, Wissensdatenbank).
@@ -40,7 +40,7 @@ final class AuthMiddleware implements MiddlewareInterface
          * Wenn true, invertiert die Flag-Logik: Middleware greift, wenn das
          * Flag `false` ist. Für "public if flag=true"-Szenarien wie
          * `KB_PUBLIC_ACCESS`: die KB-Routes rufen AuthMiddleware mit
-         * `configFlag=KB_PUBLIC_ACCESS, invert=true` — Auth wird erzwungen,
+         * `configFlag=KB_PUBLIC_ACCESS, invert=true`: Auth wird erzwungen,
          * es sei denn KB ist als public freigeschaltet.
          */
         private readonly bool $invert = false,
@@ -57,7 +57,7 @@ final class AuthMiddleware implements MiddlewareInterface
             return $next($request);
         }
 
-        // Nicht eingeloggt — passend zur Route antworten
+        // Nicht eingeloggt: passend zur Route antworten
         if ($this->isApiRequest($request)) {
             return Response::json(['success' => false, 'message' => 'Nicht authentifiziert'], 401);
         }

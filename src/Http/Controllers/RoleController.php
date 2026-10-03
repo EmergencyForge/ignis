@@ -12,23 +12,23 @@ use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
 
 /**
- * RoleController — Pilot-Migration für das benutzer/rollen/-Modul.
+ * RoleController: Pilot-Migration für das benutzer/rollen/-Modul.
  *
  * Verwaltet Rollen mit ihren Permissions. Permissions selbst sind in
  * config/permissions.php als gruppierte Liste definiert.
  *
  * Die Methoden entsprechen den ursprünglichen Files:
- *   index()   — benutzer/rollen/index.php   (View)
- *   store()   — benutzer/rollen/create.php  (POST)
- *   update()  — benutzer/rollen/update.php  (POST)
- *   destroy() — benutzer/rollen/delete.php  (POST)
+ *   index():   benutzer/rollen/index.php   (View)
+ *   store():   benutzer/rollen/create.php  (POST)
+ *   update():  benutzer/rollen/update.php  (POST)
+ *   destroy(): benutzer/rollen/delete.php  (POST)
  *
  *
  */
 class RoleController extends Controller
 {
     /**
-     * GET /benutzer/rollen — Rollenverwaltung mit DataTable + Edit/Create-Modals.
+     * GET /benutzer/rollen: Rollenverwaltung mit DataTable + Edit/Create-Modals.
      */
     public function index(): void
     {
@@ -53,7 +53,7 @@ class RoleController extends Controller
     }
 
     /**
-     * POST /benutzer/rollen/create — Neue Rolle anlegen.
+     * POST /benutzer/rollen/create: Neue Rolle anlegen.
      * Erfordert `full_admin`. Input wird via CreateRoleRequest validiert.
      */
     public function store(): void
@@ -94,7 +94,7 @@ class RoleController extends Controller
     }
 
     /**
-     * POST /benutzer/rollen/update — Bestehende Rolle aktualisieren.
+     * POST /benutzer/rollen/update: Bestehende Rolle aktualisieren.
      * Erfordert `full_admin`. Input wird via UpdateRoleRequest validiert.
      */
     public function update(): void
@@ -141,7 +141,7 @@ class RoleController extends Controller
     }
 
     /**
-     * POST /benutzer/rollen/delete — Rolle löschen.
+     * POST /benutzer/rollen/delete: Rolle löschen.
      * Erfordert `full_admin`. Lehnt Löschen ab, wenn Rolle nicht existiert.
      */
     public function destroy(): void

@@ -11,15 +11,15 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Generiert ein RFC-5545-konformes iCal-Dokument fuer einen User. Wird
- * via tokenbasiertem Endpoint /api/kalender/ical/{token} ausgeliefert
- * — externe Kalender (Google, Apple, Outlook) refreshen periodisch.
+ * via tokenbasiertem Endpoint /api/kalender/ical/{token} ausgeliefert.
+ * Externe Kalender (Google, Apple, Outlook) refreshen periodisch.
  *
  * Range: 6 Monate rueckwaerts, 12 Monate vorwaerts. Recurring-Events
- * werden NICHT expandiert — wir exportieren das Master-Event mit RRULE
+ * werden NICHT expandiert. Wir exportieren das Master-Event mit RRULE
  * und ueberlassen dem importierenden Kalender die Expansion (Standard
  * iCal-Behavior).
  *
- * Sichtbarkeit: derselbe scopeVisibleTo-Filter wie in eventsJson — der
+ * Sichtbarkeit: derselbe scopeVisibleTo-Filter wie in eventsJson. Der
  * User sieht nur Events die er auch im Web-UI sehen wuerde.
  */
 final class IcalExporter
@@ -57,7 +57,7 @@ final class IcalExporter
         $lines[] = 'PRODID:' . self::PRODID;
         $lines[] = 'CALSCALE:GREGORIAN';
         $lines[] = 'METHOD:PUBLISH';
-        $calName = 'ıgnıs Kalender — ' . ($user->cirs_username ?? '');
+        $calName = 'ıgnıs Kalender: ' . ($user->cirs_username ?? '');
         $lines[] = 'X-WR-CALNAME:' . self::escapeText($calName);
         $lines[] = 'X-WR-TIMEZONE:Europe/Berlin';
 
@@ -98,8 +98,8 @@ final class IcalExporter
             $out[] = 'DTSTART;VALUE=DATE:' . $start->format('Ymd');
             $out[] = 'DTEND;VALUE=DATE:'   . $endExclusive->format('Ymd');
         } else {
-            // Lokale Zeit ohne TZID — Importing-Apps interpretieren als
-            // Floating-Time (oder Server-Zeit) — pragmatisch fuer den Use-Case.
+            // Lokale Zeit ohne TZID. Importing-Apps interpretieren als
+            // Floating-Time (oder Server-Zeit), pragmatisch fuer den Use-Case.
             $out[] = 'DTSTART:' . $start->format('Ymd\THis');
             $out[] = 'DTEND:'   . $end->format('Ymd\THis');
         }
@@ -113,7 +113,7 @@ final class IcalExporter
             $out[] = 'LOCATION:' . self::escapeText((string) $event->location);
         }
 
-        // Recurrence — unser RRULE-Subset ist 1:1 RFC-5545-konform.
+        // Recurrence: unser RRULE-Subset ist 1:1 RFC-5545-konform.
         if (!empty($event->recurrence_rule)) {
             $rrule = (string) $event->recurrence_rule;
             if (!empty($event->recurrence_until)) {
@@ -125,7 +125,7 @@ final class IcalExporter
             $out[] = 'RRULE:' . $rrule;
         }
 
-        // Kategorie als CATEGORIES-Property — Apple/Google Calendar zeigt sie.
+        // Kategorie als CATEGORIES-Property; Apple/Google Calendar zeigt sie.
         if (!empty($event->category)) {
             $out[] = 'CATEGORIES:' . strtoupper(self::escapeText((string) $event->category));
         }

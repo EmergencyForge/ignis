@@ -1,12 +1,12 @@
 /**
- * enotf-zugang.js — gemeinsamer Click-Handler für die elf Zugangs-
+ * enotf-zugang.js: gemeinsamer Click-Handler für die elf Zugangs-
  * Auswahl-Templates (PVK an Handrücken, Unterarm, …; i.o. an Tibia
  * proximal/distal/Humeruskopf).
  *
  * Jedes der elf Templates rendert ein Body-Bereichs-Formular mit den
  * Checkboxen für die Zugang-Größen pro Seite. Die Speicher-Logik
  * dahinter ist überall identisch: das Feld `c_zugang` in der eNOTF-
- * Datenbank ist ein JSON-Array von Zugang-Objekten — beim Toggle wird
+ * Datenbank ist ein JSON-Array von Zugang-Objekten. Beim Toggle wird
  * der Eintrag für `(art, ort)` neu gemerged und über die generische
  * `api/enotf/save-fields`-Schnittstelle persistiert.
  *
@@ -67,7 +67,7 @@
                 updateZugaenge();
             });
 
-            // Master-Checkbox "Keine Zugänge" — leert alle anderen.
+            // Master-Checkbox "Keine Zugänge" leert alle anderen.
             $('#c_zugang-0').off('change').on('change', function () {
                 if ($(this).is(':checked')) {
                     $('.zugang-checkbox').prop('checked', false);

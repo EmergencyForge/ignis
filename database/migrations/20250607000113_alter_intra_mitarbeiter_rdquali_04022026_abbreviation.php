@@ -45,7 +45,7 @@ class AlterIntraMitarbeiterRdquali04022026Abbreviation extends AbstractMigration
     public function down(): void
     {
         // Kein Rückbau: Die gesetzten Werte entsprechen exakt dem Seed aus
-        // insert_intra_mitarbeiter_rdquali — auf frischen Installationen ist
+        // insert_intra_mitarbeiter_rdquali. Auf frischen Installationen ist
         // das UPDATE ein No-op. Ob die Spalte hier oder schon beim CREATE
         // entstand, lässt sich nachträglich nicht unterscheiden.
     }

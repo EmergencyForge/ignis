@@ -1,12 +1,12 @@
 <?php
 /**
- * Beladelisten-Kategorie-Karte — gemeinsame Partial für Admin + User-View.
+ * Beladelisten-Kategorie-Karte, gemeinsame Partial für Admin + User-View.
  *
  * Erwartet im Scope:
  *   @var array<string, mixed> $category       Row aus intra_fahrzeuge_beladung_categories
  *                              (mit `tile_count` und `total_items` aus dem JOIN)
  *   @var list<array<string, mixed>> $tiles          Tiles dieser Kategorie
- *                              (vorab geladen, NICHT pro Karte neu — N+1)
+ *                              (vorab geladen, NICHT pro Karte neu, sonst N+1)
  *   @var string $mode           'admin' | 'user'
  *
  * Optional:
@@ -75,7 +75,7 @@ foreach ($tiles as $t) {
         ?>
             <ul class="<?= $listClasses ?>"
                 data-category-id="<?= (int) ($category['id'] ?? 0) ?>"
-                data-empty-text="Keine Gegenstände — Items hierher ziehen.">
+                data-empty-text="Keine Gegenstände. Items hierher ziehen.">
                 <?php foreach ($tiles as $tile): ?>
                     <?php $tileSearch = mb_strtolower($tile['title'] ?? '', 'UTF-8'); ?>
                     <li class="beladung-tile" data-search="<?= htmlspecialchars($tileSearch) ?>"

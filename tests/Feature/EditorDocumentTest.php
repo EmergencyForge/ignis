@@ -245,7 +245,7 @@ final class EditorDocumentTest extends FeatureTestCase
 
         // Der Token der Sitzung gilt weiter. Solange er bei jeder Pruefung
         // rotierte, musste die Antwort den neuen mitliefern und der Editor
-        // ihn zurueckschreiben — sonst war schon die zweite Autosave tot.
+        // ihn zurueckschreiben, sonst war schon die zweite Autosave tot.
         $zweite = $this->postWithToken('/documents/' . $document->id . '/save', [
             'content'  => $inhalt,
             'autosave' => '1',

@@ -13,7 +13,7 @@ use Respect\Validation\Validator as v;
  *
  * Lagekarten-Marker werden als relative Prozentwerte in der Karte
  * gespeichert (0–100 auf jeder Achse). Die taktischen Symbol-Felder
- * sind alle optional und werden 1:1 durchgereicht — die Semantik
+ * sind alle optional und werden 1:1 durchgereicht. Die Semantik
  * prüft der Client beim Anlegen.
  */
 class CreateMarkerRequest extends FormRequest
@@ -26,7 +26,7 @@ class CreateMarkerRequest extends FormRequest
             v::key('pos_x',        v::stringVal()->floatVal()->between(0.0, 100.0)),
             v::key('pos_y',        v::stringVal()->floatVal()->between(0.0, 100.0)),
             v::key('description',  v::optional(v::stringType()->length(0, 500)), false),
-            // Taktische Symbol-Felder — alle optional, reine String-Werte
+            // Taktische Symbol-Felder: alle optional, reine String-Werte
             v::key('grundzeichen', v::optional(v::stringType()->length(0, 64)), false),
             v::key('organisation', v::optional(v::stringType()->length(0, 64)), false),
             v::key('fachaufgabe',  v::optional(v::stringType()->length(0, 64)), false),

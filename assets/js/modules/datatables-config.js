@@ -78,8 +78,8 @@ if (typeof window !== 'undefined') {
 //   - TT.MM.JJJJ
 //   - TT.MM.JJJJ HH:MM
 //   - TT.MM.JJJJ HH:MM:SS
-// Leere Zellen / "-" / "—" werden als 0 sortiert (kommen ans Ende
-// bei desc, an den Anfang bei asc — Standard-DT-Verhalten).
+// Leere Zellen und "-" werden als 0 sortiert (kommen ans Ende
+// bei desc, an den Anfang bei asc, Standard-DT-Verhalten).
 if (typeof window !== 'undefined' && window.jQuery && window.jQuery.fn.dataTable) {
     const DT = window.jQuery.fn.dataTable;
     const DE_DATE_RE = /^(\d{2})\.(\d{2})\.(\d{4})(?:[\s,]+(\d{2}):(\d{2})(?::(\d{2}))?)?$/;
@@ -87,10 +87,10 @@ if (typeof window !== 'undefined' && window.jQuery && window.jQuery.fn.dataTable
     function parseDeDate(value) {
         if (typeof value !== 'string') return null;
         const trimmed = value.trim();
-        if (trimmed === '' || trimmed === '-' || trimmed === '—') return 0;
+        if (trimmed === '' || trimmed === '-') return 0;
         const m = trimmed.match(DE_DATE_RE);
         if (!m) return null;
-        // Date-Konstruktor mit Local-TZ — DataTables vergleicht nur die
+        // Date-Konstruktor mit Local-TZ. DataTables vergleicht nur die
         // resultierenden Timestamps, also ist die Zone egal solange sie
         // konsistent ist.
         return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)).getTime();

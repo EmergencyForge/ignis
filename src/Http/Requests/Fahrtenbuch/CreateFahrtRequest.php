@@ -12,8 +12,8 @@ use Respect\Validation\Validator as v;
 /**
  * Validation für POST /fahrtenbuch/actions.php (action=create).
  *
- * Datums-Felder akzeptieren ISO (YYYY-MM-DD) und German (DD.MM.YYYY) —
- * der Cast normalisiert beide auf ISO.
+ * Datums-Felder akzeptieren ISO (YYYY-MM-DD) und German (DD.MM.YYYY).
+ * Der Cast normalisiert beide auf ISO.
  */
 class CreateFahrtRequest extends FormRequest
 {

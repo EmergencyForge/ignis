@@ -17,7 +17,7 @@ use Tests\FixtureFactory;
  * Sie hatten keine Tests, und der Controller las seine Felder roh aus
  * `$_POST`. Beim Umbau auf FormRequests kam heraus, dass die drei
  * Qualifikationskataloge ihre Meldungen unter dem Schlüssel `quali`
- * ablegten, den die Tabelle in {@see \App\Helpers\Flash} nicht kennt —
+ * ablegten, den die Tabelle in {@see \App\Helpers\Flash} nicht kennt.
  * `Flash::set()` gibt bei einem unbekannten stillschweigend auf, also hat
  * dort nie jemand eine Rückmeldung gesehen, weder bei Erfolg noch bei
  * Fehler.
@@ -98,7 +98,7 @@ final class PersonnelCatalogueTest extends FeatureTestCase
     public function ein_zu_langer_name_legt_nichts_an(string $pfad, string $tabelle, array $felder, string $namensspalte): void
     {
         // Vorher lief das in eine PDOException, die als „exception" im
-        // Hinweis landete — oder die Datenbank schnitt still ab.
+        // Hinweis landete, oder die Datenbank schnitt still ab.
         $vorher = Capsule::table($tabelle)->count();
         $felder[$namensspalte] = str_repeat('a', 300);
 

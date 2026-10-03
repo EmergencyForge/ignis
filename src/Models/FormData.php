@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_antraege_daten` — Key-Value-Speicher der
+ * Eloquent-Model für `intra_antraege_daten`: Key-Value-Speicher der
  * Formulardaten eines Antrags. Ein Record pro ausgefülltem Feld.
  *
  * @property int    $id

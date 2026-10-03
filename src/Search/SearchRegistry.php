@@ -26,7 +26,7 @@ use EmergencyForge\FuzzySearch\Vocabulary;
  * Liefert eine Quelle, die zusätzlich FuzzySearchSource implementiert,
  * weniger als das Limit, wird nachgelegt: ihr Vokabular (gecacht über
  * VocabularyCache) erweitert die Suchworte auf bis zu drei korrigierte
- * Anfragen, die erneut über dieselbe search() laufen — Rechte und
+ * Anfragen, die erneut über dieselbe search() laufen. Rechte und
  * Zeilenfilter bleiben also unverändert. Neue Treffer werden ohne
  * Duplikate (nach href) hinten angehängt und mit `approx: true`
  * markiert. Das Nachlegen hat einen eigenen try/catch: scheitert nur der
@@ -94,7 +94,7 @@ final class SearchRegistry
             }
             // Eigener try/catch: ein Fehler beim Nachlegen (Vokabular-Aufbau
             // oder die zweite search()) darf die bereits gefundenen exakten
-            // Treffer nicht mitreißen — nur der Fuzzy-Anteil fällt aus.
+            // Treffer nicht mitreißen. Nur der Fuzzy-Anteil fällt aus.
             if ($source instanceof FuzzySearchSource && count($items) < $limit) {
                 try {
                     $items = $this->withFuzzyMatches($source, $q, $limit, $items);
@@ -169,7 +169,7 @@ final class SearchRegistry
 
     /**
      * Ersetzt jedes Token durch seine besten Vokabular-Treffer (Original-
-     * Schreibweise) und kombiniert das zu höchstens drei Anfragen — ein
+     * Schreibweise) und kombiniert das zu höchstens drei Anfragen. Ein
      * Token ohne Treffer bleibt unverändert.
      *
      * @param list<string> $tokens

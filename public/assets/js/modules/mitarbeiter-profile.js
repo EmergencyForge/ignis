@@ -1,19 +1,19 @@
 /**
- * mitarbeiter-profile.js — Inline-Edit + PFP-Upload + Quali-Modal +
+ * mitarbeiter-profile.js: Inline-Edit + PFP-Upload + Quali-Modal +
  * Invite-Generierung + AJAX-Pagination für die Mitarbeiter-Profilseite.
  *
  * Ersetzt die historisch in templates/mitarbeiter/profile.php inlined
  * Scripts. Bekommt alle dynamischen Werte (User-ID, Permissions-Flags,
  * aktuelle Felddaten) über eine `initMitarbeiterProfile(config)`-Funktion
- * injiziert — keine Globals, kein PHP-im-JS.
+ * injiziert. Keine Globals, kein PHP-im-JS.
  *
  * Erwartete config:
- *   basePath:       string  — BASE_PATH aus PHP
- *   profileId:      number  — intra_mitarbeiter.id
- *   canEdit:        bool    — schaltet PFP-Upload + Inline-Edit + Quali-Modal frei
- *   canInvite:      bool    — schaltet Invite-Button frei
- *   currentData:    object  — initiale Feldwerte (fullname, gebdatum, ...)
- *   showToast:      function (optional) — fallback auf window.showToast
+ *   basePath:       string  BASE_PATH aus PHP
+ *   profileId:      number  intra_mitarbeiter.id
+ *   canEdit:        bool    schaltet PFP-Upload + Inline-Edit + Quali-Modal frei
+ *   canInvite:      bool    schaltet Invite-Button frei
+ *   currentData:    object  initiale Feldwerte (fullname, gebdatum, ...)
+ *   showToast:      function (optional) fallback auf window.showToast
  */
 (function (global) {
   'use strict';
@@ -178,7 +178,7 @@
           input.type = 'text';
           input.className = 'ignis-input';
           input.value = currentData[field] !== undefined ? currentData[field] : originalText;
-          if (originalText === '—') {
+          if (originalText === '-') {
             input.value = currentData[field] || '';
           }
 
@@ -273,7 +273,7 @@
                 if (newValue) {
                   cell.textContent = newValue;
                 } else {
-                  cell.innerHTML = '<span class="text-tertiary-text">—</span>';
+                  cell.innerHTML = '<span class="text-tertiary-text">-</span>';
                 }
               }
               if (d) {

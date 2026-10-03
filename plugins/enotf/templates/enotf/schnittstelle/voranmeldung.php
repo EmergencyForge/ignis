@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
                 'kreislauf' => $_POST['kreislauf']
             ];
 
-            // Domain-Event feuern — Listener dispatchen Discord-Webhook-Job
+            // Domain-Event feuern: Listener dispatchen Discord-Webhook-Job
             app(\App\Events\EventDispatcher::class)->fire(
                 new \Plugin\Enotf\Events\EnotfPreregistered($preregData)
             );

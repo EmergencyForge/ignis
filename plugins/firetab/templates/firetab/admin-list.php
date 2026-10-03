@@ -345,7 +345,7 @@ $statusMap = [
 
                             // "Jetzt loeschen"-Button wandert in den Body, weil
                             // ignis-Dialog kein dynamisches Action-Hinzufuegen
-                            // unterstuetzt — er ist nur im Preview-State sichtbar.
+                            // unterstuetzt, er ist nur im Preview-State sichtbar.
                             setBulkDeleteContent(`
                                 <div class="ignis-alert ignis-alert--warn"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
                                 <div class="overflow-x-auto" style="max-height: 400px; overflow-y: auto;">

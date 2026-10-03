@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Legt die Telemetrie-Konfiguration an: TELEMETRY_ENABLED,
  * ANNOUNCEMENTS_ENABLED und HUB_URL. Alle Einträge sind is_editable = 0,
- * damit sie NICHT in /settings/system/config.php erscheinen — die Verwaltung
+ * damit sie NICHT in /settings/system/config.php erscheinen. Die Verwaltung
  * erfolgt ausschließlich über /settings/system/telemetry.php. Für bestehende
  * Installationen werden auch INSTALLATION_ID und TELEMETRY_LAST_HEARTBEAT
  * auf is_editable = 0 gesetzt.
@@ -63,7 +63,7 @@ class InsertTelemetryConfig20012026 extends AbstractMigration
     public function down(): void
     {
         // INSTALLATION_ID / TELEMETRY_LAST_HEARTBEAT behalten ihr
-        // is_editable = 0 — der vorherige Wert ist nicht bekannt und die Keys
+        // is_editable = 0, denn der vorherige Wert ist nicht bekannt und die Keys
         // existieren auf frischen Installationen zu diesem Zeitpunkt nicht.
         $this->execute("DELETE FROM intra_config WHERE config_key IN ('TELEMETRY_ENABLED', 'ANNOUNCEMENTS_ENABLED', 'HUB_URL')");
     }

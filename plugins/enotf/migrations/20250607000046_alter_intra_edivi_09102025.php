@@ -14,7 +14,7 @@ class AlterIntraEdivi09102025 extends AbstractMigration
 {
     public function change(): void
     {
-        // Reihenfolge entspricht den ursprünglichen Einzel-ALTERs — die
+        // Reihenfolge entspricht den ursprünglichen Einzel-ALTERs, die
         // AFTER-Positionen bauen aufeinander auf.
         $this->table('intra_edivi')
             ->addColumn('na_nachf',        'boolean',     ['null' => true, 'after' => 'transportziel'])

@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Section: Erstbefund — eNOTF v2 im v1-Look.
+ * Section: Erstbefund, eNOTF v2 im v1-Look.
  *
  * Zwei Modi, beide als getreue Nachbauten der v1-Seiten
  * (plugins/enotf/templates/enotf/protokoll/erstbefund/):
  *
- *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php — Themen-Spalte
+ *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php mit Themen-Spalte
  *     links (edivi__interactbutton-more mit data-requires-Färbung) und
  *     edivi__box-Kacheln mit readonly-Zusammenfassungen.
  *
  *   THEMA (?t=atemwege … ?t=messwerte): Aufbau der jeweiligen v1-
- *     Unterseite — Themen-Spalte, Unterthemen-Spalte (mit „ohne path.
+ *     Unterseite: Themen-Spalte, Unterthemen-Spalte (mit „ohne path.
  *     Befund"-Quickfill) und EINE Frage als btn-check-Spalte(n).
  *     Bessere Technik als v1: ALLE Schritte eines Themas stehen im DOM,
  *     wizard.js schaltet ohne Full-Reload um (?q=N per History-Replace,
@@ -19,11 +19,11 @@
  *     über den v2-Batch-Autosave (names/Formate unverändert).
  *
  * Sonderfälle (Formate wie v1):
- *   - psych: JSON-Array von int, 1/98/99 exklusiv — Checkboxen
+ *   - psych: JSON-Array von int, 1/98/99 exklusiv, Checkboxen
  *     name="psych[]" + data-autosave-ignore, Speicherung über
  *     edivi-bridge.js (EnotfV2Autosave.queue('psych', …)).
  *   - bz: Speicherung IMMER mg/dl, Eingabe in ENOTF_BZ_UNIT
- *     (BloodSugarHelper) — Konvertierung im Messwerte-Script.
+ *     (BloodSugarHelper), Konvertierung im Messwerte-Script.
  *   - GCS: d_gcs_1/2/3 speichern den Abstand zum Maximum.
  *   - Bodymap: v_muster_X = Schweregrad (1–4, Legacy 99 wird lesend
  *     toleriert), v_muster_X1 = Wundart Offen/Geschlossen. Klickbare
@@ -78,7 +78,7 @@ $btnCol = static function (string $name, array $options, array $opts = []) use (
     // Bootstrap col-2 statt Tailwind w-2/12: die Tailwind-4-Utilities
     // liegen in @layer utilities und verlieren gegen Bootstraps
     // ungelayertes .row > * { width:100% } (deshalb stapeln die v1-
-    // Unterseiten seit dem Tailwind-Upgrade — hier bewusst vermieden)
+    // Unterseiten seit dem Tailwind-Upgrade, hier bewusst vermieden)
     $width   = $opts['width'] ?? 'col-2';
 
     $html = '<div class="' . $e($width) . ' d-flex flex-column edivi__interactbutton px-3">';
@@ -219,9 +219,9 @@ if ($fokus === 'messwerte') {
     $sectionChromeless = true;
 }
 
-// Server-Initialschritt: ohne explizites ?q KEIN Schritt offen — nur die
+// Server-Initialschritt: ohne explizites ?q KEIN Schritt offen, nur die
 // Subnav-Spalte (v1: Themen-Index zeigt nur die Navigation). Themen OHNE
-// Schritt-Links (ein Schritt, keine eigene Subnav — ekg/psychisch) zeigen
+// Schritt-Links (ein Schritt, keine eigene Subnav: ekg/psychisch) zeigen
 // ihren Schritt direkt, wie v1 dort direkt in die Antwort-Spalten springt.
 // wizard.js entscheidet identisch (data-wiz-goto-Links vorhanden ja/nein).
 $initialStep = -1;
@@ -238,7 +238,7 @@ if ($fokus !== null) {
 $psychCol1 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 $psychCol2 = [10, 11, 12, 98, 99];
 
-// Checkbox-Spalte für psych (btn-check, name="psych[]" — Speicherung
+// Checkbox-Spalte für psych (btn-check, name="psych[]", Speicherung
 // über edivi-bridge.js als JSON-Batch, deshalb data-autosave-ignore)
 $psychCol = static function (array $codes) use ($e, $istGesperrt, $psychAktiv): string {
     $html = '<div class="col-2 d-flex flex-column edivi__interactbutton px-3">';
@@ -447,7 +447,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
 
     <!-- ── MESSWERTE: v1 messwerte/index.php (Vitalparameter + Keypad).
          Eingaben laufen NICHT über den Feld-Autosave (data-autosave-ignore
-         wie v1s data-ignore-autosave) — „Speichern" schickt alles als
+         wie v1s data-ignore-autosave). „Speichern" schickt alles als
          EINEN v2-Batch (BZ konvertiert nach mg/dl) und geht zurück. ── -->
     <form name="form" id="vitalsForm" method="post" action="" onsubmit="return false">
         <div class="row">
@@ -527,7 +527,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
         <?= $themenSpalte($fokus) ?>
 
         <?php
-        // Unterthemen-Spalte (Subnav + Quickfill) — nur wenn das Thema
+        // Unterthemen-Spalte (Subnav + Quickfill), nur wenn das Thema
         // mehrere Schritte oder eine Quickfill-Kachel hat (v1: ekg/psych
         // springen direkt in die Antwort-Spalten)
         $subnav = $thema['subnav'] ?? null;
@@ -944,7 +944,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                 }
 
                 // Wert lokal nachziehen und über den Batch-Autosave queuen
-                // (null leert das Feld — wie v1s clearNull-Request)
+                // (null leert das Feld, wie v1s clearNull-Request)
                 function saveField(field, value) {
                     if (locked) return;
                     daten()[field] = value;
@@ -1010,7 +1010,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                         updateZoneColors(selectedField, value);
                         saveField(selectedField, value);
 
-                        // "Keine"/99 haben keine Wundart — Gegenfeld leeren
+                        // "Keine"/99 haben keine Wundart: Gegenfeld leeren
                         if (value === '1' || value === '99') {
                             saveField(woundTypeMap[selectedField], null);
                         }
@@ -1031,7 +1031,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                     });
 
                     // Quickfill "keine": edivi-bridge.js setzt die Felder im
-                    // Document-Change-Handler — danach Zonen neu färben und
+                    // Document-Change-Handler, danach Zonen neu färben und
                     // verwaiste Wundarten leeren (setTimeout: Bridge-Handler
                     // läuft nach diesem Listener)
                     document.addEventListener('change', function (e) {
@@ -1087,7 +1087,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                         .observe(stepWrap, { attributes: true, attributeFilter: ['class'] });
                 }
 
-                // Module (autosave/wizard/bridge) laufen vor DOMContentLoaded —
+                // Module (autosave/wizard/bridge) laufen vor DOMContentLoaded,
                 // ab hier sind __dynamicDaten und die Schritt-Sichtbarkeit gesetzt
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', init);
@@ -1096,7 +1096,7 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                 }
             })();
 
-            // clip-path url(#id) auf absolute URL umschreiben — nötig im
+            // clip-path url(#id) auf absolute URL umschreiben, nötig im
             // FiveM-CEF/iframe-Kontext (wie v1 erweitern/1.php)
             (function () {
                 var baseUrl = window.location.href.split('#')[0];

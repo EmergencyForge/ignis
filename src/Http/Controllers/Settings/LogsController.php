@@ -12,11 +12,11 @@ use App\Logging\LogReader;
 use App\Logging\Logger;
 
 /**
- * LogsController — Admin-Lookup für Error-IDs.
+ * LogsController: Admin-Lookup für Error-IDs.
  *
  * Bietet eine Suchoberfläche, mit der ein Admin per Error-ID (8-stelliger
  * Hex-Code aus der Production-Fehlerseite) den vollständigen Stack-Trace
- * inkl. File/Line/Context aufrufen kann — ohne Server-Filesystem-Zugriff.
+ * inkl. File/Line/Context aufrufen kann, ohne Server-Filesystem-Zugriff.
  *
  * Endpoints:
  *   GET  /settings/system/logs.php          → Such-UI (HTML)
@@ -31,7 +31,7 @@ class LogsController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
-        // POST-Actions für Failed Jobs (retry/delete) — vor JSON-Routing
+        // POST-Actions für Failed Jobs (retry/delete), vor JSON-Routing
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->handleFailedJobAction();
             return;
@@ -58,7 +58,7 @@ class LogsController extends Controller
         $groups = $reader->groupByFingerprint($recent);
         $stats  = $reader->getStats();
 
-        // Failed Jobs — zweite Sektion im Fehlerprotokoll
+        // Failed Jobs: zweite Sektion im Fehlerprotokoll
         $failedJobs      = $failedReader->getRecent(100);
         $failedJobsStats = $failedReader->getStats();
 
@@ -255,7 +255,7 @@ class LogsController extends Controller
                 return;
             }
 
-            // 6) Failed Jobs — Liste + Stats in einem Rutsch
+            // 6) Failed Jobs: Liste + Stats in einem Rutsch
             if (isset($_GET['failed_jobs'])) {
                 $failedReader = $this->failedJobsReader();
                 $limit = max(1, min(500, (int) ($_GET['limit'] ?? 100)));

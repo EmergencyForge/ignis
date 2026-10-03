@@ -234,7 +234,7 @@ class SystemUpdater
             $sourceDir = UpdateArchive::extract($zipFile, $extractDir);
             UpdateArchive::validateSharedPackages($sourceDir, $appRoot, $isReleaseAsset);
 
-            // Release assets include vendor/ — source zipballs do not.
+            // Release assets include vendor/; source zipballs do not.
             $excludeDirs = $isReleaseAsset
                 ? ['storage', 'system/updates']
                 : ['vendor', 'storage', 'system/updates'];
@@ -261,7 +261,7 @@ class SystemUpdater
             }
 
             // Step 4.5: Delete-Manifest abarbeiten (entfernt Ordner/Dateien, die
-            // mit der neuen Version wegfallen sollen — z.B. Modul-Verzeichnisse
+            // mit der neuen Version wegfallen sollen, z.B. Modul-Verzeichnisse
             // nach einer Router-Migration). Fehlendes Manifest ist kein Fehler.
             try {
                 $manifestResult = $installer->applyManifest($sourceDir);

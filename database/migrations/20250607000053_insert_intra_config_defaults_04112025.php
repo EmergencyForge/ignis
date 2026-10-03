@@ -49,7 +49,7 @@ class InsertIntraConfigDefaults04112025 extends AbstractMigration
 
     public function up(): void
     {
-        // Bereits vorhandene Keys überspringen — insbesondere ein existierender
+        // Bereits vorhandene Keys überspringen. Insbesondere ein existierender
         // API_KEY darf nie überschrieben werden.
         $rows = array_filter($this->defaults(), function (array $row): bool {
             return $this->fetchRow(

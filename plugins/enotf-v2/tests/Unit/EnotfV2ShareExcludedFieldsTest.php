@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * Die v2-Ausschlussliste beim Share-Merge/-New muss exakt der v1-Liste
- * entsprechen — sonst übernimmt einer der beiden Wege Identitäts-,
+ * entsprechen, sonst übernimmt einer der beiden Wege Identitäts-,
  * Freigabe- oder QM-Felder, die beim Ziel unangetastet bleiben müssen.
  * Beide Konstanten sind private, daher Reflection.
  */

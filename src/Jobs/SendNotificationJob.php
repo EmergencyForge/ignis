@@ -12,11 +12,11 @@ use App\Notifications\NotificationManager;
  *
  * Wrappt `NotificationManager::create()`. Nützlich, wenn ein einzelner
  * Controller-Request viele Notifications erzeugen soll (z.B. "eNOTF-
- * Protokoll freigegeben" → benachrichtige alle Admins) — sonst würde
+ * Protokoll freigegeben" → benachrichtige alle Admins), sonst würde
  * der Request am Schreiben in die DB kleben.
  *
  * Der `failed()`-Handler loggt final gescheiterte Notifications als
- * Fehler — Notifications sind fire-and-forget, aber komplett verschluckte
+ * Fehler. Notifications sind fire-and-forget, aber komplett verschluckte
  * Fehler wären auch unschön.
  */
 final class SendNotificationJob extends Job

@@ -82,7 +82,7 @@ final class SystemLogoUploadTest extends FeatureTestCase
         $this->assertFileExists($this->brandingDir() . '/' . basename($stored));
         $this->cleanupFiles[] = $this->brandingDir() . '/' . basename($stored);
 
-        // BASE_PATH genau einmal — nicht im Config-Wert gebacken, sonst
+        // BASE_PATH genau einmal, nicht im Config-Wert gebacken, sonst
         // haengt systemLogoUrl() sie ein zweites Mal an.
         $this->assertSame(systemLogoUrl($stored), $body['url']);
         $this->assertStringNotContainsString('//storage', $body['url']);
@@ -196,7 +196,7 @@ final class SystemLogoUploadTest extends FeatureTestCase
     }
 
     /**
-     * SYSTEM_LOGO ist ein normales Textfeld — ein Admin kann dort per Hand
+     * SYSTEM_LOGO ist ein normales Textfeld. Ein Admin kann dort per Hand
      * einen Pfad mit `..` eintragen. Ersetzt oder entfernt er das Logo
      * danach ueber die Dropzone, darf deleteOldLogoFile() diesem Pfad nicht
      * blind folgen: sonst loescht ein Wert wie

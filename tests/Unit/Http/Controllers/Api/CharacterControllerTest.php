@@ -25,7 +25,7 @@ class CharacterControllerTest extends TestCase
      */
     private function jsonRequest(string $method, string $path, array $body): Request
     {
-        // Request mit eingebettetem JSON-Body — der Constructor akzeptiert
+        // Request mit eingebettetem JSON-Body. Der Constructor akzeptiert
         // rawBody als named-Parameter, damit wir keinen echten `php://input`
         // Stream brauchen.
         return new Request(

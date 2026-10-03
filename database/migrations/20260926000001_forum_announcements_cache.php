@@ -13,7 +13,7 @@ use Phinx\Migration\AbstractMigration;
  * Alte Hub-Einträge und ihr ETag werden geleert: sie gehören zu einer
  * anderen Quelle, und der nächste changelog:refresh soll ohne
  * If-None-Match anfragen. down() stellt Spalte und Cron-Text wieder her,
- * den Cache-Inhalt nicht — der füllt sich beim nächsten Abruf neu.
+ * den Cache-Inhalt nicht, der füllt sich beim nächsten Abruf neu.
  */
 final class ForumAnnouncementsCache extends AbstractMigration
 {

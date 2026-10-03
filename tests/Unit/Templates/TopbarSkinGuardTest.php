@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Alle Shell-Regeln in assets/css/ui.scss stehen unter
  * body[data-ui-skin="core"] (seit 87f3175d). Jede Datei, die topbar.php
- * einbindet, muss das Attribut also selbst setzen — als PHP-Attribut wie
+ * einbindet, muss das Attribut also selbst setzen, als PHP-Attribut wie
  * templates/layouts/admin.php, oder per JS wie der Legacy-Shim
  * assets/components/navbar.php, dessen Body erst zur Laufzeit entsteht.
  * Ohne das bleibt die Topbar unstyled (kaputte eNOTF-Adminseiten, siehe
@@ -54,10 +54,10 @@ final class TopbarSkinGuardTest extends TestCase
             $this->assertTrue(
                 $hasAttribute || $hasDatasetAssignment,
                 str_replace(DIRECTORY_SEPARATOR, '/', substr($path, strlen($repo) + 1))
-                    . ' bindet topbar.php ein, setzt aber weder data-ui-skin="core" noch dataset.uiSkin = \'core\' — die Shell-Styles unter body[data-ui-skin="core"] greifen dort nicht.',
+                    . ' bindet topbar.php ein, setzt aber weder data-ui-skin="core" noch dataset.uiSkin = \'core\'. Die Shell-Styles unter body[data-ui-skin="core"] greifen dort nicht.',
             );
         }
 
-        $this->assertNotEmpty($includers, 'Keine Einbindung von topbar.php gefunden — der Regex passt nicht mehr.');
+        $this->assertNotEmpty($includers, 'Keine Einbindung von topbar.php gefunden, der Regex passt nicht mehr.');
     }
 }

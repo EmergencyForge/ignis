@@ -348,7 +348,7 @@ $SITE_TITLE = 'System-Konfiguration';
         }
 
         // System-Logo-Dropzone: eigener fetch()-Upload statt Teil der grossen
-        // Config-Form (die bleibt unveraendert) — gleiches Muster wie die
+        // Config-Form (die bleibt unveraendert), gleiches Muster wie die
         // Profilbild-Dropzone in mitarbeiter-profile.js.
         (function () {
             var wrap      = document.getElementById('system-logo-dropzone');

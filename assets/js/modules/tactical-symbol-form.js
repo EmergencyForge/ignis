@@ -1,5 +1,5 @@
 /**
- * tactical-symbol-form.js — JS-Bindings fuer die TZ-Form-Partial
+ * tactical-symbol-form.js: JS-Bindings fuer die TZ-Form-Partial
  * (assets/components/tactical-symbol-form.php).
  *
  * Wird gebraucht wenn die Partial in einer dynamisch geklonten

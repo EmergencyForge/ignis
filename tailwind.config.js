@@ -14,7 +14,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
     // Tailwind nutzt die default-Extraction für alle Content-Files. Ein
-    // explizites `extract: {}` würde — wie früher fehlerhaft hier gesetzt —
+    // explizites `extract: {}` würde (wie früher fehlerhaft hier gesetzt)
     // die Class-Erkennung in PHP-Templates abschalten und u.a. responsive
     // Variants (`md:`, `sm:`) komplett purgen.
     content: [
@@ -95,14 +95,14 @@ export default {
         },
     },
     // Preflight (Tailwinds Base-Reset) ist aus, damit Bootstrap-Komponenten
-    // daneben weiterlaufen. Tailwind-Klassen sind nur Utilities — kein CSS-
+    // daneben weiterlaufen. Tailwind-Klassen sind nur Utilities, kein CSS-
     // Layer-Konflikt mit Bootstrap mehr. Kann re-aktiviert werden, sobald
     // Bootstrap komplett raus ist.
     corePlugins: {
         preflight: false,
     },
     // (Früher hier: blocklist: ['collapse']. Das hat einen Tailwind-Bug
-    // getriggert, der alle Responsive-Variants — `md:`, `sm:`, `lg:`, `xl:` —
+    // getriggert, der alle Responsive-Variants (`md:`, `sm:`, `lg:`, `xl:`)
     // mit-purgen ließ. Stattdessen wird Tailwinds `.collapse {visibility:collapse}`
     // im eNOTF-Scope via divi.scss neutralisiert, wo Bootstraps Collapse-State
     // das letzte Wort braucht.)

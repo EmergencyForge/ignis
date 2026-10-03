@@ -20,7 +20,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * `GET /healthz` — maschinenlesbarer System-Health-Check.
+ * `GET /healthz`: maschinenlesbarer System-Health-Check.
  *
  * Keine Auth, kein CSRF. Läuft unter einer Sekunde und ist für externe
  * Monitoring-Tools (UptimeRobot, Grafana-Synthetic, …) gedacht.
@@ -45,9 +45,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * ```
  *
  * HTTP-Codes:
- *   200 — "ok" oder "degraded" (System erreichbar, einzelne Checks im
+ *   200: "ok" oder "degraded" (System erreichbar, einzelne Checks im
  *         Warnlevel)
- *   503 — "down" (DB oder Migrationen fehlen, System unbenutzbar)
+ *   503: "down" (DB oder Migrationen fehlen, System unbenutzbar)
  */
 final class HealthController
 {
@@ -71,7 +71,7 @@ final class HealthController
      * Woraus sich /healthz zusammensetzt, in der Reihenfolge der Antwort.
      *
      * Öffentlich, damit ein Test die Zusammenstellung prüfen kann, ohne
-     * jeden Check laufen zu lassen — db, queue und migrations brauchen
+     * jeden Check laufen zu lassen: db, queue und migrations brauchen
      * eine Datenbank.
      *
      * @return list<CheckInterface>
@@ -103,7 +103,7 @@ final class HealthController
      * Rewrite funktioniert; der Wert steckt im Detail: Läuft die
      * Installation noch über die Root-.htaccess (Docroot = Projektordner),
      * steht in `document_root` "fallback", und das Dashboard weist darauf
-     * hin. Der Status bleibt dann trotzdem ok — die Durchreichung ist
+     * hin. Der Status bleibt dann trotzdem ok. Die Durchreichung ist
      * eine unterstützte, nur nicht die empfohlene Konfiguration.
      */
     private function rewrite(Request $request, string $root): CheckResult
@@ -111,7 +111,7 @@ final class HealthController
         $script          = str_replace('\\', '/', (string) ($request->server['SCRIPT_FILENAME'] ?? ''));
         $frontController = str_ends_with($script, '/public/index.php');
 
-        // realpath('') wäre das Arbeitsverzeichnis — ein fehlender
+        // realpath('') wäre das Arbeitsverzeichnis. Ein fehlender
         // DOCUMENT_ROOT (CLI, Tests) darf nicht als Docroot durchgehen.
         $docRootRaw = (string) ($request->server['DOCUMENT_ROOT'] ?? '');
         $publicDir  = realpath($root . '/public');

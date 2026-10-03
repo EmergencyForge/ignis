@@ -8,10 +8,10 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * `intra_edivi_prereg` — Klinik-Voranmeldungen (Arrivalboard).
+ * `intra_edivi_prereg`: Klinik-Voranmeldungen (Arrivalboard).
  *
  * `ziel` ist ein POI-Identifier-String (`poi_<id>` oder ein
- * legacy_identifier). Die Spalte `alter` ist ein MySQL-Keyword —
+ * legacy_identifier). Die Spalte `alter` ist ein MySQL-Keyword,
  * in Raw-Queries immer quoten! Eloquent-Attributzugriff
  * (`$prereg->alter`) ist davon nicht betroffen.
  *

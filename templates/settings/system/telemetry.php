@@ -114,7 +114,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                     </div>
 
                     <?php
-                    // $installationId kommt aus SystemController::telemetry() —
+                    // $installationId kommt aus SystemController::telemetry().
                     // Fallback für den Fall, dass das Template direkt ohne den
                     // Controller gerendert wird (z.B. alter Stub).
                     if (!isset($installationId) || !$installationId) {
@@ -156,9 +156,9 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
                                 <i class="fa-solid fa-id-card"></i>
                             </div>
                             <div class="flex-1" style="min-width: 240px;">
-                                <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
+                                <div class="uuid-label mb-1">Support &amp; Telemetrie: Deine Installations-UUID</div>
                                 <div class="text-tertiary-text" style="font-size: 0.78rem; line-height: 1.45;">
-                                    Für schnellen Support: Im ıgnıs-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
+                                    Für schnellen Support: Im ıgnıs-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen. Damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
                                 </div>
                             </div>
                             <div class="flex shrink-0 items-center gap-2" id="uuidBannerControls">
@@ -419,7 +419,7 @@ $SITE_TITLE = 'Telemetrie & Ankündigungen';
     <!-- Read-only Info-Modal: Body wandert in <template>, Dialog wird in JS gebaut. -->
     <template id="datenschutzModalTemplate">
         <p class="text-tertiary-text text-sm mb-3">
-            Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
+            Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt und was nicht.
         </p>
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>

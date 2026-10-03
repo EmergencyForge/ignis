@@ -91,7 +91,7 @@ final class NavigationTest extends TestCase
     #[Test]
     public function verwaltung_kommt_auch_zurueck_wenn_benutzer_fehlt(): void
     {
-        // groups() lässt eine Gruppe ohne sichtbare Einträge ganz weg — fehlt
+        // groups() lässt eine Gruppe ohne sichtbare Einträge ganz weg. Fehlt
         // etwa das Recht für Benutzer, kommt „admin" hier nie an. Trotzdem
         // muss die Sidebar Einstellungen zeigen, wenn ein anderes Recht für
         // einen Settings-Bereich reicht.

@@ -11,7 +11,7 @@ use Phinx\Migration\AbstractMigration;
  * ist gelöscht, und die Tabellen, in die diese Migration geschrieben hat,
  * wirft `20260914000003_drop_canvas_document_tables` ohnehin weg.
  *
- * Die Datei bleibt stehen, weil Phinx sie in `phinxlog` führt — wer sie
+ * Die Datei bleibt stehen, weil Phinx sie in `phinxlog` führt. Wer sie
  * löscht, bekommt bei jeder bestehenden Installation eine Lücke in der
  * Migrationskette.
  */

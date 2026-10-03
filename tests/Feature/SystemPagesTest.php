@@ -115,7 +115,7 @@ final class SystemPagesTest extends FeatureTestCase
     /**
      * SYSTEM_LOGO bekommt die Package-Dropzone statt nur des Textfelds; das
      * Textfeld bleibt als Alternative hinter einer Disclosure erhalten. Die
-     * grosse Config-Form selbst (id="configForm") bleibt unveraendert —
+     * grosse Config-Form selbst (id="configForm") bleibt unveraendert:
      * die Dropzone laedt per eigenem fetch()-Aufruf, nicht ueber ein
      * verschachteltes <form>.
      */

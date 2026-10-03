@@ -8,17 +8,17 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * `intra_edivi_vitalparameter_einzelwerte` — ein Messwert pro Zeile,
+ * `intra_edivi_vitalparameter_einzelwerte`: ein Messwert pro Zeile,
  * verknüpft über `enr` (varchar(50), KEIN FK) mit intra_edivi.
  *
  * ACHTUNG: Ein BEFORE-DELETE-Trigger in der Datenbank blockiert
  * Hard-Deletes (SIGNAL 45000). Löschen geht AUSSCHLIESSLICH als
- * Soft-Delete über softDelete() — niemals ->delete() auf diesem
+ * Soft-Delete über softDelete(), niemals ->delete() auf diesem
  * Model aufrufen. Lesende Queries müssen auf `geloescht = 0`
  * filtern (scopeAktiv).
  *
  * `parameter_name` enthält in Altdaten deutsche Anzeigestrings mit
- * Unicode-Subskript (`SpO₂`, `etCO₂`, …) — v2 mappt beim Lesen auf
+ * Unicode-Subskript (`SpO₂`, `etCO₂`, …), v2 mappt beim Lesen auf
  * Codes, muss die Altstrings aber verstehen.
  * Blutzucker wird immer in mg/dl gespeichert (BloodSugarHelper).
  *
@@ -43,7 +43,7 @@ class EdiviVitalwert extends Model
     }
 
     /**
-     * Soft-Delete — der einzige erlaubte Löschweg (DB-Trigger blockiert
+     * Soft-Delete: der einzige erlaubte Löschweg (DB-Trigger blockiert
      * DELETE). Setzt geloescht/geloescht_am/geloescht_von.
      */
     public function softDelete(?string $geloeschtVon = null): bool

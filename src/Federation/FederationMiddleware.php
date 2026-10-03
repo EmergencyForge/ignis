@@ -24,7 +24,7 @@ class FederationMiddleware
 {
     /**
      * Check if federation is enabled.
-     * Runtime-configured via ConfigManager — variable indirection
+     * Runtime-configured via ConfigManager; variable indirection
      * prevents PHPStan from narrowing the config.php fallback value.
      */
     public static function isEnabled(): bool

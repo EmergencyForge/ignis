@@ -48,7 +48,7 @@ $SITE_TITLE = 'Cron-Jobs';
 
             <details class="ignis-card mb-4">
                 <summary class="ignis-card__header cursor-pointer select-none text-sm">
-                    <span><i class="fa-solid fa-link mr-1" aria-hidden="true"></i> <strong>Externer Trigger-Endpoint</strong> <span class="text-tertiary-text">— für cron-job.org, UptimeRobot &amp; Co.</span></span>
+                    <span><i class="fa-solid fa-link mr-1" aria-hidden="true"></i> <strong>Externer Trigger-Endpoint</strong> <span class="text-tertiary-text">(für cron-job.org, UptimeRobot &amp; Co.)</span></span>
                 </summary>
                 <div class="ignis-card__body">
                     <div class="flex items-center gap-2">
@@ -61,7 +61,7 @@ $SITE_TITLE = 'Cron-Jobs';
                             <i class="fa-solid fa-copy" aria-hidden="true"></i> Kopieren
                         </button>
                     </div>
-                    <small class="form-hint block">Wenn weder Unix-Cron noch die Piggyback-Middleware laufen, rufe diesen URL minütlich auf — der Scheduler wird dann alle fälligen Jobs abarbeiten. Der Token gilt als Passwort und sollte nur an vertrauenswürdige Dienste weitergegeben werden.</small>
+                    <small class="form-hint block">Wenn weder Unix-Cron noch die Piggyback-Middleware laufen, rufe diesen URL minütlich auf. Der Scheduler arbeitet dann alle fälligen Jobs ab. Der Token gilt als Passwort und sollte nur an vertrauenswürdige Dienste weitergegeben werden.</small>
                 </div>
             </details>
 
@@ -95,7 +95,7 @@ $SITE_TITLE = 'Cron-Jobs';
                             <tr><td colspan="8"><?php require dirname(__DIR__, 2) . '/partials/empty.php'; ?></td></tr>
                         <?php endif; ?>
                         <?php foreach ($jobs as $job):
-                            [$runText, $runChip] = $runStatus[$job['last_status']] ?? ['–', 'secondary'];
+                            [$runText, $runChip] = $runStatus[$job['last_status']] ?? ['-', 'secondary'];
                             $isActive  = ((int) $job['active']) === 1;
                             $isBuiltin = ((int) $job['is_builtin']) === 1;
                             $jobId     = (int) $job['id'];
@@ -259,7 +259,7 @@ $SITE_TITLE = 'Cron-Jobs';
             bodyEl.innerHTML = '<div class="text-tertiary-text">Lade…</div>';
 
             new Dialog({
-                title:   'Verlauf — ' + name,
+                title:   'Verlauf: ' + name,
                 size:    'xl',
                 body:    bodyEl,
                 actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
@@ -296,10 +296,10 @@ $SITE_TITLE = 'Cron-Jobs';
             return d.innerHTML;
         }
 
-        // DB-Zeiten kommen als "2026-04-24 10:58:22" (UTC, ohne Z-Suffix) —
+        // DB-Zeiten kommen als "2026-04-24 10:58:22" (UTC, ohne Z-Suffix),
         // manuell als UTC parsen und zu Europe/Berlin formatieren.
         function formatLocalTime(utcString) {
-            if (!utcString) return '–';
+            if (!utcString) return '-';
             const iso = utcString.replace(' ', 'T') + 'Z';
             const d = new Date(iso);
             if (isNaN(d.getTime())) return utcString;

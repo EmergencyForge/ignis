@@ -1,6 +1,6 @@
 <?php
 /**
- * Update-Progress-Modal — vom System-Updater während eines laufenden
+ * Update-Progress-Modal, vom System-Updater während eines laufenden
  * Updates getriggert. Wird sowohl im Stable- als auch im Dev-Branch-
  * Update-Pfad eingeblendet, daher als Partial extrahiert (vorher
  * waren das zwei identische Block-Kopien mit demselben DOM-Id, was

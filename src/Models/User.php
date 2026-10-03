@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_users` — System-Benutzer mit Discord-Login.
+ * Eloquent-Model für `intra_users`: System-Benutzer mit Discord-Login.
  *
  * @property int         $id
  * @property string      $username
@@ -69,7 +69,7 @@ class User extends Model
 
     /**
      * Beziehung: User → Mitarbeiter über aktenid → intra_mitarbeiter.id.
-     * Optional — nicht jeder User hat ein verknüpftes Mitarbeiter-Profil.
+     * Optional: nicht jeder User hat ein verknüpftes Mitarbeiter-Profil.
      *
      * @return BelongsTo<Personnel, $this>
      */

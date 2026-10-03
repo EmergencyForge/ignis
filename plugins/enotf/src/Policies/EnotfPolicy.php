@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Policies;
 use App\Auth\Permissions;
 
 /**
- * EnotfPolicy — Authorization für das eNOTF-Modul.
+ * EnotfPolicy: Authorization für das eNOTF-Modul.
  *
  * eNOTF hat eine eigene Auth-Schicht (Crew-Login auf Fahrzeug), die parallel
  * zur normalen User-Auth läuft. Drei Schichten:
@@ -165,7 +165,7 @@ class EnotfPolicy
     }
 
     /**
-     * Generischer „kann das eNOTF-Modul ansehen" — gilt für eingeloggte
+     * Generischer „kann das eNOTF-Modul ansehen": gilt für eingeloggte
      * User mit `enotf.view` oder `edivi.view`. Wird in der Modul-
      * Eingangs-Gate genutzt (Nicht-Crew-Member, die das Read-only-UI
      * bekommen) und für die globale Suche.

@@ -10,7 +10,7 @@ use Phinx\Migration\AbstractMigration;
  * und Announcements-Refresh.
  *
  * `INSERT IGNORE` stellt sicher, dass bestehende Installationen keine
- * Werte überschreiben — der generierte Token bleibt erhalten, Custom-Jobs
+ * Werte überschreiben: der generierte Token bleibt erhalten, Custom-Jobs
  * mit gleichem Identifier werden nicht überschrieben.
  */
 class SeedCronDefaults extends AbstractMigration

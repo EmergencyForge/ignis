@@ -1,12 +1,12 @@
 /**
- * eNOTF v2 — Crew-Session-Live-Sync.
+ * eNOTF v2: Crew-Session-Live-Sync.
  *
  * Vanilla-Pendant zu assets/js/enotf-session-sync.js (v1), aber gegen die
  * v2-Endpoints (die v1-Routen hängen hinter hartem User-Auth und liefern
  * Crews ohne Panel-Login nur 401er):
  *
  *   GET  api/enotf-v2/session-status           (10s-Poll, Token im
- *                                               Header X-Enotf-Session-Token —
+ *                                               Header X-Enotf-Session-Token,
  *                                               nicht im Query-String, damit es
  *                                               nicht in Access-Logs landet)
  *   POST api/enotf-v2/session-update           (PHP-Session nachziehen,
@@ -61,7 +61,7 @@
     })
       .then(function (r) {
         if (!r.ok) {
-          // Server-Fehler (500, 404, …) — nicht redirecten
+          // Server-Fehler (500, 404, …): nicht redirecten
           throw new Error("HTTP " + r.status);
         }
         return r.json();
@@ -128,7 +128,7 @@
       method: "POST",
       body: formData,
     }).catch(function () {
-      // Still scheitern lassen — der nächste Poll versucht es erneut
+      // Still scheitern lassen: der nächste Poll versucht es erneut
     });
   }
 

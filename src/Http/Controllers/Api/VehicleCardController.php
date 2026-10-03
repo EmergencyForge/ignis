@@ -10,7 +10,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * GET /api/vehicles/{id}/card — Hover-Card-Fragment für ein Fahrzeug.
+ * GET /api/vehicles/{id}/card: Hover-Card-Fragment für ein Fahrzeug.
  *
  * Liefert ein kompaktes HTML-Fragment für die hauseigene Hover-Card-
  * Komponente (siehe assets/js/modules/user-hover-card.js, Type
@@ -23,8 +23,8 @@ final class VehicleCardController extends Controller
 {
     private const RD_TYPE_LABELS = [
         0 => 'Andere',
-        1 => 'RD – mit NA',
-        2 => 'RD – ohne NA',
+        1 => 'RD mit NA',
+        2 => 'RD ohne NA',
         3 => 'Feuerwehr',
     ];
 
@@ -45,7 +45,7 @@ final class VehicleCardController extends Controller
             return Response::html('Fahrzeug nicht gefunden.', 404);
         }
 
-        // Offene Defekte aggregieren — getrennt nach „blockierend"
+        // Offene Defekte aggregieren, getrennt nach „blockierend"
         // (vehicle_operable = 0) und „nur informativ", damit die Card
         // den Einsatzbereitschafts-Status sofort sichtbar macht.
         $defectStats = Capsule::table('intra_fahrzeuge_defects')

@@ -8,10 +8,10 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * `intra_enotf_quicklinks` — Schnellzugriff-Kacheln auf der Overview.
+ * `intra_enotf_quicklinks`: Schnellzugriff-Kacheln auf der Overview.
  *
  * `category_slug` referenziert intra_enotf_categories.slug (kein FK).
- * `col_width` ist ein Bootstrap-Erbe ('col-6' etc.) — v2 rendert
+ * `col_width` ist ein Bootstrap-Erbe ('col-6' etc.), v2 rendert
  * eigenes Grid, interpretiert den Wert aber weiterhin als Breiten-Hint.
  *
  * @method static Builder<static> active()

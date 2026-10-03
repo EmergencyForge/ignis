@@ -101,13 +101,13 @@ final class UserListTest extends FeatureTestCase
         $first = $this->get('/users/list', ['query' => ['q' => 'pg_']]);
         $this->assertBodyContains('pg_25', $first);
         $this->assertBodyNotContains('pg_26', $first);
-        $this->assertBodyContains('1–25 von 26 Benutzer', $first);
+        $this->assertBodyContains('1 bis 25 von 26 Benutzer', $first);
         $this->assertBodyContains('href="/users/list?q=pg_&amp;page=2"', $first);
 
         $second = $this->get('/users/list', ['query' => ['q' => 'pg_', 'page' => '2']]);
         $this->assertBodyContains('pg_26', $second);
         $this->assertBodyNotContains('pg_25', $second);
-        $this->assertBodyContains('26–26 von 26 Benutzer', $second);
+        $this->assertBodyContains('26 bis 26 von 26 Benutzer', $second);
         $this->assertBodyContains('aria-current="page">2<', $second);
     }
 

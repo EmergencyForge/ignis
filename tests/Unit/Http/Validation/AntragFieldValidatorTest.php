@@ -160,7 +160,7 @@ class AntragFieldValidatorTest extends TestCase
         $result = AntragFieldValidator::validate($felder, ['zeit' => '14:30']);
         $this->assertSame('14:30', $result['zeit']);
 
-        // Regex prüft nur das Format, keine Bereichsvalidierung der Zahlen —
+        // Regex prüft nur das Format, keine Bereichsvalidierung der Zahlen.
         // '14h30' failt am Separator.
         $this->expectException(ValidationException::class);
         AntragFieldValidator::validate($felder, ['zeit' => '14h30']);
@@ -208,7 +208,7 @@ class AntragFieldValidatorTest extends TestCase
             'readonly'    => 0,
         ])];
 
-        // Angreifer sendet Extra-Felder — die müssen rausgefiltert werden (Mass-Assignment-Schutz).
+        // Angreifer sendet Extra-Felder, die müssen rausgefiltert werden (Mass-Assignment-Schutz).
         $result = AntragFieldValidator::validate($felder, [
             'grund'       => 'Urlaub',
             'admin_flag'  => '1',

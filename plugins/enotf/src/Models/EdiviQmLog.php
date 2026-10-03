@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_qmlog` — QM-Kommentare und Status-
+ * Eloquent-Model für `intra_edivi_qmlog`: QM-Kommentare und Status-
  * Aktionen je Protokoll.
  *
  * `log_aktion`: 0 = Kommentar, 1 = Statusänderung (kommentar enthält dann

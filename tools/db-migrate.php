@@ -1,7 +1,7 @@
 <?php
 
 /**
- * intraRP — Production DB Migration CLI
+ * intraRP: Production DB Migration CLI
  *
  * Wird von Composer-Hooks (post-install-cmd, post-update-cmd) und manuell
  * aufgerufen. Macht zwei Dinge:
@@ -10,7 +10,7 @@
  *      sieht.
  *   2. Phinx-Migration: nur ausstehende Migrations werden tatsächlich gefahren.
  *
- * Webspace-tauglich: läuft via @php in composer.json — kein Shell-Zugang nötig.
+ * Webspace-tauglich: läuft via @php in composer.json, kein Shell-Zugang nötig.
  *
  * Aufruf:
  *   composer db:migrate
@@ -23,7 +23,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $root = dirname(__DIR__);
 
-// Credentials kommen aus der .env ODER aus echten Umgebungsvariablen —
+// Credentials kommen aus der .env ODER aus echten Umgebungsvariablen:
 // Docker/CI-Setups setzen DB_HOST & Co. direkt in die Prozessumgebung
 // und haben gar keine (oder eine unvollständige) .env.
 if (is_file($root . '/.env')) {
@@ -49,10 +49,10 @@ foreach (['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $required) {
 
 if ($missing !== []) {
     // Composer post-install/-update läuft auch in CI-Runnern und auf frischen
-    // Clones vor dem Setup — dort darf das kein FAILURE sein, sonst bricht
+    // Clones vor dem Setup. Dort darf das kein FAILURE sein, sonst bricht
     // jeder `composer install` ab. Migration ist ein reiner Produktiv-Schritt.
     if (count($missing) === 4) {
-        fwrite(STDOUT, "[SKIP] Keine DB-Credentials (.env oder Umgebungsvariablen) — Migration übersprungen (CI/Erstinstallation).\n");
+        fwrite(STDOUT, "[SKIP] Keine DB-Credentials (.env oder Umgebungsvariablen), Migration übersprungen (CI/Erstinstallation).\n");
         exit(0);
     }
     fwrite(STDERR, "[FAIL] Unvollständige DB-Credentials, es fehlt: " . implode(', ', $missing) . "\n");

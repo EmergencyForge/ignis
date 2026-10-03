@@ -14,14 +14,14 @@ use Respect\Validation\Validator as v;
  * Pflichtfelder sind nur `profileid` und `docType`; alle anderen Felder
  * sind formular-spezifisch (je nach Dokumententyp sind andere Felder aktiv).
  *
- * Das `ausstellungsdatum_{N}`-Feld ist dynamisch — N leitet sich aus
+ * Das `ausstellungsdatum_{N}`-Feld ist dynamisch: N leitet sich aus
  * `docType` ab. Wir akzeptieren hier alle bekannten Varianten (0–13)
  * plus die generische `ausstellungsdatum_0`-Fallback-Variante; der
  * Controller wählt den passenden Wert aus.
  *
  * Optionale Strings werden als String akzeptiert (inkl. leer). Die
  * Date-Normalisierung (`strtotime` → `Y-m-d`) bleibt absichtlich
- * tolerant — das Form rendert den Wert direkt aus `<input type="date">`
+ * tolerant; das Form rendert den Wert direkt aus `<input type="date">`
  * bzw. deutschen Datumsformaten.
  */
 class CreateDocumentRequest extends FormRequest
@@ -56,7 +56,7 @@ class CreateDocumentRequest extends FormRequest
             v::key('aussteller_name', $optionalString, false),
             v::key('aussteller_rang', $optionalString, false),
 
-            // Dynamic ausstellungsdatum — Legacy-Mapping: docType ∈ {10..13} → Suffix 10,
+            // Dynamic ausstellungsdatum, Legacy-Mapping: docType ∈ {10..13} → Suffix 10,
             // sonst Suffix = docType, plus Fallback-Feld mit Suffix 0.
             v::key('ausstellungsdatum_0',  $optionalDate, false),
             v::key('ausstellungsdatum_1',  $optionalDate, false),

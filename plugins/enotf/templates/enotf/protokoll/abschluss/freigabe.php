@@ -26,7 +26,7 @@ if (isset($_GET['enr'])) {
 }
 
 // Transportziel über POIs auflösen. Neue Protokolle setzen `poi_<id>`,
-// alte Protokolle haben den Legacy-Identifier — beide finden sich nach
+// alte Protokolle haben den Legacy-Identifier, beide finden sich nach
 // der Konsolidierungs-Migration über `intra_edivi_pois`.
 $transportziel = $daten['transportziel'] ?? '';
 $ziel = '';

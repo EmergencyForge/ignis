@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * intraRP — Event-Listener-Map
+ * intraRP: Event-Listener-Map
  *
  * Zentrales Mapping Event → Listener. Wird vom EventServiceRegistrar
  * beim Container-Build gelesen und registriert alle Listener beim

@@ -10,13 +10,13 @@ use App\Http\FiveMSupport;
 use Plugin\Enotf\Policies\EnotfPolicy;
 
 /**
- * EnotfPrintController — Druck-/Detailansicht eines Protokolls.
+ * EnotfPrintController: Druck-/Detailansicht eines Protokolls.
  *
  * Public-Page: erreichbar via direktem ENR-Link, mit PIN-Lockscreen wenn aktiv.
  * Klinik-Code-Bypass via Klinikcode-Login (vgl. EnotfSchnittstelleController).
  *
  * Das Template enthält weiterhin sehr umfangreiche Inline-SQL für die
- * verschiedenen Protokoll-Sektionen — wegen der Größe (2800+ LoC) wird
+ * verschiedenen Protokoll-Sektionen. Wegen der Größe (2800+ LoC) wird
  * es nicht in Controller-Methoden zerlegt, sondern as-is gerendert.
  */
 class EnotfPrintController extends Controller

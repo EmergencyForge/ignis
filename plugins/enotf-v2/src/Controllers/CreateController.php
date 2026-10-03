@@ -9,7 +9,7 @@ use Plugin\EnotfV2\Helpers\EnotfV2Url;
 use Plugin\EnotfV2\Models\Edivi;
 
 /**
- * CreateController — Protokoll anlegen.
+ * CreateController: Protokoll anlegen.
  *
  * store() ist die Anlage-Logik aus assets/functions/enotf/enrbridge.php
  * als saubere Controller-Action, Semantik EXAKT wie dort:
@@ -31,7 +31,7 @@ use Plugin\EnotfV2\Models\Edivi;
 class CreateController extends EnotfV2Controller
 {
     /**
-     * GET /enotf-v2/create — Formular (ENR + Protokollart).
+     * GET /enotf-v2/create: Formular (ENR + Protokollart).
      */
     public function form(): void
     {
@@ -44,7 +44,7 @@ class CreateController extends EnotfV2Controller
     }
 
     /**
-     * POST /enotf-v2/create — Anlage-Logik (siehe Klassen-Docblock).
+     * POST /enotf-v2/create: Anlage-Logik (siehe Klassen-Docblock).
      */
     public function store(): void
     {
@@ -132,7 +132,7 @@ class CreateController extends EnotfV2Controller
 
     /**
      * Nächste freie ENR mit Suffix `_1`, `_2`, … (v1-Semantik aus
-     * enrbridge.php — race-anfällig, UNIQUE-Constraint fängt).
+     * enrbridge.php, race-anfällig, UNIQUE-Constraint fängt).
      */
     private function nextFreeEnr(string $originalEnr): string
     {

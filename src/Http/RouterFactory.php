@@ -34,7 +34,7 @@ final class RouterFactory
 
         // CSRF vor dem Stack jeder Route, statt an jeder einzeln. Solange
         // der Schutz pro Route angemeldet werden musste, trugen ihn elf von
-        // vierundsechzig schreibenden Routen — weder die Rollenverwaltung
+        // vierundsechzig schreibenden Routen. Weder die Rollenverwaltung
         // noch der Auslöser des Systemupdates gehörten dazu. Die Ausnahmen
         // stehen in der Middleware.
         $router->middleware(new Middleware\CsrfMiddleware());

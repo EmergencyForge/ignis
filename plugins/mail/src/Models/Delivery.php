@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_mail_deliveries` — die eigene Kopie einer
+ * Eloquent-Model für `intra_mail_deliveries`: die eigene Kopie einer
  * Nachricht in einem Postfach. `deleted_at` ist der weiche Vermerk für
  * „endgültig gelöscht“: nur diese Kopie verschwindet, die der anderen
  * Beteiligten bleibt.

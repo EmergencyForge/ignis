@@ -1,4 +1,4 @@
-// _components.scss — Bausteine des Redesigns (I6), ab I1 nur noch die
+// _components.scss: Bausteine des Redesigns (I6), ab I1 nur noch die
 // echten ignis-Abweichungen von ef.base('ignis'). Die geteilte Grundform
 // (Tabelle, Listenleiste/-fuss, Formular-Karte, Alert-/Chip-Farbtoene,
 // Arbeitsbereich, Posteingang, Detail/Timeline) kommt jetzt aus dem Paket;
@@ -36,7 +36,7 @@
 
 // Pflichtstern und Fehlertext auch ohne .ignis-field-Huelle (die Anlage-
 // Formulare setzen die Labels direkt). ef.base() stylt beides nur verschachtelt
-// unter .ignis-field .ignis-field__label — ohne diese Kopie blieben Stern und
+// unter .ignis-field .ignis-field__label. Ohne diese Kopie blieben Stern und
 // Fehlertext in den ueber ein Dutzend Formularen ohne Huelle farblos.
 // Der Stern nimmt --accent-text, das Orange hält hell auf Weiß nur 3,6 : 1.
 // Die zweite Zeile überschreibt die verschachtelte Regel aus ef.base().

@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * `intra_edivi_share_requests` — Protokoll-Übergabe zwischen Fahrzeugen.
+ * `intra_edivi_share_requests`: Protokoll-Übergabe zwischen Fahrzeugen.
  *
  * `source_protocol_id` referenziert intra_edivi.id (kein echter FK).
  * `status`: pending | accepted | rejected | cancelled.

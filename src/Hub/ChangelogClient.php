@@ -9,7 +9,7 @@ use App\Logging\Logger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * ChangelogClient — Ankündigungen aus dem Forum (Discourse-Kategorie
+ * ChangelogClient: Ankündigungen aus dem Forum (Discourse-Kategorie
  * "Ankündigungen" auf forum.emergencyforge.de) fürs Admin-Dashboard.
  * Der Name stammt aus der Zeit der Hub-Changelog-API; Tabelle
  * intra_changelog_cache und Befehl changelog:refresh sind geblieben.
@@ -19,7 +19,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *     schnell, nie blockierend. Wenn Cache leer ist → leeres Array; das
  *     Dashboard-Widget zeigt dann seinen Leerzustand.
  *   - refresh(): kontaktiert das Forum. Wird ausschliesslich vom Console-
- *     Command (Cron, alle 30 Min.) aufgerufen — NIE im Web-Request-Pfad.
+ *     Command (Cron, alle 30 Min.) aufgerufen, NIE im Web-Request-Pfad.
  *     Sendet If-None-Match/If-Modified-Since (gespeichert in
  *     intra_changelog_meta), respektiert 304/429/5xx als "alter Cache bleibt
  *     stehen".
@@ -113,7 +113,7 @@ final class ChangelogClient
             'timeout' => self::TIMEOUT_SECONDS,
         ]);
 
-        // Forum konnte nicht erreicht werden (Timeout / DNS / TLS) — alter Cache bleibt.
+        // Forum konnte nicht erreicht werden (Timeout / DNS / TLS). Alter Cache bleibt.
         if ($result === null) {
             Logger::info('ChangelogClient: forum unreachable, keeping stale cache');
             return ['success' => false, 'status' => 0, 'message' => 'Forum nicht erreichbar', 'count' => 0];
@@ -122,12 +122,12 @@ final class ChangelogClient
         $status = $result['status'];
         $body   = $result['body'];
 
-        // 304 Not Modified — Cache ist noch valide, nichts zu tun.
+        // 304 Not Modified: Cache ist noch valide, nichts zu tun.
         if ($status === 304) {
             return ['success' => true, 'status' => 304, 'message' => 'Cache aktuell', 'count' => 0];
         }
 
-        // 429/5xx — alter Cache bleibt. Loggen, fuer naechsten Refresh.
+        // 429/5xx: alter Cache bleibt. Loggen, fuer naechsten Refresh.
         if ($status === 429 || $status >= 500) {
             Logger::warning(sprintf('ChangelogClient: forum returned %d, keeping stale cache', $status));
             return ['success' => false, 'status' => $status, 'message' => "Forum-Fehler ($status)", 'count' => 0];
@@ -161,7 +161,7 @@ final class ChangelogClient
         return [
             'success' => true,
             'status'  => $status,
-            'message' => sprintf('OK — %d Eintrag/e aktualisiert', $written),
+            'message' => sprintf('OK: %d Eintrag/e aktualisiert', $written),
             'count'   => $written,
         ];
     }
@@ -235,7 +235,7 @@ final class ChangelogClient
     private function persist(array $items): int
     {
         // Atomar: Cache leer, dann frisch befuellen. Wenn ein Insert fehlt,
-        // rollen wir zurueck — alter Cache bleibt sichtbar.
+        // rollen wir zurueck. Alter Cache bleibt sichtbar.
         $connection = Capsule::connection();
         $connection->beginTransaction();
         try {
@@ -308,7 +308,7 @@ final class ChangelogClient
 
     /**
      * Discourse liefert ISO-8601 in UTC (z.B. "2026-09-10T14:40:00.000Z").
-     * MySQL DATETIME hat keine TZ — wir speichern UTC als "Y-m-d H:i:s".
+     * MySQL DATETIME hat keine TZ. Wir speichern UTC als "Y-m-d H:i:s".
      * Beim Lesen interpretiert PHP das wieder als lokal, was fuer
      * "vor 3 Tagen"-Anzeige ausreichend genau ist.
      */

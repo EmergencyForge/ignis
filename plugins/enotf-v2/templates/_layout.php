@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF v2 — DAS gemeinsame Layout (alle v2-Seiten rendern hierüber).
+ * eNOTF v2: DAS gemeinsame Layout (alle v2-Seiten rendern hierüber).
  *
  * Verwendung in einem Seiten-Template:
  *
@@ -29,8 +29,8 @@
  *   $__bodyClass     string       Zusatzklassen für <body>
  *
  * Design: modernes Tailwind/ignis-Dark-Theme wie die Admin-Welt
- * (html data-theme="light" + body data-theme="dark" — v1-Konvention der
- * neuen Admin-Templates). KEIN Bootstrap, KEIN jQuery — Vanilla JS,
+ * (html data-theme="light" + body data-theme="dark", v1-Konvention der
+ * neuen Admin-Templates). KEIN Bootstrap, KEIN jQuery: Vanilla JS,
  * Dialoge über assets/js/ui/dialog.js (window.Dialog).
  */
 
@@ -88,7 +88,7 @@ $__initials = static function (string $name): string {
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
-    <!-- Custom-Select: FiveM-CEF zeigt native <select>-Popups teils nicht —
+    <!-- Custom-Select: FiveM-CEF zeigt native <select>-Popups teils nicht,
          die Komponente enhanced ALLE select.ignis-input (auch in Dialogen),
          das native Select bleibt Quelle der Wahrheit (Opt-out: data-ev2-native) -->
     <script type="module" src="<?= asset('plugins/enotf-v2/assets/ev2-select.js') ?>"></script>
@@ -115,7 +115,7 @@ $__initials = static function (string $name): string {
     <style>
         /* ── Basis-Reset ─────────────────────────────────────────────
            Die v2-Seiten laden weder Bootstrap-Reboot noch Tailwind-
-           Preflight — Body-Margin-Reset und box-sizing kommen deshalb
+           Preflight. Body-Margin-Reset und box-sizing kommen deshalb
            hier. Ohne border-box rechnen Sidebar-Breite und Kontroll-
            höhen content-box: Inputs geraten zu hoch, die Sidebar zu
            breit (Status-Indikatoren kleben an der Kante) und um die
@@ -291,7 +291,7 @@ $__initials = static function (string $name): string {
         .ev2-main { display: flex; flex: 1 1 auto; min-height: 0; align-items: flex-start; }
         /* Sidebar als „schwebende" Karte: abgesetzt mit Margin, gerundet,
            Elevation; sticky unter der Topbar. Einklappbar auf Icon-Rail
-           (Toggle unten, Zustand in localStorage — Script am Seitenende). */
+           (Toggle unten, Zustand in localStorage, Script am Seitenende). */
         .ev2-sidebar {
             width: 14.5rem; flex: 0 0 auto; padding: .75rem .625rem;
             margin: 1rem 0 1rem 1rem;
@@ -336,11 +336,11 @@ $__initials = static function (string $name): string {
         .ev2-content { flex: 1 1 auto; min-width: 0; padding: 1.25rem; }
         /* Headings im Content: Element-Defaults aus style.css (h1 = 2rem
            + Margins) gewinnen sonst gegen die gelayerten Tailwind-
-           Utilities — hier neutralisieren, Größen kommen von ev2-Klassen. */
+           Utilities. Hier neutralisieren, Größen kommen von ev2-Klassen. */
         .ev2-content h1, .ev2-content h2, .ev2-content h3, .ev2-content h4 { margin: 0; }
         .ev2-content h3.ev2-group-label { margin: 1.25rem 0 .5rem; }
 
-        /* Seitenkopf: Sectionname + Meta-Chips — kompakt, Chips dezent */
+        /* Seitenkopf: Sectionname + Meta-Chips, kompakt, Chips dezent */
         .ev2-page-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: 0 0 1rem; }
         .ev2-page-title { font-size: 1.6rem; font-weight: 600; line-height: 1.25; margin: 0; }
         .ev2-page-head .ev2-chip { background: transparent; color: var(--ev2-muted); }
@@ -409,7 +409,7 @@ $__initials = static function (string $name): string {
 
         /* ── Feld-Komponenten ───────────────────────────────────────
            EINE Kontrollhöhe (2.5rem/40px) für Inputs, Selects und
-           Segmented — Scope body[data-page] statt .ev2-content, damit
+           Segmented: Scope body[data-page] statt .ev2-content, damit
            auch Login-Seite und Dialoge (an <body> gemountet) die Regel
            bekommen. padding-block 0: die Höhe zentriert den Text selbst,
            das ignis-Padding darf sie nicht aufblähen. Textareas wachsen
@@ -533,7 +533,7 @@ $__initials = static function (string $name): string {
 
         /* Auswahl-Chips (Radio/Checkbox): eine Größe, ein Padding.
            AUSWAHL-ZUSTAND dezent (kein Orange-Fill): hellerer Hintergrund
-           + 1px Akzent-Border + Häkchen, Textfarbe bleibt normal —
+           + 1px Akzent-Border + Häkchen, Textfarbe bleibt normal,
            überall identisch (Chips, Option-Zeilen, Skalen). */
         .ev2-choices { display: flex; flex-wrap: wrap; gap: .45rem; }
         .ev2-choice input { position: absolute; opacity: 0; pointer-events: none; }
@@ -557,7 +557,7 @@ $__initials = static function (string $name): string {
         .ev2-choice input:focus-visible + span { outline: 2px solid var(--ev2-accent); outline-offset: 2px; }
         .ev2-choice input:disabled + span { opacity: .5; cursor: not-allowed; }
 
-        /* Option-Zeilen (volle Breite, Wert + Klartext) — für Radio-Gruppen
+        /* Option-Zeilen (volle Breite, Wert + Klartext), für Radio-Gruppen
            mit vielen Optionen (>8) in Fokus-Ansichten, nach dem Vorbild der
            v1-Radio-Seiten. Optionaler Wert-Badge (ev2-optionrow__val, z. B.
            GCS-Punktzahl) vor dem Klartext; Häkchen rechts bei Auswahl. */
@@ -674,7 +674,7 @@ $__initials = static function (string $name): string {
 
         /* Segment-Skala (radio-basiert): zusammenhängende Werteleiste für
            Wertereihen wie GCS-Punkte, Schmerz-NRS 0–10 oder Bodymap-
-           Schweregrade. Verstecktes Radio + sichtbares Segment — Autosave
+           Schweregrade. Verstecktes Radio + sichtbares Segment, Autosave
            läuft über das name-Attribut wie bei ev2-choice. Aktiv = Orange;
            Leer-Segment (value="") aktiv = nur bg-tertiary. Bei Platznot
            scrollt die Leiste horizontal statt zu brechen. */
@@ -752,7 +752,7 @@ $__initials = static function (string $name): string {
         .ev2-divided > * + * { border-top: 1px solid rgba(255, 255, 255, .06); padding-top: .9rem; }
 
         /* Zeit-Feldgruppe (Zeitleiste): gemeinsamer Rahmen, Label oben,
-           Zeit groß — das Datum ist standardmäßig eingeklappt und wird beim
+           Zeit groß, das Datum ist standardmäßig eingeklappt und wird beim
            Setzen der Zeit automatisch mit dem Einsatzdatum befüllt; der
            Kalender-Toggle blendet es bei Bedarf ein (automatisch offen,
            wenn ein gespeichertes Datum vom Einsatzdatum abweicht). */
@@ -831,7 +831,7 @@ $__initials = static function (string $name): string {
         .ev2-card-head__icon--d { color: #a992c4; }
         .ev2-card-head__icon--e { color: #c4ab7d; }
         .ev2-card-head__title { font-size: .95rem; font-weight: 600; margin: 0; }
-        /* style.scss setzt global hyphens:auto — Titel sollen bei schmalen
+        /* style.scss setzt global hyphens:auto, Titel sollen bei schmalen
            Karten umbrechen, aber nie silbengetrennt werden. */
         .ev2-card-head__title,
         .ev2-page-title { hyphens: none; -webkit-hyphens: none; overflow-wrap: normal; }
@@ -843,7 +843,7 @@ $__initials = static function (string $name): string {
 
         /* ── Fehler-Markierung (echte Fehler, nicht "leer") ─────────── */
         .ev2-field-error { outline: 2px solid var(--ev2-error, #ef4444) !important; outline-offset: 1px; }
-        /* Selects kennen kein :placeholder-shown — ohne diese Ausnahme stünden
+        /* Selects kennen kein :placeholder-shown. Ohne diese Ausnahme stünden
            Pflicht-Selects (leere erste Option + required) schon beim ersten
            Laden rot da. Fehler-Markierung läuft hier über .is-invalid. */
         select.ignis-input:invalid:not(:focus):not(.is-invalid) {
@@ -853,14 +853,14 @@ $__initials = static function (string $name): string {
         /* ── Mobile: Stepper als kompakte Pill-Zeile ────────────────── */
         @media (max-width: 820px) {
             .ev2-main { flex-direction: column; }
-            /* Topbar darf mehrzeilig werden; Uhr + Divider weichen —
+            /* Topbar darf mehrzeilig werden; Uhr + Divider weichen,
                die Crew-Kreise sind kompakt genug für eine Zeile */
             .ev2-topbar { height: auto; min-height: 3rem; flex-wrap: wrap; padding: .4rem .75rem; gap: .5rem; }
             .ev2-topbar__title, .ev2-clock, .ev2-topbar__sep { display: none; }
             .ev2-topbar__tools { gap: .5rem; flex-wrap: wrap; }
             .ev2-pat { max-width: 12rem; }
             /* Stepper: eine Zeile, horizontal scrollbar mit Snap statt
-               Silbentrennung über drei Zeilen — Floating-Karte und Collapse
+               Silbentrennung über drei Zeilen, Floating-Karte und Collapse
                gelten nur auf Desktop */
             .ev2-sidebar {
                 width: 100%; display: flex; align-items: center; gap: .25rem;
@@ -961,7 +961,7 @@ $__initials = static function (string $name): string {
                     </span>
                     <span class="ev2-topbar__sep"></span>
                     <!-- Druckansicht: v1-Print-Seite in neuem Tab (v1-Parität
-                         „Protokoll"-Aktion) — für alle, auch bei Gesperrt -->
+                         „Protokoll"-Aktion), für alle, auch bei Gesperrt -->
                     <?php
                     $__printUrl = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
                         ? \Plugin\Enotf\Helpers\EnotfUrl::print((string) $__enr)
@@ -1023,7 +1023,7 @@ $__initials = static function (string $name): string {
                         'nocheck'    => 'ev2-state-none',
                     ];
 
-                    // Gesamtfortschritt über alle Sections mit Pflichtangaben —
+                    // Gesamtfortschritt über alle Sections mit Pflichtangaben,
                     // Initialwert serverseitig, danach hält autosave.js die
                     // Anzeige über die Plausibility-Antwort aktuell.
                     if (is_array($__sectionStatus)):
@@ -1058,7 +1058,7 @@ $__initials = static function (string $name): string {
                             // Status-Indikator: Initialstatus serverseitig aus
                             // ConditionsService::sectionStatus(); autosave.js
                             // aktualisiert nach jedem Save-Batch (data-section-fill).
-                            // Auch bei "nocheck" rendern — die Section kann durch
+                            // Auch bei "nocheck" rendern: die Section kann durch
                             // eine Versorgungsart-Änderung Pflichtfelder bekommen.
                             $__fill = is_array($__sectionStatus) ? ($__sectionStatus[$__key] ?? null) : null;
                             if ($__fill !== null):

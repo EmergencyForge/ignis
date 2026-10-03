@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF v2 — Assets für Teilen- und QM-Dialoge (geteilter Block).
+ * eNOTF v2: Assets für Teilen- und QM-Dialoge (geteilter Block).
  *
  * Vor dem schließenden </body> der Crew-Seiten einbinden (Protokoll-Layout
  * und Overview):
@@ -14,7 +14,7 @@
  *                 Share-Anfragen (sofort + alle 15s).
  *   - qm.js     → window.EnotfV2QM.open(protocolId, enr, patname) und
  *                 .openLog(protocolId, enr, patname) für die QM-Buttons.
- *                 Wird immer geladen — die Berechtigung prüft der Server
+ *                 Wird immer geladen, die Berechtigung prüft der Server
  *                 an den /enotf-v2/qm/*-Routen, ohne Panel-Login zeigt
  *                 der Dialog eine Meldung statt des Fragments.
  *   - Den eDIVI-Look für beide Dialoge unter der gemeinsamen Klasse

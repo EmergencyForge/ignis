@@ -10,7 +10,7 @@ use Phinx\Migration\AbstractMigration;
  * Cache-Tabellen intra_blog_cache/intra_blog_meta.
  *
  * down() legt Tabellen und Cron-Eintrag in der Form von 20260505000005 und
- * 20260505000006 wieder an (Inhalt nicht — reiner Cache). Den Befehl
+ * 20260505000006 wieder an (Inhalt nicht, reiner Cache). Den Befehl
  * blog:refresh gibt es danach aber nicht mehr, der Job würde also scheitern;
  * wer zurückrollt, holt auch den Code zurück.
  */

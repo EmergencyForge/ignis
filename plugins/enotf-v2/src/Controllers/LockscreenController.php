@@ -11,12 +11,12 @@ use Plugin\EnotfV2\Helpers\EnotfV2Url;
 use Plugin\EnotfV2\Policies\EnotfV2Policy;
 
 /**
- * LockscreenController — PIN-Lockscreen für eNOTF v2.
+ * LockscreenController: PIN-Lockscreen für eNOTF v2.
  *
  * Session-Semantik ist identisch zu v1 (EnotfController::lockscreen):
  * dieselben Keys pin_verified/pin_last_activity/pin_return_url über den
  * SessionManager, hash_equals gegen ENOTF_PIN. EIN entsperrter PIN gilt
- * damit gleichzeitig für v1 und v2 — nur das Redirect-Ziel und das
+ * damit gleichzeitig für v1 und v2. Nur das Redirect-Ziel und das
  * Template sind v2-eigen.
  *
  * Die Route hängt in der Entry-Gruppe (ohne PinLockscreenMiddleware),
@@ -25,7 +25,7 @@ use Plugin\EnotfV2\Policies\EnotfV2Policy;
 class LockscreenController extends EnotfV2Controller
 {
     /**
-     * GET/POST /enotf-v2/lockscreen — PIN-Eingabe.
+     * GET/POST /enotf-v2/lockscreen: PIN-Eingabe.
      */
     public function lockscreen(Request $request): void
     {
@@ -35,7 +35,7 @@ class LockscreenController extends EnotfV2Controller
             $this->redirectAbsolute(EnotfV2Url::page('overview'));
         }
 
-        // Dev-only Test-Bypass für Admins — ?test setzt das Flag, ?test=off cleaned.
+        // Dev-only Test-Bypass für Admins: ?test setzt das Flag, ?test=off cleaned.
         $testMode = PinLockscreenMiddleware::applyTestFlag($request);
 
         if (!$testMode && EnotfV2Policy::pinExempt()) {

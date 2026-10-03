@@ -19,7 +19,7 @@ class BloodSugarHelper
     private string $currentUnit;
 
     /**
-     * @param \PDO|null $pdo Ungenutzt — Signatur bleibt für bestehende
+     * @param \PDO|null $pdo Ungenutzt, Signatur bleibt für bestehende
      *                       Aufrufer (Templates) stabil.
      */
     public function __construct(?\PDO $pdo = null)

@@ -8,7 +8,7 @@ use Phinx\Migration\AbstractMigration;
  * Legt Performance-Indizes über die meistgenutzten Tabellen an (Protokolle,
  * Personal, Fahrzeuge, Wissensdatenbank, Einsätze, Dashboard, Users,
  * Notifications, Dokumente, MANV, Audit-Log, Config). Jeder Index wird nur
- * erstellt, wenn Tabelle und Index-Name es zulassen — Tabellen aus optionalen
+ * erstellt, wenn Tabelle und Index-Name es zulassen. Tabellen aus optionalen
  * Plugins dürfen fehlen.
  */
 class AddPerformanceIndexes16012026 extends AbstractMigration
@@ -40,7 +40,7 @@ class AddPerformanceIndexes16012026 extends AbstractMigration
         $this->addIndexIfMissing('intra_kb_entries', 'idx_kb_pinned', ['is_pinned', 'title'], ['limit' => ['title' => 50]]);
         $this->addIndexIfMissing('intra_kb_entries', 'idx_kb_type_archived', ['type', 'is_archived']);
 
-        // FULLTEXT-Index für Textsuche — best effort, Spalten können je nach
+        // FULLTEXT-Index für Textsuche, best effort: Spalten können je nach
         // Stand der Wissensdatenbank fehlen
         if ($this->hasTable('intra_kb_entries')) {
             $kb = $this->table('intra_kb_entries');
@@ -106,7 +106,7 @@ class AddPerformanceIndexes16012026 extends AbstractMigration
     public function down(): void
     {
         // Bewusst kein Rückbau: Die Guards oben überspringen Indizes, die
-        // bereits vor dieser Migration existierten — ein pauschales Löschen
+        // bereits vor dieser Migration existierten. Ein pauschales Löschen
         // würde solche Indizes mit entfernen. Die Indizes sind rein additiv.
     }
 

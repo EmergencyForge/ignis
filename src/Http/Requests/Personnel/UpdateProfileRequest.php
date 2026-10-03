@@ -11,12 +11,12 @@ use Respect\Validation\Validator as v;
 /**
  * Validation für POST /api/personnel/update-profile.
  *
- * Das Profil-Editor-JSON enthält ~13 Felder — Pflichtfelder sind nur
+ * Das Profil-Editor-JSON enthält ~13 Felder. Pflichtfelder sind nur
  * `id`, `fullname` und `gebdatum`; alles andere kann leer bleiben
  * (Inline-Edit speichert einzelne Felder, die anderen sind dann leer).
  *
- * Nicht deklarierte Felder werden nicht durch die Validation durchgereicht
- * — aber der Controller liest weiter aus `$_POST` direkt, weil der Dienstnr-
+ * Nicht deklarierte Felder werden nicht durch die Validation durchgereicht,
+ * aber der Controller liest weiter aus `$_POST` direkt, weil der Dienstnr-
  * Uniqueness-Check und das Change-Detection-Diff gegen das DB-Record-Current-
  * State DB-Zugriff brauchen und nicht sinnvoll in einen FormRequest passen.
  */
@@ -51,7 +51,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'id'         => 'Mitarbeiter-ID muss eine positive Zahl sein.',
-            'fullname'   => 'Name ist Pflichtfeld (1–255 Zeichen).',
+            'fullname'   => 'Name ist Pflichtfeld (1 bis 255 Zeichen).',
             'gebdatum'   => 'Geburtsdatum muss im Format YYYY-MM-DD vorliegen.',
             'dienstgrad' => 'Rank muss eine positive Zahl oder 0 sein.',
             'discordtag' => 'Discord-Tag darf maximal 255 Zeichen haben.',

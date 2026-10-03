@@ -1,5 +1,9 @@
 # Changelog
 
+## Unveröffentlicht
+
+Texte in der Oberfläche, Meldungen und Seitentitel kommen ohne Gedankenstriche aus. Leere Werte zeigen „-“ oder einen kurzen Hinweis wie „keine Angabe“, Bereiche stehen als „1 bis 25“.
+
 ## 2026.0.19-beta
 
 Ein freigegebenes eNOTF-Protokoll wird wieder gesperrt angezeigt. Seit April brach das Sperr-Skript an einem leeren Selektor ab, Felder, Auswahllisten und Ankreuzfelder blieben bedienbar. Gespeichert wurde trotzdem nichts, der Server lehnt Änderungen an freigegebenen Protokollen ab.
@@ -100,7 +104,7 @@ Die Anmeldeseite ist aufgeräumter: links nur noch ein Logo, die Begrüßung und
 
 Die Bausteine der Oberfläche (Knöpfe, Formulare, Dialoge, Tabellen, Karten, Hinweise und mehr) kommen jetzt aus dem gemeinsamen UI-Paket, das auch Lex nutzt. ignis bringt dadurch rund 5.500 Zeilen eigenes CSS weniger mit. Die Kontraste im hellen Theme übernehmen die Korrekturen aus Lex: Text auf farbigen Flächen bleibt überall gut lesbar.
 
-Knöpfe gibt es jetzt in vier Stufen – Primär, Sekundär, Ghost und Gefahr. Die bisherigen Sonderformen (grün, gelb, umrandet, getönt) erscheinen als Sekundär-Knopf, Erfolg-Knöpfe als Primär. Die kleine Zeile über dem Seitentitel ist gedämpft statt orange in Großbuchstaben. Auf der Anmeldeseite ist die rechte Bildspalte mit Logo und Text wieder zu sehen, auf der Einstellungsübersicht stehen Titel und Beschreibung der Kacheln einheitlich untereinander, und im Suchfeld der Mitarbeiterliste überdeckt die Lupe nicht mehr den Text.
+Knöpfe gibt es jetzt in vier Stufen: Primär, Sekundär, Ghost und Gefahr. Die bisherigen Sonderformen (grün, gelb, umrandet, getönt) erscheinen als Sekundär-Knopf, Erfolg-Knöpfe als Primär. Die kleine Zeile über dem Seitentitel ist gedämpft statt orange in Großbuchstaben. Auf der Anmeldeseite ist die rechte Bildspalte mit Logo und Text wieder zu sehen, auf der Einstellungsübersicht stehen Titel und Beschreibung der Kacheln einheitlich untereinander, und im Suchfeld der Mitarbeiterliste überdeckt die Lupe nicht mehr den Text.
 
 ## 2026.0.10-beta
 

@@ -4,7 +4,7 @@
 #
 # Sie gilt für Installationen, deren Docroot noch das Projektverzeichnis
 # ist. Dort prüft Apache den Zugriff, BEVOR die Root-.htaccess die Anfrage
-# nach public/ durchreicht — ein pauschales Verbot würde also auch die
+# nach public/ durchreicht, ein pauschales Verbot würde also auch die
 # Asset-Anfragen abfangen, die die Route bedienen soll. Deshalb dürfen nur
 # Anfragen auf statische Dateien unter assets/ passieren (dieselbe
 # Endungs-Allowlist wie in der Route); alles andere bleibt gesperrt, auch

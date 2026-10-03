@@ -10,7 +10,7 @@ use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 
 /**
- * SystemController — System-Einstellungen, Config-Editor, Performance,
+ * SystemController: System-Einstellungen, Config-Editor, Performance,
  * Telemetrie. Templates enthalten weiterhin inline-Datenladung (Eloquent)
  * und nutzen die existierenden Manager-Klassen (ConfigManager, SystemUpdater,
  * TelemetryManager, GlobalAnnouncementManager).
@@ -18,7 +18,7 @@ use App\Http\Controllers\Controller;
 class SystemController extends Controller
 {
     /**
-     * System-Landing-Page — Karten-Grid, das die Sub-Sections verlinkt
+     * System-Landing-Page: Karten-Grid, das die Sub-Sections verlinkt
      * (Updater, Config, Performance, Telemetry, Logs, Cron). Keine
      * Updater-Logik mehr (fuer den Updater siehe `updater()`).
      */
@@ -30,7 +30,7 @@ class SystemController extends Controller
     }
 
     /**
-     * System-Updater — Versions-Check, Download/Install, Manifest-Apply,
+     * System-Updater: Versions-Check, Download/Install, Manifest-Apply,
      * Composer-Bridge, Branch-Updates fuer Dev-Mode. Verschoben aus index()
      * (war historisch dort), damit `/settings/system/index` jetzt die
      * Landing-Page bleiben kann und der Updater eine eigene URL hat.
@@ -63,7 +63,7 @@ class SystemController extends Controller
 
         // Installations-UUID an das Template reichen, damit sie als Support-
         // Banner angezeigt werden kann. Wird lazy erzeugt, falls noch keine
-        // existiert — das ist idempotent, kein Risiko bei Mehrfach-Aufruf.
+        // existiert. Das ist idempotent, kein Risiko bei Mehrfach-Aufruf.
         $telemetry      = new \App\Telemetry\TelemetryManager();
         $installationId = $telemetry->getInstallationId();
 

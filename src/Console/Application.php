@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 /**
  * intraRP Console Application.
  *
- * Thin-Wrapper um `Symfony\Component\Console\Application` — registriert
+ * Thin-Wrapper um `Symfony\Component\Console\Application`. Registriert
  * alle intraRP-Commands aus `config/console.php` und resolved sie via
  * DI-Container, damit sie Constructor-Injection nutzen können.
  *
@@ -48,7 +48,7 @@ final class Application extends SymfonyApplication
     /**
      * Dieselbe Suchreihenfolge wie Api\VersionController und
      * Api\HealthController: storage/ zuerst, system/updates/ als Altlast.
-     * Die Release-Workflows schreiben nach storage/ — wer nur dort nicht
+     * Die Release-Workflows schreiben nach storage/. Wer nur dort nicht
      * nachsieht, meldet "dev", waehrend /healthz danebem die echte Version
      * ausgibt.
      */

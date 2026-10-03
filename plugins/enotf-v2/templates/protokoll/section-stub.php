@@ -8,7 +8,7 @@
  * Eine Section ist EINE Datei: templates/protokoll/{section}.php
  * (section = rettdaten | erstbefund | anamnese | diagnose | verlauf |
  * massnahmen | abschluss). Sobald die Datei existiert, rendert
- * ProtokollController::show() sie automatisch statt dieses Stubs —
+ * ProtokollController::show() sie automatisch statt dieses Stubs,
  * keine Routen- oder Controller-Änderung nötig.
  *
  * Verfügbare Variablen (Scope von protokoll/index.php):
@@ -17,7 +17,7 @@
  *   $istGesperrt bool    freigegeben=1 → alle Inputs disabled/readonly rendern!
  *
  * Zusatz-Queries (Vitalwerte, Medikamente, …) laufen über die Eloquent-
- * Models in Plugin\EnotfV2\Models — kein direkter DB-Zugriff im Template.
+ * Models in Plugin\EnotfV2\Models, kein direkter DB-Zugriff im Template.
  *
  * Autosave (assets/autosave.js, läuft automatisch auf dieser Seite):
  *   - Jedes input/select/textarea mit name="<db-spalte>" wird bei
@@ -49,7 +49,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
         <i class="fa-solid fa-person-digging text-3xl mb-3 block"></i>
         <p class="font-semibold mb-1">Dieser Abschnitt ist noch nicht umgesetzt.</p>
         <p class="text-sm m-0">
-            Section <code><?= $e($activeSection ?? '?') ?></code> — das Template
+            Section <code><?= $e($activeSection ?? '?') ?></code>. Das Template
             <code>templates/protokoll/<?= $e($activeSection ?? '{section}') ?>.php</code> existiert noch nicht.
         </p>
     </div>

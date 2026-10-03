@@ -1,5 +1,5 @@
 /**
- * eNOTF v2 — eDIVI-Bridge: Vanilla-Ersatz für v1s notify.php (jQuery).
+ * eNOTF v2: eDIVI-Bridge als Vanilla-Ersatz für v1s notify.php (jQuery).
  *
  * Erwartet vom Layout (_layout-protokoll.php):
  *   window.__dynamicDaten   komplette Protokollzeile (Feld → Wert)
@@ -13,7 +13,7 @@
  *                          edivi__validation-green/-yellow/-red (gefiltert
  *                          auf die aktiven Conditions-Spalten, wenn
  *                          field_checks.php geladen ist)
- *   - Quickfill-Kacheln:   input[data-quickfill] („ohne path. Befund") —
+ *   - Quickfill-Kacheln:   input[data-quickfill] („ohne path. Befund"),
  *                          setzt die Felder und speichert sie als EINEN
  *                          Batch über den v2-Autosave (statt n Requests)
  *   - psych-Exklusivlogik: 1/98/99 schließen alle anderen aus; Speicherung
@@ -24,12 +24,12 @@
  *                          gespeichert; optionale Exklusiv-Codes über
  *                          data-ev2-exclusive="1[,98,…]" (Code schließt
  *                          alle anderen aus und umgekehrt). Nutzt u. a.
- *                          rettungstechnik (massnahmen/weitere) — dort
+ *                          rettungstechnik (massnahmen/weitere), dort
  *                          bewusst OHNE Exklusiv-Codes: Code 1 ist im
  *                          v1-Formular „Spineboard", kein „keine"-Wert
  *                          (siehe BefundCatalog::RETTUNGSTECHNIK)
  *
- * __dynamicDaten wird bei jeder Feldänderung im DOM nachgezogen — die
+ * __dynamicDaten wird bei jeder Feldänderung im DOM nachgezogen, die
  * Färbungen reagieren damit sofort, ohne auf den Server zu warten.
  */
 (function () {
@@ -131,7 +131,7 @@
             if (String(daten()[field]) === String(value)) return;
 
             // DOM nachziehen (alle Schritte stehen im DOM): Radio anhaken
-            // bzw. Textwert setzen — OHNE change-Event, gespeichert wird
+            // bzw. Textwert setzen, OHNE change-Event, gespeichert wird
             // gesammelt über den Autosave-Batch darunter.
             var radio = document.querySelector('input[type="radio"][name="' + CSS.escape(field) + '"][value="' + CSS.escape(String(value)) + '"]');
             if (radio) {
@@ -228,7 +228,7 @@
     // ── symptombeginn: „geschätzt" ↔ „nicht feststellbar" exklusiv ────
     // (v1 anamnese/2_1.php). Die Checkboxen selbst speichert der normale
     // Checkbox-Autosave (1/0); nur das programmatische Abwählen des
-    // Gegenstücks feuert kein change-Event — dessen 0 wird deshalb hier
+    // Gegenstücks feuert kein change-Event, dessen 0 wird deshalb hier
     // explizit mitgequeued (gleiches Muster wie bindPsych).
     function bindSymptombeginn() {
         var geschaetzt = document.querySelector('input[type="checkbox"][name="symptombeginn_geschaetzt"]');

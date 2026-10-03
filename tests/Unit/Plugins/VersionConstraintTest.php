@@ -32,7 +32,7 @@ class VersionConstraintTest extends TestCase
             ['1.0.0', '*', true],
             ['1.0.0', '', true],
 
-            // range (AND of two parts) — the manifest's typical form
+            // range (AND of two parts), the manifest's typical form
             ['1.2.0', '>=1.2 <2.0', true],
             ['1.5.9', '>=1.2 <2.0', true],
             ['1.1.9', '>=1.2 <2.0', false],

@@ -1,4 +1,4 @@
-// style.scss — Basis: Tokens, Body, Typografie, Login-Hintergrund.
+// style.scss: Basis: Tokens, Body, Typografie, Login-Hintergrund.
 // Farben kommen aus _tokens.scss (siehe dort); die alten Token-Namen
 // bleiben über _tokens-legacy.scss erreichbar.
 @use 'tokens';
@@ -9,7 +9,7 @@
   hyphens: auto;
 }
 
-// Bootstrap-Default-Reset für <hr> — border-color erbt jetzt von color,
+// Bootstrap-Default-Reset für <hr>: border-color erbt jetzt von color,
 // sodass `style="color:transparent"` Spacer-Linien unsichtbar macht. Ohne
 // diese Regel kommt der Browser-Default (sichtbare 1px-Inset-Linie).
 hr {
@@ -35,7 +35,7 @@ body {
 
 // Heading-Defaults. Bootstrap hat das früher normalisiert (margin-top: 0,
 // einheitliche Schriftgrößen). Ohne diese Regeln bekommen wir Browser-
-// Defaults — vor allem `h6 { font-size: 0.67em }` und großes
+// Defaults, vor allem `h6 { font-size: 0.67em }` und großes
 // `margin-block` an jeder Überschrift.
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -112,7 +112,7 @@ body.ignis-app {
     font-weight: 500;
   }
 
-  // Browser-Default fuer <th> ist text-align:center — fuer Daten-Tabellen
+  // Browser-Default fuer <th> ist text-align:center. Fuer Daten-Tabellen
   // mit links-buendigen Werten unten daneben sieht das schief aus. Wir
   // setzen left als sinnvolleren Default; wer Header explizit zentrieren
   // will, nutzt .text-center oder eigene Klassen.

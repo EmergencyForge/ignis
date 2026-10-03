@@ -1,9 +1,9 @@
 <?php
 
 /**
- * eNOTF v2 — hängt sich wie v1 in den Rail-Eintrag „Protokolle" ein.
+ * eNOTF v2: hängt sich wie v1 in den Rail-Eintrag „Protokolle" ein.
  * Settings bleiben beim v1-Plugin (POIs, Medikamente, Schnellzugriff
- * verwalten denselben Datenbestand — kein zweiter Einstieg nötig).
+ * verwalten denselben Datenbestand, kein zweiter Einstieg nötig).
  */
 
 return [

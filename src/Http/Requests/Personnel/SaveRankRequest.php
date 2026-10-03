@@ -20,7 +20,7 @@ use Respect\Validation\Validator as v;
  *
  * `id` ist Teil derselben Menge, weil Anlegen und Ändern dasselbe Formular
  * benutzen: beim Anlegen fehlt es, beim Ändern steht es drin. Dass es beim
- * Ändern auch größer als null sein muss, prüft der Controller — nur er
+ * Ändern auch größer als null sein muss, prüft der Controller. Nur er
  * weiß, welche der beiden Aktionen gerade läuft.
  *
  * Die beiden Schalter kommen als Kästchen: sie stehen im Post, wenn sie

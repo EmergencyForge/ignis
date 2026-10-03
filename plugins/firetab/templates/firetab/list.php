@@ -59,7 +59,7 @@ function einsatz_fmt_dt(?string $ts): string
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                         <?php foreach ($incidents as $inc): ?>
                             <?php
-                            // Status badge — bei nicht-finalisierten immer "In Bearbeitung",
+                            // Status badge: bei nicht-finalisierten immer "In Bearbeitung",
                             // sonst der QM-Status aus Map
                             if (empty($inc['finalized'])) {
                                 $statusBadge = 'ignis-chip--warn';

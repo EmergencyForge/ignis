@@ -69,7 +69,7 @@ final class FileUploadTest extends TestCase
     }
 
     /**
-     * Der Typ wird am Inhalt bestimmt, nicht an der Endung — eine als .png
+     * Der Typ wird am Inhalt bestimmt, nicht an der Endung. Eine als .png
      * benannte PHP-Datei muss durchfallen.
      */
     #[Test]

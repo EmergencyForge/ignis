@@ -11,7 +11,7 @@ use Tests\TestCase;
 /**
  * Pflichtfeld-Regelwerk (Port aus v1 conditions.php/notify.php): Regelanzahl,
  * transportziel-Overrides/-Additions, zeroIsValid-Semantik, sectionStatus-
- * Mapping und die isReleasable-Grenzfälle. Alles über Arrays — kein DB-Zugriff.
+ * Mapping und die isReleasable-Grenzfälle. Alles über Arrays, kein DB-Zugriff.
  */
 class EnotfV2ConditionsServiceTest extends TestCase
 {
@@ -32,7 +32,7 @@ class EnotfV2ConditionsServiceTest extends TestCase
     private function vollstaendigeDaten(): array
     {
         return [
-            // [1] Rettdaten — patsex 0 ist gültig (weiblich)
+            // [1] Rettdaten: patsex 0 ist gültig (weiblich)
             'patsex' => 0, 'edatum' => '2026-01-01', 'ezeit' => '12:00',
             'transportziel' => 1, 'salarm' => '11:50', 'spat' => '12:05',
             'sende' => '13:00', 'eart' => 1, 'transp_adresse' => 'Musterstr. 1',
@@ -73,7 +73,7 @@ class EnotfV2ConditionsServiceTest extends TestCase
         $this->assertSame(33, array_sum(array_map('count', $open)));
     }
 
-    // ── transportziel=4 (Fehleinsatz) — Overrides ────────────────────
+    // ── transportziel=4 (Fehleinsatz): Overrides ────────────────────
 
     #[Test]
     public function fehleinsatz_reduziert_auf_11_aktive_regeln(): void
@@ -112,7 +112,7 @@ class EnotfV2ConditionsServiceTest extends TestCase
         }
     }
 
-    // ── transportziel 2/21/22 — Additions ────────────────────────────
+    // ── transportziel 2/21/22: Additions ────────────────────────────
 
     #[Test]
     public function transportziele_2_21_22_ergaenzen_ziel_adresse_und_zeiten(): void

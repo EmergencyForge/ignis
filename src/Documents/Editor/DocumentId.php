@@ -19,7 +19,7 @@ use Illuminate\Database\QueryException;
  * rechtfertigt.
  *
  * Der Unique-Index auf `docid` ist die einzige verlässliche Sicherung
- * gegen einen Zufallstreffer — deshalb wird gewürfelt, eingefügt und bei
+ * gegen einen Zufallstreffer. Deshalb wird gewürfelt, eingefügt und bei
  * Kollision mit neuer Zahl wiederholt, statt vorher zu prüfen. Bei zehn
  * Millionen möglichen Werten ist der zweite Durchlauf die Ausnahme.
  */

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * `intra_enotf_sessions` — Crew-Session pro Fahrzeug (max. eine aktive
+ * `intra_enotf_sessions`: Crew-Session pro Fahrzeug (max. eine aktive
  * je vehicle_identifier; alte Sessions bleiben mit active=0 als
  * Historie stehen).
  *

@@ -10,11 +10,11 @@ use Tests\FixtureFactory;
 
 /**
  * ComponentClassTest (Unit) durchsucht Quelltext nach den alten
- * Klassennamen als Zeichenkette — trifft aber keine Klasse, die aus
+ * Klassennamen als Zeichenkette, trifft aber keine Klasse, die aus
  * Fragmenten zusammengesetzt wird (z. B. `'ignis-chip--' .
  * $this->getStatusClass($status)`, siehe SystemUpdater.php, oder
  * `role.color` in templates/roles/index.php). Dieser Test rendert stattdessen
- * echte Seiten und prüft das AUSGELIEFERTE HTML — das sieht jede
+ * echte Seiten und prüft das AUSGELIEFERTE HTML. Das sieht jede
  * Zusammensetzung, egal wie dynamisch, weil am Ende nur die fertige Klasse
  * zählt.
  *
@@ -23,7 +23,7 @@ use Tests\FixtureFactory;
  * css.md) an dynamischer Klassenbildung angefasst hat (Flash, role.color,
  * SystemUpdater-Diagnose). Routen, die in dieser Umgebung nicht mit 200
  * antworten (z. B. ein Plugin, das die Test-DB nicht aktiviert hat), werden
- * übersprungen — andere Statuscodes haben ShellTest/MciBoardTest usw.
+ * übersprungen. Andere Statuscodes haben ShellTest/MciBoardTest usw.
  * schon im Blick.
  */
 final class OldVocabularyRenderTest extends FeatureTestCase
@@ -56,7 +56,7 @@ final class OldVocabularyRenderTest extends FeatureTestCase
         '/settings/mail/mailboxes',
     ];
 
-    /** Alte Suffixe je Komponentenfamilie — "info"/"warn" sind für Chip/Alert gültiges NEUES Vokabular, für Btn nicht, deshalb getrennte Listen. */
+    /** Alte Suffixe je Komponentenfamilie. "info"/"warn" sind für Chip/Alert gültiges NEUES Vokabular, für Btn nicht, deshalb getrennte Listen. */
     private const OLD_SUFFIXES = [
         'btn'   => ['accent', 'soft-[a-z]+', 'outline-[a-z]+', 'success', 'info', 'warning'],
         'chip'  => ['success', 'warning', 'error', 'note', 'accent'],
@@ -75,7 +75,7 @@ final class OldVocabularyRenderTest extends FeatureTestCase
     {
         $this->login();
 
-        // users/list rendert auch die Flash-Meldung aus der Hülle — Flash::
+        // users/list rendert auch die Flash-Meldung aus der Hülle. Flash::
         // success() setzte vor der Migration `ignis-alert--success` in den
         // <noscript>-Kasten, jetzt muss `getAlertClassSuffix()` das abfangen.
         \App\Helpers\Flash::success('Testmeldung für den Vokabular-Check');

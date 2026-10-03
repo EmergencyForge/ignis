@@ -103,14 +103,14 @@ final class EnotfAdminListTest extends FeatureTestCase
 
         $page = $this->get(self::LIST, ['query' => ['q' => $s]]);
         $this->assertOk($page);
-        $this->assertBodyContains('1–20 von 22 Protokolle', $page);
+        $this->assertBodyContains('1 bis 20 von 22 Protokolle', $page);
         // Neueste zuerst: 01 liegt eine Stunde zurück, 02 zwei.
         $this->assertLessThan($this->pos($page->body, "$s-02"), $this->pos($page->body, "$s-01"));
         $this->assertBodyNotContains("$s-21", $page);
         $this->assertBodyContains('<a class="ignis-table__sort" href="/enotf/admin/list?q=' . $s . '&amp;sort=patient&amp;dir=asc">Patient', $page);
 
         $second = $this->get(self::LIST, ['query' => ['q' => $s, 'page' => '2']]);
-        $this->assertBodyContains('21–22 von 22 Protokolle', $second);
+        $this->assertBodyContains('21 bis 22 von 22 Protokolle', $second);
         $this->assertBodyContains("$s-22", $second);
         $this->assertBodyNotContains("$s-01", $second);
 
@@ -122,11 +122,11 @@ final class EnotfAdminListTest extends FeatureTestCase
         $this->assertBodyContains('<input type="hidden" name="sort" value="nr">', $byNumber);
 
         $patient = $this->get(self::LIST, ['query' => ['q' => "Erna $s"]]);
-        $this->assertBodyContains('1–1 von 1 Protokolle', $patient);
+        $this->assertBodyContains('1 bis 1 von 1 Protokolle', $patient);
         $this->assertBodyContains("$s-03", $patient);
 
         $author = $this->get(self::LIST, ['query' => ['q' => "Schreiber $s"]]);
-        $this->assertBodyContains('1–1 von 1 Protokolle', $author);
+        $this->assertBodyContains('1 bis 1 von 1 Protokolle', $author);
         $this->assertBodyContains("$s-05", $author);
 
         $none = $this->get(self::LIST, ['query' => ['q' => "nichts $s"]]);
@@ -179,7 +179,7 @@ final class EnotfAdminListTest extends FeatureTestCase
 
         $page = $this->get(self::LIST, ['query' => ['q' => $s]]);
         $this->assertOk($page);
-        $this->assertBodyContains('1–2 von 2 Protokolle', $page);
+        $this->assertBodyContains('1 bis 2 von 2 Protokolle', $page);
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--secondary">Nachbarwache</span>', $page);
         $this->assertBodyContains('<span class="ignis-list-meta">nur lesen</span>', $page);
         $this->assertBodyContains('<td>Unbekannt</td>', $page);

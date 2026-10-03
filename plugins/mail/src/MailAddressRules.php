@@ -14,7 +14,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *
  * Postfächer, Verteiler und frühere Adressen teilen sich einen Adressraum.
  * Die Unique-Indizes je Tabelle fangen nur Kollisionen innerhalb einer
- * Tabelle ab, isTaken() prüft über alle drei — auch die Provisionierung
+ * Tabelle ab, isTaken() prüft über alle drei, auch die Provisionierung
  * fragt hier, nicht nur bei den Postfächern.
  */
 final class MailAddressRules

@@ -16,7 +16,7 @@ use PDOException;
  * Neue Einträge tragen die Kennung als JSON in `context`; danach wird
  * zuerst gesucht. Zeilen von vor dieser Spalte haben sie nur als Text in
  * der Aktion (`Fahrzeug aktualisiert [ID: 12]`) oder in den Details
- * (`Fahrzeug-ID: 12 | Titel`, `Name: … | ID: 12` beim EMD-Import) — für
+ * (`Fahrzeug-ID: 12 | Titel`, `Name: … | ID: 12` beim EMD-Import). Für
  * die bleibt der Rückfall auf `ID: 12`, das nicht von einer weiteren
  * Ziffer gefolgt wird, damit 12 nicht auch 123 trifft.
  */
@@ -135,7 +135,7 @@ final class Activity
         return (string) preg_replace_callback('~\{([a-z_]+)\}~', static function (array $m) use ($details): string {
             return match ($m[1]) {
                 'title'  => self::afterPipe($details),
-                default  => '—',
+                default  => '-',
             };
         }, $template);
     }
@@ -144,10 +144,10 @@ final class Activity
     private static function afterPipe(?string $details): string
     {
         if ($details === null || !str_contains($details, '|')) {
-            return '—';
+            return '-';
         }
         $title = trim(substr($details, strpos($details, '|') + 1));
 
-        return $title !== '' ? $title : '—';
+        return $title !== '' ? $title : '-';
     }
 }

@@ -52,7 +52,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
                                     <dt>Name und Dienstnummer</dt>
                                     <dd><?= htmlspecialchars($antrag->name_dn) ?></dd>
                                     <dt>Dienstgrad</dt>
-                                    <dd><?= ($antrag->dienstgrad ?? '') !== '' ? htmlspecialchars((string) $antrag->dienstgrad) : '—' ?></dd>
+                                    <dd><?= ($antrag->dienstgrad ?? '') !== '' ? htmlspecialchars((string) $antrag->dienstgrad) : '-' ?></dd>
                                 </dl>
                             </div>
                         </section>

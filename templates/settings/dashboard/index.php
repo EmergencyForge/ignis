@@ -154,7 +154,7 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
     </form>
 
     <script>
-        // Icon-Liste einmalig laden — wird im Tile-Modal pro Open in
+        // Icon-Liste einmalig laden, wird im Tile-Modal pro Open in
         // den Autocomplete reingereicht.
         let dashboardAllIcons = [];
         fetch('<?= BASE_PATH ?>assets/json/fa-free-icons.json')

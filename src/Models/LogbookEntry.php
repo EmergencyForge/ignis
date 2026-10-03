@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fahrtenbuch` — Fahrtenbuch-Einträge.
+ * Eloquent-Model für `intra_fahrtenbuch`: Fahrtenbuch-Einträge.
  *
  * Anders als die meisten intraRP-Tabellen hat das Fahrtenbuch BEIDE
- * Timestamps (created_at + updated_at) — daher erbt diese Klasse direkt von
+ * Timestamps (created_at + updated_at), daher erbt diese Klasse direkt von
  * EloquentModel statt von App\Models\Model und nutzt die normale
  * Eloquent-Timestamp-Logik.
  *
@@ -43,7 +43,7 @@ class LogbookEntry extends EloquentModel
 {
     protected $table = 'intra_fahrtenbuch';
 
-    /** Diese Tabelle hat BEIDE Timestamps — Eloquent macht das automatisch. */
+    /** Diese Tabelle hat BEIDE Timestamps. Eloquent macht das automatisch. */
     public $timestamps = true;
 
     protected $guarded = [];
@@ -83,14 +83,14 @@ class LogbookEntry extends EloquentModel
 
     /**
      * Beziehung zum Fahrzeug (intra_fahrzeuge). Kein eigenes Eloquent-Model
-     * für Fahrzeuge in dieser Phase — wir geben null oder eine stdClass via
+     * für Fahrzeuge in dieser Phase. Wir geben null oder eine stdClass via
      * Capsule, wenn wir Daten brauchen.
      *
      * @return BelongsTo<self, $this>
      */
     public function vehicle(): BelongsTo
     {
-        // Verwende ein generisches Eloquent-Model wäre überdimensioniert —
+        // Verwende ein generisches Eloquent-Model wäre überdimensioniert;
         // LogbookController joint stattdessen via Capsule für die Liste.
         return $this->belongsTo(self::class, 'vehicle_id', 'id');
     }

@@ -1,27 +1,27 @@
 <?php
 
 /**
- * Section: Verlauf (Vitalwerte) — eNOTF v2 im v1-Look.
+ * Section: Verlauf (Vitalwerte), eNOTF v2 im v1-Look.
  *
  * Nachbau der v1-Seiten plugins/enotf/templates/enotf/protokoll/verlauf/:
  *
- *   ÜBERSICHT (ohne ?t): index.php — Kopfzeile („Verlauf bearbeiten"),
+ *   ÜBERSICHT (ohne ?t): index.php mit Kopfzeile („Verlauf bearbeiten"),
  *     Statistik-Box, Chart.js-Vitalwerte-Chart (Linien je Parameter,
  *     gruppiert nach Zeitpunkt, zwei Y-Achsen wie v1) aus dem lokalen
  *     vendor-chart-Bundle (kein CDN, rendert auch ohne Außenanbindung).
  *     Darunter zusätzlich die chronologische Werte-Tabelle.
  *
- *   ?t=add  (v1 add.php): Keypad-Maske — Vitalparameter-Boxen, Zahlenfeld,
+ *   ?t=add  (v1 add.php): Keypad-Maske mit Vitalparameter-Boxen, Zahlenfeld,
  *     Range-Strip mit Normbereichs-Färbung. Speichern schickt EINEN
  *     Request an die v2-Vitals-API (POST /api/enotf-v2/vitals, BZ in der
- *     Anzeige-Einheit — die API konvertiert nach mg/dl).
+ *     Anzeige-Einheit, die API konvertiert nach mg/dl).
  *
- *   ?t=list (v1 list.php): gruppierte Tabelle mit Einzelwert-Löschung —
+ *   ?t=list (v1 list.php): gruppierte Tabelle mit Einzelwert-Löschung,
  *     Soft-Delete über POST /api/enotf-v2/vitals/delete (statt v1s
  *     GET ?action=delete).
  *
  * Die Keypad-/Vitalparameter-Styles kommen aus divi.css und sind auf
- * body[data-page="verlauf"] gescoped — das Layout setzt data-page auf
+ * body[data-page="verlauf"] gescoped, das Layout setzt data-page auf
  * den Section-Key, hier also automatisch "verlauf".
  *
  * @var array<string,mixed> $protokoll
@@ -74,7 +74,7 @@ foreach ($werteRaw as $wert) {
     $anzeige        = (string) $wert->parameter_wert;
     $anzeigeEinheit = (string) $wert->parameter_einheit;
     if ($code === 'bz') {
-        // Speicherung immer mg/dl — Anzeige in der konfigurierten Einheit
+        // Speicherung immer mg/dl, Anzeige in der konfigurierten Einheit
         $anzeige        = $bzHelper->formatValue($wert->parameter_wert, false);
         $anzeigeEinheit = $bzUnit;
     }
@@ -89,7 +89,7 @@ foreach ($werteRaw as $wert) {
 ksort($gruppen);
 
 // ── Chart-Daten (v1 verlauf/index.php): je Parameter eine Serie,
-//    gruppiert nach Zeitpunkt — BZ in der Anzeige-Einheit ────────────
+//    gruppiert nach Zeitpunkt, BZ in der Anzeige-Einheit ────────────
 $chartParams = ['spo2', 'atemfreq', 'etco2', 'herzfreq', 'rrsys', 'rrdias', 'bz', 'temp'];
 $chartJeZeit = []; // zeitpunkt => code => float
 foreach ($werteRaw as $wert) {
@@ -124,7 +124,7 @@ $zeitFormat    = static function (string $zeitpunkt): string {
     return $dt ? $dt->format('d.m.Y H:i') : $zeitpunkt;
 };
 
-// v1-Tabellen-Styles (list.php) — von Übersicht und Bearbeiten-Ansicht geteilt
+// v1-Tabellen-Styles (list.php), von Übersicht und Bearbeiten-Ansicht geteilt
 $tabelleStyles = <<<'CSS'
 <style>
     .vitals-container {
@@ -405,9 +405,9 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
             }
 
             // Bundle nicht gebaut/eingebunden? Dann bleibt der Canvas
-            // leer — die Tabelle darunter zeigt die Werte weiterhin.
+            // leer, die Tabelle darunter zeigt die Werte weiterhin.
             if (typeof window.Chart === 'undefined') {
-                console.warn('Chart.js nicht geladen — Vitalwerte-Diagramm wird übersprungen.');
+                console.warn('Chart.js nicht geladen, Vitalwerte-Diagramm wird übersprungen.');
                 return;
             }
 
@@ -850,7 +850,7 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
 
     <script>
         // Keypad + Validierungs-Färbung + Range-Strip (v1 add.php,
-        // Vanilla statt onclick-Attribute) — Speichern als EIN Request
+        // Vanilla statt onclick-Attribute), Speichern als EIN Request
         // an die v2-Vitals-API.
         (function () {
             'use strict';
@@ -1162,7 +1162,7 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
                     if (!input) return;
                     var wert = input.value.trim();
                     if (wert === '') return;
-                    werte[name] = wert; // BZ in Anzeige-Einheit — die API konvertiert
+                    werte[name] = wert; // BZ in Anzeige-Einheit, die API konvertiert
                     anzahl++;
                 });
                 if (anzahl === 0) {

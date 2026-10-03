@@ -1,8 +1,8 @@
 /**
- * eNOTF v2 — Protokoll teilen (Vanilla-Ersatz für v1s share-modals.php).
+ * eNOTF v2: Protokoll teilen (Vanilla-Ersatz für v1s share-modals.php).
  *
  * Zwei Dialoge über window.Dialog (assets/js/ui/dialog.js):
- *   - Senden:    EnotfV2Share.open(protocolId, enr) — Fahrzeugauswahl
+ *   - Senden:    EnotfV2Share.open(protocolId, enr): Fahrzeugauswahl
  *                als <select> mit Ev2Select (Suchfeld ab acht Optionen),
  *                POST auf share/send-request.
  *   - Empfangen: Poll auf share/check-requests (sofort + alle 15s, läuft
@@ -414,7 +414,7 @@
     };
 
     // Das Asset-Partial wird nur auf Crew-Seiten (Protokoll + Overview)
-    // eingebunden — der Poll kann daher direkt starten.
+    // eingebunden. Der Poll kann daher direkt starten.
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initPoll);
     } else {

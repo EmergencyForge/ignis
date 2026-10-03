@@ -105,7 +105,7 @@ $bodyId = 'fahrzeuge';
                         <h4>Stammdaten</h4>
                         <dl class="ignis-detail__dl">
                             <dt>Kennzeichen</dt>
-                            <dd><?= $plate !== '' ? '<span class="ignis-mono">' . htmlspecialchars($plate) . '</span>' : '—' ?></dd>
+                            <dd><?= $plate !== '' ? '<span class="ignis-mono">' . htmlspecialchars($plate) . '</span>' : '-' ?></dd>
                             <dt>Funkrufname</dt>
                             <dd><?= htmlspecialchars((string) $vehicle['name']) ?></dd>
                             <dt>Kennung</dt>
@@ -130,7 +130,7 @@ $bodyId = 'fahrzeuge';
                                 <?php endif; ?>
                             </dd>
                             <dt>Angelegt</dt>
-                            <dd><?= !empty($vehicle['created_at']) ? htmlspecialchars(DateTimeHelper::formatDateLocal((string) $vehicle['created_at'])) : '—' ?></dd>
+                            <dd><?= !empty($vehicle['created_at']) ? htmlspecialchars(DateTimeHelper::formatDateLocal((string) $vehicle['created_at'])) : '-' ?></dd>
                         </dl>
                     </div>
 

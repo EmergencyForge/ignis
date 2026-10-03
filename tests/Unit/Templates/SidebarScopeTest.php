@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * Namen benutzt (in Lex zweimal passiert: $basePath, $isActive).
  *
  * Der Test prüft die Regel, nicht die bekannten Namen: die Komponenten
- * schreiben ausschließlich Variablen mit ihrem Präfix — `top` für die
+ * schreiben ausschließlich Variablen mit ihrem Präfix: `top` für die
  * Topbar, `nav` für die Sidebar, `navbar` für den Shim.
  */
 final class SidebarScopeTest extends TestCase
@@ -82,7 +82,7 @@ final class SidebarScopeTest extends TestCase
         $this->assertIsString($source);
 
         $assigned = $this->assignedVariables($source);
-        $this->assertNotEmpty($assigned, "Keine Zuweisungen in $file gefunden — der Regex passt nicht mehr zur Datei.");
+        $this->assertNotEmpty($assigned, "Keine Zuweisungen in $file gefunden. Der Regex passt nicht mehr zur Datei.");
 
         $unprefixed = array_values(array_filter(
             $assigned,
@@ -94,7 +94,7 @@ final class SidebarScopeTest extends TestCase
             $unprefixed,
             "$file schreibt Variablen ohne $prefix-Präfix in den Template-Scope: \$"
                 . implode(', $', $unprefixed)
-                . ' — jedes Template, das denselben Namen vor dem Include belegt, verliert seinen Wert.',
+                . '. Jedes Template, das denselben Namen vor dem Include belegt, verliert seinen Wert.',
         );
     }
 }

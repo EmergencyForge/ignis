@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Konsolidiert die Legacy-Tabelle `intra_edivi_ziele` in `intra_edivi_pois`.
  *
- * Vorher: zwei parallele Datenmodelle für Krankenhäuser/Ziele — `intra_edivi
+ * Vorher: zwei parallele Datenmodelle für Krankenhäuser/Ziele, `intra_edivi
  * _ziele` (alt, nur identifier+name+priority+transport+active) und `intra
  * _edivi_pois` (neu, mit Adresse, Departments, Access-Codes). Das führte
  * dazu, dass z. B. abschluss/freigabe.php auf der alten Tabelle suchte,
@@ -19,7 +19,7 @@ use Phinx\Migration\AbstractMigration;
  *      legacy_identifier in pois existiert, mit minimalem Adress-Stub
  *      (ort='', strasse=NULL).
  *
- * Die alte Tabelle wird BEWUSST nicht gedroppt — produktionsseitiger
+ * Die alte Tabelle wird BEWUSST nicht gedroppt, produktionsseitiger
  * Verify ist Voraussetzung. Ein späterer Migration-Schritt entfernt sie.
  */
 final class ConsolidateZieleIntoPois extends AbstractMigration
@@ -44,7 +44,7 @@ final class ConsolidateZieleIntoPois extends AbstractMigration
             return;
         }
 
-        // Bereits übernommene Identifier überspringen — so bleibt die
+        // Bereits übernommene Identifier überspringen, so bleibt die
         // Migration idempotent (ersetzt das frühere INSERT IGNORE über den
         // UNIQUE-Index).
         $seen = [];
@@ -80,7 +80,7 @@ final class ConsolidateZieleIntoPois extends AbstractMigration
             return;
         }
 
-        // Nur diese Migration setzt legacy_identifier — die kopierten Rows
+        // Nur diese Migration setzt legacy_identifier, die kopierten Rows
         // lassen sich darüber eindeutig wieder entfernen. intra_edivi_ziele
         // wurde nie angetastet, die Quelldaten sind also vollständig da.
         $this->execute('DELETE FROM intra_edivi_pois WHERE legacy_identifier IS NOT NULL');

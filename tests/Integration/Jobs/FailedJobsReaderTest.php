@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\IntegrationTestCase;
 
 /**
- * Integration-Tests für FailedJobsReader — der Admin-Reader für die
+ * Integration-Tests für FailedJobsReader, den Admin-Reader für die
  * `intra_failed_jobs`-Tabelle, der vom Fehlerprotokoll-Panel genutzt wird.
  *
  * Abgedeckte Szenarien:
@@ -173,7 +173,7 @@ class FailedJobsReaderTest extends IntegrationTestCase
         $attemptsStmt->execute([':id' => $newJobId]);
         $this->assertSame(0, (int) $attemptsStmt->fetchColumn(), 'Retry soll attempts=0 setzen');
 
-        // failedId nicht mehr zum Cleanup nötig — wurde ja gerade gelöscht
+        // failedId nicht mehr zum Cleanup nötig, wurde ja gerade gelöscht
         $this->createdFailedIds = array_values(array_filter(
             $this->createdFailedIds,
             fn ($id) => $id !== $failedId

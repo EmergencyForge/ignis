@@ -1,11 +1,11 @@
 <?php
 
 /**
- * View: Logout-Bestätigung / Abgemeldet (eNOTF v2) — v1-Optik.
+ * View: Logout-Bestätigung / Abgemeldet (eNOTF v2) in v1-Optik.
  *
  * Markup/Optik = plugins/enotf/templates/enotf/loggedout.php (die
  * edivi__login-buttons-Leiste). Technik = v2: GET zeigt diese Seite
- * OHNE Side-Effects (DB-Write nur auf POST) —
+ * OHNE Side-Effects (DB-Write nur auf POST),
  *   - mit aktiver Crew-Session: Bestätigung mit den beiden Logout-
  *     Optionen als POST-Formulare (mode=self|all),
  *   - ohne Session: v1s "Sie sind nicht angemeldet!"-Leiste mit
@@ -31,7 +31,7 @@ $pinEnabled = EnotfV2Policy::pinEnabled() ? 'true' : 'false';
     require __DIR__ . '/_v1head.php';
     ?>
     <style>
-        /* Die v1-Leiste stylt nur <a> — die POST-Buttons (v2-Logout)
+        /* Die v1-Leiste stylt nur <a>, die POST-Buttons (v2-Logout)
            bekommen dieselbe Optik */
         .edivi__login-buttons button {
             font-size: 1.4rem;
@@ -60,7 +60,7 @@ $pinEnabled = EnotfV2Policy::pinEnabled() ? 'true' : 'false';
             padding: 22px 30px !important;
         }
 
-        /* v1 stylt nur .col/.col-3 als Flex-Zellen — die col-4-Zellen
+        /* v1 stylt nur .col/.col-3 als Flex-Zellen, die col-4-Zellen
            der Aktionszeile brauchen dieselbe Behandlung */
         .edivi__login-buttons .col-4 {
             display: flex;
@@ -81,7 +81,7 @@ $pinEnabled = EnotfV2Policy::pinEnabled() ? 'true' : 'false';
                         <?php $names = array_map(static fn ($m) => $m['name'], $crew['members'] ?? []); ?>
                         <div class="row">
                             <div class="col ev2-logout-question">
-                                Angemeldet auf&nbsp;<strong><?= $e($crew['vehicle_label'] ?? $crew['vehicle']) ?></strong><?= $names !== [] ? '&nbsp;(' . $e(implode(', ', $names)) . ')' : '' ?>&nbsp;— wie möchten Sie sich abmelden?
+                                Angemeldet auf&nbsp;<strong><?= $e($crew['vehicle_label'] ?? $crew['vehicle']) ?></strong><?= $names !== [] ? '&nbsp;(' . $e(implode(', ', $names)) . ')' : '' ?>. Wie möchten Sie sich abmelden?
                             </div>
                         </div>
                         <div class="row">

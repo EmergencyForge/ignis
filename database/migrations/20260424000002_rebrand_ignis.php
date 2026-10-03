@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Rebrand auf ıgnıs — setzt SYSTEM_NAME und SYSTEM_LOGO auf die neuen
+ * Rebrand auf ıgnıs: setzt SYSTEM_NAME und SYSTEM_LOGO auf die neuen
  * Default-Werte, aber nur wenn die Installation bisher den alten Default
  * („intraRP" bzw. das alte Logo-Asset) trägt. Wer den Namen oder das Logo
  * bereits manuell geändert hat, behält seinen Wert.

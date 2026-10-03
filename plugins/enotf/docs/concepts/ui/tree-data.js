@@ -1,7 +1,7 @@
 /*
  * Diagnosebaum-Daten für die UI-Mockups. Die Labels und Optionen sind 1:1 aus
  * den bestehenden Templates übernommen (plugins/enotf/templates/enotf/protokoll/diagnose).
- * Knoten ohne "options"/"children" sind im Mockup bewusst nicht hinterlegt —
+ * Knoten ohne "options"/"children" sind im Mockup bewusst nicht hinterlegt,
  * inhaltlich ändert sich am Bestand nichts.
  */
 
@@ -94,7 +94,7 @@ const DIAGNOSE_TREE = [
 
 const MOCK_NOTE =
   "Dieser Zweig ist im Mockup nicht hinterlegt. Im echten Umbau bleiben alle " +
-  "Inhalte unverändert — die Mockups zeigen nur die Navigation.";
+  "Inhalte unverändert. Die Mockups zeigen nur die Navigation.";
 
 /* Gemeinsame Topbar + Sektionsnav für alle Varianten */
 function renderChrome(subtitle) {
@@ -135,7 +135,7 @@ function renderChrome(subtitle) {
   ).join("");
 }
 
-/* Autosave-Toast — deutet die Feld-für-Feld-Speicherung aus Konzept C an */
+/* Autosave-Toast: deutet die Feld-für-Feld-Speicherung aus Konzept C an */
 let toastTimer = null;
 function showSaveToast(fieldLabel) {
   const toast = document.getElementById("save-toast");

@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Zugangs-Codes, mit denen Krankenhäuser die Verfügbarkeit ihrer
- * Abteilungen selbst pflegen können — genau ein Code pro POI.
+ * Abteilungen selbst pflegen können. Genau ein Code pro POI.
  */
 class CreateIntraEdiviHospitalAccessCodes21012026 extends AbstractMigration
 {

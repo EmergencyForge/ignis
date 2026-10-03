@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Lagemeldungen (Sitreps) zu einem Einsatz — Freitext mit Meldezeitpunkt,
+ * Lagemeldungen (Sitreps) zu einem Einsatz: Freitext mit Meldezeitpunkt,
  * optional zugeordnet zu einem meldenden Fahrzeug.
  */
 class CreateIntraFireIncidentSitreps23122025 extends AbstractMigration

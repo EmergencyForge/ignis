@@ -1,8 +1,8 @@
-# storage/documents/ — nur PDFs sind direkt abrufbar (geteilte Dokument-
+# storage/documents/: nur PDFs sind direkt abrufbar (geteilte Dokument-
 # Links), alles andere bleibt gesperrt.
 #
 # Apache 2.4 verwendet `Require`. Der `Order/Deny`-Block ist der Fallback
-# für Apache 2.2 bzw. Setups mit mod_access_compat — 2.2-Syntax alleine
+# für Apache 2.2 bzw. Setups mit mod_access_compat. 2.2-Syntax alleine
 # (ohne IfModule-Guard) wirft auf 2.4 ohne access_compat einen 500 für
 # jeden Request in dieses Verzeichnis.
 

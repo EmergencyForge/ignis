@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Protokoll-Sharing zwischen Fahrzeugen: `intra_edivi_share_requests` hält
  * Anfragen, mit denen ein Fahrzeug sein Protokoll an ein anderes übergibt
- * (Status-Workflow pending/accepted/rejected/cancelled, inkl. Ergebnis —
+ * (Status-Workflow pending/accepted/rejected/cancelled, inkl. Ergebnis,
  * gemergt oder als neues Protokoll übernommen).
  */
 class CreateIntraEdiviShareRequests17122025 extends AbstractMigration

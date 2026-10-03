@@ -1,5 +1,5 @@
 :root {
-  // Core tokens (eNOTF context — --darkgray is intentionally lighter than admin)
+  // Core tokens (eNOTF context: --darkgray is intentionally lighter than admin)
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
   --main-color: #ff4d00;
@@ -13,7 +13,7 @@
   --selection-bg: #308dfd;
   --selection-color: var(--white);
 
-  // eNOTF semantic colors — medical triage (per DIN 13050)
+  // eNOTF semantic colors: medical triage (per DIN 13050)
   --triage-red: #dc3545;
   --triage-yellow: #ffc107;
   --triage-green: #28a745;
@@ -574,9 +574,9 @@ body {
 }
 
 // admin.css lädt NACH divi.css und färbt Links global blau + unterstrichen
-// (a:not(...):hover mit langer :not()-Kette — Spezifität ~0,13,1, gewinnt
+// (a:not(...):hover mit langer :not()-Kette, Spezifität ~0,13,1, gewinnt
 // gegen jede normale Komponentenregel hier). Die eDIVI-Flächenbuttons sind
-// aber Links ohne eigene Klasse — Hover-Farben deshalb mit !important
+// aber Links ohne eigene Klasse, Hover-Farben deshalb mit !important
 // zurückholen (betrifft v1 UND v2, beide laden divi.css + admin.css).
 [class*="edivi__interactbutton"] > a:hover,
 #edivi__nidanav > a:hover {
@@ -2522,7 +2522,7 @@ body[data-page="verlauf"] .value-indicator {
 // Tailwinds `.collapse { visibility: collapse }`-Utility lädt nach uns und
 // würde Bootstraps Collapse-State (`.collapse.show` zeigt Inhalt) ausser
 // Kraft setzen. Im eNOTF-Scope explizit zurück auf Bootstrap-Verhalten.
-// (Tailwind-Blocklist konnten wir nicht nutzen — siehe tailwind.config.js.)
+// (Tailwind-Blocklist konnten wir nicht nutzen, siehe tailwind.config.js.)
 #edivi__container .collapse,
 body[data-page] .collapse,
 body#edivi__login .collapse {
@@ -2536,15 +2536,15 @@ body#edivi__login .collapse:not(.show) {
 
 // =====================================================
 // eNOTF-Overrides für ıgnıs Form-Komponenten
-// Standard-ıgnıs nutzt sehr dunklen Input-BG (#161616) + sm-Border-Radius —
-// passt nicht in den medium-grauen eNOTF-Look (#333 / #4a4a4a) und kollidiert
+// Standard-ıgnıs nutzt sehr dunklen Input-BG (#161616) + sm-Border-Radius.
+// Das passt nicht in den medium-grauen eNOTF-Look (#333 / #4a4a4a) und kollidiert
 // optisch mit den .form-control / .edivi__nidabutton-Tönen daneben.
 // Hier die Komponenten gezielt im eNOTF-Scope eingefärbt.
 // =====================================================
 #edivi__container,
 body#edivi__login,
 body[data-page] {
-  // Custom-Properties direkt überschreiben — alle ıgnıs-Komponenten lesen
+  // Custom-Properties direkt überschreiben. Alle ıgnıs-Komponenten lesen
   // sie über `var(--input-bg, …)` etc., damit reicht der Variablen-Patch
   // für den Großteil.
   --input-bg: #333333;
@@ -2623,7 +2623,7 @@ body[data-page] {
     color: var(--enotf-text-light, #999);
   }
 
-  // Panel (das aufklappende Menü) — JS nutzt `__panel`, nicht `__menu`.
+  // Panel (das aufklappende Menü): JS nutzt `__panel`, nicht `__menu`.
   .ignis-dropdown__panel,
   .ignis-combobox__panel {
     background: var(--enotf-surface-light, #4a4a4a);
@@ -2670,7 +2670,7 @@ body[data-page] {
   }
 
   // Beladelisten-Cards: das Admin-Default `position: sticky; top: 0` für
-  // die Card-Header ist im eNOTF problematisch — der eNOTF-Topbar liegt
+  // die Card-Header ist im eNOTF problematisch, denn der eNOTF-Topbar liegt
   // bei top: 0, und der sticky-Header der ersten Kategorie wandert
   // hinter den Topbar und ist damit nicht sichtbar/klickbar.
   // Im eNOTF rendert der Header daher im normalen Fluss.
@@ -2685,12 +2685,12 @@ body[data-page] {
 //
 // Die v1-Vorlagen setzen Spaltenbreiten als w-N/12 auf die Kinder eines
 // .row. Seit dem Tailwind-4-Upgrade stapeln die sich untereinander, und
-// zwar nicht, weil die Klassen fehlen — Tailwind erzeugt sie weiterhin.
+// zwar nicht, weil die Klassen fehlen. Tailwind erzeugt sie weiterhin.
 //
 // Der Grund sind Cascade Layers. Tailwind 4 legt seine Utilities per
 // @import ... layer(utilities) in einen Layer, Bootstrap kommt ungelayert
 // aus vendor-enotf.css. Ungelayerte Regeln schlagen gelayerte, unabhaengig
-// von Spezifitaet und Reihenfolge — und Bootstrap setzt in .row > * ein
+// von Spezifitaet und Reihenfolge, und Bootstrap setzt in .row > * ein
 // width: 100% auf jedes Kind. Das gewinnt also gegen jedes w-N/12, jede
 // Spalte wird voll breit, und der Flex-Container bricht sie um.
 //
@@ -2700,7 +2700,7 @@ body[data-page] {
 // Diese Datei ist ungelayert und liegt auf denselben Seiten. Die Regeln
 // sind auf `.row >` eingegrenzt, damit sich ausserhalb eines Bootstrap-Row
 // nichts aendert, und haben mit zwei Klassen genug Spezifitaet gegen
-// .row > *. Die Alternative — Bootstrap selbst in einen Layer zu ziehen —
+// .row > *. Die Alternative (Bootstrap selbst in einen Layer zu ziehen)
 // haette die halbe v1-Optik neu sortiert.
 @for $i from 1 through 12 {
   .row > .w-#{$i}\/12 {

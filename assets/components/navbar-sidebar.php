@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * assets/components/navbar-sidebar.php — Sidebar-Navigation.
+ * assets/components/navbar-sidebar.php: Sidebar-Navigation.
  *
  * Gruppen und Einträge aus App\Helpers\Navigation (config/navigation.php
  * plus Plugin-Fragmente, nach Rechten gefiltert, aktiver Eintrag per

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF — Permission-Katalog.
+ * eNOTF: Permission-Katalog.
  */
 
 return [

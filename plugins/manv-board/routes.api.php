@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * MANV-Board — API-Routen (Session-basiert).
+ * MANV-Board: API-Routen (Session-basiert).
  *
  * @var \EmergencyForge\Http\Router $router
  */

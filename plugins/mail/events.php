@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Mail — Event-Listener. Die Postfächer folgen den Mitarbeitern: angelegt
+ * Mail: Event-Listener. Die Postfächer folgen den Mitarbeitern: angelegt
  * oder gespeichert → Postfach anlegen bzw. abgleichen, gelöscht →
  * stilllegen (Plugin\Mail\MailboxProvisioner).
  */

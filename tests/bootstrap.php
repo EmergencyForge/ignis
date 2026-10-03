@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Plugin-Klassen für Tests autoloaden — unabhängig vom Aktiv-Status in
+// Plugin-Klassen für Tests autoloaden, unabhängig vom Aktiv-Status in
 // der Datenbank: getestet wird der Code, nicht die Freischaltung.
 foreach (glob(__DIR__ . '/../plugins/*/manifest.php') ?: [] as $pluginManifestFile) {
     $pluginManifest = require $pluginManifestFile;
@@ -64,7 +64,7 @@ foreach (['HOST', 'PORT', 'USER', 'PASS', 'NAME'] as $key) {
     }
 }
 
-// Service-Container bauen — gleiche Logik wie assets/config/config.php
+// Service-Container bauen (gleiche Logik wie assets/config/config.php)
 $containerBuilder = new \DI\ContainerBuilder();
 $containerBuilder->useAutowiring(true);
 $containerBuilder->addDefinitions(__DIR__ . '/../config/container.php');
@@ -76,7 +76,7 @@ if (!empty($_ENV['DB_HOST']) && !empty($_ENV['DB_NAME'])) {
     try {
         $GLOBALS['app_container']->get(\Illuminate\Database\Capsule\Manager::class);
     } catch (\Throwable $e) {
-        // Tolerant — Unit-Tests sollen auch ohne DB laufen
+        // Tolerant: Unit-Tests sollen auch ohne DB laufen
     }
 }
 
@@ -89,6 +89,6 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
 // Class-Autoload $_SESSION['permissions'] aus der DB lädt (basierend auf
 // $_SESSION['userid']). In Tests ohne userid würde der Effect $_SESSION mit
 // einem leeren Array clobbern und Permission-Tests kaputt machen. Wir laden
-// die Klasse hier einmal eager — alle nachfolgenden Test-Setups können dann
+// die Klasse hier einmal eager, alle nachfolgenden Test-Setups können dann
 // $_SESSION['permissions'] frei manipulieren.
 class_exists(\App\Auth\Permissions::class);

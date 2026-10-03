@@ -427,7 +427,7 @@ $SITE_TITLE = 'Beladelisten';
                 });
             });
 
-            // Form-Submit-Handler entfallen — Dialog.form mit onSubmit ersetzt
+            // Form-Submit-Handler entfallen, Dialog.form mit onSubmit ersetzt
             // sie. Siehe openAdd/openEdit Beladung*Modal-Funktionen weiter unten.
         });
 

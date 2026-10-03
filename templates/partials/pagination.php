@@ -21,7 +21,7 @@ declare(strict_types=1);
 <?php if ($list->total() > 0): ?>
 <div class="ignis-list-footer">
     <p class="ignis-list-meta">
-        <?= $list->from() ?>–<?= $list->to() ?> von <?= $list->total() ?> <?= htmlspecialchars($pgLabel) ?>
+        <?= $list->from() ?> bis <?= $list->to() ?> von <?= $list->total() ?> <?= htmlspecialchars($pgLabel) ?>
     </p>
     <?php if ($list->lastPage() > 1): ?>
         <nav aria-label="Seiten">

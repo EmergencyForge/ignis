@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_share_requests` — Protokoll-Übergaben
+ * Eloquent-Model für `intra_edivi_share_requests`: Protokoll-Übergaben
  * zwischen Fahrzeugen.
  *
  * Status-Workflow: pending → accepted/rejected/cancelled. Bei accepted

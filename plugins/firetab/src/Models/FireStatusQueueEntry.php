@@ -7,7 +7,7 @@ namespace Plugin\Firetab\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_fire_status_queue` — Queue für ausgehende
+ * Eloquent-Model für `intra_fire_status_queue`: Queue für ausgehende
  * Fahrzeug-Status-Änderungen, die der FiveM-Server pollt.
  *
  * Abgeholte Einträge werden über `delivered = 1` markiert (at-most-once).

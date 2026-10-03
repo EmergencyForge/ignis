@@ -1,14 +1,14 @@
 /**
- * assets/js/pages/template-editor.js — Mountet den Dokumenten-Editor im
+ * assets/js/pages/template-editor.js: Mountet den Dokumenten-Editor im
  * Vorlagen-Modus auf templates/settings/documents/edit.php.
  *
  * Bewusst KEIN ES-Modul (kein import/export): diese Datei wird NICHT durch
- * Vite transpiliert/gebündelt (siehe vite.config.js — der Build kopiert
+ * Vite transpiliert/gebündelt (siehe vite.config.js: der Build kopiert
  * `assets/js/pages/` unverändert nach `public/assets/js/pages/`, analog zu
  * den Bildern/Fonts), sondern klassisch per `<script src>` eingebunden
  * (siehe edit.php, direkt nach `editor.iife.js`, das dasselbe Muster
  * nutzt und den globalen `EmergencyForgeEditor`-Namespace bereitstellt). Läuft nur auf
- * dieser einen Seite — kein globaler Effekt auf andere Templates.
+ * dieser einen Seite, ohne globalen Effekt auf andere Templates.
  *
  * Dazu die ignis-eigene Bedienoberfläche für die Vorlagen-Bausteine des
  * Pakets: ein Knopf "Feld …" (anlegen, bearbeiten, entfernen; Doppelklick
@@ -27,7 +27,7 @@
 
     /**
      * Kennung für ein neues Feld. `crypto.randomUUID()` gibt es nur im
-     * sicheren Kontext (https oder localhost) — derselbe Rückfallweg wie in
+     * sicheren Kontext (https oder localhost), derselbe Rückfallweg wie in
      * `section.js::generateSectionId()` im Editor-Paket, damit eine
      * Installation auf nacktem http nicht am Feld-Einfügen scheitert.
      */
@@ -40,7 +40,7 @@
 
     /**
      * Eingabefeld aus dem Dialog, nicht aus dem Dokument: Dialoge lassen
-     * sich stapeln, und dann steht dieselbe id zweimal im DOM —
+     * sich stapeln, und dann steht dieselbe id zweimal im DOM,
      * `getElementById` läge dann auf dem falschen.
      */
     function inputIn(dialog, id) {
@@ -65,7 +65,7 @@
             return parsed === null || parsed === undefined ? fallback : parsed;
         } catch (e) {
             // Kaputtes/serverseitig-manipuliertes Attribut darf den Editor
-            // nicht crashen lassen — der Fallback (leeres Dokument bzw.
+            // nicht crashen lassen. Der Fallback (leeres Dokument bzw.
             // leerer Katalog) ist ein sicherer Ersatzzustand.
             console.error('[template-editor] Konnte Attribut ' + attr + ' nicht als JSON lesen.', e);
             return fallback;
@@ -73,7 +73,7 @@
     }
 
     /**
-     * VariableCatalog::catalog() liefert name -> Label (flaches Objekt) —
+     * VariableCatalog::catalog() liefert name -> Label (flaches Objekt),
      * createEditor erwartet name -> { label, value }. `value` bleibt hier
      * bewusst weg: im Vorlagen-Editor gibt es keinen konkreten Kontext
      * (keine Person/Akte), Variablen-Chips zeigen darum immer `{{name}}`
@@ -90,7 +90,7 @@
 
     /**
      * Das `docField` unter dem Cursor, sonst null. Trifft zu, wenn der
-     * Knoten als Ganzes ausgewählt ist — mit den Pfeiltasten landet man so
+     * Knoten als Ganzes ausgewählt ist. Mit den Pfeiltasten landet man so
      * auf einem Feld, ein Klick dagegen landet in dessen Eingabefläche (die
      * NodeView hält den Klick von ProseMirror fern). Für die Maus gibt es
      * deshalb den Doppelklick, siehe unten.
@@ -135,7 +135,7 @@
      *
      * `options.isEdit` unterscheidet Anlegen von Bearbeiten (nur beim
      * Bearbeiten gibt es "Feld entfernen"); `label` und `required` sind die
-     * Vorbelegung — beim Anlegen kommt die Beschriftung aus dem markierten
+     * Vorbelegung. Beim Anlegen kommt die Beschriftung aus dem markierten
      * Text.
      *
      * Liefert `{ label, required }` zum Übernehmen, den String `'remove'`
@@ -153,7 +153,7 @@
             '<label class="flex items-center gap-2">' +
             '<input type="checkbox" id="' + FIELD_REQUIRED_ID + '"' +
             (options.required ? ' checked' : '') + '>' +
-            '<span>Pflichtfeld — ohne Eintrag lässt sich das Dokument nicht ausstellen</span>' +
+            '<span>Pflichtfeld: ohne Eintrag lässt sich das Dokument nicht ausstellen</span>' +
             '</label>' +
             '</div>';
 
@@ -199,11 +199,11 @@
             '<div class="ignis-field">' +
             '<label class="flex items-center gap-2">' +
             '<input type="checkbox" id="' + SECTION_REPEATABLE_ID + '"' + (attrs.repeatable ? ' checked' : '') + '>' +
-            '<span>Wiederholbar — der Verfasser darf weitere Ausfertigungen dieses Abschnitts anlegen</span>' +
+            '<span>Wiederholbar: der Verfasser darf weitere Ausfertigungen dieses Abschnitts anlegen</span>' +
             '</label>' +
             '</div>' +
-            '<p class="text-sm text-muted">Titel und Hinweis sieht nur, wer in ignis schreibt. Im PDF stehen sie nicht — ' +
-            'wer dort eine Überschrift will, schreibt sie als gesperrten Text in den Abschnitt.</p>';
+            '<p class="text-sm text-muted">Titel und Hinweis sieht nur, wer in ignis schreibt. Im PDF stehen sie nicht. ' +
+            'Wer dort eine Überschrift will, schreibt sie als gesperrten Text in den Abschnitt.</p>';
 
         return new window.Dialog({
             title: 'Abschnitt',
@@ -231,7 +231,7 @@
      * Sie stehen in einer eigenen Leiste und nicht in der Toolbar des
      * Pakets: `createToolbar()` leert seinen Container beim Mounten, da
      * bliebe nichts stehen. Und das Paket selbst bringt sie bewusst nicht
-     * mit — es ist produktneutral, die Bedienoberfläche gehört dem Produkt.
+     * mit. Es ist produktneutral, die Bedienoberfläche gehört dem Produkt.
      */
     function wireTemplateTools(editor, mount) {
         var fieldButton = document.getElementById('template-field-button');
@@ -282,7 +282,7 @@
                 if (!result || result === 'remove') {
                     return;
                 }
-                // insertContent ersetzt eine bestehende Markierung — genau
+                // insertContent ersetzt eine bestehende Markierung, genau
                 // das soll hier passieren: aus dem markierten "Ort" wird das
                 // Feld mit der Beschriftung "Ort".
                 editor
@@ -305,7 +305,7 @@
         }
 
         // Ohne das nimmt der Knopf dem Editor beim Drücken den Fokus, und
-        // ProseMirror lässt seine Auswahl fallen — der markierte Text käme
+        // ProseMirror lässt seine Auswahl fallen, und der markierte Text käme
         // dann nie in der Vorbelegung an. Betrifft beide Knöpfe: der
         // Abschnitts-Dialog braucht die Cursorposition genauso.
         [fieldButton, sectionButton].forEach(function (button) {
@@ -329,7 +329,7 @@
 
         // Doppelklick auf ein Feld öffnet seine Eigenschaften. Ein einfacher
         // Klick gehört der Eingabefläche der NodeView (dort tippt man den
-        // vorbelegten Wert), deshalb der Doppelklick für die Maus — über die
+        // vorbelegten Wert), deshalb der Doppelklick für die Maus. Über die
         // Tastatur führt der Knopf oben zum selben Dialog.
         mount.addEventListener('dblclick', function (event) {
             var element = event.target.closest ? event.target.closest('.efe-field') : null;
@@ -366,7 +366,7 @@
                     // Server ordnet Instanzen über templateSectionId zu, und
                     // setzen kann der Bearbeiter das Attribut nirgends
                     // selbst. Einmal gesetzt bleibt es stehen, auch wenn die
-                    // Wiederholung später wieder abgeschaltet wird — sonst
+                    // Wiederholung später wieder abgeschaltet wird, sonst
                     // verlören bereits angelegte Dokumente ihren Bezug.
                     if (result.repeatable && !section.node.attrs.templateSectionId) {
                         attrs.templateSectionId = section.node.attrs.sectionId;

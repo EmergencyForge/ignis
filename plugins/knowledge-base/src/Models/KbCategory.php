@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_kb_categories` — hierarchische Kategorien
+ * Eloquent-Model für `intra_kb_categories`: hierarchische Kategorien
  * der Wissensdatenbank (Baum via parent_id).
  *
  * @property int         $id

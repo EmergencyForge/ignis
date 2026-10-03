@@ -8,7 +8,7 @@ use App\Auth\Permissions;
 use App\Models\Role;
 
 /**
- * RolePolicy — Single Source of Truth für "wer darf was mit Rollen".
+ * RolePolicy: Single Source of Truth für "wer darf was mit Rollen".
  *
  * Aufruf über den Gate:
  *
@@ -28,7 +28,7 @@ class RolePolicy
 
     /**
      * Darf der Aktor neue Rollen erstellen?
-     * Aktuell nur für full_admin reserviert — Erstellen einer Rolle ist
+     * Aktuell nur für full_admin reserviert. Erstellen einer Rolle ist
      * eine sicherheitskritische Operation (Permissions vergeben).
      */
     public static function create(mixed $context = null): bool

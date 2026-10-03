@@ -48,7 +48,7 @@ use Plugin\Mail\Models\Signature;
  * „Postfach“ ist immer das des angemeldeten Nutzers (Mailbox::current()),
  * es gibt keinen Parameter für ein fremdes. Jede Aktion prüft zusätzlich,
  * dass dieses Postfach an der Nachricht beteiligt ist; `mail.admin` ist
- * davon ausdrücklich nicht ausgenommen — ein Admin liest keine fremden
+ * davon ausdrücklich nicht ausgenommen. Ein Admin liest keine fremden
  * Mails.
  *
  * Schreibende JSON-Antworten tragen `csrf_token` und alle JSON-Antworten
@@ -102,13 +102,13 @@ final class MailController extends Controller
 
     // ── Seiten ────────────────────────────────────────────────────
 
-    /** GET /mail — der Posteingang. */
+    /** GET /mail: der Posteingang. */
     public function index(Request $request): Response
     {
         return $this->folder($request, 'inbox');
     }
 
-    /** GET /mail/{folder} — Arbeitsbereich mit leerem Lesebereich. */
+    /** GET /mail/{folder}: Arbeitsbereich mit leerem Lesebereich. */
     public function folder(Request $request, string $folder): Response
     {
         $mailbox = Mailbox::current();
@@ -117,7 +117,7 @@ final class MailController extends Controller
     }
 
     /**
-     * GET /mail/{folder}/{id} — derselbe Arbeitsbereich mit der Mail im
+     * GET /mail/{folder}/{id}: derselbe Arbeitsbereich mit der Mail im
      * Lesebereich (schmale Schirme, ohne JS, Link aus der Glocke).
      */
     public function messagePage(Request $request, string $folder, string $id): Response
@@ -134,7 +134,7 @@ final class MailController extends Controller
         return $this->renderFolder($mailbox, $folder, $delivery);
     }
 
-    /** GET /mail/{folder}/{id}/preview — nur der Lesebereich (workbench.js). */
+    /** GET /mail/{folder}/{id}/preview: nur der Lesebereich (workbench.js). */
     public function messagePreview(Request $request, string $folder, string $id): Response
     {
         $mailbox  = Mailbox::current();
@@ -146,7 +146,7 @@ final class MailController extends Controller
         return $this->page('mail/_reading-pane', $this->readingPane($delivery, $mailbox, $folder));
     }
 
-    /** GET /mail/compose — neue Mail, ohne Schreibzugriff. */
+    /** GET /mail/compose: neue Mail, ohne Schreibzugriff. */
     public function composeNew(Request $request): Response
     {
         $mailbox = Mailbox::current();
@@ -173,19 +173,19 @@ final class MailController extends Controller
         return $this->composeFromOriginal($id, 'Antworten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::reply($o, $as));
     }
 
-    /** GET /mail/compose/reply-all/{id} — ohne BCC und ohne mich selbst. */
+    /** GET /mail/compose/reply-all/{id}: ohne BCC und ohne mich selbst. */
     public function composeReplyAll(Request $request, string $id): Response
     {
         return $this->composeFromOriginal($id, 'Allen antworten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::replyAll($o, $as));
     }
 
-    /** GET /mail/compose/forward/{id} — Anhänge kommen beim Anlegen des Entwurfs mit. */
+    /** GET /mail/compose/forward/{id}: Anhänge kommen beim Anlegen des Entwurfs mit. */
     public function composeForward(Request $request, string $id): Response
     {
         return $this->composeFromOriginal($id, 'Weiterleiten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::forward($o));
     }
 
-    /** GET /mail/compose/draft/{id} — eigenen Entwurf weiter bearbeiten. */
+    /** GET /mail/compose/draft/{id}: eigenen Entwurf weiter bearbeiten. */
     public function composeDraft(Request $request, string $id): Response
     {
         $mailbox = Mailbox::current();
@@ -226,7 +226,7 @@ final class MailController extends Controller
     }
 
     /**
-     * POST /mail/signature — eine leere eigene Signatur ist eine
+     * POST /mail/signature: eine leere eigene Signatur ist eine
      * Entscheidung („keine“) und fällt nicht auf die Standard-Signatur zurück.
      */
     public function saveSignature(Request $request): Response
@@ -252,7 +252,7 @@ final class MailController extends Controller
     // ── Entwürfe und Senden ───────────────────────────────────────
 
     /**
-     * POST /mail/drafts — legt den Entwurf an. Verfassen öffnet ohne
+     * POST /mail/drafts: legt den Entwurf an. Verfassen öffnet ohne
      * Schreibzugriff; der Entwurf entsteht erst mit der ersten Änderung.
      * `in_reply_to` und `forward_from` gelten nur für gesendete Mails, an
      * denen das eigene Postfach beteiligt ist; der Thread kommt von dort,
@@ -305,7 +305,7 @@ final class MailController extends Controller
         return self::json(['success' => true, 'messageId' => $draftId, 'attachments' => $copied]);
     }
 
-    /** POST /mail/drafts/{id} — Entwurf an Ort und Stelle speichern (Autosave). */
+    /** POST /mail/drafts/{id}: Entwurf an Ort und Stelle speichern (Autosave). */
     public function updateDraft(Request $request, string $id): Response
     {
         $mailbox = Mailbox::current();
@@ -336,7 +336,7 @@ final class MailController extends Controller
     }
 
     /**
-     * POST /mail/drafts/{id}/send — derselbe Datensatz wird gesendet, die ID
+     * POST /mail/drafts/{id}/send: derselbe Datensatz wird gesendet, die ID
      * bleibt (Anhänge hängen daran). Ohne mitgeschickte Felder gilt der
      * gespeicherte Stand des Entwurfs.
      */
@@ -427,7 +427,7 @@ final class MailController extends Controller
     // ── Ordner und Lesen ──────────────────────────────────────────
 
     /**
-     * POST /mail/messages/{id}/move — archivieren, in den Papierkorb,
+     * POST /mail/messages/{id}/move: archivieren, in den Papierkorb,
      * zurück (`restore`: gesendete Kopie nach „Gesendet“, sonst Posteingang).
      */
     public function move(Request $request, string $id): Response
@@ -461,7 +461,7 @@ final class MailController extends Controller
     }
 
     /**
-     * POST /mail/messages/{id}/read — gelesen (Standard) oder ungelesen
+     * POST /mail/messages/{id}/read: gelesen (Standard) oder ungelesen
      * (`read=0`). Die Glocken-Einträge zu dieser Mail gehen mit auf gelesen.
      */
     public function markRead(Request $request, string $id): Response
@@ -491,7 +491,7 @@ final class MailController extends Controller
     }
 
     /**
-     * POST /mail/messages/{id}/flag — markieren (`flagged=1`) oder die
+     * POST /mail/messages/{id}/flag: markieren (`flagged=1`) oder die
      * Markierung entfernen (`0`). Betrifft nur die eigenen Kopien.
      */
     public function flag(Request $request, string $id): Response
@@ -516,7 +516,7 @@ final class MailController extends Controller
     }
 
     /**
-     * POST /mail/messages/{id}/delete — die eigene Kopie endgültig löschen
+     * POST /mail/messages/{id}/delete: die eigene Kopie endgültig löschen
      * (weicher Vermerk, die anderen Beteiligten behalten ihre). Bei einem
      * Entwurf gibt es niemanden sonst: er geht samt Anhängen und Dateien ganz.
      */
@@ -580,7 +580,7 @@ final class MailController extends Controller
     }
 
     /**
-     * GET /mail/attachments/{id} — nur an Beteiligte mit einer nicht
+     * GET /mail/attachments/{id}: nur an Beteiligte mit einer nicht
      * gelöschten Kopie, als Download, nie inline.
      */
     public function downloadAttachment(Request $request, string $id): Response
@@ -605,7 +605,7 @@ final class MailController extends Controller
         ]);
     }
 
-    /** POST /mail/attachments/{id}/delete — nur am eigenen Entwurf. */
+    /** POST /mail/attachments/{id}/delete: nur am eigenen Entwurf. */
     public function deleteAttachment(Request $request, string $id): Response
     {
         $mailbox = Mailbox::current();
@@ -625,7 +625,7 @@ final class MailController extends Controller
     // ── Adressbuch ────────────────────────────────────────────────
 
     /**
-     * GET /mail/addressbook?q= — zustellbare Postfächer und Verteiler für
+     * GET /mail/addressbook?q=: zustellbare Postfächer und Verteiler für
      * An/CC/BCC. Verteiler, an die der Nutzer nicht schreiben darf, fehlen.
      */
     public function addressbook(Request $request): Response
@@ -1035,7 +1035,7 @@ final class MailController extends Controller
 
     /**
      * Verteiler mit `senders = managers` nehmen nur Post von der
-     * Verteiler-Verwaltung an — in An, CC und BCC gleichermaßen.
+     * Verteiler-Verwaltung an, in An, CC und BCC gleichermaßen.
      */
     private function restrictedListError(RecipientSet $recipients): ?Response
     {

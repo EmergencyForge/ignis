@@ -7,10 +7,10 @@ namespace Plugin\EnotfV2\Policies;
 use App\Auth\Permissions;
 
 /**
- * EnotfV2Policy — Authorization für eNOTF v2.
+ * EnotfV2Policy: Authorization für eNOTF v2.
  *
  * Übernimmt die dreischichtige Auth-Logik der v1-EnotfPolicy 1:1 und
- * arbeitet bewusst auf DENSELBEN Session-Keys und Config-Konstanten —
+ * arbeitet bewusst auf DENSELBEN Session-Keys und Config-Konstanten,
  * EIN Crew-Login (und eine PIN-Verifikation) gilt damit gleichzeitig
  * für v1 und v2:
  *
@@ -22,14 +22,14 @@ use App\Auth\Permissions;
  *    Inaktivitäts-Timeout über `pin_verified`/`pin_last_activity`.
  *    Admins/edivi.view-User sind exempt. Durchgesetzt wird das über die
  *    geteilte PinLockscreenMiddleware (auf den v2-Routen mit dem eigenen
- *    Lockscreen /enotf-v2/lockscreen als Ziel — die PIN-Session ist
+ *    Lockscreen /enotf-v2/lockscreen als Ziel, die PIN-Session ist
  *    dieselbe wie in v1).
  *
  * 3. **Crew-Login**: `$_SESSION['fahrername']` + `$_SESSION['protfzg']`,
  *    gesetzt via SessionManager::loginEnotfCrew().
  *
  * Die Logik ist eine eigenständige Kopie statt einer Ableitung von
- * Plugin\Enotf\Policies\EnotfPolicy — v2 soll auth-seitig nicht brechen,
+ * Plugin\Enotf\Policies\EnotfPolicy, v2 soll auth-seitig nicht brechen,
  * wenn v1 intern umgebaut wird. Wer hier etwas ändert, muss die
  * Session-Keys/Konstanten synchron zu v1 halten.
  */
@@ -121,7 +121,7 @@ class EnotfV2Policy
      * PIN tatsächlich eingegeben und noch frisch?
      *
      * Anders als pinVerified() OHNE die Feature-/Exempt-Defaults: wenn
-     * nie ein PIN erfasst wurde, ist das hier false — auch bei
+     * nie ein PIN erfasst wurde, ist das hier false, auch bei
      * deaktiviertem PIN-Feature oder Exempt-Usern. Für Checks gedacht,
      * die eine POSITIVE Geräte-Verifikation brauchen (z. B. die
      * Session-Verwaltung auf der Login-Seite), nicht fürs Lockscreen-Gate.

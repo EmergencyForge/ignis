@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Eloquent-Model für `intra_fahrzeuge_import_queue` — vom FiveM-Server
+ * Eloquent-Model für `intra_fahrzeuge_import_queue`: vom FiveM-Server
  * gemeldete Fahrzeuge, die auf Admin-Entscheidung (importieren,
  * überschreiben, zusammenführen, ignorieren) warten.
  *

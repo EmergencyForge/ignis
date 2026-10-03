@@ -118,7 +118,7 @@ class GitHubReleaseSource
                 continue;
             }
             // Install-Package (setup.php + Archiv für Erstinstallationen)
-            // ist KEIN Update-Artefakt — enthält ein ZIP im ZIP.
+            // ist KEIN Update-Artefakt, es enthält ein ZIP im ZIP.
             if (str_ends_with($name, '-install.zip')) {
                 continue;
             }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_antraege` — eingereichte Anträge.
+ * Eloquent-Model für `intra_antraege`: eingereichte Anträge.
  *
  * Status-Workflow:
  *   0 = In Bearbeitung
@@ -74,7 +74,7 @@ class Form extends Model
     }
 
     /**
-     * Lookup eines einzelnen Feldwerts aus den daten — bequemer Zugriff für
+     * Lookup eines einzelnen Feldwerts aus den daten, bequemer Zugriff für
      * View-Templates.
      */
     public function getFieldValue(string $feldname): ?string
@@ -97,7 +97,7 @@ class Form extends Model
      * Eloquent-Model-Boot: registriert einen deleting-Hook, der die
      * Calendar-Bridge automatisch aufraeumt. Damit verschwindet ein
      * gespiegeltes Absence-Event im Kalender, sobald der Antrag selbst
-     * geloescht wird — egal ob via Controller, Console oder Test-Code.
+     * geloescht wird, egal ob via Controller, Console oder Test-Code.
      */
     protected static function booted(): void
     {
@@ -105,7 +105,7 @@ class Form extends Model
             try {
                 \App\Calendar\AbsenceSyncService::removeForAntrag((int) $antrag->id);
             } catch (\Throwable $e) {
-                // Calendar-Bridge ist nicht business-kritisch — Antrag-Delete
+                // Calendar-Bridge ist nicht business-kritisch. Antrag-Delete
                 // soll auch dann durchgehen, wenn die Bridge wackelt.
                 \App\Logging\Logger::warning(
                     'AbsenceSync: removeForAntrag fehlgeschlagen',

@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  * auf dirname(__DIR__, 4) und landete damit in plugins/ statt in der Wurzel,
  * während Schreiber und v2-Leser dieselbe Datei korrekt fanden.
  *
- * Der Fehler ist still — es gibt keine Exception, nur ein leeres Feld in der
+ * Der Fehler ist still: es gibt keine Exception, nur ein leeres Feld in der
  * Oberfläche. Deshalb hier ein Wächter über alle Vorkommen statt eines Tests
  * für die eine reparierte Zeile.
  */

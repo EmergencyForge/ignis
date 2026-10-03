@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_document_templates` — die Vorlagen des
+ * Eloquent-Model für `intra_document_templates`: die Vorlagen des
  * Dokumenten-Editors aus emergencyforge/editor.
  *
  * `content` ist ProseMirror-JSON aus `docSection`-Knoten: gesperrte
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * schreiben darf. Gerendert wird das nur über
  * `EmergencyForge\Editor\Renderer`.
  *
- * Nicht zu verwechseln mit {@see DocumentTemplate} — das ist die Vorlage
+ * Nicht zu verwechseln mit {@see DocumentTemplate}. Das ist die Vorlage
  * des alten Canvas-Systems und verschwindet mit ihm.
  *
  * @property int                      $id

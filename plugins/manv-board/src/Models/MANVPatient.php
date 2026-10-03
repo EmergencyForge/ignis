@@ -5,7 +5,7 @@ namespace Plugin\ManvBoard\Models;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Repository für `intra_manv_patienten` — Patienten einer MANV-Lage.
+ * Repository für `intra_manv_patienten`: Patienten einer MANV-Lage.
  *
  * Läuft über die Eloquent-Capsule (Query Builder); die Rückgabeformate
  * (Assoc-Arrays bzw. null) bleiben für alle Konsumenten unverändert.

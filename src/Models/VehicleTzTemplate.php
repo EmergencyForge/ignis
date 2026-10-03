@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 /**
- * Eloquent-Model für `intra_fahrzeuge_tz_templates` — wiederverwendbare
+ * Eloquent-Model für `intra_fahrzeuge_tz_templates`: wiederverwendbare
  * Taktische-Zeichen-Vorlagen, die auf alle Fahrzeuge eines Typs
  * angewendet werden können.
  *

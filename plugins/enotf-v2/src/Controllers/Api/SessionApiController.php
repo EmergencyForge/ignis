@@ -21,7 +21,7 @@ use Plugin\EnotfV2\Policies\EnotfV2Policy;
  *   GET  /api/enotf-v2/session-status   (Token im Header X-Enotf-Session-Token)
  *   POST /api/enotf-v2/session-update   (Token im POST-Body)
  *
- * v2-Gegenstücke zu den v1-Endpoints in Api\EnotfController — gleiche
+ * v2-Gegenstücke zu den v1-Endpoints in Api\EnotfController, gleiche
  * Antwortstrukturen, aber hinter dem config-gated v2-Auth (die v1-Routen
  * hängen hinter hartem User-Auth und liefern Crews ohne Panel-Login nur
  * 401er). check-vehicle-session füttert das Join-Panel der Login-Seite,
@@ -40,13 +40,13 @@ use Plugin\EnotfV2\Policies\EnotfV2Policy;
  * isTrustedForVehicle): Panel-User, PIN-verifizierte Geräte und
  * Browser-Sessions mit eigener Bindung an das Fahrzeug. Alle anderen
  * bekommen die Crew-Namen nur maskiert und dürfen keine Sessions
- * beenden — check-vehicle-session ist sonst über die Login-Seite
+ * beenden, check-vehicle-session ist sonst über die Login-Seite
  * unauthentifiziert erreichbar.
  */
 final class SessionApiController
 {
     /**
-     * GET /api/enotf-v2/check-vehicle-session — aktive Crew-Session eines
+     * GET /api/enotf-v2/check-vehicle-session: aktive Crew-Session eines
      * Fahrzeugs inkl. Besatzung und freier Positionen.
      */
     public function checkVehicleSession(Request $request): Response
@@ -76,7 +76,7 @@ final class SessionApiController
             $freePositions[] = 'praktikant';
         }
 
-        // Klarnamen nur für vertrauenswürdige Aufrufer — das Join-Panel
+        // Klarnamen nur für vertrauenswürdige Aufrufer: das Join-Panel
         // funktioniert auch mit maskierten Namen (Positionen + Initial +
         // Nachname reichen zur Orientierung)
         $trusted = $this->isTrustedForVehicle($vehicleIdentifier);
@@ -101,7 +101,7 @@ final class SessionApiController
     }
 
     /**
-     * POST /api/enotf-v2/check-conflict — v2-Gegenstück zu v1
+     * POST /api/enotf-v2/check-conflict: v2-Gegenstück zu v1
      * POST /api/enotf/check-conflict (dort hart auth-gated → 401 für
      * Crews ohne User-Login). Prüft vor dem Anlegen, ob für die ENR im
      * eigenen Fahrzeug-Slot (fzg_na bei NA-Fahrzeug, sonst fzg_transp)
@@ -155,14 +155,14 @@ final class SessionApiController
     /**
      * POST /api/enotf-v2/delete-vehicle-session   JSON: { "vehicle": "..." }
      *
-     * Deaktiviert alle aktiven Crew-Sessions eines Fahrzeugs — genutzt vom
+     * Deaktiviert alle aktiven Crew-Sessions eines Fahrzeugs, genutzt vom
      * „Session löschen"-Button der Login-Seite (das v1-Pendant hängt
      * hinter hartem User-Auth und ist für Crews ohne Panel-Login
      * unerreichbar). Antwort wie v1: { "success": true }.
      *
      * Zugriff nur für vertrauenswürdige Aufrufer (isTrustedForVehicle):
      * Panel-User, PIN-verifizierte Geräte oder Browser-Sessions mit
-     * eigener Bindung an dieses Fahrzeug — Letzteres deckt den Haupt-
+     * eigener Bindung an dieses Fahrzeug. Letzteres deckt den Haupt-
      * anwendungsfall „alte Crew hat sich am Gerät nicht abgemeldet" ab.
      * Ein fremdes Gerät ohne jede Verifikation kann damit keine fremden
      * Crews mehr abmelden; ihm bleibt der Weg über „Neue Besatzung".
@@ -197,11 +197,11 @@ final class SessionApiController
      *
      * 10s-Poll des Clients (session-sync.js): liefert Crew + eigene
      * Position zur Session des Tokens. Deaktivierte oder unbekannte
-     * Sessions melden { active: false } — der Client leitet dann auf die
+     * Sessions melden { active: false }. Der Client leitet dann auf die
      * Abmelde-Seite um. Das Token selbst ist die Berechtigung (wie v1);
      * ohne Token gibt es 400.
      *
-     * Das Token kommt AUSSCHLIESSLICH aus dem Header — als Query-
+     * Das Token kommt AUSSCHLIESSLICH aus dem Header. Als Query-
      * Parameter würde es in Access-Logs, Proxy-Logs und Referern landen.
      * Einziger Konsument ist session-sync.js, das den Header setzt.
      */
@@ -237,7 +237,7 @@ final class SessionApiController
      * POST /api/enotf-v2/session-update   Body (Form): token=<token>
      *
      * Zieht die aktuelle Crew aus der DB-Session in die PHP-Browser-
-     * Session — der Client ruft das auf, wenn der session-status-Poll
+     * Session, der Client ruft das auf, wenn der session-status-Poll
      * eine Crew-Änderung gemeldet hat (v1-Semantik, Api\EnotfController).
      */
     public function sessionUpdate(Request $request): Response
@@ -281,7 +281,7 @@ final class SessionApiController
      * bzw. dessen Sessions verwalten?
      *
      * Wahr für: Panel-User, Geräte mit frisch eingegebenem PIN und
-     * Browser-Sessions, die selbst an dieses Fahrzeug gebunden sind —
+     * Browser-Sessions, die selbst an dieses Fahrzeug gebunden sind,
      * über die aktuelle Crew-Session (protfzg) oder einen eigenen
      * Member-Token einer Session des Fahrzeugs (der Fall „alte Crew ist
      * am Gerät noch angemeldet").

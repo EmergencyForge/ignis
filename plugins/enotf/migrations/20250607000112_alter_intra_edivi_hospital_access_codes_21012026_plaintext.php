@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Umstellung der Krankenhaus-Zugangs-Codes von gehashter auf Klartext-
  * Speicherung: bestehende (gehashte) Codes werden geleert, da sie sich
- * nicht zurückrechnen lassen — die Codes müssen danach neu generiert
+ * nicht zurückrechnen lassen, die Codes müssen danach neu generiert
  * werden.
  */
 class AlterIntraEdiviHospitalAccessCodes21012026Plaintext extends AbstractMigration
@@ -19,6 +19,6 @@ class AlterIntraEdiviHospitalAccessCodes21012026Plaintext extends AbstractMigrat
 
     public function down(): void
     {
-        // Die gelöschten Hash-Codes lassen sich nicht wiederherstellen — no-op.
+        // Die gelöschten Hash-Codes lassen sich nicht wiederherstellen, daher no-op.
     }
 }

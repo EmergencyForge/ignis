@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * eNOTF v2 — API-Routen.
+ * eNOTF v2: API-Routen.
  *
  * Alles JSON (JsonExceptionMiddleware). Auth ist wie bei den Web-Routen
- * config-gated (`ENOTF_REQUIRE_USER_AUTH`) statt hart wie in v1 — die
+ * config-gated (`ENOTF_REQUIRE_USER_AUTH`) statt hart wie in v1, die
  * Crew-Session-Prüfung (Schicht 3) macht der Controller selbst, damit
  * Crews ohne User-Login den Autosave nutzen können, wenn das User-Gate
  * deaktiviert ist.
@@ -54,15 +54,15 @@ $router->get('/api/enotf-v2/plausibility/{enr:[\w._-]+}', [PlausibilityApiContro
 // --- Crew-Session-Routen ---
 
 // check-vehicle-session: v2-Gegenstück zum v1-Endpoint (der hängt hinter
-// hartem User-Auth) — die Login-Seite pollt hierüber beim Fahrzeugwechsel,
+// hartem User-Auth), die Login-Seite pollt hierüber beim Fahrzeugwechsel,
 // ob schon eine Crew angemeldet ist (Join-Panel).
 $router->get('/api/enotf-v2/check-vehicle-session', [\Plugin\EnotfV2\Controllers\Api\SessionApiController::class, 'checkVehicleSession'], $enotfV2ApiAuth);
 
 // check-conflict: Konfliktprüfung vor dem Anlegen (v1-Pendant hart
-// auth-gated) — genutzt vom Create-Formular.
+// auth-gated), genutzt vom Create-Formular.
 $router->post('/api/enotf-v2/check-conflict', [\Plugin\EnotfV2\Controllers\Api\SessionApiController::class, 'checkConflict'], $enotfV2ApiAuth);
 
-// delete-protocol: Soft-Delete durch die Crew (Overview-Swipe) —
+// delete-protocol: Soft-Delete durch die Crew (Overview-Swipe),
 // Semantik wie v1 (403 bei Leitstellen-Protokollen), Crew-Session-Pflicht
 // prüft der Controller.
 $router->post('/api/enotf-v2/delete-protocol', [ProtokollApiController::class, 'deleteProtocol'], $enotfV2ApiAuth);
@@ -72,7 +72,7 @@ $router->post('/api/enotf-v2/delete-protocol', [ProtokollApiController::class, '
 $router->post('/api/enotf-v2/delete-vehicle-session', [\Plugin\EnotfV2\Controllers\Api\SessionApiController::class, 'deleteVehicleSession'], $enotfV2ApiAuth);
 
 // session-status/session-update: 10s-Live-Sync der Crew-Session
-// (session-sync.js auf Protokollseiten + Overview) — Redirect bei
+// (session-sync.js auf Protokollseiten + Overview): Redirect bei
 // deaktivierter Session, Crew-Änderungen in die PHP-Session ziehen.
 $router->get('/api/enotf-v2/session-status', [\Plugin\EnotfV2\Controllers\Api\SessionApiController::class, 'sessionStatus'], $enotfV2ApiAuth);
 $router->post('/api/enotf-v2/session-update', [\Plugin\EnotfV2\Controllers\Api\SessionApiController::class, 'sessionUpdate'], $enotfV2ApiAuth);

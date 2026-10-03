@@ -23,7 +23,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * FiretabController — Feuerwehr-Einsätze (FireTab-Modul).
+ * FiretabController: Feuerwehr-Einsätze (FireTab-Modul).
  *
  * Wichtig: Die Pages dieses Moduls werden im FiveM-In-Game-Browser (CitizenFX-
  * CEF-Webview) angezeigt. Daher MÜSSEN alle Action-Methoden, die HTML rendern,
@@ -34,7 +34,7 @@ use PDOException;
  * Das Modul nutzt eine eigene Auth-Schicht: User loggen sich auf einem
  * Fahrzeug ein (FireTab-Session via $_SESSION['einsatz_vehicle_id']) und
  * bekommen damit Zugriff auf Einsätze, an denen ihr Fahrzeug beteiligt ist.
- * Optional zusätzlich `FIRE_INCIDENT_REQUIRE_USER_AUTH` Config — dann muss
+ * Optional zusätzlich `FIRE_INCIDENT_REQUIRE_USER_AUTH` Config, dann muss
  * vorher ein System-User-Login da sein.
  */
 class FiretabController extends Controller
@@ -45,7 +45,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/index.php — Entry-Point.
+     * GET /einsatz/index.php: Entry-Point.
      * Wenn FireTab-Session existiert → list.php, sonst → login-fahrzeug.php.
      */
     public function index(): void
@@ -59,7 +59,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/login-fahrzeug.php — Fahrzeug-Auswahl.
+     * GET /einsatz/login-fahrzeug.php: Fahrzeug-Auswahl.
      * Lädt verfügbare Fahrzeuge (rd_type=3, optional jobgefiltert) und
      * Mitarbeiter-Liste, plus Charakter-Lock-Logik wenn ENOTF_CHAR_LOCK aktiv.
      */
@@ -130,7 +130,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /einsatz/login-fahrzeug.php — Fahrzeug-Login durchführen.
+     * POST /einsatz/login-fahrzeug.php: Fahrzeug-Login durchführen.
      */
     public function login(): void
     {
@@ -153,7 +153,7 @@ class FiretabController extends Controller
             $this->redirect('firetab/login-vehicle');
         }
 
-        // Vehicle prüfen — muss aktiv und rd_type=3 sein
+        // Vehicle prüfen: muss aktiv und rd_type=3 sein
         $vehicle = Capsule::table('intra_fahrzeuge')
             ->where('id', $vehicleId)
             ->where('active', 1)
@@ -198,7 +198,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/list.php — Einsatzliste für eingeloggtes Fahrzeug.
+     * GET /einsatz/list.php: Einsatzliste für eingeloggtes Fahrzeug.
      * Zeigt alle aktiven (nicht finalisierten, nicht archivierten) Einsätze,
      * an denen das aktuelle Fahrzeug beteiligt ist.
      */
@@ -258,7 +258,7 @@ class FiretabController extends Controller
     // ── Einsatz-Detail / CRUD / Actions ──────────────────
 
     /**
-     * GET /einsatz/view.php?id=X — Einsatz-Detail-View mit Tab-Container.
+     * GET /einsatz/view.php?id=X: Einsatz-Detail-View mit Tab-Container.
      * Die 7 Tabs (stammdaten, bericht, fahrzeuge, lagemeldungen, lagekarte,
      * abschluss, log) werden als Includes aus einsatz/tabs/ geladen.
      */
@@ -364,7 +364,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/create.php — Neuen Einsatz anlegen (Formular).
+     * GET /einsatz/create.php: Neuen Einsatz anlegen (Formular).
      */
     public function createForm(): void
     {
@@ -392,7 +392,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /einsatz/create.php — Neuen Einsatz speichern.
+     * POST /einsatz/create.php: Neuen Einsatz speichern.
      */
     public function store(): void
     {
@@ -493,7 +493,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /einsatz/actions.php — Dispatcher für die 12 Action-Typen.
+     * POST /einsatz/actions.php: Dispatcher für die 12 Action-Typen.
      * Wird vom Stub aufgerufen, ermittelt $_POST['action'] und delegiert.
      */
     public function dispatchAction(): void
@@ -711,7 +711,7 @@ class FiretabController extends Controller
             error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): ' . $e->getMessage());
         }
 
-        // Domain-Event feuern — Listener kümmern sich um Side-
+        // Domain-Event feuern: Listener kümmern sich um Side-
         // Effects wie Discord-Webhook, Audit-Log etc. Der Controller weiß
         // nichts von der konkreten Integration, das entkoppelt saubere
         // Domain-Logik von Infrastruktur-Details.
@@ -1033,7 +1033,7 @@ class FiretabController extends Controller
     // ── Statusmeldungen / ASU / Fahrtenbuch / Admin ──────
 
     /**
-     * GET /einsatz/statusmeldungen.php — Fahrzeug-Status-Meldungen (S0–S6).
+     * GET /einsatz/statusmeldungen.php: Fahrzeug-Status-Meldungen (S0–S6).
      * Zeigt Grid mit Statusbuttons, aktiver Einsatz und periodischem Polling.
      */
     public function statusmeldungen(): void
@@ -1107,7 +1107,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/asu.php — Atemschutzüberwachung (ASU-Protokoll-Formular).
+     * GET /einsatz/asu.php: Atemschutzüberwachung (ASU-Protokoll-Formular).
      * Kann mit ?incident_id=X&incident_number=Y&location=Z&asu_id=A aufgerufen werden.
      */
     public function asuForm(): void
@@ -1154,7 +1154,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/fahrtenbuch.php — Fahrtenbuch im FireTab-Kontext.
+     * GET /einsatz/fahrtenbuch.php: Fahrtenbuch im FireTab-Kontext.
      * Zeigt Fahrten des eingeloggten Fahrzeugs mit Inline-Create/Edit-Formularen.
      */
     public function fireTabFahrtenbuch(): void
@@ -1209,7 +1209,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /firetab/admin/list — QM-Übersicht aller Einsatzprotokolle, sortiert,
+     * GET /firetab/admin/list: QM-Übersicht aller Einsatzprotokolle, sortiert,
      * gesucht und geblättert auf dem Server (App\Support\ListQuery). Aktiv
      * oder Archiv über `show_archived`. Die Liste ist ein Arbeitsbereich
      * (assets/js/ui/workbench.js): angehakte Zeilen bekommen die Leiste mit
@@ -1321,7 +1321,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /firetab/admin/list/delete — löscht die in der QM-Liste
+     * POST /firetab/admin/list/delete: löscht die in der QM-Liste
      * angehakten Protokolle (`ids[]`, Aktionsleiste des Arbeitsbereichs).
      * Löschen heißt hier dasselbe wie beim Löschen nach leeren Feldern
      * (Api\FireController::bulkDeleteEmpty): archiviert mit Status
@@ -1367,7 +1367,7 @@ class FiretabController extends Controller
 
     /**
      * Schreibt einen Eintrag in intra_fire_incident_log.
-     * Silently fails — Logging-Fehler sollen den Hauptflow nicht blockieren.
+     * Silently fails: Logging-Fehler sollen den Hauptflow nicht blockieren.
      */
     private function logAction(int $incidentId, string $actionType, string $description): void
     {

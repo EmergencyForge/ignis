@@ -1,6 +1,6 @@
 # Plugins
 
-Hier liegen die installierten ignis-Plugins — je ein Unterordner mit einer
+Hier liegen die installierten ignis-Plugins, je ein Unterordner mit einer
 `manifest.php`. Der `PluginRegistry` entdeckt sie beim Boot, der
 `PluginRepository` (Tabelle `intra_plugins`) entscheidet, welche aktiv sind.
 
@@ -30,10 +30,10 @@ jeweiligen Register gemergt. Drei Besonderheiten:
 - **Fremde Plugins sind erst nach ausdrücklicher Installation aktiv.** Nur
   die offiziell mitgelieferten Plugins (Liste `PluginLoader::BUNDLED` im
   Core) laufen ohne weiteres Zutun. Alles andere bleibt nach dem Ablegen in
-  `plugins/` vollständig inert — kein Code, keine Migration — bis ein Admin
+  `plugins/` vollständig inert (kein Code, keine Migration), bis ein Admin
   die Installation in den Systemeinstellungen startet (schreibt die
   Marker-Datei `.installed` in den Plugin-Ordner).
-- **Migrations installierter Plugins laufen immer** — auch für deaktivierte.
+- **Migrations installierter Plugins laufen immer**, auch für deaktivierte.
   Deaktivieren entfernt Routen/Nav/Listener, lässt Tabellen und Daten aber
   unangetastet, damit beim Reaktivieren nichts fehlt.
 - **Plugin-Routen können Kern-Routen nicht überschreiben**, sie werden nach
@@ -48,7 +48,7 @@ Das Manifest ist die einzige Pflichtdatei:
 
 return [
     'id'              => 'enotf',
-    'name'            => 'eNOTF – Notfallprotokolle',
+    'name'            => 'eNOTF',
     'version'         => '1.0.0',
     'vendor'          => 'EmergencyForge',
     'requires'        => ['ignis' => '>=2026.0.6-beta'],
@@ -88,10 +88,10 @@ SearchSourceInterface`, eine Methode `vocabulary(): iterable<string>`).
 Liefert `search()` dann weniger als das Limit, erweitert die Registry die
 Suchworte über ein aus `vocabulary()` gebautes, gecachtes Vokabular
 (Tippfehler- und Umlauttoleranz über `emergencyforge/fuzzy-search`) und
-fragt dieselbe `search()` erneut ab — Rechte und Zeilenfilter der Quelle
+fragt dieselbe `search()` erneut ab, Rechte und Zeilenfilter der Quelle
 bleiben dabei unverändert, weil sie sich selbst wieder abfragt. Treffer aus
 dieser zweiten Runde tragen `approx: true`, die Palette zeigt dafür den
 Zusatz „ähnlich". Kennungen (IDs, Aktenzeichen, Einsatznummern) gehören nie
-ins Vokabular — ein Tippfehler dort soll keinen falschen Treffer erzeugen.
+ins Vokabular. Ein Tippfehler dort soll keinen falschen Treffer erzeugen.
 Das Opt-in ist rein additiv: eine Quelle ohne `FuzzySearchSource` bleibt
 unverändert bei der scharfen Suche.

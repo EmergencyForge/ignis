@@ -1,11 +1,11 @@
 <?php
 
 /**
- * View: PIN-Lockscreen (eNOTF v2) — v1-Optik.
+ * View: PIN-Lockscreen (eNOTF v2) in v1-Optik.
  *
  * Markup/Optik = plugins/enotf/templates/enotf/lockscreen.php (Keypad
  * 1:1: dunkle Box, PIN-Punkte-Display, 3x4-Tastenraster, Shake bei
- * Fehler). Technik = v2: POST an /enotf-v2/lockscreen — der
+ * Fehler). Technik = v2: POST an /enotf-v2/lockscreen, der
  * LockscreenController teilt die PIN-Session-Keys mit v1 (EIN
  * entsperrter PIN gilt für beide Welten). Auto-Submit bei vollständiger
  * PIN und Tastatur-Eingabe wie v1; zusätzlich ein Doppel-Submit-Guard.

@@ -16,7 +16,7 @@ use Tests\TestCase;
  *
  * Der Controller delegiert an NotificationManager (der seinerseits direkt
  * gegen PDO arbeitet). Wir mocken den Manager mit einer anonymen Klasse
- * und übergeben ihn dem Controller per Constructor-Injection — das
+ * und übergeben ihn dem Controller per Constructor-Injection. Das
  * vermeidet DB-Abhängigkeit in Unit-Tests.
  */
 class NotificationControllerTest extends TestCase

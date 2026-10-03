@@ -1,11 +1,11 @@
 <?php
 
 /**
- * View: Protokoll anlegen (eNOTF v2) — v1-Optik.
+ * View: Protokoll anlegen (eNOTF v2) in v1-Optik.
  *
  * Markup/Optik = plugins/enotf/templates/enotf/create.php: ENR-Feld,
  * NF-/NA-Kacheln, Konflikt-Modal (Bootstrap). Technik = v2: Submit an
- * POST /enotf-v2/create (CreateController::store — enrbridge-Semantik
+ * POST /enotf-v2/create (CreateController::store, enrbridge-Semantik
  * serverseitig verbindlich), Konfliktprüfung vor dem Submit über den
  * v2-Endpoint /api/enotf-v2/check-conflict. force_create=1 nach der
  * Modal-Bestätigung erzeugt eine Suffix-ENR (_1, _2, …).
@@ -43,7 +43,7 @@ $createError = (string) ($_GET['error'] ?? '');
                     <?php if ($createError === 'invalid_enr'): ?>
                         <div class="mx-5 mb-3" style="color:#d91425;">
                             <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>
-                            Ungültige Einsatznummer — erlaubt sind nur Ziffern und Unterstriche.
+                            Ungültige Einsatznummer. Erlaubt sind nur Ziffern und Unterstriche.
                         </div>
                     <?php endif; ?>
                     <div class="mx-5">
@@ -63,7 +63,7 @@ $createError = (string) ($_GET['error'] ?? '');
     </form>
 
     <!-- Unsichtbarer Data-API-Trigger: vendor-enotf.js (Bootstrap-ESM)
-         exportiert kein window.bootstrap — das Modal öffnet stattdessen
+         exportiert kein window.bootstrap, das Modal öffnet stattdessen
          zuverlässig über den Data-API-Klick -->
     <button type="button" id="conflictModalTrigger" data-bs-toggle="modal" data-bs-target="#conflictModal" hidden></button>
 

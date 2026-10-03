@@ -50,7 +50,7 @@ $hospitalPoiId = SessionManager::get('hospital_poi_id');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']) && $hospitalPoiId !== null) {
     try {
         foreach ($_POST['availability'] ?? [] as $dept_id => $status) {
-            // Upsert: unique key auf department_id — updated_at wird auch
+            // Upsert: unique key auf department_id, updated_at wird auch
             // bei unverändertem Status aufgefrischt.
             Capsule::table('intra_edivi_hospital_availability')->upsert(
                 [

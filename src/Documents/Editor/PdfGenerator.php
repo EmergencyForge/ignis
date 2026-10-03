@@ -19,7 +19,7 @@ use RuntimeException;
  * Der Weg von JSON zu HTML führt ausschließlich über den `Renderer` des
  * Editor-Pakets: er kennt eine Whitelist von Knoten und Marken und
  * verwirft alles andere. Meldet er einen Fehler, wird nicht gerendert und
- * nicht ausgestellt — ein halb verstandenes Dokument darf keine Urkunde
+ * nicht ausgestellt. Ein halb verstandenes Dokument darf keine Urkunde
  * werden.
  *
  * Editor-PDFs liegen unter `storage/private/editor-documents/` und werden nur
@@ -39,7 +39,7 @@ final class PdfGenerator
 
         if ($result->error) {
             throw new RuntimeException(
-                'Dokument "' . $document->docid . '" konnte nicht sicher gerendert werden — Ausstellen abgebrochen.',
+                'Dokument "' . $document->docid . '" konnte nicht sicher gerendert werden. Ausstellen abgebrochen.',
             );
         }
 

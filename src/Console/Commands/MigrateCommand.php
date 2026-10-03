@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Führt ausstehende Phinx-Migrations aus.
  *
  * Nutzt den bestehenden `App\Database\AutoMigrator`, der auch beim
- * normalen Request-Lifecycle läuft — der Command ist nur der CLI-Hook.
+ * normalen Request-Lifecycle läuft. Der Command ist nur der CLI-Hook.
  * Die Verbindung kommt erst beim Ausführen aus dem Container: die Console
  * registriert alle Commands beim Start, und `list` oder `--help` sollen
  * auch ohne erreichbare Datenbank gehen.

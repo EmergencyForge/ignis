@@ -7,11 +7,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter_dokumente` — vom Mitarbeiter-Modul
+ * Eloquent-Model für `intra_mitarbeiter_dokumente`: vom Mitarbeiter-Modul
  * ausgestellte Dokumente (Beförderungsurkunden, Zertifikate, Abmahnungen, …).
  *
  * Cross-Module-Joins auf `intra_dokument_templates` und `intra_dokument_kategorien`
- * laufen via Capsule — für diese Tabellen gibt es (noch) kein Eloquent-Model.
+ * laufen via Capsule. Für diese Tabellen gibt es (noch) kein Eloquent-Model.
  *
  * @property int         $id
  * @property int         $docid             Public-ID, im URL benutzt
@@ -41,7 +41,7 @@ class PersonnelDocument extends Model
      * Die Bezeichnungen der Dokumenttypen aus dem abgeloesten
      * Canvas-System. Die Spalte `type` traegt sie noch in jeder alten
      * Zeile; ohne diese Tabelle stuende in der Liste nur eine Zahl.
-     * Typ 99 waren Dokumente aus einer eigenen Vorlage — deren Name stand
+     * Typ 99 waren Dokumente aus einer eigenen Vorlage. Deren Name stand
      * in der Vorlagentabelle, die es nicht mehr gibt.
      */
     public const TYPE_LABELS = [
@@ -85,7 +85,7 @@ class PersonnelDocument extends Model
      * Beziehung zum Empfänger-Mitarbeiter via FK profileid.
      * Methodenname `mitarbeiter` und nicht `empfaenger`, weil die View und
      * andere Code-Stellen schon `mitarbeiter`/`empfaenger` als Variablen-Namen
-     * benutzen — wir bleiben bei der Standard-Eloquent-Konvention.
+     * benutzen. Wir bleiben bei der Standard-Eloquent-Konvention.
      */
     public static function typeLabel(int $type): string
     {

@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Section: Anamnese — eNOTF v2 im v1-Look.
+ * Section: Anamnese, eNOTF v2 im v1-Look.
  *
  * Ansichten, alle als getreue Nachbauten der v1-Seiten
  * (plugins/enotf/templates/enotf/protokoll/anamnese/):
  *
- *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php — Themen-Spalte
+ *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php mit Themen-Spalte
  *     (Anamnese/Symptome/Einsatzort) und edivi__box-Kacheln mit
  *     readonly-Zusammenfassungen.
  *
- *   ?t=anamnese: Freitext-Seite wie v1 1.php — großes Textfeld,
+ *   ?t=anamnese: Freitext-Seite wie v1 1.php: großes Textfeld,
  *     Textblock-Buttons (Vorerkrankungen/Medikation/Allergien/Drogen)
  *     mit Untermenüs, Zeilen-Warnung, OK speichert über den v2-Batch-
  *     Autosave und geht zurück zur Übersicht.
  *
- *   ?t=symptome: Wizard mit zwei Schritten wie v1 2_1.php/2_2.php —
+ *   ?t=symptome: Wizard mit zwei Schritten wie v1 2_1.php/2_2.php,
  *     Symptombeginn (Datum/Zeit + geschätzt/nicht-feststellbar-Kacheln)
  *     und NACA (initial / bei Übergabe als btn-check-Spalten).
  *     Exklusivlogik geschätzt↔nicht feststellbar liegt in
@@ -67,7 +67,7 @@ if ($fokus === 'anamnese') {
 }
 
 // Server-Initialschritt für ?t=symptome: ohne explizites ?q KEIN Schritt
-// offen — nur die Subnav-Spalte (v1: Themen-Einstieg zeigt die Navigation,
+// offen, nur die Subnav-Spalte (v1: Themen-Einstieg zeigt die Navigation,
 // erst der Klick öffnet die Frage; wizard.js verhält sich identisch)
 $initialStep = -1;
 if ($fokus === 'symptome') {
@@ -125,7 +125,7 @@ if (($protokoll['elokation'] ?? null) !== null && $protokoll['elokation'] !== ''
 $elokationCol1 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 $elokationCol2 = [10, 11, 98, 99];
 
-// Radio-Spalte (btn-check) für elokation/NACA — v1-Markup 1:1
+// Radio-Spalte (btn-check) für elokation/NACA, v1-Markup 1:1
 $radioCol = static function (string $name, array $options, ?string $header = null, string $width = 'col-2') use ($protokoll, $e, $istGesperrt): string {
     $current = (string) ($protokoll[$name] ?? '');
     $html = '<div class="' . $e($width) . ' d-flex flex-column edivi__interactbutton px-3">';
@@ -424,7 +424,7 @@ $textbloecke = [
     <script>
         // Symptombeginn (v1 2_1.php): Datum leer → heute vorbesetzen,
         // Zeit-Fokus → aktuelle Uhrzeit, Speichern-Button schickt Datum+Zeit
-        // als EINEN v2-Batch (symptombeginn_datum ist DATE_FIELD — der
+        // als EINEN v2-Batch (symptombeginn_datum ist DATE_FIELD, der
         // deutsche Anzeige-Wert wird serverseitig nach Y-m-d konvertiert).
         document.addEventListener('DOMContentLoaded', function () {
             var locked = <?= $istGesperrt ? 'true' : 'false' ?>;

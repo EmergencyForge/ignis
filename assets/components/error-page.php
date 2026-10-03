@@ -747,7 +747,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <?php if ($isDev): ?>
     <?php
     // ========================================================================
-    //  Markdown-Report bauen — wird vom "Als Markdown kopieren"-Button genutzt.
+    //  Markdown-Report bauen, wird vom "Als Markdown kopieren"-Button genutzt.
     //  Format ist bewusst Issue-/Discord-/Slack-freundlich: Code-Fences für
     //  Trace + Source, Backticks für File-Pfade, Headings als ##/###.
     // ========================================================================
@@ -793,7 +793,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                 $_fn = '{main}';
             }
             $_loc = ($f['file'] ?? '[internal]') . (!empty($f['line']) ? ':' . $f['line'] : '');
-            $_md[] = '#' . $i . ' ' . $_loc . ' — ' . $_fn;
+            $_md[] = '#' . $i . ' ' . $_loc . ' in ' . $_fn;
         }
         $_md[] = '```';
         $_md[] = '';
@@ -811,7 +811,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                 $_fn = $f['function'] . '()';
             }
             $_loc = _err_shortenPath($f['file'] ?? '[internal]') . (!empty($f['line']) ? ':' . $f['line'] : '');
-            $_md[] = ($i + 1) . '. `' . $_loc . '` — ' . $_fn;
+            $_md[] = ($i + 1) . '. `' . $_loc . '` in ' . $_fn;
         }
         $_md[] = '';
     }

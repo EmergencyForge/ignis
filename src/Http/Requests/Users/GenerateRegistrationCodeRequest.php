@@ -12,8 +12,8 @@ use Respect\Validation\Validator as v;
  * Validierung für POST /benutzer/registration-codes (action=generate).
  *
  * Beide Felder sind optional:
- *   - label      (string, max 255) — wird zu null wenn leer
- *   - expires_at (datetime-local Format) — wird zu null wenn leer
+ *   - label      (string, max 255): wird zu null wenn leer
+ *   - expires_at (datetime-local Format): wird zu null wenn leer
  */
 class GenerateRegistrationCodeRequest extends FormRequest
 {

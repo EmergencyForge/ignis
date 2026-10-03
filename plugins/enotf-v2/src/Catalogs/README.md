@@ -1,8 +1,8 @@
-# eNOTF v2 — Code-Kataloge
+# eNOTF v2: Code-Kataloge
 
 Zentrale Datenklassen für alle Code-Listen, die im alten eNOTF über 121 Templates verstreut
 waren. Namespace `Plugin\EnotfV2\Catalogs`, reine Daten (`public const`
-plus statische Getter), Labels byteweise wie im Alt-System — inklusive Tippfehlern wie
+plus statische Getter), Labels byteweise wie im Alt-System, inklusive Tippfehlern wie
 "exacerbierte COPD".
 
 ## Katalog → Alt-Quelle(n)
@@ -38,15 +38,15 @@ Alle Template-Pfade relativ zu `plugins/enotf/templates/enotf/`.
 | 11 | Einheit `mcg` | Gespeichert `mcg`, gerendert als `&micro;g` (µg); JS akzeptiert µg/μg/ug als Alias. | Label "µg" (dekodiert) im Katalog, Alias-Hinweis im Docblock. |
 | 12 | IO-Größen | Formular-Labels sind die Rohwerte "15mm/25mm/45mm"; Print formatiert "15 mm". | Formular-Schreibweise übernommen. |
 | 13 | `lagerung`, `awsicherung_neu`, `b_symptome`, `c_ekg` | Keine Label-Konflikte, aber die Formular-Reihenfolge ist nicht code-sortiert (z. B. lagerung: 99 vor 6). | Arrays behalten die Formular-Reihenfolge. |
-| 14 | `rettungstechnik` | Anders als bei `psych` ist Wert 1 kein Exklusivwert "keine", sondern "Spineboard" — eine "keine"-Kachel mit eigenem Wert existiert nicht (Leeren läuft über die Quickfill-/JSON-Logik). | Formular-Werte übernommen. |
+| 14 | `rettungstechnik` | Anders als bei `psych` ist Wert 1 kein Exklusivwert "keine", sondern "Spineboard". Eine "keine"-Kachel mit eigenem Wert existiert nicht (Leeren läuft über die Quickfill-/JSON-Logik). | Formular-Werte übernommen. |
 
 ## Unsicherheiten
 
 - `awsicherung_2` ("Absaugen") wird gerendert, fehlt aber in `ALLOWED_FIELDS` des
-  Autosave-Endpoints — das Flag ist in `MASSNAHMEN_FLAGS` enthalten,
+  Autosave-Endpoints, das Flag ist in `MASSNAHMEN_FLAGS` enthalten,
   in Altdaten dürfte die Spalte praktisch immer leer sein.
 - Ob Produktivdaten `c_kreislauf` = 3 oder Bodymap-Schweregrad 99 enthalten (aus noch
-  älteren Formularversionen), ließ sich aus dem Code nicht klären — deshalb die
+  älteren Formularversionen), ließ sich aus dem Code nicht klären, deshalb die
   `*_LEGACY`-Konstanten.
 - `sz_toleranz_2`, `awfrei_2/3`, `zyanose_2`, `c_zugang_art/gr/ort_1..3`, `naname` sind tote
   Spalten (kein Alt-Formular schreibt sie) und haben bewusst keinen Katalog.

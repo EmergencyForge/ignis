@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * assets/components/topbar.php — Leiste über allen eingeloggten Ansichten.
+ * assets/components/topbar.php: Leiste über allen eingeloggten Ansichten.
  *
  * Links der Sidebar-Schalter und die Wortmarke (SYSTEM_LOGO, sonst die
  * ignis-Wortmarke in Textfarbe), in der Mitte das Suchfeld (Ctrl+K springt

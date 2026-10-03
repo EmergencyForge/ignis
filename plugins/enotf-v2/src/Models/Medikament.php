@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * `intra_edivi_medikamente` — Medikamentenstamm für die Maßnahmen-
+ * `intra_edivi_medikamente`: Medikamentenstamm für die Maßnahmen-
  * Dokumentation. `wirkstoff` ist UNIQUE (Duplikat-Insert → SQLSTATE
  * 23000), `dosierungen` ist Freitext/TEXT.
  *

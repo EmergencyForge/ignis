@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Section: Maßnahmen — eNOTF v2 im v1-Look.
+ * Section: Maßnahmen, eNOTF v2 im v1-Look.
  *
  * Getreuer Nachbau der v1-Seiten unter
  * plugins/enotf/templates/enotf/protokoll/massnahmen/:
  *
- *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php — Themen-Spalte
+ *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php mit Themen-Spalte
  *     links und edivi__box-Kacheln mit den readonly-Anzeigefeldern
  *     atemwegssicherung/beatmung/o2gabe, zugang_display (hidden) + pvk/io-
  *     Textareas, medikamente-Textarea, lagerung/rettungstechnik.
@@ -16,21 +16,21 @@
  *     zugang) stehen komplett im DOM, wizard.js schaltet ohne Full-Reload
  *     um (?q=N). Bootstrap col-N statt v1s w-N/12 (Tailwind-4-Layering).
  *
- *   ?t=medimaske: die Medikamenten-Eingabemaske (v1 medikamente/1.php) —
+ *   ?t=medimaske: die Medikamenten-Eingabemaske (v1 medikamente/1.php),
  *     Liste links, Formular rechts, zurück/Löschen/Speichern unten.
  *     Läuft komplett gegen die v2-Medis-API (/api/enotf-v2/medis:
- *     GET Liste, POST add, POST delete — Speicherformat exakt v1).
+ *     GET Liste, POST add, POST delete, Speicherformat exakt v1).
  *
  * Zugang: läuft über den v1-Flow (PVK/intraossär → Lokation → Größe je
  * Seite als btn-check-Spalten), ohne eigenen Dialog. Die c_zugang-JSON-
  * Logik entspricht v1s enotf-zugang.js: Speicherformat {art, groesse,
  * ort, seite}, '0' = „Kein Zugang", null = nicht gesetzt; pro Lokation nur eine
  * Größe; Merge erhält fremde Einträge (z. B. zvk aus Altdaten). Gespeichert
- * wird über EnotfV2Autosave.queue('c_zugang', …) — der Server validiert
+ * wird über EnotfV2Autosave.queue('c_zugang', …), der Server validiert
  * erneut (ProtokollService::validateCZugang).
  *
  * rettungstechnik: Mehrfachauswahl (JSON-Array von int) als btn-check-
- * Checkboxen name="rettungstechnik[]" mit data-ev2-multijson — Speicherung
+ * Checkboxen name="rettungstechnik[]" mit data-ev2-multijson, Speicherung
  * über den generischen Multi-JSON-Handler in edivi-bridge.js (Muster wie
  * psych). Bewusst OHNE Exklusiv-Codes: Code 1 ist im v1-Formular
  * „Spineboard", einen „keine"-Wert gibt es dort nicht.
@@ -98,7 +98,7 @@ $lbl = static function (string $feld, array $katalog) use ($wert): string {
 };
 
 // Zugänge einer Art als Text ("PVK 18 G Handrücken links" je Zeile, v1:
-// displayZugaengeByArtText — Sonderwert '0' → "Kein Zugang")
+// displayZugaengeByArtText, Sonderwert '0' → "Kein Zugang")
 $zugaengeText = static function (string $filterArt) use ($zugangRaw, $keinZugang, $zugaenge): string {
     if ($zugangRaw === null || $zugangRaw === '') {
         return '';
@@ -131,7 +131,7 @@ $zugaengeText = static function (string $filterArt) use ($zugangRaw, $keinZugang
     return implode("\n", $zeilen);
 };
 
-// Medikamente als Text (v1: displayAllMedikamente — '0'/'1' → "Keine Medikamente")
+// Medikamente als Text (v1: displayAllMedikamente, '0'/'1' → "Keine Medikamente")
 $medisText = static function () use ($medisRaw, $keineMedis, $medisEintraege): string {
     if ($medisRaw === null || $medisRaw === '') {
         return '';
@@ -194,7 +194,7 @@ if ($fokus === 'medimaske') {
 }
 
 // Schrittanzahl der Wizard-Themen (?q-Klemmung). Ohne explizites ?q ist
-// KEIN Schritt offen — nur die Subnav-Spalten (v1: Themen-Index zeigt die
+// KEIN Schritt offen, nur die Subnav-Spalten (v1: Themen-Index zeigt die
 // Navigation, erst der Klick öffnet die Frage; atemwege hat einen
 // einzelnen verlinkten Schritt und folgt derselben Regel)
 $schrittanzahl = ['atemwege' => 1, 'atmung' => 2, 'weitere' => 3, 'zugang' => 14];
@@ -218,7 +218,7 @@ $themenSpalte = static function (?string $aktiv) use ($themen, $fokusUrl, $e): s
     return $html . '</div>';
 };
 
-// Radio-Spalte (btn-check) — v1 nutzt in den Maßnahmen-Unterseiten
+// Radio-Spalte (btn-check), v1 nutzt in den Maßnahmen-Unterseiten
 // edivi__interactbutton-more auch für die Antwort-Spalten
 $radioCol = static function (string $name, array $options, array $opts = []) use ($protokoll, $e, $istGesperrt): string {
     $current = (string) ($protokoll[$name] ?? '');
@@ -408,7 +408,7 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
 <?php elseif ($fokus === 'atemwege'): ?>
 
     <!-- ── ATEMWEGE: v1 atemwege/index.php (Subnav-Checkboxen) + 1.php
-         (Radio-Spalte als Schritt — öffnet erst der Klick auf
+         (Radio-Spalte als Schritt, öffnet erst der Klick auf
          „Atemwegssicherung", wie v1s Unterseiten-Link) ── -->
     <div class="row" style="margin-left: 0" data-ev2-steps>
         <?= $themenSpalte('atemwege') ?>
@@ -531,7 +531,7 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
 
 <?php elseif ($fokus === 'medimaske'): ?>
 
-    <!-- ── MEDIKAMENTEN-MASKE: v1 medikamente/1.php — Liste links,
+    <!-- ── MEDIKAMENTEN-MASKE: v1 medikamente/1.php, Liste links,
          Eingabeformular rechts, zurück/Löschen/Speichern unten.
          Datenfluss komplett über die v2-Medis-API. ── -->
     <?php
@@ -540,7 +540,7 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
         ->get(['wirkstoff', 'herstellername', 'dosierungen']);
 
     // Gaben-Liste serverseitig vorrendern ($medisEintraege liegt schon
-    // dekodiert vor) — gleiche Struktur wie renderMedis() im JS unten, das
+    // dekodiert vor), gleiche Struktur wie renderMedis() im JS unten, das
     // beim Init nur noch die Klick-Handler anhängt. Kein Lade-Spinner mehr:
     // der asynchrone Erst-Fetch entfiel, die Daten stehen als JSON im Template.
     $medisSortiert = $medisEintraege;
@@ -775,7 +775,7 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
         var ENR = <?= json_encode((string) $enr, $jsonFlags) ?>;
         var MEDIS_API = <?= json_encode(EnotfV2Url::api('medis'), $jsonFlags) ?>;
         // Gaben-Liste kommt eingebettet aus dem Template (#medis-initial,
-        // Serverstand beim Rendern) — kein Erst-Fetch, kein Lade-Spinner
+        // Serverstand beim Rendern), kein Erst-Fetch, kein Lade-Spinner
         var medis = [];
         try {
             var initialEl = document.getElementById('medis-initial');
@@ -960,7 +960,7 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
 
         function init() {
             enhanceSelects();
-            // Liste steht schon serverseitig im DOM — renderMedis erzeugt
+            // Liste steht schon serverseitig im DOM, renderMedis erzeugt
             // dasselbe Markup neu und hängt die Klick-Handler an
             renderMedis();
 

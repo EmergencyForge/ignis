@@ -1,7 +1,7 @@
 <?php
 
 /**
- * intraRP — Globale Helper-Funktionen
+ * intraRP: Globale Helper-Funktionen
  *
  * Wird via composer "files"-autoload bei jedem Request automatisch geladen.
  */
@@ -127,7 +127,7 @@ if (!function_exists('csrf_field')) {
      *         <?= csrf_field() ?>
      *
      * Jedes schreibende Formular braucht es, seit CsrfMiddleware global
-     * am Router haengt — ohne kommt die 403-Seite.
+     * am Router haengt. Ohne kommt die 403-Seite.
      */
     function csrf_field(): string
     {
@@ -147,7 +147,7 @@ if (!function_exists('csrf_head')) {
      * Einstiegspunkte (Admin, Mitarbeiter, eNOTF) haben nicht denselben
      * Import-Baum. Wer den Header selbst setzt, behaelt ihn.
      *
-     * Fremde Ziele bekommen den Token nicht — sonst reicht ein fetch()
+     * Fremde Ziele bekommen den Token nicht, sonst reicht ein fetch()
      * auf eine andere Domain, um ihn dorthin zu tragen.
      */
     function csrf_head(): string

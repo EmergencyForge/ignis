@@ -12,7 +12,7 @@ use Phinx\Migration\AbstractMigration;
  * Ausdruck nach `ID: 12`, das nicht von einer weiteren Ziffer gefolgt
  * wird, weil sonst auch 123 träfe. Und damit die Fahrzeugseite überhaupt
  * etwas findet, musste „Fahrzeug erstellt" nachträglich ein `[ID: n]`
- * angehängt bekommen — die Auswertung diktiert den Text der Meldung.
+ * angehängt bekommen. Die Auswertung diktiert den Text der Meldung.
  *
  * Additiv: die Spalte ist nullable, alte Zeilen bleiben, wie sie sind, und
  * die Auswertung fällt für sie weiterhin auf den Text zurück.

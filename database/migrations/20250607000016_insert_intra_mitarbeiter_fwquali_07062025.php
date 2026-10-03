@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Seed für die FW-Qualifikationen: "Keine" plus B1 (Grundausbildung) bis
- * B6 (A-Dienst). Die ids starten bei 2 — so aus dem Ursprungssystem
+ * B6 (A-Dienst). Die ids starten bei 2, so aus dem Ursprungssystem
  * übernommen.
  */
 class InsertIntraMitarbeiterFwquali07062025 extends AbstractMigration

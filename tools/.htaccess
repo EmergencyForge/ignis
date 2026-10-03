@@ -1,4 +1,4 @@
-# tools/ — interne CLI-Helper, nicht via HTTP erreichbar.
+# tools/: interne CLI-Helper, nicht via HTTP erreichbar.
 # AutoMigrator und composer-Hooks rufen die Files via php-CLI auf,
 # nicht via Webserver.
 

@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fire_incident_asu` — Atemschutzüberwachung
+ * Eloquent-Model für `intra_fire_incident_asu`: Atemschutzüberwachung
  * (ASÜ) pro Einsatz.
  *
- * Ein Datensatz je (incident_id, supervisor) — Unique-Key. Die Trupp-Daten
+ * Ein Datensatz je (incident_id, supervisor), gesichert über einen Unique-Key. Die Trupp-Daten
  * liegen als JSON-Blob in `data`; Konsumenten (ASÜ-UI) parsen selbst.
  *
  * Die Tabelle hat BEIDE Timestamps mit DB-Defaults (CURRENT_TIMESTAMP bzw.

@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Fügt operator_id zu intra_fire_incident_map_markers hinzu: die Person auf
- * dem Fahrzeug, die den Marker gesetzt hat — inklusive Index und Foreign Key
+ * dem Fahrzeug, die den Marker gesetzt hat, inklusive Index und Foreign Key
  * auf intra_mitarbeiter (ON DELETE SET NULL, ON UPDATE CASCADE).
  */
 class AddOperatorIdToMarkers25122025 extends AbstractMigration

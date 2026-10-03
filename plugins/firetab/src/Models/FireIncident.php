@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_fire_incidents` — Feuerwehr-Einsätze
+ * Eloquent-Model für `intra_fire_incidents`: Feuerwehr-Einsätze
  * (FireTab/Einsatz-Modul).
  *
  * Anders als die meisten intraRP-Tabellen hat `intra_fire_incidents` BEIDE

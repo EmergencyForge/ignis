@@ -12,8 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Testet die Merge-Logik des Loaders gegen das Fixture-Plugin „good".
- * Das aktive Set wird gestubbt, damit kein Datenbank-Zugriff nötig ist —
- * die Auflösung selbst deckt PluginRegistryTest ab.
+ * Das aktive Set wird gestubbt, damit kein Datenbank-Zugriff nötig ist.
+ * Die Auflösung selbst deckt PluginRegistryTest ab.
  */
 class PluginLoaderTest extends TestCase
 {
@@ -26,7 +26,7 @@ class PluginLoaderTest extends TestCase
             /** @param list<Plugin> $stubbed */
             public function __construct(private readonly array $stubbed)
             {
-                // PDO wird nicht gebraucht — active() ist gestubbt.
+                // PDO wird nicht gebraucht, active() ist gestubbt.
             }
 
             public function active(): array

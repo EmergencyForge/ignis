@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Feature-Flag für die überarbeitete Sidebar-Navigation (Icon-Rail + Flyout).
  *
- * Default ist 'false' — bestehende Installationen behalten die klassische
+ * Default ist 'false': bestehende Installationen behalten die klassische
  * Sidebar. Admins können den Flag über Einstellungen › Konfiguration in der
  * Kategorie "Funktionen" umschalten.
  */

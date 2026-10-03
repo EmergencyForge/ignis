@@ -16,7 +16,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * Was von den Dokumenten des abgelösten Canvas-Systems noch gebraucht
  * wird: sie ansehen und archivieren.
  *
- * Neue Dokumente entstehen hier nicht mehr — das macht der Editor
+ * Neue Dokumente entstehen hier nicht mehr. Das macht der Editor
  * (siehe {@see \App\Http\Controllers\EditorDocumentController}). Die alten
  * Zeilen bleiben samt ihrer PDFs auf der Platte stehen, weil eine
  * ausgestellte Urkunde nicht verschwinden darf, nur weil das Werkzeug
@@ -95,7 +95,7 @@ final class PersonnelDocumentController
         }
     }
 
-    /** POST /api/documents/archive — archivieren oder zurückholen. */
+    /** POST /api/documents/archive: archivieren oder zurückholen. */
     public function archiveDocument(Request $request): Response
     {
         if (Gate::denies('document.manage')) {

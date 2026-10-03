@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 404 — Seite nicht gefunden. Der Router rendert sie über den Haken aus
+ * 404: Seite nicht gefunden. Der Router rendert sie über den Haken aus
  * App\Http\RouterFactory, wenn FastRoute nichts findet. Erwartet optional
  * `$path` von App\Http\ErrorPage.
  */
@@ -26,7 +26,7 @@ if ($errPath !== null && mb_strlen($errPath) > 120) {
 
 $errPage      = 'error-404';
 $errCode      = '404';
-$errTitle     = '404 — Seite nicht gefunden';
+$errTitle     = 'Seite nicht gefunden (404)';
 $errHeadline  = 'Seite nicht gefunden';
 $errText      = 'Unter dieser Adresse gibt es keine Seite. Vielleicht ist der Link veraltet, oder die Adresse enthält einen Tippfehler.';
 $errBackUrl   = $errBase;

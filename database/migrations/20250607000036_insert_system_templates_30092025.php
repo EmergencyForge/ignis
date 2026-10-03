@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Legt die mitgelieferten System-Dokumentvorlagen an (Urkunden, Zertifikate,
- * Schreiben) — nur solche, die noch nicht existieren, damit bestehende
+ * Schreiben), aber nur solche, die noch nicht existieren, damit bestehende
  * Installationen nichts überschrieben bekommen.
  */
 class InsertSystemTemplates30092025 extends AbstractMigration

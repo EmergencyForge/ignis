@@ -13,12 +13,12 @@ use Plugin\EnotfV2\Models\Edivi;
 use Plugin\EnotfV2\Models\EdiviPoi;
 
 /**
- * ProtokollService — die zentralen Schreib- und Statusregeln für
+ * ProtokollService: die zentralen Schreib- und Statusregeln für
  * intra_edivi, gebündelt an EINER Stelle (v1 verteilt das auf
  * Api\EnotfController + 121 Templates).
  *
  * Verhaltensregeln:
- *   - Feld-Whitelist ALLOWED_FIELDS — identisch zu v1 PLUS
+ *   - Feld-Whitelist ALLOWED_FIELDS: identisch zu v1 PLUS
  *     `awsicherung_2` (fehlte in v1 und ließ den Autosave mit 400
  *     abblitzen).
  *   - Jeder Write setzt `last_edit = NOW()`.
@@ -32,13 +32,13 @@ use Plugin\EnotfV2\Models\EdiviPoi;
  *     `freigegeben = 1` und feuert das v1-Event EnotfProtocolReleased
  *     (Discord-Webhook-Listener hängen daran). Vor der Freigabe wird
  *     serverseitig geprüft, dass ein Protokollant (pfname) gesetzt ist
- *     und keine Pflichtangabe mehr offen ist (ConditionsService) —
+ *     und keine Pflichtangabe mehr offen ist (ConditionsService),
  *     Panel-User mit admin/edivi.edit dürfen das Plausibilitäts-Gate
  *     für QM-Korrekturen übersteuern (Parameter in saveFields).
  *   - `c_zugang` wird strukturell validiert (JSON-Whitelist inkl.
  *     Duplikat-Check art/ort/seite), wie in v1.
  *
- * Kein Konfliktschutz: last-write-wins wie in v1 — eine
+ * Kein Konfliktschutz: last-write-wins wie in v1, eine
  * Versionsstempel-Lösung braucht erst ein UX-Konzept.
  */
 final class ProtokollService
@@ -96,7 +96,7 @@ final class ProtokollService
         $protokoll = Edivi::query()->where('enr', $enr)->first();
 
         // getAttributes() = rohe DB-Spalten, identisch zum früheren
-        // fetch(FETCH_ASSOC) — Aufrufer (Controller, Templates) erwarten Arrays
+        // fetch(FETCH_ASSOC): Aufrufer (Controller, Templates) erwarten Arrays
         return $protokoll?->getAttributes();
     }
 
@@ -126,10 +126,10 @@ final class ProtokollService
      *
      * Die Spalte intra_edivi.transportziel trägt historisch zwei
      * Bedeutungen: Versorgungsart-Code (TransportzielCatalog) oder
-     * POI-Kennung (`poi_<id>` bzw. legacy_identifier — v1 löste das in
+     * POI-Kennung (`poi_<id>` bzw. legacy_identifier, v1 löste das in
      * abschluss/freigabe.php auf). Für Katalog-Codes und leere Werte
      * kommt null zurück; alles andere wird als POI aufgelöst
-     * (POI-Name), nicht auflösbare Kennungen kommen roh zurück — so
+     * (POI-Name), nicht auflösbare Kennungen kommen roh zurück, so
      * zeigen Altprotokolle nie einen falschen Katalog-Zustand an.
      */
     public function transportzielPoiAnzeige(mixed $raw): ?string
@@ -161,11 +161,11 @@ final class ProtokollService
      * Speichert einen Feld-Batch für ein Protokoll (Mehrfeld-Autosave).
      *
      * Bewusst NICHT atomar: valide Felder werden geschrieben, invalide
-     * landen einzeln in errors — der Client zeigt Feld-Fehler an, ohne
+     * landen einzeln in errors. Der Client zeigt Feld-Fehler an, ohne
      * dass der Rest des Batches verloren geht.
      *
      * Das Sonderfeld `freigeber` wird zuletzt verarbeitet, damit andere
-     * Felder desselben Batches noch vor der Sperre landen — die
+     * Felder desselben Batches noch vor der Sperre landen, die
      * Freigabe-Prüfung sieht damit denselben Stand wie der Client-Flow
      * (erst Batch-Felder schreiben, dann Gate, dann freigeben).
      *
@@ -207,7 +207,7 @@ final class ProtokollService
         }
 
         if ($hasFreigeber) {
-            // Freigabe-Gate auf dem AKTUELLEN DB-Stand — die Batch-Felder
+            // Freigabe-Gate auf dem AKTUELLEN DB-Stand: die Batch-Felder
             // oben sind zu diesem Zeitpunkt bereits geschrieben
             $error = $this->pruefeFreigabe($enr, $ueberspringePlausibilitaet);
             if ($error === null) {
@@ -227,7 +227,7 @@ final class ProtokollService
      * Validiert + schreibt EIN Feld (Whitelist, Datums-Konvertierung,
      * c_zugang-Struktur, last_edit, patname-Ableitung).
      *
-     * Sperr-/Existenz-Check macht der Aufrufer (saveFields) — wer diese
+     * Sperr-/Existenz-Check macht der Aufrufer (saveFields). Wer diese
      * Methode direkt nutzt, muss vorher selbst prüfen.
      *
      * @return string|null null bei Erfolg, sonst Fehlermeldung fürs Frontend
@@ -271,10 +271,10 @@ final class ProtokollService
      * Serverseitiges Freigabe-Gate: prüft auf dem aktuellen DB-Stand,
      * ob das Protokoll freigegeben werden darf.
      *
-     *   - pfname (Protokollant) muss gesetzt sein — immer, auch bei
+     *   - pfname (Protokollant) muss gesetzt sein, immer, auch bei
      *     Plausibilitäts-Override.
      *   - Alle Pflichtangaben müssen erfüllt sein
-     *     (ConditionsService::isReleasable) — es sei denn, der Aufrufer
+     *     (ConditionsService::isReleasable), es sei denn, der Aufrufer
      *     darf das Gate übersteuern (Panel-User mit admin/edivi.edit).
      *
      * @return string|null null wenn freigebbar, sonst Fehlermeldung fürs Frontend
@@ -287,11 +287,11 @@ final class ProtokollService
         }
 
         if (trim((string) ($protokoll['pfname'] ?? '')) === '') {
-            return 'Freigabe nicht möglich — es ist kein Protokollant eingetragen';
+            return 'Freigabe nicht möglich: Es ist kein Protokollant eingetragen';
         }
 
         if (!$ueberspringePlausibilitaet && !app(ConditionsService::class)->isReleasable($protokoll)) {
-            return 'Freigabe nicht möglich — es sind noch offene Pflichtangaben vorhanden';
+            return 'Freigabe nicht möglich: Es sind noch offene Pflichtangaben vorhanden';
         }
 
         return null;
@@ -299,7 +299,7 @@ final class ProtokollService
 
     /**
      * Freigabe (Sonderfeld `freigeber`): freigeber_name + freigegeben=1 +
-     * last_edit, dann EnotfProtocolReleased-Event (v1-Event — die
+     * last_edit, dann EnotfProtocolReleased-Event (v1-Event, die
      * Discord-Webhook-Listener von v1 greifen damit auch für v2).
      *
      * @return string|null null bei Erfolg, sonst Fehlermeldung
@@ -322,7 +322,7 @@ final class ProtokollService
                 app(EventDispatcher::class)->fire(new EnotfProtocolReleased($protokoll));
             }
         } catch (\Throwable $e) {
-            // Freigabe ist gespeichert — ein Webhook-Fehler darf sie nicht kippen
+            // Freigabe ist gespeichert, ein Webhook-Fehler darf sie nicht kippen
             Logger::error('EnotfV2: EnotfProtocolReleased-Event fehlgeschlagen', ['error' => $e->getMessage()]);
         }
 

@@ -49,6 +49,6 @@ class AlterIntraFireIncidents20260306StatusTinyint extends AbstractMigration
         // Die ENUM->TINYINT-Konvertierung ist nicht umkehrbar: die
         // ursprünglichen ENUM-Werte lassen sich aus den Zahlen nicht
         // verlustfrei rekonstruieren, und auf frischen Installationen ist
-        // status ohnehin von Anfang an TINYINT — no-op.
+        // status ohnehin von Anfang an TINYINT, daher no-op.
     }
 }

@@ -34,7 +34,7 @@ final class CronTickCommand extends Command
         $executed  = $this->scheduler->tick();
         $duration  = round((microtime(true) - $startedAt) * 1000);
 
-        $output->writeln("<info>cron:tick</info> — {$executed} Job(s) in {$duration}ms ausgeführt.");
+        $output->writeln("<info>cron:tick</info>: {$executed} Job(s) in {$duration}ms ausgeführt.");
         return Command::SUCCESS;
     }
 }

@@ -9,11 +9,11 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 
 /**
- * CsrfMiddleware — Cross-Site-Schutz für die v2-Web-Form-POSTs
+ * CsrfMiddleware: Cross-Site-Schutz für die v2-Web-Form-POSTs
  * (Nachfolger der reinen SameOriginMiddleware, jetzt mit echtem Token).
  *
  * Die v2-Session-Cookies laufen wegen des FiveM-iframes mit
- * SameSite=None; Secure (SessionManager-iframePaths) — der Browser hängt
+ * SameSite=None; Secure (SessionManager-iframePaths), der Browser hängt
  * sie damit auch an Form-POSTs, die eine FREMDE Seite abschickt. Deshalb
  * zweistufige Prüfung für schreibende Requests:
  *
@@ -24,7 +24,7 @@ use EmergencyForge\Http\Response;
  * 2. **Origin-Fallback** (Token fehlt oder falsch): Origin-Header
  *    (ersatzweise Referer) muss denselben Host tragen wie der Request,
  *    sonst 403. Fehlen BEIDE Header, wird durchgelassen: der FiveM-CEF
- *    und ältere Clients senden nicht zuverlässig einen Origin — Browser
+ *    und ältere Clients senden nicht zuverlässig einen Origin. Browser
  *    schicken bei Cross-Site-Form-POSTs den Origin dagegen immer mit,
  *    ein komplett headerloser POST kommt also nicht aus einem fremden
  *    Browser-Kontext. Ein Origin ohne parsebaren Host (z. B. "null" aus

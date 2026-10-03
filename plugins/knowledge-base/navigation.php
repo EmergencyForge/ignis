@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Wissensdatenbank — ein Eintrag in der Einstiegsgruppe der Sidebar,
+ * Wissensdatenbank: ein Eintrag in der Einstiegsgruppe der Sidebar,
  * mit Schnellaktion für einen neuen Artikel. Fällt die Zielgruppe weg,
  * erscheint das Fragment als eigene Gruppe ohne Überschrift.
  */

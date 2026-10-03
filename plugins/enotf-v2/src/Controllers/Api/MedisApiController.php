@@ -17,7 +17,7 @@ use Plugin\EnotfV2\Support\ProtokollAccessGuard;
 use Plugin\EnotfV2\Support\ProtokollService;
 
 /**
- * Medikations-API — Read-Modify-Write auf dem JSON-Feld intra_edivi.medis.
+ * Medikations-API: Read-Modify-Write auf dem JSON-Feld intra_edivi.medis.
  *
  * Speicherformat ist EXAKT das v1-Format (save_medikament.php):
  * JSON-Array von { wirkstoff, zeit, applikation, dosierung, einheit,
@@ -28,7 +28,7 @@ use Plugin\EnotfV2\Support\ProtokollService;
  * Unterschiede zu v1 (bewusst):
  *   - JSON-Antworten statt text/plain.
  *   - Sperr-Prüfung: add/delete werden bei freigegeben=1 mit 403
- *     abgewiesen — v1 prüfte das nicht.
+ *     abgewiesen (v1 prüfte das nicht).
  *   - timestamp wird SERVERSEITIG vergeben statt vom Client.
  *
  *   GET  /api/enotf-v2/medis/{enr}
@@ -43,12 +43,12 @@ use Plugin\EnotfV2\Support\ProtokollService;
  *
  *   POST /api/enotf-v2/medis/delete
  *     Request: { enr, timestamp }
- *     → { ok } — leeres Array wird als '0' gespeichert (v1-Parität).
+ *     → { ok }. Ein leeres Array wird als '0' gespeichert (v1-Parität).
  */
 final class MedisApiController
 {
     /**
-     * GET /api/enotf-v2/medis/{enr} — Gaben-Liste, neueste zuerst.
+     * GET /api/enotf-v2/medis/{enr}: Gaben-Liste, neueste zuerst.
      */
     public function index(Request $request, string $enr): Response
     {
@@ -76,7 +76,7 @@ final class MedisApiController
     }
 
     /**
-     * POST /api/enotf-v2/medis — eine Medikamentengabe anhängen.
+     * POST /api/enotf-v2/medis: eine Medikamentengabe anhängen.
      */
     public function add(Request $request): Response
     {
@@ -101,7 +101,7 @@ final class MedisApiController
             return Response::json(['ok' => false, 'error' => 'Kein Zugriff auf dieses Protokoll'], 403);
         }
         if ($service->istGesperrt($protokoll)) {
-            // v1 ließ Medikamenten-Writes auch nach Freigabe durch — v2 sperrt
+            // v1 ließ Medikamenten-Writes auch nach Freigabe durch, v2 sperrt
             return Response::json(['ok' => false, 'error' => 'Protokoll ist freigegeben und kann nicht mehr bearbeitet werden'], 403);
         }
 
@@ -138,7 +138,7 @@ final class MedisApiController
             return Response::json(['ok' => false, 'error' => 'Ungültige Dosierung: ' . $medikament['dosierung']], 400);
         }
 
-        // Eintrag im v1-Format — timestamp serverseitig (Unix-Millisekunden)
+        // Eintrag im v1-Format, timestamp serverseitig (Unix-Millisekunden)
         $eintrag = [
             'wirkstoff'   => $medikament['wirkstoff'],
             'zeit'        => $medikament['zeit'],
@@ -159,7 +159,7 @@ final class MedisApiController
     }
 
     /**
-     * POST /api/enotf-v2/medis/delete — eine Gabe per timestamp entfernen.
+     * POST /api/enotf-v2/medis/delete: eine Gabe per timestamp entfernen.
      */
     public function delete(Request $request): Response
     {
@@ -189,7 +189,7 @@ final class MedisApiController
 
         $medis = $this->decodeMedis($protokoll['medis'] ?? null);
 
-        // Lockerer Vergleich wie v1 ($med['timestamp'] != $timestamp) —
+        // Lockerer Vergleich wie v1 ($med['timestamp'] != $timestamp),
         // Altdaten können den timestamp als String tragen
         $verbleibend = array_values(array_filter(
             $medis,
@@ -229,7 +229,7 @@ final class MedisApiController
     }
 
     /**
-     * medis-Spalte schreiben — leeres Array als '0' (v1-Parität),
+     * medis-Spalte schreiben, leeres Array als '0' (v1-Parität),
      * last_edit wird mitgezogen.
      *
      * @param list<array<string,mixed>> $medis

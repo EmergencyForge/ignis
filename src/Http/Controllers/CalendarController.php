@@ -24,7 +24,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * CalendarController — Termine, role-getaggte Dienste, Recurring-Series.
+ * CalendarController: Termine, role-getaggte Dienste, Recurring-Series.
  *
  * URL-Mapping:
  *   GET  /kalender                 → index()         (Page mit FullCalendar-Mount)
@@ -39,7 +39,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class CalendarController extends Controller
 {
     /**
-     * GET /kalender — Page mit FullCalendar + Sidebar (Filter, Verfügbarkeits-Widget).
+     * GET /kalender: Page mit FullCalendar + Sidebar (Filter, Verfügbarkeits-Widget).
      */
     public function index(): void
     {
@@ -54,7 +54,7 @@ class CalendarController extends Controller
         // Rollen fuer Visibility=role-Auswahl
         $roles = $this->roleOptions();
 
-        // Heute-abwesend-Strip — Liste der Mitarbeiter, deren Absence-Event
+        // Heute-abwesend-Strip: Liste der Mitarbeiter, deren Absence-Event
         // den heutigen Tag ueberlappt. Wird im Template nur gerendert wenn
         // mindestens einer drin ist.
         $today = (new DateTimeImmutable('today'))->format('Y-m-d');
@@ -82,7 +82,7 @@ class CalendarController extends Controller
     /**
      * GET /api/kalender/events?from=...&to=...
      *
-     * FullCalendar-EventSource — liefert ein Array von EventInput-Objekten
+     * FullCalendar-EventSource: liefert ein Array von EventInput-Objekten
      * im Format, das FullCalendar 6 erwartet. Recurring-Events werden via
      * RecurrenceExpander in Einzelvorkommen aufgeloest.
      */
@@ -102,7 +102,7 @@ class CalendarController extends Controller
             ->visibleTo($userId, $roleId, $mitarbeiterId)
             ->inRange($from, $to)
             // Exception-Rows fuer Recurring-Series werden NICHT als eigenstaendige
-            // Events geliefert — der Expander zieht sie sich.
+            // Events geliefert. Der Expander zieht sie sich.
             ->where(function ($q) {
                 $q->whereNull('parent_event_id')
                     ->orWhereNotNull('recurrence_rule');
@@ -141,7 +141,7 @@ class CalendarController extends Controller
      * GET /api/kalender/subscribe-info
      *
      * Liefert die persoenliche iCal-Subscribe-URL des eingeloggten Users.
-     * Wird vom "Kalender abonnieren"-Dialog aufgerufen — generiert den
+     * Wird vom "Kalender abonnieren"-Dialog aufgerufen, generiert den
      * Token bei Bedarf.
      */
     public function subscribeInfo(): Response
@@ -182,7 +182,7 @@ class CalendarController extends Controller
     /**
      * Baut die absolute Subscribe-URL fuer externe Kalender-Apps.
      * Canonical-Path ist /api/v1/... (siehe public/index.php's
-     * Versions-Rewrite — /api/v1/kalender/ical/X wird intern auf
+     * Versions-Rewrite: /api/v1/kalender/ical/X wird intern auf
      * /api/kalender/ical/X gemappt, wo die Route registriert ist).
      */
     private function buildIcalUrl(string $token): string
@@ -196,7 +196,7 @@ class CalendarController extends Controller
     /**
      * GET /api/kalender/ical/{token}
      *
-     * Liefert das iCal-Feed eines Users. KEIN Cookie-Auth — der Token in
+     * Liefert das iCal-Feed eines Users. KEIN Cookie-Auth. Der Token in
      * der URL ist die Authentifizierung. Externe Kalender koennen das so
      * abonnieren.
      */
@@ -226,7 +226,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * GET /api/kalender/event?id=X — JSON-Detail fuer Edit-Prefill.
+     * GET /api/kalender/event?id=X: JSON-Detail fuer Edit-Prefill.
      *
      * Gibt das volle Event-Datenmodell zurueck, sodass das Frontend das
      * Edit-Form korrekt befuellen kann. Sichtbarkeit wie bei show().
@@ -270,7 +270,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * GET /kalender/view?id=X — Detail-HTML-Fragment fuer das Detail-Modal.
+     * GET /kalender/view?id=X: Detail-HTML-Fragment fuer das Detail-Modal.
      */
     public function show(): void
     {
@@ -305,8 +305,8 @@ class CalendarController extends Controller
         // bei role nur wenn track_attendance gesetzt ist UND der User in
         // einer der Rollen ist (oder schon eine attendee-Row hat).
         // Wichtig: Wir pruefen Role-Membership ueber den AttendeeResolver
-        // (der intra_users.role direkt joint), nicht ueber $_SESSION['role_id'] —
-        // letzteres ist bei full_admin auf 99 gemapped und matcht nicht
+        // (der intra_users.role direkt joint), nicht ueber $_SESSION['role_id'].
+        // Letzteres ist bei full_admin auf 99 gemapped und matcht nicht
         // mit echten Role-IDs aus der visibility_role_ids-Pivot-Tabelle.
         $canRespond = false;
         if ($myMitarbeiterId !== null) {
@@ -369,10 +369,10 @@ class CalendarController extends Controller
     }
 
     /**
-     * POST /kalender/create — neuen Termin anlegen.
+     * POST /kalender/create: neuen Termin anlegen.
      */
     /**
-     * GET /calendar/create[?date=YYYY-MM-DD] — das Anlage-Formular, als
+     * GET /calendar/create[?date=YYYY-MM-DD]: das Anlage-Formular, als
      * Seite oder als Fragment im Drawer (assets/js/ui/drawer-form.js).
      * `date` kommt vom Klick auf einen Tag im Kalender und füllt Start
      * (9 Uhr) und Ende (10 Uhr) vor.
@@ -441,7 +441,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * POST /kalender/update?id=X — bestehenden Termin aendern.
+     * POST /kalender/update?id=X: bestehenden Termin aendern.
      */
     public function update(): void
     {
@@ -478,7 +478,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * POST /kalender/delete?id=X — Termin loeschen.
+     * POST /kalender/delete?id=X: Termin loeschen.
      */
     public function destroy(): void
     {
@@ -504,7 +504,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * POST /kalender/respond?id=X — Attendee setzt Response (accepted/declined/tentative).
+     * POST /kalender/respond?id=X: Attendee setzt Response (accepted/declined/tentative).
      */
     public function respondInvite(): void
     {
@@ -529,7 +529,7 @@ class CalendarController extends Controller
             $this->redirect('kalender');
         }
 
-        // Event laden — wir muessen wissen ob der User ueberhaupt antworten darf
+        // Event laden: wir muessen wissen ob der User ueberhaupt antworten darf
         // und ob bei role-based Events das Tracking aktiv ist.
         $event = CalendarEvent::with('visibilityRoles')->find($id);
         if ($event === null) {
@@ -544,7 +544,7 @@ class CalendarController extends Controller
         if ($attendee === null) {
             // Bei role-based Events mit aktivem Tracking lazy eine Row anlegen,
             // sodass der User RSVP'en kann ohne explizit eingeladen zu sein.
-            // Membership via AttendeeResolver (joint intra_users.role) — nicht
+            // Membership via AttendeeResolver (joint intra_users.role), nicht
             // ueber $_SESSION['role_id'], weil full_admin dort auf 99 gemapped
             // ist und nicht mit echten Role-IDs matcht.
             $isRoleTracked = $event->visibility === CalendarEvent::VISIBILITY_ROLE
@@ -594,7 +594,7 @@ class CalendarController extends Controller
         $event->track_attendance = (bool) ($data['track_attendance'] ?? false);
         $event->recurrence_rule  = $data['recurrence_rule'];
         $event->recurrence_until = $data['recurrence_until'];
-        // visibility_role_ids[] wird per Pivot synchronisiert nach $event->save() —
+        // visibility_role_ids[] wird per Pivot synchronisiert nach $event->save(),
         // siehe syncVisibilityRoles().
         return $event;
     }
@@ -796,7 +796,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * Nicht-blockierender Konflikt-Hint nach store/update — wenn Attendees
+     * Nicht-blockierender Konflikt-Hint nach store/update. Wenn Attendees
      * im Zeitraum bereits andere Termine haben, gibt's eine Flash::warning
      * mit Kurz-Zusammenfassung. Der Save selbst ist bereits durch.
      *

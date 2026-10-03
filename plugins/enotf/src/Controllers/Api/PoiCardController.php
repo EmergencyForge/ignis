@@ -10,14 +10,14 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * GET /api/pois/{id}/card — Hover-Card-Fragment für einen POI.
+ * GET /api/pois/{id}/card: Hover-Card-Fragment für einen POI.
  *
  * Liefert ein kompaktes HTML-Fragment für die hauseigene Hover-Card-
  * Komponente (siehe assets/js/modules/user-hover-card.js, Type `poi`).
  * Wird in Templates getriggert über `data-poi-card="{id}"` an einem
  * Anchor-Element.
  *
- * Auth: Session-Login reicht — der Inhalt ist nicht sensibler als das,
+ * Auth: Session-Login reicht, der Inhalt ist nicht sensibler als das,
  * was in den Protokoll-/Schnittstelle-Listen ohnehin sichtbar ist.
  */
 final class PoiCardController extends Controller
@@ -39,7 +39,7 @@ final class PoiCardController extends Controller
             return Response::html('POI nicht gefunden.', 404);
         }
 
-        // Departments laden, falls vorhanden — gibt eine kompakte
+        // Departments laden, falls vorhanden, gibt eine kompakte
         // Verfügbarkeits-Aggregation in der Card.
         $departments = Capsule::table('intra_edivi_hospital_departments as d')
             ->leftJoin('intra_edivi_hospital_availability as a', 'd.id', '=', 'a.department_id')

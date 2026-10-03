@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * `intra_edivi_hospital_availability` — Verfügbarkeitsstatus je
+ * `intra_edivi_hospital_availability`: Verfügbarkeitsstatus je
  * Fachabteilung (genau eine Zeile pro Abteilung, UNIQUE department_id).
  *
  * Status-Enum + Anzeige-Semantik:

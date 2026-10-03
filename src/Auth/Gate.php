@@ -7,7 +7,7 @@ namespace App\Auth;
 use EmergencyForge\Http\Exceptions\AuthorizationException;
 
 /**
- * Gate — kleiner statischer Facade für Authorization-Entscheidungen.
+ * Gate: kleiner statischer Facade für Authorization-Entscheidungen.
  *
  * Nutzt Policy-Klassen unter App\Policies\* als Single Source of Truth für
  * "wer darf was". Mappt Dot-Notation-Abilities auf Policy-Methoden:
@@ -30,7 +30,7 @@ class Gate
 {
     /**
      * Prüft, ob die Ability erlaubt ist. Gibt false zurück bei unbekannten
-     * Abilities (statt zu werfen) — Templates sollen sicher prüfen können.
+     * Abilities (statt zu werfen). Templates sollen sicher prüfen können.
      */
     public static function allows(string $ability, mixed $resource = null): bool
     {
@@ -67,7 +67,7 @@ class Gate
 
     /**
      * Explizit registrierte Policies (Ressource => Policy-Klasse).
-     * Ergänzt die Namespace-Konvention — Plugins registrieren ihre
+     * Ergänzt die Namespace-Konvention: Plugins registrieren ihre
      * Policies hierüber, weil sie außerhalb von App\Policies leben.
      *
      * @var array<string, class-string>

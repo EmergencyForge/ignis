@@ -8,15 +8,15 @@ use App\Auth\Permissions;
 use App\Models\Personnel;
 
 /**
- * PersonnelPolicy — Single Source of Truth für Mitarbeiter-Permissions.
+ * PersonnelPolicy: Single Source of Truth für Mitarbeiter-Permissions.
  *
- *   viewList()    — Mitarbeiter-Liste ansehen
- *   view()        — Einzel-Profil ansehen
- *   create()      — Neuen Mitarbeiter anlegen
- *   update()      — Profil bearbeiten
- *   delete()      — Mitarbeiter löschen
- *   manageDocs()  — Dokumente verwalten (anlegen/archivieren/löschen)
- *   deleteComments() — Profil-Kommentare löschen
+ *   viewList():    Mitarbeiter-Liste ansehen
+ *   view():        Einzel-Profil ansehen
+ *   create():      Neuen Mitarbeiter anlegen
+ *   update():      Profil bearbeiten
+ *   delete():      Mitarbeiter löschen
+ *   manageDocs():  Dokumente verwalten (anlegen/archivieren/löschen)
+ *   deleteComments(): Profil-Kommentare löschen
  */
 class PersonnelPolicy
 {

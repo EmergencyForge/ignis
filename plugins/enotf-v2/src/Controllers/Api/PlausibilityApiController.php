@@ -29,13 +29,13 @@ use Plugin\EnotfV2\Support\ProtokollService;
  * für die offene-Punkte-Liste im Freigabe-Dialog.
  *
  * Regelquelle: ConditionsService (1:1-Port von conditions.php).
- * Auth: wie ProtokollApiController::show — Crew-Session ODER eingeloggter
+ * Auth: wie ProtokollApiController::show, Crew-Session ODER eingeloggter
  * User mit Modul-Sicht (lesender Endpoint).
  */
 final class PlausibilityApiController
 {
     /**
-     * GET /api/enotf-v2/plausibility/{enr} — evaluate + sectionStatus als JSON.
+     * GET /api/enotf-v2/plausibility/{enr}: evaluate + sectionStatus als JSON.
      */
     public function show(Request $request, string $enr): Response
     {

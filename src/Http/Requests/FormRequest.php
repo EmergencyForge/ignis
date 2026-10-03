@@ -19,7 +19,7 @@ use Respect\Validation\Validatable;
  * Aufruf in Controllern:
  *
  *     $data = CreateRoleRequest::validate($_POST);
- *     // bei Fehlern wirft validate() eine ValidationException — der Caller
+ *     // bei Fehlern wirft validate() eine ValidationException; der Caller
  *     // catched die und macht Flash::error() + redirect.
  */
 abstract class FormRequest
@@ -69,7 +69,7 @@ abstract class FormRequest
 
         // Der CSRF-Token gehört der Middleware, nicht dem Formular. Er
         // steht in jedem Post, und `v::keySet()` weist einen Satz mit einem
-        // Schlüssel zurück, den es nicht kennt — ohne diese Zeile müsste
+        // Schlüssel zurück, den es nicht kennt. Ohne diese Zeile müsste
         // ihn jede einzelne Regelmenge deklarieren, und die erste, die es
         // vergisst, weist jede Eingabe ab.
         unset($input['csrf_token']);

@@ -9,7 +9,7 @@ use Phinx\Migration\AbstractMigration;
  * Wird NUR bei visibility='attendees' (manuell ausgewaehlt) und
  * visibility='private' (Organizer-Only) materialisiert. Bei
  * visibility='role' loest der AttendeeResolver dynamisch ueber die
- * Rolle auf — keine DB-Rows, sodass nachzuziehende Rollentraeger
+ * Rolle auf. Es gibt keine DB-Rows, sodass nachzuziehende Rollentraeger
  * automatisch in laufenden Serien drin sind.
  */
 class CreateIntraCalendarAttendees extends AbstractMigration
@@ -22,7 +22,7 @@ class CreateIntraCalendarAttendees extends AbstractMigration
 
         $this->table('intra_calendar_attendees', ['id' => 'id', 'signed' => false])
             ->addColumn('event_id',       'integer',   ['signed' => false])
-            // signed — intra_mitarbeiter.id ist signed int(11), FK braucht identischen Typ
+            // signed: intra_mitarbeiter.id ist signed int(11), FK braucht identischen Typ
             ->addColumn('mitarbeiter_id', 'integer')
             ->addColumn('response',       'enum',      ['values' => ['pending', 'accepted', 'declined', 'tentative'], 'default' => 'pending'])
             ->addColumn('responded_at',   'datetime',  ['null' => true])

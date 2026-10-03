@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `php cli/intra.php cron:list`
  *
  * Zeigt alle registrierten Cron-Jobs mit Status, letzter/nächster Ausführung
- * und Fail-Counter — nützlich zum Debuggen ohne Admin-UI. Die Verbindung
+ * und Fail-Counter, nützlich zum Debuggen ohne Admin-UI. Die Verbindung
  * kommt erst beim Ausführen aus dem Container, siehe MigrateCommand.
  */
 #[AsCommand(
@@ -51,9 +51,9 @@ final class CronListCommand extends Command
                 $r['identifier'],
                 $r['schedule'],
                 ((int) $r['active']) === 1 ? 'yes' : 'NO',
-                $r['last_status'] ?? '–',
-                $r['last_run_at'] ?? '–',
-                $r['next_run_at'] ?? '–',
+                $r['last_status'] ?? '-',
+                $r['last_run_at'] ?? '-',
+                $r['next_run_at'] ?? '-',
                 (string) $r['fail_count'],
             ]);
         }

@@ -9,7 +9,7 @@ use App\Exceptions\UploadException;
 /**
  * Prueft einen Eintrag aus $_FILES und legt ihn ab.
  *
- * Limit und erlaubte Typen kommen vom Aufrufer — die unterscheiden sich je
+ * Limit und erlaubte Typen kommen vom Aufrufer. Die unterscheiden sich je
  * Modul und sollen es auch. Gemeinsam ist der Rest: Fehlercode pruefen,
  * Groesse pruefen, MIME-Typ am Inhalt bestimmen, zufaelliger Dateiname,
  * Verzeichnis anlegen, verschieben.
@@ -56,7 +56,7 @@ final class FileUpload
             );
         }
 
-        // Endung aus dem erkannten Typ, nicht aus $file['name'] — der Name
+        // Endung aus dem erkannten Typ, nicht aus $file['name']. Der Name
         // kommt vom Client und darf nicht bestimmen, wie die Datei heisst.
         $name = bin2hex(random_bytes(16)) . '.' . $erlaubt[$mime];
         $ziel = rtrim($verzeichnis, '/\\') . '/' . $name;

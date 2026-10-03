@@ -1,5 +1,5 @@
 /**
- * ignis UI — Dropdown aus dem gemeinsamen Paket @emergencyforge/ui, dazu
+ * ignis UI: Dropdown aus dem gemeinsamen Paket @emergencyforge/ui, dazu
  * der Alias aus dem alten enotf-custom-dropdown.js: eNOTF (Login,
  * Medikamente) und die fireTab-Formulare rufen eNOTFCustomDropdown.init()
  * und eNOTFCustomDropdown.refresh(select), nachdem sie Optionen per JS

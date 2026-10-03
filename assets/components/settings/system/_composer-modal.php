@@ -1,6 +1,6 @@
 <?php
 /**
- * Composer-Installation-Modal — wird gezeigt, wenn nach dem Update
+ * Composer-Installation-Modal. Wird gezeigt, wenn nach dem Update
  * ein `composer install` ausstehend ist (composer_pending.json), und
  * der User die Installation aus der UI heraus auslöst.
  */

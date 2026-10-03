@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  * Jeder Kontext hat eine eigene Login-Methode auf SessionManager und
  * setzt einen disjunkten Set von Session-Keys. Der Test verifiziert,
  * dass jeweils nur die eigenen Keys gesetzt werden und ein Logout
- * andere Kontexte unberührt lässt — Cross-Contamination zwischen den
+ * andere Kontexte unberührt lässt. Cross-Contamination zwischen den
  * Kontexten war historisch ein Minenfeld.
  */
 final class SessionManagerTest extends TestCase
@@ -266,7 +266,7 @@ final class SessionManagerTest extends TestCase
         $first = $_SESSION['pin_last_activity'];
 
         // Activity-Timestamp absichtlich in die Vergangenheit setzen, damit
-        // der touch sichtbar wirkt — sleep wäre zu langsam.
+        // der touch sichtbar wirkt, sleep wäre zu langsam.
         $_SESSION['pin_last_activity'] = $first - 10;
         SessionManager::touchPin();
 
@@ -506,7 +506,7 @@ final class SessionManagerTest extends TestCase
     {
         // Realistisches Scenario: Admin loggt sich ein, übernimmt eine
         // eNOTF-Crew, betritt einen Einsatz, identifiziert seinen FiveM-
-        // Charakter und ruft eine Klinik-Schnittstelle auf — alle in
+        // Charakter und ruft eine Klinik-Schnittstelle auf, alle in
         // derselben Session.
         SessionManager::loginUser(
             ['id' => 1, 'username' => 'admin', 'aktenid' => 1, 'role' => 1, 'discord_id' => 'd1'],

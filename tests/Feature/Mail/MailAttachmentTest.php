@@ -83,7 +83,7 @@ final class MailAttachmentTest extends FeatureTestCase
         $this->assertSame('private, no-store', $download->headers['Cache-Control']);
         $this->assertSame('attachment; filename="Plan _M_rz_.txt"; filename*=UTF-8\'\'Plan%20%22M%C3%A4rz%22.txt', $download->headers['Content-Disposition']);
 
-        // Wer nicht beteiligt ist, bekommt nichts — auch mit allen Rechten.
+        // Wer nicht beteiligt ist, bekommt nichts, auch mit allen Rechten.
         $this->loginAs($eve['user'], ['full_admin']);
         $this->assertNotFound($this->get('/mail/attachments/' . $attachmentId));
 

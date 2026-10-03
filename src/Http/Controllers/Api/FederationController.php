@@ -13,7 +13,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Federation-Endpoints — Server-to-Server-API für verlinkte intraRP-
+ * Federation-Endpoints: Server-to-Server-API für verlinkte intraRP-
  * Instanzen.
  *
  * Auth läuft NICHT über die Router-Middleware, sondern über

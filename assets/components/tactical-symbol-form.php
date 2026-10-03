@@ -10,7 +10,7 @@
  * - $useGlobalBind:  bool   - Skip the inline-<script>-blocks at the end
  *                              (default: false). Set to true if you embed the
  *                              partial in a <template> or dynamically cloned
- *                              container — the inline scripts wouldn't run
+ *                              container; the inline scripts wouldn't run
  *                              there. Bind via window.bindTacticalSymbolForm
  *                              from assets/js/modules/tactical-symbol-form.js.
  */

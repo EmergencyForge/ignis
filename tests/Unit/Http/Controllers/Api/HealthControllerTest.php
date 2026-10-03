@@ -16,7 +16,7 @@ use Tests\TestCase;
  * geprüft. Hier zählt, was ignis daraus zusammensetzt: welche Checks der
  * Endpunkt meldet, dass die Laufzeit-Checks eine verwertbare Aussage
  * liefern und dass der Rewrite-Check das Docroot benennt. db, queue und
- * migrations laufen hier nicht — sie brauchen eine Datenbank.
+ * migrations laufen hier nicht, sie brauchen eine Datenbank.
  */
 final class HealthControllerTest extends TestCase
 {

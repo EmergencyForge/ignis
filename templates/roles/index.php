@@ -145,7 +145,7 @@ $SITE_TITLE = 'Rollen';
 
     <script>
         // Edit + Create teilen sich das gleiche <template>; Body wird pro Open
-        // frisch geklont, deshalb gibt es keine Reset-Logik mehr — der Create-
+        // frisch geklont, deshalb gibt es keine Reset-Logik mehr. Der Create-
         // Open faengt mit leeren Feldern an, ein Edit-Open setzt sie via onOpen.
 
         function openCreateRoleModal() {

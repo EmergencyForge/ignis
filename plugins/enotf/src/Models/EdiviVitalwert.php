@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_vitalparameter_einzelwerte` —
+ * Eloquent-Model für `intra_edivi_vitalparameter_einzelwerte`:
  * einzeln erfasste Vitalwerte im Verlauf eines eNOTF-Protokolls.
  *
  * Eine Zeile pro Messwert (Parameter-Name, Wert, Einheit) zu einem

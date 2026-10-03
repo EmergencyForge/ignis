@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 /**
- * Eloquent-Model für `intra_notifications` — In-App-Benachrichtigungen.
+ * Eloquent-Model für `intra_notifications`: In-App-Benachrichtigungen.
  *
  * Typen: antrag, protokoll, dokument, system, fire_protocol
  * (validiert im NotificationManager, nicht im Model).

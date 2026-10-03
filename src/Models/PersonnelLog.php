@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter_log` — Log-Einträge auf
+ * Eloquent-Model für `intra_mitarbeiter_log`: Log-Einträge auf
  * Mitarbeiterprofilen (Notizen, Rank-Änderungen, Dokumente, …).
  *
  * Typ-Konstanten und die zugehörige Semantik liegen im

@@ -162,7 +162,7 @@ final class PersonnelListTest extends FeatureTestCase
         $first = $this->get('/personnel/list', ['query' => ['q' => 'S-0']]);
         $this->assertBodyContains('Seite 25', $first);
         $this->assertBodyNotContains('Seite 26', $first);
-        $this->assertBodyContains('1–25 von 26 Mitarbeiter', $first);
+        $this->assertBodyContains('1 bis 25 von 26 Mitarbeiter', $first);
 
         $second = $this->get('/personnel/list', ['query' => ['q' => 'S-0', 'page' => '2']]);
         $this->assertBodyContains('Seite 26', $second);

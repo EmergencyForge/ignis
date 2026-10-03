@@ -20,7 +20,7 @@ use Throwable;
  * setzen den Cache mit reset() zurück.
  *
  * `null` heißt: nichts anzeigen (nicht angemeldet, nichts offen, oder die
- * Abfrage ist gescheitert — ein Zähler darf nie eine Seite zerreißen).
+ * Abfrage ist gescheitert; ein Zähler darf nie eine Seite zerreißen).
  */
 final class NavigationCounters
 {

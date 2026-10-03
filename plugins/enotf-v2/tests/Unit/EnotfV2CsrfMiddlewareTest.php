@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 /**
  * Entscheidungslogik der CsrfMiddleware: gültiges Token (Feld oder
- * Header) lässt durch, sonst greift der Same-Origin-Fallback — fremder
+ * Header) lässt durch, sonst greift der Same-Origin-Fallback: fremder
  * Host 403, headerlose Requests (FiveM-CEF) und Reads passieren.
  */
 class EnotfV2CsrfMiddlewareTest extends TestCase
@@ -190,7 +190,7 @@ class EnotfV2CsrfMiddlewareTest extends TestCase
     #[Test]
     public function post_ohne_token_origin_und_referer_passiert(): void
     {
-        // FiveM-CEF / ältere Clients senden keinen Origin — bewusst erlaubt
+        // FiveM-CEF / ältere Clients senden keinen Origin, bewusst erlaubt
         $response = $this->dispatch('POST', ['HTTP_HOST' => 'intra.example']);
 
         $this->assertSame(200, $response->status);

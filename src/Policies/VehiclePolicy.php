@@ -7,18 +7,18 @@ namespace App\Policies;
 use App\Auth\Permissions;
 
 /**
- * VehiclePolicy — Permissions rund um Fahrzeuge + Defekt-Verwaltung.
+ * VehiclePolicy: Permissions rund um Fahrzeuge + Defekt-Verwaltung.
  *
- *   view()           — Fahrzeug-Listen / Defekt-Übersicht ansehen
- *   manage()         — Fahrzeuge anlegen/ändern, Defekte zuweisen/lösen
- *   createDefect()   — Neuen Defekt melden (auch für eNOTF-Crews)
- *   deleteDefect()   — Defekt hart löschen (admin-only)
- *   manageImport()   — EMD-Fahrzeug-Import verwalten
+ *   view():           Fahrzeug-Listen / Defekt-Übersicht ansehen
+ *   manage():         Fahrzeuge anlegen/ändern, Defekte zuweisen/lösen
+ *   createDefect():   Neuen Defekt melden (auch für eNOTF-Crews)
+ *   deleteDefect():   Defekt hart löschen (admin-only)
+ *   manageImport():   EMD-Fahrzeug-Import verwalten
  *
  * `createDefect()` ist bewusst mit `vehicles.view` als OR-Fallback
  * gebaut, damit jeder der Fahrzeuge sieht auch einen Defekt melden
  * kann. Der eNOTF-User-Sonderfall (Session ohne `userid`, aber mit
- * `fahrername`) wird NICHT hier behandelt — der Controller prüft
+ * `fahrername`) wird NICHT hier behandelt. Der Controller prüft
  * das separat und umgeht die Policy, weil die Policy auf ein User-
  * Login-Szenario ausgelegt ist.
  */

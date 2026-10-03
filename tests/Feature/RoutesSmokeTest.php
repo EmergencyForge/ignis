@@ -15,7 +15,7 @@ use Tests\FeatureTestCase;
  * erste Zeile entfernt; die orphan Continuation-Args blieben stehen
  * und führten zu `unexpected token ","` in jedem API-Request. Die
  * Existenz dieses Tests sorgt dafür, dass künftige Bulk-Migrationen
- * solche Schäden in CI sofort sichtbar machen — `loadRoutes()` ruft
+ * solche Schäden in CI sofort sichtbar machen: `loadRoutes()` ruft
  * `require` auf jede Route-Datei auf, wodurch Parse-Fehler die Test-
  * Suite scheitern lassen, BEVOR ein einzelner Endpoint angefasst wird.
  */
@@ -54,7 +54,7 @@ final class RoutesSmokeTest extends FeatureTestCase
     #[Test]
     public function ungeschuetzter_admin_endpoint_redirectet_zum_login(): void
     {
-        // Mehrere Auth-protected Routen kurz anpicken — wenn eine 200
+        // Mehrere Auth-protected Routen kurz anpicken. Wenn eine 200
         // statt 302 liefert, ist die AuthMiddleware nicht mehr eingehängt.
         $response = $this->get('/users/list');
         $this->assertSame(302, $response->status, 'Erwartet Redirect auf Login, bekommen ' . $response->status);

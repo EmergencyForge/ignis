@@ -828,7 +828,7 @@ try {
     </div>
 </div>
 
-<!-- Zone Creation — Park-Body -->
+<!-- Zone Creation: Park-Body -->
 <div id="zoneModal" class="ignis-dialog-park" hidden>
                 <form id="zoneForm">
                     <input type="hidden" id="zonePoints" name="points">
@@ -1062,7 +1062,7 @@ try {
     // ========================================================================
     function percentToLatLng(posX, posY) {
         // In CRS.Simple with unproject at maxZoom:
-        // lat: 0 (top) to -MAP_UNITS (bottom) — Y inverted
+        // lat: 0 (top) to -MAP_UNITS (bottom), Y inverted
         // lng: 0 (left) to MAP_UNITS (right)
         return L.latLng(
             -(parseFloat(posY) / 100) * MAP_UNITS,

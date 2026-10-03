@@ -10,7 +10,7 @@ use EmergencyForge\Http\Response;
 /**
  * Liefert die aktuelle System-Version aus `storage/version.json`.
  *
- * Public Endpoint — kein Auth, kein CSRF. Wird z.B. von externem
+ * Public Endpoint: kein Auth, kein CSRF. Wird z.B. von externem
  * Monitoring oder dem Update-Checker genutzt, um den Release-Stand
  * einer Installation zu prüfen.
  */

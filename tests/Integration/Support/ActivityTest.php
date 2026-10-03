@@ -16,7 +16,7 @@ use Tests\IntegrationTestCase;
  *
  * Neue Einträge tragen die Kennung als JSON in `context`; Zeilen von vor
  * dieser Spalte haben sie nur als Text. Beide müssen gefunden werden, und
- * Fahrzeug 12 darf dabei nicht die Einträge von 123 einsammeln — genau
+ * Fahrzeug 12 darf dabei nicht die Einträge von 123 einsammeln. Genau
  * daran krankte die Textsuche.
  */
 final class ActivityTest extends IntegrationTestCase
@@ -84,7 +84,7 @@ final class ActivityTest extends IntegrationTestCase
     public function ein_mangel_erscheint_in_der_liste_seines_fahrzeugs(): void
     {
         // Die Kennung in der Aktion ist die des Mangels, der Kontext zeigt
-        // auf das Fahrzeug — sonst stuende der Mangel bei Fahrzeug 7.
+        // auf das Fahrzeug, sonst stuende der Mangel bei Fahrzeug 7.
         $this->log('Defekt gemeldet [ID: 7]', 'Fahrzeug-ID: 12 | Bremsen', ['id' => 12, 'defect_id' => 7]);
 
         $entries = Activity::vehicle(12);

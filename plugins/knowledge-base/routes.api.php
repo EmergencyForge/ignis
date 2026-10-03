@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Wissensdatenbank — API-Routen (Session-basiert).
+ * Wissensdatenbank: API-Routen (Session-basiert).
  *
  * GET-Routen sind config-gated (KB_PUBLIC_ACCESS). Write-Operationen
  * (POST/DELETE categories, POST/DELETE tags) erfordern Session + kb.edit

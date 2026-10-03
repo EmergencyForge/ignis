@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF — Event-Listener-Zuordnung.
+ * eNOTF: Event-Listener-Zuordnung.
  *
  * Wird per PluginLoader::mergeEventMap() in die Kern-Event-Map gemergt.
  */

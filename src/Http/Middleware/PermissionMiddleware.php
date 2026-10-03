@@ -11,7 +11,7 @@ use EmergencyForge\Http\Response;
 
 /**
  * Prüft, ob der eingeloggte User mindestens eine der angegebenen Permissions
- * hat. Setzt Auth voraus — AuthMiddleware MUSS vor dieser laufen, sonst
+ * hat. Setzt Auth voraus. AuthMiddleware MUSS vor dieser laufen, sonst
  * wird bei nicht eingeloggten Usern mit 403 statt 401 geantwortet (weniger
  * informativ).
  *
@@ -50,7 +50,7 @@ final class PermissionMiddleware implements MiddlewareInterface
                 return Response::json(['success' => false, 'message' => 'Keine Berechtigung'], 403);
             }
 
-            // HTML: Flash-Message setzen und zur Startseite — konsistent zum
+            // HTML: Flash-Message setzen und zur Startseite, konsistent zum
             // Verhalten von Controller::ensure() aus der Stub-Ära.
             if (class_exists(\App\Helpers\Flash::class)) {
                 \App\Helpers\Flash::set('error', 'no-permissions');

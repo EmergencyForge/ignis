@@ -14,7 +14,7 @@ use Respect\Validation\Validator as v;
  * Das Ziel steht auf dem Dashboard in einem `href`. Bisher nahm der
  * Controller es, wie es kam: `javascript:…` war ein gültiger Wert und
  * damit ein Skript, das jeder ausführt, der die Kachel anklickt. Wer die
- * Kachel anlegen darf, braucht `system.manageDashboard` — es ist also kein
+ * Kachel anlegen darf, braucht `system.manageDashboard`. Es ist also kein
  * Weg von draußen, aber einer von dieser Berechtigung zu allen anderen.
  *
  * Erlaubt sind deshalb nur ein Pfad im eigenen Haus (`/…`, `?…`, `#…` oder
@@ -41,7 +41,7 @@ class SaveDashboardTileRequest extends FormRequest
     }
 
     /**
-     * Das Schema eines Ziels — `http` für alles ohne Schema, weil ein
+     * Das Schema eines Ziels: `http` für alles ohne Schema, weil ein
      * Pfad im eigenen Haus genauso harmlos ist wie ein http-Link.
      *
      * Geprüft wird auf das, was der Browser als Schema liest: alles vor

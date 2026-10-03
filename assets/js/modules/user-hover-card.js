@@ -23,7 +23,7 @@
  * verhindert versehentliche Triggers, 200 ms Hide-Delay erlaubt der
  * Maus den Sprung von Anchor auf Card.
  *
- * Neue Typen werden über `SOURCES` registriert — Attribut + API-Pfad,
+ * Neue Typen werden über `SOURCES` registriert: Attribut + API-Pfad,
  * nichts Weiteres nötig.
  */
 
@@ -169,7 +169,7 @@ document.addEventListener('mouseover', (e) => {
 document.addEventListener('mouseout', (e) => {
     const anchor = e.target.closest(ANCHOR_SELECTOR);
     if (!anchor) return;
-    // Verlassen des Ankers leitet ein verzögertes Schließen ein —
+    // Verlassen des Ankers leitet ein verzögertes Schließen ein,
     // Hover über die Card selbst bricht das ab.
     scheduleHide();
 });

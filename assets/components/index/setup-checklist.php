@@ -3,7 +3,7 @@
 /**
  * Admin Setup Checklist
  * Shows for admins when essential configuration is incomplete.
- * Dismissable via localStorage — won't appear again after dismissed.
+ * Dismissable via localStorage; won't appear again after dismissed.
  */
 
 use App\Auth\Permissions;
@@ -11,7 +11,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 if (!Permissions::check(['admin'])) return;
 
-// Safe count helper — returns 0 if table doesn't exist or not whitelisted.
+// Safe count helper: returns 0 if table doesn't exist or not whitelisted.
 // Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
 if (!function_exists('_setupCount')) {
 function _setupCount(string $table): int
@@ -44,7 +44,7 @@ try {
 } catch (Exception $e) {
 }
 
-// POIs gehören zum eNOTF-Plugin — ohne aktives Plugin entfällt der Schritt.
+// POIs gehören zum eNOTF-Plugin, ohne aktives Plugin entfällt der Schritt.
 $setupEnotfActive = function_exists('app') && app(\App\Plugins\PluginLoader::class)->isActive('enotf');
 
 $checkDienstgrade = _setupCount('intra_mitarbeiter_dienstgrade');

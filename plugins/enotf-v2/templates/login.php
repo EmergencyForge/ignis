@@ -1,13 +1,13 @@
 <?php
 
 /**
- * View: Crew-Login (eNOTF v2) — v1-Optik.
+ * View: Crew-Login (eNOTF v2) in v1-Optik.
  *
  * Markup/Optik = plugins/enotf/templates/enotf/login.php (Karten, Buttons,
  * Session-Info-Box, Join-Panel). Technik = v2: POST an den v2-Login
  * (login_mode new/join), Session-Check über /api/enotf-v2/check-vehicle-
  * session, Namensvorschläge über Ev2Suggest und Selects über Ev2Select
- * (beide im v1-Dropdown-Look, siehe _v1head.php) — der FiveM-CEF zeigt
+ * (beide im v1-Dropdown-Look, siehe _v1head.php), der FiveM-CEF zeigt
  * native select-/datalist-Popups nicht an.
  *
  * @var bool                             $charLocked
@@ -388,7 +388,7 @@ if ($charLocked && $hasPrefill) {
 
             // Löschen-Button nur, wenn der Server die Löschung zulassen
             // würde (eigene Fahrzeug-Bindung, PIN-verifiziertes Gerät oder
-            // Panel-Login) — sonst antwortet der Endpoint ohnehin mit 403
+            // Panel-Login), sonst antwortet der Endpoint ohnehin mit 403
             document.getElementById('btn-delete-session').style.display = data.can_delete ? '' : 'none';
         }
 
@@ -438,7 +438,7 @@ if ($charLocked && $hasPrefill) {
             document.getElementById('spacer-area').style.display = '';
         });
 
-        // Session löschen: aktive Session deaktivieren (v2-Endpoint —
+        // Session löschen: aktive Session deaktivieren (v2-Endpoint,
         // das v1-Pendant hängt hinter hartem User-Auth → 401 für Crews
         // ohne Panel-Login)
         document.getElementById('btn-delete-session').addEventListener('click', async function() {

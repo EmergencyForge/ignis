@@ -5,7 +5,7 @@
  * Erwartete Variablen (EditorTemplateController::index()):
  *   @var \Illuminate\Support\Collection<int,\App\Models\EditorTemplate> $templates
  *
- * Gelöscht wird nur, was noch kein Dokument benutzt — sonst deaktiviert der
+ * Gelöscht wird nur, was noch kein Dokument benutzt, sonst deaktiviert der
  * Controller die Vorlage. Die Rückfrage sagt vorher, welcher der beiden
  * Fälle eintritt.
  */
@@ -57,12 +57,12 @@ $SITE_TITLE = 'Dokumentvorlagen';
                             $usage   = (int) $template->documents_count;
                             $confirm = $usage > 0
                                 ? 'Vorlage "' . $template->name . '" wird noch von ' . $usage
-                                    . ' Dokument(en) verwendet und kann nicht gelöscht werden — stattdessen deaktivieren?'
+                                    . ' Dokument(en) verwendet und kann nicht gelöscht werden. Stattdessen deaktivieren?'
                                 : 'Vorlage "' . $template->name . '" wirklich löschen?';
                             ?>
                             <tr>
                                 <td><?= htmlspecialchars($template->name) ?></td>
-                                <td><?= htmlspecialchars($template->category ?? '—') ?></td>
+                                <td><?= htmlspecialchars($template->category ?? '-') ?></td>
                                 <td>
                                     <?php if ($template->is_active): ?>
                                         <span class="ignis-chip ignis-chip--ok">Aktiv</span>

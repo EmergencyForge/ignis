@@ -15,7 +15,7 @@ use Respect\Validation\Validator as v;
  *   - name        (string, 1-255)
  *   - priority    (int, 0-9999)
  *   - color       (string, einer der Bootstrap-Badge-Farben)
- *   - permissions (optional, Liste von Strings — wird zu [] wenn fehlt)
+ *   - permissions (optional, Liste von Strings; wird zu [] wenn fehlt)
  */
 class CreateRoleRequest extends FormRequest
 {

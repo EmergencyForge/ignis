@@ -1,6 +1,6 @@
 <?php
 /**
- * View: Verfassen — Neu, Antworten, Allen antworten, Weiterleiten und
+ * View: Verfassen. Neu, Antworten, Allen antworten, Weiterleiten und
  * Entwurf bearbeiten teilen sich diese Ansicht. Sie läuft im breiten
  * Drawer (Link mit data-ignis-drawer; mail-compose.js hebt den Drawer auf
  * die breite Variante) und ohne JS als eigene Seite.

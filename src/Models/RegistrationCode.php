@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Eloquent-Model für `intra_registration_codes` — Einladungs- und
+ * Eloquent-Model für `intra_registration_codes`: Einladungs- und
  * Registrierungscodes für neue System-Benutzer.
  *
  * @property int         $id

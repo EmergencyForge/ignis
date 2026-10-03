@@ -8,7 +8,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Wissensdatenbank: Haupttabelle für Einträge.
  *
- * Drei Typen — general, medication, measure — mit typspezifischen Feldern
+ * Drei Typen (general, medication, measure) mit typspezifischen Feldern
  * (Medikamente: Wirkstoff bis Besonderheiten; Maßnahmen: Wirkprinzip bis
  * Durchführung) plus Kompetenzlevel-Farbcodierung und CKEditor-HTML in
  * `content`.

@@ -355,7 +355,7 @@ class TelemetryManager
 
     private function getVersion(): string
     {
-        // Primär: storage/version.json — die Quelle, die Release-Build und
+        // Primär: storage/version.json, die Quelle, die Release-Build und
         // SystemUpdater tatsächlich pflegen (auch der Footer liest sie).
         // Der alte Pfad system/updates/version.json existiert nur noch auf
         // Alt-Installationen und meldete auf frischen Installs 'unknown'.
@@ -432,7 +432,7 @@ class TelemetryManager
         $data = $this->collectData();
 
         // Konfigwerte (Systemname, Stadt, …) können auf Alt-Installationen
-        // Latin-1-Reste enthalten — ohne Substitute-Flag liefert json_encode
+        // Latin-1-Reste enthalten. Ohne Substitute-Flag liefert json_encode
         // dann false und es ginge ein leerer/kaputter Body raus.
         $payload = json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE);
         if ($payload === false) {

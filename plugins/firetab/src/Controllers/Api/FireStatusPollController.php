@@ -16,7 +16,7 @@ use Plugin\Firetab\Models\FireStatusQueueEntry;
  *
  * gepollt, um neue Status-Änderungen für Fire-Vehicles abzuholen. Jeder
  * abgeholte Datensatz wird sofort als `delivered=1` markiert (At-most-once
- * Delivery semantik — falls der FiveM-Server zwischendurch crasht, gehen
+ * Delivery semantik: falls der FiveM-Server zwischendurch crasht, gehen
  * Status-Updates verloren, das ist akzeptiert weil sie eh transient sind).
  *
  * Auth: ApiKeyMiddleware (im Router registriert).

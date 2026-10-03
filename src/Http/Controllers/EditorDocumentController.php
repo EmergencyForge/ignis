@@ -28,7 +28,7 @@ use RuntimeException;
  * Dokumente am Mitarbeiter: aus einer Vorlage anlegen, im Entwurf
  * bearbeiten, ausstellen und als PDF ausliefern.
  *
- * Die Rechte kommen aus {@see \App\Policies\DocumentPolicy} — dieselben
+ * Die Rechte kommen aus {@see \App\Policies\DocumentPolicy}, dieselben
  * wie für die Dokumente des alten Systems, weil es dieselbe Befugnis ist:
  * wer Urkunden ausstellen darf, darf es hier wie dort.
  *
@@ -43,14 +43,14 @@ use RuntimeException;
  * `WHERE id = ?`), sondern über ein bedingtes
  * `UPDATE … WHERE id = ? AND status = 'entwurf'`. Die betroffene
  * Zeilenzahl ist die einzige verlässliche Auskunft darüber, wer das Rennen
- * gewonnen hat — etwa wenn ein Autosave-Tick und der Ausstellen-Klick fast
+ * gewonnen hat, etwa wenn ein Autosave-Tick und der Ausstellen-Klick fast
  * gleichzeitig ankommen. Der Verlierer bekommt eine Meldung statt den
  * Gewinner stillschweigend zu überschreiben.
  */
 final class EditorDocumentController extends Controller
 {
     /**
-     * POST /personnel/{id}/documents — Dokument aus einer aktiven Vorlage
+     * POST /personnel/{id}/documents: Dokument aus einer aktiven Vorlage
      * anlegen. Das Vorlagen-JSON wird unverändert übernommen, samt der
      * Abschnitts-Kennungen; der erste Speichervorgang prüft dann gegen
      * dieselbe Vorlage.
@@ -121,7 +121,7 @@ final class EditorDocumentController extends Controller
         ]);
     }
 
-    /** POST /documents/{id}/save — Klick auf Speichern und Autosave. */
+    /** POST /documents/{id}/save: Klick auf Speichern und Autosave. */
     public function save(Request $request, string $id): Response
     {
         $this->requireAuth();
@@ -144,13 +144,13 @@ final class EditorDocumentController extends Controller
 
         // Ohne Vorlage gibt es keine Referenz, gegen die sich gesperrte
         // Abschnitte wiederherstellen liessen. Speichern zuzulassen hiesse,
-        // sie in Wahrheit ungeschuetzt zu lassen — also bleibt der Entwurf
+        // sie in Wahrheit ungeschuetzt zu lassen. Also bleibt der Entwurf
         // lesbar und unveraenderlich.
         $template = $document->template;
         if ($template === null) {
             return $this->failure(
                 $request,
-                'Die Vorlage dieses Dokuments wurde gelöscht — der Entwurf ist schreibgeschützt.',
+                'Die Vorlage dieses Dokuments wurde gelöscht. Der Entwurf ist schreibgeschützt.',
                 422,
                 $editUrl,
             );
@@ -198,7 +198,7 @@ final class EditorDocumentController extends Controller
             ->update($update);
 
         // MySQL zaehlt nur geaenderte Zeilen. Ein Autosave, der nichts
-        // Neues bringt, trifft seine Zeile und meldet trotzdem 0 — deshalb
+        // Neues bringt, trifft seine Zeile und meldet trotzdem 0. Deshalb
         // gilt das Rennen erst als verloren, wenn der Status tatsaechlich
         // nicht mehr auf Entwurf steht.
         if ($affected === 0 && !$this->stillDraft($document->id)) {
@@ -238,7 +238,7 @@ final class EditorDocumentController extends Controller
     }
 
     /**
-     * POST /documents/{id}/issue — aus dem Entwurf wird ein Dokument.
+     * POST /documents/{id}/issue: aus dem Entwurf wird ein Dokument.
      *
      * Statuswechsel und PDF-Erzeugung liegen in einer Transaktion: scheitert
      * das Rendern, rollt der bereits geschriebene Statuswechsel mit zurück
@@ -274,7 +274,7 @@ final class EditorDocumentController extends Controller
                 $missing = $this->emptyRequiredFields($document, $frozen);
                 if ($missing !== []) {
                     Flash::error(
-                        'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden — diese '
+                        'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden. Diese '
                         . 'Pflichtfelder sind leer: ' . implode(', ', $missing) . '.',
                     );
                     $this->redirect($editUrl);
@@ -304,7 +304,7 @@ final class EditorDocumentController extends Controller
             });
         } catch (RuntimeException $e) {
             Logger::error('Ausstellen von Dokument ' . $document->docid . ' fehlgeschlagen: ' . $e->getMessage());
-            Flash::error('Das Dokument konnte nicht als PDF ausgestellt werden — der Entwurf bleibt unverändert.');
+            Flash::error('Das Dokument konnte nicht als PDF ausgestellt werden. Der Entwurf bleibt unverändert.');
             $this->redirect($editUrl);
         }
 
@@ -349,7 +349,7 @@ final class EditorDocumentController extends Controller
 
     /**
      * Welche Pflichtfelder noch leer sind. Der Renderer meldet sie als
-     * Warnung — ihn zu fragen ist verlässlicher, als das Dokument-JSON hier
+     * Warnung. Ihn zu fragen ist verlässlicher, als das Dokument-JSON hier
      * ein zweites Mal zu durchlaufen.
      *
      * @param  array<string,string>  $variables

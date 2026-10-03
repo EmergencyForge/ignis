@@ -11,7 +11,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Collection;
 
 /**
- * Loest die effektive Attendee-Liste eines Events auf — egal ob die
+ * Loest die effektive Attendee-Liste eines Events auf, egal ob die
  * Attendees explizit gepflegt sind (visibility='attendees', 'private') oder
  * dynamisch aus einer Rolle kommen (visibility='role').
  *
@@ -69,7 +69,7 @@ final class AttendeeResolver
     }
 
     /**
-     * Anzahl der Attendees — fuer FullCalendar's extendedProps.attendeeCount.
+     * Anzahl der Attendees, fuer FullCalendar's extendedProps.attendeeCount.
      * Schneller als resolve()->count(), weil bei Role-Visibility nur ein
      * COUNT(*) abgesetzt wird.
      */
@@ -81,7 +81,7 @@ final class AttendeeResolver
             CalendarEvent::VISIBILITY_ROLE
                 => self::countByRoles($event),
             CalendarEvent::VISIBILITY_ALL
-                => 0, // "alle" ist konzeptionell unbeschraenkt — Frontend zeigt das nicht
+                => 0, // "alle" ist konzeptionell unbeschraenkt; Frontend zeigt das nicht
             default
                 => 0,
         };

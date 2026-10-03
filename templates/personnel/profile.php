@@ -54,7 +54,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal / <a href="<?= BASE_PATH ?>personnel/list">Mitarbeiter</a></p>
                             <h1><?= htmlspecialchars($row['fullname']) ?></h1>
-                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '—')) ?> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars((string) ($row['dienstnr'] ?? ''), ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button> · <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><?= htmlspecialchars($dienstgradText) ?></p>
+                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '-')) ?> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars((string) ($row['dienstnr'] ?? ''), ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button> · <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><?= htmlspecialchars($dienstgradText) ?></p>
                         </div>
                     </header>
 
@@ -196,16 +196,16 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                             <?php if (defined('CHAR_ID') && CHAR_ID): ?>
                                                 <tr>
                                                     <td class="font-bold">Charakter-ID</td>
-                                                    <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="charakterid" data-type="text"' : '' ?>><?= htmlspecialchars($row['charakterid'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
+                                                    <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="charakterid" data-type="text"' : '' ?>><?= htmlspecialchars($row['charakterid'] ?? '') ?: '<span class="text-tertiary-text">-</span>' ?></td>
                                                 </tr>
                                             <?php endif; ?>
                                             <tr>
                                                 <td class="font-bold">Discord-ID</td>
-                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="discordtag" data-type="text"' : '' ?>><?= htmlspecialchars($row['discordtag'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="discordtag" data-type="text"' : '' ?>><?= htmlspecialchars($row['discordtag'] ?? '') ?: '<span class="text-tertiary-text">-</span>' ?></td>
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Telefonnummer</td>
-                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="telefonnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['telefonnr'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="telefonnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['telefonnr'] ?? '') ?: '<span class="text-tertiary-text">-</span>' ?></td>
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Dienstnummer</td>
@@ -213,7 +213,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Position</td>
-                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="zusatzqual" data-type="text"' : '' ?>><?= htmlspecialchars($row['zusatz'] ?? '') ?: '<span class="text-tertiary-text">—</span>' ?></td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="zusatzqual" data-type="text"' : '' ?>><?= htmlspecialchars($row['zusatz'] ?? '') ?: '<span class="text-tertiary-text">-</span>' ?></td>
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Einstellungsdatum</td>

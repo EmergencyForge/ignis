@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Mail — Permission-Katalog für die Rollen-Verwaltung. `mail.admin`
+ * Mail: Permission-Katalog für die Rollen-Verwaltung. `mail.admin`
  * verwaltet Postfächer (Adresse, Sperre, Domain), liest aber keine
  * fremden Mails; das gibt es für niemanden.
  */

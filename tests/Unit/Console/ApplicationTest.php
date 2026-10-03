@@ -101,7 +101,7 @@ class ApplicationTest extends TestCase
         $code = $tester->execute([]);
 
         // Ohne Argument und ohne --all sollte Failure kommen (außer wenn Tabelle
-        // gar nicht existiert — dann success mit Hinweis)
+        // gar nicht existiert, dann success mit Hinweis)
         $display = $tester->getDisplay();
         if (str_contains($display, 'existiert nicht')) {
             $this->assertSame(0, $code);

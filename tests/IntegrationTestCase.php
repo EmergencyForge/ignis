@@ -14,10 +14,10 @@ use PDOException;
  * Verhalten:
  *   - Liest DB-Credentials aus $_ENV (im Bootstrap aus TEST_DB_* gemappt).
  *   - Stellt sicher, dass die Test-DB existiert. Wenn nicht: legt sie an
- *     und fährt einmalig Phinx-Migrations dagegen. Idempotent — beim
+ *     und fährt einmalig Phinx-Migrations dagegen. Idempotent: beim
  *     nächsten Test-Lauf ist die DB schon da und der Setup-Schritt skippt.
  *   - Skippt sich gracefully, wenn keine Test-DB-Credentials gesetzt sind
- *     oder die Verbindung fehlschlägt — so bleibt CI grün ohne Test-DB.
+ *     oder die Verbindung fehlschlägt. So bleibt CI grün ohne Test-DB.
  *
  * Transaction-Isolation (Default an):
  *   - In setUp() wird eine Eloquent-Transaction geöffnet
@@ -26,7 +26,7 @@ use PDOException;
  *     aber die DB ist nach jedem Test im Ausgangszustand
  *   - Tests die EMPFANGENE Seiteneffekte prüfen wollen (z.B. was aus einer
  *     Transaction nach Commit sichtbar ist) können `$useTransactions = false`
- *     setzen — dann müssen sie selbst aufräumen
+ *     setzen, dann müssen sie selbst aufräumen
  *
  * Wichtig: Eloquent-Transactions wirken nur auf Queries, die über die
  * Capsule laufen (Model::save(), Model::create(), Model::where() etc.).
@@ -51,13 +51,13 @@ abstract class IntegrationTestCase extends TestCase
     private bool $transactionOpen = false;
 
     /**
-     * Ohne Datenbank überspringen — oder scheitern, wenn
+     * Ohne Datenbank überspringen, oder scheitern, wenn
      * `IGNIS_REQUIRE_DB=1` gesetzt ist.
      *
      * Ein übersprungener Test ist grün. Ohne diesen Schalter meldet
      * `composer test` auf einem Rechner ohne Test-Datenbank also Erfolg,
      * nachdem es die Integrations- und Feature-Suite komplett übersprungen
-     * hat — rund zweihundert Tests, die niemand vermisst, bis etwas in
+     * hat. Das sind rund zweihundert Tests, die niemand vermisst, bis etwas in
      * Produktion auffällt. In CI steht der Schalter, dort ist ein Skip ein
      * Fehler.
      *
@@ -77,11 +77,11 @@ abstract class IntegrationTestCase extends TestCase
     /**
      * Die globale Suche cacht ihr Vokabular je Quelle dateibasiert
      * (App\Search\VocabularyCache, 10 Minuten TTL, storage/cache/search-
-     * <key>.php) — außerhalb jeder Transaction, weil eine Datei nicht mit
+     * <key>.php), und zwar außerhalb jeder Transaction, weil eine Datei nicht mit
      * zurückrollt. Ohne Aufräumen sieht ein Test später im selben Lauf noch
      * das Vokabular, das ein früherer Test aus seinen (dann längst wieder
-     * gelöschten) Zeilen gebaut hat, solange beide innerhalb der TTL laufen
-     * — bei einem Testlauf von Sekunden praktisch immer. Deshalb vor jedem
+     * gelöschten) Zeilen gebaut hat, solange beide innerhalb der TTL laufen.
+     * Bei einem Testlauf von Sekunden ist das praktisch immer so. Deshalb vor jedem
      * Integration-/Feature-Test löschen, nicht nur in Tests der Suche
      * selbst. Die Produktions-TTL bleibt unverändert, das betrifft nur den
      * Zustand, mit dem ein Test startet.
@@ -125,7 +125,7 @@ abstract class IntegrationTestCase extends TestCase
         // Constructor-Injection aus dem Container. Wenn der Container eine
         // SEPARATE PDO-Instanz erzeugt als die, die Capsule intern nutzt,
         // sehen Controller-Queries keine Daten, die über Capsule oder
-        // FixtureFactory angelegt wurden — und umgekehrt. Für Integration-
+        // FixtureFactory angelegt wurden, und umgekehrt. Für Integration-
         // Tests injecten wir daher die Capsule-PDO in den Container, damit
         // ALLE Queries über dieselbe Connection laufen und die Transaction-
         // Isolation End-to-End funktioniert.
@@ -153,7 +153,7 @@ abstract class IntegrationTestCase extends TestCase
             try {
                 Capsule::connection()->rollBack();
             } catch (\Throwable) {
-                // ignore — Connection already closed, test was destructive etc.
+                // ignore: Connection already closed, test was destructive etc.
             }
             $this->transactionOpen = false;
         }

@@ -7,7 +7,7 @@ namespace Plugin\Mail\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_mail_signatures` — die eigene Signatur eines
+ * Eloquent-Model für `intra_mail_signatures`: die eigene Signatur eines
  * Postfachs als Editor-JSON.
  *
  * @property int                 $id

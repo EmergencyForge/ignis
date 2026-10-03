@@ -7,8 +7,8 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Grundgerüst des Dokument-Template-Systems:
  *
- *   - `intra_dokument_templates`       — Vorlagen (Urkunden, Zertifikate, Schreiben)
- *   - `intra_dokument_template_fields` — konfigurierbare Felder pro Vorlage
+ *   - `intra_dokument_templates`:       Vorlagen (Urkunden, Zertifikate, Schreiben)
+ *   - `intra_dokument_template_fields`: konfigurierbare Felder pro Vorlage
  *
  * Zusätzlich bekommt `intra_mitarbeiter_dokumente` die Spalten `template_id`
  * und `custom_data`, damit bestehende Dokumente einer Vorlage zugeordnet und

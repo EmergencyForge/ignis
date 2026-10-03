@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Ändert intra_mitarbeiter_dokumente.ausstellerid von int(11) NOT NULL zu
- * VARCHAR(255) NULL — Aussteller können seither auch als freie Kennung
+ * VARCHAR(255) NULL. Aussteller können seither auch als freie Kennung
  * (z. B. Discord-ID) hinterlegt werden.
  */
 class UpdateIntraMitarbeiterDokumente23062025 extends AbstractMigration

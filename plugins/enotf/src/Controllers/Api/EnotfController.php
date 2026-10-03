@@ -21,7 +21,7 @@ use Plugin\Enotf\Models\Edivi;
  *
  * Sammelt die einfacheren eNOTF-Endpoints (Status-Polling, Session-
  * Verwaltung, Voranmeldungen). Komplexere Endpoints wie Billing,
- * Bulk-Delete und Save-Fields leben in separaten Klassen — dort ist
+ * Bulk-Delete und Save-Fields leben in separaten Klassen, dort ist
  * der Code zu umfangreich für ein gemeinsames Controller-Bundle.
  */
 final class EnotfController
@@ -126,7 +126,7 @@ final class EnotfController
      * Body: POST `token`
      *
      * Zieht die aktuelle Crew aus der DB-Session und schreibt sie in die
-     * PHP-Browser-Session — wird vom Client-Polling aufgerufen wenn eine
+     * PHP-Browser-Session, wird vom Client-Polling aufgerufen wenn eine
      * Crew-Änderung erkannt wurde.
      */
     public function sessionUpdate(Request $request): Response
@@ -211,7 +211,7 @@ final class EnotfController
 
     /**
      * GET /api/enotf/session-status?token=<token>
-     * Polling-Endpoint vom Client (alle 10 Sekunden) — liefert die
+     * Polling-Endpoint vom Client (alle 10 Sekunden), liefert die
      * aktuelle Crew plus die eigene Position.
      */
     public function sessionStatus(Request $request): Response
@@ -318,7 +318,7 @@ final class EnotfController
 
     /**
      * POST /api/enotf/check-conflict
-     * Form: enr, prot_by — prüft ob für die ENR bereits ein Protokoll
+     * Form: enr, prot_by. Prüft, ob für die ENR bereits ein Protokoll
      * mit dem für das aktuelle Fahrzeug relevanten Slot (RTW vs. NEF)
      * angelegt wurde.
      */
@@ -370,7 +370,7 @@ final class EnotfController
 
     /**
      * POST /api/enotf/patient-sync
-     * JSON: { "enr": "..." } — markiert die Patientendaten eines
+     * JSON: { "enr": "..." }. Markiert die Patientendaten eines
      * Protokolls als "bereit zum Senden" (pat_synced = 2). Wird vom
      * nächsten Vehicle-Sync mitgenommen.
      */
@@ -574,7 +574,7 @@ final class EnotfController
     /**
      * GET /api/enotf/share/get-own-protocols
      * Liefert die letzten 20 nicht-freigegebenen Protokolle des
-     * aktuellen Fahrzeugs — Auswahl-Liste für den Share-Dialog.
+     * aktuellen Fahrzeugs, Auswahl-Liste für den Share-Dialog.
      */
     public function shareGetOwnProtocols(Request $request): Response
     {
@@ -617,7 +617,7 @@ final class EnotfController
 
     /**
      * POST /api/enotf/share/reject-request
-     * JSON: { "request_id": <int> } — markiert eine Share-Anfrage als
+     * JSON: { "request_id": <int> }. Markiert eine Share-Anfrage als
      * abgelehnt.
      */
     public function shareRejectRequest(Request $request): Response
@@ -862,7 +862,7 @@ final class EnotfController
         }
         $whereClause = implode(' AND ', $conditions);
 
-        // Feld-Namen stammen aus der Whitelist, $days ist int-gecastet —
+        // Feld-Namen stammen aus der Whitelist, $days ist int-gecastet,
         // die Raw-Fragmente enthalten keine User-Eingaben.
         $makeQuery = function () use ($whereClause, $timePeriod) {
             $query = DB::table('intra_edivi')
@@ -941,7 +941,7 @@ final class EnotfController
     public function saveFields(Request $request): Response
     {
         // Generische Input-Shape via FormRequest. Fehlende Felder → 400 text.
-        // (Kein JSON — der Endpoint antwortet grundsätzlich text/plain, deshalb
+        // (Kein JSON, der Endpoint antwortet grundsätzlich text/plain, deshalb
         // fangen wir die ValidationException hier manuell und übersetzen sie.)
         try {
             $data = \Plugin\Enotf\Requests\SaveFieldRequest::validate($request->post);
@@ -1082,7 +1082,7 @@ final class EnotfController
 
             // Lade Share-Request + Quell-Protokoll. Bei gleichnamigen Spalten
             // (id, created_at, ...) gewinnt wie beim alten `sr.*, ed.*`-Select
-            // die zuletzt selektierte — also die Protokoll-Spalte.
+            // die zuletzt selektierte, also die Protokoll-Spalte.
             $reqData = DB::table('intra_edivi_share_requests as sr')
                 ->join('intra_edivi as ed', 'sr.source_protocol_id', '=', 'ed.id')
                 ->where('sr.id', $requestId)

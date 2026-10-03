@@ -94,7 +94,7 @@ class CreateEventRequest extends FormRequest
             && $input['track_attendance'] !== '0';
 
         // Multi-Role: visibility_role_ids[] ist ein Array von Role-IDs.
-        // Wird nur uebernommen wenn visibility='role' — sonst ignoriert.
+        // Wird nur uebernommen wenn visibility='role', sonst ignoriert.
         $roleIds = [];
         if ($visibility === CalendarEvent::VISIBILITY_ROLE
             && !empty($input['visibility_role_ids'])

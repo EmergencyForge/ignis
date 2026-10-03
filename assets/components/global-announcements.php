@@ -43,7 +43,7 @@ try {
     $announcements = $announcementManager->getActiveAnnouncements($_SESSION['userid'], $isAdmin, true);
 
     if (empty($announcements) && !$needsCacheRefresh) {
-        // Keine Announcements und kein Refresh nötig — nur Background-JS ausgeben falls Heartbeat nötig
+        // Keine Announcements und kein Refresh nötig: nur Background-JS ausgeben, falls Heartbeat nötig
         if ($needsHeartbeat): ?>
             <script>
                 fetch('<?= BASE_PATH ?>api/telemetry/background?action=heartbeat').catch(function() {});
@@ -113,7 +113,7 @@ $iconBoxColors = [
 $allAnnouncementIds = array_column($announcements, 'announcement_id');
 ?>
 
-<!-- EmergencyForge Announcements — Inhalt liegt versteckt im DOM und wird
+<!-- EmergencyForge Announcements: Inhalt liegt versteckt im DOM und wird
      über die Dialog-Komponente (assets/js/ui/dialog.js) geöffnet. -->
 <div id="efAnnouncementsBody" class="ef-announcements-body twplus-stacked-list" hidden data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
                 <?php foreach ($announcements as $ann):
@@ -187,7 +187,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
 <style>
     /* Floating-Trigger unten rechts: quadratisch mit leichter Rundung,
-       Zähler als Eck-Badge. Bewusst eigene Klasse statt ignis-btn —
+       Zähler als Eck-Badge. Bewusst eigene Klasse statt ignis-btn,
        der FAB hat feste Maße und eigene Severity-Farben. */
     .ef-announce-fab {
         width: 46px;
@@ -240,7 +240,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         line-height: 1;
     }
 
-    /* EmergencyForge Announcements — Inhalt lebt im ignis-dialog__body.
+    /* EmergencyForge Announcements: Inhalt lebt im ignis-dialog__body.
        Dessen Innenabstand wird neutralisiert, damit die Einträge wie
        zuvor kante-zu-kante mit eigenen Abständen laufen. */
     .ignis-dialog__body:has(> .ef-announcements-body) {

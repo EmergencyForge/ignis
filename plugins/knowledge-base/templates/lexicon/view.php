@@ -95,7 +95,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
             background-color: rgba(255,255,255,0.05);
             color: #e0e0e0;
         }
-        /* Section styling — dezente getönte Cards im Dark-Theme.
+        /* Section styling: dezente getönte Cards im Dark-Theme.
            Die Akzentfarbe bleibt als Border + Header-Bottom-Tint sichtbar,
            der Body hat einen subtilen Tint, kein voll-saturiertes Pur-Gelb. */
         .kb-section {

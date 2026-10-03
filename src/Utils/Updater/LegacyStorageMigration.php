@@ -36,7 +36,7 @@ final class LegacyStorageMigration
             @unlink($legacyPath);
         }
 
-        // Alle weiteren Dateien im Legacy-Ordner ignorieren — sie waren
+        // Alle weiteren Dateien im Legacy-Ordner ignorieren. Sie waren
         // temporäre Artefakte. Ordner entfernen falls leer.
         @rmdir($legacyDir);
         @rmdir($appRoot . '/system');

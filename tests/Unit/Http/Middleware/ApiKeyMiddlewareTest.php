@@ -31,7 +31,7 @@ class ApiKeyMiddlewareTest extends TestCase
      * Muss alle Quellen anfassen, nicht nur $_ENV. Die Middleware liest
      * `$_ENV['APP_ENV'] ?? getenv('APP_ENV')`, und docker-compose.yml setzt
      * APP_ENV=development in die Prozessumgebung. Ein blosses
-     * unset($_ENV['APP_ENV']) laesst getenv() also unberuehrt — auf dem Host
+     * unset($_ENV['APP_ENV']) laesst getenv() also unberuehrt: auf dem Host
      * gruen, im Container rot, weil dort der Localhost-Bypass weiter griff.
      */
     private function withAppEnv(?string $value, callable $fn): void
@@ -84,7 +84,7 @@ class ApiKeyMiddlewareTest extends TestCase
     public function rejects_request_from_localhost_without_key_in_production(): void
     {
         // Ohne APP_ENV=development verlangt die Middleware den API-Key
-        // auch fuer 127.0.0.1 — Schutz vor Shared-Hosting-Nachbarn,
+        // auch fuer 127.0.0.1, als Schutz vor Shared-Hosting-Nachbarn,
         // kompromittierten lokalen Scripts und gespoofter REMOTE_ADDR.
         $this->withAppEnv(null, function (): void {
             $mw  = new ApiKeyMiddleware();

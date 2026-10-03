@@ -8,7 +8,7 @@ use App\Helpers\Navigation;
 use App\Http\Controllers\Controller;
 
 /**
- * SettingsController — Übersicht /settings/index (Alias /settings).
+ * SettingsController: Übersicht /settings/index (Alias /settings).
  *
  * Bündelt die Verwaltungsbereiche, die vorher als ~20 einzelne Sidebar-
  * Zeilen unter „Einstellungen" standen, als Kacheln in Abschnitten. Jeder

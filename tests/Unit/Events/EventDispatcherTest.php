@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * Testlokales Event — Modul-Events (eNOTF, fireTab, …) leben in Plugins
+ * Testlokales Event. Modul-Events (eNOTF, fireTab, …) leben in Plugins
  * und taugen deshalb nicht als Specimen für Kern-Dispatcher-Tests.
  */
 final class OrderProbeEvent extends Event
@@ -79,7 +79,7 @@ class EventDispatcherTest extends TestCase
 
         // Illuminate bricht bei der ersten Exception die weitere Verarbeitung
         // ab. Unser EventDispatcher fängt das auf der äußeren Ebene und
-        // loggt — das heißt: wenn der erste Listener crasht, wird die
+        // loggt. Das heißt: wenn der erste Listener crasht, wird die
         // Exception geloggt und die gesamte Event-Verarbeitung stoppt.
         // Das ist bewusst so: atomarer Fail-Fast, keine teil-erfolgten
         // Side-Effects bei Listener-Bugs.
@@ -120,13 +120,13 @@ class EventDispatcherTest extends TestCase
         // oder fällt auf Sync-Dispatch zurück.
         //
         // Wir verifizieren hier nur, dass der Listener beim Fire erreicht
-        // wird — Job-Ausführung selbst ist in JobDispatcherTest abgedeckt.
+        // wird. Job-Ausführung selbst ist in JobDispatcherTest abgedeckt.
         $dispatcher = $this->resolve(EventDispatcher::class);
 
         // Der EnotfProtocolReleased-Payload sollte durch den Listener an
         // einen SendDiscordWebhookJob weitergereicht werden. Da wir keine
         // echte DiscordWebhook-Instanz haben wollen, feuern wir ein Event
-        // mit unvollständigen Daten — der Job wird dann beim Handle-Call
+        // mit unvollständigen Daten. Der Job wird dann beim Handle-Call
         // wahrscheinlich crashen, aber der Dispatcher fängt das. Wir
         // testen hier die Verdrahtung, nicht die Job-Business-Logik.
         $dispatcher->fire(new EnotfProtocolReleased(['enr' => 'TEST123']));

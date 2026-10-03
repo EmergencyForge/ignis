@@ -116,13 +116,13 @@ final class ComposerRunner
                     return $path;
                 }
             } catch (\Exception $e) {
-                // open_basedir restriction — skip this path
+                // open_basedir restriction: skip this path
                 continue;
             }
         }
 
         // For composer in PATH, use which/where command with strict validation.
-        // Without exec() (disable_functions) the PATH probe is impossible —
+        // Without exec() (disable_functions) the PATH probe is impossible;
         // the absolute-path candidates above remain the only option then.
         if (!function_exists('exec')) {
             return null;
@@ -185,15 +185,15 @@ final class ComposerRunner
      */
     private function install(): array
     {
-        // exec() steht in disable_functions vieler Shared-Hosting-Setups —
-        // seit PHP 8 wirft der Aufruf dann einen fatalen Error statt still
+        // exec() steht in disable_functions vieler Shared-Hosting-Setups.
+        // Seit PHP 8 wirft der Aufruf dann einen fatalen Error statt still
         // zu scheitern. Ohne exec() kann Composer hier nicht laufen.
         if (!function_exists('exec')) {
             return [
                 'executed' => false,
                 'success' => false,
                 'error' => true,
-                'message' => 'exec() ist auf diesem Hosting deaktiviert (disable_functions) — bitte `composer install --no-dev` manuell ausführen oder ein Release-Paket mit vendor/ verwenden.'
+                'message' => 'exec() ist auf diesem Hosting deaktiviert (disable_functions). Bitte `composer install --no-dev` manuell ausführen oder ein Release-Paket mit vendor/ verwenden.'
             ];
         }
 

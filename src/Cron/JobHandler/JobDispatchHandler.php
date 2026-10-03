@@ -12,7 +12,7 @@ use EmergencyForge\Cron\JobResult;
 /**
  * Dispatcht einen bestehenden Queue-Job (FQCN in `$handler`) in die
  * DB-Queue. Der Scheduler gilt als erfolgreich, sobald der Job eingereiht
- * ist — die eigentliche Ausführung übernimmt dann der Queue-Worker.
+ * ist. Die eigentliche Ausführung übernimmt dann der Queue-Worker.
  *
  * Eingereiht wird über den JobDispatcher, also nur Unterklassen von
  * App\Jobs\Job: ein anderes Objekt legte Illuminate als

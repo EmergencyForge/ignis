@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Einmalige Säuberung: ANSI-Escape-Codes (Symfony-Console-Farbcodes) aus
  * historischen `intra_cron_runs.output`-Einträgen entfernen. Ab jetzt filtert
- * der `ConsoleHandler` den Output vor dem Schreiben — diese Migration ist
+ * der `ConsoleHandler` den Output vor dem Schreiben. Diese Migration ist
  * nur für Installationen relevant, die bereits Runs vor dem Fix angesammelt
  * haben.
  *
@@ -42,6 +42,6 @@ class CleanCronRunsAnsi extends AbstractMigration
 
     public function down(): void
     {
-        // ANSI-Codes lassen sich nicht wiederherstellen — no-op.
+        // ANSI-Codes lassen sich nicht wiederherstellen, daher no-op.
     }
 }

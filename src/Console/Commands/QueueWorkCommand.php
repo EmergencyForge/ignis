@@ -16,12 +16,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `php cli/intra.php queue:work`
  *
  * Arbeitet Jobs aus der DB-Queue ab. Beendet sich nach `--max-time`
- * Sekunden oder `--max-jobs` Jobs — whatever comes first. Per Default
+ * Sekunden oder `--max-jobs` Jobs, whatever comes first. Per Default
  * wird beim ersten leeren Poll sofort beendet, damit Cron-getriggerte
  * Worker schnell zurückkehren (wichtig für HTTP-Trigger mit Timeout).
  *
- * Mit `--daemon` wird der klassische Poll-und-Warte-Loop aktiviert —
- * nur sinnvoll für persistent laufende CLI-Worker (z.B. auf einem VPS
+ * Mit `--daemon` wird der klassische Poll-und-Warte-Loop aktiviert.
+ * Nur sinnvoll für persistent laufende CLI-Worker (z.B. auf einem VPS
  * unter Supervisor oder systemd).
  */
 #[AsCommand(
@@ -72,11 +72,11 @@ final class QueueWorkCommand extends Command
 
         while (true) {
             if ((time() - $startTime) >= $maxTime) {
-                $output->writeln('<comment>Max-Time erreicht — beende</comment>');
+                $output->writeln('<comment>Max-Time erreicht, beende</comment>');
                 break;
             }
             if ($processed >= $maxJobs) {
-                $output->writeln('<comment>Max-Jobs erreicht — beende</comment>');
+                $output->writeln('<comment>Max-Jobs erreicht, beende</comment>');
                 break;
             }
 

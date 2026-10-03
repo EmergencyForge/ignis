@@ -10,7 +10,7 @@ use App\Session\SessionManager;
 use App\Utils\SystemUpdater;
 use App\Utils\AuditLogger;
 
-// CSRF-Token sicherstellen (idempotent — generiert beim ersten Aufruf,
+// CSRF-Token sicherstellen (idempotent: generiert beim ersten Aufruf,
 // liefert den existierenden Token für alle Folge-Renders).
 $csrfToken = CsrfProtection::getToken();
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !$isDevMode) {
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF Token validation — hash_equals statt validateToken(), damit
+    // CSRF Token validation: hash_equals statt validateToken(), damit
     // der Token NICHT rotiert wird (mehrere Formulare auf der Page teilen
     // sich denselben Token; rotation würde den 2. Submit nach Reload sprengen).
     if (!isset($_POST['csrf_token']) || !hash_equals($csrfToken, $_POST['csrf_token'] ?? '')) {
@@ -591,7 +591,7 @@ $SITE_TITLE = 'System Updates';
                             </div>
                         </div>
 
-                        <!-- Progress-Modal fürs Dev-Branch-Update — gleiche DOM-Id, aber
+                        <!-- Progress-Modal fürs Dev-Branch-Update, gleiche DOM-Id, aber
                              nur gerendert wenn der Stable-Pfad oben kein Update verfügbar
                              hatte (sonst Duplicate-Id). Beide Pfade nutzen dasselbe Partial. -->
                         <?php if (!$checking || !$updateInfo || !($updateInfo['available'] ?? false)): ?>
@@ -605,7 +605,7 @@ $SITE_TITLE = 'System Updates';
     <?php include __DIR__ . '/../../../assets/components/settings/system/_composer-modal.php'; ?>
 
     <?php
-    // consumeComposerPending() löscht den Flag atomar — nur einmal aufrufen
+    // consumeComposerPending() löscht den Flag atomar, also nur einmal aufrufen
     // und das Ergebnis an das JS-Init durchreichen. Sonst wäre das Modal
     // nach einem Refresh nicht mehr aktiv.
     $composerPendingOnLoad = SessionManager::consumeComposerPending();

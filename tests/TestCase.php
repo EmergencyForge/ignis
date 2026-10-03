@@ -11,7 +11,7 @@ use Psr\Container\ContainerInterface;
  * Base TestCase für Tests, die auf den DI-Container zugreifen wollen.
  *
  * Bestehende Tests, die direkt von PHPUnit\Framework\TestCase erben, sind
- * unbeeinträchtigt. Diese Klasse ist optional — nutze sie wenn du den
+ * unbeeinträchtigt. Diese Klasse ist optional. Nutze sie, wenn du den
  * Container, app()-Helper oder Container-basiertes Setup brauchst.
  */
 abstract class TestCase extends BaseTestCase

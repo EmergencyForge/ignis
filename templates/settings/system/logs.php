@@ -343,7 +343,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                             <div><span class="ignis-chip ignis-chip--dot ignis-chip--danger">FAILED</span></div>
                                             <div class="info">
                                                 <span class="exception"><?= htmlspecialchars($fj['job_class'] ?? 'Unbekannter Job') ?></span>
-                                                <div class="message"><?= htmlspecialchars($fj['short_message'] ?? '–') ?></div>
+                                                <div class="message"><?= htmlspecialchars($fj['short_message'] ?? '-') ?></div>
                                                 <div class="file">Queue: <?= htmlspecialchars($fj['queue']) ?> &middot; UUID: <?= htmlspecialchars(substr($fj['uuid'], 0, 8)) ?>…</div>
                                             </div>
                                             <div class="count-cell"></div>
@@ -365,7 +365,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                             <div class="logs-detail-section logs-detail-grid">
                                                 <div>
                                                     <div class="logs-detail-label">Job-Klasse</div>
-                                                    <div class="logs-detail-value"><?= htmlspecialchars($fj['job_class'] ?? '–') ?></div>
+                                                    <div class="logs-detail-value"><?= htmlspecialchars($fj['job_class'] ?? '-') ?></div>
                                                 </div>
                                                 <div>
                                                     <div class="logs-detail-label">Queue</div>

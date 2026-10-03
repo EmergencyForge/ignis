@@ -1,7 +1,7 @@
 import '@emergencyforge/ui/preferences.js';
 import './page-transition.js';
 /**
- * ignis UI — App-Hülle: Sidebar ein- und ausklappen, Navigations-Drawer
+ * ignis UI, App-Hülle: Sidebar ein- und ausklappen, Navigations-Drawer
  * auf schmalen Bildschirmen, Menüs in der Topbar, Schnellaktionen,
  * Tastaturkürzel.
  *

@@ -1,5 +1,5 @@
 /**
- * Calendar Page — initialisiert FullCalendar, den Bearbeiten- und den
+ * Calendar Page: initialisiert FullCalendar, den Bearbeiten- und den
  * Detail-Dialog (Dialog.form / Dialog). Anlegen läuft über die Seite
  * /calendar/create im Drawer, die Formular-Dynamik steht in calendar-form.js.
  *
@@ -20,7 +20,7 @@ import { bindEventForm } from './calendar-form.js';
     if (!window.FullCalendar) {
         root.innerHTML = '<div class="ignis-alert ignis-alert--danger m-3">'
             + '<strong>FullCalendar nicht geladen.</strong> '
-            + 'Bitte das Bundle in <code>assets/_ext/fullcalendar/index.global.min.js</code> einsetzen — siehe README.'
+            + 'Bitte das Bundle in <code>assets/_ext/fullcalendar/index.global.min.js</code> einsetzen, siehe README.'
             + '</div>';
         return;
     }
@@ -227,7 +227,7 @@ import { bindEventForm } from './calendar-form.js';
                 }
                 return r.text().then((txt) => {
                     if (txt.includes('Validierung') || txt.includes('error')) {
-                        // Kein dedizierter JSON-Endpoint — Failure einfach via
+                        // Kein dedizierter JSON-Endpoint, Failure einfach via
                         // Re-Render der Page abfangen.
                         window.location.reload();
                     } else {
@@ -261,7 +261,7 @@ import { bindEventForm } from './calendar-form.js';
         set('[name="color"]',        ev.color);
         set('[name="visibility"]',   ev.visibility);
 
-        // Multi-Select fuer Rollen — setValues setzt die Tags + Hidden-Inputs.
+        // Multi-Select fuer Rollen: setValues setzt die Tags + Hidden-Inputs.
         applyMultiSelectValues(scope, '[data-name="visibility_role_ids[]"]', ev.visibility_role_ids || []);
 
         // All-Day-Toggle
@@ -272,7 +272,7 @@ import { bindEventForm } from './calendar-form.js';
         const trackBox = scope.querySelector('[data-track-attendance]');
         if (trackBox) trackBox.checked = !!ev.track_attendance;
 
-        // Picker-Slots komplett neu aufbauen — der MutationObserver in
+        // Picker-Slots komplett neu aufbauen. Der MutationObserver in
         // datepicker.js / datetimepicker.js initialisiert das frische Element
         // mit dem neuen data-value, was bei einer reinen dataset-Mutation
         // an einem schon initialisierten Picker NICHT passieren wuerde.
@@ -328,8 +328,8 @@ import { bindEventForm } from './calendar-form.js';
     /**
      * Setzt die Werte einer MultiSelect-Komponente. Wenn die Instanz noch
      * nicht existiert (MutationObserver hat noch nicht gefeuert), erzwingen
-     * wir eine sofortige Initialisierung via dem globalen Konstruktor —
-     * das vermeidet die Race-Condition beim Edit-Prefill, wo der User
+     * wir eine sofortige Initialisierung via dem globalen Konstruktor.
+     * Das vermeidet die Race-Condition beim Edit-Prefill, wo der User
      * sonst leere Felder sehen wuerde und beim Save die Werte ueberschrieben
      * waeren.
      */
@@ -337,7 +337,7 @@ import { bindEventForm } from './calendar-form.js';
         const root = scope.querySelector(selector);
         if (!root || !Array.isArray(values)) return;
 
-        // Auch bei leeren Werten initialisieren — sonst bleibt der
+        // Auch bei leeren Werten initialisieren, sonst bleibt der
         // MultiSelect ein roher <div> ohne Event-Handler, falls der
         // MutationObserver-Tick nicht rechtzeitig durchlief, und der
         // User kann zwar visuell nichts auswaehlen aber das Form
@@ -357,7 +357,7 @@ import { bindEventForm } from './calendar-form.js';
     }
 
     /**
-     * Faengt den RSVP-Form-Submit ab und schickt ihn per fetch — Modal
+     * Faengt den RSVP-Form-Submit ab und schickt ihn per fetch. Das Modal
      * bleibt offen, Active-State der Buttons wird live umgeswitcht und
      * der Calendar-Feed neu geladen, sodass die Border-Stripes aktualisiert
      * werden.
@@ -421,7 +421,7 @@ import { bindEventForm } from './calendar-form.js';
             <p class="text-sm text-tertiary-text mb-3">
                 Mit dieser URL kannst du deinen ıgnıs-Kalender in Apple Calendar,
                 Google Calendar oder Outlook abonnieren. Der Sync läuft dann
-                automatisch — neue Termine erscheinen ohne Reload.
+                automatisch, neue Termine erscheinen ohne Reload.
             </p>
             <div class="flex gap-2 mb-3">
                 <input type="text" class="ignis-input" data-subscribe-url readonly value="${escapeHtmlAttr(currentUrl)}">

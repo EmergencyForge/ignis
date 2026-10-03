@@ -17,7 +17,7 @@ use EmergencyForge\Http\Response;
  *
  * Beide Endpoints werden im Router unter `/api/character/...` registriert
  * (siehe routes/api.php). Auth via ApiKeyMiddleware (für identify) bzw.
- * gar nicht (für sessionId — der Browser ruft das selbst, um seine
+ * gar nicht (für sessionId; der Browser ruft das selbst, um seine
  * Session-ID an den FiveM-Server zu reichen).
  *
  * Hinweis zum identify-Flow: Der FiveM-Server schickt eine FREMDE
@@ -42,14 +42,14 @@ final class CharacterController
     /**
      * POST /api/character/identify
      *
-     * Body (JSON) — siehe CharacterIdentifyRequest für Regeln:
+     * Body (JSON), siehe CharacterIdentifyRequest für Regeln:
      *   - intraRP_API_Key: string  (vom ApiKeyMiddleware geprüft, hier nicht mehr sichtbar)
      *   - session_id:      string  (Ziel-Session des Spielers)
      *   - char_name:       string
      *   - char_job:        string
      *   - char_id:         int     (optional)
      *
-     * Validation läuft deklarativ via FormRequest — bei Fehler wirft
+     * Validation läuft deklarativ via FormRequest. Bei Fehler wirft
      * das eine ValidationException, die vom Front-Controller als
      * 422-JSON ausgeliefert wird.
      */

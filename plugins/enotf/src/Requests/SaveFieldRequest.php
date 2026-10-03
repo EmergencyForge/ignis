@@ -9,18 +9,18 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für POST /api/enotf/save-fields — der „Universal-Save"-Endpoint.
+ * Validation für POST /api/enotf/save-fields, den „Universal-Save"-Endpoint.
  *
  * **Minimalistisch.** Nur die drei Input-Felder werden gegen den generischen
  * Shape geprüft:
- *   - `enr` — Einsatznummer, muss existieren (Existenz-Check im Controller)
- *   - `field` — Whitelist-Check passiert weiter unten im Controller gegen
+ *   - `enr`: Einsatznummer, muss existieren (Existenz-Check im Controller)
+ *   - `field`: Whitelist-Check passiert weiter unten im Controller gegen
  *     `EnotfController::ALLOWED_FIELDS` (damit es ein Feld bleibt und nicht
  *     hier dupliziert wird)
- *   - `value` — optional, wird pro Feld-Typ separat validiert (Datum, JSON, …)
+ *   - `value`: optional, wird pro Feld-Typ separat validiert (Datum, JSON, …)
  *
  * Diese Request wirft bewusst KEINE ValidationException an JsonExceptionMiddleware
- * weiter, weil der Endpoint `text/plain` antwortet — die Fehlermeldungen werden
+ * weiter, weil der Endpoint `text/plain` antwortet, die Fehlermeldungen werden
  * vom Controller via `Response::text('...', 400)` zurückgegeben.
  */
 class SaveFieldRequest extends FormRequest

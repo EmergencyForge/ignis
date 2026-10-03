@@ -1,5 +1,5 @@
 /**
- * enotf-print.js — JS-Logik fuer templates/enotf/print/index.php
+ * enotf-print.js: JS-Logik fuer templates/enotf/print/index.php
  *
  * Drei Bereiche, die vorher inline im Template lebten:
  *
@@ -40,7 +40,7 @@
             // window.Chart trotzdem (Bundle nicht gebaut/eingebunden),
             // bleibt der Canvas leer, der Rest der Seite rendert weiter.
             if (typeof global.Chart === 'undefined') {
-                console.warn('Chart.js nicht geladen — Vitalwerte-Diagramm wird übersprungen.');
+                console.warn('Chart.js nicht geladen, Vitalwerte-Diagramm wird übersprungen.');
                 return;
             }
 

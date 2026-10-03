@@ -56,22 +56,22 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
                 <hr class="my-2">
             </div>
             <div class="md:col-span-6">
-                <label class="ignis-field__label">Melder – Name</label>
+                <label class="ignis-field__label">Name des Melders</label>
                 <input type="text" class="ignis-input" name="edit_caller_name" value="<?= htmlspecialchars($incident['caller_name'] ?? '') ?>" <?= $incident['finalized'] ? 'disabled' : '' ?>>
             </div>
             <div class="md:col-span-6">
-                <label class="ignis-field__label">Melder – Kontakt</label>
+                <label class="ignis-field__label">Kontakt des Melders</label>
                 <input type="text" class="ignis-input" name="edit_caller_contact" value="<?= htmlspecialchars($incident['caller_contact'] ?? '') ?>" <?= $incident['finalized'] ? 'disabled' : '' ?>>
             </div>
             <div class="md:col-span-12">
                 <hr class="my-2">
             </div>
             <div class="md:col-span-6">
-                <label class="ignis-field__label">Geschädigter – Name</label>
+                <label class="ignis-field__label">Name des Geschädigten</label>
                 <input type="text" class="ignis-input" name="edit_owner_name" value="<?= htmlspecialchars($incident['owner_name'] ?? '') ?>" <?= $incident['finalized'] ? 'disabled' : '' ?>>
             </div>
             <div class="md:col-span-6">
-                <label class="ignis-field__label">Geschädigter – Kontakt</label>
+                <label class="ignis-field__label">Kontakt des Geschädigten</label>
                 <input type="text" class="ignis-input" name="edit_owner_contact" value="<?= htmlspecialchars($incident['owner_contact'] ?? '') ?>" <?= $incident['finalized'] ? 'disabled' : '' ?>>
             </div>
             <?php if (!$incident['finalized']): ?>

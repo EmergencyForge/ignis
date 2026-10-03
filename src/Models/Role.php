@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_users_roles` — Rollen mit Permissions.
+ * Eloquent-Model für `intra_users_roles`: Rollen mit Permissions.
  *
  * @property int         $id
  * @property int         $priority
@@ -33,7 +33,7 @@ class Role extends Model
     ];
 
     /**
-     * Spalten-Aliase. `default` ist ein SQL-Reserved-Word — wir mappen es auf
+     * Spalten-Aliase. `default` ist ein SQL-Reserved-Word. Wir mappen es auf
      * `is_default` damit der Application-Code nicht ständig mit Backticks
      * arbeiten muss.
      */

@@ -1,5 +1,5 @@
 /**
- * enotf-admin-list.js — QM-Dialoge und das Löschen leerer Protokolle auf
+ * enotf-admin-list.js: QM-Dialoge und das Löschen leerer Protokolle auf
  * der eNOTF-Prüfliste (plugins/enotf/templates/enotf/admin/list.php).
  * Sortieren, Suchen und Blättern macht der Server (App\Support\ListQuery).
  *

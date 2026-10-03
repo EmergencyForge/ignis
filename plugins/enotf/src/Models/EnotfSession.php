@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_enotf_sessions` — eine Zeile pro
+ * Eloquent-Model für `intra_enotf_sessions`: eine Zeile pro
  * Fahrzeug-Crew-Session (Fahrer/Beifahrer/Praktikant mit Quali).
  *
  * Alte Sessions bleiben mit `active = 0` für Historie/Audit erhalten.

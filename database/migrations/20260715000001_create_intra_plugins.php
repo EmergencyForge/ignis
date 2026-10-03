@@ -26,7 +26,7 @@ class CreateIntraPlugins extends AbstractMigration
             // die ID selbst ist der natürliche Schlüssel).
             ->addColumn('plugin_id', 'string', ['limit' => 64, 'null' => false])
             ->addColumn('enabled', 'boolean', ['default' => true])
-            // Zuletzt gesehene Version des Manifests — erlaubt später,
+            // Zuletzt gesehene Version des Manifests. Erlaubt später,
             // Plugin-Updates zu erkennen.
             ->addColumn('installed_version', 'string', ['limit' => 32, 'null' => true])
             ->addColumn('installed_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])

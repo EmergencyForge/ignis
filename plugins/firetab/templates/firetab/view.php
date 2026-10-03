@@ -131,7 +131,7 @@ function fmt_elapsed(int|string $seconds): string
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="mb-2 text-gray-400">Einsatznummer: <?= htmlspecialchars($incident['incident_number'] ?? '–') ?></div>
+                <div class="mb-2 text-gray-400">Einsatznummer: <?= htmlspecialchars($incident['incident_number'] ?? '-') ?></div>
                 <?php Flash::render(); ?>
 
                 <!-- Tab Content -->

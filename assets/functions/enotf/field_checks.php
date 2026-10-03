@@ -93,7 +93,7 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             // Nicht in einer edivi__box? Kein Icon nötig.
             if (!el.closest('.edivi__box')) return null;
 
-            // Label finden — verschiedene DOM-Strukturen unterstützen
+            // Label finden, verschiedene DOM-Strukturen unterstützen
             var label = null;
             // 1. edivi__description im gleichen Bootstrap-col (col, col-6, col-sm-4, etc.)
             var col = el.closest('div[class*="col"]');

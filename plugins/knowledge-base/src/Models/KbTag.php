@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * Eloquent-Model für `intra_kb_tags` — flache Tags der Wissensdatenbank
+ * Eloquent-Model für `intra_kb_tags`: flache Tags der Wissensdatenbank
  * mit Farbcode. Zuordnung zu Einträgen via `intra_kb_entry_tags` (n:m).
  *
  * @property int    $id

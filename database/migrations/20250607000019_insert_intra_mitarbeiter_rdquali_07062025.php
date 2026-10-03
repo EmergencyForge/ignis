@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Seed für die RD-Qualifikationen: "Keine", RettSan/NotSan (jeweils auch
  * i. A.), Notarzt/ärztin und Ärztliche/-r Leiter/-in RD. Die ids starten
- * bei 2 — so aus dem Ursprungssystem übernommen.
+ * bei 2, so aus dem Ursprungssystem übernommen.
  */
 class InsertIntraMitarbeiterRdquali07062025 extends AbstractMigration
 {

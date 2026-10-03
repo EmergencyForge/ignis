@@ -16,7 +16,7 @@ class PolicyMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Clean session state — policies lesen oft $_SESSION['userid']/['permissions']
+        // Clean session state, policies lesen oft $_SESSION['userid']/['permissions']
         $_SESSION['userid']       = 1;
         $_SESSION['permissions']  = ['full_admin'];
     }
@@ -35,7 +35,7 @@ class PolicyMiddlewareTest extends TestCase
     #[Test]
     public function allows_request_when_ability_is_granted(): void
     {
-        // full_admin darf alles — UserPolicy::viewList() prüft Permissions::check(['admin', 'users.view'])
+        // full_admin darf alles: UserPolicy::viewList() prüft Permissions::check(['admin', 'users.view'])
         $mw = new PolicyMiddleware('user.viewList');
         $res = $mw->process(new Request('GET', '/users'), $this->ok());
 
@@ -72,7 +72,7 @@ class PolicyMiddlewareTest extends TestCase
         $res = $mw->process($req, $this->ok());
 
         $this->assertSame(302, $res->status);
-        // Middleware redirected zur Index-Seite (clean URL, ohne `.php`-Suffix —
+        // Middleware redirected zur Index-Seite (clean URL, ohne `.php`-Suffix,
         // siehe Front-Controller-Stripping in public/index.php).
         $this->assertStringContainsString('/index', $res->headers['Location'] ?? '');
     }
@@ -80,7 +80,7 @@ class PolicyMiddlewareTest extends TestCase
     #[Test]
     public function resolves_resource_from_request_attribute(): void
     {
-        // Policy ohne bekannte Ability — `Gate::allows` gibt false zurück bei
+        // Policy ohne bekannte Ability: `Gate::allows` gibt false zurück bei
         // nicht existierenden Klassen/Methoden. Wir verifizieren nur, dass
         // die Middleware nicht crasht beim Resource-Resolve.
         $mw  = new PolicyMiddleware('nonexistent.doSomething', resourceParam: 'id');

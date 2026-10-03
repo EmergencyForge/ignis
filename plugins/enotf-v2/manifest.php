@@ -1,12 +1,12 @@
 <?php
 
 /**
- * eNOTF v2 — Neubau des Protokoll-Moduls auf dem v1-Datenbestand.
+ * eNOTF v2: Neubau des Protokoll-Moduls auf dem v1-Datenbestand.
  *
  * Bewusst OHNE eigene Migrationen: v2 liest und schreibt dieselben
  * intra_edivi*- und intra_enotf_*-Tabellen wie das v1-Plugin. Das
  * v1-Plugin bleibt installiert und liefert weiterhin Schema, Events
- * (EnotfProtocolReleased), Permissions und den Crew-Session-Service —
+ * (EnotfProtocolReleased), Permissions und den Crew-Session-Service,
  * daher `depends => ['enotf']`.
  *
  * Auch keine eigenen Permissions: v2 nutzt die von v1 registrierten

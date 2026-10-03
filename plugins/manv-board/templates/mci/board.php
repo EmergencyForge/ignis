@@ -247,7 +247,7 @@ $pgPath = 'mci/board';
         $(document).ready(function() {
             // Transport-Abfahrt-Bestaetigung war frueher ein eigenes Modal mit
             // einem einzigen Confirm-Button. showConfirm + Inline-AJAX ersetzt
-            // das vollstaendig — kein Modal-Markup, kein currentPatientId-State.
+            // das vollstaendig: kein Modal-Markup, kein currentPatientId-State.
             $('.transport-btn').on('click', function() {
                 const patientId = $(this).data('patient-id');
                 const patientNr = $(this).data('patient-nr');

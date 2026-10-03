@@ -12,7 +12,7 @@ use Respect\Validation\Validator as v;
  * Eingaben des Dokumenten-Editors: der Titel, das Dokument-JSON und die
  * Marke, ob der Aufruf von der Autosave kommt.
  *
- * Alle Felder sind optional, weil derselbe Satz zwei Aufrufer bedient —
+ * Alle Felder sind optional, weil derselbe Satz zwei Aufrufer bedient:
  * das Anlegen aus einer Vorlage schickt `template_id` und `title`, das
  * Speichern `content` und `title`. Was inhaltlich fehlen darf, entscheidet
  * der Controller; hier steht nur, was formal durchgeht. `content` wird

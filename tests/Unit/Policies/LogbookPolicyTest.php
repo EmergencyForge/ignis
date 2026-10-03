@@ -12,7 +12,7 @@ use Tests\TestCase;
 /**
  * Coverage für die wichtigste Multi-Auth-Policy: LogbookPolicy darf
  * Anträge aus DREI parallelen Session-Kontexten (Admin / eNOTF /
- * FireTab) akzeptieren — und für Update zusätzlich die Eigentümer-
+ * FireTab) akzeptieren und für Update zusätzlich die Eigentümer-
  * Identität pro Source-Typ prüfen. Die Update-Matrix (4 Wege) ist
  * historisch fragil und verdient explizite Regressions-Tests.
  */

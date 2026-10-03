@@ -1,11 +1,11 @@
 /**
- * eNOTF v2 — Custom-Select (Progressive Enhancement).
+ * eNOTF v2: Custom-Select (Progressive Enhancement).
  *
  * Der FiveM-Ingame-Browser (CEF) zeigt die nativen <select>-Popups teils
  * nicht an (v1 löst das mit enotf-custom-dropdown.dev.js). Diese Komponente
  * ersetzt die AUFKLAPP-Optik, nicht das Element: das native <select> bleibt
  * als Quelle der Wahrheit im DOM (visually hidden, aria-hidden, tabindex=-1)
- * — name/Optionen/selected unverändert. Daneben rendert die Komponente
+ * und behält name, Optionen und selected. Daneben rendert die Komponente
  * einen Trigger-Button in ignis-input-Optik und ein Options-Panel, das an
  * <body> gemountet wird (position:fixed → kein Clipping durch Karten- oder
  * Dialog-Overflow).
@@ -17,7 +17,7 @@
  *   - die Zugangs-Dialog-Logik (change auf art/ort füllt Ort/Größe/Seite).
  *
  * Init: automatisch für alle select.ignis-input auf v2-Seiten
- * (body[data-page="enotf-v2"]), inklusive später eingefügter Selects —
+ * (body[data-page="enotf-v2"]), inklusive später eingefügter Selects,
  * die dialog.js-Dialoge mounten an <body>, ein MutationObserver enhanced
  * deren Selects beim Öffnen. Opt-out per data-ev2-native.
  *
@@ -32,15 +32,15 @@
  *
  * Escape/Enter laufen über einen Capture-Listener, der VOR dem von
  * dialog.js registriert wird (Modul-Load vs. Dialog-Open) und bei offenem
- * Panel stopImmediatePropagation ruft — sonst würde Escape den ganzen
+ * Panel stopImmediatePropagation ruft, sonst würde Escape den ganzen
  * Dialog schließen bzw. Enter die Primary-Action (Submit) auslösen.
  *
  * API (für Section-Skripte, normal nicht nötig):
- *   window.Ev2Select.enhance(select)  — einzelnes Select umstellen
- *   window.Ev2Select.refresh(select)  — Label/Panel neu aufbauen
- *   window.Ev2Select.init(root)       — alle Selects unterhalb root
+ *   window.Ev2Select.enhance(select):  einzelnes Select umstellen
+ *   window.Ev2Select.refresh(select):  Label/Panel neu aufbauen
+ *   window.Ev2Select.init(root):       alle Selects unterhalb root
  *
- * Zweite Komponente in dieser Datei: Ev2Suggest — Custom-Autocomplete
+ * Zweite Komponente in dieser Datei: Ev2Suggest, ein Custom-Autocomplete
  * für Text-Inputs (Namensfelder). Ersetzt <datalist>, dessen Vorschlags-
  * Popup im FiveM-CEF ebenfalls nicht erscheint. Gleiche Panel-Optik und
  * Tastatur-Bedienung wie Ev2Select, aber Freitext bleibt erlaubt: Enter
@@ -50,7 +50,7 @@
  *   <script type="application/json" data-ev2-suggest-source="KEY">[…]</script>
  *   <input data-ev2-suggest="KEY" …>
  *
- * Auswahl schreibt input.value und dispatcht input + change (bubbles) —
+ * Auswahl schreibt input.value und dispatcht input + change (bubbles),
  * Autosave und Formular-Logik laufen unverändert weiter.
  */
 
@@ -159,7 +159,7 @@ function destroy(inst) {
     instances.delete(inst);
     bySelect.delete(inst.select);
     // Wenn der Wrapper noch im DOM hängt (Select programmatisch entfernt),
-    // Trigger mit aufräumen — das native Select bleibt, wo es ist.
+    // Trigger mit aufräumen. Das native Select bleibt, wo es ist.
     if (inst.wrapper && inst.wrapper.isConnected && !inst.select.isConnected) {
         inst.wrapper.remove();
     }
@@ -179,7 +179,7 @@ function updateTrigger(inst) {
     const text = opt ? opt.text.trim() : '';
     const isPlaceholder = !opt || opt.value === '';
 
-    label.textContent = text !== '' ? text : (select.dataset.placeholder || '–');
+    label.textContent = text !== '' ? text : (select.dataset.placeholder || '-');
     label.classList.toggle('is-placeholder', isPlaceholder);
     trigger.disabled = select.disabled;
 }
@@ -344,7 +344,7 @@ function positionPanel(inst) {
     const spaceAbove = rect.top - gap - margin;
     const searchH = inst.searchInput ? inst.searchInput.parentElement.offsetHeight : 0;
 
-    // Unterhalb, wenn genug Platz — sonst auf die größere Seite
+    // Unterhalb, wenn genug Platz, sonst auf die größere Seite
     const below = spaceBelow >= 160 || spaceBelow >= spaceAbove;
     const avail = Math.max(90, (below ? spaceBelow : spaceAbove) - searchH);
     list.style.maxHeight = Math.min(300, avail) + 'px';
@@ -371,7 +371,7 @@ function choose(inst, index) {
 
     if (select.selectedIndex !== index) {
         select.selectedIndex = index;
-        // Natives change (bubbles) — Autosave, Login-Session-Check und
+        // Natives change (bubbles): Autosave, Login-Session-Check und
         // Dialog-Logik hängen an genau diesem Event.
         select.dispatchEvent(new Event('change', { bubbles: true }));
     }
@@ -513,7 +513,7 @@ window.addEventListener('resize', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────
-// Ev2Suggest — Autocomplete für Text-Inputs (datalist-Ersatz)
+// Ev2Suggest: Autocomplete für Text-Inputs (datalist-Ersatz)
 // ─────────────────────────────────────────────────────────────────────
 
 const suggestLists = new Map();          // Quell-Key → string[]
@@ -624,7 +624,7 @@ function renderSuggest(inst) {
         (name) => q === '' || name.toLowerCase().includes(q)
     );
 
-    // Nichts (mehr) vorzuschlagen — auch wenn der Wert bereits exakt der
+    // Nichts (mehr) vorzuschlagen, auch wenn der Wert bereits exakt der
     // einzige Treffer ist: Panel zu, Freitext läuft normal weiter.
     if (matches.length === 0 || (matches.length === 1 && matches[0].toLowerCase() === q)) {
         closeSuggestPanel();
@@ -682,7 +682,7 @@ function chooseSuggest(inst, index) {
 
     if (inst.input.value !== name) {
         inst.input.value = name;
-        // input + change (bubbles) — Autosave und Formular-Logik hängen
+        // input + change (bubbles): Autosave und Formular-Logik hängen
         // an genau diesen Events; squelch verhindert, dass das eigene
         // input-Event das Panel sofort wieder öffnet.
         inst.squelch = true;
@@ -724,7 +724,7 @@ function suggestKeydown(inst, ev) {
             moveSuggestActive(inst, -1);
             return;
         case 'Enter':
-            // Nur mit aktiv navigiertem Vorschlag übernehmen — sonst
+            // Nur mit aktiv navigiertem Vorschlag übernehmen, sonst
             // normales Enter-Verhalten (Freitext, Formular-Submit)
             if (inst.activeIndex >= 0) {
                 ev.preventDefault();

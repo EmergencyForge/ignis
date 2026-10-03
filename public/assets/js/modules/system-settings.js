@@ -1,5 +1,5 @@
 /**
- * system-settings.js — Inline-Logic für templates/settings/system/index.php.
+ * system-settings.js: Inline-Logic für templates/settings/system/index.php.
  *
  * Bündelt:
  *   - Pre-Release-Checkbox-Sync (zwei Hidden-Inputs am selben State)
@@ -59,8 +59,8 @@
 
   // ── Generischer Progress-Modal-Upload-Flow ───────────────────────
   //
-  // Wird sowohl vom Stable-Update als auch vom Dev-Branch-Install genutzt
-  // — beide schicken ein Form an die aktuelle URL, zeigen während dessen
+  // Wird sowohl vom Stable-Update als auch vom Dev-Branch-Install genutzt.
+  // Beide schicken ein Form an die aktuelle URL, zeigen während dessen
   // einen Modal mit Fake-Progress, und laden nach Erfolg neu bzw.
   // navigieren auf eine andere URL. Vorher waren beide Flows zwei fast
   // identische ~100-Zeilen-Scripts inline im Template.
@@ -297,7 +297,7 @@
       document.addEventListener('DOMContentLoaded', showComposerModal);
     }
 
-    // Inline-onclick ersetzen — Listener auf den Modal-Buttons binden
+    // Inline-onclick ersetzen: Listener auf den Modal-Buttons binden
     document.addEventListener('DOMContentLoaded', function () {
       const reloadBtn  = document.getElementById('reload-page-btn');
       const retryBtn   = document.getElementById('retry-composer-btn');

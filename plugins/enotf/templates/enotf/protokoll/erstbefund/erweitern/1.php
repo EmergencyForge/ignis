@@ -345,7 +345,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                                                 <!-- Entire back as non-interactive background -->
                                                 <rect style="fill: rgba(40,40,40,0.3); pointer-events: none;"
                                                     x="0" y="0" width="206" height="210" />
-                                                <!-- Wirbelsäule — narrow spine strip -->
+                                                <!-- Wirbelsäule: narrow spine strip -->
                                                 <rect class="bodymap-zone" data-field="v_muster_w" data-label="Wirbelsäule"
                                                     x="99" y="16" width="8" height="74" rx="2" />
                                             </g>
@@ -514,7 +514,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             });
         }
 
-        // Default empty fields to "keine" (1) locally for UI display only — no AJAX
+        // Default empty fields to "keine" (1) locally for UI display only, no AJAX
         function autoInitKeineFields() {
             if (!window.__dynamicDaten) return;
             severityFields.forEach(function(field) {

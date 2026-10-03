@@ -1,4 +1,4 @@
-# _**ıgnıs**_ — Struktur für jeden Einsatz
+# _**ıgnıs**_: Struktur für jeden Einsatz
 
 [![PHP Composer](https://github.com/intraRP/intraRP/actions/workflows/php.yml/badge.svg)](https://github.com/intraRP/intraRP/actions/workflows/php.yml) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/intraRP/intraRP)
 

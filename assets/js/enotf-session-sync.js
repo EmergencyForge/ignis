@@ -50,7 +50,7 @@
     )
       .then(function (r) {
         if (!r.ok) {
-          // Server-Fehler (500, 404, etc.) — nicht redirecten
+          // Server-Fehler (500, 404, etc.): nicht redirecten
           throw new Error("HTTP " + r.status);
         }
         return r.json();

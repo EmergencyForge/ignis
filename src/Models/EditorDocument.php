@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_documents` — Dokumente des Editors, im Entwurf
+ * Eloquent-Model für `intra_documents`: Dokumente des Editors, im Entwurf
  * oder ausgestellt, immer an genau einem Mitarbeiter.
  *
  * `docid` ist die siebenstellige öffentliche Kennung (siehe
@@ -18,10 +18,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Zustandsmaschine: `entwurf` → `ausgestellt`, einmalig. Beim Ausstellen
  * werden die Variablenwerte in `frozen_values` eingefroren und
  * `pdf_path`/`issued_by`/`issued_at` gesetzt. Danach ändert sich am Inhalt
- * nichts mehr — {@see isIssued()} ist die Bedingung, an der Controller und
+ * nichts mehr. {@see isIssued()} ist die Bedingung, an der Controller und
  * Policy das festmachen.
  *
- * Nicht zu verwechseln mit {@see PersonnelDocument} — das sind die
+ * Nicht zu verwechseln mit {@see PersonnelDocument}. Das sind die
  * Dokumente des alten Canvas-Systems.
  *
  * @property int                      $id

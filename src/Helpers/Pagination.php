@@ -32,7 +32,7 @@ final class Pagination
 
         $current = max(1, min($current, $total));
 
-        // Bei kleinen Seiten-Counts alles anzeigen — keine Ellipsen nötig.
+        // Bei kleinen Seiten-Counts alles anzeigen, keine Ellipsen nötig.
         // 2*radius + 5 = first + last + current + 2*radius + 2 ellipsen-slots,
         // ab dem Wert lohnt das Komprimieren überhaupt erst.
         if ($total <= (2 * $radius + 5)) {

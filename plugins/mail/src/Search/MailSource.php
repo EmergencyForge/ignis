@@ -16,7 +16,7 @@ use Plugin\Mail\Models\Mailbox;
  * mit BCC) wird nie durchsucht und nie gezeigt, ein Treffer verrät also
  * keinem Empfänger, wer sonst in BCC stand.
  *
- * Ein Textfund zählt nur, wenn der Suchbegriff auch im Klartext steht —
+ * Ein Textfund zählt nur, wenn der Suchbegriff auch im Klartext steht,
  * `body_html` enthält Tags, „strong“ oder „href“ träfe sonst jede Mail.
  */
 final class MailSource implements SearchSourceInterface

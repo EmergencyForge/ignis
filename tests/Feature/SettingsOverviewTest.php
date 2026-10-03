@@ -10,7 +10,7 @@ use Tests\FixtureFactory;
 
 /**
  * /settings/index (Alias /settings) bündelt die placement=settings-Gruppen
- * aus config/navigation.php als Kacheln — dieselbe rechte-gefilterte Liste
+ * aus config/navigation.php als Kacheln, dieselbe rechte-gefilterte Liste
  * (App\Helpers\Navigation::groups()), die auch die Sidebar-Zeile
  * „Einstellungen" ein- oder ausblendet, damit beide nie auseinanderlaufen.
  */

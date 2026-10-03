@@ -234,7 +234,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                                                 if ($parentId === null && $cat['parent_id'] !== null) {
                                                     continue;
                                                 }
-                                                $prefix = str_repeat('— ', $depth);
+                                                $prefix = $depth > 0 ? str_repeat("\u{00A0}\u{00A0}", $depth - 1) . '↳ ' : '';
                                                 $selected = ((int)$cat['id'] === $selectedId) ? 'selected' : '';
                                                 $icon = !empty($cat['icon']) ? '<i class="' . htmlspecialchars($cat['icon']) . '"></i> ' : '';
                                                 echo "<option value=\"{$cat['id']}\" {$selected}>{$prefix}" . htmlspecialchars($cat['name']) . "</option>";

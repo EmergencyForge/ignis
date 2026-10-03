@@ -1,18 +1,18 @@
 /**
- * eNOTF v2 — QM-Dialoge (Vanilla-Ersatz für v1s qm-modals.php).
+ * eNOTF v2: QM-Dialoge (Vanilla-Ersatz für v1s qm-modals.php).
  *
  * Lädt die serverseitig gerenderten v1-QM-Fragmente über die v2-Wrapper-
  * Routen (/enotf-v2/qm/actions/{id} bzw. /enotf-v2/qm/log/{id}, siehe
  * routes.web.php) und zeigt sie in einem Dialog (assets/js/ui/dialog.js)
  * im dunklen eDIVI-Look (Styles im Partial _share-qm-assets.php):
  *
- *   EnotfV2QM.open(protocolId, enr, patname)     — QM-Funktionen
+ *   EnotfV2QM.open(protocolId, enr, patname):     QM-Funktionen
  *                                                  (Status + Bemerkung)
- *   EnotfV2QM.openLog(protocolId, enr, patname)  — QM-Log (read-only)
+ *   EnotfV2QM.openLog(protocolId, enr, patname):  QM-Log (read-only)
  *
  * Der Speichern-Submit des Actions-Formulars wird abgefangen und als
  * FormData-POST auf die Wrapper-Route geschickt (JSON-Antwort wie v1,
- * bei Erfolg Reload). Berechtigungen prüft durchgehend der Server —
+ * bei Erfolg Reload). Berechtigungen prüft durchgehend der Server,
  * ohne Panel-Login/edivi.view liefert die Route eine Fehlermeldung,
  * die hier als Hinweis im Dialog landet.
  */
@@ -60,7 +60,7 @@
                     });
                 }
                 if (!response.ok || (response.redirected && response.url.indexOf('/login') !== -1)) {
-                    container.innerHTML = errorHtml('Keine Berechtigung — QM-Funktionen erfordern einen Panel-Login.');
+                    container.innerHTML = errorHtml('Keine Berechtigung. QM-Funktionen erfordern einen Panel-Login.');
                     return undefined;
                 }
                 return response.text().then(function (html) {
@@ -80,7 +80,7 @@
 
         if (withSubmit) {
             // Submit des v1-Fragments abfangen: die Form-Action zeigt auf die
-            // GET-only v1-Route — gePOSTet wird stattdessen auf die Wrapper-URL
+            // GET-only v1-Route, gePOSTet wird stattdessen auf die Wrapper-URL
             body.addEventListener('submit', function (e) {
                 var form = e.target.closest('#qmActionsForm');
                 if (!form) return;
@@ -93,7 +93,7 @@
                     submitBtn.disabled = true;
                 }
 
-                // CSRF-Token als Header — das v1-Fragment kennt das
+                // CSRF-Token als Header: das v1-Fragment kennt das
                 // v2-Hidden-Field nicht (Prüfung: CsrfMiddleware)
                 var csrfHeaders = {};
                 if (typeof window.__ev2Csrf === 'string' && window.__ev2Csrf !== '') {
@@ -137,7 +137,7 @@
         });
 
         dlg.open();
-        // Instanz am Body verankern — der Submit-Handler schließt darüber
+        // Instanz am Body verankern: der Submit-Handler schließt darüber
         body._ev2Dialog = dlg;
 
         loadFragment(url, body);

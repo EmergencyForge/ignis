@@ -25,7 +25,7 @@ class AlterIntraManvPatienten17122025 extends AbstractMigration
     public function down(): void
     {
         // Ursprüngliche Enum-Definition aus der Create-Migration. Schlägt fehl,
-        // falls bereits Zeilen mit SK5/SK6 existieren — dann ist der Rollback
+        // falls bereits Zeilen mit SK5/SK6 existieren, dann ist der Rollback
         // fachlich ohnehin nicht sinnvoll.
         $this->table('intra_manv_patienten')
             ->changeColumn('sichtungskategorie', 'enum', [

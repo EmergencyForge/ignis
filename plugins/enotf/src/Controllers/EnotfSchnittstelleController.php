@@ -10,18 +10,18 @@ use EmergencyForge\Http\Response;
 use App\Http\FiveMSupport;
 
 /**
- * EnotfSchnittstelleController — externe Schnittstellen für eNOTF.
+ * EnotfSchnittstelleController: externe Schnittstellen für eNOTF.
  *
  * Alle Endpoints sind public (kein User-Login). Klinikcode/Hospital-Login
  * läuft über Session-Variablen, die in den jeweiligen Templates inline
- * verwaltet werden — sie sind eng mit der Page-Logik verwoben und werden
+ * verwaltet werden, sie sind eng mit der Page-Logik verwoben und werden
  * 1:1 portiert.
  *
- * - index.php       — Arrivalboard (Krankenhaus-Sicht der ankommenden Voranmeldungen)
- * - klinikcode.php  — Code-Eingabe für Druckansicht eines einzelnen Protokolls
- * - voranmeldung.php— Voranmeldung-Form (PIN-protected via pin_middleware)
- * - hospital-availability.php — Klinik-Personal-Login zur Verfügbarkeitsmeldung
- * - api-prereg.php  — Redirect-Stub zur API
+ * - index.php:       Arrivalboard (Krankenhaus-Sicht der ankommenden Voranmeldungen)
+ * - klinikcode.php:  Code-Eingabe für Druckansicht eines einzelnen Protokolls
+ * - voranmeldung.php: Voranmeldung-Form (PIN-protected via pin_middleware)
+ * - hospital-availability.php: Klinik-Personal-Login zur Verfügbarkeitsmeldung
+ * - api-prereg.php:  Redirect-Stub zur API
  */
 class EnotfSchnittstelleController extends Controller
 {

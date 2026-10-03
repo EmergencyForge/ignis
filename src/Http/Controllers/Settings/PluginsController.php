@@ -16,12 +16,12 @@ use App\Security\CsrfProtection;
 use EmergencyForge\Plugins\PluginRegistry;
 
 /**
- * Plugin-Verwaltung — Liste der installierten Plugins mit Aktiv-Schalter.
+ * Plugin-Verwaltung: Liste der installierten Plugins mit Aktiv-Schalter.
  *
  * Aktivieren prüft Kompatibilität und Abhängigkeiten, Deaktivieren
  * respektiert das removable-Flag und blockt, solange ein anderes aktives
  * Plugin das Modul braucht. Daten und Tabellen bleiben beim Deaktivieren
- * unangetastet — nur Routen, Navigation und Listener verschwinden.
+ * unangetastet. Nur Routen, Navigation und Listener verschwinden.
  */
 final class PluginsController extends Controller
 {
@@ -47,7 +47,7 @@ final class PluginsController extends Controller
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             if (!CsrfProtection::validateToken((string) ($_POST['csrf_token'] ?? ''))) {
-                $message     = 'Sitzung abgelaufen — bitte Seite neu laden und erneut versuchen.';
+                $message     = 'Sitzung abgelaufen. Bitte Seite neu laden und erneut versuchen.';
                 $messageType = 'danger';
             } else {
                 $action = (string) ($_POST['plugin_action'] ?? 'toggle');
@@ -186,7 +186,7 @@ final class PluginsController extends Controller
     /**
      * Startet die manuelle Installation eines nicht mitgelieferten Plugins:
      * Marker schreiben, Migrationen anstoßen, aktivieren. Der Aufruf ist
-     * die bewusste Admin-Entscheidung, fremden Code auszuführen — vorher
+     * die bewusste Admin-Entscheidung, fremden Code auszuführen. Vorher
      * bleibt ein hochkopiertes Plugin vollständig inert.
      *
      * @return array{0: string, 1: string}
@@ -202,7 +202,7 @@ final class PluginsController extends Controller
         }
 
         if (!PluginLoader::markInstalled($plugin)) {
-            return ['Installations-Marker konnte nicht geschrieben werden — bitte Schreibrechte im Plugin-Verzeichnis prüfen.', 'danger'];
+            return ['Installations-Marker konnte nicht geschrieben werden. Bitte Schreibrechte im Plugin-Verzeichnis prüfen.', 'danger'];
         }
 
         // Migrationen des frisch installierten Plugins direkt ausführen,
@@ -232,7 +232,7 @@ final class PluginsController extends Controller
             return ['Unbekanntes Plugin.', 'danger'];
         }
         if (!PluginLoader::isInstalled($plugin)) {
-            return ["„{$plugin->manifest->name}\u{201c} ist noch nicht installiert — bitte zuerst die Installation starten.", 'warn'];
+            return ["„{$plugin->manifest->name}\u{201c} ist noch nicht installiert. Bitte zuerst die Installation starten.", 'warn'];
         }
 
         $enabledIds = $repository->enabledIds();

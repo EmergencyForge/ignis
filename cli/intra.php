@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * intraRP CLI-Entry-Point.
  *
- * Zentrales Command-Line-Tool für alle intraRP-Aufgaben — Queue-Worker,
+ * Zentrales Command-Line-Tool für alle intraRP-Aufgaben: Queue-Worker,
  * Migrations, Telemetrie, Maintenance-Kommandos.
  *
  *     php cli/intra.php <command> [options]

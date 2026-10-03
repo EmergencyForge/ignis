@@ -1,11 +1,11 @@
 <?php
 
 /**
- * eNOTF v2 — v1-Head für die Nicht-Protokoll-Seiten.
+ * eNOTF v2: v1-Head für die Nicht-Protokoll-Seiten.
  *
  * Gleiches Asset-Set wie die v1-Seiten (assets/components/enotf/_head.php)
  * bzw. _layout-protokoll.php: Bootstrap (vendor-enotf), divi.css, admin/ui,
- * Tailwind-Utilities — nur ohne jQuery/DataTables (vendor.js), weil die
+ * Tailwind-Utilities, nur ohne jQuery/DataTables (vendor.js), weil die
  * v2-Seiten komplett Vanilla laufen. Dazu die v2-Bausteine, die bleiben:
  * dialog.js/snackbar.js (Dialoge) und ev2-select.js (Ev2Select/Ev2Suggest
  * für den FiveM-CEF), letztere hier optisch auf den v1-Look des
@@ -16,7 +16,7 @@
  *   require __DIR__ . '/_v1head.php';
  *
  * Hinweis: Ev2Select/Ev2Suggest initialisieren sich nur auf Seiten mit
- * body[data-page="enotf-v2"] — die einbindenden Templates setzen das
+ * body[data-page="enotf-v2"], die einbindenden Templates setzen das
  * Attribut (v1-CSS hängt an IDs/Klassen, nicht an data-page-Werten,
  * deshalb kollidiert das mit nichts).
  */
@@ -40,7 +40,7 @@ $__v1Title = $__v1Title ?? 'eNOTF';
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-custom-dropdown.min.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
-<!-- Bootstrap 5 (Modals, Accordions) — wie v1; KEIN jQuery nötig -->
+<!-- Bootstrap 5 (Modals, Accordions), wie v1; KEIN jQuery nötig -->
 <script src="<?= asset('public/assets/dist/vendor-enotf.js') ?>"></script>
 <!-- Vanilla-UI + v2-Technik -->
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>

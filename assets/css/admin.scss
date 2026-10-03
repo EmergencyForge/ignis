@@ -829,7 +829,7 @@ select.form-select option {
 }
 
 // =====================================================
-// DataTables 2.x — ıgnıs-Restyling
+// DataTables 2.x: ıgnıs-Restyling
 // DataTables 2 nutzt eigenes Markup statt der alten dataTables_*-Klassen:
 //   .dt-container > .dt-layout-row > .dt-layout-cell.{dt-layout-start|end}
 //   .dt-length / .dt-search / .dt-info / .dt-paging > .dt-paging-button
@@ -1001,7 +1001,7 @@ select.form-select option {
 }
 
 // =====================================================
-// User-Hover-Card — kompakte Profil-Vorschau, gerendert vom
+// User-Hover-Card: kompakte Profil-Vorschau, gerendert vom
 // MitarbeiterController::card() und vom JS-Modul user-hover-card.js
 // in eine ignis-popover-Hülle geschoben.
 // =====================================================
@@ -1102,7 +1102,7 @@ select.form-select option {
 }
 
 // =====================================================
-// Beladelisten — gemeinsame Styles für Admin + eNOTF-User-View.
+// Beladelisten: gemeinsame Styles für Admin + eNOTF-User-View.
 // Werden von assets/components/beladung/_category-card.php genutzt.
 // =====================================================
 .beladung-search {
@@ -1203,10 +1203,10 @@ select.form-select option {
     gap: 0.3rem;
 
     // Leere sortable Liste rendert die data-empty-text als pseudo-content
-    // mit Mindesthöhe und gestrichelter Border — damit ist sie selbst das
+    // mit Mindesthöhe und gestrichelter Border. Damit ist sie selbst das
     // Drop-Target (statt einer Geschwister-<p> oben drüber, auf die User
     // versehentlich droppen). `:empty` greift nicht, weil PHP zwischen
-    // <ul></ul> Whitespace lässt — daher die explizite `.is-empty`-Klasse,
+    // <ul></ul> Whitespace lässt, daher die explizite `.is-empty`-Klasse,
     // die PHP konditional setzt und JS nach Drag-Drop togglet.
     &--sortable.is-empty {
         min-height: 4rem;
@@ -1319,7 +1319,7 @@ select.form-select option {
 }
 
 // =====================================================
-// DataTables 2.x — Tabellen-/Sort-Styling
+// DataTables 2.x: Tabellen-/Sort-Styling
 // Top-Toolbar (.dt-search/.dt-length) und Pagination (.dt-paging) sind
 // weiter oben definiert; hier nur die Table-spezifischen Sort-Indikatoren
 // und Hover/Striped-Anpassungen.
@@ -1690,7 +1690,7 @@ td.dt-empty {
 }
 
 // Bootstrap-Switch: Focus/Hover-SVG (blauer Kreis) durch Brand-Orange ersetzen
-// und sicherstellen dass :checked den Thumb rechts positioniert — auch bei
+// und sicherstellen dass :checked den Thumb rechts positioniert, auch bei
 // gleichzeitig aktivem :focus (Bootstrap setzt sonst das blaue Focus-SVG).
 .form-switch .form-check-input:focus,
 .form-switch .form-check-input:hover {

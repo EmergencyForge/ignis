@@ -24,7 +24,7 @@ use PDOException;
  * Zwei Dinge waren hier kaputt, bevor die FormRequests kamen:
  *
  * Aktivieren, Löschen eines Typs und Löschen eines Feldes liefen über
- * `?toggle=`, `?delete=` und `?delete_feld=` — Zustandsänderungen an einer
+ * `?toggle=`, `?delete=` und `?delete_feld=`: Zustandsänderungen an einer
  * GET-Adresse. Ein `<img src="…?delete=5">` auf irgendeiner Seite reicht
  * dann, und der Vorablade-Mechanismus eines Browsers braucht nicht einmal
  * einen Angreifer. CsrfMiddleware greift dort nicht, sie prüft nur
@@ -59,7 +59,7 @@ class AntragSettingsController extends Controller
         $this->renderView('settings/forms/list', ['typen' => $typen]);
     }
 
-    /** POST — Antragstyp aktivieren oder stilllegen. */
+    /** POST: Antragstyp aktivieren oder stilllegen. */
     public function toggle(): void
     {
         $id = $this->postedId(self::LISTE);
@@ -73,7 +73,7 @@ class AntragSettingsController extends Controller
         $this->redirect(self::LISTE);
     }
 
-    /** POST — Antragstyp löschen, sofern kein Antrag daran hängt. */
+    /** POST: Antragstyp löschen, sofern kein Antrag daran hängt. */
     public function destroy(): void
     {
         $id = $this->postedId(self::LISTE);
@@ -91,7 +91,7 @@ class AntragSettingsController extends Controller
         $this->redirect(self::LISTE);
     }
 
-    /** POST — die Reihenfolge der Liste. */
+    /** POST: die Reihenfolge der Liste. */
     public function sort(): void
     {
         $this->requireAuth();
@@ -117,7 +117,7 @@ class AntragSettingsController extends Controller
         ]);
     }
 
-    /** POST — einen Antragstyp anlegen. */
+    /** POST: einen Antragstyp anlegen. */
     public function store(): void
     {
         $this->requireAuth();
@@ -188,7 +188,7 @@ class AntragSettingsController extends Controller
         ]);
     }
 
-    /** POST — ein Feld löschen. */
+    /** POST: ein Feld löschen. */
     public function destroyField(): void
     {
         $this->requireAuth();

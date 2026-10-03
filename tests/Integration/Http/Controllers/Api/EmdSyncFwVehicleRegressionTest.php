@@ -55,7 +55,7 @@ class EmdSyncFwVehicleRegressionTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        // Eindeutige Dispatch-ID für diesen Test — verhindert Kollisionen
+        // Eindeutige Dispatch-ID für diesen Test. Verhindert Kollisionen
         // mit echten Daten falls Transactions doch nicht rollen.
         $this->dispatchId = (string) random_int(9000000000, 9999999999);
 
@@ -184,7 +184,7 @@ class EmdSyncFwVehicleRegressionTest extends IntegrationTestCase
         $this->assertNotContains(
             $this->lhf['identifier'],
             $allIdentifiers,
-            'FW-Fahrzeug (LHF) DARF KEIN eNOTF-Protokoll bekommen — das war der Bug'
+            'FW-Fahrzeug (LHF) DARF KEIN eNOTF-Protokoll bekommen, das war der Bug'
         );
 
         // ── intra_fire_incidents: ein Eintrag für den Dispatch ──

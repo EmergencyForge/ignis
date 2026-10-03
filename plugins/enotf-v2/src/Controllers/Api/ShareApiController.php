@@ -14,11 +14,11 @@ use Plugin\EnotfV2\Policies\EnotfV2Policy;
 use Plugin\EnotfV2\Support\ProtokollAccessGuard;
 
 /**
- * Share-API für eNOTF v2 — Protokoll-Übergabe zwischen Fahrzeugen.
+ * Share-API für eNOTF v2: Protokoll-Übergabe zwischen Fahrzeugen.
  *
  * v2-Gegenstücke zu den v1-Share-Endpoints in Plugin\Enotf\Controllers\
  * Api\EnotfController: gleiche Tabellen (intra_edivi_share_requests),
- * gleiche Antwortstrukturen, gleiche Merge-/New-Semantik — aber hinter
+ * gleiche Antwortstrukturen, gleiche Merge-/New-Semantik, aber hinter
  * dem config-gated v2-Auth (Route) plus Crew-Session-Pflicht (hier im
  * Controller), damit Crews ohne User-Login teilen können, wenn das
  * User-Gate deaktiviert ist.
@@ -32,7 +32,7 @@ use Plugin\EnotfV2\Support\ProtokollAccessGuard;
  *   3. POST accept-request mit action "merge" (Daten in eigenes offenes
  *      Protokoll übernehmen, target_enr Pflicht) oder "new" (neues
  *      Protokoll aus den Quelldaten + eigener Crew; bei ENR-Kollision
- *      wird ein _1/_2/…-Suffix angehängt) — beides in einer Transaktion.
+ *      wird ein _1/_2/…-Suffix angehängt), beides in einer Transaktion.
  *      Alternativ POST reject-request.
  *
  * SHARE_EXCLUDED_FIELDS ist die exakte v1-Liste: Identitäts-, Fahrzeug-,
@@ -188,7 +188,7 @@ final class ShareApiController
             return Response::json(['success' => false, 'message' => 'Fehlende Parameter']);
         }
 
-        // Nur eigene Protokolle dürfen geteilt werden — sonst ließe sich
+        // Nur eigene Protokolle dürfen geteilt werden, sonst ließe sich
         // über send-request + accept der Inhalt fremder Protokolle kopieren.
         $source = Edivi::query()->where('id', (int) $protocolId)->where('enr', $enr)
             ->first(['id', 'enr', 'fzg_transp', 'fzg_na']);
@@ -232,7 +232,7 @@ final class ShareApiController
 
     /**
      * POST /api/enotf-v2/share/reject-request
-     * JSON: { "request_id": <int> } — markiert eine Share-Anfrage als abgelehnt.
+     * JSON: { "request_id": <int> }. Markiert eine Share-Anfrage als abgelehnt.
      */
     public function rejectRequest(Request $request): Response
     {
@@ -322,7 +322,7 @@ final class ShareApiController
 
             // Share-Request + Quell-Protokoll laden. Bei gleichnamigen Spalten
             // (id, created_at, ...) gewinnt wie in v1 (`sr.*, ed.*`) die
-            // zuletzt selektierte — also die Protokoll-Spalte.
+            // zuletzt selektierte, also die Protokoll-Spalte.
             $reqData = DB::table('intra_edivi_share_requests as sr')
                 ->join('intra_edivi as ed', 'sr.source_protocol_id', '=', 'ed.id')
                 ->where('sr.id', $requestId)
@@ -425,7 +425,7 @@ final class ShareApiController
     /**
      * Merge: Quelldaten in ein bestehendes offenes Protokoll übernehmen.
      * Eigene Fahrzeug-/Crew-Felder werden nur gesetzt, wenn sie im Ziel
-     * noch leer sind — die Zuweisungen des Empfängers bleiben erhalten.
+     * noch leer sind. Die Zuweisungen des Empfängers bleiben erhalten.
      *
      * @param array<string, mixed> $reqData
      * @return array{error: ?string}

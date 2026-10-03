@@ -127,7 +127,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/freehand/css/all.min.css" />
     <!-- Bootstrap -->
-    <!-- Chart.js (lokales Bundle statt CDN — rendert auch ohne Außenanbindung) -->
+    <!-- Chart.js (lokales Bundle statt CDN, rendert auch ohne Außenanbindung) -->
     <script src="<?= BASE_PATH ?>public/assets/dist/vendor-chart.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />

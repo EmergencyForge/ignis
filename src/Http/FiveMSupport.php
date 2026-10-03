@@ -7,7 +7,7 @@ namespace App\Http;
 use EmergencyForge\Http\Request;
 
 /**
- * FiveMSupport — Hilfsfunktionen für intraRP-Pages, die im FiveM-Client
+ * FiveMSupport: Hilfsfunktionen für intraRP-Pages, die im FiveM-Client
  * (CitizenFX-CEF-Webview) angezeigt werden.
  *
  * Kontext: FiveM-Server zeigen intraRP-Seiten in einem in-Game-Browser an.
@@ -42,7 +42,7 @@ final class FiveMSupport
 
         if (self::isCitizenFx()) {
             // Wir entfernen die Header, .htaccess setzt sie für CitizenFX
-            // gar nicht erst — der header_remove() ist eine Sicherheitsnetz
+            // gar nicht erst. Der header_remove() ist eine Sicherheitsnetz
             // falls eine Page sie selbst gesetzt hat.
             header_remove('Content-Security-Policy');
             header_remove('X-Frame-Options');

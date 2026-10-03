@@ -1,7 +1,7 @@
 <?php
 /**
  * View: Postfachverwaltung (`mail.admin`). Adresse, Inhaber und Zustand
- * eines Postfachs — nie etwas aus seinem Inhalt, auch keine Zähler.
+ * eines Postfachs, nie etwas aus seinem Inhalt, auch keine Zähler.
  *
  * @var list<object{id:int, address:string, display_name:string, domain:string, active:int, locked:int, mitarbeiter_id:int|null, user_id:int|null, owner:string|null}> $rows
  * @var \App\Support\ListQuery $list

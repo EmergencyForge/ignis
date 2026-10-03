@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Settings/System — Landing-Page (Karten-Grid).
+ * Settings/System: Landing-Page (Karten-Grid).
  *
  * Loest den frueheren Updater-View ab, der hier inline lag (jetzt in
  * `updater.php`). Diese Seite ist der zentrale Einstieg in alle System-

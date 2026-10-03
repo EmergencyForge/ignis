@@ -12,7 +12,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *
  * Trennt die reine Auflösungslogik (PluginRegistry, voll unit-testbar) von
  * der Persistenz. Beim ersten Kontakt mit einem entdeckten Plugin wird ein
- * Zeilen-Eintrag angelegt — `default_enabled` aus dem Manifest bestimmt,
+ * Zeilen-Eintrag angelegt. `default_enabled` aus dem Manifest bestimmt,
  * ob es direkt aktiv ist (so sind eNOTF & fireTab nach dem Update sofort
  * da, ohne dass jemand sie manuell einschalten muss).
  */
@@ -21,7 +21,7 @@ final class PluginRepository
     /**
      * Sorgt dafür, dass jedes entdeckte Plugin eine Zeile hat. Neue Plugins
      * bekommen `enabled` gemäß `default_enabled`. Bestehende Zeilen bleiben
-     * unangetastet — eine bewusste Nutzer-Deaktivierung wird nie überschrieben.
+     * unangetastet. Eine bewusste Nutzer-Deaktivierung wird nie überschrieben.
      *
      * @param array<string, Plugin> $discovered
      */

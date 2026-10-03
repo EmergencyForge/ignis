@@ -20,7 +20,7 @@ class FormsPolicyTest extends TestCase
     /**
      * Hilfsmethode: Setzt eine vereinfachte User-Session mit einer
      * konkreten Permission-Liste. Permissions::check liest aus
-     * \$_SESSION['permissions'] — daher reicht das hier.
+     * \$_SESSION['permissions'], daher reicht das hier.
      *
      * @param list<string> $permissions
      */

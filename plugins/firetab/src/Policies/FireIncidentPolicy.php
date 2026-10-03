@@ -8,7 +8,7 @@ use App\Auth\Permissions;
 use Plugin\Firetab\Models\FireIncident;
 
 /**
- * FireIncidentPolicy — wer darf was im einsatz/-Modul (Feuerwehr-Einsätze).
+ * FireIncidentPolicy: wer darf was im einsatz/-Modul (Feuerwehr-Einsätze).
  *
  * Multi-Context-Auth (analog zu fahrtenbuch):
  *
@@ -16,7 +16,7 @@ use Plugin\Firetab\Models\FireIncident;
  *     Status setzen, finalisieren, archivieren)
  *   - **FireTab-Session**: User der via einsatz/login-fahrzeug.php auf einem
  *     Fahrzeug eingeloggt ist (`$_SESSION['einsatz_vehicle_id']`). Darf
- *     Einsätze für sein Fahrzeug erstellen, ansehen, bearbeiten — aber nicht
+ *     Einsätze für sein Fahrzeug erstellen, ansehen, bearbeiten, aber nicht
  *     finalisieren oder QM-Status setzen.
  *
  * Optional zusätzlich: `FIRE_INCIDENT_REQUIRE_USER_AUTH` ConfigManager-Wert.

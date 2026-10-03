@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_cron_jobs` — registrierte Cron-Jobs des
+ * Eloquent-Model für `intra_cron_jobs`: registrierte Cron-Jobs des
  * hauseigenen Schedulers.
  *
  * Built-in-Jobs (`is_builtin = 1`) sind vor Löschung geschützt, können

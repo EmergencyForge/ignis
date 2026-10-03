@@ -29,7 +29,7 @@ permissions:
 jobs:
 
   # ─────────────────────────────────────────────
-  # 1. Build & Validate (PHP 8.3 – 8.4)
+  # 1. Build & Validate (PHP 8.3/8.4)
   # ─────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
@@ -107,7 +107,7 @@ jobs:
   # ─────────────────────────────────────────────
   build-experimental:
     name: "experimental build (8.5)"
-    if: false  # Pausiert – Zeile entfernen zum Reaktivieren
+    if: false  # Pausiert. Zum Reaktivieren die Zeile entfernen
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -244,7 +244,7 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────────
-  # 4. PHPUnit – Unit Tests (kein DB-Bedarf)
+  # 4. PHPUnit: Unit Tests (kein DB-Bedarf)
   # ─────────────────────────────────────────────
   phpunit-unit:
     runs-on: ubuntu-latest
@@ -330,7 +330,7 @@ jobs:
           retention-days: 3
 
   # ─────────────────────────────────────────────
-  # 5. PHPUnit – Integration Tests (mit MySQL-Service)
+  # 5. PHPUnit: Integration Tests (mit MySQL-Service)
   # ─────────────────────────────────────────────
   phpunit-integration:
     runs-on: ubuntu-latest
@@ -362,7 +362,7 @@ jobs:
       TEST_DB_PASS: root
       TEST_DB_NAME: irp_testdb
       TEST_DB_SKIP_CREATE: '1'
-      # Ohne diesen Schalter ist eine uebersprungene Suite gruen — hier
+      # Ohne diesen Schalter ist eine uebersprungene Suite gruen. Hier
       # soll sie scheitern, sonst faellt ein kaputter DB-Zugang erst
       # jemandem in Produktion auf.
       IGNIS_REQUIRE_DB: '1'
@@ -497,7 +497,7 @@ jobs:
           retention-days: 7
 
   # ─────────────────────────────────────────────
-  # 6. Frontend Build – Vite + SCSS Diff-Check
+  # 6. Frontend Build: Vite + SCSS Diff-Check
   # ─────────────────────────────────────────────
   # vite.config.js lädt das UI-Plugin aus dem Nachbar-Repo WebPackages.
   # Beide Checkouts liegen deshalb nebeneinander unter dem Workspace:
@@ -572,8 +572,8 @@ jobs:
           EF_PACKAGES_DIR: ${{ github.workspace }}/WebPackages
         run: npm run build
 
-      # Failt wenn `npm run build` Änderungen produziert die nicht committed sind —
-      # die häufigste Ursache für "works on my machine, broken in prod" bei CSS/JS.
+      # Failt wenn `npm run build` Änderungen produziert die nicht committed sind.
+      # Das ist die häufigste Ursache für "works on my machine, broken in prod" bei CSS/JS.
       - name: Check for uncommitted asset changes
         id: diff
         run: |
@@ -606,7 +606,7 @@ jobs:
           retention-days: 3
 
   # ─────────────────────────────────────────────
-  # 7. PHPStan – Statische Analyse
+  # 7. PHPStan: Statische Analyse
   # ─────────────────────────────────────────────
   phpstan:
     runs-on: ubuntu-latest
@@ -668,11 +668,11 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       # Inline-Annotations in geänderten Dateien im PR-Diff
-      - name: PHPStan – Inline Annotations
+      - name: PHPStan Inline-Annotations
         run: vendor/bin/phpstan analyse --no-progress --error-format=github || true
 
       # JSON-Output für den PR-Kommentar
-      - name: PHPStan – Report generieren
+      - name: PHPStan-Report generieren
         id: phpstan
         run: |
           set +e
@@ -689,17 +689,17 @@ jobs:
 
       # Erst hochladen, dann scheitern: der PR-Kommentar soll die Fundstellen
       # auch dann nennen, wenn der Job rot ist. Bis hierher hat PHPStan nur
-      # berichtet — zwei echte Meldungen lagen deshalb wochenlang unbemerkt
+      # berichtet. Zwei echte Meldungen lagen deshalb wochenlang unbemerkt
       # im Baum. Die Baseline haelt den Altbestand, alles darueber hinaus
       # blockiert.
-      - name: PHPStan – Ergebnis durchreichen
+      - name: PHPStan-Ergebnis durchreichen
         if: steps.phpstan.outputs.exit_code != '0'
         run: |
-          echo "::error::PHPStan meldet Fehler — siehe Annotationen oben."
+          echo "::error::PHPStan meldet Fehler, siehe Annotationen oben."
           exit 1
 
   # ─────────────────────────────────────────────
-  # 5. PR Report – Zusammenfassung aller Checks
+  # 5. PR Report: Zusammenfassung aller Checks
   # ─────────────────────────────────────────────
   pr-report:
     runs-on: ubuntu-latest
@@ -761,7 +761,7 @@ jobs:
 
             // ── Parse JUnit XML for test counts ──
             // Liest <testsuite>-Attribute (tests/failures/errors/time) aus allen heruntergeladenen
-            // phpunit-*.xml-Artefakten. Kein XML-Parser — simple Regex, weil das Format stabil ist.
+            // phpunit-*.xml-Artefakten. Kein XML-Parser, nur eine simple Regex, weil das Format stabil ist.
             function parseJunit(pattern) {
               let total = 0, failed = 0, errored = 0, time = 0;
               const files = fs.readdirSync('.').filter(f => f.match(pattern));
@@ -858,9 +858,9 @@ jobs:
             } else {
               try {
                 const diffTxt = fs.readFileSync('frontend-build-diff.txt', 'utf8').trim();
-                frontendSection = '> Assets weichen vom Repo-Stand ab — lokal `npm run build` und committen.\n\n```\n' + diffTxt.substring(0, 1500) + '\n```';
+                frontendSection = '> Assets weichen vom Repo-Stand ab. Lokal `npm run build` ausführen und committen.\n\n```\n' + diffTxt.substring(0, 1500) + '\n```';
               } catch {
-                frontendSection = '> Assets weichen vom Repo-Stand ab — lokal `npm run build` und committen.';
+                frontendSection = '> Assets weichen vom Repo-Stand ab. Lokal `npm run build` ausführen und committen.';
               }
             }
 
@@ -915,7 +915,7 @@ jobs:
             body += '### Übersicht\n\n';
             body += '| Check | Status | Details |\n';
             body += '|-------|--------|---------|\n';
-            body += `| Build (PHP 8.3 – 8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} | |\n`;
+            body += `| Build (PHP 8.3/8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} | |\n`;
             body += `| Unit Tests (8.3/8.4) | ${statusIcon(unitResult)} ${statusText(unitResult)} | ${fmtStats(unitStats, unitResult)} |\n`;
             body += `| Integration Tests | ${statusIcon(integrationResult)} ${statusText(integrationResult)} | ${fmtStats(integrationStats, integrationResult)} |\n`;
             body += `| Feature Tests (HTTP) | ${statusIcon(integrationResult)} ${statusText(integrationResult)} | ${fmtStats(featureStats, integrationResult)} |\n`;
@@ -930,7 +930,7 @@ jobs:
                 : `${coverage.linePct}%`;
               body += `| Coverage | ${covIcon} | ${extra} |\n`;
             }
-            body += `| Frontend Build | ${statusIcon(frontendResult)} ${statusText(frontendResult)} | ${frontendResult === 'failure' ? 'Assets nicht aktuell — `npm run build` fehlt' : ''} |\n`;
+            body += `| Frontend Build | ${statusIcon(frontendResult)} ${statusText(frontendResult)} | ${frontendResult === 'failure' ? 'Assets nicht aktuell, `npm run build` fehlt' : ''} |\n`;
             body += `| Security Audit | ${statusIcon(auditResult)} ${statusText(auditResult)} | |\n`;
             body += `| PHPStan | ${statusIcon(phpstanResult)} ${statusText(phpstanResult)} | |\n`;
 
@@ -968,7 +968,7 @@ jobs:
               } else {
                 const failures = extractFailures(pattern);
                 if (failures.length === 0) {
-                  section = '> ❌ Fehlgeschlagen — keine Details aus JUnit XML verfügbar.';
+                  section = '> ❌ Fehlgeschlagen, keine Details aus JUnit XML verfügbar.';
                 } else {
                   section = `> **${stats.failed + stats.errored} fehlgeschlagen** von ${stats.total} Tests\n\n`;
                   for (const f of failures) {
@@ -1018,7 +1018,7 @@ jobs:
 
             // PHPStan details
             body += '<details>\n';
-            body += `<summary><strong>PHPStan – Statische Analyse</strong> ${statusIcon(phpstanResult)}</summary>\n\n`;
+            body += `<summary><strong>PHPStan: Statische Analyse</strong> ${statusIcon(phpstanResult)}</summary>\n\n`;
             body += phpstanSection + '\n\n';
             body += '</details>\n\n';
 

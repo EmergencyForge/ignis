@@ -2,7 +2,7 @@ name: Main-Broken Incident
 
 # Läuft nachdem "PHP CI" auf main durchgelaufen ist. Bei Fehlschlag wird ein
 # Incident-Issue angelegt (bzw. ein bestehendes fortgeschrieben). Bei Erfolg
-# werden offene Incidents geschlossen. PR-Runs werden ignoriert — dafür gibt's
+# werden offene Incidents geschlossen. PR-Runs werden ignoriert, dafür gibt's
 # den pr-report-Kommentar im PHP-CI-Workflow.
 
 on:
@@ -37,13 +37,13 @@ jobs:
         with:
           github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
-            // Labels idempotent anlegen — wenn bereits vorhanden, 422 wird ignoriert.
+            // Labels idempotent anlegen. Existiert ein Label schon, wird die 422 ignoriert.
             const labels = [
               { name: 'incident/main-broken',      color: 'b60205', description: 'Main-Branch ist rot' },
-              { name: 'severity/sev-1',            color: 'b60205', description: 'Kritisch — blockiert alle weiteren Checks' },
-              { name: 'severity/sev-2',            color: 'd93f0b', description: 'Hoch — Security oder Produktions-Risiko' },
-              { name: 'severity/sev-3',            color: 'fbca04', description: 'Mittel — Statische Analyse / Integration-Tests' },
-              { name: 'severity/sev-4',            color: 'bfdadc', description: 'Niedrig — Unit-Tests / experimentelle Jobs' },
+              { name: 'severity/sev-1',            color: 'b60205', description: 'Kritisch: blockiert alle weiteren Checks' },
+              { name: 'severity/sev-2',            color: 'd93f0b', description: 'Hoch: Security oder Produktions-Risiko' },
+              { name: 'severity/sev-3',            color: 'fbca04', description: 'Mittel: Statische Analyse / Integration-Tests' },
+              { name: 'severity/sev-4',            color: 'bfdadc', description: 'Niedrig: Unit-Tests / experimentelle Jobs' },
               { name: 'broken-job/build',          color: 'c5def5', description: 'Build-Job (Lint/Install) fehlgeschlagen' },
               { name: 'broken-job/phpstan',        color: 'c5def5', description: 'PHPStan-Job fehlgeschlagen' },
               { name: 'broken-job/security',       color: 'c5def5', description: 'Security-Audit-Job fehlgeschlagen' },
@@ -139,7 +139,7 @@ jobs:
 
             // ── Nicht-Failure ignorieren (cancelled/skipped/neutral) ──
             if (conclusion !== 'failure') {
-              core.info(`Conclusion '${conclusion}' — ignoring`);
+              core.info(`Conclusion '${conclusion}', ignoring`);
               return;
             }
 
@@ -152,7 +152,7 @@ jobs:
             });
             const failedJobs = jobsResp.jobs.filter(j => j.conclusion === 'failure');
             if (failedJobs.length === 0) {
-              core.info('Workflow failed but no failed jobs — likely cancellation, skipping');
+              core.info('Workflow failed but no failed jobs (likely cancelled), skipping');
               return;
             }
 
@@ -219,12 +219,12 @@ jobs:
             const jobsTable = classified.map(c => {
               const duration = c.job.completed_at && c.job.started_at
                 ? Math.round((new Date(c.job.completed_at) - new Date(c.job.started_at)) / 1000) + 's'
-                : '—';
+                : '-';
               return `| [\`${c.job.name}\`](${c.job.html_url}) | ❌ failed | ${duration} |`;
             }).join('\n');
 
             // ── Issue-Titel + Signature-Marker ──
-            const title = `[main-broken] ${signature} — ${shortSha} (${author})`;
+            const title = `[main-broken] ${signature} in ${shortSha} (${author})`;
             const signatureMarker = `<!-- main-broken:${signature} -->`;
 
             // ── Deduplication: bestehendes offenes Incident für gleiche Signature suchen ──
@@ -233,7 +233,7 @@ jobs:
             // ── Body zusammenbauen ──
             let body = signatureMarker + '\n';
             body += `## 🚨 Main-Branch ist rot\n\n`;
-            body += `**Commit:** [\`${shortSha}\`](${commitUrl}) — ${commitMsg}\n`;
+            body += `**Commit:** [\`${shortSha}\`](${commitUrl}): ${commitMsg}\n`;
             body += `**Autor:** ${authorMention}\n`;
             body += `**Diff:** ${diffStats}\n`;
             body += `**Workflow-Run:** [${runId}](${runUrl})\n\n`;
@@ -281,10 +281,10 @@ jobs:
               // ── Bestehendes Incident: neuen Break-Commit als Comment anhängen ──
               const commentBody =
                 `### 🔁 Neuer fehlgeschlagener Main-Push\n\n` +
-                `**Commit:** [\`${shortSha}\`](${commitUrl}) — ${commitMsg}\n` +
+                `**Commit:** [\`${shortSha}\`](${commitUrl}): ${commitMsg}\n` +
                 `**Autor:** ${authorMention}\n` +
                 `**Workflow-Run:** [${runId}](${runUrl})\n\n` +
-                `Gleiche Job-Signature (\`${signature}\`) — Incident bleibt offen.`;
+                `Gleiche Job-Signature (\`${signature}\`). Das Incident bleibt offen.`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

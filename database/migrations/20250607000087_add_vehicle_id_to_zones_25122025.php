@@ -6,11 +6,11 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Fügt vehicle_id zu intra_fire_incident_map_zones hinzu, damit Zonen einem
- * Fahrzeug zugeordnet werden können — inklusive Index und Foreign Key auf
+ * Fahrzeug zugeordnet werden können, inklusive Index und Foreign Key auf
  * intra_fahrzeuge (ON DELETE SET NULL, ON UPDATE CASCADE).
  *
  * Auf Installationen, deren Zones-Tabelle die Spalte bereits mitbringt,
- * passiert nichts — Index und Constraint existieren dort ebenfalls schon aus
+ * passiert nichts. Index und Constraint existieren dort ebenfalls schon aus
  * dem CREATE TABLE.
  */
 class AddVehicleIdToZones25122025 extends AbstractMigration

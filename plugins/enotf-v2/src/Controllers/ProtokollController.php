@@ -8,7 +8,7 @@ use EmergencyForge\Http\Request;
 use Plugin\EnotfV2\Support\ProtokollService;
 
 /**
- * ProtokollController — Shell des v2-Protokoll-Editors.
+ * ProtokollController: Shell des v2-Protokoll-Editors.
  *
  * Rendert das gemeinsame Layout mit Section-Stepper (statt der alten
  * Kachel-Navigation) und lädt in den Content-Bereich das Template der
@@ -16,7 +16,7 @@ use Plugin\EnotfV2\Support\ProtokollService;
  *
  * Section-Template-Auflösung: templates/protokoll/{section}.php wenn
  * vorhanden, sonst der Platzhalter section-stub.php. Neue Sections
- * brauchen also nur eine Datei mit dem Section-Namen — keine Routen-
+ * brauchen also nur eine Datei mit dem Section-Namen, keine Routen-
  * oder Controller-Änderung.
  */
 class ProtokollController extends EnotfV2Controller
@@ -37,7 +37,7 @@ class ProtokollController extends EnotfV2Controller
     public const DEFAULT_SECTION = 'rettdaten';
 
     /**
-     * GET /enotf-v2/p/{enr}[/{section}] — Editor-Shell.
+     * GET /enotf-v2/p/{enr}[/{section}]: Editor-Shell.
      */
     public function show(Request $request, string $enr, ?string $section = null): void
     {
@@ -77,7 +77,7 @@ class ProtokollController extends EnotfV2Controller
     }
 
     /**
-     * Absoluter Pfad zum Section-Template — Stub, solange die echte
+     * Absoluter Pfad zum Section-Template oder zum Stub, solange die echte
      * Section-Datei noch nicht existiert.
      */
     private function resolveSectionTemplate(string $section): string

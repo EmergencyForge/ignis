@@ -9,7 +9,7 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 
 /**
- * `GET /storage/{area}/{file}` — hochgeladene Dateien.
+ * `GET /storage/{area}/{file}`: hochgeladene Dateien.
  *
  * Profilbilder, erzeugte Dokument-PDFs und Vorlagen-Bilder liegen unter
  * storage/ und wurden bisher vom Webserver direkt ausgeliefert. Mit dem

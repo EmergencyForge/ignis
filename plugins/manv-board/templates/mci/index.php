@@ -44,7 +44,7 @@ $bodyPage = 'edivi';
                             <small class="ml-2 text-tertiary-text">(Archivierte Lagen)</small>
                         <?php endif; ?>
                     </h1>
-                    <p class="twplus-page-header__description">Massenanfall von Verletzten – aktive, abgeschlossene und archivierte Lagen im Überblick.</p>
+                    <p class="twplus-page-header__description">Massenanfall von Verletzten: aktive, abgeschlossene und archivierte Lagen im Überblick.</p>
                 </div>
                 <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--secondary ignis-btn--lg no-underline hover:no-underline">

@@ -51,7 +51,7 @@ class InsertIntraDynamicAntraege30092025 extends AbstractMigration
     {
         $pdo = $this->getAdapter()->getConnection();
 
-        // Felder hängen per FK ON DELETE CASCADE am Typ — Typ löschen reicht.
+        // Felder hängen per FK ON DELETE CASCADE am Typ, das Löschen des Typs reicht.
         $delete = $pdo->prepare('DELETE FROM intra_antrag_typen WHERE name = ?');
         $delete->execute(['Beförderungsantrag']);
         $delete->execute(['Urlaubsantrag']);

@@ -7,11 +7,11 @@ namespace App\Policies;
 use App\Auth\Permissions;
 
 /**
- * PoiPolicy — Permissions für die POI-Verwaltung (Krankenhäuser, Ziele,
+ * PoiPolicy: Permissions für die POI-Verwaltung (Krankenhäuser, Ziele,
  * Departments, Access-Codes).
  *
- *   view()    — POI-Listen / Departments / Access-Codes ansehen
- *   manage()  — POIs anlegen/ändern/löschen, Departments + Codes pflegen
+ *   view():    POI-Listen / Departments / Access-Codes ansehen
+ *   manage():  POIs anlegen/ändern/löschen, Departments + Codes pflegen
  *
  * Das `view`-Recht reicht für Read-only-Zugriff (z. B. Krankenhaus-
  * Schnittstelle, Voranmeldungs-Formulare). `manage` ist nur für die

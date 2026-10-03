@@ -261,7 +261,7 @@ class GlobalAnnouncementManager
 
     /**
      * Der Hub liefert im Announcements-Response optional
-     * heartbeat_requested_at mit — der Zeitpunkt, zu dem ein Hub-Admin
+     * heartbeat_requested_at mit: der Zeitpunkt, zu dem ein Hub-Admin
      * zuletzt alle Installationen um einen frischen Heartbeat gebeten hat.
      * Ist diese Anforderung neuer als unser letzter Heartbeat, senden wir
      * sofort einen. sendHeartbeat() prüft dabei selbst Telemetrie-Opt-in

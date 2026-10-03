@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Eine verweigerte Berechtigung endete früher als Hinweis-Blase plus
  * Weiterleitung aufs Dashboard. Hier steht, was stattdessen ankommt: eine
- * Seite, die den Grund nennt und zurückführt — und für API-Pfade eine
+ * Seite, die den Grund nennt und zurückführt, und für API-Pfade eine
  * JSON-Antwort, weil ein 302 auf HTML dort niemandem hilft.
  */
 final class ErrorPageTest extends TestCase

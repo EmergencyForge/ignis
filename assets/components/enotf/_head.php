@@ -9,12 +9,12 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
 <!-- Stylesheets: Bootstrap first, then overrides -->
 <!-- Reihenfolge:
-     1. vendor.css           — FontAwesome (gemeinsam mit Admin)
-     2. vendor-enotf.css     — Bootstrap 5 (nur eNOTF)
-     3. divi.min, ui.min     — eNOTF-spezifisches Styling
-     4. enotf-modals/-toast  — eNOTF-Komponenten
-     5. enotf-v1.css         — Felder und Modal-Buttons, nur v1 (v2 lädt diesen Head nicht)
-     6. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
+     1. vendor.css           FontAwesome (gemeinsam mit Admin)
+     2. vendor-enotf.css     Bootstrap 5 (nur eNOTF)
+     3. divi.min, ui.min     eNOTF-spezifisches Styling
+     4. enotf-modals/-toast  eNOTF-Komponenten
+     5. enotf-v1.css         Felder und Modal-Buttons, nur v1 (v2 lädt diesen Head nicht)
+     6. tailwind.css         Utility-Klassen, gewinnt bei gleicher Spezifität -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
 <!-- Geist Sans + Geist Mono fuer das eNOTF-UI (Clock, Stempel,
@@ -78,7 +78,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.session_id) {
-                    // An parent senden (NUI-Seite), falls im iframe — sonst an eigenes window
+                    // An parent senden (NUI-Seite), falls im iframe, sonst an eigenes window
                     var target = (window.parent !== window) ? window.parent : window;
                     target.postMessage({ type: 'ignis_session', session_id: data.session_id }, '*');
                 }

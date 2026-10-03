@@ -210,13 +210,13 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <?php endif; ?>
                                         <td class="ignis-table__num"><?= (int) $row['priority'] ?></td>
                                         <td><span data-vehicle-card="<?= $rowId ?>"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
-                                        <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '<span class="text-tertiary-text">—</span>' ?></td>
+                                        <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '<span class="text-tertiary-text">-</span>' ?></td>
                                         <td><span class="ignis-chip"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>
                                                 <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" data-ignis-tooltip="Offene Defekte anzeigen" aria-label="<?= $openDefects ?> offene Defekte anzeigen"><?= $openDefects ?></a>
                                             <?php else: ?>
-                                                <span class="text-tertiary-text">—</span>
+                                                <span class="text-tertiary-text">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -259,7 +259,7 @@ $SITE_TITLE = 'Fahrzeuge';
              den Anlage-Dialog vorbefüllt); Prefix `fahrzeug-`, weil pro Open
              nur eine Dialog-Instanz im DOM ist. Die tactical-symbol-form-Partial
              wird mit useGlobalBind=true eingebunden, damit ihre inline-<script>-
-             Bloecke nicht emittiert werden — die Bindings macht
+             Bloecke nicht emittiert werden. Die Bindings macht
              bindTacticalSymbolForm im onOpen. -->
         <template id="fahrzeugFormTemplate">
             <div class="mb-3">

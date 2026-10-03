@@ -9,7 +9,7 @@ use Phinx\Migration\AbstractMigration;
  *
  * Phase I der URL-Migration. Die Permission-Catalog-Renames in
  * `config/permissions.php` (z.B. `mitarbeiter.view` -> `personnel.view`)
- * werden in den persistierten Rollen-Zuweisungen nachgezogen — sonst
+ * werden in den persistierten Rollen-Zuweisungen nachgezogen, sonst
  * verlieren bestehende Rollen ihre Berechtigungen, weil der Code jetzt
  * englische Strings prueft, in der DB aber noch deutsche stehen.
  *
@@ -18,7 +18,7 @@ use Phinx\Migration\AbstractMigration;
  * mehrfach getriggert wird).
  *
  * intra_users_roles.permissions ist ein JSON-Array von Strings, daher
- * wird mit dem fuehrenden `"<alt>.` als Anchor gesucht — das verhindert
+ * wird mit dem fuehrenden `"<alt>.` als Anchor gesucht. Das verhindert
  * False-Matches (z.B. wuerde rohes 'manv' auch in Klartext-Beschreibungen
  * matchen, was wir nicht wollen).
  */
@@ -53,6 +53,6 @@ class TranslatePermissionStrings extends AbstractMigration
 
     public function down(): void
     {
-        // Bewusst kein Down-Path — die Translation ist eine Einbahnstrasse.
+        // Bewusst kein Down-Path: die Translation ist eine Einbahnstrasse.
     }
 }

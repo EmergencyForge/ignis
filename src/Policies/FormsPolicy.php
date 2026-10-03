@@ -8,12 +8,12 @@ use App\Auth\Permissions;
 use App\Models\Form;
 
 /**
- * FormsPolicy — Single Source of Truth für "wer darf was mit Anträgen".
+ * FormsPolicy: Single Source of Truth für "wer darf was mit Anträgen".
  *
- *   viewAny() — Admin-Übersicht aller Anträge ansehen
- *   view()    — Einzelantrag ansehen (eigene IMMER, fremde nur mit application.view)
- *   create()  — Neuen Antrag stellen (jeder eingeloggte User)
- *   decide()  — Status setzen / Antrag bearbeiten (application.edit)
+ *   viewAny(): Admin-Übersicht aller Anträge ansehen
+ *   view():    Einzelantrag ansehen (eigene IMMER, fremde nur mit application.view)
+ *   create():  Neuen Antrag stellen (jeder eingeloggte User)
+ *   decide():  Status setzen / Antrag bearbeiten (application.edit)
  *
  * Aufruf bevorzugt über den Gate:
  *
@@ -54,7 +54,7 @@ class FormsPolicy
 
     /**
      * Darf der Aktor einen neuen Antrag stellen?
-     * Aktuell jeder eingeloggte User — der Login-Check erfolgt im Controller.
+     * Aktuell jeder eingeloggte User. Der Login-Check erfolgt im Controller.
      */
     public static function create(mixed $context = null): bool
     {

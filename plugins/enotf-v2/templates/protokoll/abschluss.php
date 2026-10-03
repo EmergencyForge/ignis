@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Section: Abschluss — eNOTF v2 im v1-Look.
+ * Section: Abschluss, eNOTF v2 im v1-Look.
  *
  * Nachbau der v1-Seiten plugins/enotf/templates/enotf/protokoll/abschluss/:
  *
- *   ÜBERSICHT (ohne ?t): index.php — Themen-Spalte (Besonderheiten/
+ *   ÜBERSICHT (ohne ?t): index.php mit Themen-Spalte (Besonderheiten/
  *     NA-Nachforderung/Übergabe/An Leitstelle senden), Boxen für
  *     Transportdaten (Fahrzeuge + Besatzung), Protokolldaten (Protokollant
  *     mit Namensvorschlägen, Protokollart), readonly Übergabe/Einsatzverlauf,
  *     unten der „Abschließen"-Button (→ ?t=freigabe).
  *
  *   ?t=besonderheiten (v1 1.php): ebesonderheiten[] als btn-check-
- *     Checkboxen in zwei Spalten — JSON-Array von int, Code 1 („keine")
+ *     Checkboxen in zwei Spalten: JSON-Array von int, Code 1 („keine")
  *     exklusiv, gespeichert über den Multi-JSON-Handler in edivi-bridge.js
  *     (data-ev2-multijson, psych-Muster).
  *   ?t=nanachf (v1 2.php): na_nachf Radio 1=nein/2=ja (nur prot_by != 1).
  *   ?t=uebergabe (v1 3_1/3_2.php): Wizard mit zwei Schritten Ort/An
  *     (uebergabe_ort/uebergabe_an-Radios), Subnav Ort/An/Freigabe.
  *   ?t=freigabe (v1 freigabe.php): Zusammenfassung + Plausibilität +
- *     „Abschließen!" — Freigabe über den v2-Flow: Autosave leeren,
+ *     „Abschließen!", Freigabe über den v2-Flow: Autosave leeren,
  *     Plausibility-Gate (GET /api/enotf-v2/plausibility/{enr}), dann
  *     save-fields-Batch { freigeber: pfname } (ProtokollService::release).
  *
@@ -66,7 +66,7 @@ if ($fokus === 'freigabe') {
     $sectionChromeless = true;
 }
 
-// Übergabe-Wizard: ohne explizites ?q KEIN Schritt offen — nur die
+// Übergabe-Wizard: ohne explizites ?q KEIN Schritt offen, nur die
 // Subnav-Spalte (v1: Themen-Einstieg zeigt die Navigation)
 $initialStep = -1;
 if ($fokus === 'uebergabe') {
@@ -322,7 +322,7 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
     $transpNachDisplay = $formatAdresse($protokoll['ziel_poi'] ?? null, $protokoll['ziel_adresse'] ?? null);
 
     // v1-Parität (abschluss/freigabe.php): ohne ziel_poi/ziel_adresse kann
-    // das Ziel noch in transportziel stecken (POI-Kennung aus Altdaten) —
+    // das Ziel noch in transportziel stecken (POI-Kennung aus Altdaten),
     // dann den aufgelösten POI-Namen zeigen statt „Kein Zielort hinterlegt".
     if ($transpNachDisplay === '') {
         $transpNachDisplay = (string) (app(\Plugin\EnotfV2\Support\ProtokollService::class)
@@ -595,8 +595,8 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
                 }
                 var count = data && typeof data.openCount === 'number' ? data.openCount : null;
                 var text = count !== null
-                    ? count + ' offene Pflichtangabe' + (count === 1 ? '' : 'n') + ' — Freigabe noch nicht möglich.'
-                    : 'Freigabe noch nicht möglich — offene Pflichtangaben vorhanden.';
+                    ? count + ' offene Pflichtangabe' + (count === 1 ? '' : 'n') + '. Freigabe noch nicht möglich.'
+                    : 'Freigabe noch nicht möglich: offene Pflichtangaben vorhanden.';
                 if (window.Dialog) window.Dialog.alert(text, { type: 'warning', title: 'Plausibilitätsprüfung' });
                 else window.alert(text);
             }
@@ -790,7 +790,7 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
     <!-- Ev2Select-Styles kommen zentral aus templates/_ev2-select-styles.php (Layout-Head) -->
 
     <script>
-        // Fahrzeug-Zeilen je Protokollart ein-/ausblenden (v1-Logik) —
+        // Fahrzeug-Zeilen je Protokollart ein-/ausblenden (v1-Logik),
         // reagiert zusätzlich live auf prot_by-Änderungen.
         (function () {
             'use strict';
@@ -823,7 +823,7 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
 <script>
     // Ev2Suggest/Ev2Select manuell initialisieren: der Auto-Init läuft
     // nur auf body[data-page="enotf-v2"], die v1-Look-Seiten tragen den
-    // Section-Key als data-page. Auch bei gesperrtem Protokoll — die
+    // Section-Key als data-page. Auch bei gesperrtem Protokoll, die
     // Trigger erben disabled und alle Selects behalten dieselbe Optik.
     document.addEventListener('DOMContentLoaded', function () {
         if (window.Ev2Select) window.Ev2Select.init(document);
@@ -832,7 +832,7 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
 
 <?php if (!$istGesperrt && $fokus !== 'freigabe'): ?>
     <script>
-        // „An Leitstelle senden" (v1: sendPatientToDispatch) — gegen den
+        // „An Leitstelle senden" (v1: sendPatientToDispatch), gegen den
         // v2-Endpoint, Icon-Farblogik wie v1.
         (function () {
             'use strict';

@@ -5,7 +5,7 @@ namespace Plugin\ManvBoard\Models;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Repository für `intra_manv_lagen` — MANV-Lagen (Massenanfall von
+ * Repository für `intra_manv_lagen`: MANV-Lagen (Massenanfall von
  * Verletzten) inklusive Patienten-Statistik.
  *
  * Läuft über die Eloquent-Capsule (Query Builder); die Rückgabeformate

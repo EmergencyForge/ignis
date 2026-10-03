@@ -9,7 +9,7 @@ use Phinx\Migration\AbstractMigration;
  *
  * - `intra_cron_jobs` registriert alle geplanten Tasks (Console-Command,
  *   Queue-Job-Dispatch, Webhook) mit Cron-Expression-Schedule.
- * - `intra_cron_runs` loggt jede Ausführung mit Status, Dauer und Output —
+ * - `intra_cron_runs` loggt jede Ausführung mit Status, Dauer und Output und
  *   dient dem Admin-UI als History.
  */
 class CreateIntraCronJobsAndRuns extends AbstractMigration

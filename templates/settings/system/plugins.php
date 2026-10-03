@@ -41,18 +41,18 @@ $SITE_TITLE = 'Plugins';
                 <p class="text-tertiary-text mb-4" style="max-width: 720px;">
                     Module, die als Plugin ausgeliefert werden, lassen sich hier einzeln
                     aktivieren oder deaktivieren. Beim Deaktivieren verschwinden Navigation,
-                    Routen und Berechtigungen des Moduls — <strong>alle Daten und Tabellen
+                    Routen und Berechtigungen des Moduls, <strong>alle Daten und Tabellen
                     bleiben erhalten</strong> und stehen nach dem Reaktivieren unverändert
                     wieder zur Verfügung.
                 </p>
                 <div class="ignis-alert ignis-alert--warn mb-4">
                     <i class="fa-solid fa-shield-halved ignis-alert__icon"></i>
                     <div class="ignis-alert__body">
-                        <div class="ignis-alert__title">Community-Plugins — Nutzung auf eigenes Risiko</div>
+                        <div class="ignis-alert__title">Community-Plugins: Nutzung auf eigenes Risiko</div>
                         Nicht offiziell mitgelieferte Plugins bleiben nach dem Hochladen zunächst
                         vollständig inaktiv: Es wird kein Code ausgeführt und keine Migration
                         angewendet, bis die Installation hier ausdrücklich gestartet wird.
-                        Für Community-Plugins übernimmt EmergencyForge keine Gewähr — weder für
+                        Für Community-Plugins übernimmt EmergencyForge keine Gewähr, weder für
                         Funktion und Sicherheit noch für mögliche Datenverluste. Support leistet
                         der jeweilige Herausgeber.
                     </div>
@@ -120,7 +120,7 @@ $SITE_TITLE = 'Plugins';
                                 <?php endif; ?>
                                 <?php if (!$row['bundled']): ?>
                                     <div class="text-tertiary-text mt-1" style="font-size: 0.78rem;">
-                                        <i class="fa-solid fa-scale-balanced mr-1"></i>Community-Plugin — Nutzung auf eigenes Risiko.
+                                        <i class="fa-solid fa-scale-balanced mr-1"></i>Community-Plugin, Nutzung auf eigenes Risiko.
                                         EmergencyForge übernimmt keine Gewähr für Funktion, Sicherheit oder mögliche Datenverluste.
                                         Support leistet ausschließlich der jeweilige Herausgeber.
                                     </div>
@@ -129,7 +129,7 @@ $SITE_TITLE = 'Plugins';
                             <div class="shrink-0 flex flex-wrap gap-2">
                                 <?php if (!$row['installed']): ?>
                                     <form method="post" class="inline"
-                                        onsubmit="event.preventDefault(); showConfirm('<?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an. EmergencyForge übernimmt keinerlei Gewähr für Funktion, Sicherheit oder mögliche Datenverluste — Nutzung auf eigenes Risiko. Erstelle vorher ein Backup und fahre nur fort, wenn du der Quelle vertraust.', {title: 'Community-Plugin installieren', confirmText: 'Jetzt installieren', cancelText: 'Abbrechen', danger: true}).then(result => { if (result) this.submit(); });">
+                                        onsubmit="event.preventDefault(); showConfirm('<?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an. EmergencyForge übernimmt keinerlei Gewähr für Funktion, Sicherheit oder mögliche Datenverluste. Nutzung auf eigenes Risiko. Erstelle vorher ein Backup und fahre nur fort, wenn du der Quelle vertraust.', {title: 'Community-Plugin installieren', confirmText: 'Jetzt installieren', cancelText: 'Abbrechen', danger: true}).then(result => { if (result) this.submit(); });">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                         <input type="hidden" name="plugin_action" value="install">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
@@ -144,7 +144,7 @@ $SITE_TITLE = 'Plugins';
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary" <?= $blocked ? 'disabled' : '' ?>
-                                            <?php if (!$m->removable): ?>data-ignis-tooltip="Fester Bestandteil — nicht deaktivierbar"<?php elseif ($row['requiredBy'] !== []): ?>data-ignis-tooltip="Wird von anderen aktiven Plugins benötigt"<?php endif; ?>>
+                                            <?php if (!$m->removable): ?>data-ignis-tooltip="Fester Bestandteil, nicht deaktivierbar"<?php elseif ($row['requiredBy'] !== []): ?>data-ignis-tooltip="Wird von anderen aktiven Plugins benötigt"<?php endif; ?>>
                                             Deaktivieren
                                         </button>
                                     </form>

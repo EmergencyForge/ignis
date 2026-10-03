@@ -35,7 +35,7 @@ class CreateIntraEdiviVitalparameterEinzelwerte06072025 extends AbstractMigratio
             ->addIndex(['geloescht'],      ['name' => 'idx_geloescht'])
             ->create();
 
-        // Trigger kennt die Phinx-API nicht — raw SQL bleibt hier notwendig.
+        // Trigger kennt die Phinx-API nicht, raw SQL bleibt hier notwendig.
         $this->execute(<<<SQL
             CREATE TRIGGER `before_delete_vitalparameter_einzelwerte`
                 BEFORE DELETE ON `intra_edivi_vitalparameter_einzelwerte`

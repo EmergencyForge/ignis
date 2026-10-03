@@ -4,7 +4,7 @@
  * Der eNOTF ist als legacy-PHP-Modul stark Bootstrap-5-getrieben (Modal,
  * Accordion, Form-Klassen, .row/.col-Grid, Utility-Klassen wie d-flex,
  * me-1, fw-bold, text-muted etc.). Eine vollständige Migration auf
- * Tailwind + ıgnıs würde hunderte Markup-Stellen anfassen — stattdessen
+ * Tailwind + ıgnıs würde hunderte Markup-Stellen anfassen, stattdessen
  * laden wir Bootstrap nur dort, wo es tatsächlich gebraucht wird.
  *
  * Wird zusätzlich zu assets/js/vendor.js (jQuery + FontAwesome +
@@ -14,7 +14,7 @@
  */
 
 // Der Namensimport zieht dieselben Nebenwirkungen wie ein blosses
-// `import 'bootstrap'` — die Data-API registriert sich, data-bs-toggle
+// `import 'bootstrap'`: die Data-API registriert sich, data-bs-toggle
 // funktioniert. Was er zusaetzlich liefert, ist der Global: nur der
 // UMD-Bundle-Build setzt window.bootstrap von sich aus, der ESM-Einstieg
 // nicht. Die v1-Templates rufen aber `new bootstrap.Modal(...)` auf und

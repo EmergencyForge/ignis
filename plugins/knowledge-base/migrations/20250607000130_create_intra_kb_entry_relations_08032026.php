@@ -38,7 +38,7 @@ class CreateIntraKbEntryRelations08032026 extends AbstractMigration
             ])
             ->create();
 
-        // CHECK-Constraints kennt die Phinx-Tabellen-API nicht — der unbenannte
+        // CHECK-Constraints kennt die Phinx-Tabellen-API nicht, der unbenannte
         // Constraint bekommt so denselben Auto-Namen wie beim Inline-CHECK.
         $this->execute('ALTER TABLE `intra_kb_entry_relations` ADD CHECK (`entry_id` < `related_entry_id`)');
     }

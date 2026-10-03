@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF — hängt seine Sections in die bestehenden Rail-Einträge
+ * eNOTF: hängt seine Sections in die bestehenden Rail-Einträge
  * „Protokolle" und „Einstellungen" ein. Fällt ein Ziel-Eintrag weg,
  * erscheint das Fragment als eigener Rail-Eintrag (deshalb die
  * vollständigen Felder).

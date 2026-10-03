@@ -36,8 +36,8 @@ class UpdateProfileRequestTest extends TestCase
     #[Test]
     public function valid_input_is_normalized(): void
     {
-        // Dienstnr wird VOR der Regex validiert, also schon ohne Whitespace erwartet —
-        // die anderen String-Felder werden nach Validierung getrimmt.
+        // Dienstnr wird VOR der Regex validiert, also schon ohne Whitespace erwartet.
+        // Die anderen String-Felder werden nach Validierung getrimmt.
         $data = UpdateProfileRequest::validate([
             'id'         => '42',
             'fullname'   => '  Max Mustermann  ',

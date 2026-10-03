@@ -35,7 +35,7 @@ class AlterIntraFireIncidents20250125AllowNull extends AbstractMigration
     public function down(): void
     {
         // Vor dieser Migration war nur intra_fire_incident_log.created_by
-        // NOT NULL (siehe CREATE vom 24122025) — die übrigen Spalten waren
+        // NOT NULL (siehe CREATE vom 24122025), die übrigen Spalten waren
         // schon immer nullable und bleiben unangetastet.
         $this->table('intra_fire_incident_log')
             ->changeColumn('created_by', 'integer', ['null' => false])

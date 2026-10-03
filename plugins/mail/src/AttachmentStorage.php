@@ -17,7 +17,7 @@ use RuntimeException;
  * attachmentDownload() an Beteiligte).
  *
  * Der Dateityp kommt aus den Magic Bytes (finfo), nicht aus Endung oder
- * dem vom Browser behaupteten Typ. Erlaubt: Bilder, PDF, reiner Text —
+ * dem vom Browser behaupteten Typ. Erlaubt: Bilder, PDF, reiner Text,
  * kein SVG (kann Skript tragen), kein HTML.
  *
  * Grenzen: 5 MB je Datei, 10 MB je Mail. Die Summe wird unter einer

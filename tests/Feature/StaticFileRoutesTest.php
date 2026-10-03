@@ -115,7 +115,7 @@ final class StaticFileRoutesTest extends FeatureTestCase
     public function branding_liefert_kein_svg_aus(): void
     {
         // Kein SVG erlaubt: eine hochgeladene SVG-Datei koennte Skript tragen
-        // und wird von FileUpload::store() schon gar nicht angenommen — das
+        // und wird von FileUpload::store() schon gar nicht angenommen. Das
         // hier prueft zusaetzlich, dass die Ausliefer-Route den Typ selbst
         // auch nicht durchlaesst, falls doch eine Datei dorthin gelangt.
         $dir = dirname(__DIR__, 2) . '/storage/branding';

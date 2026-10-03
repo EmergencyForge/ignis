@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>eNOTF UI-Konzept — Variante 4: Schnellerfassung</title>
+  <title>eNOTF UI-Konzept, Variante 4: Schnellerfassung</title>
   <link rel="stylesheet" href="enotf-mock.css">
 </head>
 <body>
@@ -26,7 +26,7 @@
     <div class="palette">
       <input type="search" id="palette-input" placeholder="z. B. verbrenn, stemi, krampf …" autocomplete="off">
       <div class="results" id="palette-results"></div>
-      <div class="hint">↑↓ wählen · Enter übernehmen · Esc schließen — die Auswahl wird sofort gespeichert und die Spaltenansicht springt an die Stelle.</div>
+      <div class="hint">↑↓ wählen · Enter übernehmen · Esc schließen. Die Auswahl wird sofort gespeichert und die Spaltenansicht springt an die Stelle.</div>
     </div>
   </div>
   <div class="save-toast" id="save-toast"></div>
@@ -35,7 +35,7 @@
   <script>
     renderChrome("Variante 4");
 
-    // Flacher Index aller wählbaren Optionen mit Pfad — Grundlage der Suche
+    // Flacher Index aller wählbaren Optionen mit Pfad, Grundlage der Suche
     const INDEX = [];
     (function build(list, path) {
       list.forEach((node) => {

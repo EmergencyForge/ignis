@@ -11,7 +11,7 @@ use Respect\Validation\Validator as v;
 /**
  * Eingaben des Vorlagen-Editors. `content` kommt als JSON-Text aus dem
  * versteckten Feld des Editors; ob darin eine brauchbare Vorlage steht,
- * prüft der Controller mit dem SectionGuard — hier geht es nur darum, dass
+ * prüft der Controller mit dem SectionGuard. Hier geht es nur darum, dass
  * überhaupt etwas ankommt.
  */
 class SaveDocumentTemplateRequest extends FormRequest

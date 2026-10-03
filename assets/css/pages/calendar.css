@@ -1,9 +1,9 @@
 /*
- * Calendar Page — FullCalendar Theme-Override fuer ignis-Brand.
+ * Calendar Page: FullCalendar Theme-Override fuer ignis-Brand.
  *
  * FullCalendar v6 nutzt CSS-Custom-Properties als Theme-API. Wir
  * ueberschreiben sie hier mit den intraRP-Tokens (--main-color,
- * --body-bg-lighter, --darkgray) — keine Eingriffe in die FC-internen
+ * --body-bg-lighter, --darkgray), ohne Eingriffe in die FC-internen
  * Klassen, damit Updates nicht brechen.
  */
 
@@ -126,7 +126,7 @@
 
 /* RSVP-Status: das Event-Aussehen selbst kommuniziert die eigene Antwort.
    FullCalendar setzt background-color und border-color als Inline-Styles
-   pro Event (Brand-/Kategorie-Farbe). Wir UEBERLAGERN nur — die Original-
+   pro Event (Brand-/Kategorie-Farbe). Wir UEBERLAGERN nur, die Original-
    Farbe bleibt sichtbar, sodass die Event-Identitaet erhalten bleibt.
 
    - accepted: voller Solid-Look (default, kein Override)
@@ -160,20 +160,20 @@
     background: transparent !important;
     opacity: 0.7;
     text-decoration: line-through;
-    /* Border bleibt in Event-Farbe (FC setzt Inline) — gibt dem Outline
+    /* Border bleibt in Event-Farbe (FC setzt Inline) und gibt dem Outline
        die Identitaet. */
 }
 .fc-event[data-my-response="declined"] .fc-event-title,
 .fc-event[data-my-response="declined"] .fc-event-time,
 .fc-event[data-my-response="declined"] .fc-event-main {
     /* Text in Original-Event-Farbe (=ehemalige Brand-/Kategorie-bg-Farbe),
-       durchgestrichen — visuell sofort klar "ich bin nicht dabei", aber
+       durchgestrichen: visuell sofort klar "ich bin nicht dabei", aber
        die Farb-Identitaet bleibt erhalten. */
     color: var(--event-color, var(--text-3)) !important;
     text-decoration: line-through;
 }
 
-/* accepted bleibt Default — Solid-Brand-Color, kein Override. */
+/* accepted bleibt Default: Solid-Brand-Color, kein Override. */
 
 /* List-View */
 .fc-list-event:hover td {
@@ -195,7 +195,7 @@
     border-color: var(--accent);
 }
 
-/* "Heute abwesend"-Strip — kompakter Info-Banner oberhalb der Toolbar.
+/* "Heute abwesend"-Strip: kompakter Info-Banner oberhalb der Toolbar.
    Nur sichtbar wenn mindestens ein Mitarbeiter heute fehlt. */
 .calendar-absence-strip {
     display: flex;
@@ -224,7 +224,7 @@
     color: var(--white);
 }
 
-/* Calendar-Toolbar — Filter-Chips + Action-Button auf einer Linie */
+/* Calendar-Toolbar: Filter-Chips + Action-Button auf einer Linie */
 .calendar-toolbar {
     display: flex;
     align-items: center;
@@ -272,7 +272,7 @@
     margin-right: 0.25rem;
 }
 
-/* Aktiv-Highlight fuer RSVP-Buttons im View-Template — currentColor
+/* Aktiv-Highlight fuer RSVP-Buttons im View-Template: currentColor
    sorgt dafuer dass der Ring zur Textfarbe des Knopfs passt statt zum
    orangen Brand-Default. */
 .ignis-btn.is-active {
@@ -281,7 +281,7 @@
 }
 
 /* Teilnehmer-Liste mit Response-Status. Ablöse fuer den generischen
-   ignis-list — wir wollen Name links, Status-Chip rechts. */
+   ignis-list; wir wollen Name links, Status-Chip rechts. */
 .attendee-list {
     list-style: none;
     margin: 0;

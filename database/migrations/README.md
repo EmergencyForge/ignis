@@ -8,14 +8,14 @@ Versionierte Datenbank-Migrations für intraRP, gefahren von [Phinx](https://phi
 # Migrations gegen Production-DB fahren (liest .env)
 composer db:migrate
 
-# Status anzeigen — welche Migrations sind up/down
+# Status anzeigen: welche Migrations sind up/down
 composer db:status
 
 # Manuell (gleicher Effekt wie composer db:migrate, lädt aber AutoMigrator + Bridge)
 php tools/db-migrate.php
 ```
 
-Im Web-Kontext wird Phinx automatisch via [`App\Database\AutoMigrator`](../../src/Database/AutoMigrator.php) aus dem Bootstrap aufgerufen — User braucht keinen Shell-Zugang.
+Im Web-Kontext wird Phinx automatisch via [`App\Database\AutoMigrator`](../../src/Database/AutoMigrator.php) aus dem Bootstrap aufgerufen. Der User braucht keinen Shell-Zugang.
 
 ## Konvention für neue Migrations
 
@@ -29,7 +29,7 @@ Phinx erzeugt automatisch eine Datei mit Timestamp-Prefix:
 database/migrations/20260408142233_add_neue_spalte_zu_tabelle.php
 ```
 
-Klassenname muss exakt der CamelCase-Variante des Filename-Stems entsprechen — Phinx prüft das.
+Klassenname muss exakt der CamelCase-Variante des Filename-Stems entsprechen, Phinx prüft das.
 
 ### Beispiel: Native Phinx-API (empfohlen für neue Migrations)
 
@@ -75,7 +75,7 @@ Die Sequenznummer (000001 ... 000147) bildet die ursprüngliche Reihenfolge aus 
 
 **Bridge für bestehende Installs**: [`AutoMigrator`](../../src/Database/AutoMigrator.php) erkennt eine vorhandene `intra_migrations`-Tabelle (Pre-Phinx) und überträgt deren Einträge bei der ersten Ausführung in `phinxlog`. So sehen bestehende Installationen die historischen Migrations als „erledigt" und Phinx läuft sie nicht erneut.
 
-**Inkrementelle Migration zu nativem Phinx**: Wer Lust hat, kann einzelne Wrapper mit der Zeit auf native Phinx-API umschreiben. Dabei nicht die Klasse umbenennen und keinen Timestamp ändern — Phinx tracked nur den Timestamp und der Klassenname muss zum Filename passen.
+**Inkrementelle Migration zu nativem Phinx**: Wer Lust hat, kann einzelne Wrapper mit der Zeit auf native Phinx-API umschreiben. Dabei nicht die Klasse umbenennen und keinen Timestamp ändern. Phinx tracked nur den Timestamp und der Klassenname muss zum Filename passen.
 
 ## Fresh-Install Test
 
@@ -88,5 +88,5 @@ php tools/test-fresh-db.php
 
 Zwei Modi via `TEST_DB_SKIP_CREATE` in `.env.test`:
 
-- `0` (Default): Script droppt+erstellt die Test-DB selbst — braucht User mit CREATE/DROP-Rechten
-- `1`: Script nutzt eine bereits angelegte leere DB — funktioniert mit Webspace-Usern ohne CREATE-Rechte
+- `0` (Default): Script droppt+erstellt die Test-DB selbst und braucht dafür einen User mit CREATE/DROP-Rechten
+- `1`: Script nutzt eine bereits angelegte leere DB und funktioniert mit Webspace-Usern ohne CREATE-Rechte

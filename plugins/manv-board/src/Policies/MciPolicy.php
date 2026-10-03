@@ -7,7 +7,7 @@ namespace Plugin\ManvBoard\Policies;
 use App\Auth\Permissions;
 
 /**
- * MciPolicy — wer darf was im MANV-Modul.
+ * MciPolicy: wer darf was im MANV-Modul.
  *
  * Alle Endpoints teilen den Permission-Check `['admin', 'mci.manage']`.
  * In einer Policy gebündelt, damit eine spätere Differenzierung (z.B.

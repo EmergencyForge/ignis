@@ -177,7 +177,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <button type="button" id="btn-sonderrechte-anfahrt" class="w-100 ignis-input edivi__target" style="cursor:pointer;text-align:center;background-color:#333333;border:1px solid #595959;border-radius:0;color:#fff;font-size:1.2rem;padding:0.2rem;"><?php
                                         if ($srAnfahrt === 'ja') echo 'ja';
                                         elseif ($srAnfahrt === 'nein') echo 'nein';
-                                        else echo '—';
+                                        else echo '-';
                                     ?></button>
                                 </div>
                             </div>

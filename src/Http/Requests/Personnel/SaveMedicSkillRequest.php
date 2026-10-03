@@ -13,7 +13,7 @@ use Respect\Validation\Validator as v;
  *
  * Wie {@see SaveRankRequest}, mit zwei Schaltern: `none` markiert den
  * Eintrag für „keine Qualifikation", `trainable` den, auf den ausgebildet
- * werden kann. Die Abkürzung ist optional und hat nur fünfzig Zeichen —
+ * werden kann. Die Abkürzung ist optional und hat nur fünfzig Zeichen,
  * die einzige Spalte dieser vier Kataloge, die kürzer ist als 255.
  */
 class SaveMedicSkillRequest extends FormRequest

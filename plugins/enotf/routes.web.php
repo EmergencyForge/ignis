@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 /**
- * eNOTF — Web-Routen.
+ * eNOTF: Web-Routen.
  *
  * Läuft im FiveM-CEF-Browser (iframe) → FiveMCspMiddleware an allen
  * Crew-Routen. User-Auth ist optional und wird über das Config-Flag
  * ENOTF_REQUIRE_USER_AUTH gesteuert.
  *
  * Drei Middleware-Gruppen:
- *   • Public          — keine Auth (nur CSP/iframe-Support)
- *   • Entry / Login   — optionale User-Auth, KEIN PIN-Lockscreen (sonst
+ *   • Public:          keine Auth (nur CSP/iframe-Support)
+ *   • Entry / Login:   optionale User-Auth, KEIN PIN-Lockscreen (sonst
  *                       Redirect-Loop auf lockscreen.php selbst)
- *   • Crew-protected  — User-Auth + PIN-Lockscreen + CSP (volle Pipeline)
+ *   • Crew-protected:  User-Auth + PIN-Lockscreen + CSP (volle Pipeline)
  *
  * iframe-Cookie-Handling (SameSite=None, Secure) kommt vom SessionManager,
  * der `/enotf/` in REQUEST_URI automatisch erkennt.
@@ -47,7 +47,7 @@ $router->post('/enotf/login',     [EnotfController::class, 'login'],     $enotfE
 // Logout (Legacy: DB-Write auf GET via `?mode=self|all`)
 $router->get('/enotf/loggedout',     [EnotfController::class, 'logout'], $enotfEntry);
 
-// Lockscreen selbst darf NICHT durch PinLockscreenMiddleware — Redirect-Loop
+// Lockscreen selbst darf NICHT durch PinLockscreenMiddleware (Redirect-Loop)
 $router->match(['GET', 'POST'], '/enotf/lockscreen',     [EnotfController::class, 'lockscreen'], $enotfEntry);
 
 // Crew-protected (brauchen aktive Crew-Session + PIN-Lockscreen)
@@ -97,7 +97,7 @@ $enotfApiRedirect = function (string $target): \Closure {
 };
 $router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty.php', $enotfApiRedirect('/api/enotf/bulk-delete-empty'));
 
-// Zielverwaltung — auf POI-System konsolidiert. Legacy-URLs leiten
+// Zielverwaltung: auf POI-System konsolidiert. Legacy-URLs leiten
 // dauerhaft auf `/settings/pois` um, bis externe Bookmarks aktualisiert
 // sind. Controller + Template gibt's noch im Repo, sind aber nicht mehr
 // erreichbar.
@@ -116,14 +116,14 @@ $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/delete',    $zielve
 //
 //  Print:         Crew-facing, voller Middleware-Stack inkl. PIN-Lockscreen.
 //                 EnotfPrintController::show() macht zusätzlich einen eigenen
-//                 PIN-Check — Belt-and-Suspenders, beide Policies sind
+//                 PIN-Check: Belt-and-Suspenders, beide Policies sind
 //                 deckungsgleich.
 //  Schnittstelle: Public (Klinik-Access ohne User-Login möglich) → nur
 //                 FiveMCspMiddleware. `voranmeldung` prüft PIN je nach
 //                 Config selbst.
 // ----------------------------------------------------------------------------
 
-// Print — ENR kommt entweder als Query (/enotf/print/index.php?enr=…)
+// Print: ENR kommt entweder als Query (/enotf/print/index.php?enr=…)
 // oder als Clean-URL-Segment (/enotf/print/{enr}).
 $router->get('/enotf/print',            [EnotfPrintController::class, 'show'], $enotfCrew);
 $router->get('/enotf/print/',           [EnotfPrintController::class, 'show'], $enotfCrew);
@@ -131,7 +131,7 @@ $router->get('/enotf/print/index',      [EnotfPrintController::class, 'show'], $
 // Clean-URL: Parameter über $_GET reichen, damit show() weiterhin ?enr= liest.
 $router->get('/enotf/print/{enr:[\w._-]+}', function (\EmergencyForge\Http\Request $request, string $enr) {
     // Legacy-Aufruf /enotf/print/index.php?enr=… landet hier mit
-    // enr="index.php" — dann gilt der Query-Parameter, nicht das Segment.
+    // enr="index.php", dann gilt der Query-Parameter, nicht das Segment.
     if ($enr !== 'index.php') {
         $_GET['enr'] = $enr;
     }
@@ -139,7 +139,7 @@ $router->get('/enotf/print/{enr:[\w._-]+}', function (\EmergencyForge\Http\Reque
     return \EmergencyForge\Http\Response::empty();
 }, $enotfCrew);
 
-// Schnittstelle — public
+// Schnittstelle: public
 $router->get('/enotf/schnittstelle',           [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
 $router->get('/enotf/schnittstelle/',          [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
 $router->get('/enotf/schnittstelle/index',     [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
@@ -165,7 +165,7 @@ $router->match(['GET', 'POST'], '/enotf/schnittstelle/api-prereg.php', $enotfApi
 //    1. Direct-Path:  /enotf/protokoll/<section>/<page>.php?enr=X
 //    2. Clean-URL:    /enotf/p/{enr}/<section>/<page>
 //
-//  Segment 3 ist mehrdeutig — für die Sections `erstbefund` und `massnahmen`
+//  Segment 3 ist mehrdeutig: für die Sections `erstbefund` und `massnahmen`
 //  ist es ein Unter-Verzeichnis (→ index.php), für alle anderen ein
 //  Leaf-Template (→ <page>.php). Der Resolver prüft das per FS-Check.
 // ----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ $protokollResolveTemplate = static function (?string $section, ?string $subsecti
     }
     if ($subsection === null) {
         // `/enotf/protokoll/index.php` und `/enotf/protokoll/` (via Clean-URL
-        // mit nur ENR) resolven beide auf das Protokoll-Root-Template —
+        // mit nur ENR) resolven beide auf das Protokoll-Root-Template,
         // "index" ist hier KEIN Sektions-Ordner-Name.
         if ($section === 'index') {
             return $base . '/index';
@@ -188,7 +188,7 @@ $protokollResolveTemplate = static function (?string $section, ?string $subsecti
         // Ambiguität: {section} kann Unter-Verzeichnis (mit index.php) ODER
         // direktes Leaf-Template sein (z.B. `protokollart.php`). Früher hat
         // Apache MultiViews das `/index.php` weggefallen lassen, wenn's keinen
-        // passenden Ordner gab — der Router muss das jetzt selbst per FS-Check
+        // passenden Ordner gab, der Router muss das jetzt selbst per FS-Check
         // erkennen.
         $candidateDirIndex = $templateRoot . '/' . $base . '/' . $section . '/index.php';
         if (!is_file($candidateDirIndex)) {
@@ -211,7 +211,7 @@ $protokollResolveTemplate = static function (?string $section, ?string $subsecti
     return $base . '/' . $section . '/' . $subsection . '/' . $page;
 };
 
-// Direct-Path-Handler: URL matched `/enotf/protokoll/<irgendwas>` — ohne `.php`
+// Direct-Path-Handler: URL matched `/enotf/protokoll/<irgendwas>`, ohne `.php`
 $protokollDirectHandler = function (\EmergencyForge\Http\Request $request) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $path   = $request->path;
     $suffix = '';
@@ -248,7 +248,7 @@ $router->match(['GET', 'POST'], '/enotf/protokoll',                    $protokol
 $router->match(['GET', 'POST'], '/enotf/protokoll/',                   $protokollDirectHandler, $enotfCrew);
 $router->match(['GET', 'POST'], '/enotf/protokoll/{path:[\w./_-]+}',   $protokollDirectHandler, $enotfCrew);
 
-// Clean-URL-Routen `/enotf/p/{enr}/...` — replicieren die Root-htaccess-Rewrites
+// Clean-URL-Routen `/enotf/p/{enr}/...`, replicieren die Root-htaccess-Rewrites
 $router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}', function (\EmergencyForge\Http\Request $request, string $enr) use ($protokollResolveTemplate): \EmergencyForge\Http\Response {
     $_GET['enr'] = $enr;
     app(EnotfProtokollController::class)->serve($protokollResolveTemplate(null, null, null));
@@ -274,7 +274,7 @@ $router->match(['GET', 'POST'], '/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}/{subse
 }, $enotfCrew);
 
 // ----------------------------------------------------------------------------
-//  Settings — Schnellzugriff/Kategorien, Medikamente, POIs
+//  Settings: Schnellzugriff/Kategorien, Medikamente, POIs
 // ----------------------------------------------------------------------------
 
 $enotfSettingsAuth = [new AuthMiddleware()];

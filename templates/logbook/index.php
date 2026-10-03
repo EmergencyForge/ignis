@@ -57,7 +57,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                     <div class="ignis-alert ignis-alert--warn">
                         <i class="fa-solid fa-database ignis-alert__icon" aria-hidden="true"></i>
                         <div class="ignis-alert__body">Die Tabelle <code>intra_fahrtenbuch</code> existiert noch nicht.
-                        Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu — die Datenbank wird automatisch migriert.</div>
+                        Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu, die Datenbank wird automatisch migriert.</div>
                     </div>
                 <?php else: ?>
 
@@ -262,16 +262,16 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                         )) ?>">
                                             <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
                                             <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
-                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-tertiary-text">—</span>' ?></td>
+                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-tertiary-text">-</span>' ?></td>
                                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                                             <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                                             <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>
-                                            <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
+                                            <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '-' ?></td>
                                             <td class="max-w-[150px] truncate"<?= ($e['stationierungsort'] ?? '') !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($e['stationierungsort']) . '"' : '' ?>>
-                                                <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
+                                                <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '-' ?>
                                             </td>
                                             <td class="max-w-[150px] truncate"<?= ($e['grund'] ?? '') !== '' ? ' data-ignis-tooltip="' . htmlspecialchars($e['grund']) . '"' : '' ?>>
-                                                <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
+                                                <?= htmlspecialchars($e['grund'] ?? '') ?: '-' ?>
                                             </td>
                                             <td><span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
                                             <?php if ($canManage): ?>

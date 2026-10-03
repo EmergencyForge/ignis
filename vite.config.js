@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 /**
  * Vite-Build-Konfiguration für ignis.
  *
- * Output landet committed in public/assets/dist/ — der PHP-Stack
+ * Output landet committed in public/assets/dist/. Der PHP-Stack
  * verweist darauf, kein Node/npm auf dem Webspace nötig.
  *
  * Die Templates laden die Bundles mit klassischen <script>-Tags
@@ -96,7 +96,7 @@ const uiEntries = {
     ...Object.fromEntries(Object.entries(uiProductFiles).map(([name, file]) => [name, resolve(root, file)])),
 };
 
-// Rollup erzeugt zu jeder Entry einen JS-Chunk — bei reinen
+// Rollup erzeugt zu jeder Entry einen JS-Chunk. Bei reinen
 // SCSS-Entries ist das ein leerer Stub, der nicht ins dist gehört.
 function dropStyleStubs() {
     return {
@@ -182,7 +182,7 @@ export default defineConfig(({ mode }) => {
                 // wird, verschwindet auch aus public/.
                 emptyOutDir: true,
                 manifest: false,
-                // Kein modulepreload-Polyfill in jeder Entry — die Seiten
+                // Kein modulepreload-Polyfill in jeder Entry, die Seiten
                 // binden die Module direkt als <script type="module"> ein.
                 modulePreload: false,
                 cssCodeSplit: false,
@@ -214,11 +214,11 @@ export default defineConfig(({ mode }) => {
         );
 
     return {
-        // Vite's publicDir feature ist für SPA-Apps gedacht — bei uns liefert
+        // Vite's publicDir feature ist für SPA-Apps gedacht. Bei uns liefert
         // der PHP-Router public/index.php selbst aus, Vite soll da nichts reinkopieren.
         publicDir: false,
         // Relative Asset-URLs im CSS (z.B. `url(assets/fa-solid-900.woff2)`),
-        // damit der Browser die Fonts immer relativ zur CSS-Datei sucht — unabhängig
+        // damit der Browser die Fonts immer relativ zur CSS-Datei sucht, unabhängig
         // davon, ob die App unter `/`, einer Subdomain oder einem Subdirectory läuft.
         base: './',
         // Der styles-Pass läuft als letzter (siehe package.json) und
@@ -237,7 +237,7 @@ export default defineConfig(({ mode }) => {
             rollupOptions: {
                 input,
                 output: {
-                    // Klassisches, self-contained Script — kein Code-Splitting,
+                    // Klassisches, self-contained Script, kein Code-Splitting,
                     // keine import-Statements (siehe Kopf-Kommentar). Vite 8
                     // deaktiviert Code-Splitting bei iife-Format automatisch.
                     ...(singleEntry ? { format: 'iife' } : {}),
@@ -248,7 +248,7 @@ export default defineConfig(({ mode }) => {
                         const name = info.name ?? '';
                         if (name.endsWith('.css')) {
                             // Im Single-Entry-Pass heißt das CSS-Asset generisch
-                            // („style.css") — auf den Entry-Namen zurückmappen.
+                            // („style.css"), daher auf den Entry-Namen zurückmappen.
                             return singleEntry ? `${singleEntry}[extname]` : '[name][extname]';
                         }
                         return 'assets/[name]-[hash][extname]';

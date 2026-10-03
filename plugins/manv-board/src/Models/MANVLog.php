@@ -5,7 +5,7 @@ namespace Plugin\ManvBoard\Models;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Repository für `intra_manv_log` — Aktionslog einer MANV-Lage.
+ * Repository für `intra_manv_log`: Aktionslog einer MANV-Lage.
  *
  * Läuft über die Eloquent-Capsule (Query Builder); die Rückgabeformate
  * (Assoc-Arrays) bleiben für alle Konsumenten unverändert.

@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * `intra_enotf_session_members` — ein Browser/Gerät pro Crew-Mitglied.
+ * `intra_enotf_session_members`: ein Browser/Gerät pro Crew-Mitglied.
  *
  * FK `session_id` → intra_enotf_sessions.id (CASCADE). `session_token`
  * (UNIQUE, 64 Hex-Zeichen) identifiziert das Mitglied und liegt

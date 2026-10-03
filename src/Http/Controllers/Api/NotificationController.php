@@ -17,7 +17,7 @@ use Throwable;
  *   - api/notifications/poll.php       → poll()
  *   - api/notifications/mark-read.php  → markRead()
  *
- * Beide Endpoints laufen hinter `AuthMiddleware` (Session-Auth) — der
+ * Beide Endpoints laufen hinter `AuthMiddleware` (Session-Auth). Der
  * Controller selbst muss also nichts mehr prüfen, `$_SESSION['userid']`
  * ist garantiert gesetzt, wenn die Methode aufgerufen wird.
  *
@@ -42,7 +42,7 @@ final class NotificationController
     {
         $userId = (int) ($_SESSION['userid'] ?? 0);
         if ($userId <= 0) {
-            // Sollte durch AuthMiddleware nie vorkommen — Defensive
+            // Sollte durch AuthMiddleware nie vorkommen, Defensive
             return Response::json(['success' => false, 'message' => 'Not authorized'], 403);
         }
 

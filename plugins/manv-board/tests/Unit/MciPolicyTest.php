@@ -81,7 +81,7 @@ class MciPolicyTest extends TestCase
     public function unrelated_permissions_dont_grant_access(): void
     {
         // Ähnlich klingende Permissions („manv.view") dürfen NICHT als
-        // Substring-Match durchrutschen — Permissions::check matched exakt.
+        // Substring-Match durchrutschen. Permissions::check matched exakt.
         $this->loginWith(['mci.view', 'mci.observer']);
 
         $this->assertFalse(MciPolicy::viewList());

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * Eloquent-Model für `intra_kb_entries` — Einträge der Wissensdatenbank
+ * Eloquent-Model für `intra_kb_entries`: Einträge der Wissensdatenbank
  * (Lexikon). Drei Typen: general, medication (med_*-Felder), measure
  * (mass_*-Felder).
  *

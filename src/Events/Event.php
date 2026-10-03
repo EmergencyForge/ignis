@@ -8,11 +8,11 @@ namespace App\Events;
  * Marker-Basis für intraRP-Domain-Events.
  *
  * Ein Event ist ein unveränderliches Daten-Objekt, das ein Ereignis
- * beschreibt, das **bereits passiert ist** (Past Tense — z.B.
+ * beschreibt, das **bereits passiert ist** (Past Tense, z.B.
  * `EnotfProtocolReleased`, `UserDeactivated`). Events werden vom
  * `EventDispatcher` an alle registrierten Listener gereicht.
  *
- * Listener entscheiden dann, was zu tun ist — Discord-Webhook dispatchen,
+ * Listener entscheiden dann, was zu tun ist: Discord-Webhook dispatchen,
  * Audit-Log schreiben, Federation-Sync anstoßen etc. Der Emitter weiß
  * nichts von den Listenern; das ist der Kern der Entkopplung.
  *
@@ -27,7 +27,7 @@ namespace App\Events;
 abstract class Event
 {
     /**
-     * Wird vom Dispatcher für Illuminate-Kompatibilität genutzt — Illuminate's
+     * Wird vom Dispatcher für Illuminate-Kompatibilität genutzt. Illuminate's
      * `Dispatcher::dispatch()` ruft intern `get_class($event)` als Event-Namen.
      * Wir müssen nichts tun, das funktioniert out-of-the-box.
      */

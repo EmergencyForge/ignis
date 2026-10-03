@@ -70,7 +70,7 @@ final class BefundCatalog
 
     /**
      * c_kreislauf: Code => Label (Formular erstbefund/kreislauf/1.php).
-     * print/index.php mappt abweichend 3 => 'Nicht beurteilbar' — siehe C_KREISLAUF_LEGACY.
+     * print/index.php mappt abweichend 3 => 'Nicht beurteilbar', siehe C_KREISLAUF_LEGACY.
      */
     public const C_KREISLAUF = [
         1 => 'stabil',
@@ -90,7 +90,7 @@ final class BefundCatalog
     ];
 
     /**
-     * c_puls_rad: Code => Label. Kurzlabels ohne "Radialispuls"-Präfix —
+     * c_puls_rad: Code => Label. Kurzlabels ohne "Radialispuls"-Präfix,
      * das Gruppenlabel RADIALISPULS steht im Formular direkt darüber.
      */
     public const C_PULS_RAD = [
@@ -329,7 +329,7 @@ final class BefundCatalog
     /**
      * rettungstechnik: Code => Label (Mehrfachauswahl als JSON-Array von int).
      * Anders als bei psych ist Code 1 hier KEIN Exklusivwert ("keine"), sondern
-     * "Spineboard" — die Exklusiv-Kachel "keine" läuft über die Quickfill-Logik.
+     * "Spineboard". Die Exklusiv-Kachel "keine" läuft über die Quickfill-Logik.
      */
     public const RETTUNGSTECHNIK = [
         1 => 'Spineboard',

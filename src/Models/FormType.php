@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_antrag_typen` — Antragstyp-Definitionen.
+ * Eloquent-Model für `intra_antrag_typen`: Antragstyp-Definitionen.
  *
  * Jeder Antragstyp definiert ein Formular über die zugehörigen
  * FormField-Records. Beim Stellen eines Antrags wird ein Antrag-Record

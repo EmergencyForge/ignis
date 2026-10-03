@@ -7,7 +7,7 @@ namespace Plugin\EnotfV2\Support;
 use Plugin\EnotfV2\Models\Edivi;
 
 /**
- * ConditionsService — Port des v1-Pflichtfeldsystems
+ * ConditionsService: Port des v1-Pflichtfeldsystems
  * (assets/functions/enotf/conditions.php).
  *
  * Regeln, Messages und die transportziel-Abhängigkeit sind IDENTISCH zu
@@ -26,7 +26,7 @@ use Plugin\EnotfV2\Models\Edivi;
  *   - sectionStatus() nutzt die 'db'-Spalten der Regeln mit dem
  *     Füllstands-Check aus notify.php::updateNavFillStates (jede Spalte
  *     eine Gruppe; filled = alle, partfilled = einige, unfilled = keine,
- *     nocheck = Section ohne aktive Pflichtspalten — z. B. Verlauf).
+ *     nocheck = Section ohne aktive Pflichtspalten, z. B. Verlauf).
  *
  * Section-Nummern aus v1 (1,2,3,4,6,7) werden auf die v2-Section-Keys
  * des Steppers gemappt (ProtokollController::SECTIONS).
@@ -473,7 +473,7 @@ final class ConditionsService
     }
 
     /**
-     * transportziel als int oder null — exakt wie v1 plausibility.php
+     * transportziel als int oder null, exakt wie v1 plausibility.php
      * ((int)-Cast auf den Rohwert, NULL bleibt NULL).
      *
      * @param array<string,mixed> $daten

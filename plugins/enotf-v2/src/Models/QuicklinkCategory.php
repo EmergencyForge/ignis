@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * `intra_enotf_categories` — Kategorien für die Quicklinks der Overview.
+ * `intra_enotf_categories`: Kategorien für die Quicklinks der Overview.
  * `slug` ist UNIQUE; Löschen wird in v1 blockiert, solange Quicklinks
  * den Slug referenzieren.
  *

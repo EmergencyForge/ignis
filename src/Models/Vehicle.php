@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_fahrzeuge` — Fahrzeugstamm.
+ * Eloquent-Model für `intra_fahrzeuge`: Fahrzeugstamm.
  *
  * rd_type: 0=Andere, 1=RD mit NA, 2=RD ohne NA, 3=Feuerwehr
  *
@@ -39,7 +39,7 @@ class Vehicle extends Model
     ];
 
     /**
-     * Die FMS-Status, die ein Fahrzeug tragen kann — dieselbe Menge, die
+     * Die FMS-Status, die ein Fahrzeug tragen kann, dieselbe Menge, die
      * fireTab beim Einzelfahrzeug erlaubt (FireController::setVehicleStatus)
      * und die der EMD-Sync liefert.
      */
@@ -62,7 +62,7 @@ class Vehicle extends Model
     }
 
     /**
-     * Feste Stationierung — eine Wache aus den POIs. Ohne Fremdschlüssel in
+     * Feste Stationierung: eine Wache aus den POIs. Ohne Fremdschlüssel in
      * der Datenbank, ein gelöschter POI liefert hier also null.
      *
      * @return BelongsTo<Poi, $this>

@@ -18,7 +18,7 @@ class UserModelTest extends IntegrationTestCase
     {
         parent::setUp();
 
-        // Saubere Test-Daten anlegen — jede Test-Methode bekommt eigene Records
+        // Saubere Test-Daten anlegen, jede Test-Methode bekommt eigene Records
         $role = new Role();
         $role->name        = 'TestRole_' . uniqid();
         $role->priority    = 99;

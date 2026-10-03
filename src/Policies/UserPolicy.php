@@ -8,7 +8,7 @@ use App\Auth\Permissions;
 use App\Models\User;
 
 /**
- * UserPolicy — Single Source of Truth für "wer darf was mit System-Benutzern".
+ * UserPolicy: Single Source of Truth für "wer darf was mit System-Benutzern".
  *
  * Methoden geben true/false zurück. Die "wer ist der Aktor"-Information wird
  * aus $_SESSION gelesen und kann später durch Constructor-Injection eines
@@ -19,7 +19,7 @@ use App\Models\User;
  *     Gate::allows('user.update', $targetUser)
  *
  * Welche Permission-Strings im Hintergrund geprüft werden, bleibt ein Detail
- * der Policy — Aufrufer müssen das nicht wissen.
+ * der Policy. Aufrufer müssen das nicht wissen.
  */
 class UserPolicy
 {

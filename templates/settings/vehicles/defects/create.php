@@ -47,7 +47,7 @@ $operable  = (string) old('vehicle_operable', '1');
                         <select name="vehicle_id" id="defect-vehicle" class="ignis-input" data-custom-dropdown="true" required<?= $vehicleId === '' ? ' autofocus' : '' ?>>
                             <option value="">Bitte wählen …</option>
                             <?php foreach ($vehicles as $v): ?>
-                                <option value="<?= (int) $v['id'] ?>"<?= $vehicleId === (string) $v['id'] ? ' selected' : '' ?>><?= htmlspecialchars((string) $v['name']) ?> — <?= htmlspecialchars((string) ($v['kennzeichen'] ?: $v['identifier'])) ?></option>
+                                <option value="<?= (int) $v['id'] ?>"<?= $vehicleId === (string) $v['id'] ? ' selected' : '' ?>><?= htmlspecialchars((string) $v['name']) ?> (<?= htmlspecialchars((string) ($v['kennzeichen'] ?: $v['identifier'])) ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MANV-Board — hängt seinen Eintrag in die Gruppe „Protokolle" ein. Fällt
+ * MANV-Board: hängt seinen Eintrag in die Gruppe „Protokolle" ein. Fällt
  * die Zielgruppe weg, erscheint das Fragment als eigene Gruppe (deshalb
  * die vollständigen Felder).
  */

@@ -212,7 +212,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                                         foreach ($cats as $c) {
                                             if ($pid === null && $c['parent_id'] !== null) continue;
                                             if ($pid !== null && (int)($c['parent_id'] ?? 0) !== $pid) continue;
-                                            $p = str_repeat('— ', $d);
+                                            $p = $d > 0 ? str_repeat("\u{00A0}\u{00A0}", $d - 1) . '↳ ' : '';
                                             $s = ((int)$c['id'] === $sel) ? 'selected' : '';
                                             echo "<option value=\"{$c['id']}\" {$s}>{$p}" . htmlspecialchars($c['name']) . "</option>";
                                             renderFilterCatOptions($cats, $sel, (int)$c['id'], $d + 1);

@@ -12,12 +12,12 @@ use Respect\Validation\Validatable;
 
 /**
  * Basis-Klasse für deklarative Request-Validation (Form-Request-Pattern,
- * angelehnt an Laravel — aber bewusst minimalistisch).
+ * angelehnt an Laravel, aber bewusst minimalistisch).
  *
  * Konkrete FormRequests erben davon und überschreiben `rules()`, um
  * pro Feld einen Respect-Validator zurückzugeben. Zusätzlich kann
  * `messages()` überschrieben werden, um deutsche Fehlermeldungen zu
- * liefern — sonst kommen die (englischen) Default-Messages von Respect.
+ * liefern, sonst kommen die (englischen) Default-Messages von Respect.
  *
  * Nutzung im Controller:
  *
@@ -29,7 +29,7 @@ use Respect\Validation\Validatable;
  *         ...
  *     }
  *
- * Nicht-deklarierte Felder werden NICHT durchgereicht — das schützt
+ * Nicht-deklarierte Felder werden NICHT durchgereicht. Das schützt
  * Controller vor Mass-Assignment und macht die erwartete Input-Form
  * direkt aus dem FormRequest ablesbar.
  */
@@ -94,7 +94,7 @@ abstract class FormRequest
                 $validator->setName($field)->assert($value);
                 $validated[$field] = $value;
             } catch (NestedValidationException $e) {
-                // NestedValidationException hat mehrere Messages —
+                // NestedValidationException hat mehrere Messages;
                 // wir nehmen die erste, die der User sehen soll.
                 if (isset($msgs[$field])) {
                     $errors[$field] = $msgs[$field];

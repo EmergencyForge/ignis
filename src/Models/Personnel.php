@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter` — Mitarbeiter (= Personen, die
+ * Eloquent-Model für `intra_mitarbeiter`: Mitarbeiter (= Personen, die
  * für die Fraktion arbeiten). Distinkt von App\Models\User, das System-
  * Login-Accounts repräsentiert.
  *
@@ -96,17 +96,17 @@ class Personnel extends Model
      */
     public function dienstgradLabel(): string
     {
-        return $this->dienstgradModel?->displayName($this->geschlecht) ?? '—';
+        return $this->dienstgradModel?->displayName($this->geschlecht) ?? '-';
     }
 
     public function rdQualiLabel(): string
     {
-        return $this->rdQualiModel?->displayName($this->geschlecht) ?? '—';
+        return $this->rdQualiModel?->displayName($this->geschlecht) ?? '-';
     }
 
     public function fwQualiLabel(): string
     {
-        return $this->fwQualiModel?->displayName($this->geschlecht) ?? '—';
+        return $this->fwQualiModel?->displayName($this->geschlecht) ?? '-';
     }
 
     /**

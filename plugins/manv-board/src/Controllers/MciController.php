@@ -14,7 +14,7 @@ use Plugin\ManvBoard\Models\MANVRessource;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * MciController — MANV-Lagen (Massenanfall von Verletzten).
+ * MciController: MANV-Lagen (Massenanfall von Verletzten).
  *
  * Die DB-Logik liegt im existierenden Service-Layer
  * (Plugin\ManvBoard\Models\MANVLage, MANVLog, MANVPatient, MANVRessource).
@@ -32,7 +32,7 @@ class MciController extends Controller
     private const ALLOWED_STATUS = ['aktiv', 'abgeschlossen', 'archiviert'];
 
     /**
-     * GET /manv/index.php — Übersicht aller MANV-Lagen mit Status-Filter.
+     * GET /manv/index.php: Übersicht aller MANV-Lagen mit Status-Filter.
      */
     public function index(): void
     {
@@ -47,7 +47,7 @@ class MciController extends Controller
         $manvLage = new MANVLage();
         $lagen    = $manvLage->getAll($statusFilter);
 
-        // Statistiken pro Lage vorberechnen — vermeidet $manvLage->getStatistics()
+        // Statistiken pro Lage vorberechnen, vermeidet $manvLage->getStatistics()
         // Aufrufe aus dem Template heraus (kein Service-Aufruf in Views)
         $statistiken = [];
         foreach ($lagen as $lage) {
@@ -62,7 +62,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/create.php — Form für neue MANV-Lage.
+     * GET /manv/create.php: Form für neue MANV-Lage.
      */
     public function create(): void
     {
@@ -78,7 +78,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/create.php — Neue MANV-Lage anlegen, Audit-Log, redirect zum Board.
+     * POST /manv/create.php: Neue MANV-Lage anlegen, Audit-Log, redirect zum Board.
      */
     public function store(): void
     {
@@ -125,7 +125,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/edit.php?id=X — Edit-Form für bestehende Lage.
+     * GET /manv/edit.php?id=X: Edit-Form für bestehende Lage.
      */
     public function edit(): void
     {
@@ -155,7 +155,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/edit.php?id=X — Bestehende Lage aktualisieren.
+     * POST /manv/edit.php?id=X: Bestehende Lage aktualisieren.
      */
     public function update(): void
     {
@@ -212,7 +212,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/log.php?id=X — Aktionslog einer MANV-Lage anzeigen.
+     * GET /manv/log.php?id=X: Aktionslog einer MANV-Lage anzeigen.
      */
     public function log(): void
     {
@@ -242,7 +242,7 @@ class MciController extends Controller
     // ── Board, Patient, Ressourcen ───────────────────────
 
     /**
-     * GET /manv/board.php?id=X — Live-Dashboard mit Patientenliste, Stats,
+     * GET /manv/board.php?id=X: Live-Dashboard mit Patientenliste, Stats,
      * Fahrzeug-Übersicht. Reichert Patienten-Daten mit Fahrzeug-rd_type an
      * (für die "kann transportieren?"-Logik im UI).
      */
@@ -311,7 +311,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/patient-create.php?lage_id=X — Form für neuen Patient.
+     * GET /manv/patient-create.php?lage_id=X: Form für neuen Patient.
      */
     public function patientCreate(): void
     {
@@ -346,7 +346,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/patient-create.php?lage_id=X — Patient anlegen mit
+     * POST /manv/patient-create.php?lage_id=X: Patient anlegen mit
      * Fahrzeugzuweisung-Check (verhindert Doppel-Zuweisung).
      */
     public function patientStore(): void
@@ -437,7 +437,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/patient-view.php?id=X — Patient-Detail.
+     * GET /manv/patient-view.php?id=X: Patient-Detail.
      * Quick-Sichtung via `?quick_sk=SK1` etc. wird auch hier behandelt
      * (Original-Verhalten 1:1).
      */
@@ -460,7 +460,7 @@ class MciController extends Controller
             $this->redirect('manv/index');
         }
 
-        // Quick-Sichtung via GET — schreibt Sichtung sofort, redirect auf saubere URL
+        // Quick-Sichtung via GET: schreibt Sichtung sofort, redirect auf saubere URL
         $allowedSk = ['SK1', 'SK2', 'SK3', 'SK4', 'SK5', 'SK6', 'tot'];
         if (isset($_GET['quick_sk']) && in_array($_GET['quick_sk'], $allowedSk, true)) {
             $manvPatient->updateSichtung($patientId, $_GET['quick_sk'], $_SESSION['userid'] ?? null);
@@ -492,7 +492,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/patient-view.php?id=X — Patient aktualisieren.
+     * POST /manv/patient-view.php?id=X: Patient aktualisieren.
      * Sichtungskategorie wird separat geloggt wenn sie sich ändert.
      */
     public function patientUpdate(): void
@@ -605,7 +605,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/ressourcen.php?lage_id=X — Fahrzeug-Verwaltung einer Lage.
+     * GET /manv/ressourcen.php?lage_id=X: Fahrzeug-Verwaltung einer Lage.
      * Auch der GET-basierte `delete_id`-Pfad landet hier (Legacy-Routing,
      * im Stub abgefangen).
      */
@@ -653,7 +653,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/ressourcen.php?lage_id=X (action=create) — neue Ressource anlegen.
+     * POST /manv/ressourcen.php?lage_id=X (action=create): neue Ressource anlegen.
      */
     public function ressourceStore(): void
     {
@@ -721,7 +721,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/ressourcen.php?lage_id=X (action=edit) — bestehende Ressource updaten.
+     * POST /manv/ressourcen.php?lage_id=X (action=edit): bestehende Ressource updaten.
      */
     public function ressourceUpdate(): void
     {
@@ -763,7 +763,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/ressourcen.php?lage_id=X&delete_id=Y — Ressource löschen.
+     * GET /manv/ressourcen.php?lage_id=X&delete_id=Y: Ressource löschen.
      * Wird via Legacy-GET-Link aufgerufen (showConfirm im JS).
      */
     public function ressourceDelete(): void

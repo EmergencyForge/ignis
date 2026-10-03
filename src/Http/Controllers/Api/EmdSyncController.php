@@ -14,9 +14,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * EMD-Sync-Controller — der zentrale FiveM-Server-Endpoint.
+ * EMD-Sync-Controller: der zentrale FiveM-Server-Endpoint.
  *
- * Nachfolger des früheren Standalone-Endpoints `api/emd/` — Unterschiede:
+ * Nachfolger des früheren Standalone-Endpoints `api/emd/`. Unterschiede:
  *
  *   - Alle `logSync(...)` → `Logger::*(...)` (landet im zentralen
  *     Monolog-Logfile statt in `api/emd/logs/emd_sync.log`)
@@ -25,7 +25,7 @@ use PDOException;
  *   - Hilfsfunktionen → private Methoden auf dem Controller
  *
  * Auth läuft jetzt ausschließlich via `ApiKeyMiddleware` am Router-
- * Eingang — der Controller selbst macht keinen API-Key-Check mehr.
+ * Eingang. Der Controller selbst macht keinen API-Key-Check mehr.
  *
  * ======================================================================
  * WICHTIG: Dieser Controller enthält bewusst den FW-Fahrzeug-Bug-Fix
@@ -336,7 +336,7 @@ final class EmdSyncController
             $vehicleIdentifier = $vehicleRow->identifier;
             $rdType            = (int) ($vehicleRow->rd_type ?? 0);
 
-            // Status-Zuordnung läuft über intra_edivi (eNOTF-Plugin) — ohne
+            // Status-Zuordnung läuft über intra_edivi (eNOTF-Plugin). Ohne
             // aktives Plugin gibt es keine Protokolle, denen der Status
             // zugeordnet werden könnte.
             if (!$this->enotfActive()) {
@@ -651,7 +651,7 @@ final class EmdSyncController
      * Verarbeitet einen einzelnen Einsatz aus der $vehiclesByDispatch-Map.
      *
      * WICHTIG: Die Fahrzeug-Trennung in $validVehicles (RD) und
-     * $fireVehicles (FW) ist hier Bug-fix-kritisch — siehe Controller-
+     * $fireVehicles (FW) ist hier Bug-fix-kritisch, siehe Controller-
      * Header-Kommentar.
      *
      * @param  array<int, array<string, mixed>>  $dispatchVehicles
@@ -1322,7 +1322,7 @@ final class EmdSyncController
     }
 
     /**
-     * Rollt eine noch offene Capsule-Transaktion zurück — Aufräum-Helper
+     * Rollt eine noch offene Capsule-Transaktion zurück. Aufräum-Helper
      * für die catch-Blöcke in sync().
      */
     private function rollBackIfOpen(): void
@@ -1335,7 +1335,7 @@ final class EmdSyncController
 
     /**
      * Fire-Incidents, Status-Queue und FW-Fahrzeugstatus leben im
-     * fireTab-Plugin — ohne installiertes Plugin existieren die Tabellen
+     * fireTab-Plugin. Ohne installiertes Plugin existieren die Tabellen
      * nicht, also werden alle FW-Codepfade übersprungen.
      */
     private function firetabActive(): bool
@@ -1344,7 +1344,7 @@ final class EmdSyncController
     }
 
     /**
-     * eNOTF-Protokolle (intra_edivi) leben im eNOTF-Plugin — ohne
+     * eNOTF-Protokolle (intra_edivi) leben im eNOTF-Plugin. Ohne
      * installiertes Plugin werden Protokoll-Erstellung, Status- und
      * Patienten-Sync übersprungen.
      */

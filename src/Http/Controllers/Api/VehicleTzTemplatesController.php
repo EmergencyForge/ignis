@@ -18,7 +18,7 @@ use PDOException;
  * Taktische-Zeichen-Vorlagen für Fahrzeuge (Fire-Tactical-Map-Symbole).
  *
  * Der Admin kann wiederverwendbare Vorlagen anlegen und dann auf alle
- * Fahrzeuge eines Typs anwenden — Kommando- oder Einsatzleitwagen
+ * Fahrzeuge eines Typs anwenden: Kommando- oder Einsatzleitwagen
  * bekommen z.B. automatisch ihr spezifisches Symbol.
  */
 final class VehicleTzTemplatesController
@@ -172,7 +172,7 @@ final class VehicleTzTemplatesController
                 return Response::json(['success' => false, 'message' => 'Vorlage nicht gefunden']);
             }
 
-            // tz_name bleibt individuell pro Fahrzeug — wird nicht überschrieben
+            // tz_name bleibt individuell pro Fahrzeug, wird nicht überschrieben
             $affected = Vehicle::query()
                 ->where('veh_type', $vehType)
                 ->update([

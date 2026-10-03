@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Mail — Web-Routen.
+ * Mail: Web-Routen.
  *
  * Alles hinter AuthMiddleware + `mail.use`. Das Postfach kommt immer aus
  * der Sitzung (Mailbox::current()), keine Route nimmt ein fremdes an.
@@ -58,7 +58,7 @@ $router->get( '/mail/lists/{id:\d+}/edit',     [MailListController::class, 'edit
 $router->post('/mail/lists/{id:\d+}',          [MailListController::class, 'update'],  $listAuth);
 $router->post('/mail/lists/{id:\d+}/delete',   [MailListController::class, 'destroy'], $listAuth);
 
-// Postfachverwaltung und Einstellungen (mail.admin) — ohne Einsicht in Mails.
+// Postfachverwaltung und Einstellungen (mail.admin), ohne Einsicht in Mails.
 $adminAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.admin'])];
 $router->get( '/settings/mail',                            [MailAdminController::class, 'settings'],      $adminAuth);
 $router->post('/settings/mail',                            [MailAdminController::class, 'saveSettings'],  $adminAuth);

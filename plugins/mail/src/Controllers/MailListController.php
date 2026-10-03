@@ -35,7 +35,7 @@ use Plugin\Mail\Models\MailList;
  * beim Senden, das Adressbuch blendet solche Verteiler sonst aus).
  *
  * Das Audit-Log bekommt Adresse, Name, Art, Absenderregel und die Ids
- * hinzugekommener und entfernter Mitglieder und Regel-Kriterien — keine
+ * hinzugekommener und entfernter Mitglieder und Regel-Kriterien, keine
  * Namen der Mitglieder, keine Mail-Inhalte.
  */
 final class MailListController extends Controller

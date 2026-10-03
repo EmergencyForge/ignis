@@ -10,7 +10,7 @@ use Phinx\Migration\AbstractMigration;
  *
  * Die POI-Tabelle entstand im eNOTF-Plugin, wird aber laengst auch vom Kern
  * gelesen (Setup-Checkliste, POI-Hover-Karte). Mit dieser Migration legt der
- * Kern sie selbst an, falls sie fehlt — sonst haette eine Installation ohne
+ * Kern sie selbst an, falls sie fehlt, sonst haette eine Installation ohne
  * eNOTF keine Stationierungen. Die Plugin-Migration prueft ebenfalls auf
  * hasTable, beide koennen also in beliebiger Reihenfolge laufen.
  *

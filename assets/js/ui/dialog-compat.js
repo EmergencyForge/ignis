@@ -1,5 +1,5 @@
 /**
- * ignis UI — Dialog aus dem gemeinsamen Paket @emergencyforge/ui, dazu die
+ * ignis UI: Dialog aus dem gemeinsamen Paket @emergencyforge/ui, dazu die
  * Aliase aus dem alten assets/js/dialogs.js, die Inline-Scripts von ignis
  * noch rufen (window.intraConfirm in templates/users/edit.php).
  *

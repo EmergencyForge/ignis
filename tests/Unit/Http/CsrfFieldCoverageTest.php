@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Die Middleware ist die eine Hälfte des Schutzes, das versteckte Feld die
  * andere. Wer ein Formular hinzufügt und `csrf_field()` vergisst, baut
- * keine Lücke — er baut einen Knopf, der eine 403-Seite zeigt. Das fällt
+ * keine Lücke, er baut einen Knopf, der eine 403-Seite zeigt. Das fällt
  * im Betrieb auf, aber erst dort, und nur dem, der ihn drückt.
  *
  * Gesucht wird im Quelltext, nicht im gerenderten HTML: ein Formular in
@@ -51,7 +51,7 @@ final class CsrfFieldCoverageTest extends TestCase
      * Die Rümpfe aller `<form method="POST">` einer Vorlage.
      *
      * Für die Erkennung werden PHP-Blöcke durch Leerzeichen gleicher Länge
-     * ersetzt — sonst beendet das `>` in `<?= BASE_PATH ?>` den Form-Tag
+     * ersetzt, sonst beendet das `>` in `<?= BASE_PATH ?>` den Form-Tag
      * vorzeitig und der Rumpf beginnt an der falschen Stelle. Die Offsets
      * bleiben dadurch für das Original gültig.
      *

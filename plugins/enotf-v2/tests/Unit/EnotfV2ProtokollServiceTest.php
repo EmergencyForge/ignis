@@ -105,7 +105,7 @@ class EnotfV2ProtokollServiceTest extends TestCase
     #[Test]
     public function write_field_lehnt_ungueltiges_datum_vor_dem_schreiben_ab(): void
     {
-        // Bricht vor dem DB-Zugriff ab — deshalb hier ohne DB testbar
+        // Bricht vor dem DB-Zugriff ab, deshalb hier ohne DB testbar
         $this->assertSame('Ungültiges Datumsformat', $this->service->writeField('E1', 'edatum', '31.02.2026'));
         $this->assertSame('Ungültiges Datumsformat', $this->service->writeField('E1', 'patgebdat', 'gestern'));
     }

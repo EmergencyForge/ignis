@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_enotf_categories` — Kategorien für die
+ * Eloquent-Model für `intra_enotf_categories`: Kategorien für die
  * eNOTF-Quicklinks; referenziert werden sie von `intra_enotf_quicklinks`
  * über den Slug.
  */

@@ -452,7 +452,7 @@
             // Date-Inputs (force-german-date.js): nicht speichern solange der Wert
             // noch nicht im finalen Format DD.MM.YYYY ist. force-german-date formatiert
             // den Wert auf 'blur' und dispatcht dann ein neues 'change'-Event, das
-            // diesen Handler erneut feuert — DANN passt das Format und es wird gespeichert.
+            // diesen Handler erneut feuert. DANN passt das Format und es wird gespeichert.
             // Ohne diesen Skip würde das erste change-Event den Roh-Input (z.B. "01012000")
             // an den Server schicken, der ihn mit 400 ablehnt, und gleichzeitig den
             // activeRequests-Lock setzen, der das zweite (formatierte) Save blockiert.

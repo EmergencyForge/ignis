@@ -1,5 +1,5 @@
 /**
- * Fahrzeuge — taktisches Zeichen zeichnen, JSON kopieren.
+ * Fahrzeuge: taktisches Zeichen zeichnen, JSON kopieren.
  *
  * Die Vorschau der Fahrzeugliste (templates/settings/vehicles/vehicles/
  * _preview.php) und das Register „Taktisches Zeichen" der Fahrzeugseite

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * assets/components/navbar.php — Kompatibilitäts-Shim.
+ * assets/components/navbar.php: Kompatibilitäts-Shim.
  *
  * Bis zum Redesign baute jede Seite ihre Hülle selbst und band hier eine
  * Datei mit 2600 Zeilen ein: Sidebar, Topbar, Suche, Benutzermenü, dazu
@@ -12,7 +12,7 @@
  * assets/js/navbar/notifications.js).
  *
  * Dieser Include bleibt für Seiten, die ihr <html> noch selbst bauen und
- * ihn weiter einbinden — die Admin-Seiten von eNOTF. Sie bekommen
+ * ihn weiter einbinden, also die Admin-Seiten von eNOTF. Sie bekommen
  * dieselben Komponenten; `ignis-app--legacy` am <body> schaltet die
  * Hülle von Raster auf feste Positionierung, weil der Inhalt hier als
  * Geschwister hinter der Sidebar folgt. Die Seiten legen ihren Inhalt

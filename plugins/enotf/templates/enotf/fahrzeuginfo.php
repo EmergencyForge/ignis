@@ -83,7 +83,7 @@ $currentDate = date('d.m.Y');
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-light">Kennzeichen:</th>
-                                                <td><?= $vehicle['kennzeichen'] ? htmlspecialchars($vehicle['kennzeichen']) : '—' ?></td>
+                                                <td><?= $vehicle['kennzeichen'] ? htmlspecialchars($vehicle['kennzeichen']) : '-' ?></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-light">Bezeichnung:</th>
@@ -116,13 +116,13 @@ $currentDate = date('d.m.Y');
                                             <label class="ignis-field__label text-light">Meldung durch</label>
                                             <select name="reported_by_name" class="form-select form-select-sm" data-custom-dropdown="true">
                                                 <?php if (!empty($_SESSION['fahrername'])): ?>
-                                                    <option value="<?= htmlspecialchars($_SESSION['fahrername']) ?>">Fahrer — <?= htmlspecialchars($_SESSION['fahrername']) ?></option>
+                                                    <option value="<?= htmlspecialchars($_SESSION['fahrername']) ?>">Fahrer: <?= htmlspecialchars($_SESSION['fahrername']) ?></option>
                                                 <?php endif; ?>
                                                 <?php if (!empty($_SESSION['beifahrername'])): ?>
-                                                    <option value="<?= htmlspecialchars($_SESSION['beifahrername']) ?>">Beifahrer — <?= htmlspecialchars($_SESSION['beifahrername']) ?></option>
+                                                    <option value="<?= htmlspecialchars($_SESSION['beifahrername']) ?>">Beifahrer: <?= htmlspecialchars($_SESSION['beifahrername']) ?></option>
                                                 <?php endif; ?>
                                                 <?php if (!empty($_SESSION['praktikantname'])): ?>
-                                                    <option value="<?= htmlspecialchars($_SESSION['praktikantname']) ?>">Praktikant — <?= htmlspecialchars($_SESSION['praktikantname']) ?></option>
+                                                    <option value="<?= htmlspecialchars($_SESSION['praktikantname']) ?>">Praktikant: <?= htmlspecialchars($_SESSION['praktikantname']) ?></option>
                                                 <?php endif; ?>
                                             </select>
                                         </div>
@@ -242,13 +242,13 @@ $currentDate = date('d.m.Y');
                                                         <div class="text-muted" style="font-size:0.8rem;"><?= htmlspecialchars($def['description']) ?></div>
                                                     <?php endif; ?>
                                                     <div class="text-muted" style="font-size:0.7rem;">
-                                                        <?= htmlspecialchars($def['reporter_name'] ?? 'Unbekannt') ?> — <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['created_at']) ?>
+                                                        <?= htmlspecialchars($def['reporter_name'] ?? 'Unbekannt') ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['created_at']) ?>
                                                     </div>
                                                     <?php if (!empty($def['last_status_user'])): ?>
                                                         <div class="mt-1 p-2" style="font-size:0.75rem;background:rgba(255,255,255,0.03);border-radius:4px;border-left:2px solid var(--bs-<?= $statStyles[$def['status']][1] ?? 'secondary' ?>);">
                                                             <i class="fa-solid fa-pen" style="font-size:0.65rem;"></i>
                                                             <?= htmlspecialchars($def['last_status_details']) ?>
-                                                            <span class="text-muted">— <?= htmlspecialchars($def['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['last_status_at']) ?></span>
+                                                            <span class="text-muted">(<?= htmlspecialchars($def['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['last_status_at']) ?>)</span>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -335,7 +335,7 @@ $currentDate = date('d.m.Y');
                                                             <td><?= htmlspecialchars($veh['name']) ?></td>
                                                             <td><?= htmlspecialchars($veh['veh_type']) ?></td>
                                                             <td><?= htmlspecialchars($veh['identifier']) ?></td>
-                                                            <td><?= $veh['kennzeichen'] ? htmlspecialchars($veh['kennzeichen']) : '—' ?></td>
+                                                            <td><?= $veh['kennzeichen'] ? htmlspecialchars($veh['kennzeichen']) : '-' ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>

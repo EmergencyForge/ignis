@@ -10,7 +10,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * Schreibt ins Prüfprotokoll (`intra_audit_log`).
  *
  * `action`, `details` und `module` sind für Menschen: so steht es in der
- * Audit-Ansicht. `context` ist für Maschinen — die Kennungen, auf die sich
+ * Audit-Ansicht. `context` ist für Maschinen: die Kennungen, auf die sich
  * die Meldung bezieht, als JSON.
  *
  * Der Kontext ist nachgerüstet, und der Grund steht in

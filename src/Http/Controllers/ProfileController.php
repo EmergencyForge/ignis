@@ -19,7 +19,7 @@ use EmergencyForge\Http\Response;
 final class ProfileController extends Controller
 {
     /**
-     * POST /profile/theme — Darstellungsmodus speichern. Wirkt sofort über
+     * POST /profile/theme: Darstellungsmodus speichern. Wirkt sofort über
      * die Session, dauerhaft über die Spalte intra_users.theme. Zurück geht
      * es dorthin, wo der Wechsel ausgelöst wurde.
      */

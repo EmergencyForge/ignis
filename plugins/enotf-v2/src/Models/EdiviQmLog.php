@@ -8,11 +8,11 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * `intra_edivi_qmlog` — QM-Kommentare und Statuswechsel-Log.
+ * `intra_edivi_qmlog`: QM-Kommentare und Statuswechsel-Log.
  *
  * FK `protokoll_id` → intra_edivi.id (CASCADE). `log_aktion`:
  *   0 = Freitext-Kommentar (beim Rendern escapen!)
- *   1 = Statuswechsel — `kommentar` enthält bei Altdaten HTML
+ *   1 = Statuswechsel, `kommentar` enthält bei Altdaten HTML
  *       (ignis-chip) und wird von v1 unescaped gerendert. v2 soll
  *       neue Statuswechsel als Enum ablegen, Altdaten aber weiterhin
  *       darstellen können.

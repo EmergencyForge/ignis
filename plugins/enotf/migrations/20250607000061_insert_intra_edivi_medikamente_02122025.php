@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Seed für `intra_edivi_medikamente`: die bisher hartkodierte
  * Standard-Medikamentenliste des Rettungsdiensts. Dosierungen enthalten
- * Wert plus Einheit (z. B. "100 mg") — die Einheit wird bei der Auswahl
+ * Wert plus Einheit (z. B. "100 mg"), die Einheit wird bei der Auswahl
  * automatisch übernommen. Bereits vorhandene Wirkstoffe bleiben unberührt
  * (Unique-Key `unique_wirkstoff`).
  */

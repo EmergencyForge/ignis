@@ -10,10 +10,10 @@ use Phinx\Migration\AbstractMigration;
  * Erzeugt die zwei Tabellen, die `illuminate/queue` mit dem DB-Driver
  * braucht:
  *
- *   - `intra_jobs`         — wartende und in Bearbeitung befindliche Jobs
- *   - `intra_failed_jobs`  — Jobs die final gescheitert sind (nach Retries)
+ *   - `intra_jobs`:         wartende und in Bearbeitung befindliche Jobs
+ *   - `intra_failed_jobs`:  Jobs die final gescheitert sind (nach Retries)
  *
- * Schema ist bewusst kompatibel zum Laravel-Default — wir nutzen die
+ * Schema ist bewusst kompatibel zum Laravel-Default. Wir nutzen die
  * Standard-DatabaseQueue-Implementierung, die dieses Schema erwartet.
  * Der intraRP-Prefix `intra_` ist aus Konsistenz zu anderen Tabellen
  * gewählt; der Queue-Manager bekommt die Tabellennamen explizit via

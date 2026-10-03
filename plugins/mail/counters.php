@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Mail — Zähler für die Sidebar (App\Support\NavigationCounters): die
+ * Mail-Zähler für die Sidebar (App\Support\NavigationCounters): die
  * ungelesenen Mails im Posteingang des eigenen Postfachs.
  */
 

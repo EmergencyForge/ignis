@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_cron_runs` — History der einzelnen
+ * Eloquent-Model für `intra_cron_runs`: History der einzelnen
  * Cron-Job-Ausführungen (Status, Dauer, Output).
  *
  * @property int         $id

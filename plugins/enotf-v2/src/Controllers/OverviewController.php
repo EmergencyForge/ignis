@@ -12,14 +12,14 @@ use Plugin\EnotfV2\Models\Quicklink;
 use Plugin\EnotfV2\Models\QuicklinkCategory;
 
 /**
- * OverviewController — Protokoll-Liste + Quicklinks fürs eingeloggte
+ * OverviewController: Protokoll-Liste + Quicklinks fürs eingeloggte
  * Fahrzeug.
  *
  * Listen-Filter: freigegeben=0 AND (fzg_transp=fzg OR fzg_na=fzg)
  * AND hidden=0 AND hidden_user=0, sortiert nach created_at.
  *
  * delete_all (POST): markiert alle offenen Protokolle des Fahrzeugs als
- * User-gelöscht — hidden_user=1, freigegeben=1, freigeber_name =
+ * User-gelöscht: hidden_user=1, freigegeben=1, freigeber_name =
  * "<Fahrer>, <Beifahrer>", last_edit=NOW(). Kein echtes DELETE.
  *
  * Einzellöschen läuft clientseitig über den v1-Endpoint
@@ -51,7 +51,7 @@ class OverviewController extends EnotfV2Controller
             ->toArray();
 
         // Alle aktiven Links in EINEM Query holen und nach Kategorie
-        // gruppieren — ein Query pro Kategorie summiert sich auf der
+        // gruppieren, ein Query pro Kategorie summiert sich auf der
         // latenzbehafteten Remote-Dev-DB spürbar.
         $linksByCategory = array_fill_keys(array_column($categories, 'slug'), []);
         if ($linksByCategory !== []) {
@@ -74,7 +74,7 @@ class OverviewController extends EnotfV2Controller
     }
 
     /**
-     * POST /enotf-v2/overview (delete_all) — alle offenen Protokolle des
+     * POST /enotf-v2/overview (delete_all): alle offenen Protokolle des
      * Fahrzeugs als User-gelöscht markieren (Semantik exakt v1).
      */
     public function deleteAll(): void

@@ -13,7 +13,7 @@ use Plugin\EnotfV2\Policies\EnotfV2Policy;
  * Gemeinsame Basis der eNOTF-v2-Web-Controller.
  *
  * Bündelt View-Pfad, FiveM-Header, User-Auth-Gate und Crew-Guard.
- * PIN-Lockscreen wird NICHT hier durchgesetzt — das macht die
+ * PIN-Lockscreen wird NICHT hier durchgesetzt, das macht die
  * PinLockscreenMiddleware auf den Crew-Routen (sie redirectet auf den
  * v2-Lockscreen /enotf-v2/lockscreen; die PIN-Session ist zwischen
  * v1 und v2 geteilt).
@@ -40,7 +40,7 @@ abstract class EnotfV2Controller extends Controller
     }
 
     /**
-     * Crew-Session erzwingen — ohne Login geht's zur Login-Seite.
+     * Crew-Session erzwingen. Ohne Login geht's zur Login-Seite.
      */
     protected function requireCrewSession(): void
     {
@@ -50,7 +50,7 @@ abstract class EnotfV2Controller extends Controller
     }
 
     /**
-     * Redirect auf eine bereits absolute URL (EnotfV2Url::…) —
+     * Redirect auf eine bereits absolute URL (EnotfV2Url::…),
      * im Gegensatz zu Controller::redirect() ohne BASE_PATH-Präfix.
      */
     protected function redirectAbsolute(string $url): never
@@ -64,7 +64,7 @@ abstract class EnotfV2Controller extends Controller
      *
      * vehicle ist der rohe Identifier (intra_fahrzeuge.identifier, z. B.
      * "rd_11-83-01"), vehicle_label der aufgelöste Anzeigename aus
-     * intra_fahrzeuge (Fallback: Rohwert) — die Topbar zeigt das Label.
+     * intra_fahrzeuge (Fallback: Rohwert). Die Topbar zeigt das Label.
      *
      * @return array{vehicle:string, vehicle_label:string, members:list<array{position:string,name:string,quali:string}>}
      */
@@ -101,7 +101,7 @@ abstract class EnotfV2Controller extends Controller
      * Kennzeichen). Unbekannte Identifier fallen auf den Rohwert zurück.
      *
      * Das Ergebnis wird pro Crew-Session gecacht (Key enthält den
-     * Identifier — ein Fahrzeugwechsel lädt neu): der Lookup lief sonst
+     * Identifier, ein Fahrzeugwechsel lädt neu): der Lookup lief sonst
      * auf JEDEM Seitenaufruf und kostet auf der Remote-DB eine volle
      * Roundtrip-Latenz für einen praktisch statischen Wert.
      */
@@ -139,7 +139,7 @@ abstract class EnotfV2Controller extends Controller
     }
 
     /**
-     * "Name (Quali)" für einen Session-Crew-Slot — das Format, in dem
+     * "Name (Quali)" für einen Session-Crew-Slot, das Format, in dem
      * Personal in intra_edivi.fzg_*_perso* gespeichert wird. null wenn
      * Name oder Quali fehlen (v1-Parität, enrbridge.php).
      */

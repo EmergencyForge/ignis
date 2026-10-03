@@ -3,30 +3,30 @@
 declare(strict_types=1);
 
 /**
- * eNOTF v2 — Web-Routen.
+ * eNOTF v2: Web-Routen.
  *
  * Dieselben Middleware-Gruppen wie v1:
- *   • Entry (Login/Loggedout) — AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')
+ *   • Entry (Login/Loggedout): AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')
  *     + FiveMCsp, aber KEIN PIN-Lockscreen (sonst Redirect-Loop).
- *   • Crew — zusätzlich PinLockscreenMiddleware, hier mit dem v2-eigenen
+ *   • Crew: zusätzlich PinLockscreenMiddleware, hier mit dem v2-eigenen
  *     Lockscreen (/enotf-v2/lockscreen) als Redirect-Ziel.
  *     pin_verified/pin_last_activity/pin_return_url sind dieselben
- *     Session-Keys wie in v1 — EIN entsperrter PIN gilt für beide Welten,
+ *     Session-Keys wie in v1: EIN entsperrter PIN gilt für beide Welten,
  *     die pin_return_url bringt den User zurück auf die v2-Seite.
  *
  * Logout: DB-Write NUR auf POST. GET /enotf-v2/loggedout
  * ist eine reine Anzeige-/Bestätigungsseite.
  *
  * HINWEIS FiveM-iframe: SessionManager führt '/enotf-v2/' in seiner
- * iframe-Pfadliste — Session-Cookies auf allen v2-Pfaden (auch
+ * iframe-Pfadliste, Session-Cookies auf allen v2-Pfaden (auch
  * /api/enotf-v2/…) kommen mit SameSite=None; Secure, unabhängig davon,
  * ob der CEF-Client den Sec-Fetch-Dest-Header mitschickt. GENAU deshalb
  * hängt auf allen Web-Gruppen die CsrfMiddleware: SameSite=None schaltet
  * den Browser-CSRF-Schutz für die Form-POSTs ab. Alle v2-Formulare
  * senden ein Session-CSRF-Token als Hidden-Field `_csrf` (qm.js als
  * Header X-Csrf-Token); ohne gültiges Token greift die Same-Origin-
- * Heuristik (fremder Origin/Referer-Host → 403, headerlose Requests —
- * CEF, ältere Clients — passieren). Die JSON-API braucht das nicht
+ * Heuristik (fremder Origin/Referer-Host → 403, headerlose Requests
+ * wie CEF oder ältere Clients passieren). Die JSON-API braucht das nicht
  * (application/json erzwingt cross-site einen CORS-Preflight).
  *
  * @var \EmergencyForge\Http\Router $router
@@ -53,11 +53,11 @@ $enotfV2Home = static function (): \EmergencyForge\Http\Response {
 $router->get('/enotf-v2/',      $enotfV2Home, $enotfV2Crew);
 $router->get('/enotf-v2/index', $enotfV2Home, $enotfV2Crew);
 
-// Login-Flow — KEIN PIN-Lockscreen (wäre Loop)
+// Login-Flow: KEIN PIN-Lockscreen (wäre Loop)
 $router->get('/enotf-v2/login',  [LoginController::class, 'form'],  $enotfV2Entry);
 $router->post('/enotf-v2/login', [LoginController::class, 'login'], $enotfV2Entry);
 
-// Lockscreen selbst darf NICHT durch PinLockscreenMiddleware — Redirect-Loop
+// Lockscreen selbst darf NICHT durch PinLockscreenMiddleware (Redirect-Loop)
 $router->match(['GET', 'POST'], '/enotf-v2/lockscreen', [LockscreenController::class, 'lockscreen'], $enotfV2Entry);
 
 // Logout: GET = Bestätigungs-/Abgemeldet-Seite, POST = DB-Write (mode=self|all)
@@ -82,14 +82,14 @@ $router->get('/enotf-v2/p/{enr:[\w._-]+}/{section:[\w-]+}',    [ProtokollControl
 //  Wrapper um die v1-Admin-Fragmente (Plugin\Enotf\...\EnotfAdminController):
 //  gleiche Templates, gleiche Panel-User-Gates (requireAuth + edivi.view im
 //  Controller). Eigene v2-Routen sind nötig, weil die v1-Routen GET-only
-//  registriert sind — der Speichern-Submit des Actions-Fragments POSTet
+//  registriert sind, der Speichern-Submit des Actions-Fragments POSTet
 //  aber auf dieselbe URL (dort 405). Hier nimmt /qm/actions beide Methoden
 //  an; der POST (DB-Write) wird zusätzlich auf edivi.edit gegated, das
 //  GET-Rendering bleibt wie in v1 bei edivi.view.
 // ----------------------------------------------------------------------------
 
 // FiveMCsp auch hier: die Fragmente werden aus v2-Seiten geladen, die im
-// FiveM-CEF laufen können — ohne die Middleware bekämen sie die normalen
+// FiveM-CEF laufen können, ohne die Middleware bekämen sie die normalen
 // Security-Header und wären die einzigen v2-Routen mit abweichendem CSP.
 $enotfV2QmAuth = [CsrfMiddleware::class, new AuthMiddleware(), FiveMCspMiddleware::class];
 

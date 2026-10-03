@@ -15,7 +15,7 @@ use Plugin\KnowledgeBase\Models\KbEntry;
 use Plugin\KnowledgeBase\Models\KbEntryRelation;
 
 /**
- * LexiconController — frueher als Legacy-Folder `wissensdb/` am Webroot,
+ * LexiconController: frueher als Legacy-Folder `wissensdb/` am Webroot,
  * jetzt als richtiger Controller mit slim Templates unter
  * `templates/lexicon/`.
  *
@@ -34,7 +34,7 @@ class LexiconController extends Controller
     }
 
     /**
-     * GET /lexicon — Listen-Seite mit Filter (Kategorie, Tag, Suche, Typ).
+     * GET /lexicon: Listen-Seite mit Filter (Kategorie, Tag, Suche, Typ).
      */
     public function index(): void
     {
@@ -179,7 +179,7 @@ class LexiconController extends Controller
     }
 
     /**
-     * GET /lexicon/view?id=X — Detailansicht eines Eintrags.
+     * GET /lexicon/view?id=X: Detailansicht eines Eintrags.
      */
     public function view(): void
     {
@@ -256,8 +256,8 @@ class LexiconController extends Controller
     }
 
     /**
-     * GET /lexicon/create — Form fuer neuen Eintrag.
-     * GET /lexicon/edit?id=X — Form fuer Edit (gleicher Controller, $isEdit-Flag).
+     * GET /lexicon/create: Form fuer neuen Eintrag.
+     * GET /lexicon/edit?id=X: Form fuer Edit (gleicher Controller, $isEdit-Flag).
      * POST handelt beide Faelle (entscheidet anhand Query-Param `id`).
      */
     public function create(): void
@@ -500,7 +500,7 @@ class LexiconController extends Controller
     }
 
     /**
-     * POST /lexicon/archive — archive | restore.
+     * POST /lexicon/archive: archive | restore.
      */
     public function archive(): void
     {
@@ -539,7 +539,7 @@ class LexiconController extends Controller
     }
 
     /**
-     * POST /lexicon/pin — pin | unpin.
+     * POST /lexicon/pin: pin | unpin.
      */
     public function pin(): void
     {
@@ -584,7 +584,7 @@ class LexiconController extends Controller
     }
 
     /**
-     * POST /lexicon/toggle-editor — Admin-only Toggle des hide_editor-Flags.
+     * POST /lexicon/toggle-editor: Admin-only Toggle des hide_editor-Flags.
      */
     public function toggleEditor(): void
     {
@@ -614,7 +614,7 @@ class LexiconController extends Controller
     }
 
     /**
-     * GET /lexicon/manage-taxonomy — Kategorien + Tags verwalten (Admin).
+     * GET /lexicon/manage-taxonomy: Kategorien + Tags verwalten (Admin).
      */
     public function manageTaxonomy(): void
     {

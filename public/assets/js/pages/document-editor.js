@@ -1,5 +1,5 @@
 /**
- * assets/js/pages/document-editor.js — Mountet den Dokumenten-Editor im
+ * assets/js/pages/document-editor.js: Mountet den Dokumenten-Editor im
  * SCHREIBMODUS auf templates/documents/edit.php und übernimmt Speichern
  * (manueller Klick) + Autosave (alle 30s), beide per fetch() mit
  * `Accept: application/json` gegen dieselbe Route (siehe
@@ -10,7 +10,7 @@
  * jeder Prüfung neu gewürfelten Token aus der Antwort zurück ins Feld zu
  * schreiben, samt einem automatischen zweiten Versuch für den Fall, dass
  * ein Autosave ihn dem offenen Formular unter den Fingern weggenommen
- * hatte. Beides ist weg, seit CsrfProtection nicht mehr rotiert — der
+ * hatte. Beides ist weg, seit CsrfProtection nicht mehr rotiert. Der
  * Grund dafür steht dort.
  *
  * Dazu zwei Dinge rund um die Vorlagen-Bausteine des Editor-Pakets: eine
@@ -18,7 +18,7 @@
  * tippt man irgendwann neben das Feld), und der Ausstellen-Knopf prüft vorab
  * auf leere Pflichtfelder und speichert einen ungespeicherten Entwurf erst.
  *
- * Bewusst KEIN ES-Modul (siehe template-editor.js — identisches Muster,
+ * Bewusst KEIN ES-Modul (siehe template-editor.js, identisches Muster,
  * unverändert von Vite kopiert nach public/assets/js/pages/).
  */
 (function () {
@@ -34,7 +34,7 @@
         'locked-content':
             'Dieser Text kommt aus der Vorlage und lässt sich nicht ändern. Ausfüllen kannst du nur die markierten Felder.',
         'section-structure': 'Abschnitte lassen sich hier nicht hinzufügen oder entfernen.',
-        'invalid-section-ids': 'Die Vorlage dieses Dokuments ist beschädigt — bitte an die Verwaltung melden.',
+        'invalid-section-ids': 'Die Vorlage dieses Dokuments ist beschädigt. Bitte an die Verwaltung melden.',
     };
 
     var BLOCKED_REPEAT_MS = 3000;
@@ -77,7 +77,7 @@
 
     /**
      * Snackbar-Stack der UI-Module, falls sie schon geladen sind.
-     * Getrennte Skripte, getrennte Ladezeitpunkte — ohne Stack lieber keine
+     * Getrennte Skripte, getrennte Ladezeitpunkte. Ohne Stack lieber keine
      * Meldung als ein TypeError mitten im Editor.
      */
     function snack() {
@@ -151,7 +151,7 @@
         var resolved = readJsonAttr(mount, 'data-efe-resolved', {});
         var variables = buildVariableMap(labels, resolved);
 
-        // Autosave soll nur tatsaechlich geaenderte Entwuerfe schicken —
+        // Autosave soll nur tatsaechlich geaenderte Entwuerfe schicken:
         // dirty wird bei jeder Editor-Aenderung UND bei Titel-Aenderungen
         // gesetzt, nach jedem erfolgreichen Save wieder zurueckgesetzt.
         var dirty = false;
@@ -180,7 +180,7 @@
         }
 
         // Der CSRF-Token rotiert bei JEDER erfolgreichen Prüfung serverseitig
-        // (siehe CsrfProtection::validateToken()) — ohne dieses Zurückschreiben
+        // (siehe CsrfProtection::validateToken()). Ohne dieses Zurückschreiben
         // wäre nach dem ersten erfolgreichen Save/Autosave jeder weitere
         // Versuch mit dem veralteten Token unterwegs und würde an
         // CsrfMiddleware scheitern. Sowohl
@@ -199,7 +199,7 @@
             // Accept: application/json ist das Signal, das sowohl
             // DocumentController::save() (JSON- statt Redirect-Antwort) als
             // auch CsrfMiddleware::isApiRequest() (JSON- statt HTML-Redirect-
-            // Ablehnung bei ungueltigem Token) auswerten — ohne den Header
+            // Ablehnung bei ungueltigem Token) auswerten. Ohne den Header
             // wuerde `fetch()` einem Redirect klaglos folgen und am Ende eine
             // HTML-Seite statt JSON zurueckbekommen.
             return fetch(saveUrl, {
@@ -225,7 +225,7 @@
         /**
          * @returns {Promise<boolean>} ob der Entwurf jetzt gespeichert auf
          *   dem Server liegt. Der Ausstellen-Knopf hängt daran (siehe
-         *   handleIssueClick) — ohne diese Auskunft müsste er `dirty` als
+         *   handleIssueClick). Ohne diese Auskunft müsste er `dirty` als
          *   Erfolgs-Ersatz lesen, was dasselbe meint, aber nicht sagt.
          */
         function save(isAutosave, contentJson) {
@@ -237,7 +237,7 @@
                 return Promise.resolve(true);
             }
 
-            // Inhalt wird EINMAL pro Save-Versuch als String eingefroren —
+            // Inhalt wird EINMAL pro Save-Versuch als String eingefroren,
             // siehe Vergleich weiter unten im Erfolgsfall.
             if (contentJson === undefined) {
                 contentJson = JSON.stringify(editor.getJSON());
@@ -277,7 +277,7 @@
         /**
          * Beschriftungen der leeren Pflichtfelder im GERADE SICHTBAREN
          * Editor-Zustand. Verbindlich ist die Prüfung auf dem Server
-         * (DocumentController::issue()) — diese hier spart nur den Weg
+         * (DocumentController::issue()). Diese hier spart nur den Weg
          * dorthin und sagt, welches Feld fehlt.
          */
         function missingRequiredLabels() {
@@ -285,7 +285,7 @@
             if (typeof collect !== 'function') {
                 // Altes Editor-Bundle im Docroot. Dann lieber gar nicht
                 // prüfen als den Ausstellen-Knopf mit einem TypeError
-                // lahmlegen — der Server weist ohnehin ab.
+                // lahmlegen, der Server weist ohnehin ab.
                 return [];
             }
 

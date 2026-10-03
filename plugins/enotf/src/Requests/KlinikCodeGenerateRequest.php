@@ -11,7 +11,7 @@ use Respect\Validation\Validator as v;
 /**
  * Validation für POST /api/klinik/generate-code.
  *
- * Erwartet eine `enr` (Einsatznummer) — entweder als Form-POST oder als
+ * Erwartet eine `enr` (Einsatznummer), entweder als Form-POST oder als
  * JSON-Body. Der Klinik-Code-Endpoint wird historisch per `application/
  * x-www-form-urlencoded` aus dem eNOTF-Frontend gerufen, wir unterstützen
  * aber auch JSON für neue Aufrufer.

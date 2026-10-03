@@ -17,15 +17,15 @@ use EmergencyForge\Plugins\PluginRegistry;
  * der aktiven Plugins und mergen sie in ihre jeweilige Struktur.
  *
  * Fehlertoleranz ist Pflicht: Wenn die Plugin-Tabelle (noch) nicht
- * existiert — etwa bei einer frischen Installation vor dem ersten
- * Migrationslauf — verhält sich die Anwendung, als gäbe es keine
+ * existiert (etwa bei einer frischen Installation vor dem ersten
+ * Migrationslauf), verhält sich die Anwendung, als gäbe es keine
  * Plugins, statt den Boot zu brechen.
  */
 class PluginLoader
 {
     /**
      * Offiziell mitgelieferte Plugins. Die Liste lebt bewusst im Core und
-     * nicht in den Manifesten — ein fremdes Plugin könnte sich sonst
+     * nicht in den Manifesten. Ein fremdes Plugin könnte sich sonst
      * selbst zum vertrauenswürdigen Bestandteil erklären. Nur Plugins auf
      * dieser Liste gelten ohne manuelle Installation als installiert.
      */
@@ -41,8 +41,8 @@ class PluginLoader
     /**
      * Marker-Datei, die ein manuell installiertes (nicht mitgeliefertes)
      * Plugin als freigegeben kennzeichnet. Eine Datei statt eines
-     * DB-Flags, damit auch phinx.php — das ohne Datenbank in der CLI
-     * läuft — installierte von bloß hochkopierten Plugins unterscheiden
+     * DB-Flags, damit auch phinx.php (das ohne Datenbank in der CLI
+     * läuft) installierte von bloß hochkopierten Plugins unterscheiden
      * kann.
      */
     private const INSTALLED_MARKER = '.installed';
@@ -62,8 +62,8 @@ class PluginLoader
 
     /**
      * Installiert = mitgeliefert ODER vom Admin ausdrücklich freigegeben.
-     * Nicht installierte Plugins werden weder geladen noch migriert —
-     * ein nach plugins/ kopiertes Fremd-Archiv führt keinerlei Code aus,
+     * Nicht installierte Plugins werden weder geladen noch migriert.
+     * Ein nach plugins/ kopiertes Fremd-Archiv führt keinerlei Code aus,
      * bis jemand die Installation bewusst startet.
      */
     public static function isInstalledDir(string $pluginId, string $directory): bool
@@ -88,7 +88,7 @@ class PluginLoader
     }
 
     /**
-     * Migrations-Verzeichnisse aller INSTALLIERTEN Plugins — bewusst ohne
+     * Migrations-Verzeichnisse aller INSTALLIERTEN Plugins, bewusst ohne
      * Blick in die Datenbank. Schema-Migrationen laufen auch für
      * deaktivierte (aber installierte) Plugins, damit Deaktivieren nie
      * Daten oder Schema zurücklässt, das beim Reaktivieren fehlt. Diese
@@ -130,7 +130,7 @@ class PluginLoader
             $repository = new PluginRepository();
             $repository->syncDiscovered($registry->all());
 
-            // Nur installierte Plugins kommen in die Auflösung — ein bloß
+            // Nur installierte Plugins kommen in die Auflösung. Ein bloß
             // nach plugins/ kopiertes Fremd-Plugin bleibt vollständig
             // inert, bis der Admin die Installation ausdrücklich startet.
             $enabledIds = array_values(array_filter(
@@ -156,7 +156,7 @@ class PluginLoader
 
             return $this->active = $registry->active();
         } catch (\Throwable $e) {
-            // z.B. intra_plugins existiert noch nicht — Boot geht ohne
+            // z.B. intra_plugins existiert noch nicht. Boot geht ohne
             // Plugins weiter, die nächste Anfrage nach den Migrationen
             // lädt sie dann normal.
             Logger::warning('Plugins konnten nicht geladen werden: ' . $e->getMessage());
@@ -273,7 +273,7 @@ class PluginLoader
     }
 
     /**
-     * Routen-Fragmente der aktiven Plugins (web zuerst, dann api —
+     * Routen-Fragmente der aktiven Plugins (web zuerst, dann api,
      * gleiche Reihenfolge wie die Kern-Routen).
      *
      * @return list<string>
@@ -357,7 +357,7 @@ class PluginLoader
         }
 
         // Gruppen ohne Einträge sind Anker, an die kein aktives Plugin
-        // etwas gehängt hat — „Protokolle" ohne Protokoll-Plugin. Sie
+        // etwas gehängt hat, etwa „Protokolle" ohne Protokoll-Plugin. Sie
         // fallen weg statt als leere Überschrift stehen zu bleiben.
         $groups = array_values(array_filter($groups, static function ($group): bool {
             return is_array($group) && !empty($group['items']);

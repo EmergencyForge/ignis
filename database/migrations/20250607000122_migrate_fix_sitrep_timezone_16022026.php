@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Einmalige Datenkorrektur: Lokal erstellte Sitreps und Incidents wurden mit
- * Berlin-Zeit statt UTC gespeichert — diese Migration rechnet die Zeiten nach
+ * Berlin-Zeit statt UTC gespeichert. Diese Migration rechnet die Zeiten nach
  * UTC um. Via EMD-Sync erstellte Sitreps (source = 'leitstelle') sind bereits
  * korrekt in UTC und bleiben unangetastet.
  */
@@ -55,7 +55,7 @@ class MigrateFixSitrepTimezone16022026 extends AbstractMigration
     public function down(): void
     {
         // Nicht umkehrbar: Nach der Korrektur ist nicht mehr erkennbar, welche
-        // Zeilen verschoben wurden — eine Rückrechnung würde auch ursprünglich
+        // Zeilen verschoben wurden. Eine Rückrechnung würde auch ursprünglich
         // korrekte UTC-Zeiten verfälschen.
     }
 

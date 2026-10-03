@@ -86,27 +86,27 @@ $currentDate = date('d.m.Y');
                                         if (!empty($row['edatum'])) {
                                             $row['edatum'] = (new DateTime($row['edatum']))->format('d.m.Y');
                                         } else {
-                                            $row['edatum'] = '—';
+                                            $row['edatum'] = '-';
                                         }
 
                                         if (!empty($row['ezeit'])) {
                                             $row['ezeit'] = (new DateTime($row['ezeit']))->format('H:i');
                                         } else {
-                                            $row['ezeit'] = '—';
+                                            $row['ezeit'] = '-';
                                         }
 
                                         if (!empty($row['patgebdat'])) {
                                             $row['patgebdat'] = (new DateTime($row['patgebdat']))->format('d.m.Y');
                                         } else {
-                                            $row['patgebdat'] = '—';
+                                            $row['patgebdat'] = '-';
                                         }
 
                                         if (empty($row['patname'])) {
-                                            $row['patname'] = '—';
+                                            $row['patname'] = '-';
                                         }
 
                                         if (empty($row['pfname'])) {
-                                            $row['pfname'] = '—';
+                                            $row['pfname'] = '-';
                                         }
 
                                         $canDelete = ($row['createdby'] == 2);

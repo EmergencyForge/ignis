@@ -1,5 +1,5 @@
 /**
- * eNOTF v2 — Autosave-Client (Batch-Save).
+ * eNOTF v2: Autosave-Client (Batch-Save).
  *
  * Ersetzt das jQuery-basierte notify.php aus v1 (ein Feld pro Request,
  * text/plain) durch Vanilla JS mit debounced Multi-Field-POST:
@@ -38,7 +38,7 @@
  *   - der Gesamtfortschritt im Sidebar-Kopf nachgezogen
  *     ([data-ev2-progress-text/-short/-fill]), und
  *   - ein CustomEvent 'enotfv2:plausibility' (detail = API-Antwort) auf
- *     dem Wurzel-Element dispatcht — Section-Skripte (z. B. abschluss.php)
+ *     dem Wurzel-Element dispatcht, Section-Skripte (z. B. abschluss.php)
  *     hängen sich daran.
  * Manuell anstoßbar über window.EnotfV2Autosave.refreshPlausibility().
  */
@@ -66,7 +66,7 @@ function init() {
 
     const baseline = new Map();
     // Felder mit noch unbestätigter Änderung (gequeued/in Flight). Die
-    // Baseline wird erst mit der Server-Antwort nachgezogen — ohne dieses
+    // Baseline wird erst mit der Server-Antwort nachgezogen. Ohne dieses
     // Set würde ein Zurückstellen auf den Ladewert, während der vorige
     // Save noch läuft, als "unverändert" verworfen und der alte Wert
     // bliebe in der DB stehen.
@@ -102,7 +102,7 @@ function init() {
     }
 
     function baselineKey(el) {
-        // Radios teilen sich den name — Baseline pro Feldname, nicht pro Element
+        // Radios teilen sich den name: Baseline pro Feldname, nicht pro Element
         return el.name;
     }
 
@@ -171,7 +171,7 @@ function init() {
     }
 
     // Gesamtfortschritt (Sidebar-Kopf): Summe filled/total über alle
-    // Sections mit Pflichtangaben — gleiche Rechnung wie das serverseitige
+    // Sections mit Pflichtangaben, gleiche Rechnung wie das serverseitige
     // Initial-Render in _layout.php.
     function updateProgress(sections) {
         const textEl = document.querySelector('[data-ev2-progress-text]');
@@ -245,7 +245,7 @@ function init() {
                 inFlight = false;
 
                 if (status === 403) {
-                    markLocked('Protokoll freigegeben — Bearbeitung gesperrt');
+                    markLocked('Protokoll freigegeben, Bearbeitung gesperrt');
                     return;
                 }
                 if (status === 401) {
@@ -288,7 +288,7 @@ function init() {
                 Object.keys(fields).forEach((field) => {
                     if (!(field in pending)) pending[field] = fields[field];
                 });
-                setStatus('error', 'Netzwerkfehler — erneuter Versuch bei nächster Eingabe');
+                setStatus('error', 'Netzwerkfehler. Erneuter Versuch bei nächster Eingabe');
             });
     }
 

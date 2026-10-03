@@ -156,8 +156,8 @@ final class FileInstaller
      *     `.env*`, `public/index.php`) sind tabu
      *   - der Real-Pfad muss innerhalb des App-Roots liegen
      *
-     * Fehlende Pfade werden als „skipped" ausgewiesen, nicht als Fehler —
-     * ein Kunde hat einen migrations-spezifischen Modul-Ordner evtl. schon
+     * Fehlende Pfade werden als „skipped" ausgewiesen, nicht als Fehler.
+     * Ein Kunde hat einen migrations-spezifischen Modul-Ordner evtl. schon
      * von Hand entfernt.
      *
      * @return array{applied:bool, deleted:array<int,string>, skipped:array<int,array{path:string,reason:string}>, error?:string}

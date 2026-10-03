@@ -10,7 +10,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * FailedJobsReader — Admin-Zugriff auf `intra_failed_jobs`.
+ * FailedJobsReader: Admin-Zugriff auf `intra_failed_jobs`.
  *
  * Parallel zum `LogReader` aufgebaut: einheitliches Interface für die
  * Admin-UI im Fehlerprotokoll (`/settings/system/logs.php`), damit
@@ -98,7 +98,7 @@ final class FailedJobsReader
     }
 
     /**
-     * Statistik-Übersicht — Gesamt + 24h/7d + Top-Queues + Top-Job-Klassen.
+     * Statistik-Übersicht: Gesamt + 24h/7d + Top-Queues + Top-Job-Klassen.
      *
      * @return array{total:int, last_24h:int, last_7d:int, by_queue:array<string,int>, by_job_class:array<string,int>}
      */
@@ -140,7 +140,7 @@ final class FailedJobsReader
                 $stats['by_queue'][(string) $r->queue] = (int) $r->c;
             }
 
-            // By job class — wird aus dem Payload extrahiert, DB hat keine eigene Spalte
+            // By job class: wird aus dem Payload extrahiert, DB hat keine eigene Spalte
             $all = $this->getRecent(500);
             foreach ($all as $j) {
                 $cls = $j['job_class'] ?? 'unknown';
@@ -163,7 +163,7 @@ final class FailedJobsReader
      *
      * **Achtung:** Wir setzen den `attempts`-Counter auf 0 zurück, damit
      * der Job wieder die volle Retry-Runde bekommt. Das ist eine bewusste
-     * Admin-Entscheidung — wer manuell retry klickt, will einen frischen
+     * Admin-Entscheidung. Wer manuell retry klickt, will einen frischen
      * Start.
      */
     public function retry(int $failedJobId): bool
@@ -276,7 +276,7 @@ final class FailedJobsReader
         $jobClass     = null;
         $shortMessage = null;
 
-        // Payload parsen — Illuminate schreibt JSON mit `displayName` und `data.commandName` rein
+        // Payload parsen: Illuminate schreibt JSON mit `displayName` und `data.commandName` rein
         $payloadJson = $row['payload'] ?? '';
         if (is_string($payloadJson) && $payloadJson !== '') {
             $decoded = json_decode($payloadJson, true);

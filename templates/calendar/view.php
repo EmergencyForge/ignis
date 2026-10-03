@@ -91,7 +91,7 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                                         'private'   => 'Privat (nur Ersteller)',
                                         'attendees' => 'Eingeladene Mitarbeiter',
                                         'role'      => 'Rollen: ' . ($event->visibilityRoles->isEmpty()
-                                            ? '—'
+                                            ? 'keine'
                                             : $event->visibilityRoles->pluck('name')->join(', ')),
                                         'all'       => 'Alle (öffentlich)',
                                         default     => $event->visibility,
@@ -119,7 +119,7 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                     </div>
                 </div>
 
-                <!-- Attendees-Liste mit Response-Status — nur sichtbar wenn
+                <!-- Attendees-Liste mit Response-Status, nur sichtbar wenn
                      attendees/private ODER role mit aktivem Tracking. -->
                 <?php if (!empty($attendeesData) && $showAttendeeList): ?>
                     <?php
@@ -165,7 +165,7 @@ $fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $valu
                     </div>
                 <?php endif; ?>
 
-                <!-- RSVP-Buttons — sichtbar wenn User antworten darf. Form-Submit
+                <!-- RSVP-Buttons, sichtbar wenn User antworten darf. Form-Submit
                      funktioniert auch ohne JS (server-redirect zurueck zu /calendar);
                      calendar.js faengt den Submit fuer's Detail-Modal ab und
                      macht's per fetch, sodass das Modal offen bleibt. -->

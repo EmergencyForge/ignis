@@ -69,6 +69,6 @@ class MigrateExistingDocuments30092025 extends AbstractMigration
         // Nicht sauber umkehrbar: Nach dem Up ist nicht mehr unterscheidbar,
         // welche template_id/custom_data-Werte von dieser Migration stammen
         // und welche später regulär gesetzt wurden. Die Quellspalten bleiben
-        // ohnehin unverändert erhalten — no-op.
+        // ohnehin unverändert erhalten, daher no-op.
     }
 }

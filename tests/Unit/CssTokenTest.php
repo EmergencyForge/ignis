@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Ein `var(--token)` ohne Fallback muss auf einen definierten Token zeigen.
  *
- * Sonst faellt die ganze Deklaration aus — still. Keine Konsolenmeldung, kein
+ * Sonst faellt die ganze Deklaration aus, und zwar still. Keine Konsolenmeldung, kein
  * Build-Fehler, die Schrift ist einfach die geerbte. So standen Logs- und
  * Telemetrie-Seiten auf Consolas statt Geist Mono und die Federation-Felder
  * auf der Sans-Schrift, obwohl dort Instanz-IDs und Schluessel stehen.
@@ -34,7 +34,7 @@ final class CssTokenTest extends TestCase
                 continue;
             }
 
-            // Eine Vorlage darf ihre Tokens selbst mitbringen — die Fehlerseite
+            // Eine Vorlage darf ihre Tokens selbst mitbringen, die Fehlerseite
             // tut das, weil sie ohne die Stylesheet-Kette rendern koennen muss.
             // Das zaehlt aber nur fuer sie selbst: Custom Properties gelten im
             // Dokument, das sie setzt, nicht projektweit.
@@ -59,7 +59,7 @@ final class CssTokenTest extends TestCase
     }
 
     /**
-     * Tokens aus den geteilten Stylesheets — die, die jede Seite ueber ihren
+     * Tokens aus den geteilten Stylesheets, also die, die jede Seite ueber ihren
      * Head bekommt. Bewusst ohne templates/ und plugins/: was eine einzelne
      * Vorlage in ihrem eigenen <style> setzt, gilt nicht fuer die anderen,
      * und genau diese Verwechslung war der Fehler (--font-mono existierte nur

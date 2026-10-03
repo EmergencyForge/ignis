@@ -30,7 +30,7 @@ class TranslateDashboardTileUrls extends AbstractMigration
         $pdo = $this->getAdapter()->getConnection();
 
         // Top-Level-Map (gleiche Tabelle wie UrlMap::LEGACY_TO_CANONICAL,
-        // bewusst inline gehalten — Migration soll nicht von App-Code abhaengen
+        // bewusst inline gehalten, die Migration soll nicht von App-Code abhaengen
         // und auch laufen, wenn UrlMap.php spaeter umstrukturiert wird).
         $topMap = [
             '/benutzer'            => '/users',
@@ -79,7 +79,7 @@ class TranslateDashboardTileUrls extends AbstractMigration
 
     public function down(): void
     {
-        // Bewusst kein Down-Path — die Translation ist eine Einbahnstrasse.
+        // Bewusst kein Down-Path: die Translation ist eine Einbahnstrasse.
         // Wer downgraden muss, kann manuelle SQL-Statements gegen die alten
         // Pfade ausfuehren.
     }

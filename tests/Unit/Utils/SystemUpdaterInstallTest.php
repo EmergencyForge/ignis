@@ -12,7 +12,7 @@ use Tests\Unit\Utils\Updater\FakeReleaseSource;
 /**
  * Der ganze Installationsweg gegen eine Installation im Temp-Verzeichnis:
  * Download, Prüfung, Entpacken, Backup, Kopieren, Manifest, version.json.
- * Hält fest, was heute passiert — auch da, wo es nicht schön ist.
+ * Hält fest, was heute passiert, auch da, wo es nicht schön ist.
  */
 final class SystemUpdaterInstallTest extends TestCase
 {

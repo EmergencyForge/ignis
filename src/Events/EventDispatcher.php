@@ -10,7 +10,7 @@ use Illuminate\Events\Dispatcher as IlluminateDispatcher;
 /**
  * Zentraler Event-Dispatcher für intraRP.
  *
- * Thin-Wrapper um `Illuminate\Events\Dispatcher` — wir nutzen die bereits
+ * Thin-Wrapper um `Illuminate\Events\Dispatcher`. Wir nutzen die bereits
  * vorhandene Illuminate-Infrastruktur (kommt mit Eloquent) statt ein
  * separates Package zu installieren. Das Interface ist bewusst minimal:
  *
@@ -18,7 +18,7 @@ use Illuminate\Events\Dispatcher as IlluminateDispatcher;
  *
  * Listener-Registration passiert über den EventServiceRegistrar, der beim
  * Container-Build aufgerufen wird. Call-Sites selbst kennen nur die
- * `fire()`-Methode und die Event-Klassen — nichts anderes.
+ * `fire()`-Methode und die Event-Klassen, nichts anderes.
  *
  * Warum nicht direkt `Illuminate\Events\Dispatcher` injecten? Weil der
  * einen ganzen Haufen Methoden hat, die wir nicht brauchen (subscribe,
@@ -34,7 +34,7 @@ final class EventDispatcher
     /**
      * Feuert ein Event an alle registrierten Listener.
      *
-     * Listener-Exceptions werden gefangen und geloggt — ein fehlerhafter
+     * Listener-Exceptions werden gefangen und geloggt. Ein fehlerhafter
      * Listener soll niemals die anderen Listener oder den User-Request
      * blockieren. Das ist eine bewusste Design-Entscheidung für
      * Side-Effect-Robustness.
@@ -53,7 +53,7 @@ final class EventDispatcher
     }
 
     /**
-     * Direkter Zugriff auf den Underlying-Dispatcher — nur für
+     * Direkter Zugriff auf den Underlying-Dispatcher, nur für
      * Framework-Code (z.B. Listener-Registrierung im EventServiceRegistrar).
      * Application-Code sollte das nicht nutzen.
      */

@@ -5,8 +5,8 @@
  * Erwartete Variablen (EditorDocumentController::show()):
  *   @var \App\Models\EditorDocument $document
  *
- * Fehlt `pdf_path` — was nur passieren kann, wenn das Erzeugen mitten im
- * Ausstellen gescheitert ist —, steht hier ein Hinweis statt eines leeren
+ * Fehlt `pdf_path` (was nur passieren kann, wenn das Erzeugen mitten im
+ * Ausstellen gescheitert ist), steht hier ein Hinweis statt eines leeren
  * Rahmens.
  */
 
@@ -35,7 +35,7 @@ $SITE_TITLE = $document->title;
                     <p class="twplus-page-header__eyebrow">Dokumente</p>
                     <h1><?= htmlspecialchars($document->title) ?></h1>
                     <p class="twplus-page-header__description">
-                        Kennung <?= htmlspecialchars($document->docid) ?> — ausgestellt<?php
+                        Kennung <?= htmlspecialchars($document->docid) ?>, ausgestellt<?php
                         if ($document->issued_at !== null) {
                             echo ' am ' . htmlspecialchars($document->issued_at->format('d.m.Y H:i'));
                         } ?>.

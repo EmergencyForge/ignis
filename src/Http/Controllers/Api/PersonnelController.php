@@ -21,7 +21,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Personnel-Admin-API — Dienstnummer-Checks, Invite-Codes, Profil-Updates,
+ * Personnel-Admin-API: Dienstnummer-Checks, Invite-Codes, Profil-Updates,
  * Profilbild-Uploads. Alle Methoden setzen eingeloggten Admin voraus;
  * die konkrete Permission hängt pro Endpoint ab (`personnel.edit`,
  * `users.create`).
@@ -179,7 +179,7 @@ final class PersonnelController
         try {
             // Bewusst Query-Builder statt Personnel-Model: die Change-Detection
             // unten vergleicht die DB-Rohwerte strikt (===) mit den Request-
-            // Strings — Model-Casts (date/datetime) würden die Vergleiche kippen.
+            // Strings. Model-Casts (date/datetime) würden die Vergleiche kippen.
             $currentRow = Capsule::table('intra_mitarbeiter')->where('id', $id)->first();
             if (!$currentRow) {
                 return Response::json(['success' => false, 'message' => 'Mitarbeiter nicht gefunden'], 404);
@@ -222,7 +222,7 @@ final class PersonnelController
             }
 
             // PFP-Handling: leerer pfp-String bedeutet "nicht geändert"
-            // (Legacy-Bug-Fix — Inline-Edit-Save würde sonst das Bild zurücksetzen)
+            // (Legacy-Bug-Fix: Inline-Edit-Save würde sonst das Bild zurücksetzen)
             if ($pfp === '') {
                 $pfp = $current['pfp'] ?? '';
             }

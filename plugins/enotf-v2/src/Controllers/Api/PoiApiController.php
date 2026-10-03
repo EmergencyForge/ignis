@@ -30,11 +30,11 @@ use Plugin\EnotfV2\Support\ProtokollService;
  *                "poi": "Name", "adresse": {strasse,hnr,ort,ortsteil} }
  *     Schreibt transp_poi/transp_adresse bzw. ziel_poi/ziel_adresse.
  *     Die Adresse wird strukturell validiert (nur die vier bekannten
- *     Schlüssel, Werte skalars) und serverseitig neu serialisiert —
+ *     Schlüssel, Werte skalars) und serverseitig neu serialisiert,
  *     anders als v1, das den Client-JSON-String nur auf Syntax prüfte
  *     und roh durchreichte.
  *     404 wenn ENR unbekannt, 403 wenn freigegeben=1 (Sperrlogik aus
- *     ProtokollService — v1 prüfte die Freigabe hier gar nicht).
+ *     ProtokollService, v1 prüfte die Freigabe hier gar nicht).
  *
  * Auth wie ProtokollApiController: AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')
  * auf der Route, Crew-Session-Check hier; eingeloggte User mit
@@ -43,7 +43,7 @@ use Plugin\EnotfV2\Support\ProtokollService;
  */
 final class PoiApiController
 {
-    /** Erlaubte Adress-Schlüssel — exakt die v1-JSON-Struktur. */
+    /** Erlaubte Adress-Schlüssel: exakt die v1-JSON-Struktur. */
     private const ADRESS_KEYS = ['strasse', 'hnr', 'ort', 'ortsteil'];
 
     /**

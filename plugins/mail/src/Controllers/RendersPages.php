@@ -12,7 +12,7 @@ use EmergencyForge\Http\Response;
  * Gemeinsames der Mail-Controller: Ansichten als Antwort statt als Ausgabe
  * (mit Status, etwa 422 bei Formularfehlern, und `Cache-Control: private,
  * no-store`, damit keine Mail-Seite in einem Cache landet) und das
- * Audit-Log — dort stehen Postfach- und Verteiler-Änderungen, nie Inhalte.
+ * Audit-Log. Dort stehen Postfach- und Verteiler-Änderungen, nie Inhalte.
  */
 trait RendersPages
 {

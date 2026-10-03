@@ -12,7 +12,7 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 
 /**
- * Telemetrie-Endpoints — Heartbeat (API-Key-gated) und Background-AJAX
+ * Telemetrie-Endpoints: Heartbeat (API-Key-gated) und Background-AJAX
  * (session-gated).
  *
  * Der Heartbeat-Endpoint wird vom Hub-Server als Machine-to-Machine-Call

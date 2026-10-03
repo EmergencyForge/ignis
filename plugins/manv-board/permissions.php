@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MANV-Board — Permission-Katalog für die Rollen-Verwaltung.
+ * MANV-Board: Permission-Katalog für die Rollen-Verwaltung.
  */
 
 declare(strict_types=1);

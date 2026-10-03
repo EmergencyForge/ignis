@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Policies;
 
 /**
- * NotificationPolicy — wer darf was mit Benachrichtigungen.
+ * NotificationPolicy: wer darf was mit Benachrichtigungen.
  *
  * Benachrichtigungen sind streng user-eigen: jeder eingeloggte User sieht
  * NUR seine eigenen, und der NotificationManager filtert ohnehin per
  * userId. Es gibt keine Admin-Sichtbarkeit auf fremde Benachrichtigungen.
  *
- * Daher reichen die Permission-Checks "ist eingeloggt" aus — die Resource-
+ * Daher reichen die Permission-Checks "ist eingeloggt" aus. Die Resource-
  * spezifische Filterung passiert auf Query-Ebene im Manager.
  */
 class NotificationPolicy

@@ -10,12 +10,12 @@ use App\Http\FiveMSupport;
 use Plugin\Enotf\Policies\EnotfPolicy;
 
 /**
- * EnotfProtokollController — eNOTF-Protokoll-Pages.
+ * EnotfProtokollController: eNOTF-Protokoll-Pages.
  *
  * Wegen der schieren Größe des Protokoll-Bereichs (121 Files, ~30k LoC) wird
  * hier ein generischer Render-Pfad genutzt: jeder Stub ruft `serve()` mit dem
  * Pfad zur jeweiligen Template-Datei auf. Die Templates behalten ihre
- * inline-SQL und POST-Handler — sie sind sehr eng mit der Page-Logik verzahnt
+ * inline-SQL und POST-Handler, sie sind sehr eng mit der Page-Logik verzahnt
  * und würden bei einer feinkörnigen Aufteilung das Risiko von Regressionen
  * massiv erhöhen.
  *

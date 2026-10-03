@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Documents\Editor;
 
 /**
- * Die zehn Systemvorlagen, die ignis mitbringt — als ProseMirror-Dokumente
+ * Die zehn Systemvorlagen, die ignis mitbringt, als ProseMirror-Dokumente
  * fuer den Editor.
  *
  * Der Wortlaut stammt woertlich aus den Twig-Vorlagen des alten
@@ -16,7 +16,7 @@ namespace App\Documents\Editor;
  * Was die alten Vorlagen ueber Zusatzfelder geloest haben, sind hier
  * ausfuellbare Felder im gesperrten Text: der neue Dienstgrad einer
  * Befoerderung stand nie im Mitarbeiterdatensatz, er wird beim Ausstellen
- * eingetragen. Bei den Schreiben ist der Grund ein freier Abschnitt — dort
+ * eingetragen. Bei den Schreiben ist der Grund ein freier Abschnitt. Dort
  * schreibt der Aussteller Fliesstext, und nur dort.
  *
  * Die Migration `20260914000002_seed_editor_templates` legt sie an;
@@ -164,7 +164,7 @@ final class SystemTemplates
             $this->p(),
             $this->p([$this->v('aussteller.name', )], null),
             $this->p([$this->v('aussteller.dienstgrad')]),
-            $this->p([$this->t('— Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig. —', ['italic'])]),
+            $this->p([$this->t('Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig.', ['italic'])]),
         ];
 
         if ($disclaimer) {

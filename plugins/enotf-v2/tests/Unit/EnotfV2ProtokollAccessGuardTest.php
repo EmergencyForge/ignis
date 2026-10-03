@@ -11,7 +11,7 @@ use Tests\TestCase;
 /**
  * Zugriffs-Matrix des ProtokollAccessGuard: Fahrzeug-Scoping (fzg_transp /
  * fzg_na), Panel-User via Permissions, Klinik-ENR-Match. Die Session wird
- * pro Test direkt über $_SESSION aufgebaut — der Guard liest nichts anderes.
+ * pro Test direkt über $_SESSION aufgebaut, der Guard liest nichts anderes.
  */
 class EnotfV2ProtokollAccessGuardTest extends TestCase
 {
@@ -81,7 +81,7 @@ class EnotfV2ProtokollAccessGuardTest extends TestCase
     #[Test]
     public function leeres_fahrzeugfeld_im_protokoll_matcht_keine_leere_session(): void
     {
-        // hasCrewSession verlangt non-empty protfzg — aber selbst wenn beide
+        // hasCrewSession verlangt non-empty protfzg, aber selbst wenn beide
         // Seiten leer wären, darf '' === '' keinen Zugriff geben.
         $_SESSION['fahrername'] = 'Max';
         $_SESSION['protfzg']    = '';

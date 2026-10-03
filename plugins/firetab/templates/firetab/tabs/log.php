@@ -84,7 +84,7 @@ $actionTypeLabels = [
                                         <i class="fas fa-truck mr-1 text-[var(--text-3)]" aria-hidden="true"></i>
                                         <?= htmlspecialchars($entry['vehicle_name']) ?>
                                     <?php else: ?>
-                                        <span class="text-[var(--text-3)]">—</span>
+                                        <span class="text-[var(--text-3)]">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -100,7 +100,7 @@ $actionTypeLabels = [
                                         <i class="fas fa-user mr-1 text-[var(--text-3)]" aria-hidden="true"></i>
                                         <?= htmlspecialchars($entry['created_by_name']) ?>
                                     <?php else: ?>
-                                        <span class="text-[var(--text-3)]">—</span>
+                                        <span class="text-[var(--text-3)]">-</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>

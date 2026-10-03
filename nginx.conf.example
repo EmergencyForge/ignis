@@ -1,15 +1,15 @@
 # ============================================================
-# ıgnıs – Nginx Konfiguration (Beispiel)
+# ıgnıs: Nginx Konfiguration (Beispiel)
 # ============================================================
 #
 # Diese Datei ist eine Referenz-Konfiguration für Nginx.
-# Apache-User brauchen diese Datei NICHT – die .htaccess-Dateien
+# Apache-User brauchen diese Datei NICHT, die .htaccess-Dateien
 # im Projekt übernehmen dort alles automatisch.
 #
 # Das Docroot ist das Verzeichnis public/ im Projekt. Alles andere
 # (src/, plugins/, storage/, vendor/, .env) liegt außerhalb und wird
 # vom Webserver nie angefasst. Die Durchreichung über die Root-
-# .htaccess gibt es unter Nginx nicht – `root` MUSS auf public/ zeigen.
+# .htaccess gibt es unter Nginx nicht, deshalb MUSS `root` auf public/ zeigen.
 #
 # Anleitung:
 #   1. Die map{}-Blöcke MÜSSEN im http{}-Block stehen
@@ -50,7 +50,7 @@ server {
     root /var/www/intraRP/public;      # <-- Pfad zum Projekt anpassen, /public bleibt
     index index.php;
 
-    # SSL (Pflicht – Sessions funktionieren nur mit SSL!)
+    # SSL (Pflicht, Sessions funktionieren nur mit SSL!)
     ssl_certificate     /etc/ssl/certs/example.crt;      # <-- anpassen
     ssl_certificate_key /etc/ssl/private/example.key;     # <-- anpassen
 
@@ -84,7 +84,7 @@ server {
     # über Routen aus, jeweils mit eigener Endungs-Allowlist.
     #
     # Legacy `*.php`-Aufrufe (z. B. `/login.php` aus alten Bookmarks)
-    # landen ebenfalls im Front-Controller – die dort eingebaute Bridge
+    # landen ebenfalls im Front-Controller. Die dort eingebaute Bridge
     # antwortet bei GET/HEAD mit einem 301 auf die Clean-URL und schreibt
     # POST/PUT/DELETE intern um, damit Form-Submits ihren Body behalten.
 
@@ -119,7 +119,7 @@ server {
     }
 
     # ====================================================
-    # Statische Dateien – Caching
+    # Statische Dateien: Caching
     # ====================================================
 
     location ~* \.(css|js|map|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|json)$ {

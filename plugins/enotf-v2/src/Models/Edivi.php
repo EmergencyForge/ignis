@@ -8,15 +8,15 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * `intra_edivi` — das eNOTF-Protokoll, eine Zeile pro Einsatzprotokoll.
+ * `intra_edivi`: das eNOTF-Protokoll, eine Zeile pro Einsatzprotokoll.
  *
  * PK ist `id`, fachlicher Schlüssel ist überall die Einsatznummer `enr`
- * (varchar, UNIQUE). Über 100 Spalten, historisch gewachsen — Zugriff
+ * (varchar, UNIQUE). Über 100 Spalten, historisch gewachsen, Zugriff
  * per Array-Syntax (`$protokoll['spalte']`) funktioniert über den
  * ArrayAccess des Models.
  *
  * Zeitstempel: `sendezeit` (DB-Default) + `last_edit` (explizit NOW()
- * bei jedem Feld-Write, siehe ProtokollService) — kein Eloquent-
+ * bei jedem Feld-Write, siehe ProtokollService), kein Eloquent-
  * Timestamp-Paar, daher timestamps=false aus der Basisklasse.
  *
  * Semantik-Fallen:
@@ -54,7 +54,7 @@ class Edivi extends Model
     }
 
     /**
-     * Vom User „gelöscht" — technisch freigegeben=1 + hidden_user=1.
+     * Vom User „gelöscht": technisch freigegeben=1 + hidden_user=1.
      */
     public function istUserGeloescht(): bool
     {

@@ -23,14 +23,14 @@ use PDOException;
  * Alle vier sind dasselbe: eine Liste mit Modal, dazu drei POST-Ziele für
  * Anlegen, Ändern und Löschen. Deshalb steht das Gemeinsame in
  * {@see store()}, {@see update()} und {@see destroy()}, und die zwölf
- * öffentlichen Methoden sagen nur noch, um welchen Katalog es geht — die
+ * öffentlichen Methoden sagen nur noch, um welchen Katalog es geht. Die
  * Routen sind fest verdrahtet, sonst wären es drei Methoden mit einem
  * Parameter.
  *
  * Geprüft wird über FormRequests. Vorher las jede Methode ihre Felder
  * einzeln aus `$_POST` und fragte, ob drei davon nicht leer sind; die
  * Länge fragte niemand. Ein Name über 255 Zeichen lief damit in eine
- * PDOException, die als „exception" im Hinweis landete — oder, je nach
+ * PDOException, die als „exception" im Hinweis landete, oder, je nach
  * SQL-Modus, wurde stumm abgeschnitten.
  */
 class PersonalController extends Controller
@@ -52,7 +52,7 @@ class PersonalController extends Controller
      *
      * `flash` ist der Schlüssel in der Meldungstabelle von
      * {@see \App\Helpers\Flash}. Die drei Qualifikationskataloge standen
-     * dort auf `quali` — ein Schlüssel, den die Tabelle nicht kennt, und
+     * dort auf `quali`: ein Schlüssel, den die Tabelle nicht kennt, und
      * `Flash::set()` gibt bei einem unbekannten stillschweigend auf.
      * Anlegen und Löschen meldeten deshalb nie etwas, weder Erfolg noch
      * Fehler. Der richtige Schlüssel heißt `qualification`.
@@ -302,7 +302,7 @@ class PersonalController extends Controller
     }
 
     /**
-     * Schreiben, melden, protokollieren — und bei einem Datenbankfehler
+     * Schreiben, melden, protokollieren, und bei einem Datenbankfehler
      * dasselbe wie vorher: ins Fehlerprotokoll, „exception" für den Nutzer.
      *
      * @param array<string,mixed> $k
@@ -370,7 +370,7 @@ class PersonalController extends Controller
     /**
      * Schreibt ins Prüfprotokoll, sofern jemand angemeldet ist.
      *
-     * Die Kennung geht als `context.id` mit — darüber findet
+     * Die Kennung geht als `context.id` mit. Darüber findet
      * {@see \App\Support\Activity} den Eintrag, ohne sie aus dem
      * Meldungstext klauben zu müssen.
      */

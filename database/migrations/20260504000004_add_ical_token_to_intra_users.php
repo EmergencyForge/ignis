@@ -5,11 +5,11 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Persoenlicher iCal-Token pro User — wird beim ersten Aufruf der
+ * Persoenlicher iCal-Token pro User. Wird beim ersten Aufruf der
  * "Kalender abonnieren"-Funktion in der Calendar-Page gesetzt. Externe
  * Kalender-Apps (Google, Apple, Outlook) abonnieren via
  *   GET /api/kalender/ical/{token}
- * Cookie-Auth funktioniert dort nicht — der Token ist die einzige
+ * Cookie-Auth funktioniert dort nicht, der Token ist die einzige
  * Authentifizierung. Daher unique + zufaellig genug (32+ Zeichen Hex).
  */
 class AddIcalTokenToIntraUsers extends AbstractMigration

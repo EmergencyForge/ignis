@@ -5,7 +5,7 @@ namespace Plugin\ManvBoard\Models;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Repository für `intra_manv_ressourcen` — Ressourcen (Fahrzeuge,
+ * Repository für `intra_manv_ressourcen`: Ressourcen (Fahrzeuge,
  * Einheiten) einer MANV-Lage.
  *
  * Läuft über die Eloquent-Capsule (Query Builder); die Rückgabeformate

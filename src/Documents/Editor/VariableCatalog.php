@@ -14,13 +14,13 @@ use App\Session\SessionManager;
  * Die Schlüssel stehen im Dokument als Chips (`{{mitarbeiter.name}}`); der
  * Editor bekommt Beschriftung und aktuellen Wert, der Renderer setzt den
  * Wert ein. Beim Ausstellen wandern die aufgelösten Werte nach
- * `frozen_values` — ein Dokument von gestern zeigt den Dienstgrad von
+ * `frozen_values`. Ein Dokument von gestern zeigt den Dienstgrad von
  * gestern, auch wenn der Mitarbeiter inzwischen befördert wurde.
  *
  * Der Satz stammt aus den zehn Twig-Vorlagen des alten Systems: was die
  * dort benutzt haben, muss auch im Editor zur Verfügung stehen, sonst
  * lassen sie sich nicht nachbauen. Die geschlechtsabhängigen Formen sind
- * dabei keine Kosmetik — ohne sie steht in der Urkunde einer Frau „seine
+ * dabei keine Kosmetik: ohne sie steht in der Urkunde einer Frau „seine
  * Ernennung".
  */
 final class VariableCatalog
@@ -105,7 +105,7 @@ final class VariableCatalog
      */
     private static function person(Personnel $p, string $prefix): array
     {
-        // geschlecht: 0 männlich, 1 weiblich — dieselbe Kodierung, mit der
+        // geschlecht: 0 männlich, 1 weiblich, dieselbe Kodierung, mit der
         // Rank::displayName() und die Quali-Modelle rechnen.
         $geschlecht = (int) $p->geschlecht;
         $weiblich   = $geschlecht === 1;
@@ -144,7 +144,7 @@ final class VariableCatalog
 
     /**
      * Wer stellt aus: der angemeldete Benutzer über seine Discord-Kennung.
-     * Ohne Mitarbeiterdatensatz bleiben die Aussteller-Felder leer — der
+     * Ohne Mitarbeiterdatensatz bleiben die Aussteller-Felder leer. Der
      * Name aus dem Benutzerkonto allein wäre in einer Urkunde irreführend,
      * weil dort der Dienstgrad danebenstünde.
      */

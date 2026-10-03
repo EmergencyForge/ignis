@@ -11,8 +11,8 @@ namespace App\Jobs;
  * Worker wieder aufgeweckt. Konkrete Jobs erben hiervon und implementieren
  * `handle()`, wo die eigentliche Arbeit passiert.
  *
- * Dependencies werden beim `handle()`-Aufruf aus dem DI-Container gezogen —
- * der Konstruktor darf NUR serialisierbare Daten (primitives, Arrays,
+ * Dependencies werden beim `handle()`-Aufruf aus dem DI-Container gezogen.
+ * Der Konstruktor darf NUR serialisierbare Daten (primitives, Arrays,
  * DateTime) enthalten, keine PDO-Instanzen, Logger oder ähnliches, weil
  * der Job nach `serialize()` in die DB geschrieben wird und beim Worker-
  * Run neu aufgebaut wird.
@@ -45,7 +45,7 @@ abstract class Job
     public int $tries = 3;
 
     /**
-     * Queue-Name — Default "default", kann für Prioritäts-Queues überschrieben
+     * Queue-Name: Default "default", kann für Prioritäts-Queues überschrieben
      * werden (z.B. "high", "low", "notifications").
      */
     public string $queue = 'default';
@@ -57,7 +57,7 @@ abstract class Job
     public int $delay = 0;
 
     /**
-     * Hauptmethode — wird vom Worker aufgerufen. Muss implementiert werden.
+     * Hauptmethode: wird vom Worker aufgerufen. Muss implementiert werden.
      */
     abstract public function handle(): void;
 

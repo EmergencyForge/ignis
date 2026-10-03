@@ -35,7 +35,7 @@ final class ErrorHandlerCliTest extends TestCase
     }
 
     /**
-     * Der Weg ueber register_shutdown_function — ein echter E_ERROR, den PHP 8
+     * Der Weg ueber register_shutdown_function: ein echter E_ERROR, den PHP 8
      * nicht mehr als Throwable liefert.
      */
     #[Test]
@@ -89,7 +89,7 @@ final class ErrorHandlerCliTest extends TestCase
         PHP);
 
         // display_errors aus, damit im stderr nur ankommt, was der Handler
-        // schreibt — sonst prueft der Test PHPs eigene Ausgabe mit.
+        // schreibt, sonst prueft der Test PHPs eigene Ausgabe mit.
         $command = array_merge(
             [PHP_BINARY, '-d', 'display_errors=0'],
             $phpArgs,

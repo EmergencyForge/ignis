@@ -14,13 +14,13 @@ namespace Plugin\EnotfV2\Catalogs;
  * - plugins/enotf/templates/enotf/print/index.php ($diagnose_labels, ab Z. 917)
  * - plugins/enotf/templates/enotf/schnittstelle/voranmeldung.php ($diagnose_labels, ab Z. 293)
  *
- * Die drei Label-Quellen (Formularblätter, Print, Voranmeldung Z. 293) sind identisch —
+ * Die drei Label-Quellen (Formularblätter, Print, Voranmeldung Z. 293) sind identisch,
  * einzige Abweichung: Die Trauma-Blätter (1_10_1…1_10_10) zeigen als Radio-Label nur den
  * Schweregrad ("leicht" / "mittel" / "schwer" / "tödlich"), weil die Region über die
  * Blattnavigation gewählt wird. Hier stehen die vollen Labels aus Print/Voranmeldung.
  *
  * ACHTUNG: voranmeldung.php enthält bei Z. 148 ein ZWEITES, veraltetes Label-Array, das nur
- * für den Discord-Webhook-Text benutzt wird und ab Code 75 massiv abweicht — siehe
+ * für den Discord-Webhook-Text benutzt wird und ab Code 75 massiv abweicht, siehe
  * LEGACY_WEBHOOK_LABELS und README.md.
  */
 final class DiagnoseCatalog
@@ -251,12 +251,12 @@ final class DiagnoseCatalog
     ];
 
     /**
-     * VERALTETES Label-Array aus voranmeldung.php Z. 148 — wurde dort nur benutzt, um für den
+     * VERALTETES Label-Array aus voranmeldung.php Z. 148, wurde dort nur benutzt, um für den
      * Discord-Webhook einen Diagnose-Text aufzulösen. Bis Code 74 deckungsgleich mit LABELS,
      * ab 75 komplett andere Bedeutungen (75 Hypothermie statt bek. Dialysepflicht, 81-89
      * Verbrennung/Umwelt statt Anaphylaxie/Sonstige, 91-99 SHT/Polytrauma statt urologisch/unklar,
      * 101-119 Gynäkologie/Pädiatrie statt Trauma, zusätzlich 76, 105, 109, 115, 116, 119, 999).
-     * Diese Codes wurden von den Formularblättern NIE geschrieben — nur hier dokumentiert,
+     * Diese Codes wurden von den Formularblättern NIE geschrieben, nur hier dokumentiert,
      * damit die Abweichung nicht verloren geht. Nicht für Neu-Daten verwenden.
      */
     public const LEGACY_WEBHOOK_LABELS = [

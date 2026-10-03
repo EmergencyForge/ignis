@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * intraRP — HTML / Web-Routes
+ * intraRP: HTML / Web-Routes
  *
  * Wird vom Front-Controller (public/index.php) geladen, nachdem der
  * Container und die Session stehen. Die $router-Variable ist an dieser
@@ -44,7 +44,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
 
-// Smoke-Test-Route — hilft beim Verifizieren, dass die Pipeline steht.
+// Smoke-Test-Route. Hilft beim Verifizieren, dass die Pipeline steht.
 // Kein Auth erforderlich, damit sie auch ohne Login erreichbar ist.
 $router->get('/_router/ping', function ($request) {
     return \EmergencyForge\Http\Response::json([
@@ -55,7 +55,7 @@ $router->get('/_router/ping', function ($request) {
 });
 
 // ----------------------------------------------------------------------------
-//  Root-Einstiegspunkte — Index, Dashboard, Login, Invite, Logout, OAuth.
+//  Root-Einstiegspunkte: Index, Dashboard, Login, Invite, Logout, OAuth.
 //
 //  Die Seiten liegen weiterhin als Skripte im Projekt-Root (index.php,
 //  login.php, auth/callback.php, ...), sind dort aber nicht mehr per URL
@@ -66,8 +66,8 @@ $router->get('/_router/ping', function ($request) {
 //
 //  `.php`-Suffixe (`/login.php`, `/invite.php?code=...` aus alten Mails)
 //  streift der Front-Controller ab, bevor der Router matcht. Einzige
-//  Ausnahme ist `/index.php`, das dort bewusst unangetastet bleibt —
-//  deshalb steht es hier ausdrücklich mit drin.
+//  Ausnahme ist `/index.php`, das dort bewusst unangetastet bleibt.
+//  Deshalb steht es hier ausdrücklich mit drin.
 // ----------------------------------------------------------------------------
 
 $rootScript = static function (string $file): \Closure {
@@ -93,7 +93,7 @@ $router->get('/auth/callback', $rootScript('auth/callback.php'));
 $router->get('/auth/tablet', [\App\Http\Controllers\TabletLoginController::class, 'login']);
 
 // ----------------------------------------------------------------------------
-//  Benutzer-Modul — UserController + RoleController rufen intern
+//  Benutzer-Modul: UserController + RoleController rufen intern
 //  requireAuth() + ensure() auf, Routes brauchen nur AuthMiddleware.
 // ----------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ $userAuth = [new AuthMiddleware()];
 
 $router->get('/users/list',     [UserController::class, 'index'], $userAuth);
 
-// edit.php: GET → edit(), POST (mit ?new=1) → update() — Dispatcher-Closure
+// edit.php: GET → edit(), POST (mit ?new=1) → update(), per Dispatcher-Closure
 $benutzerEditDispatch = function (\EmergencyForge\Http\Request $request) {
     $controller = app(UserController::class);
     if ($request->method === 'POST' && (string) ($request->post['new'] ?? '') === '1') {
@@ -138,7 +138,7 @@ $router->post('/users/roles/delete',     [RoleController::class, 'destroy'], $us
 //
 //  Das komplette Antragssystem (Urlaub, Beförderung, etc.) läuft über den
 //  FormsController mit Eloquent-Models. Alle Permission-Checks sind über
-//  Policies abgedeckt — die einzelne Antrags-Ansicht prüft Ownership
+//  Policies abgedeckt. Die einzelne Antrags-Ansicht prüft Ownership
 //  im Controller, weil dort der Antrag erst geladen wird.
 //
 //  Jede Route ist mit und ohne `.php`-Suffix registriert, damit die
@@ -157,7 +157,7 @@ $router->get('/forms/create',      [FormsController::class, 'create'], $antragCr
 $router->post('/forms/create',     [FormsController::class, 'store'],  $antragCreateAuth);
 
 // view() prüft intern Gate::denies('forms.view', $antrag) mit dem geladenen
-// Model — deshalb nur AuthMiddleware hier, keine PolicyMiddleware.
+// Model, deshalb nur AuthMiddleware hier, keine PolicyMiddleware.
 $router->get('/forms/view',        [FormsController::class, 'view'], $antragAuth);
 
 $router->get('/forms/admin/list',      [FormsController::class, 'adminList'], $antragListAuth);
@@ -189,7 +189,7 @@ foreach (['/notifications', '/notifications/', '/notifications/index', '/notific
 //
 //  `index()` ist Admin-only mit Policy-Middleware. `store/update/destroy`
 //  werden über /fahrtenbuch/actions.php angesprochen und sind multi-context
-//  (Admin + eNOTF + FireTab) — der Controller checkt die verschiedenen
+//  (Admin + eNOTF + FireTab). Der Controller checkt die verschiedenen
 //  Auth-Szenarien selbst via `requireAnyContext()` / `Gate::denies`.
 // ----------------------------------------------------------------------------
 
@@ -200,7 +200,7 @@ $router->get('/logbook/',          [LogbookController::class, 'index'], $fahrtLi
 $router->get('/logbook/index',     [LogbookController::class, 'index'], $fahrtListAuth);
 $router->get('/logbook/index.php', [LogbookController::class, 'index'], $fahrtListAuth);
 
-// POST /fahrtenbuch/actions.php — Multi-Context-Dispatcher.
+// POST /fahrtenbuch/actions.php: Multi-Context-Dispatcher.
 // Keine Router-Middleware, weil die drei Auth-Kontexte (userid/fahrername/
 // einsatz_vehicle_id) im Controller via `requireAnyContext()` geprüft werden.
 $fahrtPostDispatch = function (\EmergencyForge\Http\Request $request) {
@@ -226,7 +226,7 @@ $router->post('/logbook/actions',     $fahrtPostDispatch);
 //  Kalender-Modul
 //
 //  Termine, role-getaggte Dienste, Recurring-Series. Alle Routes brauchen
-//  AuthMiddleware + PolicyMiddleware('calendar.view') — Create-Endpoint
+//  AuthMiddleware + PolicyMiddleware('calendar.view'), der Create-Endpoint
 //  zusaetzlich 'calendar.create'. Update/Delete-Permissions werden im
 //  Controller via Gate::authorize() pro Event geprueft (Ersteller darf
 //  immer, sonst calendar.manage).
@@ -259,7 +259,7 @@ $router->post('/profile/theme', [ProfileController::class, 'theme'], [new AuthMi
 //
 //  Das Mitarbeiter-Modul hat 7 URL-Entry-Points. profile.php hat einen
 //  POST-Dispatcher mit `$_POST['new']`-Feld (1/4/5/6), der je nach Action
-//  eine andere Permission braucht — wir lösen das analog zu Notification
+//  eine andere Permission braucht. Wir lösen das analog zu Notification
 //  mit einem Router-Closure + inline Gate::authorize().
 //
 //  Inline-Edit / PFP-Upload / Quali-Modal laufen über `/api/personnel/*`
@@ -319,7 +319,7 @@ $router->post('/personnel/create',     [PersonnelController::class, 'store'], $m
 // `<img src=".../personnel/delete?id=…">` hätte sonst gelöscht.
 $router->post('/personnel/delete',     [PersonnelController::class, 'destroy'], $mitarbeiterDeleteAuth);
 
-// Dokument-View (GET — zeigt Dokumenten-Details), dokument-delete (POST mit CSRF)
+// Dokument-View (GET, zeigt Dokumenten-Details), dokument-delete (POST mit CSRF)
 $router->get('/personnel/document-view',     [PersonnelController::class, 'showDocument'], [new AuthMiddleware()]);
 // Legacy-Alias: alte Notification-Rows + Personal-Log-Eintraege verlinken
 // auf "assets/functions/docredir.php?docid=…", die Datei existiert nicht
@@ -335,18 +335,18 @@ $router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\Emergen
 
 $router->post('/personnel/document-delete',     [PersonnelController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
 
-// Comment-Delete — POST mit CSRF-Token, aus demselben Grund wie oben.
+// Comment-Delete: POST mit CSRF-Token, aus demselben Grund wie oben.
 $router->post('/personnel/comment-delete',     [PersonnelController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 
 // ----------------------------------------------------------------------------
 //  Settings-Modul
 //
 //  Alle Settings-Controller rufen intern `requireAuth()` + `ensureAdmin()`
-//  auf — deshalb hier nur AuthMiddleware als äußeres Gate. Redirects auf
+//  auf, deshalb hier nur AuthMiddleware als äußeres Gate. Redirects auf
 //  `/index.php` bei fehlender Permission liefert der Controller.
 //
 //  3 Legacy-API-Endpoints (defects-handler, departments-sort, regenerate-
-//  api-key) sind 308-Redirects auf ihre `/api/...`-Router-Routes — die JS-
+//  api-key) sind 308-Redirects auf ihre `/api/...`-Router-Routes. Die JS-
 //  Callsites nutzen noch die Legacy-URLs, der 308 bewahrt Method + Body.
 // ----------------------------------------------------------------------------
 
@@ -366,7 +366,7 @@ $router->get('/settings/forms/edit',       [\App\Http\Controllers\Settings\Antra
 $router->post('/settings/forms/edit',      [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
 
 // Umschalten, Loeschen und die Reihenfolge liefen als ?toggle=, ?delete=
-// und ?delete_feld= ueber GET — eine Zustandsaenderung an einer Adresse,
+// und ?delete_feld= ueber GET, also eine Zustandsaenderung an einer Adresse,
 // die jeder Bildaufruf und jeder Vorablade-Mechanismus ausloest.
 $router->post('/settings/forms/toggle',        [\App\Http\Controllers\Settings\AntragSettingsController::class, 'toggle'],       $settingsAuth);
 $router->post('/settings/forms/delete',        [\App\Http\Controllers\Settings\AntragSettingsController::class, 'destroy'],      $settingsAuth);
@@ -564,7 +564,7 @@ $router->match(['GET', 'POST'], '/assets/functions/enotf/enrbridge', $rootScript
 //
 //  Plugin-Assets und Uploads liegen nicht unter public/. Diese Routen
 //  liefern sie mit Endungs-Allowlist und realpath-Prüfung aus; die
-//  Details stehen in den Controllern. Keine Auth — wie zuvor beim
+//  Details stehen in den Controllern. Keine Auth, wie zuvor beim
 //  direkten Zugriff durch den Webserver.
 // ----------------------------------------------------------------------------
 
@@ -572,7 +572,7 @@ $router->get('/plugins/{id:[a-z0-9_-]+}/assets/{path:.+}', [PluginAssetControlle
 $router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileController::class, 'serve']);
 
 /*
- * BEISPIEL — Benutzer-Modul mit Policy-basierter Autorisierung
+ * BEISPIEL: Benutzer-Modul mit Policy-basierter Autorisierung
  *
  * $router->group('/users', [new AuthMiddleware()], function ($r) {
  *     // Liste: klassen-level Ability, kein Ziel-Objekt
@@ -588,7 +588,7 @@ $router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileControlle
  *     );
  * });
  *
- * BEISPIEL — eNOTF-Protokoll (config-gated Auth + PIN-Lockscreen + FiveM-CSP)
+ * BEISPIEL: eNOTF-Protokoll (config-gated Auth + PIN-Lockscreen + FiveM-CSP)
  *
  * $router->group('/enotf', [
  *     new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'),
@@ -598,7 +598,7 @@ $router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileControlle
  *     $r->get('/protokoll/{enr}', [\Plugin\Enotf\Controllers\EnotfProtokollController::class, 'index']);
  * });
  *
- * BEISPIEL — Wissensdatenbank (public wenn KB_PUBLIC_ACCESS=true)
+ * BEISPIEL: Wissensdatenbank (public wenn KB_PUBLIC_ACCESS=true)
  *
  * $router->get('/wissensdb/{slug}',
  *     [\App\Http\Controllers\KnowledgebaseController::class, 'show'],
@@ -606,7 +606,7 @@ $router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileControlle
  * );
  *
  * Für einfache Permission-Checks ohne Policy-Kontext reicht weiterhin
- * der schlankere PermissionMiddleware — z.B. Admin-only Endpoints ohne
+ * der schlankere PermissionMiddleware, z.B. für Admin-only Endpoints ohne
  * Resource-Bezug. PolicyMiddleware ist der richtige Griff, sobald die
  * Entscheidung vom Ziel-Objekt abhängt (Priority-Vergleich, Ownership etc.).
  */

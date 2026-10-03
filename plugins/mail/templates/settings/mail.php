@@ -1,6 +1,6 @@
 <?php
 /**
- * View: Mail-Einstellungen (`mail.admin`) — Standard-Domain, erlaubte
+ * View: Mail-Einstellungen (`mail.admin`), Standard-Domain, erlaubte
  * Domains, Adressmuster, Sendepause und Standard-Signatur. Domain und Muster gelten
  * für neue Postfächer; bestehende Adressen ändert die Postfachverwaltung.
  *

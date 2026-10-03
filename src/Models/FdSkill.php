@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter_fwquali` — Feuerwehr-Qualifikationen.
+ * Eloquent-Model für `intra_mitarbeiter_fwquali`: Feuerwehr-Qualifikationen.
  *
  * Der `none`-Flag markiert den "Keine Qualifikation"-Eintrag, der für neue
  * Mitarbeiter standardmäßig gesetzt wird. Drei Namens-Varianten wie bei den

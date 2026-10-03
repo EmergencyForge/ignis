@@ -137,7 +137,7 @@
                                         <h6 class="mb-3">Trupps</h6>
                                         <?php
                                         $truppCount = count($trupps);
-                                        // Grid-Layout passend zur Trupp-Anzahl wählen — bei 1 Trupp volle Breite,
+                                        // Grid-Layout passend zur Trupp-Anzahl wählen: bei 1 Trupp volle Breite,
                                         // 2 nebeneinander, ansonsten 3er-Reihen auf lg, 2 auf md, 1 auf mobil.
                                         $gridClass = match ($truppCount) {
                                             1 => 'grid grid-cols-1 gap-3',

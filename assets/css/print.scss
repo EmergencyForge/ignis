@@ -6,7 +6,7 @@ body {
 // Standalone-Grundlagen + Utility-Subset
 //
 // Die Druckseite lädt bewusst kein Framework-CSS (weder Bootstrap noch
-// Tailwind) — nur dist/print.css und die Font-Sheets. Das Template
+// Tailwind), nur dist/print.css und die Font-Sheets. Das Template
 // (plugins/enotf/templates/enotf/print/index.php) ist aber mit
 // Bootstrap-5-Vokabular aufgebaut (row/col-Grid, border-Utilities,
 // w-100 usw.). Deshalb liegt hier ein kleines, festes Subset dieser

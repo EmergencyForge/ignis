@@ -16,7 +16,7 @@ use Tests\FixtureFactory;
  * zweierlei heraus:
  *
  * Das Anlegen eines Antragstyps und beide Sortier-Knöpfe posteten auf eine
- * Adresse, für die nur GET registriert war — 405, also tote Knöpfe.
+ * Adresse, für die nur GET registriert war: 405, also tote Knöpfe.
  *
  * Und Umschalten, Löschen eines Typs und Löschen eines Feldes liefen über
  * `?toggle=`, `?delete=` und `?delete_feld=`: Zustandsänderungen an einer
@@ -126,7 +126,7 @@ final class FormTypeSettingsTest extends FeatureTestCase
         $id = $this->typ(['sortierung' => 1]);
 
         // 'abc' waere als (int) zur 0 geworden und haette WHERE id = 0
-        // abgesetzt — harmlos, aber niemand hatte es geprueft.
+        // abgesetzt. Harmlos, aber niemand hatte es geprueft.
         $this->post('/settings/forms/sort', ['sortierung' => ['abc' => '9']]);
 
         $this->assertSame(1, (int) Capsule::table('intra_antrag_typen')->where('id', $id)->value('sortierung'));

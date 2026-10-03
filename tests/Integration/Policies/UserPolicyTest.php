@@ -73,7 +73,7 @@ class UserPolicyTest extends IntegrationTestCase
         $admin->save();
         $this->adminUserId = $admin->id;
 
-        // Aktor in der Session simulieren — Permissions = admin (alles erlaubt
+        // Aktor in der Session simulieren: Permissions = admin (alles erlaubt
         // bis auf full_admin) + role_priority = 10
         $_SESSION['userid']        = $this->actorUserId;
         $_SESSION['permissions']   = ['admin'];

@@ -12,12 +12,12 @@ use Illuminate\Support\Collection;
 /**
  * Findet Termin-Konflikte fuer einen Mitarbeiter in einem Zeitraum.
  * Gedacht als nicht-blockierender Hint beim Erstellen/Aktualisieren von
- * Terminen — der Controller faengt die Liste, formatiert sie als
+ * Terminen. Der Controller faengt die Liste, formatiert sie als
  * Flash-Warning und der User kann manuell entscheiden ob er trotzdem
  * speichert.
  *
  * Berücksichtigt:
- *  - Explizite Attendees (intra_calendar_attendees) — schneller Index-
+ *  - Explizite Attendees (intra_calendar_attendees): schneller Index-
  *    Lookup über mitarbeiter_id.
  *  - Recurring-Events: NICHT ausgeklappt. Wir prüfen nur die Master-Row,
  *    keine Vorkommen in der Range-Mitte. Praktisch reicht das für die
@@ -26,7 +26,7 @@ use Illuminate\Support\Collection;
  *
  *  Bewusst NICHT erfasst:
  *  - Visibility='all' (zaehlt nicht als persoenlicher Termin)
- *  - Visibility='role' ohne expliziten Attendee — siehe Doc-Block:
+ *  - Visibility='role' ohne expliziten Attendee, siehe Doc-Block:
  *    role-getaggte Dienste haben oft mehrere hundert "implizite" Teil-
  *    nehmer und wuerden die Konflikt-Liste mit False-Positives fluten.
  */
@@ -64,7 +64,7 @@ final class ConflictDetector
     }
 
     /**
-     * Bequemer aggregierter Check — gibt eine kurze Zusammenfassung
+     * Bequemer aggregierter Check: gibt eine kurze Zusammenfassung
      * zurueck, geeignet fuer Flash::warning(). Leerer String wenn keine
      * Konflikte.
      *

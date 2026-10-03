@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Section: Rettungsdaten — eNOTF v2 im v1-Look.
+ * Section: Rettungsdaten, eNOTF v2 im v1-Look.
  *
  * Drei Ansichten, alle als getreue Nachbauten der v1-Seiten
  * (plugins/enotf/templates/enotf/protokoll/rettdaten/):
  *
- *   ÜBERSICHT (ohne ?t): Eingabeseite wie v1 index.php — Patientendaten,
+ *   ÜBERSICHT (ohne ?t): Eingabeseite wie v1 index.php mit Patientendaten,
  *     Einsatzdaten, die beiden klickbaren Adress-Kacheln und die
  *     Statuszeiten-Leiste (Klick in ein leeres Zeitfeld übernimmt die
  *     aktuelle Uhrzeit, Zeit+Datum werden als EIN 'Y-m-d H:i:00'-Wert
  *     über den v2-Batch-Autosave gespeichert).
  *
- *   ?t=von / ?t=ziel: Aufbau von v1 1.php/2.php — POI-Suche mit
+ *   ?t=von / ?t=ziel: Aufbau von v1 1.php/2.php, POI-Suche mit
  *     Autocomplete (v2-Endpoint /api/enotf-v2/poi/search), Adressfelder,
  *     Sonderrechte-Tri-State, zurück/speichern. Gespeichert wird über
  *     POST /api/enotf-v2/poi/save-address (transp_- bzw. ziel_-Spalten
@@ -22,7 +22,7 @@
  * Text mit TT.MM.JJJJ umbaut (lädt das v1-Look-Layout). Der Autosave
  * schickt den deutschen Wert; ProtokollService::DATE_FIELDS (edatum,
  * patgebdat) konvertiert serverseitig nach Y-m-d. Die Statuszeiten
- * (salarm…sende) sind KEINE DATE_FIELDS — sie werden clientseitig zu
+ * (salarm…sende) sind KEINE DATE_FIELDS. Sie werden clientseitig zu
  * 'Y-m-d H:i:00' kombiniert (exakt der v1-Wert) und roh gespeichert.
  *
  * @var array<string,mixed> $protokoll
@@ -41,7 +41,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 // Altdaten-Fallback fürs Versorgung-Select: transportziel kann statt des
 // Katalog-Codes eine POI-Kennung tragen (v1-Doppelsemantik). Dann eine
 // eigene Option mit dem aufgelösten POI-Namen zeigen statt des leeren
-// Platzhalters — sonst sähe ein gefülltes Altprotokoll hier leer aus.
+// Platzhalters, sonst sähe ein gefülltes Altprotokoll hier leer aus.
 $tzPoiAnzeige = app(ProtokollService::class)->transportzielPoiAnzeige($protokoll['transportziel'] ?? null);
 
 $sectionUrl = EnotfV2Url::protokoll($enr, 'rettdaten');
@@ -264,7 +264,7 @@ $ro  = $istGesperrt ? 'readonly' : '';
     </div>
 
     <script>
-        // Alter aus Geburtsdatum (v1 rettdaten/index.php) — versteht ISO
+        // Alter aus Geburtsdatum (v1 rettdaten/index.php), versteht ISO
         // und das deutsche Format, das force-german-date.js herstellt
         function calculateAge(birthDateString) {
             if (!birthDateString) return 0;
@@ -313,7 +313,7 @@ $ro  = $istGesperrt ? 'readonly' : '';
         // Ev2Select manuell initialisieren (Geschlecht/Versorgung/Einsatzart):
         // der Auto-Init läuft nur auf body[data-page="enotf-v2"], die
         // v1-Look-Seiten tragen den Section-Key als data-page. Ein
-        // Mechanismus für alle v2-Selects — v1s dropdown.js ist hier
+        // Mechanismus für alle v2-Selects, v1s dropdown.js ist hier
         // bewusst abgeklemmt.
         document.addEventListener('DOMContentLoaded', function () {
             if (window.Ev2Select) window.Ev2Select.init(document);
@@ -485,7 +485,7 @@ $ro  = $istGesperrt ? 'readonly' : '';
                     <button type="button" id="btn-sonderrechte" class="w-100 ignis-input edivi__target" style="cursor:pointer;text-align:center;background-color:#333333;border:1px solid #595959;border-radius:0;color:#fff;font-size:1.2rem;padding:0.2rem;"><?php
                         if ($srWert === 'ja') echo 'ja';
                         elseif ($srWert === 'nein') echo 'nein';
-                        else echo '—';
+                        else echo '-';
                     ?></button>
                 </div>
             </div>
@@ -711,7 +711,7 @@ $ro  = $istGesperrt ? 'readonly' : '';
                         btn.textContent = 'nein';
                         if (icon) icon.style.display = 'none';
                     } else {
-                        btn.textContent = '—';
+                        btn.textContent = '-';
                         if (icon) icon.style.display = '';
                     }
                 }

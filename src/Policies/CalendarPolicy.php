@@ -8,7 +8,7 @@ use App\Auth\Permissions;
 use App\Models\CalendarEvent;
 
 /**
- * CalendarPolicy — wer darf was mit Kalender-Events.
+ * CalendarPolicy: wer darf was mit Kalender-Events.
  *
  * Sichtbarkeitslogik in view():
  *   - Ersteller: immer

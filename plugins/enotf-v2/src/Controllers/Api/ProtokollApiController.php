@@ -32,7 +32,7 @@ use Plugin\EnotfV2\Support\ProtokollService;
  *     Antwort:  { "ok": true, "protokoll": { ...alle Spalten... } }
  *
  * Auth: AuthMiddleware('ENOTF_REQUIRE_USER_AUTH') auf der Route (User-
- * Gate nur wenn per Config aktiv) + Crew-Session-Check hier — dieselbe
+ * Gate nur wenn per Config aktiv) + Crew-Session-Check hier, dieselbe
  * Drei-Schichten-Logik wie die Web-Seiten. Eingeloggte User mit
  * edivi-Permissions dürfen ohne Crew-Session lesen (Admin-Tooling),
  * schreiben aber nur mit edivi.edit. Crew-Sessions kommen zusätzlich
@@ -41,7 +41,7 @@ use Plugin\EnotfV2\Support\ProtokollService;
 final class ProtokollApiController
 {
     /**
-     * POST /api/enotf-v2/save-fields — Mehrfeld-Autosave (JSON).
+     * POST /api/enotf-v2/save-fields: Mehrfeld-Autosave (JSON).
      */
     public function saveFields(Request $request): Response
     {
@@ -80,7 +80,7 @@ final class ProtokollApiController
 
         try {
             // Panel-User mit admin/edivi.edit dürfen das Freigabe-Gate
-            // (offene Pflichtangaben) übersteuern — QM-Korrekturfälle
+            // (offene Pflichtangaben) übersteuern, QM-Korrekturfälle
             $result = $service->saveFields($enr, $fields, Permissions::check(['admin', 'edivi.edit']));
         } catch (\PDOException $e) {
             Logger::error('EnotfV2: save-fields Fehler', ['error' => $e->getMessage()]);
@@ -115,7 +115,7 @@ final class ProtokollApiController
     }
 
     /**
-     * GET /api/enotf-v2/protokoll/{enr} — Volldaten als JSON.
+     * GET /api/enotf-v2/protokoll/{enr}: Volldaten als JSON.
      */
     public function show(Request $request, string $enr): Response
     {
@@ -147,7 +147,7 @@ final class ProtokollApiController
      * oder 1) sind tabu (403). Gelöscht wird per hidden_user=1 +
      * freigegeben=1, freigeber_name = Fahrer(, Beifahrer). Der v1-
      * Endpoint hängt hinter hartem User-Auth und liefert Crews ohne
-     * Panel-Login nur 401er — hier reicht die Crew-Session.
+     * Panel-Login nur 401er. Hier reicht die Crew-Session.
      */
     public function deleteProtocol(Request $request): Response
     {

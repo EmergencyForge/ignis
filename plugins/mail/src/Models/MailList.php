@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_mail_lists` — Verteiler, statisch (feste
+ * Eloquent-Model für `intra_mail_lists`: Verteiler, statisch (feste
  * Mitglieder) oder dynamisch (`rule`, siehe MailDirectory). `senders`
  * sagt, wer an den Verteiler schreiben darf: alle mit Mail-Zugang oder
  * nur die Verteiler-Verwaltung.

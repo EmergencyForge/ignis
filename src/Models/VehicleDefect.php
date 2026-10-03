@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_fahrzeuge_defects` — Fahrzeug-Defektmeldungen.
+ * Eloquent-Model für `intra_fahrzeuge_defects`: Fahrzeug-Defektmeldungen.
  *
  * Status-Lifecycle: open → in_progress/deferred → resolved.
  * `vehicle_operable = 0` markiert das Fahrzeug als nicht einsatzfähig und

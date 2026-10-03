@@ -82,8 +82,8 @@ class SessionManager
         // Methode 2: Bestimmte Pfade die typischerweise in iframes laufen.
         // Substring-Match deckt auch die API-Pfade ab (/api/enotf/…,
         // /api/enotf-v2/…). '/enotf/' matcht '/enotf-v2/' NICHT (der
-        // Slash nach "enotf" fehlt dort), daher eigener Eintrag —
-        // ältere CEF-Builds senden Sec-Fetch-Dest nicht zuverlässig.
+        // Slash nach "enotf" fehlt dort), daher eigener Eintrag.
+        // Ältere CEF-Builds senden Sec-Fetch-Dest nicht zuverlässig.
         $iframePaths = ['/enotf/', '/enotf-v2/', '/einsatz/'];
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
         foreach ($iframePaths as $path) {
@@ -237,7 +237,7 @@ class SessionManager
     }
 
     /**
-     * Setzt Rollen-Detail-Keys (color/name/priority) — wird von
+     * Setzt Rollen-Detail-Keys (color/name/priority). Wird von
      * Permissions::loadRoleData() aufgerufen, sobald die Rolle aufgelöst
      * ist. Getrennt von loginUser(), weil die Rolle erst NACH dem Login
      * lazy aus der DB geholt wird.
@@ -255,7 +255,7 @@ class SessionManager
      *
      * @param array{fahrer?: array{name?: string, quali?: string}, beifahrer?: array{name?: string, quali?: string}, praktikant?: array{name?: string, quali?: string}} $crew
      * @param int|string|null $protokollFzg Vehicle-Identifier (Legacy:
-     * gemischter Typ — historisch wurde der Wert direkt aus `$_SESSION
+     * gemischter Typ; historisch wurde der Wert direkt aus `$_SESSION
      * ['protfzg']` durchgeschoben, was sowohl ints als auch strings
      * erlaubte. Wir typen das hier bewusst weich, um beim Migrieren
      * keine Behavior-Drift zu erzeugen.)
@@ -411,7 +411,7 @@ class SessionManager
 
     // ──────────────────────────────────────────────────────────────────
     // Low-Level Convenience für Stellen, die noch direkt auf $_SESSION
-    // zugreifen — Notnagel, damit Aufrufer nicht ständig in $_SESSION
+    // zugreifen. Notnagel, damit Aufrufer nicht ständig in $_SESSION
     // greifen müssen, ohne dass wir jeden Detail-Key in der API führen.
     // ──────────────────────────────────────────────────────────────────
 
@@ -639,7 +639,7 @@ class SessionManager
 
     /**
      * Liefert das Alter (Sekunden) des Permissions-Caches. Liefert
-     * `PHP_INT_MAX`, wenn noch nie geladen wurde — so dass jeder TTL-
+     * `PHP_INT_MAX`, wenn noch nie geladen wurde, so dass jeder TTL-
      * Vergleich automatisch zu einem Refresh führt.
      */
     public static function permissionsAge(): int
@@ -756,7 +756,7 @@ class SessionManager
 
     /**
      * Entfernt alle Session-Keys mit dem gegebenen Prefix. Optional kann
-     * ein Key vom Löschen ausgenommen werden — nützlich, um beim Wechsel
+     * ein Key vom Löschen ausgenommen werden. Nützlich, um beim Wechsel
      * auf eine View alle anderen `*_viewed_*`-Marker zu entfernen.
      */
     public static function forgetByPrefix(string $prefix, ?string $exceptKey = null): void

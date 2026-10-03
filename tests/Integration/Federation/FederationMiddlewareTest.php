@@ -16,7 +16,7 @@ use Tests\IntegrationTestCase;
  * sondern wird in den Federation-Controllern via
  * `FederationMiddleware::authenticate()` aufgerufen. Die `try*()`-API
  * der Middleware (siehe FederationMiddleware) wirft typisierte
- * Exceptions — diese Tests prüfen den vollständigen Auth-Flow gegen
+ * Exceptions. Diese Tests prüfen den vollständigen Auth-Flow gegen
  * eine echte Test-DB.
  */
 final class FederationMiddlewareTest extends IntegrationTestCase

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 /**
- * Eloquent-Model für `intra_edivi_pois` — Orte, die das System kennt:
+ * Eloquent-Model für `intra_edivi_pois`: Orte, die das System kennt:
  * Wachen, Kliniken, Behörden, Einsatzorte.
  *
  * Die Tabelle entstand im eNOTF-Plugin und wird dort weiter über
  * Plugin\Enotf\Models\EdiviPoi angesprochen. Gelesen wird sie aber laengst
  * auch vom Kern (Setup-Checkliste, POI-Hover-Karte, Stationierung am
  * Fahrzeug), deshalb gibt es sie hier ohne Umweg über das Plugin. Der
- * Tabellenname bleibt, wie er ist — ihn umzubenennen wäre eine Migration
+ * Tabellenname bleibt, wie er ist. Ihn umzubenennen wäre eine Migration
  * durch jede Fundstelle in beiden Modulen.
  *
  * @property int         $id

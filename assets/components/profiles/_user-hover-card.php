@@ -1,7 +1,7 @@
 <?php
 /**
  * Hover-Card-Vorschau für einen User. Zeigt User-Stammdaten (Username,
- * UID, Rolle, Admin-Flag) plus — falls vorhanden — den verlinkten
+ * UID, Rolle, Admin-Flag) plus (falls vorhanden) den verlinkten
  * Mitarbeiter als Chip-Link.
  *
  * Erwartet:
@@ -31,7 +31,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
     <dl class="user-hover-card__meta">
         <?php if ($role !== null): ?>
             <dt>Rolle</dt>
-            <dd><?= htmlspecialchars($role->name ?? '–') ?></dd>
+            <dd><?= htmlspecialchars($role->name ?? '-') ?></dd>
         <?php endif; ?>
         <?php if ($user->full_admin): ?>
             <dt>Status</dt>

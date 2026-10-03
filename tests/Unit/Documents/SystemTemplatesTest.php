@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Geprüft wird dreierlei: der Renderer nimmt sie ohne Fehler an, jeder
  * benutzte Platzhalter steht auch im Katalog, und der SectionGuard hält die
- * Abschnitts-Kennungen für brauchbar — ohne das ließe sich aus der Vorlage
+ * Abschnitts-Kennungen für brauchbar. Ohne das ließe sich aus der Vorlage
  * kein Dokument speichern.
  */
 final class SystemTemplatesTest extends TestCase
@@ -107,7 +107,7 @@ final class SystemTemplatesTest extends TestCase
 
     /**
      * Was der Aussteller je Vorlage beitraegt. Die Entlassungsurkunde
-     * steht bewusst ohne Eingabe da — schon die Twig-Fassung kam ohne aus,
+     * steht bewusst ohne Eingabe da. Schon die Twig-Fassung kam ohne aus,
      * alles darin steht im Mitarbeiterdatensatz.
      *
      * @return iterable<string,array{string,string}>

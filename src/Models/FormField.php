@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_antrag_felder` — Feld-Definitionen pro Antragstyp.
+ * Eloquent-Model für `intra_antrag_felder`: Feld-Definitionen pro Antragstyp.
  *
  * Diese Records werden vom create.php Form-Generator gelesen, um das Formular
  * dynamisch aufzubauen, und vom view.php um die eingereichten Werte mit ihren

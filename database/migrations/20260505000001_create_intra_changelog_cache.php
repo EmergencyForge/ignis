@@ -5,13 +5,13 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * intra_changelog_cache — lokaler Spiegel der Hub-Changelog-API.
+ * intra_changelog_cache: lokaler Spiegel der Hub-Changelog-API.
  *
  * Hub liefert paginierte JSON-Items, der Cache haelt sie als Rows. Damit
  * laeuft das Dashboard-Widget immer gegen die DB (schnell, offline-safe),
  * und der Hub-Fetch passiert ausschliesslich im Background-Refresh
  * (Console-Command, Cron). Wenn der Hub down ist, bleibt einfach die alte
- * Liste stehen — kein Render-Fehler im Admin-Panel.
+ * Liste stehen, es gibt keinen Render-Fehler im Admin-Panel.
  *
  * Zusaetzlich Meta-Tabelle fuer ETag/Last-Modified, damit der naechste
  * Fetch ein If-None-Match senden kann und der Hub mit 304 antworten darf
@@ -23,7 +23,7 @@ class CreateIntraChangelogCache extends AbstractMigration
     {
         if (!$this->hasTable('intra_changelog_cache')) {
             $this->table('intra_changelog_cache', ['id' => false, 'primary_key' => ['id']])
-                // explizit NOT NULL — Phinx setzt das bei manuellen PK-Spalten
+                // explizit NOT NULL: Phinx setzt das bei manuellen PK-Spalten
                 // nicht selbst, und MySQL lehnt NULL-able PKs ab (Fehler 1171)
                 ->addColumn('id', 'string', ['limit' => 80, 'null' => false])
                 ->addColumn('version', 'string', ['limit' => 32, 'null' => true])

@@ -13,7 +13,7 @@ use Tests\TestCase;
 /**
  * Unit-Smoke-Tests für den KlinikCodeController. Echte DB-Szenarien
  * (existierendes Protokoll, gültiger Code-Cache, Kollisions-Check)
- * gehören in einen Integration-Test mit Test-DB — hier decken wir nur
+ * gehören in einen Integration-Test mit Test-DB. Hier decken wir nur
  * Container-Resolution und Input-Validation ab.
  */
 class KlinikCodeControllerTest extends TestCase

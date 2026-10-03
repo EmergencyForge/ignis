@@ -1,29 +1,29 @@
 <?php
 
 /**
- * Section: Diagnose — eNOTF v2 im v1-Look.
+ * Section: Diagnose, eNOTF v2 im v1-Look.
  *
  * Nachbau der v1-Seiten plugins/enotf/templates/enotf/protokoll/diagnose/:
  *
- *   ÜBERSICHT (ohne ?t): index.php — Themen-Spalte links (Diagnose
+ *   ÜBERSICHT (ohne ?t): index.php mit Themen-Spalte links (Diagnose
  *     führend/weitere/Text) + readonly-Kacheln mit den aufgelösten Labels.
  *
  *   ?t=haupt   (v1 1.php + 1_1…1_10_11): Kategoriebaum als Wizard-Schritte
- *     — Kategorie-Spalte (ZNS…Trauma), Trauma mit dritter Nav-Ebene
+ *     mit Kategorie-Spalte (ZNS…Trauma), Trauma mit dritter Nav-Ebene
  *     (Schädel-Hirn…spezielle), Codes als btn-check-Radios
  *     name="diagnose_haupt" (normaler Batch-Autosave).
  *   ?t=weitere (v1 2.php + 2_1…2_10_11): gleiche Struktur, Checkboxen
- *     name="diagnose_weitere[]" — Speicherung als JSON-Array von int über
+ *     name="diagnose_weitere[]", Speicherung als JSON-Array von int über
  *     den Multi-JSON-Handler in edivi-bridge.js (data-ev2-multijson).
  *   ?t=text    (v1 3.php): Freitext-Box, textarea name="diagnose".
  *
- * Datenquellen: ausschließlich DiagnoseCatalog (LABELS/CATEGORIES) —
+ * Datenquellen: ausschließlich DiagnoseCatalog (LABELS/CATEGORIES),
  * keine Label-Kopien. Die Spaltenaufteilung folgt den v1-Blättern
  * (Herz-Kreislauf 11–20/21–29, Sonstige 81–89/91–99, Rest eine Spalte);
  * Trauma-Blätter zeigen wie v1 nur den Schweregrad als Label.
  *
  * Zusatz gegenüber v1 (in v1-Optik): kleines Suchfeld über den
- * Kategorie-Kacheln — Treffer erscheinen als Kachel-Spalte, ein Klick
+ * Kategorie-Kacheln. Treffer erscheinen als Kachel-Spalte, ein Klick
  * wählt den Code und springt in dessen Kategorie-Blatt.
  *
  * @var array<string,mixed> $protokoll
@@ -45,7 +45,7 @@ if (!in_array($fokus, ['haupt', 'weitere', 'text'], true)) {
     $fokus = null;
 }
 
-// Kategoriebaum-Einstieg: ohne explizites ?q KEIN Blatt offen — nur die
+// Kategoriebaum-Einstieg: ohne explizites ?q KEIN Blatt offen, nur die
 // Kategorien-Spalte (v1: 1.php/2.php zeigen erst die Navigation);
 // Klemmung auf die Schrittanzahl folgt unten nach dem Katalog-Aufbau
 $initialStep = -1;
@@ -328,7 +328,7 @@ $themenSpalte = static function (?string $aktiv) use ($fokusUrl, $e): string {
                     treffer.innerHTML = '';
                     // Wizard neu synchronisieren: der zuletzt aktive Schritt
                     // steht im ?q-Param (wizard.js hält ihn per History aktuell).
-                    // Ohne q bleibt wie beim Einstieg KEIN Schritt offen —
+                    // Ohne q bleibt wie beim Einstieg KEIN Schritt offen,
                     // nur die Kategorien-Spalte (v1: Themen-Index).
                     var q = -1;
                     try {

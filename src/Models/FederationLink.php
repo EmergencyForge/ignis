@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 /**
- * Eloquent-Model für `intra_federation_links` — Verknüpfungen zu anderen
+ * Eloquent-Model für `intra_federation_links`: Verknüpfungen zu anderen
  * intraRP-Instanzen (Instanzvernetzung/Federation).
  *
  * Pro Link: API-Keys in beide Richtungen, Consume-/Provide-Flags für

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * intraRP — Permission-Katalog
+ * intraRP: Permission-Katalog
  *
  * Liste aller verfügbaren Permission-Strings, gruppiert für die Anzeige in der
- * Rollen-Verwaltung. Dient als Single Source of Truth — der Edit- und Create-
+ * Rollen-Verwaltung. Dient als Single Source of Truth. Der Edit- und Create-
  * Modal in templates/roles/index.php holen sich die Liste hieraus, statt sie
  * doppelt zu definieren.
  *

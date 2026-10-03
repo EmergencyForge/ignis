@@ -21,7 +21,7 @@ use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * FormsController — Antragssystem (Urlaub, Beförderung, etc.).
+ * FormsController: Antragssystem (Urlaub, Beförderung, etc.).
  */
 class FormsController extends Controller
 {
@@ -38,10 +38,10 @@ class FormsController extends Controller
     // -----------------------------------------------------------------------
 
     /**
-     * GET /antrag/select — Liste der aktiven Antragstypen als Karten.
+     * GET /antrag/select: Liste der aktiven Antragstypen als Karten.
      *
      * Auth-Middleware im Router erzwingt Login; keine zusätzliche
-     * Permission nötig — jede:r eingeloggte User sieht die Typen-Auswahl.
+     * Permission nötig. Jede:r eingeloggte User sieht die Typen-Auswahl.
      */
     public function selectType(): void
     {
@@ -55,7 +55,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/create?typ=X — Form-Renderer für einen Antragstyp.
+     * GET /antrag/create?typ=X: Form-Renderer für einen Antragstyp.
      *
      * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
      */
@@ -90,7 +90,7 @@ class FormsController extends Controller
     }
 
     /**
-     * POST /antrag/create?typ=X — Antrag einreichen, Daten in Transaction speichern.
+     * POST /antrag/create?typ=X: Antrag einreichen, Daten in Transaction speichern.
      *
      * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
      */
@@ -118,8 +118,8 @@ class FormsController extends Controller
         $felder = $typ->felder;
 
         // Validierung: Typ-Check pro Feld, Pflichtfeld-Check, Mass-Assignment-
-        // Schutz. Readonly-Felder werden hier bewusst NICHT aus $_POST gezogen
-        // — die befüllen wir unten aus dem Server-Kontext (auto_fill).
+        // Schutz. Readonly-Felder werden hier bewusst NICHT aus $_POST gezogen.
+        // Die befüllen wir unten aus dem Server-Kontext (auto_fill).
         try {
             $validated = AntragFieldValidator::validate($felder, $_POST);
         } catch (ValidationException $e) {
@@ -168,7 +168,7 @@ class FormsController extends Controller
     /**
      * Übersetzt einen `auto_fill`-Key aus FormField in den Wert aus dem
      * aktuellen Mitarbeiter-Profil. Spiegel der gleichnamigen Template-
-     * Logik in `templates/antraege/create.php` — hier server-seitig als
+     * Logik in `templates/antraege/create.php`, hier server-seitig als
      * Source of Truth für readonly-Felder, damit client-seitiges Editieren
      * (DevTools) keine falschen Werte einschleusen kann.
      */
@@ -190,7 +190,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/view?antrag=X — Detailansicht eines Antrags.
+     * GET /antrag/view?antrag=X: Detailansicht eines Antrags.
      *
      * Auth-Middleware erzwingt Login. Die eigentliche Zugriffs-Prüfung
      * (`Gate::denies('forms.view', $antrag)` mit geladenem Model) passiert
@@ -230,7 +230,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/admin/list — Admin-Übersicht aller Anträge.
+     * GET /antrag/admin/list: Admin-Übersicht aller Anträge.
      *
      * Auth + PolicyMiddleware('forms.viewAny') laufen vor dem Controller.
      */
@@ -270,7 +270,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/admin/view?antrag=X — Admin-Detailansicht mit Status-Form.
+     * GET /antrag/admin/view?antrag=X: Admin-Detailansicht mit Status-Form.
      *
      * Auth + PolicyMiddleware('forms.decide') laufen vor dem Controller.
      */
@@ -305,7 +305,7 @@ class FormsController extends Controller
     }
 
     /**
-     * POST /antrag/admin/view?antrag=X — Status-Änderung durch Bearbeiter.
+     * POST /antrag/admin/view?antrag=X: Status-Änderung durch Bearbeiter.
      * Schreibt Audit-Log-Einträge für jede einzelne Änderung und sendet eine
      * Notification an den Antragsteller.
      *
@@ -398,7 +398,7 @@ class FormsController extends Controller
      * Lädt das Mitarbeiter-Profil zum aktuellen Discord-Tag aus der Session.
      * Returns null wenn keine Discord-Session, kein Profil oder archivierter Rank.
      *
-     * Bewusst via Capsule (es gibt kein Mitarbeiter-Model) — der
+     * Bewusst via Capsule (es gibt kein Mitarbeiter-Model). Der
      * geschlechts-bedingte Rank-Name ist sehr Mitarbeiter-spezifisch
      * und gehört eigentlich in das Mitarbeiter-Modul, wenn das migriert wird.
      */

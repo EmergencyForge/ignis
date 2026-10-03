@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * Eloquent-Model fuer `intra_calendar_events` — Termine, role-getaggte
+ * Eloquent-Model fuer `intra_calendar_events`: Termine, role-getaggte
  * Dienste, Recurring-Series. Hat beide Timestamps, also direkt von
  * EloquentModel statt App\Models\Model.
  *
@@ -63,7 +63,7 @@ class CalendarEvent extends EloquentModel
     public const SOURCE_ANTRAG = 'antrag';
 
     /**
-     * Kategorie-Tokens — UI-Farbgebung + Filter-Auswahl haengen daran.
+     * Kategorie-Tokens: UI-Farbgebung + Filter-Auswahl haengen daran.
      * 'absence' wird nur in Phase 2 vom AbsenceSyncService befuellt.
      */
     public const CATEGORIES = [
@@ -147,7 +147,7 @@ class CalendarEvent extends EloquentModel
 
     /**
      * Scope: Events, die im Bereich [from, to] liegen oder sich damit ueberschneiden.
-     * Recurring-Series werden NICHT expandiert — das macht der RecurrenceExpander
+     * Recurring-Series werden NICHT expandiert. Das macht der RecurrenceExpander
      * spaeter. Hier reicht "starts_at <= to AND (ends_at >= from OR recurrence_until >= from)".
      *
      * @param Builder<self> $query

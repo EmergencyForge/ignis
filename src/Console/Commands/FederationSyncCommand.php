@@ -59,7 +59,7 @@ final class FederationSyncCommand extends Command
             }
         }
 
-        $output->writeln("<info>federation:sync</info> — {$total} Datensatz-Gruppen synchronisiert, {$errors} Fehler.");
+        $output->writeln("<info>federation:sync</info>: {$total} Datensatz-Gruppen synchronisiert, {$errors} Fehler.");
         return $errors > 0 ? Command::FAILURE : Command::SUCCESS;
     }
 

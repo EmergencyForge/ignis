@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF v2 — Ev2Select/Ev2Suggest im v1-Look (geteilter Styleblock).
+ * eNOTF v2: Ev2Select/Ev2Suggest im v1-Look (geteilter Styleblock).
  *
  * Eine Quelle für alle v1-Look-Seiten: _v1head.php (Login/Overview/Create/
  * Lockscreen, body[data-page="enotf-v2"] → Auto-Init) und
@@ -18,7 +18,7 @@
 <style>
     /* v1-Eingabefläche (#333) im Protokoll-Container: ui.css färbt
        #edivi__container .ignis-input auf den Admin-Ton #2a2a2a und lädt
-       nach divi.css — hier zurück auf die v1-Fläche, damit Text-Inputs
+       nach divi.css, hier zurück auf die v1-Fläche, damit Text-Inputs
        und Select-Trigger identisch aussehen (Kriterium: gleicher
        computed background wie die form-control-Inputs in v1). */
     #edivi__container .ignis-input,
@@ -51,7 +51,7 @@
     .ev2-select__trigger:focus { outline: 0; }
     /* Pflichtfeld-Anzeige: wie bei allen anderen Feldern in edivi__boxen
        übernimmt das Validierungs-Icon neben dem Label (field_checks.php,
-       Klassen am versteckten <select>) — der Trigger bleibt bewusst ohne
+       Klassen am versteckten <select>), der Trigger bleibt bewusst ohne
        farbigen Links-Rand, divi.css unterdrückt ihn in Boxen ebenso auf
        Inputs/Selects (border-left: 0). */
     .ev2-select__trigger:focus-visible,

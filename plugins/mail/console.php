@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Mail — Console-Commands (nächtlicher Zeitplan für beide per Migration).
+ * Mail: Console-Commands (nächtlicher Zeitplan für beide per Migration).
  */
 
 return [

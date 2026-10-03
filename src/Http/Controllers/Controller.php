@@ -18,7 +18,7 @@ use EmergencyForge\Http\Response;
  * selbst implementieren.
  *
  *
- * Middleware-Pipeline übernommen — bis dahin bleiben sie hier als Inline-
+ * Middleware-Pipeline übernommen. Bis dahin bleiben sie hier als Inline-
  * Helper für die Stub-basierte Routing-Welt.
  */
 abstract class Controller
@@ -115,7 +115,7 @@ abstract class Controller
      * in den lokalen Scope geschoben, damit das Template direkt darauf zugreifen
      * kann ($users statt $viewData['users']).
      *
-     * Views werden relativ zu viewBasePath() aufgelöst — Controller in
+     * Views werden relativ zu viewBasePath() aufgelöst. Controller in
      * Plugins überschreiben die Methode und zeigen auf ihr eigenes
      * templates/-Verzeichnis.
      *
@@ -123,7 +123,7 @@ abstract class Controller
      * <main>; die Hülle (templates/layouts/admin.php, immer aus dem Kern,
      * auch für Plugin-Templates) kommt von App\Helpers\Layout. Das Template
      * gibt dazu `$bodyId` und `$SITE_TITLE` mit, optional `$bodyPage` und
-     * `$layoutHead`. Ohne `$layout` bleibt alles wie bisher — eNOTF und die
+     * `$layoutHead`. Ohne `$layout` bleibt alles wie bisher: eNOTF und die
      * Seiten mit eigener Hülle bauen ihr <html> weiter selbst.
      *
      * Fragment statt Seite: mit `X-Requested-With: fragment` (Drawer,
@@ -148,7 +148,7 @@ abstract class Controller
         // Output-Buffer um die ganze Template-Render-Phase. Wenn das Template
         // mitten im Render einen Throwable wirft, wird der bereits-gerenderte
         // Chrome (Head, Sidebar, Navbar) verworfen statt half-rendered an den
-        // Browser zu kleben — der ErrorHandler kann dann seine eigene Page
+        // Browser zu kleben. Der ErrorHandler kann dann seine eigene Page
         // sauber emittieren, ohne sie unter Dashboard-Layout zu schachteln.
         ob_start();
         try {

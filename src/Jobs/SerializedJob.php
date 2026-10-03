@@ -16,7 +16,7 @@ use Illuminate\Contracts\Queue\Job as IlluminateJobContract;
  * instanziiert er die Klasse und ruft die Methode auf, wobei er den
  * Payload-Daten und die Job-Instanz als Parameter reicht.
  *
- * Diese Klasse ist dieser Pointer — `SerializedJob::handle(IlluminateJob, $data)`.
+ * Diese Klasse ist dieser Pointer: `SerializedJob::handle(IlluminateJob, $data)`.
  * Sie deserialisiert den tatsächlichen Application-Job aus `$data['serialized']`,
  * führt dessen `handle()`-Methode aus, und markiert im Fehlerfall den
  * Queue-Eintrag korrekt als failed/released.
@@ -29,7 +29,7 @@ final class SerializedJob
     public function handle(IlluminateJobContract $illuminateJob, array $data): void
     {
         try {
-            // Security: Class-Whitelist für unserialize() — verhindert
+            // Security: Class-Whitelist für unserialize(), verhindert
             // Object-Injection-Angriffe falls jemals jemand beliebige Daten
             // in die intra_jobs-Tabelle schreiben sollte (SQLi etc.).
             // Nur Klassen unterhalb App\Jobs\ und bekannte Primitives/Arrays
@@ -93,7 +93,7 @@ final class SerializedJob
      * Liefert die Liste von Klassen, die `unserialize()` beim Deserialisieren
      * eines Jobs tatsächlich als echte Objekte rekonstruieren darf. Alle
      * anderen Klassen werden zu `__PHP_Incomplete_Class` und sind damit
-     * harmlos — `handle()` und Magic-Methods werden nicht aufgerufen.
+     * harmlos: `handle()` und Magic-Methods werden nicht aufgerufen.
      *
      * Wir erlauben die konkrete Job-Klasse selbst plus alle bekannten
      * App\Jobs\* Subklassen. DateTime/DateTimeZone werden auch erlaubt,

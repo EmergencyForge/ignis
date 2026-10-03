@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Fügt `is_pinned` samt Index zu `intra_kb_entries` hinzu — für Installationen,
+ * Fügt `is_pinned` samt Index zu `intra_kb_entries` hinzu, für Installationen,
  * deren Tabelle vor Einführung des Pinnens angelegt wurde. Neuere Installs
  * haben die Spalte bereits aus der Create-Migration; dann passiert hier nichts.
  */

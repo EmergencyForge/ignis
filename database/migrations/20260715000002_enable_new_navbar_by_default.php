@@ -8,7 +8,7 @@ use Phinx\Migration\AbstractMigration;
  * Die überarbeitete Sidebar-Navigation (Icon-Rail + Flyout) wird Standard.
  *
  * Sie rendert sich deklarativ aus config/navigation.php plus den
- * Plugin-Fragmenten — Einträge erscheinen und verschwinden damit
+ * Plugin-Fragmenten. Einträge erscheinen und verschwinden damit
  * automatisch mit dem Plugin-Status, was die handgepflegte Legacy-Sidebar
  * nie zuverlässig konnte. Der Flag bleibt editierbar als Opt-out für
  * eine Übergangszeit; danach fällt der Legacy-Zweig in navbar.php weg.

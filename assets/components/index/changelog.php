@@ -4,7 +4,7 @@
  * Admin-Dashboard-Widget: Ankündigungen aus dem Forum (Discourse-Kategorie
  * Ankündigungen). Liest ausschliesslich aus dem lokalen Cache
  * (intra_changelog_cache), den der Console-Command `changelog:refresh`
- * alle 30 Minuten befüllt — das Forum wird hier nie direkt angefragt.
+ * alle 30 Minuten befüllt. Das Forum wird hier nie direkt angefragt.
  *
  * Sichtbar nur fuer Admins.
  */

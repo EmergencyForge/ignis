@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * $key kommt heute nur aus SearchSourceInterface::key() (feste Strings im
  * Code), aber der Dateiname darf trotzdem nie aus dem Cache-Verzeichnis
- * ausbrechen — siehe VocabularyCache::sanitizeKey().
+ * ausbrechen, siehe VocabularyCache::sanitizeKey().
  */
 final class VocabularyCacheTest extends TestCase
 {

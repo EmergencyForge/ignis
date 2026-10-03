@@ -14,7 +14,7 @@ use Tests\FixtureFactory;
  * Die Dashboard-Konfiguration: Kategorien und die Verlinkungen darin.
  *
  * Das Ziel einer Verlinkung landet auf dem Dashboard in einem `href`
- * (`dashboard.php`). Der Controller nahm es, wie es kam — `javascript:…`
+ * (`dashboard.php`). Der Controller nahm es, wie es kam, `javascript:…`
  * eingeschlossen, und damit ein Skript für jeden, der die Kachel anklickt.
  */
 final class DashboardSettingsTest extends FeatureTestCase

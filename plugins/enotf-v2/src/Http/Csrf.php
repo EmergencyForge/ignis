@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Http;
 
 /**
- * Csrf — Token-Verwaltung für die v2-Web-Form-POSTs.
+ * Csrf: Token-Verwaltung für die v2-Web-Form-POSTs.
  *
  * Pro PHP-Session EIN Token (random_bytes(32) als Hex), abgelegt in
  * $_SESSION. Die Templates rendern es als Hidden-Field `_csrf` in jedes
@@ -13,7 +13,7 @@ namespace Plugin\EnotfV2\Http;
  * `X-Csrf-Token`. Geprüft wird in der CsrfMiddleware per hash_equals.
  *
  * Die Session ist zum Renderzeitpunkt immer schon gestartet
- * (SessionManager::start() im Config-Bootstrap) — auch auf dem
+ * (SessionManager::start() im Config-Bootstrap), auch auf dem
  * Lockscreen, dessen PIN-Flow ohnehin eine Session voraussetzt.
  */
 final class Csrf
@@ -43,7 +43,7 @@ final class Csrf
 
     /**
      * Timing-sicherer Vergleich eines eingereichten Tokens gegen die
-     * Session. False, wenn die Session (noch) kein Token trägt — ein
+     * Session. False, wenn die Session (noch) kein Token trägt, ein
      * fehlendes Session-Token darf niemals "alles gültig" bedeuten.
      */
     public static function isValid(?string $candidate): bool

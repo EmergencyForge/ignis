@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fire_incident_log` — Aktivitätslog eines
+ * Eloquent-Model für `intra_fire_incident_log`: Aktivitätslog eines
  * Einsatzes (Fahrzeug angemeldet, Status geändert, Sitrep erfasst, ...).
  *
  * `created_at` kommt per DB-Default (CURRENT_TIMESTAMP). `created_by` ist

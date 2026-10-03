@@ -179,7 +179,7 @@ final class VehicleWorkbenchTest extends FeatureTestCase
         $this->assertSame('EMD-Status: 6 (Nicht einsatzbereit) (Sammelaktion)', (string) Capsule::table('intra_audit_log')->where('user', $this->userId)->where('action', 'Fahrzeug aktualisiert [ID: ' . $a['id'] . ']')->value('details'));
         $this->assertStringContainsString('2 Fahrzeuge auf Status 6 (Nicht einsatzbereit) gesetzt.', (string) ($_SESSION['flash']['text'] ?? ''));
 
-        // Werte außerhalb 0–6 ändern nichts, auch nicht der aktiv/inaktiv-Wert der anderen Sammelaktion.
+        // Werte außerhalb von 0 bis 6 ändern nichts, auch nicht der aktiv/inaktiv-Wert der anderen Sammelaktion.
         foreach (['7', 'inactive', '', '2x'] as $bad) {
             $this->postWithToken('/settings/vehicles/vehicles/emd-status', ['ids' => [(string) $c['id']], 'emd_status' => $bad]);
         }

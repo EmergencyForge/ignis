@@ -108,7 +108,7 @@ function updateTruppDisplay(truppNum) {
     handElement.style.stroke = tierStroke;
   }
 
-  // Update progress bar — asu-warning/asu-danger triggern Safety-Farben,
+  // Update progress bar: asu-warning/asu-danger triggern Safety-Farben,
   // fehlen beide bedeutet: Brand-Farbe über CSS-Default.
   if (progressBar) {
     progressBar.style.width = percentValue + "%";
@@ -379,7 +379,7 @@ function sendData() {
     });
 }
 
-// View ASU Protocol — baut das Markup als String und uebergibt es als
+// View ASU Protocol: baut das Markup als String und uebergibt es als
 // Dialog-Body. Modal-Instanz und viewContainer-Element-Lookup entfallen,
 // weil das alte Bootstrap-Modal-Markup geloescht ist.
 function viewASUProtocol(data) {
@@ -481,7 +481,7 @@ function viewASUProtocol(data) {
     `;
   }
 
-  // Dialog ersetzt das alte Bootstrap-Modal — Body wird mit dem
+  // Dialog ersetzt das alte Bootstrap-Modal. Body wird mit dem
   // JS-gebauten HTML befuellt, ohne Helper-Container im DOM noetig.
   new Dialog({
     title: 'ASU-Protokoll Ansicht',

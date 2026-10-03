@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_hospital_availability` — aktueller
+ * Eloquent-Model für `intra_edivi_hospital_availability`: aktueller
  * Verfügbarkeits-Status je Fachrichtung (unique auf `department_id`).
  *
  * Status-Enum: not_staffed | available | partially_available | full.

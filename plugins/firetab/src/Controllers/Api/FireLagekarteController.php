@@ -65,7 +65,7 @@ final class FireLagekarteController
 
     private function createMarker(Request $request): Response
     {
-        // FormRequest-Validation — wirft ValidationException → JsonExceptionMiddleware
+        // FormRequest-Validation: wirft ValidationException → JsonExceptionMiddleware
         // wandelt in 422 JSON. Der Controller ist danach frei von Input-Checks.
         $data = \Plugin\Firetab\Requests\Fire\CreateMarkerRequest::validate($request->post);
 
@@ -436,7 +436,7 @@ final class FireLagekarteController
         return Capsule::table($table)->where('id', $id)->exists() ? $id : null;
     }
 
-    /** Aktivitäts-Log — ignoriert Fehler (Tabelle ist optional). */
+    /** Aktivitäts-Log: ignoriert Fehler (Tabelle ist optional). */
     private function logActivity(int $incidentId, ?int $userId, mixed $vehicleId, mixed $operatorId, string $actionType, string $description): void
     {
         try {
@@ -450,7 +450,7 @@ final class FireLagekarteController
                 'created_at'         => Capsule::connection()->raw('NOW()'),
             ]);
         } catch (PDOException $e) {
-            // Log-Tabelle ist optional — Fehler ignorieren
+            // Log-Tabelle ist optional, Fehler ignorieren
         }
     }
 

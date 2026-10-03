@@ -14,8 +14,8 @@ $currentDate = date('d.m.Y');
 $ziel = $_GET['klinik'] ?? NULL;
 $zielName = '';
 
-// Zielname über POIs ermitteln. Beide Eingangsformen — `poi_<id>` und
-// Legacy-Identifier — werden nach der Konsolidierungs-Migration aus
+// Zielname über POIs ermitteln. Beide Eingangsformen (`poi_<id>` und
+// Legacy-Identifier) werden nach der Konsolidierungs-Migration aus
 // `intra_edivi_pois` gelesen (legacy_identifier-Spalte).
 if ($ziel) {
     $zielQuery = Capsule::table('intra_edivi_pois');
@@ -74,7 +74,7 @@ if ($ziel) {
                             if (!empty($row['arrival'])) {
                                 $row['arrival'] = (new DateTime($row['arrival']))->format('H:i');
                             } else {
-                                $row['arrival'] = '—';
+                                $row['arrival'] = '-';
                             }
 
                             if ($row['priority'] == 1) {
@@ -96,7 +96,7 @@ if ($ziel) {
                             }
 
                             if (empty($row['alter'])) {
-                                $row['alter'] = '—';
+                                $row['alter'] = '-';
                             }
 
                             if ($row['kreislauf'] == 1) {

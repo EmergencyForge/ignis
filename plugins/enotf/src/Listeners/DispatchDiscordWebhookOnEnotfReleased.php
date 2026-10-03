@@ -13,7 +13,7 @@ use App\Jobs\SendDiscordWebhookJob;
  * EnotfProtocolReleased-Event gefeuert wird.
  *
  * Der Listener entkoppelt das "Protokoll wurde freigegeben"-Ereignis
- * von der konkreten Discord-Integration — weitere Listener (z.B. für
+ * von der konkreten Discord-Integration. Weitere Listener (z.B. für
  * Audit-Log, Federation) können unabhängig hinzugefügt werden, ohne
  * dass der Call-Site (Controller/LegacyApi) etwas davon mitbekommt.
  */

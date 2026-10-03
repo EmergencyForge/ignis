@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace App\Http;
 
 /**
- * UrlMap — Source-of-Truth fuer die deutsch->englisch URL-Migration.
+ * UrlMap: Source-of-Truth fuer die deutsch->englisch URL-Migration.
  *
  * intraRP ist als ıgnıs auf englische Pfade umgezogen. Alte deutsche URLs
  * (`/kalender`, `/manv`, `/benutzer`, ...) leiten weiterhin via 301/308 auf
- * die neuen englischen Pfade um — diese Klasse ist die zentrale Mapping-
+ * die neuen englischen Pfade um. Diese Klasse ist die zentrale Mapping-
  * Tabelle, die sowohl der Front-Controller-Redirector (public/index.php)
  * als auch die Auto-Translation in `Controller::redirect()` nutzen.
  *
  * Drei Kategorien von Mapping:
  *
- *   1. **Top-Segment** — `/kalender/X` → `/calendar/X`
- *   2. **API-Segment** — `/api/kalender/X` → `/api/calendar/X` (auch /api/v1/...)
- *   3. **Settings-Segment** — `/settings/<de>/.../...` → `/settings/<en>/.../...`
+ *   1. **Top-Segment**: `/kalender/X` → `/calendar/X`
+ *   2. **API-Segment**: `/api/kalender/X` → `/api/calendar/X` (auch /api/v1/...)
+ *   3. **Settings-Segment**: `/settings/<de>/.../...` → `/settings/<en>/.../...`
  *
- * Trailing-Slash bleibt **strikt** erhalten — `/kalender/` → `/calendar/`,
+ * Trailing-Slash bleibt **strikt** erhalten: `/kalender/` → `/calendar/`,
  * `/kalender` → `/calendar`. Sub-Pfade und Query-Strings werden 1:1 durch-
  * gereicht (Query-String wird vom Caller separat angefuegt).
  */
@@ -68,7 +68,7 @@ final class UrlMap
 
     /**
      * API-Sub-Segment-Mapping. Greift bei `/api/<key>/...` und
-     * `/api/v1/<key>/...` — beide Formen werden vom Front-Controller
+     * `/api/v1/<key>/...`. Beide Formen werden vom Front-Controller
      * geroutet, der Redirector deckt also beide ab.
      *
      * @var array<string,string>
@@ -104,7 +104,7 @@ final class UrlMap
 
         $changed = false;
 
-        // Settings-Block: /settings/<sub>/... — sub gegen Settings-Map mappen
+        // Settings-Block: /settings/<sub>/..., sub gegen Settings-Map mappen
         if ($segments[0] === 'settings' && isset($segments[1])) {
             // Iteriere Segmente ab Index 1 und mappe alles, was im Settings-Map steht.
             // Das deckt /settings/vehicles/defects/index ebenso wie
@@ -152,7 +152,7 @@ final class UrlMap
             return null;
         }
 
-        // Query-String separat halten — wir uebersetzen nur den Pfad-Anteil.
+        // Query-String separat halten. Wir uebersetzen nur den Pfad-Anteil.
         $queryPos = strpos($relativePath, '?');
         $pathPart = $queryPos === false ? $relativePath : substr($relativePath, 0, $queryPos);
         $queryPart = $queryPos === false ? '' : substr($relativePath, $queryPos);

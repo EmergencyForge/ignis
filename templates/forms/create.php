@@ -54,7 +54,7 @@ $bodyId = 'antrag-create';
                 <div class="ignis-card__body">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <?php foreach ($felder as $feld):
-                            // Textareas sind immer full-width, unabhängig von breite in der DB —
+                            // Textareas sind immer full-width, unabhängig von breite in der DB,
                             // halbe Textareas wären zu schmal zum Sinnvoll-Schreiben.
                             $isFullWidth     = $feld->feldtyp === 'textarea' || $feld->breite !== 'half';
                             $spanClass       = $isFullWidth ? 'md:col-span-2' : '';

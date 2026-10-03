@@ -20,7 +20,7 @@ final class FileInputDropzoneTest extends TestCase
     private const ROOT = __DIR__ . '/../../..';
     private const DIRS = ['templates', 'assets/components', 'plugins'];
 
-    /** Elemente ohne schließendes Tag – zählen nie als Wrapper. */
+    /** Elemente ohne schließendes Tag zählen nie als Wrapper. */
     private const VOID_TAGS = [
         'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
         'link', 'meta', 'param', 'source', 'track', 'wbr',

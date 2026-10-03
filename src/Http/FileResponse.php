@@ -16,7 +16,7 @@ use EmergencyForge\Http\Response;
  * weder absolut sein noch `.`/`..`-Segmente oder Backslashes enthalten,
  * und die Endung muss auf der Allowlist des Aufrufers stehen. Danach
  * entscheidet realpath, ob die Datei wirklich unter dem Basisordner
- * liegt — Symlinks nach außen fallen damit ebenfalls durch.
+ * liegt. Symlinks nach außen fallen damit ebenfalls durch.
  */
 final class FileResponse
 {

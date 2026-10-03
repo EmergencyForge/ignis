@@ -12,7 +12,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * MedikamenteController — eDIVI-Medikamentenstamm.
+ * MedikamenteController: eDIVI-Medikamentenstamm.
  */
 class MedikamenteController extends Controller
 {

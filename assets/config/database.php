@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
-// .env best-effort laden — in Docker- und CI-Setups stehen die DB_*-Variablen
+// .env best-effort laden. In Docker- und CI-Setups stehen die DB_*-Variablen
 // schon in der Prozessumgebung, dann gibt es gar keine Datei.
 Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->safeLoad();
 
@@ -18,7 +18,7 @@ foreach (['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'] as $requiredKey) {
 }
 if ($missingKeys !== []) {
     // Im Web waere echo + exit(1) eine 200er-Antwort mit einem deutschen Satz
-    // im Body — eine tote Instanz saehe damit fuer jeden Aufrufer, der auf den
+    // im Body. Eine tote Instanz saehe damit fuer jeden Aufrufer, der auf den
     // Statuscode schaut, gesund aus. In der CLI zaehlt weiterhin nur der
     // Exitcode.
     if (php_sapi_name() !== 'cli') {

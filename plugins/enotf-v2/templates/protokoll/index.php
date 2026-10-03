@@ -36,8 +36,8 @@ if (in_array($activeSection, $__v1LookSections, true)) {
 
     ob_start();
     // Section-Templates können setzen:
-    //   $sectionBodyPage   — data-page-Attribut (z. B. Messwerte → "verlauf")
-    //   $sectionChromeless — Ansicht ohne Topbar/Section-Nav (v1s chromelose
+    //   $sectionBodyPage:   data-page-Attribut (z. B. Messwerte → "verlauf")
+    //   $sectionChromeless: Ansicht ohne Topbar/Section-Nav (v1s chromelose
     //                        Unterseiten, siehe _layout-protokoll.php)
     require $sectionTemplateFile;
     $__content = ob_get_clean();
@@ -59,7 +59,7 @@ $__patname       = (string) ($protokoll['patname'] ?? '');
 $__patSynced     = (int) ($protokoll['pat_synced'] ?? 0);
 // Protokollart-Tag im Topbar-Kontext (links neben der ENR)
 $__protArt       = (int) ($protokoll['prot_by'] ?? 0) === 1 ? 'NA' : 'RD';
-// Initialer Füllstand für die Stepper-Badges — danach hält autosave.js
+// Initialer Füllstand für die Stepper-Badges. Danach hält autosave.js
 // sie über /api/enotf-v2/plausibility/{enr} aktuell.
 $__sectionStatus = app(\Plugin\EnotfV2\Support\ConditionsService::class)->sectionStatus($protokoll);
 ob_start();
@@ -77,7 +77,7 @@ ob_start();
     </div>
 <?php endif; ?>
 
-<!-- Seiten-Header: kompakt — Sectionname + Meta-Chips (dezent);
+<!-- Seiten-Header: kompakt, Sectionname + Meta-Chips (dezent);
      der Patient steht in der Topbar, nicht hier -->
 <div class="ev2-page-head">
     <h1 class="ev2-page-title"><?= $e($sections[$activeSection]['label']) ?></h1>
@@ -88,7 +88,7 @@ ob_start();
 </div>
 
 <?php
-// Section-Template im selben Variablen-Scope einbinden — Sections
+// Section-Template im selben Variablen-Scope einbinden. Sections
 // greifen direkt auf $protokoll, $enr, $istGesperrt zu.
 require $sectionTemplateFile;
 ?>

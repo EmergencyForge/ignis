@@ -1,6 +1,6 @@
 <?php
 /**
- * Vorlagen-Editor des Dokumentensystems — dieselbe Ansicht für Anlegen und
+ * Vorlagen-Editor des Dokumentensystems, dieselbe Ansicht für Anlegen und
  * Bearbeiten.
  *
  * Erwartete Variablen (EditorTemplateController::createView()/editView()):
@@ -15,7 +15,7 @@
  *
  * Die zweite Leiste über dem Editor ist ignis-eigen. Das Paket bringt für
  * Felder, Titel und Wiederholung bewusst keine Bedienoberfläche mit, und
- * in seine Toolbar ließe sich nichts einhängen — createToolbar() leert
+ * in seine Toolbar ließe sich nichts einhängen: createToolbar() leert
  * ihren Container beim Mounten.
  *
  * Variablen und Startinhalt gehen als escaptes JSON in data-Attribute,
@@ -57,7 +57,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     <p class="twplus-page-header__description">
                         Gesperrte Abschnitte bleiben in jedem Dokument aus dieser Vorlage unverändert;
                         freie Abschnitte darf der Aussteller später bearbeiten. Ausfüllbare Felder gehen
-                        auch in gesperrtem Text — ein Doppelklick darauf öffnet die Eigenschaften.
+                        auch in gesperrtem Text. Ein Doppelklick darauf öffnet die Eigenschaften.
                     </p>
                 </div>
             </div>

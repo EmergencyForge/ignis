@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Fahrzeuge, die an einem Einsatz beteiligt sind — entweder verknüpft mit
+ * Fahrzeuge, die an einem Einsatz beteiligt sind, entweder verknüpft mit
  * einem Fahrzeug aus intra_fahrzeuge oder freitextlich erfasst (z. B.
  * Fahrzeuge fremder Organisationen).
  */

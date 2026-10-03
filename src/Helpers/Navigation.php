@@ -94,7 +94,7 @@ final class Navigation
     /**
      * Gruppen für die Sidebar: die `placement => 'settings'`-Gruppen aus
      * groups() bleiben dort ungerendert, stattdessen bekommt „Verwaltung"
-     * (id `admin`) einen synthetischen Eintrag „Einstellungen" dazu — nur,
+     * (id `admin`) einen synthetischen Eintrag „Einstellungen" dazu, aber nur,
      * wenn nach der Rechteprüfung noch mindestens eine Settings-Gruppe
      * einen Eintrag hat. Aktiv ist er, wenn irgendein Settings-Eintrag es
      * ist (z.B. Rollen unter /users/roles) oder die Übersicht selbst
@@ -148,7 +148,7 @@ final class Navigation
 
         // „Verwaltung" selbst kann leer und damit aus groups() gefallen sein,
         // z.B. wenn Benutzer sehen fehlt, aber ein anderes Recht für einen
-        // Settings-Bereich reicht — dann bekommt die Sidebar die Gruppe hier
+        // Settings-Bereich reicht; dann bekommt die Sidebar die Gruppe hier
         // wieder, nur mit dem Einstellungen-Eintrag.
         if (!$foundAdmin) {
             $visible[] = ['id' => 'admin', 'label' => 'Verwaltung', 'items' => [$einstellungen]];

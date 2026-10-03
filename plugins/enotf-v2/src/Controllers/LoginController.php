@@ -12,10 +12,10 @@ use Plugin\EnotfV2\Helpers\EnotfV2Url;
 use Plugin\EnotfV2\Policies\EnotfV2Policy;
 
 /**
- * LoginController — Crew-Login, Session-Join und Logout für eNOTF v2.
+ * LoginController: Crew-Login, Session-Join und Logout für eNOTF v2.
  *
  * Die DB-Semantik läuft bewusst über den v1-Service
- * Plugin\Enotf\EnotfSession und SessionManager::loginEnotfCrew() —
+ * Plugin\Enotf\EnotfSession und SessionManager::loginEnotfCrew(),
  * dieselben Tabellen, dieselben $_SESSION-Keys, damit EIN Crew-Login
  * gleichzeitig für v1 und v2 gilt.
  *
@@ -26,7 +26,7 @@ use Plugin\EnotfV2\Policies\EnotfV2Policy;
 class LoginController extends EnotfV2Controller
 {
     /**
-     * GET /enotf-v2/login — Login-Formular.
+     * GET /enotf-v2/login: Login-Formular.
      */
     public function form(): void
     {
@@ -98,7 +98,7 @@ class LoginController extends EnotfV2Controller
     }
 
     /**
-     * POST /enotf-v2/login — Login durchführen (Mode 'new' oder 'join').
+     * POST /enotf-v2/login: Login durchführen (Mode 'new' oder 'join').
      * Semantik identisch zu v1.
      */
     public function login(): void
@@ -202,7 +202,7 @@ class LoginController extends EnotfV2Controller
     }
 
     /**
-     * GET /enotf-v2/loggedout — reine Anzeige, KEIN DB-Write.
+     * GET /enotf-v2/loggedout: reine Anzeige, KEIN DB-Write.
      *
      * Mit aktiver Crew-Session: Bestätigungsseite mit den beiden
      * Logout-Optionen (POST mode=self|all). Ohne Session: „Abgemeldet"-
@@ -219,7 +219,7 @@ class LoginController extends EnotfV2Controller
     }
 
     /**
-     * POST /enotf-v2/loggedout — Logout ausführen (mode=self|all).
+     * POST /enotf-v2/loggedout: Logout ausführen (mode=self|all).
      * DB-Semantik exakt wie v1:
      *   self → eigenen Member entfernen + Position leeren; war es die
      *          letzte besetzte Position, wird die Session deaktiviert.

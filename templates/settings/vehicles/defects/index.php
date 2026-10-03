@@ -162,7 +162,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                     <?php if (!$tableExists): ?>
                         <div class="ignis-alert ignis-alert--warn">
                             <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrzeuge_defects</code> existiert noch nicht.
-                            Lade die Seite neu — die Datenbank wird automatisch migriert. Falls das Problem bestehen bleibt, führe auf der Konsole <code>composer db:migrate</code> aus.
+                            Lade die Seite neu, die Datenbank wird automatisch migriert. Falls das Problem bestehen bleibt, führe auf der Konsole <code>composer db:migrate</code> aus.
                         </div>
                     <?php endif; ?>
 
@@ -318,7 +318,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                                 <span><i class="fa-solid fa-user-check"></i> <?= htmlspecialchars($d['assigned_name']) ?></span>
                                             <?php endif; ?>
                                             <?php if ($d['last_status_user'] && !$d['resolved_at']): ?>
-                                                <span><i class="fa-solid fa-pen"></i> <?= htmlspecialchars($d['last_status_details']) ?> — <?= htmlspecialchars($d['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($d['last_status_at']) ?></span>
+                                                <span><i class="fa-solid fa-pen"></i> <?= htmlspecialchars($d['last_status_details']) ?> (<?= htmlspecialchars($d['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($d['last_status_at']) ?>)</span>
                                             <?php endif; ?>
                                             <?php if ($d['resolved_at']): ?>
                                                 <span><i class="fa-solid fa-check"></i> Gelöst am <?= \App\Helpers\DateTimeHelper::formatDateLocal($d['resolved_at']) ?> von <?= htmlspecialchars($d['resolver_name'] ?? 'Unbekannt') ?></span>
@@ -645,9 +645,9 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         wrapper.querySelector('.detail-vehicle').textContent = (d.vehicle_name || '') + ' (' + (d.vehicle_identifier || '') + ')';
                         wrapper.querySelector('.detail-category').innerHTML = '<span class="ignis-chip ignis-chip--secondary">' + escHtml(categoryLabels[d.category] || d.category) + '</span>';
                         wrapper.querySelector('.detail-status').innerHTML = '<span class="ignis-chip ignis-chip--dot ignis-chip--' + stat[1] + '">' + escHtml(stat[0]) + '</span>';
-                        wrapper.querySelector('.detail-description').textContent = d.description || '—';
+                        wrapper.querySelector('.detail-description').textContent = d.description || 'Keine Beschreibung';
                         wrapper.querySelector('.detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
-                        wrapper.querySelector('.detail-assigned').textContent = d.assigned_name || '—';
+                        wrapper.querySelector('.detail-assigned').textContent = d.assigned_name || 'Niemand';
                         wrapper.querySelector('.detail-operable').innerHTML = d.vehicle_operable == 1
                             ? '<span class="text-ok-text"><i class="fa-solid fa-check"></i> Ja</span>'
                             : '<span class="text-danger-text"><i class="fa-solid fa-ban"></i> Nein</span>';

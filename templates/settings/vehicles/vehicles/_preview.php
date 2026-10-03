@@ -1,6 +1,6 @@
 <?php
 /**
- * templates/settings/vehicles/vehicles/_preview.php — Vorschau eines
+ * templates/settings/vehicles/vehicles/_preview.php: Vorschau eines
  * Fahrzeugs im Arbeitsbereich der Fahrzeugliste (rechte Spalte, siehe
  * assets/js/ui/workbench.js).
  *
@@ -79,7 +79,7 @@ $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleI
 
 <dl class="ignis-preview__dl">
     <dt>Kennzeichen</dt>
-    <dd><?= ($vehicle['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars((string) $vehicle['kennzeichen']) . '</span>' : '—' ?></dd>
+    <dd><?= ($vehicle['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars((string) $vehicle['kennzeichen']) . '</span>' : '-' ?></dd>
     <dt>Kennung</dt>
     <dd><span class="ignis-mono"><?= htmlspecialchars((string) $vehicle['identifier']) ?></span></dd>
     <dt>Priorität</dt>

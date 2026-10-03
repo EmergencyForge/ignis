@@ -28,7 +28,7 @@ use Plugin\Enotf\Requests\KlinikCodeGenerateRequest;
  */
 final class KlinikCodeController
 {
-    /** Zeichen für die Code-Generierung — nur eindeutig lesbare Zeichen */
+    /** Zeichen für die Code-Generierung: nur eindeutig lesbare Zeichen */
     private const CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     private const CODE_LENGTH = 6;
     private const MAX_GENERATE_ATTEMPTS = 100;
@@ -106,7 +106,7 @@ final class KlinikCodeController
     /**
      * Generiert einen Code und prüft gegen Kollisionen in der DB. Gibt
      * `null` zurück, wenn nach MaxAttempts kein freier Code gefunden
-     * wurde — extrem unwahrscheinlich bei 6 Zeichen aus 36 möglichen
+     * wurde, extrem unwahrscheinlich bei 6 Zeichen aus 36 möglichen
      * (≈ 2 Milliarden Kombinationen), aber wir handhaben's defensiv.
      */
     private function generateUniqueCode(): ?string

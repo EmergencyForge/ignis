@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter_rdquali` — Rettungsdienst-Qualifikationen.
+ * Eloquent-Model für `intra_mitarbeiter_rdquali`: Rettungsdienst-Qualifikationen.
  *
  * @property int    $id
  * @property int    $priority

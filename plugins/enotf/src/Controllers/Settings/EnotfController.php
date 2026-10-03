@@ -11,7 +11,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * EnotfController — eNOTF-Quicklinks und -Kategorien.
+ * EnotfController: eNOTF-Quicklinks und -Kategorien.
  */
 class EnotfController extends Controller
 {

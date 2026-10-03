@@ -17,7 +17,7 @@ use Symfony\Component\Console\Command\Command;
  *
  * Die Arbeit macht der Handler aus emergencyforge/cron-scheduler: eigener
  * PHP-Prozess, Allowlist, Timeout, gekürzte Ausgabe. Zwei Dinge bleiben
- * hier, weil sie ignis gehören — die Liste der erlaubten Commands und der
+ * hier, weil sie ignis gehören: die Liste der erlaubten Commands und der
  * Sonderweg für `updates:check`.
  */
 final class ConsoleHandler implements JobHandlerInterface

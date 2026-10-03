@@ -13,7 +13,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 /**
  * Bridge zwischen Antragssystem und Kalender. Bei Genehmigung eines
  * Urlaubsantrags wird ein CalendarEvent angelegt (oder geupdated), das per
- * source='antrag' + source_ref_id auf den Antrag zeigt — keine Doppel-
+ * source='antrag' + source_ref_id auf den Antrag zeigt. Keine Doppel-
  * Wahrheit, nur eine Bridge-Row, die der Cascade-Logik (DELETE/UPDATE)
  * folgt.
  *
@@ -92,7 +92,7 @@ final class AbsenceSyncService
         $event->source_ref_id = $antrag->id;
         $event->save();
 
-        // Mitarbeiter (Antragsteller) als Attendee+Organizer setzen — fuers
+        // Mitarbeiter (Antragsteller) als Attendee+Organizer setzen, fuers
         // "Wer ist heute da"-Widget zaehlt das. Bei multi-day-Updates wird
         // firstOrCreate verwendet, sodass keine Duplikate entstehen.
         if (!empty($antrag->discordid)) {
@@ -150,7 +150,7 @@ final class AbsenceSyncService
     }
 
     /**
-     * Anzeigename des Antragstellers — name_dn aus dem Antrag oder Fallback
+     * Anzeigename des Antragstellers: name_dn aus dem Antrag oder Fallback
      * auf den Discord-Tag.
      */
     private static function displayName(Form $antrag): string

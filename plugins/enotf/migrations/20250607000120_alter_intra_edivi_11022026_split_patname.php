@@ -50,7 +50,7 @@ class AlterIntraEdivi11022026SplitPatname extends AbstractMigration
 
     public function down(): void
     {
-        // patname wurde nie angetastet — die aufgeteilten Kopien können
+        // patname wurde nie angetastet, die aufgeteilten Kopien können
         // verlustfrei wieder entfallen.
         $this->table('intra_edivi')
             ->removeColumn('pat_vorname')

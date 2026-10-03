@@ -30,14 +30,14 @@ ErrorHandler::register();
 // ============================================================================
 // Wird einmalig pro Request gebaut und in $GLOBALS abgelegt, damit die
 // app()-Helper-Funktion aus src/helpers.php darauf zugreifen kann.
-// Bestehender Code bleibt unangetastet — der Container ist additiv.
+// Bestehender Code bleibt unangetastet, der Container ist additiv.
 if (!isset($GLOBALS['app_container'])) {
     $containerBuilder = new \DI\ContainerBuilder();
     $containerBuilder->useAutowiring(true);
     $containerBuilder->addDefinitions(__DIR__ . '/../../config/container.php');
     $GLOBALS['app_container'] = $containerBuilder->build();
 
-    // Eloquent eager booten — ohne setAsGlobal() würden Models keine Verbindung
+    // Eloquent eager booten. Ohne setAsGlobal() würden Models keine Verbindung
     // finden. Idempotent: Capsule ist im Container ein Singleton.
     $GLOBALS['app_container']->get(\Illuminate\Database\Capsule\Manager::class);
 }
@@ -63,14 +63,14 @@ if (SessionManager::isLoggedIn()) {
 }
 
 // Legacy-PDO-Verbindung aufbauen und in den Container schieben. Der App-Code
-// läuft komplett über Eloquent — diese Verbindung existiert nur noch für die
+// läuft komplett über Eloquent. Diese Verbindung existiert nur noch für die
 // Migrations-Infrastruktur (AutoMigrator, TwigToVisualMigrator) und für
 // Konsumenten, die PDO::class aus dem Container ziehen (Console-Commands,
 // Plugin-API-Controller). Idempotent: kann mehrfach pro Request laufen.
 //
 // In der CLI bleibt das aus. Jeder Web-Request braucht die Datenbank ohnehin,
 // ein Konsolenaufruf nicht: `list` und `--help` sollen auch dann antworten,
-// wenn keine Datenbank erreichbar ist — fabrica fragt eine frisch gestartete
+// wenn keine Datenbank erreichbar ist: fabrica fragt eine frisch gestartete
 // Instanz genau so nach ihrer Bereitschaft. Die Verbindung entsteht dort erst,
 // wenn ein Befehl PDO::class aus dem Container zieht; die Factory in
 // config/container.php baut sie mit denselben Optionen.
@@ -81,7 +81,7 @@ if (php_sapi_name() !== 'cli') {
     }
 
     // Auto-run pending database migrations (lightweight file-count check).
-    // In der CLI ist `intra migrate` der ausdrückliche Weg — Migrationen als
+    // In der CLI ist `intra migrate` der ausdrückliche Weg. Migrationen als
     // Nebenwirkung eines beliebigen Befehls laufen zu lassen, wäre ohnehin
     // nichts, worauf man sich verlassen sollte.
     try {
@@ -95,7 +95,7 @@ if (php_sapi_name() !== 'cli') {
 
 // Aktive Plugins anbinden: Autoloading für ihre Klassen und Gate-Policies
 // registrieren. Muss vor dem Routing laufen, weil Plugin-Controller sonst
-// beim Dispatch nicht auflösbar wären. Schlägt fehl-tolerant fehl — ohne
+// beim Dispatch nicht auflösbar wären. Schlägt fehl-tolerant fehl: Ohne
 // ladbare Plugins läuft der Kern normal weiter.
 try {
     $pluginLoader = $GLOBALS['app_container']->get(\App\Plugins\PluginLoader::class);

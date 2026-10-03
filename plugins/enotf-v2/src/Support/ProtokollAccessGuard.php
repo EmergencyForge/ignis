@@ -8,18 +8,18 @@ use App\Auth\Permissions;
 use Plugin\EnotfV2\Policies\EnotfV2Policy;
 
 /**
- * ProtokollAccessGuard — Fahrzeug-Scoping für die Protokoll-APIs.
+ * ProtokollAccessGuard: Fahrzeug-Scoping für die Protokoll-APIs.
  *
  * Die Feld-Endpoints (save-fields, vitals, medis, poi/save-address,
  * patient-sync, plausibility, sync-status) prüfen über diesen Guard, ob
- * das angefragte Protokoll überhaupt zum Aufrufer gehört — die reine
+ * das angefragte Protokoll überhaupt zum Aufrufer gehört: die reine
  * Existenz einer Crew-Session reicht nicht, sonst könnte jede Crew per
  * ENR in die Protokolle fremder Fahrzeuge schreiben.
  *
  * Regeln:
  *   - Crew-Sessions: Protokoll muss zum eigenen Fahrzeug gehören.
  *     Geteilte NA/RD-Protokolle tragen BEIDE Fahrzeuge (fzg_transp +
- *     fzg_na) — ein Match auf einem der beiden Felder genügt. Frisch
+ *     fzg_na). Ein Match auf einem der beiden Felder genügt. Frisch
  *     angelegte Protokolle sind abgedeckt, weil der Create-Flow das
  *     eigene Fahrzeugfeld sofort setzt.
  *   - Panel-User bleiben fahrzeuglos zugriffsberechtigt (QM-Kontext):

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * View: Übersicht — offene Protokolle + Quicklinks (eNOTF v2) — v1-Optik.
+ * View: Übersicht mit offenen Protokollen und Quicklinks (eNOTF v2) in v1-Optik.
  *
  * Markup/Optik = plugins/enotf/templates/enotf/overview.php: Topbar mit
  * Abmelden/Fahrzeuginfo/Fahrtenbuch, Protokoll-Liste als edivi__einsatz-
@@ -129,10 +129,10 @@ date_default_timezone_set('Europe/Berlin');
                                 foreach ($protokolle as $row):
                                     $label = $protLabelFromIndex($rank++);
 
-                                    $edatum    = !empty($row['edatum']) ? (new DateTime((string) $row['edatum']))->format('d.m.Y') : '—';
-                                    $ezeit     = !empty($row['ezeit']) ? (new DateTime((string) $row['ezeit']))->format('H:i') : '—';
-                                    $patgebdat = !empty($row['patgebdat']) ? (new DateTime((string) $row['patgebdat']))->format('d.m.Y') : '—';
-                                    $patname   = !empty($row['patname']) ? $row['patname'] : '—';
+                                    $edatum    = !empty($row['edatum']) ? (new DateTime((string) $row['edatum']))->format('d.m.Y') : '-';
+                                    $ezeit     = !empty($row['ezeit']) ? (new DateTime((string) $row['ezeit']))->format('H:i') : '-';
+                                    $patgebdat = !empty($row['patgebdat']) ? (new DateTime((string) $row['patgebdat']))->format('d.m.Y') : '-';
+                                    $patname   = !empty($row['patname']) ? $row['patname'] : '-';
 
                                     $canDelete = ((int) ($row['createdby'] ?? 0) === 2);
                                     $protType  = ((int) ($row['prot_by'] ?? 0) === 1) ? 'NA' : 'NF';
@@ -238,7 +238,7 @@ date_default_timezone_set('Europe/Berlin');
         </div>
     </div>
 
-    <!-- delete_all als POST (v2-Sicherheitsfix) — ausgelöst über den Button + Confirm -->
+    <!-- delete_all als POST (v2-Sicherheitsfix), ausgelöst über den Button + Confirm -->
     <form method="post" action="<?= $e(EnotfV2Url::page('overview')) ?>" id="ev2-delete-all-form" style="display:none;">
         <input type="hidden" name="delete_all" value="1">
         <input type="hidden" name="_csrf" value="<?= $e(\Plugin\EnotfV2\Http\Csrf::token()) ?>">
@@ -286,7 +286,7 @@ date_default_timezone_set('Europe/Berlin');
         }
     </style>
     <script>
-        // Swipe-to-Delete (v1 overview.php 1:1) — Einzellöschen läuft über
+        // Swipe-to-Delete (v1 overview.php 1:1), Einzellöschen läuft über
         // den v2-Endpoint delete-protocol (403 bei Leitstellen-Protokollen;
         // das v1-Pendant hängt hinter hartem User-Auth → 401 für Crews
         // ohne Panel-Login)
@@ -508,7 +508,7 @@ date_default_timezone_set('Europe/Berlin');
             });
         })();
     </script>
-    <!-- Logout Modal (v1-Optik; Abmelden läuft als POST — v2-Sicherheitsfix) -->
+    <!-- Logout Modal (v1-Optik; Abmelden läuft als POST, v2-Sicherheitsfix) -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

@@ -6,11 +6,11 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Fügt operator_id zu intra_fire_incident_map_zones hinzu: die Person auf dem
- * Fahrzeug, die die Zone angelegt hat — inklusive Index und Foreign Key auf
+ * Fahrzeug, die die Zone angelegt hat, inklusive Index und Foreign Key auf
  * intra_mitarbeiter (ON DELETE SET NULL, ON UPDATE CASCADE).
  *
  * Auf Installationen, deren Zones-Tabelle die Spalte bereits mitbringt,
- * passiert nichts — Index und Constraint existieren dort ebenfalls schon aus
+ * passiert nichts. Index und Constraint existieren dort ebenfalls schon aus
  * dem CREATE TABLE.
  */
 class AddOperatorIdToZones25122025 extends AbstractMigration

@@ -25,7 +25,7 @@ final class FireController
      * POST /api/fire/status
      *
      * Vehicle-Session-auth: erwartet `$_SESSION['einsatz_vehicle_id']` und
-     * `$_SESSION['einsatz_operator_id']` — wird vom Fahrzeug nach Login
+     * `$_SESSION['einsatz_operator_id']`, wird vom Fahrzeug nach Login
      * im Einsatz-Modul gesetzt.
      *
      * Body: { "action": "get_status" }  oder
@@ -168,11 +168,11 @@ final class FireController
     }
 
     /**
-     * GET /api/fire/bulk-delete-empty — liefert die verfügbaren Felder
-     * POST /api/fire/bulk-delete-empty — Preview oder echter Bulk-Delete
+     * GET /api/fire/bulk-delete-empty: liefert die verfügbaren Felder
+     * POST /api/fire/bulk-delete-empty: Preview oder echter Bulk-Delete
      *
      * POST-Body (form-data):
-     *   - fields[]:   string[] — zu prüfende Felder (incident_number, location, keyword, leader_id, notes, no_vehicles)
+     *   - fields[]:   string[] der zu prüfenden Felder (incident_number, location, keyword, leader_id, notes, no_vehicles)
      *   - preview:    wenn gesetzt → Preview, kein Delete
      *   - timePeriod: "all" | "7" | "30" | ...
      *   - statusFilter: "all" | "unfinalized" | "finalized"
@@ -203,7 +203,7 @@ final class FireController
                 return Response::json(['success' => false, 'message' => 'Keine gültigen Felder ausgewählt']);
             }
 
-            // Bedingungen stammen ausschließlich aus der Whitelist oben —
+            // Bedingungen stammen ausschließlich aus der Whitelist oben,
             // keine Nutzereingaben im SQL.
             $conditions = [];
             foreach ($fieldsToCheck as $field) {

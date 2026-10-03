@@ -38,9 +38,9 @@ final class UpdatesCheckCommand extends Command
         $current   = (string) ($result['current_version'] ?? '?');
 
         if ($available) {
-            $output->writeln("<info>updates:check</info> — Neue Version verfügbar: <comment>{$latest}</comment> (aktuell: {$current})");
+            $output->writeln("<info>updates:check</info>: Neue Version verfügbar: <comment>{$latest}</comment> (aktuell: {$current})");
         } else {
-            $output->writeln("<info>updates:check</info> — Installation ist aktuell ({$current}).");
+            $output->writeln("<info>updates:check</info>: Installation ist aktuell ({$current}).");
         }
         return Command::SUCCESS;
     }

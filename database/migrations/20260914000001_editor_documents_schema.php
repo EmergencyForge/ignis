@@ -15,7 +15,7 @@ use Phinx\Migration\AbstractMigration;
  * Neben den bestehenden `intra_dokument_*`-Tabellen, nicht an ihrer Stelle:
  * das alte Canvas-System bleibt vorerst stehen und wird in einem zweiten
  * Schritt abgelöst, wenn die zehn Systemvorlagen im neuen Editor nachgebaut
- * sind. Deshalb auch die englischen Namen — sie kollidieren nicht.
+ * sind. Deshalb auch die englischen Namen, sie kollidieren nicht.
  *
  * Ein Dokument hängt an genau einem Mitarbeiter; ignis kennt keine Akten.
  */

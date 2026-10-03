@@ -10,7 +10,7 @@ namespace App\Security;
  * Ein Token pro Sitzung, nicht pro Anfrage. Die frühere Fassung würfelte
  * bei jeder erfolgreichen Prüfung neu, und das war der Grund, warum der
  * Schutz nie flächendeckend angezogen werden konnte: eine Seite, die zwei
- * Formulare zeigt, trägt in beiden denselben — nach dem ersten Absenden
+ * Formulare zeigt, trägt in beiden denselben. Nach dem ersten Absenden
  * ist das zweite tot. Dasselbe gilt für zwei offene Tabs und für jeden
  * Autosave neben einem offenen Formular. Der Editor musste deshalb den
  * rotierten Token aus jeder Antwort zurück ins versteckte Feld schreiben.
@@ -21,7 +21,7 @@ namespace App\Security;
  * mehr als eine Anfrage im Spiel ist. Ein Token pro Sitzung ist das, was
  * Laravel, Django und Rails ebenfalls tun.
  *
- * Neu gewürfelt wird bei Anmeldung und Abmeldung — dort, wo auch die
+ * Neu gewürfelt wird bei Anmeldung und Abmeldung, also dort, wo auch die
  * Session-ID neu gewürfelt wird, siehe {@see \App\Session\SessionManager}.
  */
 class CsrfProtection

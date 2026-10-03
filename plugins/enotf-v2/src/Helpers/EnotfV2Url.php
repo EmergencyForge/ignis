@@ -8,7 +8,7 @@ namespace Plugin\EnotfV2\Helpers;
  * URL-Helfer für eNOTF v2.
  *
  * v2 fährt von Anfang an Clean-URLs über den Router (keine .php-Suffixe,
- * ENR als Pfadsegment) — der useCleanUrls()-Workaround aus v1 entfällt,
+ * ENR als Pfadsegment). Der useCleanUrls()-Workaround aus v1 entfällt,
  * weil alle v2-Templates ausschließlich absolute Helper-URLs verwenden.
  *
  * Schema:
@@ -59,7 +59,7 @@ class EnotfV2Url
     }
 
     /**
-     * v1-API-Endpoint (/api/enotf/…) — für die Crew-Flows inzwischen
+     * v1-API-Endpoint (/api/enotf/…), für die Crew-Flows inzwischen
      * ungenutzt (delete-protocol, delete-vehicle-session, check-conflict
      * und die Session-Endpoints haben v2-Pendants), bleibt aber als
      * Helfer für punktuelle v1-Aufrufe erhalten.

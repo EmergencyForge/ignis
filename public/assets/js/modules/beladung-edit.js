@@ -3,7 +3,7 @@
  *
  * Wird im Admin-Modus geladen (`canEdit=true` in der Partial). Aktiviert:
  *   - SortableJS auf jeder `.beladung-tiles--sortable`-Liste; Drag-Handle
- *     ist `.beladung-tile__handle`. Cross-Category-Drop erlaubt — ein
+ *     ist `.beladung-tile__handle`. Cross-Category-Drop erlaubt: Ein
  *     Tile kann in eine andere Kategorie gezogen werden, der Server
  *     speichert die neue Kategorie + sort_order in einer Transaktion.
  *   - Click auf den Amount-Chip (.beladung-tile__amount-edit) öffnet
@@ -32,7 +32,7 @@ function postForm(action, payload) {
 /**
  * Synct die `.is-empty`-Klasse auf einer sortable Liste mit ihrem
  * tatsächlichen Item-Stand. Wird nach jedem Drag-Drop für Source und
- * Target aufgerufen — CSS rendert den „Items hierher ziehen"-Hinweis
+ * Target aufgerufen. CSS rendert den „Items hierher ziehen"-Hinweis
  * nur, wenn die Klasse gesetzt ist (Fallback-Lösung weil `:empty` durch
  * PHP-Whitespace im Markup nicht greift).
  */
@@ -60,7 +60,7 @@ function initSortable() {
                 const targetList = ev.to;
                 const sourceList = ev.from;
 
-                // Empty-State über `.is-empty`-Klasse synchronisieren — CSS
+                // Empty-State über `.is-empty`-Klasse synchronisieren. CSS
                 // rendert dann den dashed-Border-Drop-Hinweis am leeren <ul>.
                 syncEmptyClass(targetList);
                 if (sourceList && sourceList !== targetList) {

@@ -7,7 +7,7 @@ namespace Plugin\Enotf;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * EnotfSession — Service für die Verwaltung der eNOTF-Crew-Sessions.
+ * EnotfSession: Service für die Verwaltung der eNOTF-Crew-Sessions.
  *
  * Kapselt die Tabellen `intra_enotf_sessions` (1 Zeile pro Fahrzeug-Crew) und
  * `intra_enotf_session_members` (1 Zeile pro Crew-Mitglied mit Token).

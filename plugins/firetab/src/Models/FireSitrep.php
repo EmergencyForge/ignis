@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fire_incident_sitreps` — Lagemeldungen
+ * Eloquent-Model für `intra_fire_incident_sitreps`: Lagemeldungen
  * (Sitreps) zu einem Einsatz.
  *
  * `created_at` kommt per DB-Default (CURRENT_TIMESTAMP).

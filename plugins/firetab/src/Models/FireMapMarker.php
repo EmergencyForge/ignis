@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fire_incident_map_markers` — taktische Marker
+ * Eloquent-Model für `intra_fire_incident_map_markers`: taktische Marker
  * auf der Einsatz-Lagekarte.
  *
  * Position in Prozent (0-100). Neben freien Markern (marker_type) tragen

@@ -10,7 +10,7 @@ use EmergencyForge\FuzzySearch\Vocabulary;
  * Datei-Cache für das Vokabular einer Suchquelle: storage/cache/search-<key>.php,
  * 10 Minuten gültig. Eine ereignisgesteuerte Invalidierung ist in ignis
  * nicht verlässlich, weil über 30 Stellen direkt in die Tabellen
- * schreiben (siehe Spec) — eine Zeit-TTL reicht.
+ * schreiben (siehe Spec). Eine Zeit-TTL reicht.
  *
  * Der Inhalt ist ein reines var_export-Array (keine Objekte, kein Code
  * aus Nutzereingaben). Geschrieben wird über eine temporäre Datei plus
@@ -65,7 +65,7 @@ final class VocabularyCache
     }
 
     /**
-     * $key kommt von SearchSourceInterface::key() — heute feste Strings im
+     * $key kommt von SearchSourceInterface::key(), heute feste Strings im
      * Code, aber der Dateiname bleibt auch dann im Cache-Verzeichnis, wenn
      * ein Plugin (dessen Quellen genauso hier reinkommen) dort einmal
      * etwas anderes einträgt.

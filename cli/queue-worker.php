@@ -10,7 +10,7 @@ declare(strict_types=1);
  * der Server-Admin den Crontab anfassen muss.
  *
  * Neue Installationen sollten direkt `cli/intra.php queue:work [options]`
- * verwenden — siehe `docs/dokumentation/cron-setup.md`.
+ * verwenden, siehe `docs/dokumentation/cron-setup.md`.
  *
  * Original-CLI-Argumente werden durchgereicht:
  *

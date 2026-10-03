@@ -10,13 +10,13 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 
 /**
- * `GET /plugins/{id}/assets/{path}` — statische Dateien eines Plugins.
+ * `GET /plugins/{id}/assets/{path}`: statische Dateien eines Plugins.
  *
  * Plugins werden zur Laufzeit installiert und liegen außerhalb des
  * Docroots, deshalb kopiert der Build nichts; diese Route liefert die
  * Dateien aus. Es gibt nur fertige, statische Formate (die Allowlist
- * unten), nur aus dem assets/-Ordner und nur für installierte Plugins —
- * ein bloß nach plugins/ kopiertes Archiv bleibt auch hier unsichtbar.
+ * unten), nur aus dem assets/-Ordner und nur für installierte Plugins.
+ * Ein bloß nach plugins/ kopiertes Archiv bleibt auch hier unsichtbar.
  */
 final class PluginAssetController
 {

@@ -45,17 +45,17 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
         }
 
         // `?test` (oder `?test=1`) aktiviert einen Admin-Bypass-Bypass für den
-        // Lockscreen-Flow — nur in development, damit in Produktion keine
+        // Lockscreen-Flow, nur in development, damit in Produktion keine
         // versehentlichen Auth-Schlupflöcher entstehen. `?test=off` cleaned.
         $testMode = self::applyTestFlag($request);
 
-        // Exempt-User (Admin / edivi.view) überspringen den Lockscreen komplett —
+        // Exempt-User (Admin / edivi.view) überspringen den Lockscreen komplett,
         // außer Test-Modus ist aktiv.
         if (!$testMode && Permissions::check(['edivi.view'])) {
             return $next($request);
         }
 
-        // Kliniker-Zugriff via Einmal-Code — gilt 2 Stunden
+        // Kliniker-Zugriff via Einmal-Code, gilt 2 Stunden
         if ($this->hasActiveKlinikAccess()) {
             return $next($request);
         }
@@ -125,7 +125,7 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
             return true;
         }
 
-        // Abgelaufen — aufräumen
+        // Abgelaufen: aufräumen
         \App\Session\SessionManager::clearKlinikAccess();
         return false;
     }

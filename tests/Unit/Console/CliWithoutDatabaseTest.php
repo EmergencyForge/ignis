@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * `cli/intra.php list` und `--help` müssen antworten, auch wenn keine
  * Datenbank erreichbar ist. fabrica fragt eine frisch gestartete Instanz
- * genau so nach ihrer Bereitschaft — stirbt der Aufruf an einer
+ * genau so nach ihrer Bereitschaft. Stirbt der Aufruf an einer
  * PDOException, taugt er dafür nicht.
  *
  * Braucht einen echten Unterprozess: geprüft wird der Exitcode, und die

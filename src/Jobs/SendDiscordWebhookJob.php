@@ -11,7 +11,7 @@ use App\Logging\Logger;
  * Job: Sendet eine Discord-Webhook-Benachrichtigung asynchron.
  *
  * Wird von Controllern dispatched, die vorher synchron `DiscordWebhook`
- * aufgerufen haben — der HTTP-Request an den Discord-Server wird jetzt
+ * aufgerufen haben. Der HTTP-Request an den Discord-Server wird jetzt
  * vom Queue-Worker bearbeitet, statt den User-Request zu blockieren.
  *
  * Unterstützte Typen (entsprechen den existierenden Methoden auf

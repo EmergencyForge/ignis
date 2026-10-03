@@ -13,7 +13,7 @@ use Plugin\ManvBoard\Models\MANVLog;
 use Plugin\ManvBoard\Models\MANVPatient;
 
 /**
- * MANV (Massenanfall von Verletzten) — Admin-API.
+ * MANV (Massenanfall von Verletzten): Admin-API.
  *
  * Unterstützt die sechs Aktionen: get_stats, get_patients, search_patients,
  * update_sichtung, get_lage, transport_abfahrt. Wird vom MANV-Admin-UI

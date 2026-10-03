@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Rüstet die Einsatznummer für Installationen nach, deren
  * intra_fire_incidents noch ohne incident_number angelegt wurde. Neuere
- * CREATE-Versionen enthalten die Spalte bereits — dann passiert hier nichts.
+ * CREATE-Versionen enthalten die Spalte bereits, dann passiert hier nichts.
  */
 class AlterIntraFireIncidents20250108AddIncidentNumber extends AbstractMigration
 {

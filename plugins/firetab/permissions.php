@@ -1,7 +1,7 @@
 <?php
 
 /**
- * fireTab — Permission-Katalog.
+ * fireTab: Permission-Katalog.
  */
 
 return [

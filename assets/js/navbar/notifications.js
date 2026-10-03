@@ -1,5 +1,5 @@
 /**
- * ignis UI — Zähler ungelesener Benachrichtigungen.
+ * ignis UI: Zähler ungelesener Benachrichtigungen.
  *
  * Fragt alle 30 s GET /api/notifications/poll ab (nur bei sichtbarem Tab)
  * und hält die Marken `.notification-poll-badge` (Punkt an der Glocke in

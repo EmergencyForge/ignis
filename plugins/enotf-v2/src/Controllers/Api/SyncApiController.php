@@ -24,7 +24,7 @@ use Plugin\EnotfV2\Support\ProtokollAccessGuard;
  *
  *   POST /api/enotf-v2/patient-sync   JSON: { "enr": "..." }
  *     → markiert die Patientendaten zum Senden (pat_synced = 2), der
- *     nächste Vehicle-Sync nimmt sie mit. Wie v1 ohne Freigabe-Sperre —
+ *     nächste Vehicle-Sync nimmt sie mit. Wie v1 ohne Freigabe-Sperre,
  *     pat_synced ist Sync-Metadatum, kein Protokollinhalt.
  *
  * v2-Gegenstücke zu den v1-Endpoints in Api\EnotfController: gleiche
@@ -34,7 +34,7 @@ use Plugin\EnotfV2\Support\ProtokollAccessGuard;
 final class SyncApiController
 {
     /**
-     * GET /api/enotf-v2/sync-status — pat_synced + letzter EMD-Sync.
+     * GET /api/enotf-v2/sync-status: pat_synced + letzter EMD-Sync.
      */
     public function syncStatus(Request $request): Response
     {
@@ -70,7 +70,7 @@ final class SyncApiController
     }
 
     /**
-     * POST /api/enotf-v2/patient-sync — Patientendaten zum Senden markieren.
+     * POST /api/enotf-v2/patient-sync: Patientendaten zum Senden markieren.
      */
     public function patientSync(Request $request): Response
     {

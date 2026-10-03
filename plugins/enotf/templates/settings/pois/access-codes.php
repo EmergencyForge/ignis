@@ -151,7 +151,7 @@ use App\Helpers\Flash;
                     submitVariant:'soft-primary',
                     onOpen:       function (dlg) {
                         // Felder im frisch geklonten Template-Inhalt befüllen
-                        // und den Regenerate-Handler binden — beides muss
+                        // und den Regenerate-Handler binden, beides muss
                         // pro Open neu passieren, weil der Body bei jedem
                         // Open neu erstellt wird.
                         const $body = $(dlg.element);

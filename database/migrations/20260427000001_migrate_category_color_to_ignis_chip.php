@@ -8,7 +8,7 @@ use Phinx\Migration\AbstractMigration;
  * `intra_dokument_kategorien.color`-Werte von Bootstrap-Style
  * (`text-bg-secondary` etc.) auf das hauseigene `ignis-chip--X`-Pattern
  * umstellen. Templates rendern den gespeicherten Wert direkt als
- * Folge-Klasse hinter `ignis-chip` — durch die Umbenennung greift
+ * Folge-Klasse hinter `ignis-chip`. Durch die Umbenennung greift
  * automatisch das ignis-Soft-Variant-Styling, ohne dass die Templates
  * angefasst werden müssen.
  */
@@ -47,7 +47,7 @@ final class MigrateCategoryColorToIgnisChip extends AbstractMigration
         }
 
         // Reverse-Map (mehrere bs-Varianten mappen auf dieselbe ignis-Variante,
-        // beim Rollback verlieren wir das — text-bg-light geht z.B. dauerhaft
+        // beim Rollback verlieren wir das: text-bg-light geht z.B. dauerhaft
         // zu text-bg-secondary verloren. Acceptable; der Rollback ist nur für
         // Notfälle gedacht und keine Round-Trip-Garantie).
         $reverse = [

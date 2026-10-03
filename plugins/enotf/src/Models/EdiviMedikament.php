@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_medikamente` — der Wirkstoff-Katalog
+ * Eloquent-Model für `intra_edivi_medikamente`: der Wirkstoff-Katalog
  * für die Medikamentengabe im eNOTF-Protokoll.
  *
  * `wirkstoff` ist unique; `dosierungen` enthält die vordefinierten

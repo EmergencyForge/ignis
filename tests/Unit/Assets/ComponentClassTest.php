@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
  * Absicht aus und tut nichts. Der Test prüft die Modifier der
  * Komponentenfamilien (ignis-btn--*, ignis-chip--*, ignis-alert--*) und ein
  * paar Bausteine ohne Präfix-Systematik gegen das GEBAUTE CSS unter
- * public/assets/dist — nicht gegen die SCSS-Quellen, weil dort Modifier als
+ * public/assets/dist, nicht gegen die SCSS-Quellen, weil dort Modifier als
  * `&--icon` verschachtelt stehen und eine Textsuche sie nicht findet. Nur
  * das Kompilat sagt, was im Browser ankommt.
  *
@@ -207,7 +207,7 @@ final class ComponentClassTest extends TestCase
      * Quellcode, der die alten Namen neu einführt, fällt hier durch.
      *
      * public/assets/js/ui ist gebautes Paket-Modul (WebPackages), kein
-     * ignis-Quellcode — ein altes Klassenliteral dort ist ein Paket-Befund,
+     * ignis-Quellcode. Ein altes Klassenliteral dort ist ein Paket-Befund,
      * den dieses Repo nicht beheben kann.
      */
     public function testNoOldVocabularyClassNamesInSource(): void

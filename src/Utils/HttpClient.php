@@ -7,7 +7,7 @@ namespace App\Utils;
 /**
  * Ausgehende HTTP-Requests mit Transport-Fallback.
  *
- * Shared-Hosting-Umgebungen deaktivieren häufig `allow_url_fopen` — dann
+ * Shared-Hosting-Umgebungen deaktivieren häufig `allow_url_fopen`. Dann
  * liefert file_get_contents() für http(s)-URLs nur false und alle
  * Hub-Features (Telemetrie, Announcements, Changelogs) scheitern mit
  * nichtssagenden Verbindungsfehlern, obwohl cURL fast immer verfügbar wäre.
@@ -26,7 +26,7 @@ final class HttpClient
      * @return array{status:int, headers:list<string>, body:string}|null
      *         null bei Transportfehler (DNS/Timeout/TLS) oder wenn weder
      *         Streams noch cURL verfügbar sind. HTTP-Fehlerstatus (4xx/5xx)
-     *         ist KEIN Transportfehler — der Aufrufer bekommt Status+Body.
+     *         ist KEIN Transportfehler. Der Aufrufer bekommt Status+Body.
      */
     public static function request(string $url, array $options = []): ?array
     {
@@ -79,7 +79,7 @@ final class HttpClient
         }
 
         // Bei Redirects enthält $http_response_header die Header ALLER
-        // Responses hintereinander — relevant ist nur der letzte Block.
+        // Responses hintereinander. Relevant ist nur der letzte Block.
         $lastBlock = [];
         foreach ($http_response_header as $line) {
             if (preg_match('#^HTTP/\d#', $line)) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * templates/inbox/_popover.php — Inhalt der Glocke in der Topbar.
+ * templates/inbox/_popover.php: Inhalt der Glocke in der Topbar.
  *
  * Von InboxController::popover() ohne Hülle gerendert und von shell.js
  * beim ersten Öffnen des Menüs in `[data-ignis-inbox]` geladen. Höchstens
@@ -43,7 +43,7 @@ $basePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 <?php if (!empty($entry['message'])): ?>
                     <span><?= htmlspecialchars((string) $entry['message']) ?></span>
                 <?php endif; ?>
-                <small><?= htmlspecialchars((string) $entry['label']) ?> · <?= htmlspecialchars(\App\Helpers\DateTimeHelper::fromDbClock((string) $entry['created_at'])?->format('d.m.Y H:i') ?? '–') ?></small>
+                <small><?= htmlspecialchars((string) $entry['label']) ?> · <?= htmlspecialchars(\App\Helpers\DateTimeHelper::fromDbClock((string) $entry['created_at'])?->format('d.m.Y H:i') ?? '-') ?></small>
             </span>
         </<?= $entryTag ?>>
     <?php endforeach; ?>

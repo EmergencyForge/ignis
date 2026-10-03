@@ -19,7 +19,7 @@ use Plugin\EnotfV2\Support\ProtokollService;
  * Vitalwerte-API für den Verlauf (Tabelle intra_edivi_vitalparameter_einzelwerte).
  *
  * v2 arbeitet nach außen mit Katalog-Codes (spo2, rrsys, …) statt der
- * deutschen Legacy-Anzeigestrings — GESCHRIEBEN wird aber weiterhin exakt
+ * deutschen Legacy-Anzeigestrings. GESCHRIEBEN wird aber weiterhin exakt
  * das v1-Format (parameter_name = "SpO₂" usw. aus VitalparameterCatalog),
  * damit v1-Verlauf, Druck und Auswertungen dieselben Daten sehen.
  *
@@ -37,14 +37,14 @@ use Plugin\EnotfV2\Support\ProtokollService;
  *
  *   POST /api/enotf-v2/vitals/delete
  *     Request: { enr, id }
- *     Soft-Delete via EdiviVitalwert::softDelete() — der DB-Trigger
+ *     Soft-Delete via EdiviVitalwert::softDelete(), der DB-Trigger
  *     blockiert Hard-Deletes ohnehin. Anders als v1 auch hier mit
  *     Sperr-Prüfung bei freigegeben.
  */
 final class VitalsApiController
 {
     /**
-     * GET /api/enotf-v2/vitals/{enr} — Verlauf, gruppiert nach Zeitpunkt.
+     * GET /api/enotf-v2/vitals/{enr}: Verlauf, gruppiert nach Zeitpunkt.
      */
     public function index(Request $request, string $enr): Response
     {
@@ -78,7 +78,7 @@ final class VitalsApiController
             $anzeige        = (string) $wert->parameter_wert;
             $anzeigeEinheit = (string) $wert->parameter_einheit;
             if ($code === 'bz') {
-                // Speicherung ist immer mg/dl — Anzeige folgt ENOTF_BZ_UNIT
+                // Speicherung ist immer mg/dl, Anzeige folgt ENOTF_BZ_UNIT
                 $anzeige        = $bzHelper->formatValue($wert->parameter_wert, false);
                 $anzeigeEinheit = $bzUnit;
             }
@@ -109,7 +109,7 @@ final class VitalsApiController
     }
 
     /**
-     * POST /api/enotf-v2/vitals — mehrere Parameter zu EINEM Zeitpunkt anlegen.
+     * POST /api/enotf-v2/vitals: mehrere Parameter zu EINEM Zeitpunkt anlegen.
      */
     public function add(Request $request): Response
     {
@@ -187,7 +187,7 @@ final class VitalsApiController
     }
 
     /**
-     * POST /api/enotf-v2/vitals/delete — Soft-Delete eines Einzelwerts.
+     * POST /api/enotf-v2/vitals/delete: Soft-Delete eines Einzelwerts.
      */
     public function delete(Request $request): Response
     {

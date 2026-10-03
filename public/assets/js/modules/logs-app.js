@@ -44,7 +44,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
     const noHits = () => showEmpty(inboxList, inboxStatus, 'neutral', 'fa-magnifying-glass', 'Keine Fehler gefunden', 'Mit dieser Suche passt kein Log-Eintrag. „Zurück zur Inbox“ zeigt wieder alle.');
     const searchFailed = (e) => showEmpty(inboxList, inboxStatus, 'danger', 'fa-triangle-exclamation', 'Suche fehlgeschlagen', 'Die Log-Dateien ließen sich nicht durchsuchen, an ihnen hat sich nichts geändert. Versuch es erneut.', e.message);
 
-    // Escape für HTML-Attribute (escapeHtml reicht nicht — Quotes müssen auch ersetzt werden,
+    // Escape für HTML-Attribute (escapeHtml reicht nicht, Quotes müssen auch ersetzt werden,
     // sonst bricht data-copy-text="..." wenn der Text Anführungszeichen enthält)
     function escapeAttr(text) {
         if (text === null || text === undefined) return '';
@@ -124,9 +124,9 @@ function showEmpty(list, status, tone, icon, title, text, code) {
 
     function renderEntryDetail(entry, group) {
         const filePath = entry.file_path || '';
-        const fileShort = entry.file || '–';
+        const fileShort = entry.file || '-';
         const line = entry.line ? ':' + entry.line : '';
-        const exception = entry.exception || '–';
+        const exception = entry.exception || '-';
         const trace = entry.trace || '';
         const reportText = buildReportText(entry, group);
 
@@ -218,7 +218,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
                     <div class="info">
                         <span class="exception">${escapeHtml(sample.exception || '(kein Exception-Typ)')}</span>
                         <div class="message">${escapeHtml(sample.message)}</div>
-                        <div class="file">${escapeHtml((sample.file || '–') + (sample.line ? ':' + sample.line : ''))}</div>
+                        <div class="file">${escapeHtml((sample.file || '-') + (sample.line ? ':' + sample.line : ''))}</div>
                     </div>
                     <div class="count-cell">
                         ${group.count > 1 ? '<span class="ignis-chip ignis-chip--warn">×' + group.count + '</span>' : ''}
@@ -240,7 +240,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
         if (inboxStatus) inboxStatus.textContent = '';
         inboxList.innerHTML = groups.map((g, i) => renderGroup(g, i)).join('');
 
-        // Toggle nur auf dem Header-Row — Klicks im Detail-Panel schließen nicht mehr
+        // Toggle nur auf dem Header-Row. Klicks im Detail-Panel schließen nicht mehr
         inboxList.querySelectorAll('.logs-group-row').forEach(headerEl => {
             headerEl.addEventListener('click', function (e) {
                 if (e.target.closest('.copy-btn')) return;
@@ -474,7 +474,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
 })();
 
 // ═══════════════════════════════════════════════════════════════════
-//  Failed Jobs Section — Expand/Collapse + Retry/Delete/Refresh
+//  Failed Jobs Section: Expand/Collapse + Retry/Delete/Refresh
 // ═══════════════════════════════════════════════════════════════════
 (function () {
     const apiUrl      = window.LogsAppConfig.logsApiUrl;
@@ -534,7 +534,7 @@ function showEmpty(list, status, tone, icon, title, text, code) {
                 return;
             }
 
-            // Re-render — zum Low-Effort einfach reload, damit PHP den kompletten
+            // Re-render: zum Low-Effort einfach reload, damit PHP den kompletten
             // Header inklusive "Alle erneut versuchen"-Button und Zähler aktualisiert.
             window.location.reload();
         } catch (err) {

@@ -22,7 +22,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * FahrzeugeController — Fahrzeugverwaltung, Beladelisten, Defekt-Meldungen.
+ * FahrzeugeController: Fahrzeugverwaltung, Beladelisten, Defekt-Meldungen.
  *
  * Die View-Templates enthalten weiterhin inline-Datenladung (Eloquent), da
  * sie sehr umfangreiches HTML mit eingebetteten SQL-Queries haben. Der
@@ -33,7 +33,7 @@ class FahrzeugeController extends Controller
     // ── Vehicles CRUD ──────────────────────────────────────
 
     /**
-     * GET /settings/vehicles/vehicles/index — Fahrzeugliste, sortiert,
+     * GET /settings/vehicles/vehicles/index: Fahrzeugliste, sortiert,
      * gesucht und geblättert auf dem Server (ListQuery). Die offenen
      * Defekte kommen als Unterabfrage mit, damit sich danach sortieren lässt;
      * fehlt die Defekt-Tabelle noch (ältere Installation vor der Migration),
@@ -94,7 +94,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * GET /settings/vehicles/vehicles/{id} — die Fahrzeugseite nach dem
+     * GET /settings/vehicles/vehicles/{id}: die Fahrzeugseite nach dem
      * Detailmuster: Register Mängel (offene zuerst), Beladung des Typs und
      * taktisches Zeichen, Seitenspalte mit Stammdaten und der Aktivität aus
      * dem Audit-Log (App\Support\Activity). Recht wie die Liste; ein
@@ -194,7 +194,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * GET /settings/vehicles/vehicles/{id}/preview — Vorschau für den
+     * GET /settings/vehicles/vehicles/{id}/preview: Vorschau für den
      * Arbeitsbereich der Liste (assets/js/ui/workbench.js), ohne Hülle,
      * hinter demselben Recht wie die Liste: Stammdaten, Status, taktisches
      * Zeichen, offene Mängel (Anzahl und die letzten drei), Beladung des
@@ -260,7 +260,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * GET /settings/vehicles/vehicles/create — das Anlage-Formular, als
+     * GET /settings/vehicles/vehicles/create: das Anlage-Formular, als
      * Seite oder als Fragment im Drawer (assets/js/ui/drawer-form.js).
      */
     public function create(): void
@@ -272,7 +272,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * GET /settings/vehicles/vehicles/{id}/edit — dasselbe Formular mit den
+     * GET /settings/vehicles/vehicles/{id}/edit: dasselbe Formular mit den
      * Werten des Fahrzeugs, postet auf update(); aus der Vorschau des
      * Arbeitsbereichs im Drawer, sonst als Seite.
      */
@@ -362,7 +362,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * POST /settings/vehicles/vehicles/delete — löscht ein Fahrzeug (`id`)
+     * POST /settings/vehicles/vehicles/delete: löscht ein Fahrzeug (`id`)
      * oder die in der Liste angehakten (`ids[]`, Aktionsleiste des
      * Arbeitsbereichs). Je Fahrzeug ein Audit-Eintrag wie beim Einzelfall,
      * eine Meldung für alle.
@@ -403,7 +403,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * POST /settings/vehicles/vehicles/status — setzt die angehakten
+     * POST /settings/vehicles/vehicles/status: setzt die angehakten
      * Fahrzeuge (`ids[]`) auf `status` aktiv oder inaktiv, dieselbe Spalte
      * wie das Häkchen im Formular (update()), mit Audit je Fahrzeug.
      */
@@ -442,7 +442,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * POST /settings/vehicles/vehicles/emd-status — setzt den FMS-Status
+     * POST /settings/vehicles/vehicles/emd-status: setzt den FMS-Status
      * (`emd_status`, Spalte current_status) der angehakten Fahrzeuge, mit
      * derselben Statusmenge wie die Einzelaktion in fireTab und Audit je
      * Fahrzeug. status_source hält fest, dass der Wert von Hand kam, damit
@@ -648,7 +648,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * GET /settings/vehicles/defects/create[?vehicle=ID] — Mangel melden,
+     * GET /settings/vehicles/defects/create[?vehicle=ID]: Mangel melden,
      * als Seite oder als Fragment im Drawer. `vehicle` wählt das Fahrzeug
      * vor, etwa aus der Fahrzeugliste heraus.
      */
@@ -673,7 +673,7 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * POST /settings/vehicles/defects/create — legt den Mangel über den
+     * POST /settings/vehicles/defects/create: legt den Mangel über den
      * DefectReporter an (derselbe Weg wie die JSON-API für eNOTF-Besatzungen).
      * Ungültige Eingabe führt zurück aufs Formular mit old() und Meldung.
      */
@@ -773,7 +773,7 @@ class FahrzeugeController extends Controller
             'rd_type'      => $rdType,
             'allowed_jobs' => $allowedJobs,
             'active'       => $active,
-            // 0 heisst "keine Wache gewaehlt" — als NULL ablegen, damit der
+            // 0 heisst "keine Wache gewaehlt". Als NULL ablegen, damit der
             // LEFT JOIN sauber leer bleibt statt auf eine id 0 zu zeigen.
             'stationierung_poi_id' => ((int) ($_POST['stationierung_poi_id'] ?? 0)) ?: null,
             'grundzeichen' => trim($_POST['grundzeichen'] ?? '') ?: null,
@@ -806,7 +806,7 @@ class FahrzeugeController extends Controller
     /**
      * Schreibt ins Prüfprotokoll.
      *
-     * `$vehicleId` landet als `context.id` — darüber findet
+     * `$vehicleId` landet als `context.id`. Darüber findet
      * {@see \App\Support\Activity} die Einträge zu einem Fahrzeug, ohne die
      * Kennung aus dem Meldungstext klauben zu müssen. Das `[ID: n]` in der
      * Aktion bleibt trotzdem stehen: die Audit-Ansicht zeigt den Text, und

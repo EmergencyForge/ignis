@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Mail — der Eintrag in der Einstiegsgruppe mit Zähler der ungelesenen
+ * Mail: der Eintrag in der Einstiegsgruppe mit Zähler der ungelesenen
  * Mails (counters.php) und „Neue Mail“ als Schnellaktion im Drawer. Die
  * Verwaltung (Verteiler, Postfächer, Einstellungen) erscheint als
  * Abschnitt auf /settings/index.

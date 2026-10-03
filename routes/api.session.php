@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * intraRP — API-Routen (Router v2)
+ * intraRP: API-Routen (Router v2)
  *
  * Alle `/api/*`-Endpoints sind über echte Controller-Methoden angebunden,
  * aufgeteilt in `App\Http\Controllers\Api\*`. Sowohl die saubere URL als
@@ -40,21 +40,21 @@ $apiKey = [JsonExceptionMiddleware::class, ApiKeyMiddleware::class];
 $public = [JsonExceptionMiddleware::class];
 
 // ============================================================================
-//  Announcements — refactored zum echten Controller
+//  Announcements (refactored zum echten Controller)
 // ============================================================================
 $announcementHandler = [AnnouncementController::class, 'dismiss'];
 $router->post('/api/announcements/dismiss',     $announcementHandler, $auth);
 $router->post('/api/dismiss-announcement.php',  $announcementHandler, $auth);
 
 // ============================================================================
-//  ASU-Sync (FiveM-Server, API-Key) — refactored
+//  ASU-Sync (FiveM-Server, API-Key), refactored
 // ============================================================================
 $router->post('/api/asu/sync',     [AsuSyncController::class, 'sync'], $apiKey);
 $router->post('/api/asu-sync.php', [AsuSyncController::class, 'sync'], $apiKey);
 
 // ============================================================================
 //  Dokumente des abgeloesten Canvas-Systems: ansehen und archivieren.
-//  Angelegt wird nichts mehr — das macht der Editor ueber die Routen in
+//  Angelegt wird nichts mehr, das macht der Editor ueber die Routen in
 //  routes/web.php. Die Rechte prueft der Controller selbst.
 // ============================================================================
 $router->match(
@@ -71,8 +71,8 @@ $router->match(
 );
 
 // ============================================================================
-//  Federation (Server-to-Server) — refactored.
-//  Auth läuft intern via FederationMiddleware::authenticate() — kein
+//  Federation (Server-to-Server), refactored.
+//  Auth läuft intern via FederationMiddleware::authenticate(), kein
 //  Router-Middleware-Stack, weil Federation einen eigenen DB-gespeicherten
 //  Per-Instanz-Key-Mechanismus nutzt (X-Federation-Key-Header).
 // ============================================================================
@@ -85,7 +85,7 @@ $router->match(['GET'],         '/api/federation/fire-incidents',     [Federatio
 
 
 // ============================================================================
-//  Personnel (Mitarbeiter-Admin-UI) — vollständig refactored
+//  Personnel (Mitarbeiter-Admin-UI), vollständig refactored
 // ============================================================================
 $personnelEditAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'personnel.edit'])];
 $personnelViewAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'personnel.view'])];
@@ -98,7 +98,7 @@ $router->post('/api/personnel/check-dienstnr-legacy',     [PersonnelController::
 // Invite-Code-Generierung
 $router->post('/api/personnel/generate-invite',     [PersonnelController::class, 'generateInvite'], $usersCreateAuth);
 
-// Profile Comments/Logs — HTML-Fragments
+// Profile Comments/Logs: HTML-Fragments
 $router->match(['GET'], '/api/personnel/profile-comments',     [PersonnelProfileController::class, 'comments'], $personnelViewAuth);
 $router->match(['GET'], '/api/personnel/profile-logs',         [PersonnelProfileController::class, 'logs'],     $personnelViewAuth);
 
@@ -108,7 +108,7 @@ $router->post('/api/personnel/upload-pfp',         [PersonnelController::class, 
 
 
 // ============================================================================
-//  System-Admin-API — vollständig refactored
+//  System-Admin-API (vollständig refactored)
 // ============================================================================
 $adminAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware('admin')];
 
@@ -134,7 +134,7 @@ $router->post('/api/system/theme',     [SystemApiController::class, 'setTheme'],
 $router->get('/api/system/global-search',     [SystemApiController::class, 'globalSearch'], $auth);
 
 // ============================================================================
-//  Telemetry — refactored zum echten Controller
+//  Telemetry (refactored zum echten Controller)
 //   - heartbeat: X-API-Key (wird vom Hub-Server gerufen, Machine-to-Machine)
 //   - background: Session-Auth (Admin-UI triggert Heartbeat manuell)
 // ============================================================================
@@ -145,7 +145,7 @@ $router->match(['GET', 'POST'], '/api/telemetry/background',     [TelemetryApiCo
 $router->match(['GET', 'POST'], '/api/telemetry-background.php', [TelemetryApiController::class, 'background'], $auth);
 
 // ============================================================================
-//  Vehicles — alle Endpoints refactored.
+//  Vehicles: alle Endpoints refactored.
 // ============================================================================
 $router->match(['GET', 'POST'], '/api/vehicles/defects-handler',     [\App\Http\Controllers\Api\VehicleDefectsController::class, 'handle'], $auth);
 $router->match(['GET', 'POST'], '/api/vehicles/import-handler',      [\App\Http\Controllers\Api\VehicleImportController::class,  'handle'], $auth);
@@ -153,12 +153,12 @@ $router->match(['GET', 'POST'], '/api/vehicles/import-handler',      [\App\Http\
 $router->match(['GET', 'POST'], '/api/vehicles/tz-templates',     [VehicleTzTemplatesController::class, 'handle'], $auth);
 
 // ============================================================================
-//  Version (Public — refactored zum echten Controller)
+//  Version (Public, refactored zum echten Controller)
 // ============================================================================
 $router->get('/api/version',     [VersionController::class, 'index']);
 
 // ============================================================================
-//  Health-Check (Public — für externe Monitoring-Tools)
+//  Health-Check (Public, für externe Monitoring-Tools)
 // ============================================================================
 $router->get('/healthz',        [HealthController::class, 'index']);
 $router->get('/api/health',     [HealthController::class, 'index']);

@@ -7,7 +7,7 @@
  * Kacheln in Abschnitten: je Gruppe mit placement=settings aus
  * config/navigation.php ein <section>, gebaut aus derselben rechte-
  * gefilterten Liste (App\Helpers\Navigation::groups()), die auch die
- * Sidebar zeigt — Sidebar und Übersicht laufen so nie auseinander.
+ * Sidebar zeigt. Sidebar und Übersicht laufen so nie auseinander.
  *
  * @var list<array<string,mixed>> $settingsSections
  */

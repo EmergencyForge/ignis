@@ -85,7 +85,7 @@ final class VehicleListTest extends FeatureTestCase
         $first = $this->get(self::PATH, ['query' => ['q' => 'Seite ']]);
         $this->assertBodyContains('Seite 25', $first);
         $this->assertBodyNotContains('Seite 26', $first);
-        $this->assertBodyContains('1–25 von 26 Fahrzeuge', $first);
+        $this->assertBodyContains('1 bis 25 von 26 Fahrzeuge', $first);
 
         $second = $this->get(self::PATH, ['query' => ['q' => 'Seite ', 'page' => '2']]);
         $this->assertBodyContains('Seite 26', $second);

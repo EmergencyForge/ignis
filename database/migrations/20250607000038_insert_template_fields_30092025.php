@@ -94,7 +94,7 @@ class InsertTemplateFields30092025 extends AbstractMigration
 
     public function up(): void
     {
-        // Bereits vorhandene (template_id, field_name)-Paare überspringen —
+        // Bereits vorhandene (template_id, field_name)-Paare überspringen:
         // die Tabelle hat keinen Unique-Key, doppelte Seeds wären sonst möglich.
         $existing = [];
         foreach ($this->fetchAll('SELECT template_id, field_name FROM intra_dokument_template_fields') as $row) {
@@ -106,7 +106,7 @@ class InsertTemplateFields30092025 extends AbstractMigration
             if (isset($existing[$field['template_id'] . '|' . $field['field_name']])) {
                 continue;
             }
-            // Feste Spaltenreihenfolge — Phinx' Bulk-Insert übernimmt die
+            // Feste Spaltenreihenfolge, denn Phinx' Bulk-Insert übernimmt die
             // Spaltenliste aus der ersten Row.
             $rows[] = [
                 'template_id'     => $field['template_id'],

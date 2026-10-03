@@ -11,7 +11,7 @@ use App\Notifications\NotificationTypeInterface;
  * zur QM-Sichtung freigegeben, QM-Status geändert. Eingetragen über das
  * Manifest (`notifications`); die Einträge erzeugt weiterhin
  * App\Notifications\NotificationManager::notifyFireProtocol*(), aufgerufen
- * aus FiretabController. Sehen darf sie jeder Empfänger — er wurde als
+ * aus FiretabController. Sehen darf sie jeder Empfänger, er wurde als
  * Einsatzleiter ausgewählt, ein Recht ist dafür nicht nötig.
  */
 final class FireProtocolType implements NotificationTypeInterface

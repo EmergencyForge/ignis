@@ -20,6 +20,6 @@ class AlterIntraFireIncidentLog27122025CreatedByNullable extends AbstractMigrati
     public function down(): void
     {
         // Die Spalte war schon vor dieser Migration nullable (seit
-        // 20250607000080) — es gibt nichts zurückzudrehen.
+        // 20250607000080), es gibt nichts zurückzudrehen.
     }
 }

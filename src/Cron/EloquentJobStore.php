@@ -52,7 +52,7 @@ final class EloquentJobStore implements JobStore
     /**
      * Optimistic Lock: der Schreibvorgang greift nur, solange in
      * `last_run_at` noch der Wert steht, den dieser Job beim Lesen hatte.
-     * Wer zu spät kommt, bekommt 0 betroffene Zeilen — so läuft ein Job
+     * Wer zu spät kommt, bekommt 0 betroffene Zeilen. So läuft ein Job
      * auch dann nur einmal, wenn Piggyback-Tick und Cron-Endpunkt
      * gleichzeitig anklopfen.
      */

@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Holt die Ankündigungen aus dem Forum (Discourse-Kategorie Ankündigungen)
  * und legt sie im lokalen intra_changelog_cache ab. Das Admin-Dashboard liest
- * danach ausschliesslich aus dem Cache — dieser Command ist die einzige Stelle,
+ * danach ausschliesslich aus dem Cache. Dieser Command ist die einzige Stelle,
  * an der wir das Forum kontaktieren. Der Name changelog:refresh ist historisch
  * und bleibt, damit bestehende Cron-Einträge weiterlaufen.
  *
@@ -60,7 +60,7 @@ final class ChangelogRefreshCommand extends Command
 
         $tag = $result['success'] ? 'info' : 'comment';
         $output->writeln(sprintf(
-            '<%s>HTTP %d — %s</%s>',
+            '<%s>HTTP %d: %s</%s>',
             $tag,
             $status,
             $result['message'],
@@ -71,7 +71,7 @@ final class ChangelogRefreshCommand extends Command
             return Command::SUCCESS;
         }
 
-        // Transiente Forum-Probleme sind KEIN Cron-Fehler — Stale-Cache bleibt
+        // Transiente Forum-Probleme sind KEIN Cron-Fehler. Stale-Cache bleibt
         // gemaess Spec stehen, beim naechsten Tick wird erneut probiert. Dafuer
         // den Cron-Job nicht roten Toast werfen lassen.
         //   - 0   = Verbindung/Timeout
@@ -82,7 +82,7 @@ final class ChangelogRefreshCommand extends Command
         }
 
         // Permanente Fehler (403, 404 falsche Kategorie, 4xx allgemein)
-        // werden weiterhin als Fehler gemeldet — die brauchen Admin-Aufmerksamkeit.
+        // werden weiterhin als Fehler gemeldet. Die brauchen Admin-Aufmerksamkeit.
         return Command::FAILURE;
     }
 }

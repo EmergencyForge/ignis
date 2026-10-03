@@ -7,7 +7,7 @@ namespace Plugin\Mail\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_mail_list_members` — Mitglied eines statischen
+ * Eloquent-Model für `intra_mail_list_members`: Mitglied eines statischen
  * Verteilers.
  *
  * @property int $id

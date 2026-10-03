@@ -15,8 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Announcements-Wartung: Cache vom EmergencyForge-Hub neu laden +
  * alte Dismissals wegräumen.
  *
- * Ersetzt den Announcement-Teil des alten `cron/telemetry-cron.php` —
- * wird einmal täglich via Cron ausgeführt:
+ * Ersetzt den Announcement-Teil des alten `cron/telemetry-cron.php`.
+ * Wird einmal täglich via Cron ausgeführt:
  *
  *   php cli/intra.php announcements:refresh
  *   php cli/intra.php announcements:refresh --keep-days=60

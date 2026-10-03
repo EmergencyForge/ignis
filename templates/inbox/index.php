@@ -1,6 +1,6 @@
 <?php
 /**
- * templates/inbox/index.php — Posteingang: die Benachrichtigungen des
+ * templates/inbox/index.php: Posteingang mit den Benachrichtigungen des
  * angemeldeten Nutzers, nach Tag gruppiert, neueste zuerst.
  *
  * Erwartete Variablen (von InboxController::index()):
@@ -132,7 +132,7 @@ $pgReturn = $pgPath . ($list->params() === [] ? '' : '?' . http_build_query($lis
                                         </span>
                                         <span class="ignis-inbox__meta">
                                             <span class="ignis-chip ignis-chip--sm<?= $entry['known'] ? '' : ' ignis-chip--secondary' ?>"><?= htmlspecialchars((string) $entry['label']) ?></span>
-                                            <time datetime="<?= htmlspecialchars((string) $entry['created_at'], ENT_QUOTES) ?>" class="ignis-inbox__when"><?= htmlspecialchars(DateTimeHelper::fromDbClock((string) $entry['created_at'])?->format('H:i') ?? '–') ?></time>
+                                            <time datetime="<?= htmlspecialchars((string) $entry['created_at'], ENT_QUOTES) ?>" class="ignis-inbox__when"><?= htmlspecialchars(DateTimeHelper::fromDbClock((string) $entry['created_at'])?->format('H:i') ?? '-') ?></time>
                                         </span>
                                     </<?= $entryTag ?>>
                                     <?php if ($entryUnread): ?>

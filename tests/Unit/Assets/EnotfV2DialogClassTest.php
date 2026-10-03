@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  * Die Dialoge von eNOTF v2 (Teilen, QM) bauen ihr Markup in JavaScript und
  * werden deshalb von keinem Template-Test erfasst. Sie öffnen im eDIVI-Look
  * über die gemeinsame Klasse `ev2-edivi-dialog`, deren Regeln in
- * `_share-qm-assets.php` stehen — nicht mit den Bausteinen der Verwaltung.
+ * `_share-qm-assets.php` stehen, nicht mit den Bausteinen der Verwaltung.
  *
  * Zwei Dinge hält dieser Test fest:
  *
@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  *    nicht nur Optik: `form-select` erzeugt ein natives Popup, und das
  *    zeigt der FiveM-Ingame-Browser nicht an. Selects müssen `ignis-input`
  *    tragen, damit Ev2Select sie erfasst (Selektor `select.ignis-input`).
- * 2. Beide Dialoge setzen die gemeinsame Scope-Klasse — ohne sie greift
+ * 2. Beide Dialoge setzen die gemeinsame Scope-Klasse. Ohne sie greift
  *    keine einzige Regel aus dem Styleblock.
  */
 final class EnotfV2DialogClassTest extends TestCase
@@ -78,14 +78,14 @@ final class EnotfV2DialogClassTest extends TestCase
             $source = $this->read($relative);
 
             // Nur Selects aus dem gebauten Markup, also innerhalb eines
-            // JS-Strings — das <select> in den Kopfkommentaren zählt nicht.
+            // JS-Strings. Das <select> in den Kopfkommentaren zählt nicht.
             preg_match_all("/'\\s*<select\\b[^>]*>/", $source, $matches);
 
             foreach ($matches[0] as $tag) {
                 self::assertStringContainsString(
                     'class="ignis-input"',
                     $tag,
-                    $relative . ': ' . $tag . ' — Ev2Select erfasst nur select.ignis-input. '
+                    $relative . ': ' . $tag . ': Ev2Select erfasst nur select.ignis-input. '
                     . 'Ohne die Klasse bleibt das Popup im FiveM-Ingame-Browser unsichtbar.'
                 );
             }

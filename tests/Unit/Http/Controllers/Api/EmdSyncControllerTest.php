@@ -15,7 +15,7 @@ use Tests\TestCase;
  * Der Controller enthält ~1200 Zeilen komplexe DB-Logik (Fire Incidents,
  * eNOTF-Protokolle, Status-Queue, Sitreps). Vollständige Integration-Tests
  * brauchen ein Test-DB-Setup mit den relevanten Tabellen und ein
- * Fixtures-System — das ist eine eigene Session wert.
+ * Fixtures-System. Das ist eine eigene Session wert.
  *
  * Hier decken wir ab:
  *   - Container-Resolution (Controller ist korrekt verdrahtet)

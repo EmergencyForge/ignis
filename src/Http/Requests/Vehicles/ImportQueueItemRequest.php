@@ -9,13 +9,13 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für VehicleImportController — Aktionen `import`, `overwrite`,
+ * Validation für VehicleImportController: Aktionen `import`, `overwrite`,
  * `merge`, `ignore`.
  *
  * Gemeinsamer Input-Shape:
- *   - `queue_id`    — Queue-Eintrag (immer Pflicht)
- *   - `existing_id` — nur bei overwrite/merge Pflicht (Controller prüft das)
- *   - `veh_type`, `rd_type`, `allowed_jobs` — optionale Überschreibungen
+ *   - `queue_id`:    Queue-Eintrag (immer Pflicht)
+ *   - `existing_id`: nur bei overwrite/merge Pflicht (Controller prüft das)
+ *   - `veh_type`, `rd_type`, `allowed_jobs`: optionale Überschreibungen
  *     der Queue-Vorschläge (für `ignore` nicht genutzt)
  *
  * Kategorie-ähnliche Enforcement gibt es hier nicht: `veh_type` ist ein

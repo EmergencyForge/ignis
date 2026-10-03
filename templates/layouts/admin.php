@@ -1,6 +1,6 @@
 <?php
 /**
- * templates/layouts/admin.php — Seitenhülle der eingeloggten Ansichten.
+ * templates/layouts/admin.php: Seitenhülle der eingeloggten Ansichten.
  *
  * App\Helpers\Layout::render() legt sie um eine Ansicht, die `$layout =
  * 'admin'` setzt (Controller::renderView()), und um die Root-Skripte

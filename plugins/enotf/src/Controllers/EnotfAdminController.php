@@ -18,14 +18,14 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * EnotfAdminController — eNOTF Admin/QM-Bereich.
+ * EnotfAdminController: eNOTF Admin/QM-Bereich.
  *
  * Verwaltet:
- *   - list.php — Protokollübersicht für QM
- *   - delete.php — Protokoll ausblenden (hidden=1, status=4)
- *   - qm-actions-modal.php — AJAX-Endpoint für QM-Status-Updates
- *   - qm-log-modal.php — AJAX-Endpoint für Log-Anzeige
- *   - bulk-delete-empty.php — leitet weiter an api/enotf/bulk-delete-empty.php
+ *   - list.php: Protokollübersicht für QM
+ *   - delete.php: Protokoll ausblenden (hidden=1, status=4)
+ *   - qm-actions-modal.php: AJAX-Endpoint für QM-Status-Updates
+ *   - qm-log-modal.php: AJAX-Endpoint für Log-Anzeige
+ *   - bulk-delete-empty.php: leitet weiter an api/enotf/bulk-delete-empty.php
  */
 class EnotfAdminController extends Controller
 {

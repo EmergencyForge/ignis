@@ -73,7 +73,7 @@ $SITE_TITLE = 'Dienstgrade';
 
     <?php if (Permissions::check('admin')) : ?>
         <!-- Form-Body als inertes <template>; Dialog wird in JS programmatisch erstellt.
-             Edit + Create teilen sich dasselbe Template — die Felder sind identisch,
+             Edit + Create teilen sich dasselbe Template, die Felder sind identisch,
              nur der Action-URL und die Action-Buttons unterscheiden sich. -->
         <template id="dienstgradFormTemplate">
             <div class="mb-3">

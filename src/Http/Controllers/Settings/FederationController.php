@@ -9,7 +9,7 @@ use App\Auth\Gate;
 use App\Http\Controllers\Controller;
 
 /**
- * FederationController — Federation-Konfiguration (Instanzvernetzung).
+ * FederationController: Federation-Konfiguration (Instanzvernetzung).
  * Das Template enthält weiterhin inline-Datenladung über ConfigManager
  * und FederationPairingService.
  */

@@ -13,11 +13,11 @@ use Respect\Validation\Validator as v;
  *
  * Meldet einen neuen Fahrzeug-Defekt. `title` ist Pflicht, `description`
  * optional. Die Kategorie-Whitelist ist identisch zur Controller-
- * Konstante `VehicleDefectsController::ALLOWED_CATEGORIES` — wenn dort
+ * Konstante `VehicleDefectsController::ALLOWED_CATEGORIES`. Wenn dort
  * etwas dazukommt, muss diese Liste ebenfalls erweitert werden.
  *
  * `vehicle_operable` kommt als Checkbox-String vom Formular (`"1"` / `"0"`
- * oder fehlend) — der Cast konvertiert auf int, Default 1 (einsatzfähig).
+ * oder fehlend). Der Cast konvertiert auf int, Default 1 (einsatzfähig).
  */
 class CreateDefectRequest extends FormRequest
 {

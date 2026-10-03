@@ -75,7 +75,7 @@ class CreateIntraDokumentKategorien08032026 extends AbstractMigration
 
     public function down(): void
     {
-        // Das alte ENUM-Feld `category` blieb unangetastet — Spalte und
+        // Das alte ENUM-Feld `category` blieb unangetastet. Spalte und
         // Kategorien-Tabelle entfernen stellt den vorherigen Zustand her.
         $templates = $this->table('intra_dokument_templates');
         if ($templates->hasColumn('category_id')) {

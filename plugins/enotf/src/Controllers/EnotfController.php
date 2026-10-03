@@ -15,15 +15,15 @@ use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Policies\EnotfPolicy;
 
 /**
- * EnotfController — eNOTF Root-Pages (Login, Overview, Lockscreen, Logout).
+ * EnotfController: eNOTF Root-Pages (Login, Overview, Lockscreen, Logout).
  *
  * Multi-Layer-Auth (siehe EnotfPolicy):
- *   1. User-Auth-Gate (ENOTF_REQUIRE_USER_AUTH) — bypassbar via Klinikzugriff
- *   2. PIN-Lockscreen (ENOTF_USE_PIN, 5 min Timeout) — bypassbar via admin/edivi.view
- *   3. Crew-Login (fahrername+protfzg in Session) — Voraussetzung für overview
+ *   1. User-Auth-Gate (ENOTF_REQUIRE_USER_AUTH), bypassbar via Klinikzugriff
+ *   2. PIN-Lockscreen (ENOTF_USE_PIN, 5 min Timeout), bypassbar via admin/edivi.view
+ *   3. Crew-Login (fahrername+protfzg in Session), Voraussetzung für overview
  *
  * Side-Effects auf GET (Legacy):
- *   - logout(?mode=self|all) macht DB-Writes — REST-untypisch, aber 1:1 portiert
+ *   - logout(?mode=self|all) macht DB-Writes, REST-untypisch, aber 1:1 portiert
  */
 class EnotfController extends Controller
 {
@@ -33,7 +33,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * GET /enotf/index.php — Entry-Point Router.
+     * GET /enotf/index.php: Entry-Point Router.
      * Logged-in (fahrername+protfzg) → overview, sonst → loggedout.
      */
     public function index(): void
@@ -50,7 +50,7 @@ class EnotfController extends Controller
     // ── Login / Logout ─────────────────────────────────────
 
     /**
-     * GET /enotf/login.php — Login-Form anzeigen.
+     * GET /enotf/login.php: Login-Form anzeigen.
      */
     public function loginForm(): void
     {
@@ -125,7 +125,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * POST /enotf/login.php — Login durchführen (Mode 'new' oder 'join').
+     * POST /enotf/login.php: Login durchführen (Mode 'new' oder 'join').
      */
     public function login(): void
     {
@@ -211,7 +211,7 @@ class EnotfController extends Controller
 
         if ($existingSessionId) {
             $sessionService->updateCrew($existingSessionId, $crew);
-            // Token + Position bleiben — wir aktualisieren nur das Crew-Snapshot in der Session
+            // Token + Position bleiben, wir aktualisieren nur das Crew-Snapshot in der Session
             \App\Session\SessionManager::loginEnotfCrew(
                 $_SESSION['enotf_position'] ?? '',
                 $existingToken,
@@ -248,7 +248,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * GET /enotf/loggedout.php — Logout-Aktion (mode=self|all) + Loggedout-Page.
+     * GET /enotf/loggedout.php: Logout-Aktion (mode=self|all) + Loggedout-Page.
      *
      * ACHTUNG: macht DB-Writes auf GET (von JS-Links getriggert, kein Form-POST).
      */
@@ -281,7 +281,7 @@ class EnotfController extends Controller
     // ── Overview ───────────────────────────────────────────
 
     /**
-     * GET /enotf/overview.php — Hauptdashboard nach Login.
+     * GET /enotf/overview.php: Hauptdashboard nach Login.
      */
     public function overview(): void
     {
@@ -374,7 +374,7 @@ class EnotfController extends Controller
     // ── Lockscreen ─────────────────────────────────────────
 
     /**
-     * GET /enotf/lockscreen.php — PIN-Eingabe.
+     * GET /enotf/lockscreen.php: PIN-Eingabe.
      */
     public function lockscreen(Request $request): void
     {
@@ -385,7 +385,7 @@ class EnotfController extends Controller
             $this->redirectAbsolute(EnotfUrl::page('overview'));
         }
 
-        // Dev-only Test-Bypass für Admins — ?test setzt das Flag, ?test=off cleaned.
+        // Dev-only Test-Bypass für Admins: ?test setzt das Flag, ?test=off cleaned.
         $testMode = PinLockscreenMiddleware::applyTestFlag($request);
 
         if (!$testMode && EnotfPolicy::pinExempt()) {
@@ -417,7 +417,7 @@ class EnotfController extends Controller
     // ── Create / Fahrzeuginfo / Fahrtenbuch / Hospital ────
 
     /**
-     * GET /enotf/create.php — Neuen Einsatz/Protokoll-Typ wählen.
+     * GET /enotf/create.php: Neuen Einsatz/Protokoll-Typ wählen.
      * Reine View, der eigentliche Insert läuft über
      * assets/functions/enotf/enrbridge.php (Form-Action im Template).
      */
@@ -437,7 +437,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * GET /enotf/fahrzeuginfo.php — Fahrzeuginfo + Beladelisten-Kategorien.
+     * GET /enotf/fahrzeuginfo.php: Fahrzeuginfo + Beladelisten-Kategorien.
      */
     public function fahrzeuginfo(): void
     {
@@ -491,7 +491,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * GET /enotf/fahrtenbuch.php — Fahrtenbuch-Übersicht für eingeloggtes Fahrzeug.
+     * GET /enotf/fahrtenbuch.php: Fahrtenbuch-Übersicht für eingeloggtes Fahrzeug.
      */
     public function fahrtenbuch(): void
     {
@@ -549,7 +549,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * GET /enotf/hospital-availability.php — Krankenhaus-Verfügbarkeitsanzeige.
+     * GET /enotf/hospital-availability.php: Krankenhaus-Verfügbarkeitsanzeige.
      *
      * Public-Page: kein Login erforderlich. Eingeloggte User brauchen aber
      * admin/enotf.view/edivi.view Permission.

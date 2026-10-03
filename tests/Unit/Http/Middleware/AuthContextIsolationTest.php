@@ -19,11 +19,11 @@ use Tests\TestCase;
  * Session-Token als Login-Equivalent auswertet (war historisch ein Risiko).
  *
  * Die 5 Kontexte:
- *   1. Standard-User              — \$_SESSION['userid']
- *   2. eNOTF-Crew                 — \$_SESSION['enotf_session_token']
- *   3. FireTab                    — \$_SESSION['einsatz_vehicle_id']
- *   4. API-Key (FiveM Server)     — X-API-Key Header
- *   5. Federation (Server-to-Server) — X-Federation-Key Header (anderer Test)
+ *   1. Standard-User:               \$_SESSION['userid']
+ *   2. eNOTF-Crew:                  \$_SESSION['enotf_session_token']
+ *   3. FireTab:                     \$_SESSION['einsatz_vehicle_id']
+ *   4. API-Key (FiveM Server):      X-API-Key Header
+ *   5. Federation (Server-to-Server): X-Federation-Key Header (anderer Test)
  */
 final class AuthContextIsolationTest extends TestCase
 {

@@ -84,7 +84,7 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
                     <div class="mb-3">
                         <label for="<?= $prefix ?>stationierung_poi_id" class="ignis-field__label">
                             Stationierung
-                            <small class="form-hint">(Wache aus den POIs — im Fahrtenbuch nicht änderbar)</small>
+                            <small class="form-hint">(Wache aus den POIs, im Fahrtenbuch nicht änderbar)</small>
                         </label>
                         <select class="ignis-input" data-custom-dropdown="true" name="stationierung_poi_id" id="<?= $prefix ?>stationierung_poi_id">
                             <option value="">--- Keine Stationierung ---</option>
@@ -93,7 +93,7 @@ foreach (['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 't
                             <?php endforeach; ?>
                         </select>
                         <?php if (($stationierungen ?? []) === []): ?>
-                            <small class="form-hint">Noch keine Wache hinterlegt — anzulegen unter Einstellungen &rsaquo; POIs, Typ „Rettungswache" oder „Feuerwache".</small>
+                            <small class="form-hint">Noch keine Wache hinterlegt. Anzulegen unter Einstellungen &rsaquo; POIs, Typ „Rettungswache" oder „Feuerwache".</small>
                         <?php endif; ?>
                     </div>
                     <label class="ignis-checkbox mb-3" for="<?= $prefix ?>active"><input type="checkbox" name="active" id="<?= $prefix ?>active"<?= $active === null || $active !== '' ? ' checked' : '' ?>><span>Aktiv?</span></label>

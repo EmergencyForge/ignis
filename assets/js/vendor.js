@@ -15,9 +15,9 @@ import $ from 'jquery';
 window.$      = $;
 window.jQuery = $;
 
-// DataTables-Core ohne Bootstrap-Theme — Styling kommt aus admin.scss.
+// DataTables-Core ohne Bootstrap-Theme, Styling kommt aus admin.scss.
 // Nur noch für eNOTF, siehe oben.
 import 'datatables.net';
 
-// CSS-Imports — Vite extrahiert automatisch nach vendor.css
+// CSS-Imports: Vite extrahiert automatisch nach vendor.css
 import '@fortawesome/fontawesome-free/css/all.min.css';

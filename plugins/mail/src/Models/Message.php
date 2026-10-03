@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Eloquent-Model für `intra_mail_messages`. `body_html` ist die beim
  * Senden gerenderte Momentaufnahme (NULL beim Entwurf), `header_json` der
- * Empfänger-Schnappschuss mit BCC — wer BCC sehen darf, entscheidet
+ * Empfänger-Schnappschuss mit BCC. Wer BCC sehen darf, entscheidet
  * MailController::visibleHeader().
  *
  * @property int                      $id

@@ -10,7 +10,7 @@ use Phinx\Migration\AbstractMigration;
  * Übungsdienst-Termin fuer Aktive *und* Probezeit). Loest die single
  * `visibility_role_id`-Spalte ab.
  *
- * Frueh (Dev-Phase) eingefuehrt — keine produktive Daten-Migration noetig.
+ * Frueh (Dev-Phase) eingefuehrt, keine produktive Daten-Migration noetig.
  */
 class CreateIntraCalendarEventRoles extends AbstractMigration
 {
@@ -19,7 +19,7 @@ class CreateIntraCalendarEventRoles extends AbstractMigration
         if (!$this->hasTable('intra_calendar_event_roles')) {
             $this->table('intra_calendar_event_roles', ['id' => 'id', 'signed' => false])
                 ->addColumn('event_id', 'integer', ['signed' => false])
-                // signed — intra_users_roles.id ist signed int(11), FK braucht identischen Typ
+                // signed: intra_users_roles.id ist signed int(11), FK braucht identischen Typ
                 ->addColumn('role_id',  'integer')
                 ->addIndex(['event_id', 'role_id'], ['unique' => true, 'name' => 'uniq_event_role'])
                 ->addIndex(['role_id'], ['name' => 'idx_event_role_lookup'])
@@ -31,7 +31,7 @@ class CreateIntraCalendarEventRoles extends AbstractMigration
         // Alte single-role-Spalte abraeumen, falls noch da. Schritt fuer
         // Schritt mit Lookup im information_schema, weil Phinx' dropForeignKey
         // je nach Version Probleme bei auto-generierten Constraint-Namen
-        // macht. Lieber manuell per SQL — schlaegt nicht fehl wenn der FK
+        // macht. Lieber manuell per SQL, das schlaegt nicht fehl wenn der FK
         // nicht (mehr) existiert.
         $events = $this->table('intra_calendar_events');
         if ($events->hasColumn('visibility_role_id')) {
@@ -64,7 +64,7 @@ class CreateIntraCalendarEventRoles extends AbstractMigration
                     $this->execute("ALTER TABLE `intra_calendar_events` DROP INDEX `{$idx}`");
                 } catch (\Throwable) {
                     // Index-Drop kann fehlschlagen wenn der Index gleichzeitig
-                    // ein Primary-Key wäre — passiert hier nicht, aber sicher
+                    // ein Primary-Key wäre. Passiert hier nicht, aber sicher
                     // ist sicher.
                 }
             }

@@ -73,7 +73,7 @@ class ProtocolDetection
 
         $first = trim(explode(',', $forwarded)[0]);
 
-        // Nur Host und optionaler Port — alles andere ist kein Proxy, sondern
+        // Nur Host und optionaler Port. Alles andere ist kein Proxy, sondern
         // ein Versuch, die Adresse umzubiegen.
         if ($first === '' || preg_match('~^[A-Za-z0-9.\-]+(:\d{1,5})?$~', $first) !== 1) {
             return null;

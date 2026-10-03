@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Logging;
 
 /**
- * LogReader — parst Monolog-formatierte Log-Dateien (storage/logs/) und
+ * LogReader: parst Monolog-formatierte Log-Dateien (storage/logs/) und
  * stellt strukturierte Suche bereit.
  *
  * Zweck: In der Admin-Oberfläche soll eine Error-ID (8-stelliger Hex-Code wie
  * `A1B2C3D4`) eingegeben werden können, woraufhin der vollständige Stack-Trace,
- * die Datei, die Zeile und der Context-Hash angezeigt werden — auch in
+ * die Datei, die Zeile und der Context-Hash angezeigt werden, auch in
  * Production, ohne die Log-Files manuell durchsuchen zu müssen.
  *
  * Die Klasse arbeitet rein lesend auf den existierenden Monolog-Files. Sie
- * indexiert sie nicht, sondern scannt sie linear bei Bedarf — das reicht für
+ * indexiert sie nicht, sondern scannt sie linear bei Bedarf. Das reicht für
  * die typischen Log-Größen (rotated daily, 30/90 Tage Retention).
  */
 class LogReader
@@ -186,7 +186,7 @@ class LogReader
     /**
      * Gruppiert eine flache Liste von Einträgen nach ihrem Fingerprint
      * (Exception + File + Line). Doppelte Fehler werden zusammengefasst und
-     * mit Count + erstem/letztem Auftreten versehen — das ist die "Inbox"-
+     * mit Count + erstem/letztem Auftreten versehen. Das ist die "Inbox"-
      * Ansicht im Admin-Panel (analog zu WBB Fehlerprotokoll).
      *
      * @param  list<array<string,mixed>>  $entries
@@ -372,7 +372,7 @@ class LogReader
 
         $entries = [];
         // Eine Log-Zeile beginnt immer mit "[YYYY-MM-DD HH:MM:SS]". Trace-Zeilen
-        // hängen ohne führendes Datum am vorigen Eintrag — wir gluen sie an.
+        // hängen ohne führendes Datum am vorigen Eintrag. Wir gluen sie an.
         $lines = preg_split('/\r?\n/', $contents) ?: [];
         $current = null;
 

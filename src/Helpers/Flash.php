@@ -3,12 +3,12 @@
 namespace App\Helpers;
 
 /**
- * Flash — Ein-Request-Meldungen über Redirects hinweg (Session-basiert).
+ * Flash: Ein-Request-Meldungen über Redirects hinweg (Session-basiert).
  *
  * Der Text ist immer reiner Text. render() escaped ihn; wer Markup in eine
  * Meldung setzt, sieht es als Zeichen und nicht als Auszeichnung. Bis zum
  * Redesign (I5) ging der Text roh raus, und in die Meldungen fließen
- * Benutzer- und Rollennamen ein — ein Name mit <script> wäre als gespeichertes
+ * Benutzer- und Rollennamen ein. Ein Name mit <script> wäre als gespeichertes
  * XSS beim nächsten Admin gelandet.
  *
  * Gerendert wird an genau einer Stelle: templates/layouts/admin.php ruft
@@ -92,7 +92,7 @@ class Flash
      * Übersetzt nur den CSS-Klassennamen der <noscript>-Fassung auf das
      * Alert-Vokabular der Bibliothek (success→ok, warning→warn). Typ,
      * Session-Speicher und die öffentliche API (success()/error()/…) bleiben
-     * unverändert — snackbar.js normalisiert data-variant bereits selbst.
+     * unverändert; snackbar.js normalisiert data-variant bereits selbst.
      */
     private static function getAlertClassSuffix(string $type): string
     {

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * 403 — keine Berechtigung.
+ * 403: keine Berechtigung.
  *
  * Vorher endete eine verweigerte Berechtigung als Hinweis-Blase auf dem
  * Dashboard. Wer einem geteilten Link folgte, den er nicht öffnen darf,
  * landete also wortlos auf der Startseite und wusste nicht, was
- * abgelehnt wurde. Diese Seite sagt es — und der Knopf führt dorthin
+ * abgelehnt wurde. Diese Seite sagt es, und der Knopf führt dorthin
  * zurück, wo der Aufruf herkam.
  *
  * Erwartet `$message` und optional `$headline`, `$backUrl`/`$backLabel` von
@@ -27,7 +27,7 @@ $errBase = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 
 $errPage      = 'error-403';
 $errCode      = '403';
-$errTitle     = '403 — ' . ($headline ?? 'Keine Berechtigung');
+$errTitle     = ($headline ?? 'Keine Berechtigung') . ' (403)';
 $errHeadline  = $headline ?? 'Dafür fehlt dir die Berechtigung';
 $errText      = $message ?? 'Für diesen Bereich ist dein Konto nicht freigeschaltet.';
 $errPath      = null;

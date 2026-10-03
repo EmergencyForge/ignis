@@ -99,7 +99,7 @@ final class DefectReporter
 
             $msg = 'Fahrzeug: ' . $vehName;
             if (!$operable) {
-                $msg .= ' — Nicht einsatzfähig!';
+                $msg .= '. Nicht einsatzfähig!';
             }
             app(NotificationManager::class)->notify('vehicle_defect', $recipients, [
                 'title'   => 'Neuer Defekt: ' . $title,

@@ -7,9 +7,9 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Hierarchische Kategorien und Tags für die Wissensdatenbank:
  *
- *   - `intra_kb_categories` — Baumstruktur via parent_id
- *   - `intra_kb_tags`       — flache Tags mit Farbe
- *   - `intra_kb_entry_tags` — n:m-Zuordnung Einträge ↔ Tags
+ *   - `intra_kb_categories`: Baumstruktur via parent_id
+ *   - `intra_kb_tags`:       flache Tags mit Farbe
+ *   - `intra_kb_entry_tags`: n:m-Zuordnung Einträge ↔ Tags
  *
  * Zusätzlich bekommt `intra_kb_entries` eine `category_id`-Spalte samt Index.
  */

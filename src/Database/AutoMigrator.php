@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
- * AutoMigrator — programmatischer Phinx-Wrapper.
+ * AutoMigrator: programmatischer Phinx-Wrapper.
  *
  * Aufgaben:
  *   1. Auf Webspaces ohne Shell-Zugang Phinx-Migrations einbettbar machen.
@@ -32,7 +32,7 @@ class AutoMigrator
         $this->pdo            = $pdo;
         $this->appRoot        = dirname(__DIR__, 2);
         $this->migrationsPath = $this->appRoot . '/database/migrations';
-        // Plugin-Migrations laufen unabhängig vom Aktiv-Status mit — ein
+        // Plugin-Migrations laufen unabhängig vom Aktiv-Status mit. Ein
         // deaktiviertes Plugin behält sein Schema, damit beim Reaktivieren
         // nichts fehlt. phinx.php kennt dieselben Pfade.
         $this->extraMigrationPaths = \App\Plugins\PluginLoader::migrationPaths();
@@ -58,7 +58,7 @@ class AutoMigrator
         }
         $fileCount = count($files);
 
-        // Fast path: nichts geändert seit letztem Lauf — aber zusätzlich
+        // Fast path: nichts geändert seit letztem Lauf, aber zusätzlich
         // prüfen, dass tatsächlich keine Migration im phinxlog fehlt.
         // Reiner File-Count-Vergleich übersieht Fälle wo eine Migration
         // hinzugefügt wurde und der vorherige runPhinx() fehlschlug
@@ -81,7 +81,7 @@ class AutoMigrator
         $this->bridgeLegacyMigrationsTable();
 
         // Bestehender Install mit neuen Migrations: still im Hintergrund laufen.
-        // Cache nur bei Erfolg aktualisieren — sonst denkt der nächste Request
+        // Cache nur bei Erfolg aktualisieren, sonst denkt der nächste Request
         // „nichts zu tun" und der Bug wird unsichtbar.
         if ($this->runPhinx()) {
             @file_put_contents($this->cacheFile, (string) $fileCount);
@@ -143,7 +143,7 @@ class AutoMigrator
 <!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="1;url={$url}">
-<title>ıgnıs — Initialisierung</title>
+<title>ıgnıs: Initialisierung</title>
 <style>
 body{background:#1a1820;color:#bbbac1;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
 .box{text-align:center;max-width:420px}
@@ -235,7 +235,7 @@ HTML;
      */
     private function buildLegacyToPhinxMapping(): array
     {
-        // Plugin-Migrations gehören mit ins Mapping — sonst würde die Bridge
+        // Plugin-Migrations gehören mit ins Mapping, sonst würde die Bridge
         // bei Alt-Installationen deren Legacy-Einträge nicht spiegeln und
         // Phinx liefe bereits angewendete Migrationen erneut.
         $files = glob($this->migrationsPath . '/*.php') ?: [];

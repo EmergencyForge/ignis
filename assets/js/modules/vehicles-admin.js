@@ -1,5 +1,5 @@
 /**
- * vehicles-admin.js — Inline-Logik für settings/fahrzeuge/fahrzeuge/index.php.
+ * vehicles-admin.js: Inline-Logik für settings/fahrzeuge/fahrzeuge/index.php.
  *
  * Bündelt:
  *   - Edit-/Copy-Button-Handler (Modal-Befüllung aus Daten-Attributen);
@@ -17,7 +17,7 @@
  *   });
  *
  * Mehrere Funktionen müssen wegen inline-`onclick`-Handlern in dynamisch
- * gerenderten Tabellen-Zeilen am `window`-Objekt landen — das Pattern
+ * gerenderten Tabellen-Zeilen am `window`-Objekt landen. Das Pattern
  * existiert schon im Original-Inline-Script und wird hier 1:1 erhalten.
  */
 (function (global) {
@@ -348,7 +348,7 @@
                     <h5 class="mb-3">Warte auf EMD-Daten...</h5>
                     <p class="text-tertiary-text mb-4">
                         Die Anforderung wurde gesendet. Die Fahrzeugdaten werden beim nächsten Sync übermittelt.<br>
-                        <small>Dies kann 5–10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
+                        <small>Dies kann 5 bis 10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
                     </p>
                     <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="openVehicleImport()">
                         <i class="fa-solid fa-rotate mr-1"></i>Erneut prüfen
@@ -453,8 +453,8 @@
                 existingInfo = `
                     <div class="mt-2 p-2 rounded" style="background:rgba(255,255,255,0.03);font-size:var(--fs-xs);border:1px solid rgba(255,255,255,0.06);">
                         <span class="text-tertiary-text">Bestehendes Fahrzeug:</span>
-                        <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')})
-                        — ${escHtml(e.identifier || '-')}
+                        <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')}),
+                        ${escHtml(e.identifier || '-')}
                         <span class="ignis-chip" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
                     </div>
                 `;

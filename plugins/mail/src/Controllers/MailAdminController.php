@@ -146,7 +146,7 @@ final class MailAdminController extends Controller
     }
 
     /**
-     * POST /settings/mail/mailboxes/{id}/account — „Konto zuordnen“: das
+     * POST /settings/mail/mailboxes/{id}/account („Konto zuordnen“): das
      * Postfach an ein anderes Konto hängen (`user_id`) oder die Zuordnung
      * lösen (leer). Ziel darf nur ein aktives Konto sein, dessen
      * Discord-ID zum Mitarbeiter passt und das noch kein Postfach hat, nie
@@ -196,7 +196,7 @@ final class MailAdminController extends Controller
 
         self::audit(
             $target === null ? 'Postfach-Konto gelöst' : 'Postfach-Konto zugeordnet',
-            'Postfach #' . $mailbox->id . ': Konto #' . ($before ?? '–') . ' → #' . ($target ?? '–'),
+            'Postfach #' . $mailbox->id . ': Konto #' . ($before ?? '-') . ' → #' . ($target ?? '-'),
             ['mailbox_id' => $mailbox->id, 'von' => $before, 'auf' => $target],
         );
         if ($before !== null) {
@@ -220,7 +220,7 @@ final class MailAdminController extends Controller
     }
 
     /**
-     * POST /settings/mail — prüft jeden Wert; die Werte stehen in intra_config
+     * POST /settings/mail: prüft jeden Wert; die Werte stehen in intra_config
      * als nicht editierbar, damit die allgemeine Konfigurationsseite sie nicht
      * ungeprüft überschreibt.
      */

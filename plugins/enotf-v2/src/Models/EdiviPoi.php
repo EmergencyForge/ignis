@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * `intra_edivi_pois` — Points of Interest (Kliniken, Einsatzorte, …).
+ * `intra_edivi_pois`: Points of Interest (Kliniken, Einsatzorte, …).
  *
  * `legacy_identifier` (nullable, UNIQUE) ist der alte Ziel-Identifier
  * aus intra_edivi_ziele; Prereg-`ziel`-Strings referenzieren entweder

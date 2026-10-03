@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fire_incident_map_zones` — Zonen (Polygone)
+ * Eloquent-Model für `intra_fire_incident_map_zones`: Zonen (Polygone)
  * auf der taktischen Einsatzkarte.
  *
  * `points` hält die Polygon-Punkte als JSON-String; die Konsumenten

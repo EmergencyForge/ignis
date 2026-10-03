@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Wissensdatenbank — Permission-Katalog für die Rollen-Verwaltung.
+ * Wissensdatenbank: Permission-Katalog für die Rollen-Verwaltung.
  */
 
 declare(strict_types=1);

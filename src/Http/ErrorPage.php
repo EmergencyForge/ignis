@@ -58,7 +58,7 @@ final class ErrorPage
 
     /**
      * Rendert ein Fehler-Template. `null`, wenn es fehlt oder beim Rendern
-     * etwas wirft — dann bleibt der Plain-Text-Rückfall, damit eine kaputte
+     * etwas wirft. Dann bleibt der Plain-Text-Rückfall, damit eine kaputte
      * Installation wenigstens den richtigen Status liefert statt still
      * einen 500er.
      *

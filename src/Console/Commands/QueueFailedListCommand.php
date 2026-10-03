@@ -38,7 +38,7 @@ final class QueueFailedListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->reader->tableExists()) {
-            $output->writeln('<comment>Tabelle intra_failed_jobs existiert nicht — Migration noch nicht gelaufen.</comment>');
+            $output->writeln('<comment>Tabelle intra_failed_jobs existiert nicht. Migration noch nicht gelaufen.</comment>');
             return Command::SUCCESS;
         }
 
@@ -60,8 +60,8 @@ final class QueueFailedListCommand extends Command
             $table->addRow([
                 $job['id'],
                 $job['queue'],
-                $this->shortClass((string) ($job['job_class'] ?? '–')),
-                mb_strimwidth((string) ($job['short_message'] ?? '–'), 0, 60, '…'),
+                $this->shortClass((string) ($job['job_class'] ?? '-')),
+                mb_strimwidth((string) ($job['short_message'] ?? '-'), 0, 60, '…'),
                 $job['failed_at_formatted'],
             ]);
         }

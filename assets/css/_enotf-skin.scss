@@ -1,4 +1,4 @@
-// _enotf-skin.scss — ignis-Komponenten im eNOTF-Kontext
+// _enotf-skin.scss: ignis-Komponenten im eNOTF-Kontext
 //
 // Unverändert aus ui.scss herausgelöst (Redesign I2). Gehört zu eNOTF und
 // steht deshalb auf der Ausnahmeliste von ThemeTokensTest: hier dürfen
@@ -21,14 +21,14 @@
 
 // =====================================================
 // eNOTF-Scope-Overrides
-// Das eNOTF-Theme ist kein Admin-Theme — es nutzt mittelgraue Box-Farben
+// Das eNOTF-Theme ist kein Admin-Theme. Es nutzt mittelgraue Box-Farben
 // (#333333), blaue Fokus-Akzente (#5783cf) und größere Typo. Die Dropdown-
 // und Dialog-Komponenten passen sich hier an, damit sie sich nicht wie
 // Fremdkörper anfühlen.
 // =====================================================
 
 #edivi__container {
-  // eNOTF-Komponenten sind durchgehend eckig (Dispatch-Terminal-Look) —
+  // eNOTF-Komponenten sind durchgehend eckig (Dispatch-Terminal-Look),
   // Radio + Switch behalten ihre natural-round Form.
   .ignis-input,
   .ignis-textarea,
@@ -134,7 +134,7 @@
     color: #5783cf;
   }
 
-  // ── Checkbox / Radio — blaue Checked-Farbe ──────────────────────
+  // ── Checkbox / Radio: blaue Checked-Farbe ───────────────────────
   .ignis-checkbox input[type="checkbox"],
   .ignis-radio input[type="radio"] {
     border-color: #4a4a4a;
@@ -161,7 +161,7 @@
     border-color: #5783cf;
   }
 
-  // ── Switch — blaue On-Farbe ─────────────────────────────────────
+  // ── Switch: blaue On-Farbe ──────────────────────────────────────
   .ignis-switch {
     input[type="checkbox"] {
       background: #4a4a4a;
@@ -176,7 +176,7 @@
     }
   }
 
-  // ── Number-Stepper — blauer Focus-Ring ──────────────────────────
+  // ── Number-Stepper: blauer Focus-Ring ───────────────────────────
   .ignis-stepper {
     background: #2a2a2a;
     border-color: #4a4a4a;
@@ -195,7 +195,7 @@
     }
   }
 
-  // ── Tabs — blauer Underline ─────────────────────────────────────
+  // ── Tabs: blauer Underline ──────────────────────────────────────
   .ignis-tabs {
     .ignis-tabs__headers {
       border-bottom-color: #4a4a4a;
@@ -218,7 +218,7 @@
     }
   }
 
-  // ── Accordion — eckig, blauer Active-Rand ──────────────────────
+  // ── Accordion: eckig, blauer Active-Rand ───────────────────────
   .ignis-accordion {
     .ignis-accordion__item {
       background: #2a2a2a;
@@ -235,7 +235,7 @@
     }
   }
 
-  // ── Drawer — eckig, blauer Akzent ───────────────────────────────
+  // ── Drawer: eckig, blauer Akzent ────────────────────────────────
   .ignis-drawer {
     background: #2a2a2a;
     border-color: #4a4a4a;
@@ -248,7 +248,7 @@
     }
   }
 
-  // ── Pagination — eckig, blau-aktiv ──────────────────────────────
+  // ── Pagination: eckig, blau-aktiv ───────────────────────────────
   .ignis-pagination .ignis-pagination__item {
     border-radius: 0;
     font-size: 0.95rem;
@@ -258,7 +258,7 @@
     }
   }
 
-  // ── List Group — eckig ──────────────────────────────────────────
+  // ── List Group: eckig ───────────────────────────────────────────
   .ignis-list-group {
     background: #2a2a2a;
     border-color: #4a4a4a;
@@ -275,7 +275,7 @@
     }
   }
 
-  // ── Alert — eckig, blau-info ────────────────────────────────────
+  // ── Alert: eckig, blau-info ─────────────────────────────────────
   .ignis-alert {
     border-radius: 0;
     font-size: 1rem;
@@ -288,7 +288,7 @@
     }
   }
 
-  // ── Progress — eckig ────────────────────────────────────────────
+  // ── Progress: eckig ─────────────────────────────────────────────
   .ignis-progress {
     background: #1e1e1e;
     border-radius: 0;
@@ -299,7 +299,7 @@
     }
   }
 
-  // ── File-Input — eckig ──────────────────────────────────────────
+  // ── File-Input: eckig ───────────────────────────────────────────
   .ignis-file {
     background: #2a2a2a;
     border-color: #4a4a4a;
@@ -307,10 +307,10 @@
     font-size: 1rem;
   }
 
-  // ── Skeleton — eckig ────────────────────────────────────────────
+  // ── Skeleton: eckig ─────────────────────────────────────────────
   .ignis-skeleton { border-radius: 0; }
 
-  // ── Card — eckig, mittelgrau ────────────────────────────────────
+  // ── Card: eckig, mittelgrau ─────────────────────────────────────
   .ignis-card {
     background: #2a2a2a;
     border-color: #4a4a4a;
@@ -331,7 +331,7 @@
     }
   }
 
-  // ── Color-Picker — eckig, blau-Akzent ───────────────────────────
+  // ── Color-Picker: eckig, blau-Akzent ────────────────────────────
   .ignis-colorpicker {
     .ignis-colorpicker__trigger {
       background: #2a2a2a;
@@ -371,7 +371,7 @@
     }
   }
 
-  // ── Combobox — eckig, blau-Akzent ───────────────────────────────
+  // ── Combobox: eckig, blau-Akzent ────────────────────────────────
   .ignis-combobox {
     .ignis-combobox__field {
       background: #2a2a2a;
@@ -411,7 +411,7 @@
     }
   }
 
-  // ── Button — eckig, blauer Primary-Akzent ───────────────────────
+  // ── Button: eckig, blauer Primary-Akzent ────────────────────────
   .ignis-btn {
     border-radius: 0;
     font-size: 1rem;
@@ -450,7 +450,7 @@
     border-radius: 0 !important;
   }
 
-  // ── Chip / Tag — eckig, blau-Akzent ─────────────────────────────
+  // ── Chip / Tag: eckig, blau-Akzent ──────────────────────────────
   .ignis-chip {
     border-radius: 0;
     font-size: 0.85rem;
@@ -481,7 +481,7 @@
     }
   }
 
-  // ── DatePicker — blauer Accent, eckig ───────────────────────────
+  // ── DatePicker: blauer Accent, eckig ────────────────────────────
   .ignis-datepicker {
     .ignis-datepicker__trigger {
       background: #2a2a2a;

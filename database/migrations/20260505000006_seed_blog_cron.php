@@ -8,7 +8,7 @@ use Phinx\Migration\AbstractMigration;
  * Cron-Default fuer blog:refresh.
  *
  * Schwester-Job zu changelog.refresh (Migration 20260505000002).
- * Alle 30 Minuten — Hub liefert dank ETag/Last-Modified-Support oft 304,
+ * Alle 30 Minuten. Der Hub liefert dank ETag/Last-Modified-Support oft 304,
  * also kein DB-Hit auf der anderen Seite. Stehen `intra_cron_jobs` noch
  * nicht zur Verfuegung, wird die Migration geskippt.
  */

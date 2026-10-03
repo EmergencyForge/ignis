@@ -1,7 +1,7 @@
 /**
  * eNOTF Custom Modal Styling
  * Überschreibt Bootstrap-Modal-Styles nur innerhalb des eNOTF-Bereichs.
- * Wird über _head.php nur im eNOTF geladen — Admin-Modals bleiben unberührt.
+ * Wird über _head.php nur im eNOTF geladen, Admin-Modals bleiben unberührt.
  * Auch eNOTF v2 lädt die Datei (_v1head.php). Buttons und Eingabefelder der
  * v1-Modals stehen deshalb in enotf-v1.css.
  */

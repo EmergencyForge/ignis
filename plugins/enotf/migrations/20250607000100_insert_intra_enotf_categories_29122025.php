@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Standard-Kategorien für die eNOTF-Quicklinks: Schnellzugriff und
- * Verwaltung — die beiden Werte, die vorher als ENUM fest kodiert waren.
+ * Verwaltung: die beiden Werte, die vorher als ENUM fest kodiert waren.
  */
 class InsertIntraEnotfCategories29122025 extends AbstractMigration
 {

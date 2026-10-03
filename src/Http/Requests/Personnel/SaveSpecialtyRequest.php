@@ -11,7 +11,7 @@ use Respect\Validation\Validator as v;
 /**
  * Ein Fachdienst (`intra_mitarbeiter_fdquali`).
  *
- * `sgnr` ist die Nummer des Fachdienstes und muss eine Zahl sein — bisher
+ * `sgnr` ist die Nummer des Fachdienstes und muss eine Zahl sein. Bisher
  * machte ein `(int)`-Cast aus jeder Eingabe eine, aus „abc" eben die Null.
  */
 class SaveSpecialtyRequest extends FormRequest

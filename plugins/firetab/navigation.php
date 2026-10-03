@@ -1,7 +1,7 @@
 <?php
 
 /**
- * fireTab — hängt seine Einträge in die Gruppe „Protokolle" ein. Fällt
+ * fireTab: hängt seine Einträge in die Gruppe „Protokolle" ein. Fällt
  * die Zielgruppe weg, erscheint das Fragment als eigene Gruppe (deshalb
  * die vollständigen Felder).
  */

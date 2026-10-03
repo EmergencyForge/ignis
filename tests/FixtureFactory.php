@@ -15,8 +15,8 @@ use App\Models\User;
  * Defaults nutzen `uniqid()` für Unique-Constraints, damit parallele oder
  * wiederholte Tests keine Kollisionen produzieren.
  *
- * Wichtig: Die erstellten Datensätze werden NICHT automatisch aufgeräumt —
- * das ist die Verantwortung der `IntegrationTestCase::tearDown()`-
+ * Wichtig: Die erstellten Datensätze werden NICHT automatisch aufgeräumt.
+ * Das ist die Verantwortung der `IntegrationTestCase::tearDown()`-
  * Transaction-Isolation. Wenn ein Test `$useTransactions = false` setzt,
  * muss er selbst aufräumen.
  *

@@ -7,13 +7,13 @@ namespace App\Policies;
 use App\Auth\Permissions;
 
 /**
- * SystemPolicy — generischer Admin-Gate für System-/Settings-Bereiche
+ * SystemPolicy: generischer Admin-Gate für System-/Settings-Bereiche
  * ohne eigene Resource-Semantik (Logs, System-Konfig, Federation,
  * Cron-Jobs, Antrag-Settings etc.).
  *
  * Resource-spezifische Settings-Bereiche (POIs, Vehicles, Personnel,
  * Documents, Knowledgebase) bleiben weiterhin in ihren eigenen
- * Policies — die haben Per-Action-Semantik (view vs. manage).
+ * Policies. Die haben Per-Action-Semantik (view vs. manage).
  */
 class SystemPolicy
 {

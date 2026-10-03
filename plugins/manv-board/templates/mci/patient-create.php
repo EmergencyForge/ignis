@@ -22,7 +22,7 @@ $bodyPage = 'edivi';
                 <div class="twplus-page-header__copy">
                 <p class="twplus-page-header__eyebrow">Patientenerfassung</p>
                 <h1>Neuer Patient</h1>
-                <p class="twplus-page-header__description">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?> – <?= htmlspecialchars($lage['einsatzort']) ?></p>
+                <p class="twplus-page-header__description">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?>, <?= htmlspecialchars($lage['einsatzort']) ?></p>
                 </div>
             </header>
 

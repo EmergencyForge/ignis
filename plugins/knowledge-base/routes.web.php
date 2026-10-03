@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Wissensdatenbank — Web-Routen.
+ * Wissensdatenbank: Web-Routen.
  *
  * Auth: AuthMiddleware mit `KB_PUBLIC_ACCESS`-Flag-Inversion. Wenn das
  * Flag true ist, ist das Lexikon public lesbar; sonst Login-Pflicht.

@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Dashboard-Kacheln: Links mit Icon und Priorität, je einer Kategorie
- * zugeordnet (FK mit CASCADE — Kategorie löschen räumt die Kacheln mit ab).
+ * zugeordnet (FK mit CASCADE, Kategorie löschen räumt die Kacheln mit ab).
  */
 class CreateIntraDashboardTiles07062025 extends AbstractMigration
 {

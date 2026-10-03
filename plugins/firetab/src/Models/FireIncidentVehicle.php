@@ -8,7 +8,7 @@ use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fire_incident_vehicles` — Fahrzeuge die an
+ * Eloquent-Model für `intra_fire_incident_vehicles`: Fahrzeuge die an
  * einem Feuerwehr-Einsatz beteiligt sind/waren.
  *
  * Hat nur `created_at` (kein updated_at), daher erbt es von der intraRP-

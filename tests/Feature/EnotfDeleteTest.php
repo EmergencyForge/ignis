@@ -15,7 +15,7 @@ use Tests\FixtureFactory;
  *
  * Vorher löschte `/enotf/admin/delete` per GET-Link (ohne Rückfrage), und
  * die Knöpfe für Quicklinks/Kategorien navigierten per GET auf reine
- * POST-Routen — sie liefen ins Leere (405).
+ * POST-Routen und liefen ins Leere (405).
  */
 final class EnotfDeleteTest extends FeatureTestCase
 {

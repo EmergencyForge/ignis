@@ -10,7 +10,7 @@ use Tests\FeatureTestCase;
 /**
  * Die Root-Einstiegspunkte (index.php, login.php, ...) liegen außerhalb
  * von public/ und sind nur noch über ihre Routen erreichbar. Diese Tests
- * stellen sicher, dass jede dieser Routen antwortet — mit der Seite oder
+ * stellen sicher, dass jede dieser Routen antwortet, mit der Seite oder
  * mit dem Redirect, den das Skript vorher per header()+exit gesetzt hat.
  */
 final class RootRoutesTest extends FeatureTestCase

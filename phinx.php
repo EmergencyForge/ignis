@@ -17,7 +17,7 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 // .env best-effort laden (Produktion + lokale Entwicklung). In der CI gibt es
-// keine .env — dort kommen die DB_*-Variablen direkt aus der Prozess-Umgebung.
+// keine .env, dort kommen die DB_*-Variablen direkt aus der Prozess-Umgebung.
 if (is_file(__DIR__ . '/.env')) {
     try {
         Dotenv\Dotenv::createImmutable(__DIR__, null, false)->load();
@@ -37,8 +37,8 @@ $env = static function (string $key, ?string $default = null): ?string {
 return [
     'paths' => [
         // Kern-Migrations plus die Migrations-Verzeichnisse installierter
-        // Plugins. Installiert = mitgeliefert oder vom Admin bestätigt —
-        // ein bloß nach plugins/ kopiertes Fremd-Plugin migriert nichts.
+        // Plugins. Installiert = mitgeliefert oder vom Admin bestätigt.
+        // Ein bloß nach plugins/ kopiertes Fremd-Plugin migriert nichts.
         // Deaktivierte (aber installierte) Plugins bleiben drin: ihr
         // Schema gehört erhalten. Die Filterlogik lebt im PluginLoader
         // und ist datenbankfrei, damit sie auch hier in der CLI läuft.

@@ -7,15 +7,15 @@ namespace Plugin\KnowledgeBase\Policies;
 use App\Auth\Permissions;
 
 /**
- * KnowledgebasePolicy — Permissions fürs Wissens-Datenbank-Modul.
+ * KnowledgebasePolicy: Permissions fürs Wissens-Datenbank-Modul.
  *
- *   view()  — Inhalte ansehen (read-only)
- *   edit()  — Kategorien/Tags/Einträge anlegen, ändern, löschen
+ *   view():  Inhalte ansehen (read-only)
+ *   edit():  Kategorien/Tags/Einträge anlegen, ändern, löschen
  *
  * Das View-Recht wird bewusst NICHT per Permission gegated: die
  * Knowledgebase kann via `KB_PUBLIC_ACCESS`-Config-Flag für alle
  * eingeloggten User oder sogar anonym (je nach Middleware-Config)
- * freigeschaltet sein. Das Route-Level-Middleware regelt das —
+ * freigeschaltet sein. Das Route-Level-Middleware regelt das,
  * die Policy fokussiert sich auf Schreibrechte.
  */
 class KnowledgebasePolicy

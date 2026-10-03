@@ -21,7 +21,7 @@ use PDOException;
  * {@see store()}, {@see update()} und {@see destroy()}.
  *
  * Geprüft wird über FormRequests. Am Ziel einer Verlinkung hängt mehr
- * daran, als es aussieht — siehe {@see SaveDashboardTileRequest}: es
+ * daran, als es aussieht, siehe {@see SaveDashboardTileRequest}: es
  * landet auf dem Dashboard in einem `href`, und bis hierher nahm der
  * Controller jeden Wert, `javascript:` eingeschlossen.
  */

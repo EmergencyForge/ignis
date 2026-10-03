@@ -86,7 +86,7 @@
     }
 }
 
-// Gutter-Klassen (g-N / gx-N / gy-N) — überschreibt margin/padding
+// Gutter-Klassen (g-N / gx-N / gy-N) überschreiben margin/padding
 // der `.row`-Standardwerte in Vielfachen von 0.25rem.
 $gutters: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem);
 @each $name, $size in $gutters {
@@ -573,5 +573,5 @@ $spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
 }
 
 // ── Tooltip-Klasse (Reste, falls noch verwendet) ───────────────────
-// `.tooltip.bs-tooltip-*` etc. werden nicht geshim't — wir nutzen
+// `.tooltip.bs-tooltip-*` etc. werden nicht geshim't, wir nutzen
 // `data-ignis-tooltip` (siehe ui.scss).

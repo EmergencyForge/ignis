@@ -1,4 +1,4 @@
-# tests/ — PHPUnit-Suites, kein direkter HTTP-Zugriff.
+# tests/: PHPUnit-Suites, kein direkter HTTP-Zugriff.
 
 <IfModule mod_authz_core.c>
     Require all denied

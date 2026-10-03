@@ -19,7 +19,7 @@ use PDOException;
  *
  * Action-Dispatcher für die CRUD-Operationen auf `intra_fahrzeuge_defects`.
  * Sonderfall: eNOTF-Besatzungen (Session hat `fahrername` ohne `userid`)
- * dürfen Defekte *erstellen* — für alle anderen Actions gilt die normale
+ * dürfen Defekte *erstellen*. Für alle anderen Actions gilt die normale
  * Admin-Auth mit Permission `vehicles.manage` bzw. `vehicles.view`.
  *
  * Defekte die das Fahrzeug als nicht einsatzfähig markieren, deaktivieren
@@ -28,7 +28,7 @@ use PDOException;
  */
 final class VehicleDefectsController
 {
-    /** Erlaubte Defekt-Kategorien — muss identisch zur Legacy-Liste sein. */
+    /** Erlaubte Defekt-Kategorien. Die Liste muss identisch zur Legacy-Liste sein. */
     private const ALLOWED_CATEGORIES = [
         'aufbau_karosserie', 'ausbau', 'batterie', 'beleuchtung', 'bremsen',
         'elektrik', 'fahrwerk', 'getriebe', 'motor', 'reifen',
@@ -170,7 +170,7 @@ final class VehicleDefectsController
             return Response::json(['error' => 'Benutzer konnte nicht zugeordnet werden']);
         }
 
-        // FormRequest-Validation — wirft ValidationException bei Fehlern,
+        // FormRequest-Validation: wirft ValidationException bei Fehlern,
         // die JsonExceptionMiddleware wandelt das in 422 JSON um. Anlage,
         // Protokoll, Sperre und Benachrichtigung macht der DefectReporter,
         // denselben nimmt das Formular im Drawer.
@@ -286,7 +286,7 @@ final class VehicleDefectsController
                 ->count();
             if ($blockingCount === 0) {
                 Vehicle::query()->where('id', $vehicleId)->update(['active' => 1]);
-                $this->writeLog($id, $userId, 'vehicle_enabled', 'Fahrzeug wieder einsatzfähig — keine offenen Sperrungen');
+                $this->writeLog($id, $userId, 'vehicle_enabled', 'Fahrzeug wieder einsatzfähig, keine offenen Sperrungen');
             }
         }
 
@@ -343,8 +343,8 @@ final class VehicleDefectsController
     /**
      * Basis-Query für Defekt-Listen/-Details: Defekt + Fahrzeug + die
      * per Discord-Tag aufgelösten Anzeigenamen von Melder, Bearbeiter
-     * und Löser. Zusätzliche Fahrzeug-Spalten landen — wie im alten
-     * SQL — zwischen den Fahrzeug-Basisfeldern und den Namens-Spalten,
+     * und Löser. Zusätzliche Fahrzeug-Spalten landen (wie im alten
+     * SQL) zwischen den Fahrzeug-Basisfeldern und den Namens-Spalten,
      * damit die Feld-Reihenfolge in der JSON-Antwort identisch bleibt.
      *
      * @param array<int, string> $extraVehicleColumns

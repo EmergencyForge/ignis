@@ -18,7 +18,7 @@ class PluginManifestTest extends TestCase
     {
         return [
             'id' => 'enotf',
-            'name' => 'eNOTF – Notfallprotokolle',
+            'name' => 'eNOTF: Notfallprotokolle',
             'version' => '1.0.0',
             'vendor' => 'EmergencyForge',
             'requires' => ['ignis' => '>=1.2 <2.0'],
@@ -35,7 +35,7 @@ class PluginManifestTest extends TestCase
         $m = PluginManifest::fromArray($this->validData());
 
         $this->assertSame('enotf', $m->id);
-        $this->assertSame('eNOTF – Notfallprotokolle', $m->name);
+        $this->assertSame('eNOTF: Notfallprotokolle', $m->name);
         $this->assertSame('1.0.0', $m->version);
         $this->assertSame('EmergencyForge', $m->vendor);
         $this->assertSame('>=1.2 <2.0', $m->hostRequire);

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * `intra_edivi_hospital_departments` — Fachabteilungen je Klinik-POI.
+ * `intra_edivi_hospital_departments`: Fachabteilungen je Klinik-POI.
  *
  * FK `poi_id` → intra_edivi_pois.id (CASCADE). `sort_order` Default 999.
  * Beim Anlegen legt v1 sofort eine availability-Zeile mit Status

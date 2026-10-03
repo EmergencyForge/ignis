@@ -9,7 +9,7 @@ use Throwable;
 
 /**
  * Wird von FederationMiddleware geworfen, wenn die Authentifizierung
- * eines eingehenden Federation-Requests fehlschlägt — sei es weil
+ * eines eingehenden Federation-Requests fehlschlägt, sei es weil
  * Federation deaktiviert ist (404), kein/ungültiger X-Federation-Key
  * (401/403) oder die anfragende Instanz keine Capability für die
  * angeforderte Datenart hat (403).

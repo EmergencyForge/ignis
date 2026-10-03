@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 
 /**
  * Legt die zehn Systemvorlagen an, die ignis mitbringt. Was darin steht,
- * steht in {@see SystemTemplates} — hier geht es nur ums Einspielen.
+ * steht in {@see SystemTemplates}, hier geht es nur ums Einspielen.
  *
  * Läuft nur einmal: Vorlagen mit demselben Namen bleiben unangetastet,
  * damit eine bearbeitete Fassung eine erneute Migration überlebt.
@@ -45,7 +45,7 @@ final class SeedEditorTemplates extends AbstractMigration
         $names        = array_keys(SystemTemplates::all());
         $placeholders = implode(', ', array_fill(0, count($names), '?'));
 
-        // Nur Vorlagen, an denen kein Dokument hängt — sonst verlöre ein
+        // Nur Vorlagen, an denen kein Dokument hängt, sonst verlöre ein
         // ausgestelltes Dokument seine Herkunft.
         $statement = $this->getAdapter()->getConnection()->prepare(
             'DELETE FROM intra_document_templates WHERE name IN (' . $placeholders . ')'

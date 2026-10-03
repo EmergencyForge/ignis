@@ -7,16 +7,16 @@ namespace App\Policies;
 use App\Auth\Permissions;
 
 /**
- * DocumentPolicy — Permissions rund um Mitarbeiter-Dokumente.
+ * DocumentPolicy: Permissions rund um Mitarbeiter-Dokumente.
  *
- *   view()          — eigene / fremde Dokumente ansehen
- *   manage()        — anlegen, ändern, regenerieren, hochladen, ausblenden, …
- *   resetTemplate() — Template-Defaults wiederherstellen (admin-only)
- *   viewAudit()     — Dokumenten-Audit-Trail einsehen (admin-only)
+ *   view():          eigene / fremde Dokumente ansehen
+ *   manage():        anlegen, ändern, regenerieren, hochladen, ausblenden, …
+ *   resetTemplate(): Template-Defaults wiederherstellen (admin-only)
+ *   viewAudit():     Dokumenten-Audit-Trail einsehen (admin-only)
  *
  * „view" ist absichtlich laxer als „manage": User mit
  * `personnel.documents.view` dürfen fremde Dokumente sehen, wenn sie
- * keine manage-Rechte haben. Das eigene Dokument darf jeder sehen —
+ * keine manage-Rechte haben. Das eigene Dokument darf jeder sehen;
  * diese Owner-Check-Logik bleibt im Controller, damit die Policy nicht
  * die Request-Context-Details kennen muss.
  */

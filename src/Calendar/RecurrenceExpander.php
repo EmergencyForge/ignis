@@ -20,10 +20,10 @@ use DateTimeZone;
  *   COUNT=N | UNTIL=YYYY-MM-DD[THH:MM:SS]
  *
  * Berücksichtigt Exception-Rows (Children mit parent_event_id = master.id und
- * recurrence_rule = NULL) — diese ueberschreiben das berechnete Vorkommen
+ * recurrence_rule = NULL). Diese ueberschreiben das berechnete Vorkommen
  * am gleichen Datum.
  *
- * Returns array<CalendarEvent> — KOPIEN des Master-Events mit angepassten
+ * Returns array<CalendarEvent>: KOPIEN des Master-Events mit angepassten
  * starts_at/ends_at. Eltern-Event behaelt seine Original-Daten in der DB.
  */
 final class RecurrenceExpander
@@ -64,7 +64,7 @@ final class RecurrenceExpander
         }
         $count = isset($rule['count']) ? (int) $rule['count'] : null;
 
-        // Exceptions vorab laden — Map: 'YYYY-MM-DD' → CalendarEvent
+        // Exceptions vorab laden, Map: 'YYYY-MM-DD' → CalendarEvent
         $exceptions = self::loadExceptions($event);
 
         $occurrences = [];
@@ -94,7 +94,7 @@ final class RecurrenceExpander
                 if ($overlapsRange) {
                     $dateKey = $current->format('Y-m-d');
                     if (isset($exceptions[$dateKey])) {
-                        // Exception ueberschreibt — kann auch DELETE sein
+                        // Exception ueberschreibt, kann auch DELETE sein
                         // (recurrence_rule = NULL, all_day = 1, title gleich master,
                         // starts_at = ends_at = master start = "geloescht")
                         // Wir behandeln Exceptions hier konservativ: einbinden.
@@ -197,7 +197,7 @@ final class RecurrenceExpander
                 $map[$row->starts_at->format('Y-m-d')] = $row;
             }
         } catch (\Throwable) {
-            // ignore — leere Map ist sicher
+            // ignore: leere Map ist sicher
         }
         return $map;
     }

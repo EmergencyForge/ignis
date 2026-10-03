@@ -14,9 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * `php cli/intra.php storage:cleanup`
  *
  * Räumt regelmäßige Hinterlassenschaften auf:
- * - `storage/temp/update_*`  — Updater-Temp-Verzeichnisse älter als 24h
- * - `intra_failed_jobs`      — Einträge älter als 30 Tage
- * - `intra_cron_runs`        — Run-Historie älter als 30 Tage (pro Job aber mindestens 10 letzte behalten)
+ * - `storage/temp/update_*`:  Updater-Temp-Verzeichnisse älter als 24h
+ * - `intra_failed_jobs`:      Einträge älter als 30 Tage
+ * - `intra_cron_runs`:        Run-Historie älter als 30 Tage (pro Job aber mindestens 10 letzte behalten)
  */
 #[AsCommand(
     name: 'storage:cleanup',

@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_hospital_departments` — Fachrichtungen
+ * Eloquent-Model für `intra_edivi_hospital_departments`: Fachrichtungen
  * eines Krankenhaus-POIs (z. B. ZNA/INA, Schockraum, Intensivstation).
  *
  * `sort_order` steuert die Anzeige-Reihenfolge im Verfügbarkeits-Portal;

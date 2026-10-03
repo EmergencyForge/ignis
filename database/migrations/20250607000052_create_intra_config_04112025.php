@@ -34,7 +34,7 @@ class CreateIntraConfig04112025 extends AbstractMigration
             ->addColumn('updated_by',    'integer',  ['null' => true, 'comment' => 'User ID who last updated'])
             // Das Legacy-SQL erzeugte zwei Unique-Indizes auf config_key:
             // einen über das Inline-UNIQUE (Name `config_key`) und einen
-            // über UNIQUE KEY `idx_config_key` — beide exakt übernommen.
+            // über UNIQUE KEY `idx_config_key`. Beide sind exakt übernommen.
             ->addIndex(['config_key'], ['unique' => true, 'name' => 'config_key'])
             ->addIndex(['config_key'], ['unique' => true, 'name' => 'idx_config_key'])
             ->addIndex(['category'],   ['name' => 'idx_category'])

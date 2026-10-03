@@ -1,5 +1,5 @@
 /**
- * enotf-diagnose.js — Multi-Select-Speicher-Logik für die eNOTF-
+ * enotf-diagnose.js: Multi-Select-Speicher-Logik für die eNOTF-
  * Weitere-Diagnosen-Kategorieseiten.
  *
  * 18 Templates unter `templates/enotf/protokoll/diagnose/2_*.php` rendern
@@ -24,7 +24,7 @@
 
     // Kategorie-Bereiche (Diagnose-IDs pro Kategorie). Wird einmalig zur
     // Laufzeit benutzt, um die ID-Range der aktuell sichtbaren
-    // Checkboxen zu bestimmen — der Save-Pfad braucht das, weil andere
+    // Checkboxen zu bestimmen. Der Save-Pfad braucht das, weil andere
     // Kategorien beim Submit unangetastet bleiben sollen.
     const CATEGORY_RANGES = {
         zns:          [1, 2, 3, 4, 5, 6, 9],

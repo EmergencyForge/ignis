@@ -136,7 +136,7 @@ $totalVitals = EdiviVitalwert::where('enr', $enr)
     $SITE_TITLE = "[#" . e($daten['enr']) . "] &rsaquo; eNOTF";
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
-    <!-- Chart.js (lokales Bundle statt CDN — rendert auch ohne Außenanbindung) -->
+    <!-- Chart.js (lokales Bundle statt CDN, rendert auch ohne Außenanbindung) -->
     <script src="<?= BASE_PATH ?>public/assets/dist/vendor-chart.js"></script>
 
     <style>

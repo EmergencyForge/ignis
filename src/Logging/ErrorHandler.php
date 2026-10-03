@@ -45,7 +45,7 @@ class ErrorHandler
 
         // Vendor-Deprecations (z.B. PHP-DI 7.0 vs PHP 8.4 implicit-nullable
         // Parameter) komplett verschlucken: nicht loggen, nicht anzeigen.
-        // Sie sind Noise für die App-Entwicklung — wir können sie erst beheben,
+        // Sie sind Noise für die App-Entwicklung. Wir können sie erst beheben,
         // wenn die Vendor-Pakete neue Releases bringen.
         // Eigener src/ Code wird WEITERHIN normal geloggt + angezeigt.
         $isDeprecation = ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED);
@@ -301,8 +301,8 @@ class ErrorHandler
 
         // Halb-gerenderte Page-Chrome (Sidebar/Navbar/Head) verwerfen, bevor
         // die Error-Page kommt. Ohne diesen Cleanup wird die Error-UI in
-        // den teilweise emittierten Body der Original-Seite geschachtelt —
-        // sieht aus wie "Error-Modal in Dashboard-Layout". `headers_sent()`
+        // den teilweise emittierten Body der Original-Seite geschachtelt.
+        // Sieht aus wie "Error-Modal in Dashboard-Layout". `headers_sent()`
         // fragen wir nicht (Output-Buffering ist standardmaessig aktiv im
         // Bootstrap), `ob_get_level() > 0` reicht.
         while (ob_get_level() > 0) {
@@ -327,7 +327,7 @@ class ErrorHandler
         echo '.error-box{background:#16213e;padding:2rem 3rem;border-radius:12px;max-width:600px;text-align:center;border:1px solid #0f3460}';
         echo 'h1{color:#e94560;margin-bottom:0.5rem}pre{text-align:left;background:#0f3460;padding:1rem;border-radius:8px;overflow-x:auto;font-size:0.85rem}</style></head>';
         echo '<body><div class="error-box">';
-        echo '<h1>500 – Serverfehler</h1>';
+        echo '<h1>Serverfehler (500)</h1>';
         echo '<p>Es ist ein interner Fehler aufgetreten.</p>';
 
         if ($isDev) {

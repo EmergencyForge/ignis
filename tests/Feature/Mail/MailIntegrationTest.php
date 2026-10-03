@@ -11,7 +11,7 @@ use Tests\FeatureTestCase;
 
 /**
  * Einbindung in die Hülle: Sidebar-Eintrag „Mail“ mit Zähler, Glocke
- * (Benachrichtigungstyp `mail`) und die Suchgruppe „Mails“ — die nur
+ * (Benachrichtigungstyp `mail`) und die Suchgruppe „Mails“, die nur
  * eigene, nicht gelöschte Kopien findet und BCC nie verrät.
  */
 final class MailIntegrationTest extends FeatureTestCase

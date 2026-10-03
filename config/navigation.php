@@ -1,7 +1,7 @@
 <?php
 
 /**
- * config/navigation.php — Sidebar-Navigation der eingeloggten Ansichten.
+ * config/navigation.php: Sidebar-Navigation der eingeloggten Ansichten.
  *
  * Flache Gruppen mit Einträgen, gelesen von App\Helpers\Navigation, die
  * die Plugin-Fragmente anhängt (PluginLoader::mergeNavigation) und nach

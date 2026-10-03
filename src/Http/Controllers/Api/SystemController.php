@@ -136,7 +136,7 @@ final class SystemController
             }
             $data['users'] = $users;
 
-            // Content-Statistiken — Modul-Tabellen (eNOTF, KB, fireTab)
+            // Content-Statistiken: Modul-Tabellen (eNOTF, KB, fireTab)
             // existieren nur bei installiertem Plugin, deshalb einzeln
             // abgesichert.
             $contentStats = [
@@ -268,7 +268,7 @@ final class SystemController
      *
      * Ersetzt SYSTEM_LOGO durch die hochgeladene Datei und loescht die
      * zuvor hochgeladene, falls vorhanden. Der Pfad wird ohne BASE_PATH
-     * abgelegt — systemLogoUrl() haengt es beim Ausliefern an, mit
+     * abgelegt; systemLogoUrl() haengt es beim Ausliefern an, mit
      * gebackenem Pfad haenge es unter einem Unterpfad-Install doppelt dran.
      */
     public function uploadLogo(Request $request): Response
@@ -295,7 +295,7 @@ final class SystemController
     }
 
     /**
-     * POST /api/system/logo/remove — setzt SYSTEM_LOGO auf den Standard
+     * POST /api/system/logo/remove: setzt SYSTEM_LOGO auf den Standard
      * zurueck (leerer Wert, systemLogoIsDefault() zeigt dann die Wortmarke).
      */
     public function removeLogo(Request $request): Response
@@ -305,7 +305,7 @@ final class SystemController
 
     /**
      * Schreibt den neuen SYSTEM_LOGO-Wert, loescht eine zuvor hochgeladene
-     * Datei (falls vorhanden) und protokolliert die Aenderung — dieselbe
+     * Datei (falls vorhanden) und protokolliert die Aenderung. Es ist dieselbe
      * Audit-Zeile wie beim Speichern der grossen Config-Form.
      */
     private function saveLogoConfig(string $newValue): Response
@@ -335,7 +335,7 @@ final class SystemController
     private const LOGO_NAME_PATTERN = '/^[0-9a-f]{32}\.(?:png|jpe?g|webp)$/';
 
     /**
-     * SYSTEM_LOGO ist auch ein frei editierbares Textfeld — ein Wert wie
+     * SYSTEM_LOGO ist auch ein frei editierbares Textfeld: ein Wert wie
      * "/storage/branding/../../.env" darf hier nicht blind zu unlink()
      * durchgereicht werden, sonst loescht ein Ersetzen oder Entfernen eine
      * Datei ausserhalb von storage/branding. Deshalb: nur loeschen, wenn
@@ -365,7 +365,7 @@ final class SystemController
     private const ALLOWED_THEME_PRESETS = ['red', 'blue', 'green', 'purple', 'orange', 'teal', 'pink', 'amber'];
 
     /**
-     * GET /api/system/theme — aktuelle Theme-Config des eingeloggten Users
+     * GET /api/system/theme: aktuelle Theme-Config des eingeloggten Users
      */
     public function getTheme(Request $request): Response
     {
@@ -386,7 +386,7 @@ final class SystemController
     }
 
     /**
-     * POST /api/system/theme — Theme-Config speichern (Accent-Color-Preset oder Hex)
+     * POST /api/system/theme: Theme-Config speichern (Accent-Color-Preset oder Hex)
      */
     public function setTheme(Request $request): Response
     {

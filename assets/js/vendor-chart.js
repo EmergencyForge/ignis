@@ -2,7 +2,7 @@
  * Vite-Entry: Chart.js als lokales Bundle für die eNOTF-Vitalwerte-Charts.
  *
  * Ersetzt die früheren CDN-Loads (jsdelivr/cdnjs) in den v1-Templates
- * enotf/print und enotf/protokoll/verlauf — auf FiveM-Servern ohne
+ * enotf/print und enotf/protokoll/verlauf. Auf FiveM-Servern ohne
  * Außenanbindung kamen die CDN-Scripts nie an und die Charts blieben leer.
  *
  * `chart.js/auto` registriert alle Controller/Scales/Plugins, damit sich

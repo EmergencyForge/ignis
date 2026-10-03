@@ -16,7 +16,7 @@ class RemoveLangConfig04112025 extends AbstractMigration
 
     public function down(): void
     {
-        // Der LANG-Eintrag stammte aus keiner versionierten Migration — sein
+        // Der LANG-Eintrag stammte aus keiner versionierten Migration, sein
         // ursprünglicher Inhalt ist nicht rekonstruierbar. Auf frischen
         // Installationen ist das DELETE ohnehin ein No-op.
     }

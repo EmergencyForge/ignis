@@ -23,7 +23,7 @@
 $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $sender = $message->senderMailbox;
 $id     = (int) $message->id;
-$list   = static fn (array $addresses): string => $addresses === [] ? '—' : htmlspecialchars(implode(', ', $addresses));
+$list   = static fn (array $addresses): string => $addresses === [] ? '(keine)' : htmlspecialchars(implode(', ', $addresses));
 ?>
 <div class="ignis-mail__reading" data-mail-folder="<?= htmlspecialchars($folder) ?>"<?= $needsMarkRead ? ' data-mail-mark-read="' . $id . '"' : '' ?>>
     <h3 class="ignis-preview__title"><?= htmlspecialchars($message->subject !== '' ? $message->subject : '(kein Betreff)') ?></h3>

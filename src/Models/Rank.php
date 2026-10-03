@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter_dienstgrade` — Rank-Definitionen.
+ * Eloquent-Model für `intra_mitarbeiter_dienstgrade`: Rank-Definitionen.
  *
  * Dienstgrade haben drei Namens-Varianten (neutral, männlich, weiblich) und
  * werden je nach Mitarbeiter-Geschlecht angezeigt. Der Helper `displayName($g)`

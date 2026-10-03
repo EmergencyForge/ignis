@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
  * ihre über das Manifest-Feld `notifications` (PluginLoader::
  * notificationTypes()); register() nimmt weitere zur Laufzeit an. Ein
  * Eintrag, dessen Typ keinen Handler hat, wird trotzdem gezeigt (Rohtext,
- * gespeicherter Link) — Datensätze eines abgeschalteten Plugins gehen
+ * gespeicherter Link). Datensätze eines abgeschalteten Plugins gehen
  * nicht verloren. Einträge eines Typs, dessen Handler allowed() verneint,
  * fehlen in Seite, Popover und Zähler.
  *

@@ -1,6 +1,6 @@
 <?php
 /**
- * View: Mail-Arbeitsbereich — Ordner links, Liste in der Mitte, Lesebereich
+ * View: Mail-Arbeitsbereich, Ordner links, Liste in der Mitte, Lesebereich
  * rechts (ab 1200px immer sichtbar, siehe assets/plugin.css und mail.js).
  * Das Workbench-Muster aus dem UI-Paket (assets/js/ui/workbench.js) lädt
  * die gewählte Mail per GET …/{id}/preview, ↑/↓ wählen, Enter öffnet die
@@ -120,7 +120,7 @@ $snippet = static function (?string $html): string {
                                         ?>
                                         <tr data-ignis-row="<?= $rowId ?>" data-href="<?= htmlspecialchars($href) ?>" tabindex="0"<?= $unread ? ' class="is-unread"' : '' ?><?= $rowId === $selectedId ? ' aria-selected="true"' : '' ?>>
                                             <td data-label="<?= $isOutgoing ? 'An' : 'Von' ?>" data-mobile-primary class="ignis-mail__party">
-                                                <a href="<?= htmlspecialchars($href) ?>"><?= htmlspecialchars($party !== '' ? $party : '—') ?></a>
+                                                <a href="<?= htmlspecialchars($href) ?>"><?= htmlspecialchars($party !== '' ? $party : '-') ?></a>
                                                 <?php if ($unread): ?><span class="ignis-sr-only">(ungelesen)</span><?php endif; ?>
                                             </td>
                                             <td data-label="Betreff" data-mobile-context class="ignis-mail__subject">
@@ -136,7 +136,7 @@ $snippet = static function (?string $html): string {
                                                 <span class="ignis-mail__snippet"><?= htmlspecialchars($snippet($rowMessage->body_html)) ?></span>
                                             </td>
                                             <td data-label="Datum" data-mobile-context class="ignis-mail__date">
-                                                <?= $date !== null ? htmlspecialchars($date->format('d.m.Y H:i')) : '—' ?>
+                                                <?= $date !== null ? htmlspecialchars($date->format('d.m.Y H:i')) : '-' ?>
                                             </td>
                                             <td class="ignis-table__actions">
                                                 <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-preview-open>Vorschau</button>

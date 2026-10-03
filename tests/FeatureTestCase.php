@@ -21,7 +21,7 @@ use EmergencyForge\Http\Router;
  *
  * Pro Test wird ein frischer Router mit `enableCache: false` gebaut, und
  * die echten Route-Dateien (routes/web.php, routes/api.php, routes/api.session.php)
- * werden geladen — so testen wir dieselbe Route-Konfiguration wie in Produktion.
+ * werden geladen. So testen wir dieselbe Route-Konfiguration wie in Produktion.
  *
  * Beispiel:
  *
@@ -66,7 +66,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
         // head.php, das die Konfiguration früher nebenbei nachgeladen hat.
         require_once dirname(__DIR__) . '/assets/config/config.php';
 
-        // Frischer Router pro Test — kein File-Cache, sodass Test-Routen-
+        // Frischer Router pro Test, kein File-Cache, sodass Test-Routen-
         // Änderungen sofort greifen und keine Live-Cache-Files die Tests
         // verfälschen. Über die Factory, damit die Haken dieselben sind
         // wie in Produktion.
@@ -91,7 +91,8 @@ abstract class FeatureTestCase extends IntegrationTestCase
      */
     protected function loadRoutes(): void
     {
-        $router = $this->router;  // phpcs:ignore — wird von den require'd Route-Files benutzt
+        // Wird von den require'd Route-Files benutzt.
+        $router = $this->router;  // phpcs:ignore
         $routeFiles = [
             dirname(__DIR__) . '/routes/web.php',
             dirname(__DIR__) . '/routes/api.php',
@@ -132,7 +133,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
      */
     protected function request(string $method, string $path, array $opts = []): Response
     {
-        // Session-Injections vor Dispatch setzen. Pro Test kumulativ —
+        // Session-Injections vor Dispatch setzen. Pro Test kumulativ:
         // actingAs() + zusätzliche session-Values funktionieren beide.
         foreach ($opts['session'] ?? [] as $k => $v) {
             $_SESSION[$k] = $v;
@@ -155,7 +156,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
             files:   $opts['files'] ?? [],
         );
 
-        // Output-Buffer einschalten — Legacy-Controller rufen teilweise
+        // Output-Buffer einschalten. Legacy-Controller rufen teilweise
         // `echo`/`include` direkt und setzen dann `emitted=true`. Für Tests
         // wollen wir den Body im Response haben, also fangen wir's ab.
         // Pfad und Methode auch in $_SERVER, wie der Webserver sie setzt:
@@ -223,7 +224,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
     }
 
     /**
-     * Schickt einen POST — mit gültigem CSRF-Token, so wie ein Formular
+     * Schickt einen POST mit gültigem CSRF-Token, so wie ein Formular
      * der Anwendung ihn schickt.
      *
      * Wer die Prüfung selbst testen will, setzt `$body['csrf_token']` auf
@@ -337,7 +338,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
 
     /**
      * Prüft dass die Response JSON ist und liefert den dekodierten Body.
-     * Heißt bewusst nicht `assertJson` — die Methode ist in PHPUnit 10
+     * Heißt bewusst nicht `assertJson`. Die Methode ist in PHPUnit 10
      * final, deshalb hier ein eigener Name.
      *
      * @return array<array-key,mixed>

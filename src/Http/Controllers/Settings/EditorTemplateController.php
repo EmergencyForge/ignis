@@ -26,7 +26,7 @@ use InvalidArgumentException;
  * gegen die er den gesperrten Text zurückholen könnte.
  *
  * Gelöscht wird eine Vorlage nur, solange kein Dokument auf sie zeigt.
- * Sonst wird sie deaktiviert — ein ausgestelltes Dokument soll seine
+ * Sonst wird sie deaktiviert. Ein ausgestelltes Dokument soll seine
  * Herkunft behalten.
  */
 final class EditorTemplateController extends Controller
@@ -198,7 +198,7 @@ final class EditorTemplateController extends Controller
     /**
      * Die Meldung des SectionGuard nennt das Problem, nicht die Stelle.
      * Für jemanden, der gerade eine Vorlage baut, ist die Stelle das
-     * Wichtigere — also hier noch einmal durchgehen und sagen, welcher
+     * Wichtigere. Also hier noch einmal durchgehen und sagen, welcher
      * Abschnitt gemeint ist.
      *
      * @param  array<string,mixed>  $decoded
@@ -228,7 +228,7 @@ final class EditorTemplateController extends Controller
                 ?? $sectionId;
             if (isset($seenGroupIds[$groupId])) {
                 return $where . ' teilt sich seine Gruppe mit einem anderen Abschnitt. Ein wiederholbarer '
-                    . 'Abschnitt darf in der Vorlage nur einmal stehen — entferne einen der beiden und füge '
+                    . 'Abschnitt darf in der Vorlage nur einmal stehen. Entferne einen der beiden und füge '
                     . 'ihn neu ein.';
             }
             $seenGroupIds[$groupId] = true;
@@ -305,7 +305,7 @@ final class EditorTemplateController extends Controller
     }
 
     /**
-     * Eine frische Vorlage beginnt mit einem freien Abschnitt — sonst
+     * Eine frische Vorlage beginnt mit einem freien Abschnitt, sonst
      * stünde der Editor vor einem Dokument, in dem sich nichts schreiben
      * lässt.
      *

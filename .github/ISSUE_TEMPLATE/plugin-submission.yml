@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Danke, dass du ein Plugin für **ignis** einreichst! Der Hub-Katalog listet nur Metadaten —
+        Danke, dass du ein Plugin für **ignis** einreichst! Der Hub-Katalog listet nur Metadaten,
         dein Plugin bleibt als GitHub-Release in **deinem** Repository. Bitte stelle sicher, dass
         dein Release ein ZIP-Asset mit einer `manifest.php` im Archiv-Root enthält.
 
@@ -49,7 +49,7 @@ body:
     id: sha256
     attributes:
       label: SHA256-Digest des ZIPs
-      description: "`sha256sum dein-plugin-1.0.0.zip` — der Hub pinnt diese Version, ignis prüft den Digest vor der Installation."
+      description: "Ausgabe von `sha256sum dein-plugin-1.0.0.zip`. Der Hub pinnt diese Version, ignis prüft den Digest vor der Installation."
       placeholder: 64 Hex-Zeichen
     validations:
       required: true
@@ -79,7 +79,7 @@ body:
           required: true
         - label: Der Quellcode steht unter einer Open-Source-Lizenz und darf vom EmergencyForge-Team gesichtet werden.
           required: true
-        - label: Mir ist bewusst, dass mein Plugin zunächst als „Ungetestet" gelistet wird und EmergencyForge keine Gewähr übernimmt — Support leiste ich selbst.
+        - label: Mir ist bewusst, dass mein Plugin zunächst als „Ungetestet" gelistet wird und EmergencyForge keine Gewähr übernimmt. Support leiste ich selbst.
           required: true
         - label: Das Plugin enthält keinen obfuskierten Code, keine Telemetrie an Dritte und keine Fernwartungs-Hintertüren.
           required: true

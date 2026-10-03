@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 /**
- * Eloquent-Model für `intra_federation_sync_log` — Protokoll der
+ * Eloquent-Model für `intra_federation_sync_log`: Protokoll der
  * Federation-Sync-Läufe pro Verknüpfung.
  *
  * `synced_at` kommt per DB-Default (CURRENT_TIMESTAMP).

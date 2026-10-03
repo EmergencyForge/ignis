@@ -34,7 +34,7 @@ if [ -n "$DB_HOST" ]; then
     echo "[entrypoint] Database connection established"
 fi
 
-# Run database migrations (Phinx via tools/db-migrate.php — bridge + migrate)
+# Run database migrations (Phinx via tools/db-migrate.php: bridge + migrate)
 echo "[entrypoint] Running database migrations..."
 cd /var/www/html && php tools/db-migrate.php || echo "[entrypoint] WARNING: Migration had issues (may be normal on first run)"
 

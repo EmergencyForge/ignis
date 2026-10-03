@@ -37,7 +37,7 @@ $rolesOptions = array_map(static fn ($r) => [
 ], $roles);
 $mitarbeiterOptions = $mitarbeiter->map(static fn ($m) => [
     'value' => (int) $m->id,
-    'label' => trim(($m->fullname ?? '') . ' (' . ($m->dienstnr ?? '—') . ')'),
+    'label' => trim(($m->fullname ?? '') . ' (' . ($m->dienstnr ?? '-') . ')'),
 ])->all();
 
 $oldList = static function (string $field): string {
@@ -134,7 +134,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
                      data-options='<?= htmlspecialchars(json_encode($rolesOptions, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
                      data-placeholder="Rolle suchen…"
                      data-empty-text="Keine Rolle gefunden"></div>
-                <small class="form-hint">Mehrere Rollen wählbar — alle Mitglieder sehen den Termin</small>
+                <small class="form-hint">Mehrere Rollen wählbar, alle Mitglieder sehen den Termin</small>
 
                 <div class="ignis-checkbox mt-2">
                     <input type="checkbox" id="evt-track-attendance" name="track_attendance" value="1" data-track-attendance<?= (string) old('track_attendance', '') !== '' ? ' checked' : '' ?>>

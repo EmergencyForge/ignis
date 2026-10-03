@@ -17,7 +17,7 @@ use Illuminate\Queue\QueueManager;
  *     app(JobDispatcher::class)->dispatch(new MyJob(...));
  *
  * Bei Queue-Fehlern fällt der Dispatcher in einen Sync-Modus zurück und
- * führt den Job direkt aus — das ist defensive Programmierung für den
+ * führt den Job direkt aus. Das ist defensive Programmierung für den
  * Fall, dass die Queue-Infrastruktur noch nicht deployed ist oder die
  * DB-Tabelle fehlt. Der Call-Site merkt davon nichts.
  */

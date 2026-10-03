@@ -8,7 +8,7 @@ use App\Auth\Permissions;
 use App\Models\LogbookEntry;
 
 /**
- * LogbookPolicy — wer darf was mit Fahrtenbuch-Einträgen.
+ * LogbookPolicy: wer darf was mit Fahrtenbuch-Einträgen.
  *
  * Multi-Context-Auth:
  *   - Admin: Permissions::check(['admin', 'logbook.view']) für Liste,

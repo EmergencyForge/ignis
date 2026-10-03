@@ -1,7 +1,7 @@
 <?php
 
 /**
- * intraRP — Service Container Definitions (PHP-DI 7)
+ * intraRP: Service Container Definitions (PHP-DI 7)
  *
  * Wird von assets/config/config.php beim Bootstrap geladen. Stellt einen
  * PSR-11-Container bereit, in dem App-Services (PDO, Logger, ConfigManager,
@@ -12,7 +12,7 @@
  *     $logger = app(\Psr\Log\LoggerInterface::class);
  *     $pdo    = app(\PDO::class);
  *
- * Oder per Konstruktor-Injection in neuen Klassen — PHP-DI macht Autowiring,
+ * Oder per Konstruktor-Injection in neuen Klassen. PHP-DI macht Autowiring,
  * sofern die Type-Hints bekannt sind.
  *
  * Diese Foundation registriert nur die Kern-Services. Weitere Services
@@ -69,7 +69,7 @@ return [
     },
 
     // -----------------------------------------------------------------------
-    //  Logging — delegiert an die existierende Singleton-Implementierung,
+    //  Logging: delegiert an die existierende Singleton-Implementierung,
     //  damit alter Code (Logger::error(...)) und neuer DI-Code dieselbe
     //  Monolog-Instanz nutzen.
     // -----------------------------------------------------------------------
@@ -83,7 +83,7 @@ return [
     },
 
     // -----------------------------------------------------------------------
-    //  Config — autowired (PHP-DI sieht den PDO-Type-Hint im Constructor)
+    //  Config: autowired (PHP-DI sieht den PDO-Type-Hint im Constructor)
     // -----------------------------------------------------------------------
 
     \App\Config\ConfigManager::class => \DI\autowire(),
@@ -94,12 +94,12 @@ return [
     //  Capsule wird einmalig pro Request gebaut, setAsGlobal() macht Models
     //  via statische Facade (User::all(), $user->save(), ...) ansprechbar.
     //  Eloquent öffnet eine eigene PDO-Verbindung mit denselben Credentials
-    //  wie die Legacy-$pdo-Instanz — beide laufen gegen dieselbe MySQL-DB.
+    //  wie die Legacy-$pdo-Instanz, beide laufen gegen dieselbe MySQL-DB.
     //  Transaktionen sind getrennt; Module die auf Eloquent migriert werden,
     //  nutzen Eloquent exklusiv für ihre Tabellen.
     // -----------------------------------------------------------------------
     Capsule::class => function (): Capsule {
-        // Shared Illuminate-Container — wird auch von QueueCapsule genutzt,
+        // Shared Illuminate-Container, den auch QueueCapsule nutzt,
         // damit beide Capsules dieselben Services (insb. `db`) sehen.
         // Static-Singleton-Pattern von Illuminate sorgt dafür, dass
         // Container::getInstance() überall dasselbe Objekt liefert.
@@ -137,7 +137,7 @@ return [
     },
 
     // -----------------------------------------------------------------------
-    //  Session — pure static, hier nur als Self-Reference registriert,
+    //  Session: pure static, hier nur als Self-Reference registriert,
     //  damit der Service-Name im Container existiert (für künftige Tests).
     // -----------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ return [
     //  Pipeline injiziert, beide sind Singletons pro Request.
     //
     //  Middleware-Instanzen, die zustandslos und DI-freundlich sind, werden
-    //  hier als Singletons registriert — parametrisierte Middlewares (Auth
+    //  hier als Singletons registriert. Parametrisierte Middlewares (Auth
     //  mit Config-Flag, Permission mit Permission-String) werden dagegen
     //  pro Route direkt instanziiert.
     // -----------------------------------------------------------------------
@@ -162,10 +162,10 @@ return [
     \EmergencyForge\Http\Router::class   => \DI\factory(static fn (\Psr\Container\ContainerInterface $c): \EmergencyForge\Http\Router
         => \App\Http\RouterFactory::create($c, $c->get(\EmergencyForge\Http\Pipeline::class))),
 
-    // Plugin-Loader — einmal pro Request, cached das aktive Plugin-Set.
+    // Plugin-Loader: einmal pro Request, cached das aktive Plugin-Set.
     \App\Plugins\PluginLoader::class => \DI\autowire(),
 
-    // Stateless Middlewares ohne Parameter — als Singletons registriert,
+    // Stateless Middlewares ohne Parameter, als Singletons registriert,
     // damit sie per Pipeline-Shortstring ("FQCN") aufgelöst werden können.
     \App\Http\Middleware\ApiKeyMiddleware::class       => \DI\autowire(),
     \App\Http\Middleware\CsrfMiddleware::class         => \DI\autowire(),
@@ -176,7 +176,7 @@ return [
     // -----------------------------------------------------------------------
     //  HTTP-Controller
     //
-    //  Werden vom Router via Container aufgelöst — Constructor-Injection
+    //  Werden vom Router via Container aufgelöst. Constructor-Injection
     //  von PDO/Logger/etc. funktioniert dank Autowiring.
     // -----------------------------------------------------------------------
 
@@ -202,10 +202,10 @@ return [
     \App\Notifications\NotificationManager::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
-    //  Job Queue — illuminate/queue standalone mit DB-Driver
+    //  Job Queue: illuminate/queue standalone mit DB-Driver
     //
     //  Die Queue nutzt dieselbe DB wie die App (Table `intra_jobs`). Der
-    //  Worker läuft Cron-getrieben via `cli/queue-worker.php` — kein
+    //  Worker läuft Cron-getrieben via `cli/queue-worker.php`, kein
     //  persistenter Prozess nötig, webspace-kompatibel.
     //
     //  Tabellennamen: intra_jobs + intra_failed_jobs (Phinx-Migration
@@ -213,7 +213,7 @@ return [
     // -----------------------------------------------------------------------
 
     QueueCapsule::class => function (ContainerInterface $c): QueueCapsule {
-        // Eloquent-Capsule booten — das registriert `db` auf dem shared
+        // Eloquent-Capsule booten. Das registriert `db` auf dem shared
         // Illuminate-Container, den wir hier weiterverwenden.
         $c->get(Capsule::class);
 
@@ -227,7 +227,7 @@ return [
             $illuminate->instance('db', $capsule->getDatabaseManager());
         }
 
-        // Events-Dispatcher für die Queue — das Queue-System nutzt intern
+        // Events-Dispatcher für die Queue. Das Queue-System nutzt intern
         // `JobProcessing`/`JobProcessed`-Events. Wir registrieren einen
         // frischen Dispatcher, damit die Queue nicht in unseren Domain-
         // Event-Dispatcher hineinreicht.
@@ -252,7 +252,7 @@ return [
         return $c->get(QueueCapsule::class)->getQueueManager();
     },
 
-    // Job-Dispatcher — thin wrapper, damit Application-Code via
+    // Job-Dispatcher: thin wrapper, damit Application-Code via
     // `app(JobDispatcher::class)->dispatch(new MyJob(...))` aufruft,
     // statt direkt gegen die Illuminate-API zu arbeiten.
     \App\Jobs\JobDispatcher::class => \DI\autowire(),
@@ -271,7 +271,7 @@ return [
     // -----------------------------------------------------------------------
 
     \Illuminate\Events\Dispatcher::class => function (): \Illuminate\Events\Dispatcher {
-        // Frischer Dispatcher — NICHT den Eloquent-internen wiederverwenden,
+        // Frischer Dispatcher, NICHT den Eloquent-internen wiederverwenden,
         // weil der für Model-Events zuständig ist. Unser Dispatcher ist
         // für Domain-Events (App\Events\*) und bleibt davon getrennt.
         return new \Illuminate\Events\Dispatcher();
@@ -304,10 +304,10 @@ return [
         return $dispatcher;
     },
 
-    // Listener werden autowired — Constructor-Injection von JobDispatcher etc.
+    // Listener werden autowired (Constructor-Injection von JobDispatcher etc.).
 
     // -----------------------------------------------------------------------
-    //  Console — Symfony-Console-Commands
+    //  Console: Symfony-Console-Commands
     //
     //  Die Application sammelt alle Commands aus `config/console.php` und
     //  resolved jeden Command via DI-Container. Constructor-Injection der

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\UniqueConstraintViolationException;
 
 /**
- * Eloquent-Model für `intra_mail_mailboxes` — das Postfach eines
+ * Eloquent-Model für `intra_mail_mailboxes`: das Postfach eines
  * Mitarbeiters. Adresse und Anzeigename liegen hier selbst, weil
  * Mitarbeiter hart gelöscht werden (`mitarbeiter_id` wird dann NULL).
  *

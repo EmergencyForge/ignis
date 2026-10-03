@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * eNOTF — API-Routen (session-basiert).
+ * eNOTF: API-Routen (session-basiert).
  *
  * Alle Protokoll-Endpoints laufen über den Api\EnotfController; dazu
  * kommen Hospitals (Verfügbarkeiten), Klinik-Codes, POI-Verwaltung und
@@ -70,7 +70,7 @@ $router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),   
 $router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $enotfApiAuth);
 
 // ============================================================================
-//  Hospitals — Verfügbarkeiten
+//  Hospitals: Verfügbarkeiten
 // ============================================================================
 $hospitalGet    = [HospitalAvailabilityController::class, 'get'];
 $hospitalUpdate = [HospitalAvailabilityController::class, 'update'];

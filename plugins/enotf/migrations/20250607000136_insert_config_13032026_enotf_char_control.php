@@ -7,7 +7,7 @@ use Phinx\Migration\AbstractMigration;
 /**
  * Config-Einträge für die charakterbasierte Zugangskontrolle im eNOTF:
  * ENOTF_CHAR_LOCK (Charakter-Name beim Einsatz-Login sperren) und
- * ENOTF_JOB_FILTER (Fahrzeuge nach Job filtern) — beide erfordern die
+ * ENOTF_JOB_FILTER (Fahrzeuge nach Job filtern). Beide erfordern die
  * identify-API.
  */
 class InsertConfig13032026EnotfCharControl extends AbstractMigration

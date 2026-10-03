@@ -72,7 +72,7 @@ final class FiretabAdminListTest extends FeatureTestCase
         $this->assertOk($page);
         $this->assertBodyNotContains('DataTable(', $page);
         $this->assertBodyContains('data-ignis-workbench', $page);
-        $this->assertBodyContains('1–20 von 22 Protokolle', $page);
+        $this->assertBodyContains('1 bis 20 von 22 Protokolle', $page);
         // Neueste zuerst: 01 liegt eine Stunde zurück, 02 zwei.
         $this->assertLessThan($this->pos($page->body, "QM-$stamp-02"), $this->pos($page->body, "QM-$stamp-01"));
         $this->assertBodyNotContains("QM-$stamp-21", $page);
@@ -91,7 +91,7 @@ final class FiretabAdminListTest extends FeatureTestCase
         $search = $this->get(self::LIST, ['query' => ['q' => "B3 Wohnhaus $stamp"]]);
         $this->assertBodyContains("QM-$stamp-03", $search);
         $this->assertBodyNotContains("QM-$stamp-01", $search);
-        $this->assertBodyContains('1–1 von 1 Protokolle', $search);
+        $this->assertBodyContains('1 bis 1 von 1 Protokolle', $search);
 
         $archive = $this->get(self::LIST, ['query' => ['show_archived' => '1', 'q' => "QM-$stamp"]]);
         $this->assertBodyContains("QM-$stamp-ARCH", $archive);
@@ -234,7 +234,7 @@ final class FiretabAdminListTest extends FeatureTestCase
         // Das Suchwort trifft den Verbund-Einsatz über den Ort …
         $page = $this->get(self::LIST, ['query' => ['q' => "Verbundplatz $stamp"]]);
         $this->assertOk($page);
-        $this->assertBodyContains('1–2 von 2 Protokolle', $page);
+        $this->assertBodyContains('1 bis 2 von 2 Protokolle', $page);
         $this->assertBodyContains("VB-$stamp-F <span class=\"ignis-chip ignis-chip--secondary\">Nachbarwache</span>", $page);
         $this->assertBodyContains('<span class="ignis-list-meta">nur lesen</span>', $page);
         $this->assertBodyContains('Nachbar Leiter', $page);
@@ -242,7 +242,7 @@ final class FiretabAdminListTest extends FeatureTestCase
         $this->assertBodyNotContains("VB-$stamp-X", $page);
         // … und über das Stichwort, auch ohne eigenen Treffer.
         $byKeyword = $this->get(self::LIST, ['query' => ['q' => "B2 Scheune $stamp"]]);
-        $this->assertBodyContains('1–1 von 1 Protokolle', $byKeyword);
+        $this->assertBodyContains('1 bis 1 von 1 Protokolle', $byKeyword);
         $this->assertBodyContains("VB-$stamp-F", $byKeyword);
         $this->assertBodyNotContains("VB-$stamp-L", $byKeyword);
 

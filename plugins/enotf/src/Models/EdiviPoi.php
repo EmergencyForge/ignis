@@ -7,7 +7,7 @@ namespace Plugin\Enotf\Models;
 use App\Models\Model;
 
 /**
- * Eloquent-Model für `intra_edivi_pois` — POIs (Krankenhäuser, Wachen,
+ * Eloquent-Model für `intra_edivi_pois`: POIs (Krankenhäuser, Wachen,
  * Einsatzorte) für eNOTF-Transportziele und die Klinik-Schnittstelle.
  *
  * Nach der Konsolidierungs-Migration (vormals `intra_edivi_ziele`) tragen
@@ -16,7 +16,7 @@ use App\Models\Model;
  * Transportziels prüft deshalb beide Wege.
  *
  * `created_at`/`updated_at` werden von der DB gepflegt (DEFAULT/ON UPDATE
- * CURRENT_TIMESTAMP), nicht von Eloquent — daher bleiben die
+ * CURRENT_TIMESTAMP), nicht von Eloquent, daher bleiben die
  * Basisklassen-Defaults ($timestamps = false) richtig.
  */
 class EdiviPoi extends Model

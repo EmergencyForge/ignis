@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * fireTab — API-Routen.
+ * fireTab: API-Routen.
  *
  * `/api/emd/status-poll` ist der FiveM-Server-Endpoint (ApiKey-Auth, kein
  * Session-Kontext) zum Abholen der Fire-Status-Queue. Die `/api/fire/...`-

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * eNOTF v2 — Protokoll-Layout im v1-Look.
+ * eNOTF v2: Protokoll-Layout im v1-Look.
  *
  * Rendert die Protokollseiten mit exakt der v1-Optik: gleiche Assets
  * (vendor-enotf/Bootstrap, divi.css, admin/ui), gleiche Topbar
@@ -39,7 +39,7 @@
  *   - assets/functions/enotf/clock.php       (Topbar-Uhr)
  * Der jQuery-Teil (notify.php) ist durch plugins/enotf-v2/assets/
  * edivi-bridge.js ersetzt (Nav-Füllstände, Link-Validierung, Quickfill,
- * psych-Exklusivlogik — gegen den v2-Batch-Autosave).
+ * psych-Exklusivlogik, gegen den v2-Batch-Autosave).
  */
 
 use App\Auth\Permissions;
@@ -109,7 +109,7 @@ $__lastEdit = !empty($__protokoll['last_edit'])
     ? (new DateTime((string) $__protokoll['last_edit']))->format('d.m.Y H:i')
     : null;
 
-// Topbar-Sichtbarkeiten (v1: topbar.php) — Anmeldung/Art ändern/Teilen nur
+// Topbar-Sichtbarkeiten (v1: topbar.php): Anmeldung/Art ändern/Teilen nur
 // solange nicht freigegeben (v1 prüft NUR freigegeben, nicht hidden_user),
 // QM-Buttons nur mit admin/edivi.edit.
 $__istFreigegeben = (int) ($__protokoll['freigegeben'] ?? 0) === 1;
@@ -149,10 +149,10 @@ date_default_timezone_set('Europe/Berlin');
 
     <!-- v1-Feldverhalten (wie _head.php): 24h-Zeit- und deutsche
          Datums-Inputs (Rettdaten/Anamnese). Die Reihenfolge NACH den
-         Modulen hält die Autosave-Baseline auf den ISO-Werten — die
+         Modulen hält die Autosave-Baseline auf den ISO-Werten, die
          Konvertierung nach TT.MM.JJJJ läuft danach, gespeichert wird
          der deutsche Wert (DATE_FIELDS konvertieren serverseitig).
-         Selects laufen komplett über Ev2Select (v1-Skin) — v1s
+         Selects laufen komplett über Ev2Select (v1-Skin), v1s
          dropdown.js wird hier bewusst nicht geladen, damit nicht zwei
          Dropdown-Optiken nebeneinander existieren. -->
     <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
@@ -191,7 +191,7 @@ date_default_timezone_set('Europe/Berlin');
         .ev2-stepwrap.is-hidden { display: none !important; }
     </style>
     <?php
-    // Ev2Select/Ev2Suggest im v1-Look — geteilter Block (auch _v1head.php);
+    // Ev2Select/Ev2Suggest im v1-Look: geteilter Block (auch _v1head.php);
     // Sections initialisieren per Ev2Select.init (Auto-Init greift nur auf
     // body[data-page="enotf-v2"], hier steht der Section-Key im data-page)
     require __DIR__ . '/_ev2-select-styles.php';
@@ -295,7 +295,7 @@ date_default_timezone_set('Europe/Berlin');
                     <small style="font-size: 0.65rem;" data-crew-linklabel><?= $__crewAngemeldet ? 'Abmelden' : 'Anmelden' ?></small>
                 </a>
                 <!-- Sync-Cluster in v1-Anordnung (topbar.php): obere Zeile
-                     Leitstelle + Session, untere Zeile Patientendaten-Sync —
+                     Leitstelle + Session, untere Zeile Patientendaten-Sync,
                      das v2-Speicherstatus-Icon reiht sich darunter ein
                      (unter dem Session-Icon, gleiche 8px-Spaltenraster). -->
                 <div class="d-flex flex-column align-items-start mr-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
@@ -369,8 +369,8 @@ date_default_timezone_set('Europe/Berlin');
                         body: '<p class="ignis-dialog__text">Welche Protokollart soll verwendet werden?</p>',
                         actions: [
                             { label: 'Abbrechen', variant: 'ghost', close: false, onClick: function (dlg) { dlg.close(null); } },
-                            { label: 'NF — Notfallprotokoll', variant: 'primary', close: false, onClick: function (dlg) { dlg.close(0); } },
-                            { label: 'NA — Notarztprotokoll', variant: 'primary', close: false, onClick: function (dlg) { dlg.close(1); } }
+                            { label: 'NF: Notfallprotokoll', variant: 'primary', close: false, onClick: function (dlg) { dlg.close(0); } },
+                            { label: 'NA: Notarztprotokoll', variant: 'primary', close: false, onClick: function (dlg) { dlg.close(1); } }
                         ]
                     });
                     d.open().then(function (protBy) {
@@ -398,7 +398,7 @@ date_default_timezone_set('Europe/Berlin');
             }
 
             // Teilen/QM: Dialoge kommen aus share.js/qm.js
-            // (_share-qm-assets.php vor </body>) — die Module laden als
+            // (_share-qm-assets.php vor </body>), die Module laden als
             // type=module, deshalb defensiv auf window.* prüfen
             document.addEventListener('click', function (ev) {
                 var shareBtn = ev.target.closest('[data-ev2-share]');
@@ -456,7 +456,7 @@ date_default_timezone_set('Europe/Berlin');
     </script>
 
     <?php
-    // v1-Bausteine (Vanilla-JS): Pflichtfeld-Färbung + Uhr — bewusst
+    // v1-Bausteine (Vanilla-JS): Pflichtfeld-Färbung + Uhr, bewusst
     // dieselben Dateien wie die v1-Seiten, keine Kopien. Die Uhr nur mit
     // Topbar (clock.php greift ungeprüft auf #current-time zu).
     $daten = $__protokoll;
@@ -469,7 +469,7 @@ date_default_timezone_set('Europe/Berlin');
     <?php if (!$__istGesperrt): ?>
     <script>
         // Leitstellen-/Patienten-Sync gegen die v2-Endpoints (v1-Optik:
-        // Icon-Farben, 10s-Poll) — Vanilla statt jQuery.
+        // Icon-Farben, 10s-Poll), Vanilla statt jQuery.
         (function () {
             var SYNC_TIMEOUT = 120;
             var POLL_INTERVAL = 10000;

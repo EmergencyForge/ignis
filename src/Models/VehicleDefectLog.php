@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent-Model für `intra_fahrzeuge_defect_log` — Verlaufseinträge
+ * Eloquent-Model für `intra_fahrzeuge_defect_log`: Verlaufseinträge
  * (created/updated/resolved/vehicle_disabled/...) zu einer Defektmeldung.
  *
  * `created_at` wird von der Datenbank per Default gesetzt.

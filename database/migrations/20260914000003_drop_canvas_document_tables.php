@@ -12,13 +12,13 @@ use Phinx\Migration\IrreversibleMigrationException;
  * Dokumente, und ihre PDFs liegen unter `storage/documents/`. Eine
  * ausgestellte Urkunde darf nicht verschwinden, nur weil das Werkzeug
  * gewechselt hat. Die Spalte `template_id` behält ihren Wert, verliert
- * aber ihren Fremdschlüssel — sie zeigt ab hier ins Leere und wird nur
+ * aber ihren Fremdschlüssel. Sie zeigt ab hier ins Leere und wird nur
  * noch als historische Notiz geführt.
  *
  * Was geht: Vorlagen, ihre Felder, Layouts und Assets sowie die
  * Kategorien. Neue Dokumente entstehen im Editor
  * (`intra_document_templates`), und dessen Vorlagen haben mit diesen
- * nichts gemeinsam — ein Fabric.js-Canvas lässt sich nicht in ein
+ * nichts gemeinsam: ein Fabric.js-Canvas lässt sich nicht in ein
  * fließendes ProseMirror-Dokument übersetzen.
  */
 final class DropCanvasDocumentTables extends AbstractMigration
@@ -50,8 +50,8 @@ final class DropCanvasDocumentTables extends AbstractMigration
     public function down(): void
     {
         throw new IrreversibleMigrationException(
-            'Die Vorlagen des Canvas-Systems lassen sich nicht wiederherstellen — '
-            . 'ihr Inhalt ist mit den Tabellen weg. Ein Backup von vor der Migration einspielen.'
+            'Die Vorlagen des Canvas-Systems lassen sich nicht wiederherstellen. '
+            . 'Ihr Inhalt ist mit den Tabellen weg. Ein Backup von vor der Migration einspielen.'
         );
     }
 }

@@ -63,14 +63,14 @@ class UserController extends Controller
 
         ob_start();
         // User-Hover-Card zeigt User-Stammdaten und ggf. den Link auf den
-        // verbundenen Mitarbeiter. Nicht die Mitarbeiter-Card selbst rendern
-        // — das ist ein separates `data-mitarbeiter-card`-Trigger.
+        // verbundenen Mitarbeiter. Nicht die Mitarbeiter-Card selbst rendern.
+        // Das ist ein separates `data-mitarbeiter-card`-Trigger.
         include __DIR__ . '/../../../assets/components/profiles/_user-hover-card.php';
         return \EmergencyForge\Http\Response::html((string) ob_get_clean());
     }
 
     /**
-     * GET /users/list — Benutzer-Liste, sortiert, gefiltert und geblättert
+     * GET /users/list: Benutzer-Liste, sortiert, gefiltert und geblättert
      * auf dem Server (ListQuery): `?q=` sucht in Benutzername und
      * Mitarbeiter-Namen, `?status=active|inactive` filtert, `?sort=` kennt
      * die Spalten der Whitelist unten.
@@ -134,7 +134,7 @@ class UserController extends Controller
     }
 
     /**
-     * GET /benutzer/edit?id=X — Edit-Formular für einen User.
+     * GET /benutzer/edit?id=X: Edit-Formular für einen User.
      *
      * Lädt den Ziel-User samt Rolle, prüft Self-Edit + Priority, rendert dann
      * das Edit-Template inkl. der für die Rollen-Auswahl filtrierten Rollen
@@ -143,7 +143,7 @@ class UserController extends Controller
     public function edit(): void
     {
         $this->requireAuth();
-        // Permission-Check ohne Target — vor dem Laden:
+        // Permission-Check ohne Target, vor dem Laden:
         $this->ensure('user.update', redirectTo: 'benutzer/list');
 
         $target = $this->loadUserForEditing();
@@ -172,7 +172,7 @@ class UserController extends Controller
     }
 
     /**
-     * POST /benutzer/edit (mit `new=1`) — Update der Rolle eines Users.
+     * POST /benutzer/edit (mit `new=1`): Update der Rolle eines Users.
      *
      * Aktualisiert bewusst nur das Feld `role`. Der Username bleibt
      * unveränderlich, obwohl das Form-Field ihn mitschickt.
@@ -203,7 +203,7 @@ class UserController extends Controller
     }
 
     /**
-     * GET /benutzer/auditlog — Globale Audit-Log-Tabelle.
+     * GET /benutzer/auditlog: Globale Audit-Log-Tabelle.
      *
      * Zeigt alle Einträge mit `global = 1`. Joint sich die Usernamen via
      * Capsule (es gibt kein eigenes AuditLog-Model).
@@ -254,11 +254,11 @@ class UserController extends Controller
     }
 
     /**
-     * GET /benutzer/registration-codes — Einladungs-Codes verwalten.
+     * GET /benutzer/registration-codes: Einladungs-Codes verwalten.
      * POST mit `action=generate` → neuen Code erzeugen
      * POST mit `action=delete`   → Code löschen (nur ungenutzte)
      *
-     * Internes Dispatching nach REQUEST_METHOD + action — der Stub bleibt
+     * Internes Dispatching nach REQUEST_METHOD + action. Der Stub bleibt
      * dadurch ein 2-Zeiler. 
      */
     public function registrationCodes(): void
@@ -334,7 +334,7 @@ class UserController extends Controller
     }
 
     /**
-     * POST /users/delete (id) — Endgültiges Löschen eines Users.
+     * POST /users/delete (id): Endgültiges Löschen eines Users.
      *
      * Schutzregeln:
      *   - Selbst-Löschung verboten
@@ -461,7 +461,7 @@ class UserController extends Controller
 
     /**
      * Lädt den per ?id=X übergebenen User samt Rolle und führt die UX-Checks
-     * (Existenz, Self-Edit) sowie die Authorization-Prüfung durch — jeweils
+     * (Existenz, Self-Edit) sowie die Authorization-Prüfung durch, jeweils
      * mit spezifischen Flash-Messages für gute UX. Wird sowohl von edit()
      * als auch update() benutzt.
      */
