@@ -45,6 +45,7 @@ final class CsrfMiddleware implements MiddlewareInterface
             return ErrorPage::forbidden(
                 'Das Formular ist abgelaufen. Lade die Seite neu und versuche es noch einmal.',
                 $request->path,
+                headline: 'Formular abgelaufen',
             );
         }
 

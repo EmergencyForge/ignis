@@ -5,15 +5,20 @@
  *
  * Standalone, ohne Navigation und Seitenleiste: sie muss auch ohne aktive
  * Sitzung tragen, etwa wenn jemand ohne Anmeldung eine geschuetzte URL
- * direkt aufruft.
+ * direkt aufruft. Deshalb kein head.php (das braucht Konfiguration und
+ * Sitzung), die Stylesheets und Module stehen hier selbst. Markup und
+ * Aussehen: Fehlerseite im UI-Paket (auth() mit error-stage()).
  *
  * Erwartete Variablen:
- *   @var string $errTitle      Titel im Browser-Tab
- *   @var string $errHeadline   Ueberschrift
- *   @var string $errText       Ein Satz dazu, was passiert ist
- *   @var string $errBackUrl    Ziel des ersten Knopfes
- *   @var string $errBackLabel  Beschriftung dieses Knopfes
- *   @var string $errPage       Wert fuer data-page
+ *   @var string      $errTitle      Titel im Browser-Tab
+ *   @var string      $errCode       '404' oder '403', die Ziffern der Bühne
+ *   @var string      $errHeadline   Ueberschrift
+ *   @var string      $errText       Ein Satz dazu, was passiert ist
+ *   @var string|null $errPath       Aufgerufene Adresse (nur 404), schon gekürzt
+ *   @var string      $errBackUrl    Ziel des ersten Knopfes
+ *   @var string      $errBackLabel  Beschriftung dieses Knopfes
+ *   @var string      $errBackIcon   Font-Awesome-Klasse dieses Knopfes
+ *   @var string      $errPage       Wert fuer data-page
  */
 
 // Der Bootstrap wird versucht, aber nicht vorausgesetzt: eine Fehlerseite
@@ -34,193 +39,61 @@ $errBase = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?= \App\Helpers\Theme::headScript() ?>
     <title><?= htmlspecialchars($errTitle) ?></title>
     <link rel="preload" href="<?= $errBase ?>assets/fonts/geist/fonts/geist-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
     <link rel="stylesheet" href="<?= $errBase ?>assets/fonts/geist/css/all.min.css">
-    <link rel="stylesheet" href="<?= $errBase ?>assets/dist/style.css">
-    <link rel="icon" type="image/svg+xml" href="<?= $errBase ?>assets/favicon/favicon.svg">
-    <link rel="shortcut icon" href="<?= $errBase ?>assets/favicon/favicon.ico">
+    <link rel="stylesheet" href="<?= $errBase ?>assets/fonts/geist-mono/css/all.min.css">
+    <link rel="stylesheet" href="<?= asset('public/assets/dist/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('public/assets/dist/ui.css') ?>">
+    <?php // Was auf der Anmeldung legacy-utilities.css und body#alogin setzen. ?>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background: var(--body-bg, #0a0a0a);
-            color: var(--text-normal, #bbbac1);
-            font-family: 'Geist', system-ui, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            overflow: hidden;
-        }
-
-        .errpage {
-            height: 100vh;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem 1.5rem;
-            gap: 1.25rem;
-            background: radial-gradient(circle at 50% 60%, rgba(var(--accent-rgb), 0.08), transparent 65%);
-        }
-
-        .errpage__signal {
-            position: relative;
-            width: 130px;
-            height: 130px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .errpage__ring {
-            position: absolute;
-            inset: 0;
-            border: 2px solid var(--accent);
-            border-radius: 50%;
-            opacity: 0;
-            animation: errpage-pulse 2.4s ease-out infinite;
-        }
-
-        .errpage__ring:nth-child(2) { animation-delay: 0.8s; }
-        .errpage__ring:nth-child(3) { animation-delay: 1.6s; }
-
-        @keyframes errpage-pulse {
-            0%   { transform: scale(0.4); opacity: 0.85; }
-            100% { transform: scale(1.4); opacity: 0; }
-        }
-
-        .errpage__core {
-            position: relative;
-            z-index: 2;
-            width: 60px;
-            height: 60px;
-            background: rgba(var(--accent-rgb), 0.12);
-            border: 1px solid var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-        }
-
-        .errpage__core svg {
-            width: 26px;
-            height: 26px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .errpage__btn svg {
-            width: 14px;
-            height: 14px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .errpage__headline {
-            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-            font-weight: 700;
-            color: var(--text-title, #ffffff);
-            margin: 0;
-            letter-spacing: -0.01em;
-        }
-
-        .errpage__sub {
-            font-size: 1rem;
-            color: var(--text-dimmed, #818189);
-            max-width: 540px;
-            margin: 0;
-            line-height: 1.55;
-        }
-
-        .errpage__actions {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: 0.75rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .errpage__btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1.1rem;
-            border: 1px solid var(--darkgray, #2a2a2a);
-            border-radius: var(--button-border-radius, 6px);
-            background: transparent;
-            color: var(--text-normal, #bbbac1);
-            font-size: 0.85rem;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.15s, border-color 0.15s, color 0.15s;
-        }
-
-        .errpage__btn:hover {
-            border-color: var(--accent);
-            color: #fff;
-            background: rgba(var(--accent-rgb), 0.08);
-            text-decoration: none;
-        }
-
-        .errpage__btn--primary {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-        }
-
-        .errpage__btn--primary:hover {
-            background: var(--main-color-light, #ff6a33);
-            border-color: var(--main-color-light, #ff6a33);
-            color: #fff;
-        }
+        body { margin: 0; }
+        button { font: inherit; }
     </style>
+    <?= \App\Helpers\Theme::accentStyleTag() ?>
+    <?php // Akzentrollen aus SYSTEM_COLOR wie auf der Anmeldung. ?>
+    <script type="module" src="<?= $errBase ?>assets/js/ui/preferences.js"></script>
+    <script type="module" src="<?= $errBase ?>assets/js/ui/error-stage.js"></script>
+    <link rel="icon" type="image/svg+xml" href="<?= $errBase ?>assets/favicon/favicon.svg">
+    <link rel="shortcut icon" href="<?= $errBase ?>assets/favicon/favicon.ico">
 </head>
 
-<body data-theme="dark" data-page="<?= htmlspecialchars($errPage) ?>">
-    <main class="errpage">
-        <div class="errpage__signal" aria-hidden="true">
-            <span class="errpage__ring"></span>
-            <span class="errpage__ring"></span>
-            <span class="errpage__ring"></span>
-            <span class="errpage__core">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M5 16c-1.5-2-1.5-6 0-8M19 16c1.5-2 1.5-6 0-8M8 14c-.8-1.2-.8-3.8 0-5M16 14c.8-1.2.8-3.8 0-5"/>
-                    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-                </svg>
-            </span>
+<body data-ui-skin="core" data-page="<?= htmlspecialchars($errPage) ?>">
+    <div class="twplus-login twplus-login--page">
+        <aside class="twplus-login__visual" aria-hidden="true">
+            <div class="ignis-login-stage">
+                <div class="ignis-login-stage__heat"></div>
+            </div>
+        </aside>
+
+        <?php require dirname(__DIR__) . '/partials/login-brand.php'; ?>
+
+        <div class="ignis-error-stage" aria-hidden="true">
+            <div class="ignis-error-stage__code">
+                <div class="ignis-error-stage__ember"></div>
+                <?php foreach (str_split($errCode) as $errDigit): ?>
+                    <span class="ignis-error-stage__digit" data-digit="<?= htmlspecialchars($errDigit) ?>"></span>
+                <?php endforeach; ?>
+            </div>
         </div>
-        <h1 class="errpage__headline"><?= htmlspecialchars($errHeadline) ?></h1>
-        <p class="errpage__sub"><?= htmlspecialchars($errText) ?></p>
-        <div class="errpage__actions">
-            <a href="<?= htmlspecialchars($errBackUrl) ?>" class="errpage__btn errpage__btn--primary">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 12l9-9 9 9"/>
-                    <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
-                </svg>
-                <?= htmlspecialchars($errBackLabel) ?>
-            </a>
-            <a href="javascript:history.back();" class="errpage__btn">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Vorherige Seite
-            </a>
-        </div>
-    </main>
+
+        <main class="twplus-login__content twplus-login__content--bare" aria-labelledby="error-title">
+            <div class="twplus-login__well">
+                <h1 class="twplus-login__title" id="error-title"><span class="ignis-sr-only">Fehler <?= htmlspecialchars($errCode) ?>: </span><?= htmlspecialchars($errHeadline) ?></h1>
+                <p class="twplus-login__lead"><?= htmlspecialchars($errText) ?></p>
+                <?php if ($errPath !== null): ?>
+                    <p class="twplus-login__path"><span>Adresse</span><code><?= htmlspecialchars($errPath) ?></code></p>
+                <?php endif; ?>
+                <div class="twplus-login__actions twplus-login__actions--row">
+                    <a class="ignis-btn ignis-btn--primary ignis-btn--lg" href="<?= htmlspecialchars($errBackUrl) ?>"><i class="fa-solid <?= $errBackIcon ?>" aria-hidden="true"></i> <?= htmlspecialchars($errBackLabel) ?></a>
+                    <button class="ignis-btn ignis-btn--secondary ignis-btn--lg" type="button" data-ignis-history-back hidden><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Vorherige Seite</button>
+                </div>
+            </div>
+        </main>
+    </div>
 </body>
 
 </html>

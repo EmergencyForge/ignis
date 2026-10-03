@@ -42,6 +42,7 @@ final class CsrfTest extends FeatureTestCase
 
         $this->assertStatus(403, $response);
         $this->assertStringContainsString('abgelaufen', $response->body);
+        $this->assertStringContainsString('<span class="ignis-sr-only">Fehler 403: </span>Formular abgelaufen</h1>', $response->body);
     }
 
     #[Test]

@@ -9,7 +9,7 @@
  * abgelehnt wurde. Diese Seite sagt es — und der Knopf führt dorthin
  * zurück, wo der Aufruf herkam.
  *
- * Erwartet `$message` und optional `$backUrl`/`$backLabel` von
+ * Erwartet `$message` und optional `$headline`, `$backUrl`/`$backLabel` von
  * App\Http\ErrorPage.
  */
 
@@ -26,10 +26,13 @@ if (!defined('BASE_PATH') && is_file(dirname(__DIR__, 2) . '/assets/config/confi
 $errBase = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 
 $errPage      = 'error-403';
-$errTitle     = '403 — Keine Berechtigung';
-$errHeadline  = 'Dafür fehlt dir die Berechtigung.';
+$errCode      = '403';
+$errTitle     = '403 — ' . ($headline ?? 'Keine Berechtigung');
+$errHeadline  = $headline ?? 'Dafür fehlt dir die Berechtigung';
 $errText      = $message ?? 'Für diesen Bereich ist dein Konto nicht freigeschaltet.';
+$errPath      = null;
 $errBackUrl   = $backUrl ?? $errBase;
 $errBackLabel = $backLabel ?? 'Zurück zum Dashboard';
+$errBackIcon  = 'fa-arrow-left';
 
 require __DIR__ . '/_shell.php';

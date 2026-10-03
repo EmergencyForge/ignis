@@ -25,11 +25,6 @@ $centralLogin = \App\Auth\FabricaClient::enabled();
 $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
 $error = \App\Session\SessionManager::pullRegistrationError();
 
-// Logo-Platz links: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat
-// (dann als schlichtes <img>, currentColor greift dort nicht), sonst das
-// mitgelieferte Lockup inline. Dieselbe Logik wie in topbar.php.
-$loginLogoIsDefault = systemLogoIsDefault();
-
 // Handle code submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
     if ($registrationMode === 'closed') {
@@ -77,14 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     <div class="twplus-login">
         <section class="twplus-login__panel">
             <div class="twplus-login__content">
-                <div class="twplus-login__brand">
-                    <?php if ($loginLogoIsDefault): ?>
-                        <?php // Zeichen und Schriftzug als Masken, wie in der Topbar (siehe _shell.scss). ?>
-                        <span class="ignis-lockup ignis-lockup--login" role="img" aria-label="ignis"><span class="ignis-lockup__mark" style="--logo: url('<?= htmlspecialchars(BASE_PATH . 'assets/img/ignis-mark.svg', ENT_QUOTES) ?>')"></span><span class="ignis-lockup__word" style="--logo: url('<?= htmlspecialchars(BASE_PATH . 'assets/img/ignis-wordmark.svg', ENT_QUOTES) ?>')"></span></span>
-                    <?php else: ?>
-                        <img src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>">
-                    <?php endif; ?>
-                </div>
+                <?php require __DIR__ . '/templates/partials/login-brand.php'; ?>
                 <?php // Die Wortmarke ist der Kopf der Schale, alles bis zu den Aktionen liegt in der Mulde, der Fuß steht auf dem Rand. ?>
                 <div class="twplus-login__well">
                     <h1 id="loginHeader" class="twplus-login__title">Willkommen zurück</h1>

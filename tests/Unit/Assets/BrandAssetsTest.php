@@ -91,7 +91,7 @@ final class BrandAssetsTest extends TestCase
     public function testLoginDoesNotLoadACurrentColorLogoAsImage(): void
     {
         // Als <img> greift currentColor nicht, das Logo wäre schwarz.
-        $login = (string) file_get_contents(self::ROOT . '/login.php');
+        $login = (string) file_get_contents(self::ROOT . '/templates/partials/login-brand.php');
         self::assertDoesNotMatchRegularExpression('/<img\s[^\n]*ignis-(lockup|mark|wordmark)\.svg/', $login);
     }
 

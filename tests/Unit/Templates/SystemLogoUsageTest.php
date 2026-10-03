@@ -26,7 +26,7 @@ final class SystemLogoUsageTest extends TestCase
             'lexicon view' => ['plugins/knowledge-base/templates/lexicon/view.php'],
             'settings config' => ['templates/settings/system/config.php'],
             'topbar' => ['assets/components/topbar.php'],
-            'login' => ['login.php'],
+            'login-brand' => ['templates/partials/login-brand.php'],
         ];
     }
 

@@ -25,6 +25,7 @@ final class ErrorPage
         ?string $path = null,
         ?string $backUrl = null,
         string $backLabel = 'Zurück zum Dashboard',
+        ?string $headline = null,
     ): Response {
         if (self::wantsJson($path)) {
             return Response::json(['success' => false, 'error' => $message], 403);
@@ -34,6 +35,7 @@ final class ErrorPage
             'message'   => $message,
             'backUrl'   => $backUrl ?? self::basePath(),
             'backLabel' => $backLabel,
+            'headline'  => $headline,
         ]);
 
         return $body === null
@@ -47,7 +49,7 @@ final class ErrorPage
             return Response::json(['success' => false, 'error' => 'not_found'], 404);
         }
 
-        $body = self::render('404', []);
+        $body = self::render('404', ['path' => $path]);
 
         return $body === null
             ? Response::text('Not Found', 404)
