@@ -61,7 +61,10 @@ final class CsrfFieldCoverageTest extends TestCase
     {
         $maskiert = $this->ohnePhpBloecke($inhalt);
 
-        preg_match_all('~<form\b[^>]*>~i', $maskiert, $treffer, PREG_OFFSET_CAPTURE);
+        // Attributwerte in Anführungszeichen überspringen: ein `=>` in einem
+        // onsubmit beendet den Tag sonst zu früh (so landete das Feld einmal
+        // mitten im Attribut statt im Formular).
+        preg_match_all('~<form\b(?:[^>"\']|"[^"]*"|\'[^\']*\')*>~i', $maskiert, $treffer, PREG_OFFSET_CAPTURE);
 
         $rumpfe = [];
         foreach ($treffer[0] as [$tag, $offset]) {
