@@ -12,6 +12,7 @@ declare(strict_types=1);
  * @var \EmergencyForge\Http\Router $router
  */
 
+use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
@@ -55,8 +56,6 @@ $router->match(['GET'],  '/api/enotf/share/get-own-protocols',    $enotfHandler(
 $router->match(['POST'], '/api/enotf/share/reject-request',       $enotfHandler('shareRejectRequest'),    $enotfApiAuth);
 $router->match(['POST'], '/api/enotf/share/send-request',         $enotfHandler('shareSendRequest'),      $enotfApiAuth);
 
-$router->match(['POST'],         '/api/enotf/billing',              $enotfHandler('billing'),           $enotfApiAuth);
-
 $router->match(['GET', 'POST', 'DELETE'], '/api/enotf/bulk-delete-empty',     $enotfHandler('bulkDeleteEmpty'), $enotfApiAuth);
 
 $router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler('saveFields'),         $enotfApiAuth);
@@ -64,10 +63,15 @@ $router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler
 $router->match(['POST'],        '/api/enotf/share/accept-request',     $enotfHandler('shareAcceptRequest'), $enotfApiAuth);
 
 // Legacy-Aliase (alte Redirect-Stubs)
-$router->post('/api/enotf-billing.php',         $enotfHandler('billing'),        $enotfApiAuth);
 $router->post('/api/enotf-delete-protocol.php', $enotfHandler('deleteProtocol'), $enotfApiAuth);
 $router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),    $enotfApiAuth);
 $router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $enotfApiAuth);
+
+// Abrechnung: ruft der FiveM-Server (ignisTab) ab, ohne Browser-Session.
+// Deshalb API-Key statt Session und keine CSRF-Prüfung (CsrfMiddleware::EXEMPT).
+$enotfApiKey = [JsonExceptionMiddleware::class, ApiKeyMiddleware::class];
+$router->post('/api/enotf/billing',     $enotfHandler('billing'), $enotfApiKey);
+$router->post('/api/enotf-billing.php', $enotfHandler('billing'), $enotfApiKey);
 
 // ============================================================================
 //  Hospitals: Verfügbarkeiten

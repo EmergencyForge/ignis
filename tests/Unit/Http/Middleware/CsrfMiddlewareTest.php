@@ -48,6 +48,7 @@ final class CsrfMiddlewareTest extends TestCase
         require $root . '/routes/api.php';
         require $root . '/routes/api.session.php';
         require $root . '/plugins/firetab/routes.api.php';
+        require $root . '/plugins/enotf/routes.api.php';
 
         $routes = (new ReflectionClass($router))->getProperty('routes')->getValue($router);
         $exempt = (new ReflectionClass(CsrfMiddleware::class))->getConstant('EXEMPT');

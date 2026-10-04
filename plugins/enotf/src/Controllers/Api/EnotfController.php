@@ -737,21 +737,14 @@ final class EnotfController
      * JSON: { "intraRP_API_Key": "...", "timestamp": <unix> }
      *
      * Gibt freigegebene Protokolle mit billing_sent=0 zurück und markiert
-     * sie als abgerechnet. Auth via API-Key im JSON-Body (externer Abruf).
+     * sie als abgerechnet. Den API-Key prüft die ApiKeyMiddleware der Route
+     * (Header X-API-Key oder intraRP_API_Key im JSON-Body).
      */
     public function billing(Request $request): Response
     {
-        if (strtoupper($request->method) !== 'POST') {
-            return Response::json(['success' => false, 'error' => 'Methode nicht erlaubt'], 405);
-        }
-
         $data = $request->json();
         if (!is_array($data)) {
             return Response::json(['success' => false, 'error' => 'Ungültiges JSON'], 400);
-        }
-
-        if (!isset($data['intraRP_API_Key']) || $data['intraRP_API_Key'] !== constant('API_KEY')) {
-            return Response::json(['success' => false, 'error' => 'Nicht autorisiert', 'hint' => 'API-Key stimmt nicht überein'], 401);
         }
 
         $timestamp = $data['timestamp'] ?? null;
