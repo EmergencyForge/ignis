@@ -67,7 +67,8 @@
 .ignis-mail-compose > .ignis-btn { justify-self: start; }
 .ignis-mail-compose__editor { border: 1px solid var(--border-control, var(--border-subtle)); border-radius: var(--radius-2, 6px); background: var(--surface); }
 .ignis-mail-compose__editor #mail-compose-toolbar, .ignis-mail-compose__editor #mail-signature-toolbar { border-bottom: 1px solid var(--border-subtle); }
-.ignis-mail__editor.efe-page { width: auto; min-height: 12rem; margin: 0; padding: 12px 14px; background: transparent; color: inherit; box-shadow: none; }
+/* --efe-page-text: Absätze färbt das Editor-Paket über dieses Token, sonst bliebe der Text auf dunklem Grund dunkel. */
+.ignis-mail__editor.efe-page { width: auto; min-height: 12rem; margin: 0; padding: 12px 14px; background: transparent; color: inherit; --efe-page-text: currentColor; box-shadow: none; }
 .ignis-mail-compose__footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
 .ignis-mail-compose__footer [role='status'] { flex: 1 1 auto; color: var(--secondary-text); font-size: var(--fs-sm, 13px); }
 
