@@ -42,21 +42,21 @@ $SITE_TITLE = 'Wissensdatenbank';
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s ease;
-            background-color: #555;
-            color: #fff;
+            background-color: var(--fill-3);
+            color: var(--text-2);
             position: relative;
         }
         .kb-quick-btn:hover {
-            background-color: #666;
-            color: #fff;
+            background-color: var(--fill-4);
+            color: var(--text);
         }
         .kb-quick-btn .tooltip-text {
             position: absolute;
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #000;
-            color: #fff;
+            background-color: var(--black);
+            color: var(--white);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.7rem;
@@ -80,8 +80,8 @@ $SITE_TITLE = 'Wissensdatenbank';
             justify-content: space-between;
             align-items: center;
             padding: 10px 15px;
-            background-color: rgba(255,255,255,0.03);
-            border-top: 1px solid #444;
+            background-color: var(--fill-1);
+            border-top: 1px solid var(--border-subtle);
             gap: 10px;
         }
         .kb-card-footer-text {
@@ -103,8 +103,8 @@ $SITE_TITLE = 'Wissensdatenbank';
             left: 0;
             right: 0;
             z-index: 1000;
-            background-color: #2d2d2d;
-            border: 1px solid #444;
+            background-color: var(--surface);
+            border: 1px solid var(--border-subtle);
             border-top: none;
             border-radius: 0 0 4px 4px;
             max-height: 300px;
@@ -117,8 +117,8 @@ $SITE_TITLE = 'Wissensdatenbank';
         .search-suggestion-item {
             padding: 10px 15px;
             cursor: pointer;
-            border-bottom: 1px solid #444;
-            color: #e0e0e0;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text);
             text-decoration: none;
             display: block;
         }
@@ -126,16 +126,16 @@ $SITE_TITLE = 'Wissensdatenbank';
             border-bottom: none;
         }
         .search-suggestion-item:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: #ffffff;
+            background-color: var(--fill-2);
+            color: var(--text);
         }
         .search-suggestion-title {
             font-weight: bold;
-            color: #ffffff;
+            color: var(--text);
         }
         .search-suggestion-subtitle {
             font-size: 0.85rem;
-            color: #aaaaaa;
+            color: var(--text-3);
         }
         .search-suggestion-meta {
             display: flex;
@@ -148,7 +148,7 @@ $SITE_TITLE = 'Wissensdatenbank';
             border-radius: 3px;
         }
         mark {
-            background-color: rgba(255, 213, 79, 0.4);
+            background-color: rgba(var(--warn-rgb), 0.35);
             color: inherit;
             padding: 1px 2px;
             border-radius: 2px;

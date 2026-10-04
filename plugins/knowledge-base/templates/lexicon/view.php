@@ -9,134 +9,59 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
 ?>
 <?php ob_start(); ?>
     <style>
-        .competency-header {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .competency-label {
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        /* Category badge - positioned separately to avoid color collision */
+        /* Typ-Badge oben rechts, getrennt von der Freigabefarbe */
         .kb-category-badge {
             position: absolute;
             top: -10px;
             right: 15px;
             padding: 5px 12px;
             font-size: 0.8rem;
-            font-weight: bold;
-            border-radius: 4px;
+            font-weight: 600;
+            border-radius: var(--radius-1);
+            border: 1px solid var(--border-subtle);
+            background: var(--surface-3);
+            color: var(--text);
             z-index: 10;
         }
-        /* Main content wrapper - transparent to keep dark design */
         .kb-content-wrapper {
             padding: 20px 0;
         }
-        /* Table styling with dark theme */
+        .kb-pinned {
+            background: var(--accent-soft);
+            border-left-color: var(--accent);
+        }
+        .kb-pinned > i {
+            color: var(--accent);
+        }
         .kb-entry-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            color: #e0e0e0;
-            background-color: transparent;
         }
         .kb-entry-table th,
         .kb-entry-table td {
             padding: 12px 15px;
-            border: 1px solid #444;
+            border: 1px solid var(--border-subtle);
             vertical-align: top;
-            color: #e0e0e0;
-            background-color: transparent;
         }
         .kb-entry-table th {
             width: 180px;
-            font-weight: bold;
-            background-color: rgba(255,255,255,0.1);
-            color: #ffffff;
+            font-weight: 600;
+            background: var(--fill-2);
+            color: var(--text);
         }
         .kb-entry-table td {
-            background-color: rgba(255,255,255,0.05);
+            background: var(--fill-1);
         }
-        /* Entry row styling with dark theme */
-        .kb-entry-row {
-            display: flex;
-            border: 1px solid #444;
-            border-bottom: none;
-            color: #e0e0e0;
-            background-color: transparent;
+        .kb-entry-table td > :last-child {
+            margin-bottom: 0;
         }
-        .kb-entry-row:last-child {
-            border-bottom: 1px solid #444;
-        }
-        .kb-entry-row .kb-icon {
-            width: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            background-color: rgba(255,255,255,0.1);
-            border-right: 1px solid #444;
-            color: #e0e0e0;
-        }
-        .kb-entry-row .kb-label {
-            width: 160px;
-            padding: 12px 15px;
-            font-weight: bold;
-            background-color: rgba(255,255,255,0.1);
-            border-right: 1px solid #444;
-            display: flex;
-            align-items: center;
-            color: #ffffff;
-        }
-        .kb-entry-row .kb-content {
-            flex: 1;
-            padding: 12px 15px;
-            background-color: rgba(255,255,255,0.05);
-            color: #e0e0e0;
-        }
-        /* Section styling: dezente getönte Cards im Dark-Theme.
-           Die Akzentfarbe bleibt als Border + Header-Bottom-Tint sichtbar,
-           der Body hat einen subtilen Tint, kein voll-saturiertes Pur-Gelb. */
+        /* Abschnitte: Bedeutungsfarbe nur am Rand und im Kopf, der Inhalt
+           bleibt auf der Kartenfläche gut lesbar. */
         .kb-section {
             margin-bottom: 12px;
-            border-radius: var(--radius-md, 6px);
-            border: 1px solid var(--darkgray, #2a2a2a);
-            background-color: rgba(255, 255, 255, 0.02);
-            color: #e0e0e0;
+            border-radius: var(--radius-2);
+            border: 1px solid var(--border-subtle);
             overflow: hidden;
-        }
-        .kb-section-yellow {
-            background-color: rgba(255, 193, 7, 0.06);
-            border-color: rgba(255, 193, 7, 0.35);
-        }
-        .kb-section-yellow .kb-section-header {
-            background-color: rgba(255, 193, 7, 0.18);
-            color: #ffd966;
-        }
-        .kb-section-blue {
-            background-color: rgba(13, 110, 253, 0.06);
-            border-color: rgba(13, 110, 253, 0.35);
-        }
-        .kb-section-blue .kb-section-header {
-            background-color: rgba(13, 110, 253, 0.18);
-            color: #6ea8fe;
-        }
-        .kb-section-red {
-            background-color: rgba(192, 0, 0, 0.06);
-            border-color: rgba(192, 0, 0, 0.45);
-        }
-        .kb-section-red .kb-section-header {
-            background-color: rgba(192, 0, 0, 0.22);
-            color: #ff8a8a;
-        }
-        .kb-section-gray {
-            background-color: rgba(255, 255, 255, 0.03);
-            border-color: var(--darkgray, #2a2a2a);
-        }
-        .kb-section-gray .kb-section-header {
-            background-color: rgba(255, 255, 255, 0.04);
-            color: var(--text-dimmed, #a0a0a0);
         }
         .kb-section-header {
             margin: 0;
@@ -144,67 +69,22 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
             font-weight: 600;
             font-size: 0.82rem;
             letter-spacing: 0.02em;
-            border-bottom: 1px solid var(--darkgray, #2a2a2a);
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--fill-2);
+            color: var(--text-2);
         }
+        .kb-section-yellow { border-color: var(--warn-line); }
+        .kb-section-yellow .kb-section-header { background: var(--warn-soft); color: var(--warn-text); border-color: var(--warn-line); }
+        .kb-section-blue { border-color: var(--info-line); }
+        .kb-section-blue .kb-section-header { background: var(--info-soft); color: var(--info-text); border-color: var(--info-line); }
+        .kb-section-red { border-color: var(--danger-line); }
+        .kb-section-red .kb-section-header { background: var(--danger-soft); color: var(--danger-text); border-color: var(--danger-line); }
         .kb-section-content {
             padding: 12px 15px;
-            color: #e0e0e0;
         }
-        .edit-info {
-            font-size: 0.85rem;
-            color: #aaaaaa;
-            padding: 10px 0;
-            margin-top: 20px;
-            border-top: 1px solid #444;
+        .kb-section-content > :last-child {
+            margin-bottom: 0;
         }
-        /* Inline Action Buttons - gray with hover tooltip */
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            background-color: #555;
-            color: #fff;
-            position: relative;
-        }
-        .action-btn:hover {
-            background-color: #666;
-            color: #fff;
-        }
-        .action-btn .tooltip-text {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #000;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            pointer-events: none;
-            margin-bottom: 5px;
-        }
-        .action-btn:hover .tooltip-text {
-            opacity: 1;
-            visibility: visible;
-        }
-        /* Edit info row with actions */
         .edit-info-row {
             display: flex;
             justify-content: space-between;
@@ -213,88 +93,96 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
             gap: 15px;
             padding: 15px 0;
             margin-top: 20px;
-            border-top: 1px solid #444;
+            border-top: 1px solid var(--border-subtle);
         }
         .edit-info-text {
             font-size: 0.85rem;
-            color: #aaaaaa;
+            color: var(--text-3);
         }
-        /* Back link styling */
         .back-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #e0e0e0;
-            text-decoration: none;
+            color: var(--text-2);
             padding: 8px 0;
             transition: color 0.2s;
         }
         .back-link:hover {
-            color: #0d6efd;
+            color: var(--accent);
         }
-        /* Header section styling */
         .kb-header {
             position: relative;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: var(--radius-3);
             margin-bottom: 20px;
         }
         .kb-header-content {
             padding: 15px;
-            border-radius: 8px;
-            background-color: rgba(0,0,0,0.3);
+            border-radius: var(--radius-3);
+            background: var(--fill-2);
         }
         .kb-header h2 {
             margin: 0;
-            color: #ffffff;
+            color: var(--text);
         }
         .kb-header .subtitle {
-            color: #aaaaaa;
+            color: var(--text-2);
             margin: 5px 0 0 0;
         }
         .kb-freigabe-badge {
             padding: 8px 15px;
             font-weight: bold;
             font-size: 1rem;
-            border-radius: 4px;
+            border-radius: var(--radius-1);
             display: inline-block;
         }
         /* Freitext aus dem Editor */
         .content-area {
-            color: #e0e0e0;
             padding: 15px;
-            background-color: rgba(255,255,255,0.05);
-            border-radius: 4px;
+            background: var(--fill-1);
+            border-radius: var(--radius-1);
         }
-        .content-area h1, .content-area h2, .content-area h3, 
-        .content-area h4, .content-area h5, .content-area h6 {
-            color: #ffffff;
-        }
-        .content-area p, .content-area li, .content-area td, .content-area th {
-            color: #e0e0e0;
+        .content-area > :last-child {
+            margin-bottom: 0;
         }
         .content-area a {
-            color: #6ea8fe;
+            color: var(--accent);
+        }
+        .content-area a:hover {
+            text-decoration: underline;
         }
         .content-area figure {
             margin: 1rem 0;
         }
-        .content-area .efe-figure img {
-            display: block;
+        .content-area img {
             max-width: 100%;
             height: auto;
-            border-radius: 4px;
+            border-radius: var(--radius-1);
+        }
+        .content-area .efe-figure img {
+            display: block;
         }
         .content-area table {
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
         }
-        .content-area th,
-        .content-area td {
+        /* Der Editor legt Tabellen in figure.table, das zieht sonst die
+           Listentabelle aus admin.css an (Hover, Schriftgröße, letzte Zeile). */
+        .content-area .table {
+            color: inherit;
+            --bs-table-hover-bg: transparent;
+            --bs-table-hover-color: currentColor;
+        }
+        #lexicon .content-area :is(th, td) {
             padding: 6px 10px;
-            border: 1px solid var(--border, #444);
+            border: 1px solid var(--border-subtle);
             vertical-align: top;
+            font-size: inherit;
+        }
+        .content-area th {
+            background: var(--fill-2);
+            font-weight: 600;
         }
         .content-area :is(th, td) p {
             margin: 0;
@@ -302,12 +190,13 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
         .content-area blockquote {
             margin: 1rem 0;
             padding-left: 12px;
-            border-left: 3px solid var(--border, #444);
+            border-left: 3px solid var(--border-strong);
+            color: var(--text-2);
         }
         .content-area hr {
             margin: 1rem 0;
             border: 0;
-            border-top: 1px solid var(--border, #444);
+            border-top: 1px solid var(--border-subtle);
         }
     </style>
 <?php $layoutHead = ob_get_clean(); ?>
@@ -333,13 +222,13 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                     </a>
 
                     <?php if (!empty($entry['is_pinned'])): ?>
-                        <div class="ignis-alert mt-3" style="background-color: <?= SYSTEM_COLOR ?>20; border-color: <?= SYSTEM_COLOR ?>; color: #e0e0e0;">
-                            <i class="fa-solid fa-thumbtack" style="color: <?= SYSTEM_COLOR ?>;"></i> Dieser Eintrag ist angepinnt und wird oben in der Liste angezeigt.
+                        <div class="ignis-alert kb-pinned mb-3">
+                            <i class="fa-solid fa-thumbtack"></i> Dieser Eintrag ist angepinnt und wird oben in der Liste angezeigt.
                         </div>
                     <?php endif; ?>
 
                     <?php if ($entry['is_archived']): ?>
-                        <div class="ignis-alert ignis-alert--warn">
+                        <div class="ignis-alert ignis-alert--warn mb-3">
                             <i class="fa-solid fa-archive"></i> Dieser Eintrag ist archiviert.
                         </div>
                     <?php endif; ?>
@@ -359,7 +248,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                 </span>
                             <?php endif; ?>
                             <?php foreach ($entryTags as $etag): ?>
-                                <a href="<?= BASE_PATH ?>lexicon/index?tag=<?= (int)$etag['id'] ?>" class="ignis-chip no-underline" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff;"><?= htmlspecialchars($etag['name']) ?></a>
+                                <a href="<?= BASE_PATH ?>lexicon/index?tag=<?= (int)$etag['id'] ?>" class="ignis-chip no-underline" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: var(--white);"><?= htmlspecialchars($etag['name']) ?></a>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -370,7 +259,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                         <?php if ($competency): ?>
                             <div class="kb-header twplus-detail-hero relative" style="background-color: <?= $competency['bg'] ?>;">
                                 <!-- Category badge positioned in top right -->
-                                <span class="kb-category-badge" style="background-color: #212529; color: #ffffff;">
+                                <span class="kb-category-badge">
                                     <?= KBHelper::getTypeLabel($entry['type']) ?>
                                 </span>
                                 <div class="flex justify-between items-center">
@@ -381,7 +270,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                         <?php endif; ?>
                                     </div>
                                     <div class="text-right">
-                                        <div class="kb-freigabe-badge" style="background-color: <?= $competency['color'] ?>; color: <?= KBHelper::competencyNeedsDarkText($entry['competency_level']) ? '#000' : '#fff' ?>;">
+                                        <div class="kb-freigabe-badge" style="background-color: <?= $competency['color'] ?>; color: <?= KBHelper::competencyNeedsDarkText($entry['competency_level']) ? 'var(--black)' : 'var(--white)' ?>;">
                                             Freigabe: <?= $competency['label'] ?>
                                         </div>
                                     </div>
@@ -389,7 +278,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                             </div>
                         <?php else: ?>
                             <div class="kb-header-content twplus-detail-hero mb-4 relative">
-                                <span class="kb-category-badge" style="background-color: #212529; color: #ffffff; top: 0; right: 0;">
+                                <span class="kb-category-badge" style="top: 0; right: 0;">
                                     <?= KBHelper::getTypeLabel($entry['type']) ?>
                                 </span>
                                 <h2><?= htmlspecialchars($entry['title']) ?></h2>
@@ -405,7 +294,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                             <div>
                                 <div>
                                     <!-- Basic Info Table -->
-                                    <table class="kb-entry-table twplus-description-table mb-4">
+                                    <table class="kb-entry-table mb-4">
                                         <tbody>
                                             <?php if (!empty($entry['med_wirkstoff'])): ?>
                                                 <tr>
@@ -470,7 +359,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                             <div>
                                 <div>
                                     <!-- Basic Info Table -->
-                                    <table class="kb-entry-table twplus-description-table mb-4">
+                                    <table class="kb-entry-table mb-4">
                                         <tbody>
                                             <?php if (!empty($entry['mass_wirkprinzip'])): ?>
                                                 <tr>
@@ -551,9 +440,9 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="ml-2 flex flex-col gap-1 items-end">
-                                                    <span class="ignis-chip" style="background-color: <?= KBHelper::getTypeColor($rel['type']) ?>; color: #fff; font-size: 0.65rem;"><?= KBHelper::getTypeLabel($rel['type']) ?></span>
+                                                    <span class="ignis-chip" style="background-color: <?= KBHelper::getTypeColor($rel['type']) ?>; color: var(--white); font-size: 0.65rem;"><?= KBHelper::getTypeLabel($rel['type']) ?></span>
                                                     <?php if ($relComp): ?>
-                                                        <span class="ignis-chip" style="background-color: <?= $relComp['bg'] ?>; color: <?= $relComp['text'] ?? '#fff' ?>; font-size: 0.65rem;"><?= $relComp['label'] ?></span>
+                                                        <span class="ignis-chip" style="background-color: <?= $relComp['bg'] ?>; color: <?= $relComp['text'] ?? 'var(--white)' ?>; font-size: 0.65rem;"><?= $relComp['label'] ?></span>
                                                     <?php endif; ?>
                                                 </div>
                                         </a>
@@ -582,20 +471,18 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                             </div>
                             
                             <?php if ($isLoggedIn): ?>
-                                <div class="action-buttons twplus-mobile-actions">
+                                <div class="flex flex-wrap gap-2 twplus-mobile-actions">
                                     <?php if (Permissions::check(['admin', 'kb.edit'])): ?>
-                                        <a href="<?= BASE_PATH ?>lexicon/edit?id=<?= $entry['id'] ?>" class="action-btn">
+                                        <a href="<?= BASE_PATH ?>lexicon/edit?id=<?= $entry['id'] ?>" class="ignis-btn ignis-btn--secondary ignis-btn--icon ignis-btn--sm" data-ignis-tooltip="Bearbeiten" aria-label="Bearbeiten">
                                             <i class="fa-solid fa-pen"></i>
-                                            <span class="tooltip-text">Bearbeiten</span>
                                         </a>
                                         
                                         <form method="POST" action="<?= BASE_PATH ?>lexicon/pin" style="margin: 0; display: inline;">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                             <input type="hidden" name="action" value="<?= !empty($entry['is_pinned']) ? 'unpin' : 'pin' ?>">
-                                            <button type="submit" class="action-btn">
+                                            <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--icon ignis-btn--sm" data-ignis-tooltip="<?= !empty($entry['is_pinned']) ? 'Lösen' : 'Anpinnen' ?>" aria-label="<?= !empty($entry['is_pinned']) ? 'Lösen' : 'Anpinnen' ?>">
                                                 <i class="fa-solid fa-thumbtack"></i>
-                                                <span class="tooltip-text"><?= !empty($entry['is_pinned']) ? 'Lösen' : 'Anpinnen' ?></span>
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -606,9 +493,8 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                 <input type="hidden" name="action" value="restore">
-                                                <button type="submit" class="action-btn">
+                                                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--icon ignis-btn--sm" data-ignis-tooltip="Wiederherstellen" aria-label="Wiederherstellen">
                                                     <i class="fa-solid fa-rotate-left"></i>
-                                                    <span class="tooltip-text">Wiederherstellen</span>
                                                 </button>
                                             </form>
                                         <?php else: ?>
@@ -616,9 +502,8 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                 <input type="hidden" name="action" value="archive">
-                                                <button type="submit" class="action-btn">
+                                                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--icon ignis-btn--sm" data-ignis-tooltip="Archivieren" aria-label="Archivieren">
                                                     <i class="fa-solid fa-box-archive"></i>
-                                                    <span class="tooltip-text">Archivieren</span>
                                                 </button>
                                             </form>
                                         <?php endif; ?>

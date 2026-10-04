@@ -79,13 +79,13 @@ $editorField = static function (string $name, string $features, string $placehol
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #e0e0e0;
+            color: var(--text-2);
             text-decoration: none;
             padding: 8px 0;
             transition: color 0.2s;
         }
         .back-link:hover {
-            color: #0d6efd;
+            color: var(--accent);
         }
     </style>
 <?php $layoutHead = ob_get_clean(); ?>
