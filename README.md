@@ -4,7 +4,11 @@
 
 Das Ziel von _**ıgnıs**_ (vormals intraRP) ist es eine Allround-Lösung für die Fraktionsverwaltung fiktiver Feuerwehren & Rettungsdienste vor allem für FiveM und andere ähnliche Settings anzubieten. Das System ist grundsätzlich zur Verwaltung eines deutschen Systems ausgelegt, kann aber mit eigenen Veränderungen durchaus auch an ein amerikanisches oder anderes Setting angepasst werden. Es handelt sich hierbei um eine Weiterentwicklung bzw. den Nachfolger von [intra.stettbeck.de](https://github.com/itshypax/intra.stettbeck.de). Das System befindet sich in aktuell in Entwicklung und wird stetig verändert.
 
-### **Der Vorteil - immer kostenlos & immer Open Source!**
+### Installation
+
+Wie du ignis auf einem Webspace, einem eigenen Server mit Apache oder nginx oder mit Docker installierst, steht Schritt für Schritt in der [INSTALL.md](INSTALL.md).
+
+### **Der Vorteil: immer kostenlos und immer Open Source!**
 
 Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstützung, Anpassungen, Wünsche & Ideen offen. Einen Vorteil kann man jedoch dauerhaft genießen: Das Projekt ist vollkommen Open Source und kann von jedem angewandt, umgesetzt und verändert/angepasst werden.
 
@@ -58,6 +62,24 @@ Für nginx gibt es keine Durchreichung: `root` muss auf `public/` zeigen.
 `try_files`-Regeln. `/api/health` meldet außerdem fehlende PHP-Erweiterungen,
 HTTP-Transport, eingeschränkte Prozessfunktionen und unter `rewrite`, ob der
 Document-Root auf `public/` zeigt.
+
+### Docker
+
+Für den Betrieb im Container gibt es das Image `ghcr.io/emergencyforge/ignis`
+und [`docker-compose.prod.yml`](docker-compose.prod.yml) mit MariaDB. Die
+Vorlage [`docker/.env.example`](docker/.env.example) als `.env` neben die
+Compose-Datei kopieren, ausfüllen und starten:
+
+```sh
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Die Instanz lauscht auf `127.0.0.1:8080` und gehört hinter einen Reverse Proxy,
+der `X-Forwarded-Proto` und `X-Forwarded-Host` setzt (Beispiel am Ende von
+`nginx.conf.example`). Updates kommen als neues Image: `IMAGE_TAG` in der
+`.env` anheben, dann `docker compose -f docker-compose.prod.yml pull` und
+`up -d`. Der Updater in den Einstellungen installiert im Container nichts.
+`docker-compose.yml` ist das Entwicklungs-Setup.
 
 ### Anmeldung über ignisTab
 
