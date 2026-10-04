@@ -77,23 +77,13 @@ jobs:
 
       - name: Handle workflow result
         uses: actions/github-script@v9
-        env:
-          LABEL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
-            // Lesen, Kommentieren, Labeln und Schliessen laufen ueber den
-            // GITHUB_TOKEN, nur das Anlegen ueber den Bot. Die Bot-App hat
-            // keine Issues-Berechtigung: addLabels antwortet mit 403, und die
-            // Issue-Liste liefert ihr nur Pull Requests. Der Filter unten warf
-            // die alle raus, also fand weder Dedup noch Schliessen je ein
-            // Incident (#374, #375, #391, #392).
-            const issuesApi = getOctokit(process.env.LABEL_TOKEN);
-
             // Offene Incidents am Marker im Body erkennen, nicht am Label, so
             // werden auch die gefunden, die noch ohne Label angelegt wurden.
             async function openIncidents() {
-              const all = await issuesApi.paginate(issuesApi.rest.issues.listForRepo, {
+              const all = await github.paginate(github.rest.issues.listForRepo, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 state: 'open',
@@ -115,13 +105,13 @@ jobs:
               for (const issue of issues) {
                 // status/resolved nicht erneut verarbeiten (safety net falls close-API hakt)
                 if (issue.labels.some(l => (l.name || l) === 'status/resolved')) continue;
-                await issuesApi.rest.issues.createComment({
+                await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
                   body: `✅ Main ist wieder grün in [${shortSha}](${run.head_repository.html_url}/commit/${sha}).\n\n*Run: [${runId}](${runUrl})*`,
                 });
-                await issuesApi.rest.issues.update({
+                await github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
@@ -285,7 +275,7 @@ jobs:
                 `**Autor:** ${authorMention}\n` +
                 `**Workflow-Run:** [${runId}](${runUrl})\n\n` +
                 `Gleiche Job-Signature (\`${signature}\`). Das Incident bleibt offen.`;
-              await issuesApi.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: existing.number,
@@ -298,7 +288,7 @@ jobs:
               if (existingSev && existingSev !== severityLabel) {
                 const existingNum = parseInt(existingSev.split('-').pop());
                 if (!isNaN(existingNum) && severity < existingNum) {
-                  await issuesApi.rest.issues.setLabels({
+                  await github.rest.issues.setLabels({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     issue_number: existing.number,
@@ -317,12 +307,6 @@ jobs:
                 repo: context.repo.repo,
                 title,
                 body,
-              });
-              // Labels als eigener Aufruf ueber den GITHUB_TOKEN, siehe oben.
-              await issuesApi.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: created.number,
                 labels: allLabels,
               });
               core.info(`Created incident #${created.number}`);
