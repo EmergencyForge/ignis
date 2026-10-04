@@ -259,7 +259,7 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
             border-radius: 4px;
             display: inline-block;
         }
-        /* Content area for CKEditor content */
+        /* Freitext aus dem Editor */
         .content-area {
             color: #e0e0e0;
             padding: 15px;
@@ -275,6 +275,39 @@ $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
         }
         .content-area a {
             color: #6ea8fe;
+        }
+        .content-area figure {
+            margin: 1rem 0;
+        }
+        .content-area .efe-figure img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .content-area table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .content-area th,
+        .content-area td {
+            padding: 6px 10px;
+            border: 1px solid var(--border, #444);
+            vertical-align: top;
+        }
+        .content-area :is(th, td) p {
+            margin: 0;
+        }
+        .content-area blockquote {
+            margin: 1rem 0;
+            padding-left: 12px;
+            border-left: 3px solid var(--border, #444);
+        }
+        .content-area hr {
+            margin: 1rem 0;
+            border: 0;
+            border-top: 1px solid var(--border, #444);
         }
     </style>
 <?php $layoutHead = ob_get_clean(); ?>

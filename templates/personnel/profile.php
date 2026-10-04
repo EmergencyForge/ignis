@@ -44,7 +44,6 @@ $bodyId = 'mitarbeiter';
 $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
 ?>
 <?php ob_start(); ?>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css" />
     <link rel="stylesheet" href="<?= asset('public/assets/dist/personal.css') ?>" />
 <?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">

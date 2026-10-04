@@ -28,18 +28,26 @@ final class LexiconSanitizeTest extends FeatureTestCase
     #[Test]
     public function speichern_legt_bereinigtes_html_ab(): void
     {
+        // Der Editor schickt JSON; HTML im Text bleibt Text
         $response = $this->post('/lexicon/create', [
-            'type'              => 'measure',
-            'title'             => 'XSS-Probe',
-            'content'           => self::ANGRIFF,
-            'mass_durchfuehrung' => '<ul><li onclick="alert(4)">Schritt</li></ul>',
+            'type'               => 'measure',
+            'title'              => 'XSS-Probe',
+            'content'            => (string) json_encode(['type' => 'doc', 'content' => [
+                ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => self::ANGRIFF]]],
+            ]]),
+            'mass_durchfuehrung' => (string) json_encode(['type' => 'doc', 'content' => [
+                ['type' => 'bulletList', 'attrs' => ['onclick' => 'alert(4)'], 'content' => [
+                    ['type' => 'listItem', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Schritt']]]]],
+                ]],
+            ]]),
         ]);
 
         $this->assertRedirect($response);
         $row = Capsule::table('intra_kb_entries')->where('title', 'XSS-Probe')->first();
         $this->assertNotNull($row);
-        $this->assertSame('<p>Text</p>Link', $row->content);
-        $this->assertSame('<ul><li>Schritt</li></ul>', $row->mass_durchfuehrung);
+        $this->assertSame('<p>' . htmlspecialchars(self::ANGRIFF, ENT_NOQUOTES) . '</p>', $row->content);
+        $this->assertStringNotContainsString('<svg', $row->content);
+        $this->assertSame('<ul><li><p>Schritt</p></li></ul>', $row->mass_durchfuehrung);
     }
 
     #[Test]

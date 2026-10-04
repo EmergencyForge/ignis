@@ -1,12 +1,31 @@
 <?php
 use App\Auth\Permissions;
+use Plugin\KnowledgeBase\KBHelper;
 
 $layout = 'admin';
 $bodyId = 'lexicon';
 $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
+
+/**
+ * Ein Editorfeld: Toolbar und Schreibfläche im Rahmen, dahinter das
+ * versteckte Feld für das Editor-JSON. Es bleibt gesperrt, bis der Editor
+ * läuft: lädt das Bundle nicht, schickt das Formular den Text gar nicht
+ * mit, statt ihn beim Bearbeiten zu leeren.
+ */
+$editorField = static function (string $name, string $features, string $placeholder) use ($formData): void {
+    ?>
+    <div class="efe-frame kb-editor kb-editor--<?= $features ?>">
+        <div id="<?= $name ?>-toolbar"></div>
+        <div class="efe-page" data-kb-editor="<?= $name ?>" data-features="<?= $features ?>"
+             data-placeholder="<?= htmlspecialchars($placeholder) ?>"
+             data-content="<?= htmlspecialchars(KBHelper::toEditorHtml($formData[$name] ?? '')) ?>"></div>
+    </div>
+    <input type="hidden" name="<?= $name ?>" disabled>
+    <?php
+};
 ?>
 <?php ob_start(); ?>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars(asset('assets/dist/editor.css')) ?>">
     <style>
         .type-fields {
             display: none;
@@ -26,96 +45,34 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
         .competency-option input {
             margin-right: 10px;
         }
-        /* CKEditor dark theme styling */
-        .ck-editor__editable {
-            min-height: 120px;
-            background-color: #2d2d2d !important;
-            color: #e0e0e0 !important;
-            border-color: #555 !important;
+        /* Editor ohne A4-Blatt: die Schreibfläche liegt im Rahmen und nimmt
+           die Farben des Themas statt der Papierfarben. */
+        .kb-editor .efe-page {
+            width: auto;
+            min-height: 5rem;
+            margin: 0;
+            padding: 10px 12px;
+            background: transparent;
+            color: inherit;
+            box-shadow: none;
+            --efe-page-text: currentColor;
+            --efe-page-accent: var(--efe-accent);
         }
-        .ck-editor__editable:focus {
-            border-color: #0d6efd !important;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+        .kb-editor--article .efe-page {
+            min-height: 14rem;
         }
-        .ck.ck-editor__main > .ck-editor__editable {
-            background-color: #2d2d2d !important;
-            color: #e0e0e0 !important;
+        .kb-editor .efe-figure {
+            margin: 0.75rem 0;
         }
-        .ck.ck-toolbar {
-            background-color: #1e1e1e !important;
-            border-color: #555 !important;
+        .kb-editor .efe-figure img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
         }
-        .ck.ck-toolbar .ck-toolbar__items .ck-button {
-            color: #e0e0e0 !important;
-        }
-        .ck.ck-toolbar .ck-toolbar__items .ck-button:hover {
-            background-color: #444 !important;
-        }
-        /* CKEditor active button state */
-        .ck.ck-toolbar .ck-toolbar__items .ck-button.ck-on,
-        .ck.ck-button.ck-on {
-            background-color: #0d6efd !important;
-            color: #ffffff !important;
-        }
-        .ck.ck-editor__editable p,
-        .ck.ck-editor__editable li,
-        .ck.ck-editor__editable h1,
-        .ck.ck-editor__editable h2,
-        .ck.ck-editor__editable h3 {
-            color: #e0e0e0 !important;
-        }
-        /* CKEditor dropdown styling - fully dark theme */
-        .ck.ck-dropdown__panel {
-            background-color: #1e1e1e !important;
-            border: 1px solid #555 !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
-        }
-        .ck.ck-dropdown__panel .ck-list {
-            background-color: #1e1e1e !important;
-        }
-        .ck.ck-list__item .ck-button {
-            color: #e0e0e0 !important;
-            background-color: transparent !important;
-        }
-        .ck.ck-list__item .ck-button:hover {
-            background-color: #333 !important;
-        }
-        .ck.ck-list__item .ck-button.ck-on {
-            background-color: #0d6efd !important;
-            color: #fff !important;
-        }
-        .ck.ck-dropdown__button {
-            color: #e0e0e0 !important;
-        }
-        .ck.ck-dropdown__button:hover {
-            background-color: #444 !important;
-        }
-        .ck.ck-dropdown__button.ck-on {
-            background-color: #0d6efd !important;
-            color: #fff !important;
-        }
-        /* Fix dropdown panel borders */
-        .ck.ck-dropdown .ck-dropdown__panel {
-            border-top: 1px solid #555 !important;
-        }
-        .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se,
-        .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_sw {
-            border-radius: 0 0 6px 6px !important;
-        }
-        /* CKEditor rounded border */
-        .ck.ck-editor {
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #555 !important;
-        }
-        .ck.ck-toolbar {
-            border-radius: 6px 6px 0 0 !important;
-            border: none !important;
-        }
-        .ck.ck-editor__main > .ck-editor__editable {
-            border-radius: 0 0 6px 6px !important;
-            border: none !important;
-            border-top: 1px solid #555 !important;
+        .kb-editor .efe-figure.ProseMirror-selectednode img {
+            outline: 2px solid var(--efe-focus-ring);
+            outline-offset: 2px;
         }
         /* Back link styling */
         .back-link {
@@ -129,10 +86,6 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
         }
         .back-link:hover {
             color: #0d6efd;
-        }
-        /* Smaller CKEditor for inline fields */
-        .ck-editor-small .ck-editor__editable {
-            min-height: 80px;
         }
     </style>
 <?php $layoutHead = ob_get_clean(); ?>
@@ -223,7 +176,9 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                                     <select name="category_id" id="category_id" class="ignis-input" data-custom-dropdown="true">
                                         <option value="">Keine Kategorie</option>
                                         <?php
-                                        // Hierarchische Anzeige mit Einrückung
+                                        // Hierarchische Anzeige mit Einrückung. Nur einmal deklarieren,
+                                        // in den Feature-Tests rendert ein Prozess das Formular mehrfach.
+                                        if (!function_exists('renderCategoryOptions')) {
                                         /** @param array<int, array<string, mixed>> $categories */
                                         function renderCategoryOptions(array $categories, int $selectedId = 0, ?int $parentId = null, int $depth = 0): void
                                         {
@@ -241,6 +196,7 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                                                 // Kinder rendern
                                                 renderCategoryOptions($categories, $selectedId, (int)$cat['id'], $depth + 1);
                                             }
+                                        }
                                         }
                                         renderCategoryOptions($allCategories, (int)($formData['category_id'] ?? 0));
                                         ?>
@@ -285,40 +241,34 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_wirkmechanismus" class="ignis-field__label">Wirkmechanismus</label>
-                                <textarea name="med_wirkmechanismus" id="med_wirkmechanismus" class="ignis-textarea" rows="2"
-                                          placeholder="z.B. Blockade von Histamin am H1-Rezeptor → antiallergische Wirkung, Sedierung"><?= htmlspecialchars($formData['med_wirkmechanismus']) ?></textarea>
+                                <label id="med_wirkmechanismus-label" class="ignis-field__label">Wirkmechanismus</label>
+                                <?php $editorField('med_wirkmechanismus', 'short', 'z.B. Blockade von Histamin am H1-Rezeptor → antiallergische Wirkung, Sedierung'); ?>
                             </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                 <div>
-                                    <label for="med_indikationen" class="ignis-field__label">Indikationen</label>
-                                    <textarea name="med_indikationen" id="med_indikationen" class="ignis-textarea" rows="3"
-                                              placeholder="• Anaphylaxie"><?= htmlspecialchars($formData['med_indikationen']) ?></textarea>
+                                    <label id="med_indikationen-label" class="ignis-field__label">Indikationen</label>
+                                    <?php $editorField('med_indikationen', 'short', '• Anaphylaxie'); ?>
                                 </div>
                                 <div>
-                                    <label for="med_kontraindikationen" class="ignis-field__label">Kontraindikationen</label>
-                                    <textarea name="med_kontraindikationen" id="med_kontraindikationen" class="ignis-textarea" rows="3"
-                                              placeholder="• Unverträglichkeit"><?= htmlspecialchars($formData['med_kontraindikationen']) ?></textarea>
+                                    <label id="med_kontraindikationen-label" class="ignis-field__label">Kontraindikationen</label>
+                                    <?php $editorField('med_kontraindikationen', 'short', '• Unverträglichkeit'); ?>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_uaw" class="ignis-field__label">Unerwünschte Arzneimittelwirkungen (UAW)</label>
-                                <textarea name="med_uaw" id="med_uaw" class="ignis-textarea" rows="3"
-                                          placeholder="• Müdigkeit&#10;• Mundtrockenheit&#10;• Kopfschmerzen"><?= htmlspecialchars($formData['med_uaw']) ?></textarea>
+                                <label id="med_uaw-label" class="ignis-field__label">Unerwünschte Arzneimittelwirkungen (UAW)</label>
+                                <?php $editorField('med_uaw', 'short', 'z.B. Müdigkeit, Mundtrockenheit, Kopfschmerzen'); ?>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_dosierung" class="ignis-field__label">Dosierung</label>
-                                <textarea name="med_dosierung" id="med_dosierung" class="ignis-textarea" rows="2"
-                                          placeholder="• 4 mg i.v."><?= htmlspecialchars($formData['med_dosierung']) ?></textarea>
+                                <label id="med_dosierung-label" class="ignis-field__label">Dosierung</label>
+                                <?php $editorField('med_dosierung', 'short', '• 4 mg i.v.'); ?>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_besonderheiten" class="ignis-field__label">Besonderheiten / CAVE</label>
-                                <textarea name="med_besonderheiten" id="med_besonderheiten" class="ignis-textarea" rows="3"
-                                          placeholder="• Wirkt nur lindernd auf Juckreiz → Verabreichung nur, wenn Basismaßnahmen nicht verzögert werden"><?= htmlspecialchars($formData['med_besonderheiten']) ?></textarea>
+                                <label id="med_besonderheiten-label" class="ignis-field__label">Besonderheiten / CAVE</label>
+                                <?php $editorField('med_besonderheiten', 'short', '• Wirkt nur lindernd auf Juckreiz → Verabreichung nur, wenn Basismaßnahmen nicht verzögert werden'); ?>
                             </div>
                         </div>
 
@@ -327,50 +277,44 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                             <h4 class="mb-3"><i class="fa-solid fa-hand-holding-medical"></i> Maßnahmen-Informationen</h4>
                             
                             <div class="mb-3">
-                                <label for="mass_wirkprinzip" class="ignis-field__label">Wirkprinzip</label>
-                                <textarea name="mass_wirkprinzip" id="mass_wirkprinzip" class="ignis-textarea" rows="2"
-                                          placeholder="Ruhigstellung eines Körperteils und Verhindern von Bewegung → Vermeidung von weiteren Verletzungen durch Bewegung"><?= htmlspecialchars($formData['mass_wirkprinzip']) ?></textarea>
+                                <label id="mass_wirkprinzip-label" class="ignis-field__label">Wirkprinzip</label>
+                                <?php $editorField('mass_wirkprinzip', 'short', 'Ruhigstellung eines Körperteils und Verhindern von Bewegung → Vermeidung von weiteren Verletzungen durch Bewegung'); ?>
                             </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                 <div>
-                                    <label for="mass_indikationen" class="ignis-field__label">Indikationen</label>
-                                    <textarea name="mass_indikationen" id="mass_indikationen" class="ignis-textarea" rows="3"
-                                              placeholder="V.a. Fraktur einer Extremität mit intakter pDMS"><?= htmlspecialchars($formData['mass_indikationen']) ?></textarea>
+                                    <label id="mass_indikationen-label" class="ignis-field__label">Indikationen</label>
+                                    <?php $editorField('mass_indikationen', 'short', 'V.a. Fraktur einer Extremität mit intakter pDMS'); ?>
                                 </div>
                                 <div>
-                                    <label for="mass_kontraindikationen" class="ignis-field__label">Kontraindikationen</label>
-                                    <textarea name="mass_kontraindikationen" id="mass_kontraindikationen" class="ignis-textarea" rows="3"
-                                              placeholder="Unmöglichkeit, schmerzbedingte Intoleranz"><?= htmlspecialchars($formData['mass_kontraindikationen']) ?></textarea>
+                                    <label id="mass_kontraindikationen-label" class="ignis-field__label">Kontraindikationen</label>
+                                    <?php $editorField('mass_kontraindikationen', 'short', 'Unmöglichkeit, schmerzbedingte Intoleranz'); ?>
                                 </div>
                             </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                 <div>
-                                    <label for="mass_risiken" class="ignis-field__label">Risiken</label>
-                                    <textarea name="mass_risiken" id="mass_risiken" class="ignis-textarea" rows="2"
-                                              placeholder="Schmerzen"><?= htmlspecialchars($formData['mass_risiken']) ?></textarea>
+                                    <label id="mass_risiken-label" class="ignis-field__label">Risiken</label>
+                                    <?php $editorField('mass_risiken', 'short', 'Schmerzen'); ?>
                                 </div>
                                 <div>
-                                    <label for="mass_alternativen" class="ignis-field__label">Alternativen</label>
-                                    <textarea name="mass_alternativen" id="mass_alternativen" class="ignis-textarea" rows="2"
-                                              placeholder="Kühlung, manuelle Stabilisierung, Vakuumschiene"><?= htmlspecialchars($formData['mass_alternativen']) ?></textarea>
+                                    <label id="mass_alternativen-label" class="ignis-field__label">Alternativen</label>
+                                    <?php $editorField('mass_alternativen', 'short', 'Kühlung, manuelle Stabilisierung, Vakuumschiene'); ?>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="mass_durchfuehrung" class="ignis-field__label">Durchführung</label>
-                                <textarea name="mass_durchfuehrung" id="mass_durchfuehrung" class="ignis-textarea" rows="4"
-                                          placeholder="» SAM-Splint an gesunder Extremität anpassen&#10;» Extremität vorsichtig hineinlegen&#10;» Fixierung mittels eng gewickelter Mullbinde&#10;» ggf. Kühlpack mit einwickeln"><?= htmlspecialchars($formData['mass_durchfuehrung']) ?></textarea>
+                                <label id="mass_durchfuehrung-label" class="ignis-field__label">Durchführung</label>
+                                <?php $editorField('mass_durchfuehrung', 'short', 'z.B. SAM-Splint an gesunder Extremität anpassen'); ?>
                             </div>
                         </div>
 
-                        <!-- General Content (CKEditor) -->
+                        <!-- Freitext -->
                         <div class="twplus-section-card p-4 mb-4">
-                            <h4 class="mb-3">Zusätzlicher Inhalt</h4>
-                            <p class="text-tertiary-text text-sm">Optionaler Freitext für weitere Informationen (mit Formatierung)</p>
+                            <h4 class="mb-3" id="content-label">Zusätzlicher Inhalt</h4>
+                            <p class="text-tertiary-text text-sm">Optionaler Freitext für weitere Informationen, mit Überschriften, Tabellen und Bildern</p>
 
-                            <textarea name="content" id="content" class="ignis-textarea" rows="2"><?= htmlspecialchars($formData['content']) ?></textarea>
+                            <?php $editorField('content', 'article', 'Weitere Informationen zum Eintrag'); ?>
                         </div>
 
                         <!-- Verknüpfte Einträge -->
@@ -441,130 +385,48 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
     </div>
 
 
-    <script type="importmap">
-    {
-        "imports": {
-            "ckeditor5": "<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.js",
-            "ckeditor5/": "<?= BASE_PATH ?>assets/_ext/ckeditor5/"
-        }
-    }
-    </script>
-    <script type="module">
-        import {
-            ClassicEditor,
-            Essentials,
-            Bold,
-            Italic,
-            Underline,
-            Strikethrough,
-            Heading,
-            Link,
-            List,
-            Paragraph,
-            BlockQuote,
-            Table,
-            TableToolbar
-        } from 'ckeditor5';
+    <script src="<?= htmlspecialchars(asset('assets/dist/editor.iife.js')) ?>"></script>
+    <script>
+        // Editoren: der Freitext als Artikel mit Bildern, die Felder für
+        // Medikament und Maßnahme mit Auszeichnungen, Link und Listen. Das
+        // versteckte Feld trägt das Editor-JSON, der Server rendert es.
+        const shortFeatures = ['bold', 'italic', 'underline', 'link', 'bulletList', 'orderedList'];
 
-        // Store editor instances
-        const editorInstances = {};
-
-        // CKEditor configuration for rich text fields
-        const fullEditorConfig = {
-            licenseKey: 'GPL',
-            plugins: [
-                Essentials, Bold, Italic, Underline, Strikethrough,
-                Heading, Link, List, Paragraph, BlockQuote, Table, TableToolbar
-            ],
-            toolbar: {
-                items: [
-                    'heading', '|',
-                    'bold', 'italic', 'underline', 'strikethrough', '|',
-                    'link', 'bulletedList', 'numberedList', '|',
-                    'blockQuote', 'insertTable', '|',
-                    'undo', 'redo'
-                ]
-            },
-            table: {
-                contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
-            },
-            language: 'de'
-        };
-
-        // Simpler config for medication/measure fields
-        const simpleEditorConfig = {
-            licenseKey: 'GPL',
-            plugins: [
-                Essentials, Bold, Italic, Underline, Link, List, Paragraph
-            ],
-            toolbar: {
-                items: [
-                    'bold', 'italic', 'underline', '|',
-                    'link', 'bulletedList', 'numberedList', '|',
-                    'undo', 'redo'
-                ]
-            },
-            language: 'de'
-        };
-
-        // Initialize CKEditor on main content field
-        ClassicEditor
-            .create(document.querySelector('#content'), fullEditorConfig)
-            .then(editor => {
-                editorInstances['content'] = editor;
+        function uploadImage(file) {
+            const data = new FormData();
+            data.append('image', file);
+            return fetch('<?= BASE_PATH ?>api/knowledgebase/images', {
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
             })
-            .catch(error => {
-                console.error('Error initializing content editor:', error);
+                .then(r => r.json().catch(() => ({})).then(d => {
+                    if (!r.ok || !d.src) throw new Error(d.error || 'Das Bild konnte nicht hochgeladen werden.');
+                    return { src: d.src, alt: d.alt || '' };
+                }))
+                .catch(error => {
+                    if (typeof showToast === 'function') showToast(error.message, 'error');
+                    throw error;
+                });
+        }
+
+        document.querySelectorAll('[data-kb-editor]').forEach(mount => {
+            const name = mount.dataset.kbEditor;
+            const hidden = document.querySelector('input[type="hidden"][name="' + name + '"]');
+            const article = mount.dataset.features === 'article';
+            const editor = window.EmergencyForgeEditor.createEditor(mount, {
+                content: mount.dataset.content || '',
+                features: article ? 'article' : shortFeatures,
+                toolbar: document.getElementById(name + '-toolbar'),
+                placeholder: mount.dataset.placeholder || undefined,
+                uploadImage: article ? uploadImage : undefined,
             });
-
-        // Medication field IDs
-        const medicationFields = [
-            'med_wirkmechanismus',
-            'med_indikationen',
-            'med_kontraindikationen',
-            'med_uaw',
-            'med_dosierung',
-            'med_besonderheiten'
-        ];
-
-        // Measure field IDs
-        const measureFieldIds = [
-            'mass_wirkprinzip',
-            'mass_indikationen',
-            'mass_kontraindikationen',
-            'mass_risiken',
-            'mass_alternativen',
-            'mass_durchfuehrung'
-        ];
-
-        // Initialize CKEditor on all medication fields
-        medicationFields.forEach(fieldId => {
-            const element = document.querySelector('#' + fieldId);
-            if (element) {
-                ClassicEditor
-                    .create(element, simpleEditorConfig)
-                    .then(editor => {
-                        editorInstances[fieldId] = editor;
-                    })
-                    .catch(error => {
-                        console.error('Error initializing ' + fieldId + ' editor:', error);
-                    });
-            }
-        });
-
-        // Initialize CKEditor on all measure fields
-        measureFieldIds.forEach(fieldId => {
-            const element = document.querySelector('#' + fieldId);
-            if (element) {
-                ClassicEditor
-                    .create(element, simpleEditorConfig)
-                    .then(editor => {
-                        editorInstances[fieldId] = editor;
-                    })
-                    .catch(error => {
-                        console.error('Error initializing ' + fieldId + ' editor:', error);
-                    });
-            }
+            editor.view.dom.setAttribute('aria-labelledby', name + '-label');
+            const sync = () => { hidden.value = JSON.stringify(editor.getJSON()); };
+            sync();
+            editor.on('update', sync);
+            hidden.disabled = false;
         });
 
         // Toggle type-specific fields

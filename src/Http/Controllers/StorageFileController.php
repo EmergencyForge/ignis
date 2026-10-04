@@ -15,6 +15,7 @@ use EmergencyForge\Http\Response;
  * storage/ und wurden bisher vom Webserver direkt ausgeliefert. Mit dem
  * Docroot auf public/ übernimmt das diese Route, mit derselben
  * Endungs-Allowlist, die vorher in der nginx-Beispielkonfiguration stand.
+ * Dazu kommen die Bilder aus Lexikon-Artikeln (kb-images).
  * Es gibt keine Unterordner: Dateinamen sind zufällig erzeugt bzw. die
  * Dokument-ID, ein Pfad mit Schrägstrich matcht die Route gar nicht.
  *
@@ -27,6 +28,7 @@ final class StorageFileController
     public const AREAS = [
         'profile-pictures' => [['png', 'jpg', 'jpeg', 'webp'], 'public, max-age=604800'],
         'template-assets'  => [['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'], 'public, max-age=604800'],
+        'kb-images'        => [['png', 'jpg', 'jpeg', 'gif', 'webp'], 'public, max-age=604800'],
         'documents'        => [['pdf'], 'private, no-cache'],
         // Kein SVG: eine hochgeladene SVG-Datei kann Skript tragen, das mit
         // Origin des System-Logos liefe (siehe FileUpload-Aufruf in

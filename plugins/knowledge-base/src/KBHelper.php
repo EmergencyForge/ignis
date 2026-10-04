@@ -2,6 +2,8 @@
 
 namespace Plugin\KnowledgeBase;
 
+use EmergencyForge\Editor\Renderer;
+
 /**
  * Helper class for Knowledge Base functionality
  */
@@ -199,14 +201,18 @@ class KBHelper
     }
 
     /**
-     * Elemente, die der CKEditor der Wissensdatenbank erzeugt: Überschriften
-     * 1 bis 3 der Toolbar landen als h2 bis h4, Tabellen in figure.table.
+     * Elemente, die der Editor der Wissensdatenbank erzeugt, und der
+     * Altbestand aus CKEditor (Tabellen in figure.table, b und i).
+     * Überschriften stehen als h2 bis h4 in der Tabelle, siehe toEditorHtml().
      */
     private const ALLOWED_TAGS = [
-        'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'h2', 'h3', 'h4',
-        'ul', 'ol', 'li', 'blockquote', 'a',
+        'p', 'br', 'hr', 'strong', 'b', 'em', 'i', 'u', 's', 'h2', 'h3', 'h4',
+        'ul', 'ol', 'li', 'blockquote', 'a', 'img',
         'figure', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
     ];
+
+    /** Elemente ohne schließendes Tag. */
+    private const VOID_TAGS = ['br', 'hr', 'img'];
 
     /** Elemente, die samt Inhalt entfallen. Alle anderen werden entpackt. */
     private const DROPPED_TAGS = [
@@ -216,6 +222,50 @@ class KBHelper
     ];
 
     private const ALLOWED_SCHEMES = ['http', 'https', 'mailto'];
+
+    /**
+     * Gespeichertes HTML als Startinhalt für den Editor. Der Editor kennt
+     * Überschrift 1 bis 3, CKEditor hat dieselben drei Stufen als h2 bis h4
+     * gespeichert (h1 ist der Seitentitel). Deshalb rückt jede Überschrift
+     * hier eine Ebene hoch und fromEditorJson() wieder herunter: alte
+     * Artikel behalten ihre Gliederung, gespeicherte Artikel bleiben bei
+     * h2 bis h4.
+     */
+    public static function toEditorHtml(?string $html): string
+    {
+        return (string) preg_replace_callback(
+            '~<(/?)h([2-4])>~',
+            static fn (array $m): string => '<' . $m[1] . 'h' . ((int) $m[2] - 1) . '>',
+            self::sanitizeContent($html)
+        );
+    }
+
+    /**
+     * Editor-JSON aus dem Formular zu HTML für die Tabelle: über den
+     * Renderer des Editor-Pakets (unbekannte Knoten und Marks fallen dort
+     * weg), dann durch sanitizeContent(). Ein leeres Dokument wird ''.
+     * null heißt: kein lesbares Editor-Dokument.
+     */
+    public static function fromEditorJson(string $json): ?string
+    {
+        $doc = json_decode($json, true);
+        if (!is_array($doc) || ($doc['type'] ?? null) !== 'doc') {
+            return null;
+        }
+
+        $result = (new Renderer())->render($doc, allowLinks: true);
+        if ($result->error) {
+            return null;
+        }
+
+        $html = self::sanitizeContent((string) preg_replace_callback(
+            '~<(/?)h([1-3])\b~',
+            static fn (array $m): string => '<' . $m[1] . 'h' . ((int) $m[2] + 1),
+            $result->html
+        ));
+
+        return trim(strip_tags($html, '<img>')) === '' ? '' : $html;
+    }
 
     /**
      * Bereinigt Editor-HTML über eine Allowlist. Das HTML wird mit libxml
@@ -281,7 +331,7 @@ class KBHelper
             }
 
             $html .= '<' . $tag . $attributes . '>';
-            if ($tag !== 'br') {
+            if (!in_array($tag, self::VOID_TAGS, true)) {
                 $html .= self::sanitizeChildren($node) . '</' . $tag . '>';
             }
         }
@@ -319,7 +369,17 @@ class KBHelper
                 return $html;
 
             case 'figure':
-                return $node->getAttribute('class') === 'table' ? ' class="table"' : '';
+                $class = $node->getAttribute('class');
+                return in_array($class, ['table', 'efe-figure'], true) ? ' class="' . $class . '"' : '';
+
+            case 'img':
+                // Nur Bilder derselben Seite, dieselbe Regel wie im Editor-Renderer
+                $src = $node->getAttribute('src');
+                if (!Renderer::isAllowedImageSrc($src)) {
+                    return null;
+                }
+                return ' src="' . htmlspecialchars($src, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"'
+                    . ' alt="' . htmlspecialchars($node->getAttribute('alt'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"';
 
             default:
                 return '';

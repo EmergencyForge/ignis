@@ -10,6 +10,7 @@ storage/documents/**.pdf
 storage/private/**/*.pdf
 storage/private/mail-attachments/
 storage/profile-pictures/
+storage/kb-images/
 node_modules/
 storage/cache/
 support_errors.log

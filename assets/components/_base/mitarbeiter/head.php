@@ -19,7 +19,6 @@ if (!isset($layoutTheme)) { echo \App\Helpers\Theme::headScript(); } ?>
 <link rel="stylesheet" href="<?= asset('public/assets/dist/legacy-utilities.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/style.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/admin.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/personal.css') ?>" />

@@ -48,6 +48,10 @@ class KbSanitizeContentTest extends TestCase
             'Text hinter </html>'              => ['<p>x</p></body></html><p>danach</p>', '<p>x</p><p>danach</p>'],
             'meta charset im Inhalt'           => ['<meta charset="utf-16"><p>Ä</p>', '<p>Ä</p>'],
             'Attribut-Ausbruch im href'        => ['<a href=\'https://x.de/"><img src=x onerror=alert(1)>\'>x</a>', '<a href="https://x.de/&quot;&gt;&lt;img src=x onerror=alert(1)&gt;">x</a>'],
+            'Bild von fremdem Server'          => ['<figure class="efe-figure"><img src="https://x.de/a.png" alt="a"></figure>', '<figure class="efe-figure"></figure>'],
+            'Bild als data:'                   => ['<img src="data:image/png;base64,AAAA" alt="">t', 't'],
+            'Bildquelle ohne Bildendung'       => ['<img src="/logout">t', 't'],
+            'Bild mit Handler und Stil'        => ['<figure class="efe-figure"><img src="/storage/kb-images/a.png" alt="x" onerror="alert(1)" style="width:1px"></figure>', '<figure class="efe-figure"><img src="/storage/kb-images/a.png" alt="x"></figure>'],
         ];
     }
 

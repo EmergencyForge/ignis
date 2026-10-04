@@ -22,3 +22,11 @@ The current Tailwind Plus license and FAQ are available at <https://tailwindcss.
 ## Icon system
 
 Ignis continues to use Font Awesome Free as its single application icon system. Heroicons and Lucide are not bundled, avoiding a second icon dependency and inconsistent visual language.
+
+## Editor
+
+The rich text editor (knowledge base, mail, documents) comes from the shared `emergencyforge/editor` package and bundles the following dependencies, all licensed under the MIT License:
+
+- Tiptap 3.31.4, © Tiptap GmbH: `@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extension-table`, `@tiptap/extension-text-align`, `@tiptap/extension-placeholder`, `@tiptap/extension-link`, `@tiptap/extension-bubble-menu` and `@tiptap/suggestion`. Source: <https://github.com/ueberdosis/tiptap>.
+- `@floating-ui/dom` 1.8.0, © Floating UI contributors. Source: <https://github.com/floating-ui/floating-ui>.
+- `ueberdosis/tiptap-php` 2.2.0, © überdosis, renders the editor JSON to HTML on the server. Source: <https://github.com/ueberdosis/tiptap-php>.

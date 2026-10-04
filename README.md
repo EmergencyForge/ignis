@@ -16,7 +16,7 @@ Event-Vertrag stehen in [PLUGINS.md](PLUGINS.md).
 
 - [Font Awesome 7 (Free)](https://fontawesome.com/)
 - [Tailwind Plus](https://tailwindcss.com/plus) als lizenzierte Designreferenz; Original-Komponenten und Pakete sind nicht Bestandteil des Repositories. Details und Mitwirkenden-Regeln stehen in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- [CKEditor5](https://ckeditor.com/)
+- [Tiptap](https://tiptap.dev/) (MIT, Tiptap GmbH) und [tiptap-php](https://github.com/ueberdosis/tiptap-php) (MIT) im Editor
 - Beinhaltete Schriftarten von [Google Fonts](https://fonts.google.com/)
 - [Chart.js](https://www.chartjs.org/)
 - [SortableJS](https://github.com/SortableJS/Sortable)

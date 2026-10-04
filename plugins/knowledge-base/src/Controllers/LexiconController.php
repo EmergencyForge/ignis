@@ -25,6 +25,15 @@ use Plugin\KnowledgeBase\Models\KbEntryRelation;
  */
 class LexiconController extends Controller
 {
+    /** Felder, die im Formular ein Editor sind. Wirkstoff und Wirkstoffgruppe bleiben Klartext. */
+    private const EDITOR_FIELDS = [
+        'content',
+        'med_wirkmechanismus', 'med_indikationen', 'med_kontraindikationen',
+        'med_uaw', 'med_dosierung', 'med_besonderheiten',
+        'mass_wirkprinzip', 'mass_indikationen', 'mass_kontraindikationen',
+        'mass_risiken', 'mass_alternativen', 'mass_durchfuehrung',
+    ];
+
     /**
      * Views liegen im templates/-Verzeichnis des Plugins.
      */
@@ -296,7 +305,7 @@ class LexiconController extends Controller
             ->map(fn ($row) => (array) $row)
             ->all();
 
-        $editId         = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $editId         = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         $entry          = null;
         $updaterName    = null;
         $entryTags      = [];
@@ -341,29 +350,24 @@ class LexiconController extends Controller
             }
         }
 
-        // Prefill für GET / Re-Render bei Validation-Fehler
-        $formData = $entry ?? [
-            'type'                    => $_POST['type'] ?? 'general',
-            'category_id'             => $_POST['category_id'] ?? '',
-            'title'                   => $_POST['title'] ?? '',
-            'subtitle'                => $_POST['subtitle'] ?? '',
-            'competency_level'        => $_POST['competency_level'] ?? '',
-            'content'                 => $_POST['content'] ?? '',
-            'med_wirkstoff'           => $_POST['med_wirkstoff'] ?? '',
-            'med_wirkstoffgruppe'     => $_POST['med_wirkstoffgruppe'] ?? '',
-            'med_wirkmechanismus'     => $_POST['med_wirkmechanismus'] ?? '',
-            'med_indikationen'        => $_POST['med_indikationen'] ?? '',
-            'med_kontraindikationen'  => $_POST['med_kontraindikationen'] ?? '',
-            'med_uaw'                 => $_POST['med_uaw'] ?? '',
-            'med_dosierung'           => $_POST['med_dosierung'] ?? '',
-            'med_besonderheiten'      => $_POST['med_besonderheiten'] ?? '',
-            'mass_wirkprinzip'        => $_POST['mass_wirkprinzip'] ?? '',
-            'mass_indikationen'       => $_POST['mass_indikationen'] ?? '',
-            'mass_kontraindikationen' => $_POST['mass_kontraindikationen'] ?? '',
-            'mass_risiken'            => $_POST['mass_risiken'] ?? '',
-            'mass_alternativen'       => $_POST['mass_alternativen'] ?? '',
-            'mass_durchfuehrung'      => $_POST['mass_durchfuehrung'] ?? '',
-        ];
+        // Prefill für GET / Re-Render bei Validation-Fehler. Die Editorfelder
+        // kommen als Editor-JSON zurück und gehen als HTML wieder in den Editor.
+        if ($entry !== null) {
+            $formData = $entry;
+        } else {
+            $formData = [
+                'type'                => $_POST['type'] ?? 'general',
+                'category_id'         => $_POST['category_id'] ?? '',
+                'title'               => $_POST['title'] ?? '',
+                'subtitle'            => $_POST['subtitle'] ?? '',
+                'competency_level'    => $_POST['competency_level'] ?? '',
+                'med_wirkstoff'       => $_POST['med_wirkstoff'] ?? '',
+                'med_wirkstoffgruppe' => $_POST['med_wirkstoffgruppe'] ?? '',
+            ];
+            foreach (self::EDITOR_FIELDS as $f) {
+                $formData[$f] = is_string($_POST[$f] ?? null) ? (KBHelper::fromEditorJson($_POST[$f]) ?? '') : '';
+            }
+        }
 
         $this->renderView('lexicon/form', [
             'isEdit'         => $isEdit,
@@ -389,26 +393,14 @@ class LexiconController extends Controller
         $title            = trim($_POST['title'] ?? '');
         $subtitle         = trim($_POST['subtitle'] ?? '');
         $competency_level = !empty($_POST['competency_level']) ? $_POST['competency_level'] : null;
-        $content          = KBHelper::sanitizeContent($_POST['content'] ?? '');
         $category_id      = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
         $selectedTags     = $_POST['tags'] ?? [];
         $selectedRels     = $_POST['relations'] ?? [];
 
-        $fields = [
-            'med_wirkstoff', 'med_wirkstoffgruppe', 'med_wirkmechanismus',
-            'med_indikationen', 'med_kontraindikationen', 'med_uaw',
-            'med_dosierung', 'med_besonderheiten',
-            'mass_wirkprinzip', 'mass_indikationen', 'mass_kontraindikationen',
-            'mass_risiken', 'mass_alternativen', 'mass_durchfuehrung',
+        $detail = [
+            'med_wirkstoff'       => trim($_POST['med_wirkstoff'] ?? ''),
+            'med_wirkstoffgruppe' => trim($_POST['med_wirkstoffgruppe'] ?? ''),
         ];
-        $detail = [];
-        foreach ($fields as $f) {
-            $detail[$f] = trim($_POST[$f] ?? '');
-        }
-        // Wirkstoff und Wirkstoffgruppe sind Klartext, der Rest kommt aus dem Editor
-        foreach (array_diff($fields, ['med_wirkstoff', 'med_wirkstoffgruppe']) as $f) {
-            $detail[$f] = KBHelper::sanitizeContent($detail[$f]);
-        }
 
         $errors = [];
         if ($title === '') {
@@ -416,6 +408,23 @@ class LexiconController extends Controller
         }
         if (!in_array($type, ['general', 'medication', 'measure'], true)) {
             $errors[] = 'Ungültiger Typ';
+        }
+
+        // Die Editoren schicken ihr JSON erst, wenn sie geladen sind. Fehlt
+        // ein Feld, bleibt beim Bearbeiten der gespeicherte Wert stehen.
+        foreach (self::EDITOR_FIELDS as $f) {
+            if (!isset($_POST[$f])) {
+                if (!$isEdit) {
+                    $detail[$f] = '';
+                }
+                continue;
+            }
+            $html = is_string($_POST[$f]) ? KBHelper::fromEditorJson($_POST[$f]) : null;
+            if ($html === null) {
+                $errors[] = 'Der Text konnte nicht gelesen werden. Lade die Seite neu und versuche es noch einmal.';
+                break;
+            }
+            $detail[$f] = $html;
         }
         if ($errors !== []) {
             return [$errors, null];
@@ -432,7 +441,6 @@ class LexiconController extends Controller
                     'title'            => $title,
                     'subtitle'         => $subtitle,
                     'competency_level' => $competency_level,
-                    'content'          => $content,
                     'is_pinned'        => $is_pinned,
                     'hide_editor'      => $hide_editor,
                     'updated_by'       => $_SESSION['userid'],
@@ -455,7 +463,6 @@ class LexiconController extends Controller
                 'title'            => $title,
                 'subtitle'         => $subtitle,
                 'competency_level' => $competency_level,
-                'content'          => $content,
                 'created_by'       => $_SESSION['userid'],
             ]));
             $newId = (int) $newEntry->id;

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Plugin\KnowledgeBase\Controllers\Api;
 
 use App\Auth\Gate;
+use App\Exceptions\UploadException;
 use App\Logging\Logger;
+use App\Support\FileUpload;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -281,6 +283,45 @@ final class KnowledgebaseController
             Logger::error('KnowledgebaseSearch: DB-Fehler', ['error' => $e->getMessage(), 'query' => $query]);
             return Response::json(['error' => 'Database error'], 500);
         }
+    }
+
+    /**
+     * POST /api/knowledgebase/images: Bild aus dem Artikel-Editor. Liegt
+     * unter storage/kb-images und kommt über die Storage-Route zurück. Die
+     * Antwort ist das, was uploadImage() im Editor erwartet: {src, alt}.
+     */
+    public function uploadImage(Request $request): Response
+    {
+        if (!$this->requireAdmin()) {
+            return Response::json(['error' => 'Keine Berechtigung'], 403);
+        }
+
+        $file = $request->files['image'] ?? null;
+        if (!is_array($file)) {
+            return Response::json(['error' => 'Keine Datei hochgeladen'], 400);
+        }
+
+        try {
+            $stored = FileUpload::store(
+                $file,
+                dirname(__DIR__, 5) . '/storage/kb-images',
+                5 * 1024 * 1024,
+                ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'],
+            );
+        } catch (UploadException $e) {
+            return Response::json(['error' => $e->getMessage()], $e->status);
+        }
+
+        // finfo liest nur die ersten Bytes. Was sich danach nicht als Bild
+        // lesen lässt, fliegt wieder raus.
+        if (@getimagesize($stored['pfad']) === false) {
+            @unlink($stored['pfad']);
+            return Response::json(['error' => 'Die Datei ist kein lesbares Bild'], 400);
+        }
+
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+
+        return Response::json(['src' => $base . 'storage/kb-images/' . $stored['name'], 'alt' => '']);
     }
 
     /**

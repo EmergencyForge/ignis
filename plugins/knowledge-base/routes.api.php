@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Wissensdatenbank: API-Routen (Session-basiert).
  *
  * GET-Routen sind config-gated (KB_PUBLIC_ACCESS). Write-Operationen
- * (POST/DELETE categories, POST/DELETE tags) erfordern Session + kb.edit
+ * (POST/DELETE categories, POST/DELETE tags, POST images) erfordern Session + kb.edit
  * und werden intern im Controller geprüft.
  *
  * @var \EmergencyForge\Http\Router $router
@@ -29,6 +29,9 @@ $router->delete('/api/knowledgebase/categories', [KnowledgebaseController::class
 $router->get(   '/api/knowledgebase/tags', [KnowledgebaseController::class, 'listTags'],  $kbReadAuth);
 $router->post(  '/api/knowledgebase/tags', [KnowledgebaseController::class, 'saveTag'],   $kbWriteAuth);
 $router->delete('/api/knowledgebase/tags', [KnowledgebaseController::class, 'deleteTag'], $kbWriteAuth);
+
+// Bilder aus dem Artikel-Editor
+$router->post('/api/knowledgebase/images', [KnowledgebaseController::class, 'uploadImage'], $kbWriteAuth);
 
 // Search
 $router->get('/api/knowledgebase/search', [KnowledgebaseController::class, 'search'], $kbReadAuth);
