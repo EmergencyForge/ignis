@@ -36,7 +36,7 @@ $layoutPath  = \App\Helpers\Navigation::currentPath();
 $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/');
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-page-motion="<?= $layoutMotion ?>">
+<html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-efe-icons="fontawesome" data-efe-tooltip="data-ignis-tooltip" data-page-motion="<?= $layoutMotion ?>">
 
 <head>
     <?php if ($layoutMotion !== '' || $layoutThemeFade): ?><style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style><?php endif; ?>
