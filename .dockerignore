@@ -19,3 +19,7 @@ support_errors.log
 phpstan.neon
 phpunit.xml
 tests/
+# Installationsstand einer lokalen Instanz gehoert nicht ins Image
+plugins/*/.installed
+plugins/.staging
+plugins/.backup

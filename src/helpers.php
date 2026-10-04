@@ -347,3 +347,21 @@ if (!function_exists('env_value')) {
         return $value === false ? null : $value;
     }
 }
+
+if (!function_exists('mysql_dsn')) {
+    /**
+     * PDO-DSN aus DB_HOST, DB_PORT und DB_NAME. Für die Verbindungen neben
+     * Eloquent (Legacy-$pdo, Container-Fallback, tools/db-migrate.php), die
+     * DB_PORT sonst übergehen würden. Capsule und Phinx lesen den Port
+     * selbst. Fehlt er oder ist er keine Zahl, gilt 3306.
+     */
+    function mysql_dsn(string $charset = 'utf8mb4'): string
+    {
+        $port = (int) env_value('DB_PORT');
+
+        return 'mysql:host=' . (env_value('DB_HOST') ?? 'localhost')
+            . ';port=' . ($port > 0 ? $port : 3306)
+            . ';dbname=' . (env_value('DB_NAME') ?? '')
+            . ';charset=' . $charset;
+    }
+}

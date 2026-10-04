@@ -38,7 +38,7 @@ $db_name = $dbSettings['DB_NAME'];
 
 // Try utf8mb4 first, fallback to utf8 if not supported
 $charset = 'utf8mb4';
-$dsn = "mysql:host=" . $db_host . ";dbname=" . $db_name . ";charset=" . $charset;
+$dsn = mysql_dsn($charset);
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_EMULATE_PREPARES => false,
@@ -53,7 +53,7 @@ try {
     if (strpos($e->getMessage(), 'utf8mb4') !== false || $e->getCode() === 'HY000') {
         error_log("utf8mb4 not supported, falling back to utf8: " . $e->getMessage());
         $charset = 'utf8';
-        $dsn = "mysql:host=" . $db_host . ";dbname=" . $db_name . ";charset=" . $charset;
+        $dsn = mysql_dsn($charset);
         try {
             $pdo = new PDO($dsn, $db_user, $db_pass, $options);
         } catch (PDOException $e2) {

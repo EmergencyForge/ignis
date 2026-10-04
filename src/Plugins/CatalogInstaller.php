@@ -41,7 +41,11 @@ final class CatalogInstaller
         if (!class_exists(ZipArchive::class)) throw new \RuntimeException('PHP-ZIP-Erweiterung fehlt.');
 
         $downloadDir = $this->cacheDir . '/plugin-downloads';
-        $stagingRoot = $this->cacheDir . '/plugin-staging';
+        // Staging und Backup liegen in plugins/ selbst, nicht im Cache: im
+        // Docker-Setup sind storage/ und plugins/ getrennte Volumes, und
+        // rename() kann ein Verzeichnis nicht über Dateisystemgrenzen
+        // verschieben. Der Punkt hält beide aus der Plugin-Erkennung heraus.
+        $stagingRoot = $this->pluginsDir . '/.staging';
         $this->ensureDir($downloadDir);
         $this->ensureDir($stagingRoot);
         $zipPath = $downloadDir . '/' . $slug . '.zip';
@@ -75,7 +79,7 @@ final class CatalogInstaller
             if (is_file($marker)) {
                 @copy($marker, $stageDir . '/.installed');
             }
-            $backupRoot = $this->cacheDir . '/plugin-backup';
+            $backupRoot = $this->pluginsDir . '/.backup';
             $this->ensureDir($backupRoot);
             $backup = $backupRoot . '/' . $slug . '-' . preg_replace('/[^a-zA-Z0-9._-]/', '-', $manifest->version) . '-' . gmdate('YmdHis');
             if (!@rename($target, $backup)) throw new \RuntimeException('Bestehendes Plugin konnte nicht gesichert werden.');

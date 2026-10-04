@@ -21,6 +21,8 @@ $checking = false;
 $versionAge = $updater->getVersionAge();
 $isUpdateRecommended = $updater->isUpdateRecommended();
 $isPreRelease = $updater->isPreRelease();
+// Im offiziellen Image bleibt nur die Prüfung; installiert wird per neuem Image.
+$inContainer = SystemUpdater::runsInContainer();
 $isDevMode = isset($_GET['dev']);
 $devBranches = [];
 $devBranchInfo = null;
@@ -450,6 +452,13 @@ $SITE_TITLE = 'System Updates';
                                         <div>
                                             <h6>Aktionen:</h6>
 
+                                            <?php if ($inContainer): ?>
+                                            <div class="ignis-alert ignis-alert--info mb-2">
+                                                <p class="mb-1"><i class="fa-brands fa-docker" aria-hidden="true"></i> Diese Instanz läuft im Docker-Image. Das Update kommt als neues Image: in der <code>.env</code> neben der Compose-Datei <code>IMAGE_TAG=<?= htmlspecialchars('v' . ltrim((string) $updateInfo['latest_version'], 'v')) ?></code> setzen, dann</p>
+                                                <pre class="ignis-mono mb-0 whitespace-pre-wrap break-words rounded-md bg-surface-2 p-2 text-xs">docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d</pre>
+                                            </div>
+                                            <?php else: ?>
                                             <!-- Install Update Button -->
                                             <form method="post" id="install-update-form" class="mb-2">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
@@ -465,6 +474,7 @@ $SITE_TITLE = 'System Updates';
                                             </form>
 
                                             <?php include __DIR__ . '/../../../assets/components/settings/system/_update-progress-modal.php'; ?>
+                                            <?php endif; ?>
 
                                             <?php if (isset($updateInfo['html_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['html_url']) ?>"
@@ -491,12 +501,14 @@ $SITE_TITLE = 'System Updates';
                                         </div>
                                     <?php endif; ?>
 
+                                    <?php if (!$inContainer): ?>
                                     <div class="ignis-alert ignis-alert--info mt-3">
                                         <strong><i class="fa-solid fa-info-circle"></i> Hinweis:</strong>
                                         Das Update wird PHP-nativ und ohne Composer-/Shell-Zwang installiert. Das Release-Archiv wird gestreamt, vor dem Entpacken geprüft und ein Backup unter <code>storage/backups/updates/</code> erstellt.
                                         Bei Problemen können Sie das Backup manuell wiederherstellen.
                                         <br><strong>Wichtig:</strong> Erstellen Sie zusätzlich ein manuelles Backup Ihrer Datenbank!
                                     </div>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <div class="ignis-alert ignis-alert--info">
                                         <i class="fa-solid fa-check-circle"></i>
@@ -564,7 +576,11 @@ $SITE_TITLE = 'System Updates';
                                                 $isSameCommit = !empty($currentHash) && str_starts_with($targetHash, $currentHash);
                                                 ?>
 
-                                                <?php if ($isSameCommit): ?>
+                                                <?php if ($inContainer): ?>
+                                                    <div class="ignis-alert ignis-alert--info mt-3 mb-0">
+                                                        <i class="fa-brands fa-docker" aria-hidden="true"></i> Im Docker-Image lassen sich keine Branches installieren. Dafür ein eigenes Image aus dem Branch bauen.
+                                                    </div>
+                                                <?php elseif ($isSameCommit): ?>
                                                     <div class="ignis-alert ignis-alert--info mt-3 mb-0">
                                                         <i class="fa-solid fa-check-circle"></i> Sie sind bereits auf diesem Commit.
                                                     </div>
@@ -628,7 +644,7 @@ $SITE_TITLE = 'System Updates';
             $devTargetHash  = $devBranchInfo['sha'] ?? '';
             $devSameCommit  = !empty($devCurrentHash) && str_starts_with($devTargetHash, $devCurrentHash);
         ?>
-        <?php if (!$devSameCommit): ?>
+        <?php if (!$devSameCommit && !$inContainer): ?>
         devInstallButton: {
             buttonId:   'dev-install-btn',
             formId:     'dev-install-form',

@@ -1,0 +1,69 @@
+# ıgnıs im Produktivbetrieb mit dem fertigen Image.
+#
+# Die Datei docker-compose.yml daneben ist das Entwicklungs-Setup (Build aus
+# dem Checkout, Quellcode als Bind-Mount). Für eine Instanz reicht diese
+# Datei zusammen mit einer .env im selben Verzeichnis, Vorlage ist
+# docker/.env.example.
+#
+#   cp docker/.env.example .env      # Werte eintragen
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Update: ohne IMAGE_TAG holt pull die neueste stabile Version, sonst
+# IMAGE_TAG in der .env auf die neue Version setzen, dann
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+# Die Migrationen laufen beim Start des Containers. Der Updater in den
+# Systemeinstellungen installiert im Image nichts, er zeigt nur an, dass es
+# eine neue Version gibt.
+#
+# Die Instanz lauscht nur auf 127.0.0.1. Davor gehört ein Reverse Proxy mit
+# TLS, der X-Forwarded-Proto und X-Forwarded-Host setzt (Beispiel am Ende
+# von nginx.conf.example).
+
+name: ignis
+
+services:
+  app:
+    # :latest ist die neueste stabile Version. Solange es noch keine stabile
+    # 2026er-Version gibt, in der .env IMAGE_TAG auf eine Beta setzen, die
+    # Tags stehen unter github.com/EmergencyForge/ignis/releases.
+    image: ghcr.io/emergencyforge/ignis:${IMAGE_TAG:-latest}
+    env_file: .env
+    environment:
+      APP_ENV: production
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+    ports:
+      - "127.0.0.1:${IGNIS_PORT:-8080}:80"
+    volumes:
+      - storage:/var/www/html/storage
+      # Katalog-Plugins und ihre .installed-Marker. Die mitgelieferten
+      # Plugins kopiert der Entrypoint bei jedem Start aus dem Image hinein,
+      # ein Image-Update kommt also auch dort an.
+      - plugins:/var/www/html/plugins
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:?DB_NAME fehlt in der .env}
+      MARIADB_USER: ${DB_USER:?DB_USER fehlt in der .env}
+      MARIADB_PASSWORD: ${DB_PASS:?DB_PASS fehlt in der .env}
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  db:
+  storage:
+  plugins:

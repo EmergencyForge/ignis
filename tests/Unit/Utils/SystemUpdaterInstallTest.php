@@ -315,6 +315,50 @@ final class SystemUpdaterInstallTest extends TestCase
         self::assertSame(13, $version['build_number']);
     }
 
+    /**
+     * Im offiziellen Image gehört der Code dem Image. Weder Release noch
+     * Branch noch Composer dürfen dort etwas anfassen, und es wird nicht
+     * einmal heruntergeladen.
+     */
+    #[Test]
+    public function the_official_image_refuses_every_install_path(): void
+    {
+        $zip = $this->serve(self::ASSET_URL, ['composer.json' => '{}', 'index.php' => 'neu']);
+        $_ENV['IGNIS_RUNTIME'] = 'docker';
+        try {
+            self::assertTrue(SystemUpdater::runsInContainer());
+            $results = [
+                $this->updater()->downloadAndApplyUpdate(self::ASSET_URL, 'v2026.0.9', false, (string) hash_file('sha256', $zip)),
+                $this->updater()->downloadAndApplyBranchUpdate('main', str_repeat('c0ffee', 6) . 'abcd'),
+                $this->updater()->executePendingComposerInstall(),
+            ];
+        } finally {
+            unset($_ENV['IGNIS_RUNTIME']);
+        }
+
+        foreach ($results as $result) {
+            self::assertFalse($result['success']);
+            self::assertTrue($result['container']);
+            self::assertSame(SystemUpdater::CONTAINER_MESSAGE, $result['message']);
+        }
+        self::assertStringContainsString('docker compose -f docker-compose.prod.yml pull', SystemUpdater::CONTAINER_MESSAGE);
+        self::assertSame([], $this->source->downloaded);
+        $this->assertUntouched();
+    }
+
+    #[Test]
+    public function only_the_value_docker_marks_the_official_image(): void
+    {
+        self::assertFalse(SystemUpdater::runsInContainer());
+
+        $_ENV['IGNIS_RUNTIME'] = 'bare-metal';
+        try {
+            self::assertFalse(SystemUpdater::runsInContainer());
+        } finally {
+            unset($_ENV['IGNIS_RUNTIME']);
+        }
+    }
+
     // ── Hilfen ─────────────────────────────────────────────────────────
 
     private function updater(): SystemUpdater

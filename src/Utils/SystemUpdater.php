@@ -25,6 +25,18 @@ use Exception;
  */
 class SystemUpdater
 {
+    /**
+     * Antwort auf jeden Installationsversuch im offiziellen Image. Dort
+     * gehört der Code dem Image: ein Update in den Container hinein wäre
+     * beim nächsten Neuerstellen weg und liefe auseinander mit dem, was
+     * die Datenbank-Migrationen beim Start erwarten.
+     */
+    public const CONTAINER_MESSAGE = 'ıgnıs läuft im Docker-Image, Updates kommen dort als neues Image. '
+        . 'IMAGE_TAG in der .env auf die neue Version setzen und dann '
+        . '"docker compose -f docker-compose.prod.yml pull" und '
+        . '"docker compose -f docker-compose.prod.yml up -d" ausführen. '
+        . 'Die Migrationen laufen beim Start des Containers.';
+
     private string $versionFile;
     private string $appRoot;
     private GitHubReleaseSource $source;
@@ -54,6 +66,25 @@ class SystemUpdater
         $this->diagnostics = new UpdateDiagnostics($appRoot, $this->diagnosticFile, $this->versions, $this->source);
         $this->composer = new ComposerRunner($appRoot, $appRoot . '/storage/composer_pending.json', $this->diagnostics);
         $this->cleanupOldTempDirectories();
+    }
+
+    /**
+     * Läuft ignis im offiziellen Image? Das Dockerfile setzt
+     * IGNIS_RUNTIME=docker. Bewusst nicht /.dockerenv: ein eigenes Image,
+     * das den Code als beschreibbaren Checkout mitbringt, darf sich weiter
+     * selbst aktualisieren.
+     */
+    public static function runsInContainer(): bool
+    {
+        return env_value('IGNIS_RUNTIME') === 'docker';
+    }
+
+    /**
+     * @return array{success: false, error: true, container: true, message: string}
+     */
+    private static function containerRefusal(): array
+    {
+        return ['success' => false, 'error' => true, 'container' => true, 'message' => self::CONTAINER_MESSAGE];
     }
 
     /**
@@ -155,6 +186,10 @@ class SystemUpdater
         ?string $expectedSha256 = null
     ): array
     {
+        if (self::runsInContainer()) {
+            return self::containerRefusal();
+        }
+
         try {
             // Security: Validate download URL is from GitHub (zipball or release asset)
             $downloadKind = $this->source->downloadKind($downloadUrl);
@@ -360,6 +395,10 @@ class SystemUpdater
      */
     public function executePendingComposerInstall(): array
     {
+        if (self::runsInContainer()) {
+            return self::containerRefusal();
+        }
+
         return $this->composer->installPending();
     }
 

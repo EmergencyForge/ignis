@@ -46,8 +46,6 @@ return [
     // bleibt identisch zu assets/config/database.php: persistent connections,
     // utf8mb4 mit utf8-Fallback.
     PDO::class => function (): PDO {
-        $host = env_value('DB_HOST') ?? 'localhost';
-        $name = env_value('DB_NAME') ?? '';
         $user = env_value('DB_USER') ?? '';
         $pass = env_value('DB_PASS') ?? '';
 
@@ -59,10 +57,10 @@ return [
         ];
 
         try {
-            return new PDO("mysql:host=$host;dbname=$name;charset=utf8mb4", $user, $pass, $options);
+            return new PDO(mysql_dsn('utf8mb4'), $user, $pass, $options);
         } catch (PDOException $e) {
             if (str_contains($e->getMessage(), 'utf8mb4') || $e->getCode() === 'HY000') {
-                return new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $pass, $options);
+                return new PDO(mysql_dsn('utf8'), $user, $pass, $options);
             }
             throw $e;
         }

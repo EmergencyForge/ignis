@@ -60,8 +60,7 @@ if ($missing !== []) {
 }
 
 try {
-    $dsn = "mysql:host={$db['DB_HOST']};dbname={$db['DB_NAME']};charset=utf8mb4";
-    $pdo = new PDO($dsn, $db['DB_USER'], $db['DB_PASS'], [
+    $pdo = new PDO(mysql_dsn(), $db['DB_USER'], $db['DB_PASS'], [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
 } catch (\PDOException $e) {

@@ -36,6 +36,9 @@ CLAUDE.md
 .impeccable.md
 # Installations-Marker manuell installierter Plugins (pro Instanz, nie committen)
 plugins/*/.installed
+# Arbeitsverzeichnisse des Katalog-Installers (CatalogInstaller)
+plugins/.staging/
+plugins/.backup/
 
 # Interne Planungs-/Designdokumente gehören nicht ins öffentliche Repo
 /docs/

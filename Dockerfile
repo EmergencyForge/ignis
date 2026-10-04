@@ -60,11 +60,28 @@ RUN mkdir -p storage/logs storage/cache storage/documents storage/temp uploads \
     && chown -R www-data:www-data storage uploads \
     && chmod -R 775 storage uploads
 
+# Der Stand des Images, unabhaengig von den Volumes. Liegen storage/ und
+# plugins/ in Volumes, verdecken sie nach einem Image-Wechsel die neue
+# version.json und die neuen mitgelieferten Plugins. Der Entrypoint
+# gleicht beides von hier ab.
+RUN mkdir -p /usr/local/share/ignis \
+    && cp -a plugins /usr/local/share/ignis/plugins \
+    && cp -a storage/version.json /usr/local/share/ignis/version.json
+
+# Kennzeichnet das offizielle Image. Der Updater installiert hier nichts,
+# sondern verweist auf ein neues Image (SystemUpdater::runsInContainer).
+ENV IGNIS_RUNTIME=docker
+
 # Entrypoint
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
+
+# /healthz antwortet mit 503, wenn Datenbank oder Migrationen fehlen. Die
+# Startphase deckt das Warten auf die Datenbank und den Migrationslauf ab.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD curl -fsS -o /dev/null http://127.0.0.1/healthz || exit 1
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]
