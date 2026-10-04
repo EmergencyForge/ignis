@@ -67,4 +67,14 @@ class GenerateRegistrationCodeRequestTest extends TestCase
             'label' => str_repeat('x', 256),
         ]);
     }
+
+    #[Test]
+    public function mitarbeiter_ist_optional_und_eine_positive_zahl(): void
+    {
+        $this->assertNull(GenerateRegistrationCodeRequest::validate(['mitarbeiter_id' => ''])['mitarbeiter_id']);
+        $this->assertSame(12, GenerateRegistrationCodeRequest::validate(['mitarbeiter_id' => '12'])['mitarbeiter_id']);
+
+        $this->expectException(ValidationException::class);
+        GenerateRegistrationCodeRequest::validate(['mitarbeiter_id' => 'x']);
+    }
 }

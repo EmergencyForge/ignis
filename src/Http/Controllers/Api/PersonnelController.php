@@ -13,6 +13,7 @@ use App\Models\FdSkill;
 use App\Models\Personnel;
 use App\Models\Rank;
 use App\Models\RegistrationCode;
+use App\Personnel\AccountLink;
 use App\Personnel\PersonalLogManager;
 use App\Support\FileUpload;
 use DateTime;
@@ -94,23 +95,31 @@ final class PersonnelController
     /**
      * POST /api/personnel/generate-invite
      *
-     * JSON: { "label": "..." }
+     * JSON: { "label": "...", "mitarbeiter_id": 12 }
+     *
+     * Mit `mitarbeiter_id` wird das Konto beim Einlösen mit diesem
+     * Mitarbeiter verknüpft (ADR-0002).
      */
     public function generateInvite(Request $request): Response
     {
         $data  = $request->json();
         $label = isset($data['label']) ? trim((string) $data['label']) : '';
+        $mitarbeiterId = (int) ($data['mitarbeiter_id'] ?? 0);
 
         if ($label === '') {
             return Response::json(['success' => false, 'message' => 'Label is required'], 400);
+        }
+        if ($mitarbeiterId > 0 && (!Personnel::query()->whereKey($mitarbeiterId)->exists() || AccountLink::userFor($mitarbeiterId) !== null)) {
+            return Response::json(['success' => false, 'message' => 'Dieser Mitarbeiter hat schon ein Konto oder existiert nicht.'], 422);
         }
 
         try {
             $code = bin2hex(random_bytes(8));
             RegistrationCode::create([
-                'code'       => $code,
-                'label'      => $label,
-                'created_by' => $_SESSION['userid'] ?? null,
+                'code'           => $code,
+                'label'          => $label,
+                'mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null,
+                'created_by'     => $_SESSION['userid'] ?? null,
             ]);
 
             $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
@@ -233,7 +242,7 @@ final class PersonnelController
             $baseDataChanged = (
                 $current['fullname'] !== $fullname ||
                 $current['gebdatum'] !== $gebdatum ||
-                $current['discordtag'] !== $discordtag ||
+                ($current['discordtag'] ?? '') !== $discordtag ||
                 $current['telefonnr'] !== $telefonnr ||
                 $current['dienstnr'] !== $dienstnr ||
                 (int) $current['geschlecht'] !== $geschlecht ||
@@ -246,7 +255,7 @@ final class PersonnelController
                 $updateData = [
                     'fullname'   => $fullname,
                     'gebdatum'   => $gebdatum,
-                    'discordtag' => $discordtag,
+                    'discordtag' => $discordtag !== '' ? $discordtag : null,
                     'telefonnr'  => $telefonnr,
                     'dienstnr'   => $dienstnr,
                     'geschlecht' => $geschlecht,
@@ -294,7 +303,7 @@ final class PersonnelController
                 'display' => [
                     'fullname'       => $updated['fullname'],
                     'gebdatum'       => (new DateTime($updated['gebdatum']))->format('d.m.Y'),
-                    'discordtag'     => $updated['discordtag'] ?? 'N. hinterlegt',
+                    'discordtag'     => $updated['discordtag'] ?? '-',
                     'telefonnr'      => $updated['telefonnr'],
                     'dienstnr'       => $updated['dienstnr'],
                     'geschlechtText' => $geschlechtText,

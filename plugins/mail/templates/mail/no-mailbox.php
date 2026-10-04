@@ -42,7 +42,7 @@ $SITE_TITLE = 'Mail';
                     'tone'    => 'info',
                     'icon'    => 'fa-inbox',
                     'title'   => 'Noch kein Postfach',
-                    'text'    => 'Ein Postfach bekommt jeder Mitarbeiter. Dein Konto ist mit keinem Mitarbeiter verknüpft; das erledigt die Personalverwaltung über die Discord-ID in der Personalakte.',
+                    'text'    => 'Ein Postfach bekommt jeder Mitarbeiter. Dein Konto ist mit keinem Mitarbeiter verknüpft. Das erledigt die Benutzerverwaltung oder eine Einladung für deinen Mitarbeiter.',
                 ],
             };
             require dirname(__DIR__, 4) . '/templates/partials/empty.php';

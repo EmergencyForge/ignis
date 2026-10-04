@@ -15,6 +15,7 @@ use App\Models\FormData;
 use App\Models\FormField;
 use App\Models\FormType;
 use App\Notifications\NotificationManager;
+use App\Personnel\AccountLink;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
@@ -63,7 +64,7 @@ class FormsController extends Controller
     {
         $mitarbeiter = $this->loadCurrentMitarbeiter();
         if ($mitarbeiter === null) {
-            Flash::set('error', 'Kein Mitarbeiterprofil für Ihre Discord-ID gefunden.');
+            Flash::set('error', 'Dein Konto ist mit keinem Mitarbeiter verknüpft.');
             $this->redirect('index');
         }
 
@@ -98,7 +99,7 @@ class FormsController extends Controller
     {
         $mitarbeiter = $this->loadCurrentMitarbeiter();
         if ($mitarbeiter === null) {
-            Flash::set('error', 'Kein Mitarbeiterprofil für Ihre Discord-ID gefunden.');
+            Flash::set('error', 'Dein Konto ist mit keinem Mitarbeiter verknüpft.');
             $this->redirect('index');
         }
 
@@ -141,6 +142,7 @@ class FormsController extends Controller
                 $antrag->name_dn       = $mitarbeiter->fullname . ' (' . $mitarbeiter->dienstnr . ')';
                 $antrag->dienstgrad    = $mitarbeiter->dienstgrad_name ?? null;
                 $antrag->discordid     = $_SESSION['discordtag'] ?? null;
+                $antrag->mitarbeiter_id = (int) $mitarbeiter->id;
                 $antrag->cirs_status   = Form::STATUS_IN_PROGRESS;
                 $antrag->save();
 
@@ -373,17 +375,18 @@ class FormsController extends Controller
         // Notification an den Antragsteller
         $notificationManager = new NotificationManager();
         $statusName          = Form::STATUS_LABELS[$data['cirs_status']] ?? 'Unbekannt';
-        if ($antrag->discordid !== null && $antrag->discordid !== '') {
-            $userId = $notificationManager->getUserIdByDiscordTag($antrag->discordid);
-            if ($userId) {
-                $notificationManager->create(
-                    $userId,
-                    'antrag',
-                    "Ihr Antrag #{$caseId} wurde bearbeitet",
-                    "Status: {$statusName}. Bearbeiter: {$newCirsManager}",
-                    BASE_PATH . "forms/view?antrag={$caseId}"
-                );
-            }
+        // Alte Anträge ohne mitarbeiter_id kennen nur die Discord-ID.
+        $userId = $antrag->mitarbeiter_id !== null
+            ? AccountLink::userFor((int) $antrag->mitarbeiter_id)?->id
+            : (($antrag->discordid ?? '') !== '' ? $notificationManager->getUserIdByDiscordTag($antrag->discordid) : null);
+        if ($userId) {
+            $notificationManager->create(
+                (int) $userId,
+                'antrag',
+                "Ihr Antrag #{$caseId} wurde bearbeitet",
+                "Status: {$statusName}. Bearbeiter: {$newCirsManager}",
+                BASE_PATH . "forms/view?antrag={$caseId}"
+            );
         }
 
         Flash::set('success', 'Antrag erfolgreich aktualisiert');
@@ -395,8 +398,8 @@ class FormsController extends Controller
     // -----------------------------------------------------------------------
 
     /**
-     * Lädt das Mitarbeiter-Profil zum aktuellen Discord-Tag aus der Session.
-     * Returns null wenn keine Discord-Session, kein Profil oder archivierter Rank.
+     * Lädt den mit dem Konto verknüpften Mitarbeiter (AccountLink).
+     * Returns null ohne Verknüpfung oder bei archiviertem Rank.
      *
      * Bewusst via Capsule (es gibt kein Mitarbeiter-Model). Der
      * geschlechts-bedingte Rank-Name ist sehr Mitarbeiter-spezifisch
@@ -404,16 +407,17 @@ class FormsController extends Controller
      */
     private function loadCurrentMitarbeiter(): ?\stdClass
     {
-        $discordTag = $_SESSION['discordtag'] ?? null;
-        if ($discordTag === null || $discordTag === '') {
+        $mitarbeiterId = AccountLink::currentId();
+        if ($mitarbeiterId === null) {
             return null;
         }
 
         $row = Capsule::table('intra_mitarbeiter as m')
             ->leftJoin('intra_mitarbeiter_dienstgrade as dg', 'm.dienstgrad', '=', 'dg.id')
-            ->where('m.discordtag', $discordTag)
+            ->where('m.id', $mitarbeiterId)
             ->where('dg.archive', 0)
             ->select(
+                'm.id',
                 'm.fullname',
                 'm.dienstnr',
                 'm.geschlecht',

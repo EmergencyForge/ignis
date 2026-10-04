@@ -16,7 +16,7 @@ use Respect\Validation\Validator as v;
  *   - gebdatum    (date YYYY-MM-DD)
  *   - dienstgrad  (int, positive)
  *   - geschlecht  (0|1|2)
- *   - discordtag  (17-20 Ziffern)
+ *   - discordtag  (optional, 17-20 Ziffern; leer wird null)
  *   - telefonnr   (optional)
  *   - dienstnr    (regex: mind. eine Zahl, A-Z 0-9 -)
  *   - einstdatum  (date)
@@ -37,7 +37,7 @@ class CreateMitarbeiterRequest extends FormRequest
             v::key('gebdatum',    v::stringType()->regex($dateRegex)),
             v::key('dienstgrad',  v::stringVal()->intVal()->positive()),
             v::key('geschlecht',  v::stringVal()->intVal()->in(['0', '1', '2'])),
-            v::key('discordtag',  v::stringType()->regex('/^[0-9]{17,20}$/')),
+            v::key('discordtag',  v::optional(v::stringType()->regex('/^[0-9]{17,20}$/')), false),
             v::key('telefonnr',   v::optional(v::stringType()->length(0, 50)), false),
             v::key('dienstnr',    v::stringType()->notBlank()->regex($dienstnrPattern)),
             v::key('einstdatum',  v::stringType()->regex($dateRegex)),
@@ -64,7 +64,7 @@ class CreateMitarbeiterRequest extends FormRequest
             'gebdatum'    => (string) $input['gebdatum'],
             'dienstgrad'  => (int) $input['dienstgrad'],
             'geschlecht'  => (int) $input['geschlecht'],
-            'discordtag'  => (string) $input['discordtag'],
+            'discordtag'  => trim((string) ($input['discordtag'] ?? '')) !== '' ? trim((string) $input['discordtag']) : null,
             'telefonnr'   => isset($input['telefonnr']) ? trim((string) $input['telefonnr']) : '',
             'dienstnr'    => trim((string) $input['dienstnr']),
             'einstdatum'  => (string) $input['einstdatum'],

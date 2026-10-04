@@ -4,10 +4,10 @@
  * steht, neueste zuerst. Eingebunden aus index.php, nur bei aktivem eNOTF.
  */
 
-// Ohne Discord-ID würde die Bedingung zu IS NULL, siehe documents.php.
-$ediviRows = empty($_SESSION['discordtag']) ? [] : \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
+$ediviRows = \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
     ->join('intra_mitarbeiter as m', function ($join) {
-        $join->where('m.discordtag', '=', $_SESSION['discordtag']);
+        // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
+        $join->where('m.id', '=', \App\Personnel\AccountLink::currentId() ?? 0);
     })
     ->where(function ($q) {
         $q->whereRaw("e.pfname LIKE CONCAT('%', m.fullname, '%')")

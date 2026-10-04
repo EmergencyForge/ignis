@@ -47,8 +47,19 @@ final class TabletLoginController
 
         // Nur bestehende, aktive Konten; hier entsteht nie ein neues. Die
         // Discord-ID ist in intra_users nicht eindeutig: teilen sich zwei
-        // aktive Konten eine, bekommt keines einen Token.
+        // aktive Konten eine, bekommt keines einen Token. Hat kein Konto
+        // die Discord-ID (zentrale Anmeldung), zählt der Mitarbeiter mit
+        // diesem discordtag und sein verknüpftes Konto (ADR-0002, Punkt 8).
         $userIds = User::query()->where('discord_id', $discordId)->where('is_active', 1)->limit(2)->pluck('id')->all();
+        if ($userIds === []) {
+            $people = Capsule::table('intra_mitarbeiter')->where('discordtag', $discordId)->limit(2)->pluck('id')->all();
+            if (count($people) > 1) {
+                return Response::json(['success' => false, 'error' => 'ambiguous_user'], 409);
+            }
+            if ($people !== []) {
+                $userIds = User::query()->where('aktenid', $people[0])->where('is_active', 1)->pluck('id')->all();
+            }
+        }
         if ($userIds === []) {
             return Response::json(['success' => false, 'error' => 'unknown_user'], 404);
         }

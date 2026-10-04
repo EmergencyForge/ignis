@@ -4,10 +4,10 @@
  * Eingebunden aus index.php innerhalb einer ignis-card.
  */
 
-// Ohne Discord-ID würde die Bedingung zu IS NULL, siehe documents.php.
-$appresult = empty($_SESSION['discordtag']) ? [] : \Illuminate\Database\Capsule\Manager::table('intra_antraege as a')
-    ->join('intra_antrag_typen as at', 'a.antragstyp_id', '=', 'at.id')
-    ->where('a.discordid', $_SESSION['discordtag'])
+$appQuery = \Illuminate\Database\Capsule\Manager::table('intra_antraege as a')
+    ->join('intra_antrag_typen as at', 'a.antragstyp_id', '=', 'at.id');
+\App\Models\Form::whereOwn($appQuery, 'a.');
+$appresult = $appQuery
     ->orderByDesc('a.time_added')
     ->get([
         'a.uniqueid',

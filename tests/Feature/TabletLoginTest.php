@@ -139,6 +139,44 @@ final class TabletLoginTest extends FeatureTestCase
         $this->assertSame($first->id, Capsule::table('intra_tablet_login_tokens')->where('token_hash', hash('sha256', $this->tokenFor($first)))->value('user_id'));
     }
 
+    /**
+     * Konten aus der zentralen Anmeldung haben keine Discord-ID. Dann zählt
+     * der Mitarbeiter mit dieser Discord-ID und sein verknüpftes Konto.
+     */
+    #[Test]
+    public function ohne_konto_mit_der_discord_id_zaehlt_der_verknuepfte_mitarbeiter(): void
+    {
+        $central = FixtureFactory::user();
+        User::query()->whereKey($central->id)->update(['discord_id' => null]);
+        $person = FixtureFactory::personnel(['discordtag' => '700000000000000001']);
+
+        // Noch nicht verknüpft: kein Konto.
+        $this->assertSame('unknown_user', $this->assertJsonResponse($this->requestToken(['discord_id' => '700000000000000001']))['error']);
+
+        \App\Personnel\AccountLink::link((int) $central->id, (int) $person->id, (int) $central->id);
+        $response = $this->requestToken(['discord_id' => '700000000000000001']);
+        $this->assertStatus(200, $response);
+        $token = (string) $this->assertJsonResponse($response)['token'];
+        $this->assertSame($central->id, Capsule::table('intra_tablet_login_tokens')->where('token_hash', hash('sha256', $token))->value('user_id'));
+
+        // Ein Konto mit genau dieser Discord-ID geht vor.
+        $direct = FixtureFactory::user(['discord_id' => '700000000000000001']);
+        $token = (string) $this->assertJsonResponse($this->requestToken(['discord_id' => '700000000000000001']))['token'];
+        $this->assertSame($direct->id, Capsule::table('intra_tablet_login_tokens')->where('token_hash', hash('sha256', $token))->value('user_id'));
+
+        // Zwei Mitarbeiter mit derselben Discord-ID: keiner.
+        FixtureFactory::personnel(['discordtag' => '700000000000000002']);
+        FixtureFactory::personnel(['discordtag' => '700000000000000002']);
+        $this->assertStatus(409, $this->requestToken(['discord_id' => '700000000000000002']));
+
+        // Deaktiviertes verknüpftes Konto: keiner.
+        $inactive = FixtureFactory::user(['is_active' => false]);
+        User::query()->whereKey($inactive->id)->update(['discord_id' => null]);
+        $sleeper = FixtureFactory::personnel(['discordtag' => '700000000000000003']);
+        \App\Personnel\AccountLink::link((int) $inactive->id, (int) $sleeper->id, (int) $inactive->id);
+        $this->assertStatus(404, $this->requestToken(['discord_id' => '700000000000000003']));
+    }
+
     #[Test]
     public function die_discord_id_wird_streng_geprueft(): void
     {

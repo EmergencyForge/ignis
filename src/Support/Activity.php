@@ -61,7 +61,7 @@ final class Activity
             // ist die Kennung eindeutig.
             $rows = Capsule::table('intra_audit_log as a')
                 ->leftJoin('intra_users as u', 'a.user', '=', 'u.id')
-                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
                 ->where('a.module', $module)
                 ->where(static function ($q) use ($needle, $id): void {
                     $like = '%' . ignis_like_prefix($needle) . '%';

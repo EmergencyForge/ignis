@@ -70,6 +70,7 @@ class User extends Model
     /**
      * Beziehung: User → Mitarbeiter über aktenid → intra_mitarbeiter.id.
      * Optional: nicht jeder User hat ein verknüpftes Mitarbeiter-Profil.
+     * Gesetzt wird die Verknüpfung über App\Personnel\AccountLink.
      *
      * @return BelongsTo<Personnel, $this>
      */

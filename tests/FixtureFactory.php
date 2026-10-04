@@ -83,6 +83,34 @@ final class FixtureFactory
     }
 
     /**
+     * Erzeugt einen Mitarbeiter mit dem ersten Dienstgrad und den ersten
+     * Qualifikationen aus den Seeds. Ohne `discordtag`-Override ohne
+     * Discord-ID.
+     *
+     * @param  array<string, mixed>  $overrides
+     */
+    public static function personnel(array $overrides = []): \App\Models\Personnel
+    {
+        $db = \Illuminate\Database\Capsule\Manager::connection();
+
+        $person = new \App\Models\Personnel();
+        $person->fullname   = 'Testperson ' . uniqid();
+        $person->dienstnr   = 'T-' . uniqid();
+        $person->gebdatum   = new \DateTime('1990-01-01');
+        $person->geschlecht = 0;
+        $person->einstdatum = new \DateTime('2024-01-01');
+        $person->dienstgrad = (int) $db->table('intra_mitarbeiter_dienstgrade')->where('archive', 0)->min('id');
+        $person->qualird    = (int) $db->table('intra_mitarbeiter_rdquali')->min('id');
+        $person->qualifw2   = (int) $db->table('intra_mitarbeiter_fwquali')->min('id');
+        foreach ($overrides as $key => $value) {
+            $person->{$key} = $value;
+        }
+        $person->save();
+
+        return $person;
+    }
+
+    /**
      * Erzeugt einen Fahrzeug-Datensatz in `intra_fahrzeuge` via raw PDO
      * (kein Eloquent-Model vorhanden). Nutzt die Capsule-Connection, damit
      * der Eintrag von der Transaction-Isolation erfasst wird.

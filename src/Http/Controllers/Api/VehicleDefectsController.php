@@ -91,7 +91,7 @@ final class VehicleDefectsController
             }
             $reporterName = trim($_POST['reported_by_name'] ?? '') ?: (string) ($_SESSION['fahrername'] ?? '');
             $userId = (int) (Capsule::table('intra_users as u')
-                ->join('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->join('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
                 ->where('m.fullname', $reporterName)
                 ->value('u.id') ?: 0);
             return [$userId, $reporterName ?: 'Unbekannt', true];
@@ -223,7 +223,7 @@ final class VehicleDefectsController
 
             if ($assignedTo) {
                 $assignedName = Capsule::table('intra_users as u')
-                    ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                    ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
                     ->where('u.id', $assignedTo)
                     ->selectRaw('COALESCE(m.fullname, u.username) AS name')
                     ->value('name');
@@ -354,11 +354,11 @@ final class VehicleDefectsController
         return Capsule::table('intra_fahrzeuge_defects as d')
             ->join('intra_fahrzeuge as f', 'd.vehicle_id', '=', 'f.id')
             ->leftJoin('intra_users as u1', 'd.reported_by', '=', 'u1.id')
-            ->leftJoin('intra_mitarbeiter as m1', 'u1.discord_id', '=', 'm1.discordtag')
+            ->leftJoin('intra_mitarbeiter as m1', 'u1.aktenid', '=', 'm1.id')
             ->leftJoin('intra_users as u2', 'd.assigned_to', '=', 'u2.id')
-            ->leftJoin('intra_mitarbeiter as m2', 'u2.discord_id', '=', 'm2.discordtag')
+            ->leftJoin('intra_mitarbeiter as m2', 'u2.aktenid', '=', 'm2.id')
             ->leftJoin('intra_users as u3', 'd.resolved_by', '=', 'u3.id')
-            ->leftJoin('intra_mitarbeiter as m3', 'u3.discord_id', '=', 'm3.discordtag')
+            ->leftJoin('intra_mitarbeiter as m3', 'u3.aktenid', '=', 'm3.id')
             ->select(array_merge(
                 ['d.*', 'f.name as vehicle_name', 'f.identifier as vehicle_identifier'],
                 $extraVehicleColumns
@@ -373,7 +373,7 @@ final class VehicleDefectsController
     {
         return Capsule::table('intra_fahrzeuge_defect_log as l')
             ->leftJoin('intra_users as u', 'l.user_id', '=', 'u.id')
-            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
             ->select('l.*')
             ->selectRaw('COALESCE(m.fullname, u.username) AS user_name')
             ->where('l.defect_id', $defectId)

@@ -338,7 +338,8 @@ class NotificationManager
     // ── Ältere Aufrufe (Erzeuger, API, Jobs) ───────────────────
 
     /**
-     * Get user ID by discord tag
+     * Konto zu einer Discord-ID. Nur noch für alte Anträge ohne
+     * mitarbeiter_id; sonst AccountLink::userFor().
      */
     public function getUserIdByDiscordTag(string $discordTag): ?int
     {
@@ -358,7 +359,7 @@ class NotificationManager
     {
         try {
             $id = Capsule::table('intra_mitarbeiter as m')
-                ->join('intra_users as u', 'm.discordtag', '=', 'u.discord_id')
+                ->join('intra_users as u', 'm.id', '=', 'u.aktenid')
                 ->where('m.fullname', $fullname)
                 ->value('u.id');
 
@@ -525,7 +526,7 @@ class NotificationManager
         );
     }
 
-    /** Konto des Einsatzleiters (Mitarbeiter-ID) über den Discord-Tag. */
+    /** Konto des Einsatzleiters (Mitarbeiter-ID) über die Verknüpfung. */
     private function userIdForLeader(mixed $leaderId): ?int
     {
         if (!$leaderId) {
@@ -533,10 +534,7 @@ class NotificationManager
         }
 
         try {
-            $id = Capsule::table('intra_mitarbeiter as m')
-                ->join('intra_users as u', 'm.discordtag', '=', 'u.discord_id')
-                ->where('m.id', $leaderId)
-                ->value('u.id');
+            $id = Capsule::table('intra_users')->where('aktenid', $leaderId)->value('id');
 
             return $id === null ? null : (int) $id;
         } catch (\PDOException $e) {

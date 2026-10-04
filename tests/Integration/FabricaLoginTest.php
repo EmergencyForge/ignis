@@ -254,6 +254,89 @@ final class FabricaLoginTest extends IntegrationTestCase
         }
     }
 
+    public function test_invitation_with_an_employee_links_the_new_account(): void
+    {
+        $person = \Tests\FixtureFactory::personnel();
+        $code = RegistrationCode::query()->create(['code' => 'sync-employee', 'mitarbeiter_id' => $person->id]);
+
+        $user = FabricaIdentity::resolve($_ENV['FABRICA_URL'], self::SUBJECT, 'Invited member', 'code', $code->code);
+
+        self::assertSame((int) $person->id, \App\Personnel\AccountLink::personnelFor((int) $user->id)?->id);
+        self::assertSame($user->id, $code->fresh()->used_by);
+    }
+
+    public function test_invitation_without_an_employee_creates_an_unlinked_account(): void
+    {
+        $code = RegistrationCode::query()->create(['code' => 'sync-plain']);
+
+        $user = FabricaIdentity::resolve($_ENV['FABRICA_URL'], self::SUBJECT, 'Plain member', 'code', $code->code);
+
+        self::assertNull(\App\Personnel\AccountLink::personnelFor((int) $user->id));
+    }
+
+    public function test_invitation_for_an_employee_with_an_account_creates_the_account_unlinked(): void
+    {
+        $person = \Tests\FixtureFactory::personnel();
+        $owner = $this->account();
+        \App\Personnel\AccountLink::link((int) $owner->id, (int) $person->id, (int) $owner->id);
+        $code = RegistrationCode::query()->create(['code' => 'sync-taken', 'mitarbeiter_id' => $person->id]);
+
+        $user = FabricaIdentity::resolve($_ENV['FABRICA_URL'], self::SUBJECT, 'Late member', 'code', $code->code);
+
+        self::assertNull(\App\Personnel\AccountLink::personnelFor((int) $user->id));
+        self::assertSame((int) $owner->id, \App\Personnel\AccountLink::userFor((int) $person->id)?->id);
+        self::assertTrue(\Illuminate\Database\Capsule\Manager::table('intra_audit_log')->where('user', $user->id)->where('action', 'like', 'Einladung ohne Mitarbeiterverknüpfung eingelöst%')->exists());
+    }
+
+    public function test_sync_account_reads_its_employee_from_the_link_after_login(): void
+    {
+        self::assertSame(302, $this->performCallback()->status);
+        $userId = (int) SessionManager::userId();
+        self::assertNull(\App\Personnel\AccountLink::current());
+
+        $person = \Tests\FixtureFactory::personnel(['fullname' => 'Sync Person']);
+        \App\Personnel\AccountLink::link($userId, (int) $person->id, $userId);
+
+        self::assertSame((int) $person->id, \App\Personnel\AccountLink::currentId());
+        self::assertSame('Sync Person', (new \App\Helpers\UserHelper())->getCurrentUserFullnameForAction());
+    }
+
+    public function test_discord_invitation_links_the_employee_and_is_redeemed_once(): void
+    {
+        $role = (int) \App\Models\Role::query()->where('default', 1)->value('id');
+        $person = \Tests\FixtureFactory::personnel();
+        $code = RegistrationCode::query()->create(['code' => 'discord-employee', 'mitarbeiter_id' => $person->id]);
+
+        $user = \App\Auth\DiscordRegistration::create('800000000000000001', 'discord member', $role, false, $code->code);
+
+        self::assertSame((int) $person->id, \App\Personnel\AccountLink::personnelFor((int) $user->id)?->id);
+        self::assertTrue((bool) $code->fresh()->is_used);
+        self::assertSame($user->id, $code->fresh()->used_by);
+
+        $before = User::query()->count();
+        try {
+            \App\Auth\DiscordRegistration::create('800000000000000002', 'second member', $role, false, $code->code);
+            self::fail('Used invitation accepted');
+        } catch (DomainException) {
+            self::assertSame($before, User::query()->count());
+        }
+
+        // Ohne Mitarbeiter in der Einladung bleibt das Konto frei.
+        $plain = RegistrationCode::query()->create(['code' => 'discord-plain']);
+        $free = \App\Auth\DiscordRegistration::create('800000000000000003', 'plain member', $role, false, $plain->code);
+        self::assertNull(\App\Personnel\AccountLink::personnelFor((int) $free->id));
+    }
+
+    public function test_discord_registration_falls_back_to_the_unique_discord_match(): void
+    {
+        $role = (int) \App\Models\Role::query()->where('default', 1)->value('id');
+        $person = \Tests\FixtureFactory::personnel(['discordtag' => '800000000000000010']);
+
+        $user = \App\Auth\DiscordRegistration::create('800000000000000010', 'open member', $role);
+
+        self::assertSame((int) $person->id, \App\Personnel\AccountLink::personnelFor((int) $user->id)?->id);
+    }
+
     public function test_login_route_can_resolve_its_controller_and_start_the_handoff(): void
     {
         $controller = $GLOBALS['app_container']->get(FabricaAuthController::class);

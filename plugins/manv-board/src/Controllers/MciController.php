@@ -808,7 +808,7 @@ class MciController extends Controller
     private function loadUsersForLeitung(): array
     {
         $rows = Capsule::table('intra_users as u')
-            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
             ->select('u.id', Capsule::connection()->raw('COALESCE(m.fullname, u.fullname) as fullname'))
             ->whereNotNull(Capsule::connection()->raw('COALESCE(m.fullname, u.fullname)'))
             ->orderBy(Capsule::connection()->raw('COALESCE(m.fullname, u.fullname)'))

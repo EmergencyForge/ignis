@@ -2,14 +2,15 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../assets/config/config.php';
 
+use App\Auth\DiscordRegistration;
 use App\Helpers\DiscordOAuth;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\NotificationManager;
+use App\Personnel\AccountLink;
 use App\Session\SessionManager;
 use EmergencyForge\Http\Response;
-use Illuminate\Database\Capsule\Manager as Capsule;
 
 if (\App\Auth\FabricaClient::enabled()) return Response::text('Die direkte Discord-Anmeldung ist deaktiviert.', 403);
 
@@ -85,13 +86,7 @@ try {
     $userCount = User::query()->count();
 
     if ($userCount == 0) {
-        $firstUser = User::create([
-            'discord_id' => $discordId,
-            'username'   => $username,
-            'fullname'   => null,
-            'role'       => $adminRole->id,
-            'full_admin' => 1,
-        ]);
+        $firstUser = DiscordRegistration::create($discordId, $username, (int) $adminRole->id, true);
 
         // Send notification to first user about configuration
         try {
@@ -117,6 +112,8 @@ try {
             return Response::redirect(BASE_PATH . 'login');
         }
 
+        // Discord als Rückfall: ein freies Konto mit genau einem passenden Mitarbeiter verknüpfen.
+        AccountLink::autoLinkByDiscord($discordId);
         SessionManager::loginAccount($user->toArray());
     } else {
         // Check registration mode
@@ -154,41 +151,22 @@ try {
                 return Response::redirect(BASE_PATH . 'login');
             }
 
-            // Create user with the code
-            $newUser = User::create([
-                'discord_id' => $discordId,
-                'username'   => $username,
-                'fullname'   => null,
-                'role'       => $defaultRole->id,
-                'full_admin' => 0,
-            ]);
-
-            // Mark code as used
-            RegistrationCode::query()
-                ->whereKey($codeRecord->id)
-                ->update([
-                    'is_used' => 1,
-                    'used_by' => $newUser->id,
-                    'used_at' => Capsule::connection()->raw('NOW()'),
-                ]);
+            // Code atomar einlösen, Konto anlegen und mit dem Mitarbeiter der Einladung verknüpfen
+            try {
+                $user = DiscordRegistration::create($discordId, $username, (int) $defaultRole->id, false, $code);
+            } catch (\DomainException $e) {
+                SessionManager::clearRegistrationCode();
+                SessionManager::setRegistrationError($e->getMessage());
+                return Response::redirect(BASE_PATH . 'login');
+            }
 
             SessionManager::clearRegistrationCode();
-
-            $user = User::query()->where('discord_id', $discordId)->first();
         } else {
             // Open registration
-            User::create([
-                'discord_id' => $discordId,
-                'username'   => $username,
-                'fullname'   => null,
-                'role'       => $defaultRole->id,
-                'full_admin' => 0,
-            ]);
-
-            $user = User::query()->where('discord_id', $discordId)->first();
+            $user = DiscordRegistration::create($discordId, $username, (int) $defaultRole->id);
         }
 
-        SessionManager::loginUser($user->toArray(), []);
+        SessionManager::loginAccount($user->toArray());
     }
 
     $redirectUrl = SessionManager::pullRedirectUrl() ?? BASE_PATH . 'index';

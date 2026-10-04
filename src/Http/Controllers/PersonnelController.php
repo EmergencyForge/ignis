@@ -15,7 +15,9 @@ use App\Models\FdSkill;
 use App\Models\Personnel;
 use App\Models\PersonnelDocument;
 use App\Models\Rank;
+use App\Models\User;
 use App\Notifications\NotificationManager;
+use App\Personnel\AccountLink;
 use App\Personnel\PersonalLogManager;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
@@ -238,44 +240,45 @@ class PersonnelController extends Controller
         }
 
         // Account-Status für die Status-Card oben in der View ermitteln
-        // (verlinkter User, Pending-Invite, oder kein Konto)
+        // (verknüpftes Konto, offene Einladung für diesen Mitarbeiter, oder kein Konto)
         $accountStatus = 'none';
         $panelakte     = null;
         $pendingInvite = null;
+        $linkCandidates = [];
 
-        if (!empty($mitarbeiter->discordtag)) {
-            $userRow = Capsule::table('intra_users as u')
-                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
-                ->where('u.discord_id', $mitarbeiter->discordtag)
-                ->select(
-                    'u.id',
-                    'u.username',
-                    Capsule::connection()->raw('COALESCE(m.fullname, u.fullname) as fullname'),
-                    'u.aktenid',
-                    'u.is_active'
-                )
+        $linked = AccountLink::userFor((int) $mitarbeiter->id);
+        if ($linked !== null) {
+            $panelakte     = [
+                'id'       => (int) $linked->id,
+                'username' => (string) $linked->username,
+                'fullname' => $mitarbeiter->fullname,
+            ];
+            $accountStatus = $linked->is_active ? 'active' : 'inactive';
+        } else {
+            $pending = Capsule::table('intra_registration_codes')
+                ->where('is_used', 0)
+                ->where('mitarbeiter_id', $mitarbeiter->id)
+                ->where(function ($q) {
+                    $q->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', Capsule::connection()->raw('NOW()'));
+                })
+                ->orderBy('created_at', 'desc')
+                ->limit(1)
                 ->first();
 
-            if ($userRow) {
-                $panelakte     = (array) $userRow;
-                $accountStatus = $userRow->is_active ? 'active' : 'inactive';
-            } else {
-                // Pending Registration-Code mit Label = Mitarbeiter-Name?
-                $pending = Capsule::table('intra_registration_codes')
-                    ->where('is_used', 0)
-                    ->where('label', 'like', '%' . ignis_like_prefix($mitarbeiter->fullname) . '%')
-                    ->where(function ($q) {
-                        $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>', Capsule::connection()->raw('NOW()'));
-                    })
-                    ->orderBy('created_at', 'desc')
-                    ->limit(1)
-                    ->first();
+            if ($pending) {
+                $pendingInvite = (array) $pending;
+                $accountStatus = 'pending';
+            }
 
-                if ($pending) {
-                    $pendingInvite = (array) $pending;
-                    $accountStatus = 'pending';
-                }
+            // Freie Konten für "Konto verknüpfen"; das eigene fehlt, es lässt sich nicht umhängen.
+            if (\App\Auth\Gate::allows('user.update')) {
+                $linkCandidates = User::query()
+                    ->whereNull('aktenid')
+                    ->where('is_active', 1)
+                    ->where('id', '!=', (int) ($_SESSION['userid'] ?? 0))
+                    ->orderBy('username')
+                    ->get(['id', 'username', 'fullname']);
             }
         }
 
@@ -305,16 +308,10 @@ class PersonnelController extends Controller
         $editdg      = null;
         $edituseric  = 'Unbekannt Unbekannt';
 
-        $sessionDiscordTag = $_SESSION['discordtag'] ?? null;
-        if (!empty($sessionDiscordTag)) {
-            /** @var Personnel|null $ownProfile */
-            $ownProfile = Personnel::query()
-                ->where('discordtag', $sessionDiscordTag)
-                ->first();
-            if ($ownProfile !== null) {
-                $editdg     = $ownProfile->dienstgrad;
-                $edituseric = $ownProfile->fullname;
-            }
+        $ownProfile = AccountLink::current();
+        if ($ownProfile !== null) {
+            $editdg     = $ownProfile->dienstgrad;
+            $edituseric = $ownProfile->fullname;
         }
 
         $this->renderView('personnel/profile', [
@@ -331,6 +328,7 @@ class PersonnelController extends Controller
             'accountStatus'     => $accountStatus,
             'panelakte'         => $panelakte,
             'pendingInvite'     => $pendingInvite,
+            'linkCandidates'    => $linkCandidates,
             'openedID'          => $openedID,
             'editdg'            => $editdg,
             'edituseric'        => $edituseric,
@@ -407,7 +405,7 @@ class PersonnelController extends Controller
         if ($dataChanged) {
             $mitarbeiter->fullname   = $data['fullname'];
             $mitarbeiter->gebdatum   = $data['gebdatum'];
-            $mitarbeiter->discordtag = $data['discordtag'];
+            $mitarbeiter->discordtag = $data['discordtag'] !== '' ? $data['discordtag'] : null;
             $mitarbeiter->telefonnr  = $data['telefonnr'];
             $mitarbeiter->dienstnr   = $data['dienstnr'];
             $mitarbeiter->geschlecht = $data['geschlecht'];
@@ -501,8 +499,8 @@ class PersonnelController extends Controller
      * POST /mitarbeiter/profile.php (new=6): Dokument für Mitarbeiter erstellen.
      *
      * Schreibt einen Eintrag in `intra_mitarbeiter_dokumente` und sendet eine
-     * Notification an den Empfänger, sofern dessen Discord-ID einem System-User
-     * zugeordnet ist. Die PDF-Generierung passiert auf der Folge-Seite
+     * Notification an den Empfänger, sofern mit ihm ein Konto verknüpft
+     * ist. Die PDF-Generierung passiert auf der Folge-Seite
      * (`assets/functions/docredir.php?docid=...`).
      */
     public function createDocument(): void
@@ -543,6 +541,7 @@ class PersonnelController extends Controller
             'erhalter_quali'    => $data['erhalter_quali'],
             'ausstellungsdatum' => $data['ausstellungsdatum'],
             'ausstellerid'      => $data['ausstellerid'],
+            'aussteller_user_id' => (int) $_SESSION['userid'],
             'profileid'         => $profileId,
             'aussteller_name'   => $data['aussteller_name'],
             'aussteller_rang'   => $data['aussteller_rang'],
@@ -556,34 +555,31 @@ class PersonnelController extends Controller
             $userHelper->getCurrentUserFullnameForAction()
         );
 
-        // Notification an den Empfänger (sofern verlinkter User existiert)
-        if (!empty($mitarbeiter->discordtag)) {
+        // Notification an den Empfänger (sofern ein Konto verknüpft ist)
+        $recipientUserId = AccountLink::userFor((int) $mitarbeiter->id)?->id;
+        if ($recipientUserId) {
             $notificationManager = new NotificationManager();
-            $recipientUserId     = $notificationManager->getUserIdByDiscordTag($mitarbeiter->discordtag);
+            $docTypeNames = [
+                1  => 'Beförderungsurkunde',
+                2  => 'Ernennungsurkunde',
+                3  => 'Entlassungsurkunde',
+                4  => 'Zertifikat',
+                5  => 'Fachlehrgangszertifikat',
+                6  => 'Ausbildungszertifikat',
+                7  => 'Abmahnung',
+                8  => 'Kündigung',
+                9  => 'Dienstenthebung',
+                10 => 'Dienstentfernung',
+            ];
+            $docTypeName = $docTypeNames[(int) $docType] ?? 'Dokument';
 
-            if ($recipientUserId) {
-                $docTypeNames = [
-                    1  => 'Beförderungsurkunde',
-                    2  => 'Ernennungsurkunde',
-                    3  => 'Entlassungsurkunde',
-                    4  => 'Zertifikat',
-                    5  => 'Fachlehrgangszertifikat',
-                    6  => 'Ausbildungszertifikat',
-                    7  => 'Abmahnung',
-                    8  => 'Kündigung',
-                    9  => 'Dienstenthebung',
-                    10 => 'Dienstentfernung',
-                ];
-                $docTypeName = $docTypeNames[(int) $docType] ?? 'Dokument';
-
-                $notificationManager->create(
-                    $recipientUserId,
-                    'dokument',
-                    'Neues Dokument erstellt',
-                    "Ein neues Dokument ({$docTypeName} #{$docId}) wurde für Sie erstellt.",
-                    BASE_PATH . "personnel/document-view?docid={$docId}"
-                );
-            }
+            $notificationManager->create(
+                $recipientUserId,
+                'dokument',
+                'Neues Dokument erstellt',
+                "Ein neues Dokument ({$docTypeName} #{$docId}) wurde für Sie erstellt.",
+                BASE_PATH . "personnel/document-view?docid={$docId}"
+            );
         }
 
         // Redirect zum Dokument-Viewer (PDF-Renderer + Toolbar).
@@ -764,8 +760,8 @@ class PersonnelController extends Controller
         }
 
         $doc = Capsule::table('intra_mitarbeiter_dokumente as pd')
-            ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
-            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->leftJoin('intra_users as u', 'pd.aussteller_user_id', '=', 'u.id')
+            ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
             ->leftJoin('intra_mitarbeiter as emp', 'pd.profileid', '=', 'emp.id')
             ->where('pd.docid', $docid)
             ->select(
@@ -783,8 +779,7 @@ class PersonnelController extends Controller
         }
 
         // Berechtigung: Eigenes Dokument oder personnel.documents.* Permission
-        $discordId = $_SESSION['discordtag'] ?? null;
-        $isOwnDoc = is_string($discordId) && $discordId !== '' && (string) $doc->ausstellerid === $discordId;
+        $isOwnDoc = \App\Models\PersonnelDocument::issuedByCurrentUser($doc->aussteller_user_id, $doc->ausstellerid);
         if (!$isOwnDoc && !\App\Auth\Gate::allows('personnel.viewDoc')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index');

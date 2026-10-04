@@ -11,9 +11,10 @@ use Respect\Validation\Validator as v;
 /**
  * Validierung für POST /benutzer/registration-codes (action=generate).
  *
- * Beide Felder sind optional:
- *   - label      (string, max 255): wird zu null wenn leer
- *   - expires_at (datetime-local Format): wird zu null wenn leer
+ * Alle Felder sind optional:
+ *   - label          (string, max 255): wird zu null wenn leer
+ *   - expires_at     (datetime-local Format): wird zu null wenn leer
+ *   - mitarbeiter_id (positive Zahl): wird zu null wenn leer
  */
 class GenerateRegistrationCodeRequest extends FormRequest
 {
@@ -27,6 +28,7 @@ class GenerateRegistrationCodeRequest extends FormRequest
         return v::keySet(
             v::key('label',      v::optional(v::stringType()->length(0, 255)), false),
             v::key('expires_at', v::optional($datetime), false),
+            v::key('mitarbeiter_id', v::optional(v::digit()->positive()), false),
             // action ist Teil des POST aber für die Validierung egal:
             v::key('action',     v::optional(v::stringType()), false),
         );
@@ -37,6 +39,7 @@ class GenerateRegistrationCodeRequest extends FormRequest
         return [
             'length' => 'Bezeichnung darf maximal {{maxValue}} Zeichen lang sein.',
             'regex'  => 'Ungültiges Datumsformat.',
+            'digit'  => 'Ungültiger Mitarbeiter.',
         ];
     }
 
@@ -44,10 +47,12 @@ class GenerateRegistrationCodeRequest extends FormRequest
     {
         $label     = isset($input['label']) ? trim((string) $input['label']) : '';
         $expiresAt = $input['expires_at'] ?? '';
+        $mitarbeiterId = (int) ($input['mitarbeiter_id'] ?? 0);
 
         return [
             'label'      => $label !== '' ? $label : null,
             'expires_at' => $expiresAt !== '' ? (string) $expiresAt : null,
+            'mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null,
         ];
     }
 }

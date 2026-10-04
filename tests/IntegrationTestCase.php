@@ -116,6 +116,7 @@ abstract class IntegrationTestCase extends TestCase
         }
 
         parent::setUp();
+        \App\Personnel\AccountLink::forget();
 
         // Eloquent-Capsule eager booten (falls im Bootstrap skippt wurde
         // weil DB-Credentials noch nicht gesetzt waren).

@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int         $id
  * @property string      $code
  * @property string|null $label
+ * @property int|null    $mitarbeiter_id Mitarbeiter, mit dem das neue Konto verknüpft wird
  * @property int|null    $created_by
  * @property Carbon|null $created_at
  * @property int|null    $used_by
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property bool        $is_used
  * @property-read User|null $creator
  * @property-read User|null $usedByUser
+ * @property-read Personnel|null $mitarbeiter
  *
  * @method static Builder<static> unused()
  */
@@ -35,6 +37,7 @@ class RegistrationCode extends Model
         'id'         => 'integer',
         'created_by' => 'integer',
         'used_by'    => 'integer',
+        'mitarbeiter_id' => 'integer',
         'is_used'    => 'boolean',
         'created_at' => 'datetime',
         'used_at'    => 'datetime',
@@ -62,6 +65,16 @@ class RegistrationCode extends Model
     }
 
     /**
+     * Beziehung: Code → Mitarbeiter, für den die Einladung gedacht ist.
+     *
+     * @return BelongsTo<Personnel, $this>
+     */
+    public function mitarbeiter(): BelongsTo
+    {
+        return $this->belongsTo(Personnel::class, 'mitarbeiter_id', 'id');
+    }
+
+    /**
      * Ist dieser Code aktuell einlösbar (nicht benutzt + nicht abgelaufen)?
      */
     public function isRedeemable(): bool
@@ -73,6 +86,35 @@ class RegistrationCode extends Model
             return false;
         }
         return true;
+    }
+
+    /**
+     * Reserviert einen einlösbaren Code atomar: nur wer die Zeile mit
+     * diesem UPDATE bekommt, darf ein Konto anlegen. In derselben
+     * Transaktion aufrufen wie das Anlegen, sonst bleibt bei einem Fehler
+     * ein verbrauchter Code ohne Konto zurück.
+     */
+    public static function reserve(string $code): ?self
+    {
+        $now = date('Y-m-d H:i:s');
+        $reserved = self::query()->where('code', $code)
+            ->where('is_used', 0)->whereNull('used_at')
+            ->where(function (Builder $query) use ($now): void {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', $now);
+            })
+            ->update(['used_at' => $now, 'is_used' => 1]);
+
+        return $reserved === 1 ? self::query()->where('code', $code)->first() : null;
+    }
+
+    /**
+     * Trägt das neue Konto als Einlöser ein und verknüpft es mit dem
+     * Mitarbeiter der Einladung (ADR-0002).
+     */
+    public function redeemFor(User $user): void
+    {
+        self::query()->whereKey($this->id)->update(['used_by' => $user->id]);
+        \App\Personnel\AccountLink::linkInvited((int) $user->id, $this->mitarbeiter_id);
     }
 
     /**

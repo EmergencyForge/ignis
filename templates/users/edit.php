@@ -6,6 +6,8 @@
  *   @var \App\Models\User                                                    $target
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role>     $availableRoles
  *   @var \Illuminate\Support\Collection<int, \stdClass>|array{}             $auditEntries
+ *   @var \App\Models\Personnel|null                                          $linkedPersonnel
+ *   @var iterable<\App\Models\Personnel>                                     $personnelCandidates Mitarbeiter ohne Konto
  */
 
 use App\Auth\Gate;
@@ -87,6 +89,38 @@ $bodyId = 'benutzer';
                             </div>
                         </div>
                     </form>
+
+                    <div class="twplus-section-card py-2 px-3 mt-4 mx-3" id="personnelLink">
+                        <h2 class="twplus-section-card__title mb-2">Mitarbeiter</h2>
+                        <?php if ($linkedPersonnel !== null): ?>
+                            <form method="post" action="<?= BASE_PATH ?>users/personnel-link" class="flex flex-wrap items-center gap-2 mb-2">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="action" value="unlink">
+                                <input type="hidden" name="id" value="<?= (int) $target->id ?>">
+                                <span>Verknüpft mit</span>
+                                <a href="<?= BASE_PATH ?>personnel/profile?id=<?= (int) $linkedPersonnel->id ?>" class="ignis-chip ignis-chip--primary" style="text-decoration:none"><?= htmlspecialchars($linkedPersonnel->fullname) ?> (<?= htmlspecialchars((string) $linkedPersonnel->dienstnr) ?>)</a>
+                                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-link-slash mr-1" aria-hidden="true"></i>Verknüpfung lösen</button>
+                            </form>
+                        <?php elseif (count($personnelCandidates) > 0): ?>
+                            <form method="post" action="<?= BASE_PATH ?>users/personnel-link" class="flex flex-wrap items-end gap-2 mb-2">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="action" value="link">
+                                <input type="hidden" name="id" value="<?= (int) $target->id ?>">
+                                <div class="ignis-field flex-1">
+                                    <label for="mitarbeiter_id" class="ignis-field__label">Mitarbeiter ohne Konto</label>
+                                    <select name="mitarbeiter_id" id="mitarbeiter_id" data-custom-dropdown="true" required>
+                                        <option value="">Mitarbeiter wählen</option>
+                                        <?php foreach ($personnelCandidates as $person): ?>
+                                            <option value="<?= (int) $person->id ?>"><?= htmlspecialchars($person->fullname) ?> (<?= htmlspecialchars((string) $person->dienstnr) ?>)</option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-link mr-1" aria-hidden="true"></i>Verknüpfen</button>
+                            </form>
+                        <?php else: ?>
+                            <p class="text-tertiary-text mb-2">Nicht verknüpft. Jeder Mitarbeiter hat schon ein Konto.</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
 

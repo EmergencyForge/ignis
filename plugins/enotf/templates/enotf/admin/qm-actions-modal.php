@@ -93,15 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Create notification for protocol author if status changed
     if ($protokoll_status != $old_status && !empty($row['pfname'])) {
         try {
-            // First, look up the mitarbeiter's discord tag by their fullname
+            // Mitarbeiter über den Namen, sein Konto über die Verknüpfung
             $mitarbeiter = Capsule::table('intra_mitarbeiter')
                 ->where('fullname', $row['pfname'])
-                ->first(['discordtag']);
+                ->first(['id']);
 
-            if ($mitarbeiter && !empty($mitarbeiter->discordtag)) {
-                // Now look up the user by discord tag
+            if ($mitarbeiter) {
                 $notificationManager = new NotificationManager();
-                $userId = $notificationManager->getUserIdByDiscordTag($mitarbeiter->discordtag);
+                $userId = \App\Personnel\AccountLink::userFor((int) $mitarbeiter->id)?->id;
 
                 if ($userId) {
                     $notificationManager->create(
@@ -112,10 +111,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         EnotfUrl::protokoll($row['enr'])
                     );
                 } else {
-                    error_log("QM Notification: User not found for discord tag: " . $mitarbeiter->discordtag);
+                    error_log("QM Notification: Kein Konto mit Mitarbeiter " . $mitarbeiter->id . " verknüpft");
                 }
             } else {
-                error_log("QM Notification: No mitarbeiter found with fullname: " . $row['pfname'] . " or no discord tag set");
+                error_log("QM Notification: No mitarbeiter found with fullname: " . $row['pfname']);
             }
         } catch (Exception $e) {
             error_log("QM Notification Error: " . $e->getMessage());

@@ -7,9 +7,11 @@ namespace App\Http\Controllers;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
+use App\Models\Personnel;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
+use App\Personnel\AccountLink;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
@@ -44,22 +46,12 @@ class UserController extends Controller
         $this->requireAuth();
         Gate::authorize('user.viewList');
 
-        $user = User::query()->with(['userRole', 'personnel.dienstgradModel', 'personnel.rdQualiModel', 'personnel.fwQualiModel'])->find((int) $id);
+        $user = User::query()->with(['userRole', 'mitarbeiter'])->find((int) $id);
         if ($user === null) {
             return \EmergencyForge\Http\Response::html('Benutzer nicht gefunden.', 404);
         }
 
-        // Mitarbeiter-Linking läuft an zwei Stellen unterschiedlich:
-        //   - Eloquent-Relation:  User.aktenid → Mitarbeiter.id
-        //   - JOIN in users/list: User.discord_id = Mitarbeiter.discordtag
-        // Erster Pfad scheitert für User, deren `aktenid` nie gepflegt wurde
-        // (Discord-OAuth-First-Login). Wir fallen daher auf Discord-ID zurück.
         $linkedMitarbeiter = $user->mitarbeiter;
-        if ($linkedMitarbeiter === null && !empty($user->discord_id)) {
-            $linkedMitarbeiter = \App\Models\Personnel::query()
-                ->where('discordtag', $user->discord_id)
-                ->first();
-        }
 
         ob_start();
         // User-Hover-Card zeigt User-Stammdaten und ggf. den Link auf den
@@ -94,12 +86,7 @@ class UserController extends Controller
         ], 'name', 'asc', 25, ['status']);
 
         $query = User::query()
-            ->leftJoin(
-                'intra_mitarbeiter',
-                'intra_users.discord_id',
-                '=',
-                'intra_mitarbeiter.discordtag'
-            )
+            ->leftJoin('intra_mitarbeiter', 'intra_users.aktenid', '=', 'intra_mitarbeiter.id')
             ->leftJoin('intra_users_roles', 'intra_users.role', '=', 'intra_users_roles.id')
             ->select(
                 'intra_users.*',
@@ -165,10 +152,76 @@ class UserController extends Controller
         }
 
         $this->renderView('users/edit', [
-            'target'         => $target,
-            'availableRoles' => $availableRoles,
-            'auditEntries'   => $auditEntries,
+            'target'              => $target,
+            'availableRoles'      => $availableRoles,
+            'auditEntries'        => $auditEntries,
+            'linkedPersonnel'     => $target->mitarbeiter,
+            'personnelCandidates' => $target->aktenid === null ? self::unlinkedPersonnel() : [],
         ]);
+    }
+
+    /**
+     * POST /users/personnel-link (id, action=link|unlink, mitarbeiter_id,
+     * back=profile): verknüpft ein Konto mit einem Mitarbeiter oder löst
+     * die Verknüpfung (ADR-0002). Dieselben Regeln wie die Benutzer-
+     * bearbeitung; das eigene Konto lässt sich nicht umhängen.
+     */
+    public function linkPersonnel(): void
+    {
+        $this->requireAuth();
+        $this->ensure('user.update', redirectTo: 'users/list');
+
+        $targetId      = (int) ($_POST['id'] ?? 0);
+        $mitarbeiterId = (int) ($_POST['mitarbeiter_id'] ?? 0);
+        $action        = (string) ($_POST['action'] ?? '');
+        $back          = ($_POST['back'] ?? '') === 'profile' && $mitarbeiterId > 0
+            ? 'personnel/profile?id=' . $mitarbeiterId
+            : 'users/edit?id=' . $targetId;
+
+        /** @var User|null $target */
+        $target = User::with('userRole')->find($targetId);
+        if ($target === null || !in_array($action, ['link', 'unlink'], true)) {
+            Flash::set('error', 'invalid-request');
+            $this->redirect('users/list');
+        }
+        if ((int) $target->id === (int) $_SESSION['userid']) {
+            Flash::error('Das eigene Konto lässt sich nicht umhängen.');
+            $this->redirect($back);
+        }
+        if (Gate::denies('user.update', $target)) {
+            Flash::set('user', 'low-permissions');
+            $this->redirect($back);
+        }
+
+        try {
+            if ($action === 'unlink') {
+                AccountLink::unlink((int) $target->id, (int) $_SESSION['userid']);
+                Flash::success('Die Verknüpfung ist gelöst.');
+            } elseif ($mitarbeiterId <= 0) {
+                Flash::error('Bitte einen Mitarbeiter wählen.');
+            } else {
+                AccountLink::link((int) $target->id, $mitarbeiterId, (int) $_SESSION['userid']);
+                Flash::success('Konto und Mitarbeiter sind verknüpft.');
+            }
+        } catch (\DomainException $e) {
+            Flash::error($e->getMessage());
+        }
+
+        $this->redirect($back);
+    }
+
+    /**
+     * Mitarbeiter ohne Konto, für die Auswahl beim Verknüpfen und bei
+     * Einladungen.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Personnel>
+     */
+    private static function unlinkedPersonnel(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Personnel::query()
+            ->whereNotIn('id', User::query()->whereNotNull('aktenid')->select('aktenid'))
+            ->orderBy('fullname')
+            ->get(['id', 'fullname', 'dienstnr']);
     }
 
     /**
@@ -279,12 +332,13 @@ class UserController extends Controller
         }
 
         $codes = RegistrationCode::query()
-            ->with(['creator', 'usedByUser'])
+            ->with(['creator', 'usedByUser', 'mitarbeiter'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         $this->renderView('users/registration-codes', [
             'codes'            => $codes,
+            'freePersonnel'    => self::unlinkedPersonnel(),
             'registrationMode' => defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open',
             'systemUrl'        => $this->resolveSystemUrl(),
         ]);
@@ -299,11 +353,21 @@ class UserController extends Controller
             $this->redirect('benutzer/registration-codes');
         }
 
+        $person = null;
+        if ($data['mitarbeiter_id'] !== null) {
+            $person = Personnel::query()->find($data['mitarbeiter_id'], ['id', 'fullname']);
+            if ($person === null || AccountLink::userFor((int) $person->id) !== null) {
+                Flash::error('Dieser Mitarbeiter hat schon ein Konto oder existiert nicht.');
+                $this->redirect('benutzer/registration-codes');
+            }
+        }
+
         $code = bin2hex(random_bytes(8));
 
         $rc = new RegistrationCode();
         $rc->code       = $code;
-        $rc->label      = $data['label'];
+        $rc->label      = $data['label'] ?? $person?->fullname;
+        $rc->mitarbeiter_id = $person?->id;
         $rc->created_by = (int) $_SESSION['userid'];
         $rc->expires_at = $data['expires_at'];
         $rc->is_used    = false;

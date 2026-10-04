@@ -26,6 +26,7 @@ final class FormPagesTest extends FeatureTestCase
 {
     private FormType $typ;
     private string $discordId = '';
+    private int $userId = 0;
 
     protected function setUp(): void
     {
@@ -33,6 +34,7 @@ final class FormPagesTest extends FeatureTestCase
 
         $user = FixtureFactory::user();
         $this->discordId = (string) $user->discord_id;
+        $this->userId    = (int) $user->id;
         $this->actingAs($user->id, ['permissions' => ['full_admin'], 'cirs_username' => $user->username, 'discordtag' => $this->discordId]);
 
         $this->typ = new FormType();
@@ -87,6 +89,8 @@ final class FormPagesTest extends FeatureTestCase
         $m->einstdatum = new \DateTime('2024-01-01'); $m->dienstgrad = $rank->id; $m->qualird = $rd->id; $m->qualifw2 = $fw->id;
         $m->discordtag = $this->discordId;
         $m->save();
+        // Das Konto ist mit dem Mitarbeiter verknüpft (ADR-0002).
+        \App\Models\User::query()->whereKey($this->userId)->update(['aktenid' => $m->id]);
     }
 
     #[Test]

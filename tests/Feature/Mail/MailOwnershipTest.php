@@ -84,17 +84,18 @@ final class MailOwnershipTest extends FeatureTestCase
         $this->assertSame($mailbox->id, Mailbox::current()?->id);
         $this->assertSame($user->id, $mailbox->refresh()->user_id);
 
-        // Zwei passende Konten (Discord-ID und aktenid): keins bekommt es.
+        // Zwei Konten mit derselben Discord-ID: keins wird verknüpft, keins bekommt es.
         $first   = FixtureFactory::user();
+        FixtureFactory::user(['discord_id' => (string) $first->discord_id]);
         $twice   = $this->mitarbeiter('Zora Zwei', ['discordtag' => (string) $first->discord_id]);
-        FixtureFactory::user(['aktenid' => $twice->id]);
+        $this->assertNull(\App\Personnel\AccountLink::userFor((int) $twice->id));
         $shared = $this->provision($twice);
         $this->assertNull($shared->refresh()->user_id);
 
         $this->loginAs($first);
         $this->assertNull(Mailbox::current());
         $this->assertNull($shared->refresh()->user_id);
-        $this->assertBodyContains('Dein Konto ist keinem Postfach zugeordnet', $this->get('/mail'));
+        $this->assertBodyContains('Noch kein Postfach', $this->get('/mail'));
     }
 
     #[Test]
