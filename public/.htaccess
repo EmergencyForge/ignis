@@ -21,3 +21,13 @@ DirectoryIndex index.php
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [L,QSA]
 </IfModule>
+
+# Skripte und Styles nach einem Update sofort neu laden: die ES-Module holen
+# ihre Abhängigkeiten ohne Versionsangabe (./drawer.js), ein Browser- oder
+# CDN-Cache hielte sonst stundenlang die alte Fassung. Der Browser fragt mit
+# ETag nach, unverändert kommt nur ein kurzes 304.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|mjs|css)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
