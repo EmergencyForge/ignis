@@ -70,6 +70,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '2') ?>" data-requires="uebergabe_an">
                                 <span>Nachforderung NA</span>
                             </a>
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '4') ?>" data-requires="rea_status">
+                                <span>Reanimationssituation</span>
+                            </a>
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>" class="active">
                                 <span>Übergabe</span>
                             </a>

@@ -9,6 +9,7 @@ use App\Auth\Permissions;
 use App\Models\Personnel;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Helpers\ReanimationCatalog;
 use Plugin\Enotf\Models\Edivi;
 $daten = array();
 
@@ -206,6 +207,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <span>Nachforderung NA</span>
                                     </a>
                                 <?php endif; ?>
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '4') ?>" data-requires="rea_status">
+                                    <span>Reanimationssituation</span>
+                                </a>
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>">
                                     <span>Übergabe</span>
                                 </a>
@@ -386,6 +390,17 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         <option value="0" <?php echo ($daten['prot_by'] == 0 ? 'selected' : '') ?>>Transportmittel</option>
                                                         <option value="1" <?php echo ($daten['prot_by'] == 1 ? 'selected' : '') ?>>Notarzt</option>
                                                     </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '4') ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">Reanimationssituation</h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
+                                                    <label class="edivi__description" style="display:none">Reanimationssituation</label>
+                                                    <input type="text" name="rea_display" class="w-100 ignis-input edivi__input-check" value="<?= e(ReanimationCatalog::STATUS[$daten['rea_status'] ?? ''] ?? '') ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>

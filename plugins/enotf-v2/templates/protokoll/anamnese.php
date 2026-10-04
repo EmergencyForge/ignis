@@ -7,7 +7,7 @@
  * (plugins/enotf/templates/enotf/protokoll/anamnese/):
  *
  *   ÜBERSICHT (ohne ?t): Kachel-Seite wie v1 index.php mit Themen-Spalte
- *     (Anamnese/Symptome/Einsatzort) und edivi__box-Kacheln mit
+ *     (Anamnese/Symptome/AZ vor Ereignis/Einsatzort) und edivi__box-Kacheln mit
  *     readonly-Zusammenfassungen.
  *
  *   ?t=anamnese: Freitext-Seite wie v1 1.php: großes Textfeld,
@@ -20,6 +20,8 @@
  *     und NACA (initial / bei Übergabe als btn-check-Spalten).
  *     Exklusivlogik geschätzt↔nicht feststellbar liegt in
  *     edivi-bridge.js (bindSymptombeginn, psych-Muster).
+ *
+ *   ?t=az: Radio-Spalte wie v1 4.php (az_vor_ereignis, kein Pflichtfeld).
  *
  *   ?t=einsatzort: Radio-Spalten wie v1 3.php (elokation).
  *
@@ -52,6 +54,7 @@ $dis = $istGesperrt ? 'disabled' : '';
 $themen = [
     'anamnese'   => ['label' => 'Anamnese',   'requires' => ''],
     'symptome'   => ['label' => 'Symptome',   'requires' => 'naca_initial'],
+    'az'         => ['label' => 'AZ vor Ereignis', 'requires' => ''],
     'einsatzort' => ['label' => 'Einsatzort', 'requires' => 'elokation'],
 ];
 
@@ -119,6 +122,11 @@ $nacaLabel = static function (string $feld) use ($protokoll): string {
 $elokationLabel = '';
 if (($protokoll['elokation'] ?? null) !== null && $protokoll['elokation'] !== '') {
     $elokationLabel = EinsatzCatalog::ELOKATION[(int) $protokoll['elokation']] ?? '';
+}
+
+$azLabel = '';
+if (($protokoll['az_vor_ereignis'] ?? null) !== null && $protokoll['az_vor_ereignis'] !== '') {
+    $azLabel = EinsatzCatalog::AZ_VOR_EREIGNIS[(int) $protokoll['az_vor_ereignis']] ?? '';
 }
 
 // elokation-Radio-Spaltenaufteilung wie v1 3.php
@@ -210,6 +218,21 @@ $textbloecke = [
                                 <div class="col">
                                     <label class="edivi__description">bei Übergabe</label>
                                     <input type="text" class="w-100 ignis-input" value="<?= $e($nacaLabel('naca_uebergabe')) ?>" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="row edivi__box edivi__box-clickable" data-href="<?= $e($fokusUrl('az')) ?>" style="cursor:pointer">
+                        <h5 class="text-light px-2 py-1">AZ vor Ereignis</h5>
+                        <div class="col">
+                            <div class="row my-2">
+                                <div class="col">
+                                    <label class="edivi__description" style="display:none">AZ vor Ereignis</label>
+                                    <input type="text" class="w-100 ignis-input" value="<?= $e($azLabel) ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -471,6 +494,18 @@ $textbloecke = [
             }
         });
     </script>
+
+<?php elseif ($fokus === 'az'): ?>
+
+    <!-- ── AZ VOR EREIGNIS: az_vor_ereignis-Radios (v1 anamnese/4.php) ── -->
+    <div class="row" style="margin-left: 0" data-ev2-steps>
+        <?php if (!$istGesperrt): ?>
+            <?= $themenSpalte('az') ?>
+        <?php endif; ?>
+        <div class="ev2-stepwrap" data-wiz-step data-wiz-fields="az_vor_ereignis">
+            <?= $radioCol('az_vor_ereignis', EinsatzCatalog::AZ_VOR_EREIGNIS, null, 'col-6') ?>
+        </div>
+    </div>
 
 <?php elseif ($fokus === 'einsatzort'): ?>
 

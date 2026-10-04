@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\EnotfV2\Support;
 
+use Plugin\Enotf\Helpers\ReanimationCatalog;
 use Plugin\EnotfV2\Models\Edivi;
 
 /**
@@ -267,6 +268,20 @@ final class ConditionsService
                 'check'   => function ($d) { return ($d['prot_by'] ?? null) != 1 && ($d['na_nachf'] ?? null) === null; },
                 'db'      => ['na_nachf'],
             ],
+            'rea_status' => [
+                'section' => 7,
+                'message' => '[7] Abschluss: Reanimationssituation ist nicht gesetzt.',
+                'check'   => function ($d) { return ($d['rea_status'] ?? null) === null; },
+                'db'      => ['rea_status'],
+            ],
+            // Details nur bei "Reanimation durchgeführt", deshalb ohne db:
+            // der Stepper zählt sie nicht als feste Pflichtspalten
+            'rea_details' => [
+                'section' => 7,
+                'message' => '[7] Abschluss: Reanimation durchgeführt, Details unvollständig.',
+                'check'   => function ($d) { return ReanimationCatalog::fehlendeDetails($d) !== []; },
+                'db'      => [],
+            ],
             'pfname' => [
                 'section' => 7,
                 'message' => '[7] Abschluss: Kein Protokollant gesetzt.',
@@ -301,7 +316,7 @@ final class ConditionsService
                 'naca_initial',
                 'diagnose_haupt',
                 'awsicherung_neu', 'b_beatmung', 'c_zugang', 'medis',
-                'na_nachf',
+                'na_nachf', 'rea_status', 'rea_details',
             ],
         ];
     }

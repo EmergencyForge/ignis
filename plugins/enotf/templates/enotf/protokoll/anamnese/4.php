@@ -1,6 +1,6 @@
 <?php
 /**
- * View: enotf/protokoll/anamnese/2.php
+ * View: enotf/protokoll/anamnese/4.php
  */
 
 
@@ -38,17 +38,6 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
-$naca_labels = [
-    0 => 'NACA 0 - Keine Erkrankung/Verletzung',
-    1 => 'NACA I - geringfügige Störung',
-    2 => 'NACA II - leichte Störung',
-    3 => 'NACA III - mäßige Störung',
-    4 => 'NACA IV - Lebensgefahr nicht auszuschließen',
-    5 => 'NACA V - Akute Lebensgefahr',
-    6 => 'NACA VI - Kreislaufstillstand',
-    7 => 'NACA VII - Todesfeststellung',
-];
-
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -79,25 +68,36 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '1') ?>">
                                     <span>Anamnese</span>
                                 </a>
-                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2') ?>" data-requires="naca_initial" class="active">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2') ?>" data-requires="naca_initial">
                                     <span>Symptome</span>
                                 </a>
-                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '4') ?>">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '4') ?>" class="active">
                                     <span>AZ vor Ereignis</span>
                                 </a>
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '3') ?>" data-requires="elokation">
                                     <span>Einsatzort</span>
                                 </a>
                             </div>
-                            <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
-                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2_1') ?>">
-                                    <span>Symptombeginn</span>
-                                </a>
-                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2_2') ?>" data-requires="naca_initial">
-                                    <span>NACA</span>
-                                </a>
-                            </div>
                         <?php endif; ?>
+                        <div class="w-6/12 d-flex flex-column edivi__interactbutton px-3">
+                            <input type="radio" class="btn-check" id="az_vor_ereignis-1" name="az_vor_ereignis" value="1" <?= ($daten['az_vor_ereignis'] ?? '') == 1 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="az_vor_ereignis-1">ohne Vorerkrankungen</label>
+
+                            <input type="radio" class="btn-check" id="az_vor_ereignis-2" name="az_vor_ereignis" value="2" <?= ($daten['az_vor_ereignis'] ?? '') == 2 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="az_vor_ereignis-2">Vorerkrankungen ohne nennenswerte Einschränkung des tägl. Lebens</label>
+
+                            <input type="radio" class="btn-check" id="az_vor_ereignis-3" name="az_vor_ereignis" value="3" <?= ($daten['az_vor_ereignis'] ?? '') == 3 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="az_vor_ereignis-3">Vorerkrankungen mit nennenswerter Einschränkung des tägl. Lebens</label>
+
+                            <input type="radio" class="btn-check" id="az_vor_ereignis-4" name="az_vor_ereignis" value="4" <?= ($daten['az_vor_ereignis'] ?? '') == 4 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="az_vor_ereignis-4">normales tägl. Leben unmöglich</label>
+
+                            <input type="radio" class="btn-check" id="az_vor_ereignis-5" name="az_vor_ereignis" value="5" <?= ($daten['az_vor_ereignis'] ?? '') == 5 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="az_vor_ereignis-5">Pat. wird in den nächsten 24h sterben, mit und ohne med. Hilfe</label>
+
+                            <input type="radio" class="btn-check" id="az_vor_ereignis-99" name="az_vor_ereignis" value="99" <?= ($daten['az_vor_ereignis'] ?? '') == 99 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="az_vor_ereignis-99">unbekannt</label>
+                        </div>
                     </div>
                 </div>
             </div>

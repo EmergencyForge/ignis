@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Catalogs;
 
 /**
- * Einsatzbezogene Code-Listen: Einsatzart (eart), Einsatzort-Typ (elokation)
- * und Einsatz-Besonderheiten (ebesonderheiten als JSON-Array von int).
+ * Einsatzbezogene Code-Listen: Einsatzart (eart), Einsatzort-Typ (elokation),
+ * AZ vor Ereignis (az_vor_ereignis) und Einsatz-Besonderheiten
+ * (ebesonderheiten als JSON-Array von int).
  *
  * Quellen im Alt-System:
  * - eart: plugins/enotf/templates/enotf/protokoll/rettdaten/index.php (Select, Z. 230 ff.)
  * - elokation: plugins/enotf/templates/enotf/protokoll/anamnese/3.php (Radio)
+ * - az_vor_ereignis: plugins/enotf/templates/enotf/protokoll/anamnese/4.php (Radio)
  * - ebesonderheiten: plugins/enotf/templates/enotf/protokoll/abschluss/1.php (Checkboxen)
  */
 final class EinsatzCatalog
@@ -40,6 +42,16 @@ final class EinsatzCatalog
         11 => 'Geburtshaus/-einrichtung',
         98 => 'Sonstige',
         99 => 'nicht dokumentiert',
+    ];
+
+    /** az_vor_ereignis: Code => Label. 99 = unbekannt. Kein Pflichtfeld. */
+    public const AZ_VOR_EREIGNIS = [
+        1 => 'ohne Vorerkrankungen',
+        2 => 'Vorerkrankungen ohne nennenswerte Einschränkung des tägl. Lebens',
+        3 => 'Vorerkrankungen mit nennenswerter Einschränkung des tägl. Lebens',
+        4 => 'normales tägl. Leben unmöglich',
+        5 => 'Pat. wird in den nächsten 24h sterben, mit und ohne med. Hilfe',
+        99 => 'unbekannt',
     ];
 
     /**

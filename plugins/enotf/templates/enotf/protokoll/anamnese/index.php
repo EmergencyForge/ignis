@@ -65,6 +65,15 @@ $elokation_labels = [
     99 => 'nicht dokumentiert',
 ];
 
+$az_labels = [
+    1 => 'ohne Vorerkrankungen',
+    2 => 'Vorerkrankungen ohne nennenswerte Einschränkung des tägl. Lebens',
+    3 => 'Vorerkrankungen mit nennenswerter Einschränkung des tägl. Lebens',
+    4 => 'normales tägl. Leben unmöglich',
+    5 => 'Pat. wird in den nächsten 24h sterben, mit und ohne med. Hilfe',
+    99 => 'unbekannt',
+];
+
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -97,6 +106,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </a>
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2') ?>" data-requires="naca_initial">
                                     <span>Symptome</span>
+                                </a>
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '4') ?>">
+                                    <span>AZ vor Ereignis</span>
                                 </a>
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '3') ?>" data-requires="elokation">
                                     <span>Einsatzort</span>
@@ -156,6 +168,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 <div class="col">
                                                     <label class="edivi__description">bei Übergabe</label>
                                                     <input type="text" class="w-100 ignis-input" value="<?= $naca_labels[$daten['naca_uebergabe'] ?? ''] ?? '' ?>" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '4') ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">AZ vor Ereignis</h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
+                                                    <label class="edivi__description" style="display:none">AZ vor Ereignis</label>
+                                                    <input type="text" class="w-100 ignis-input" value="<?= e($az_labels[$daten['az_vor_ereignis'] ?? ''] ?? '') ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>

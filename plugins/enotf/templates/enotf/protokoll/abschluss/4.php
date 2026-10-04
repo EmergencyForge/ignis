@@ -1,6 +1,6 @@
 <?php
 /**
- * View: enotf/protokoll/abschluss/2.php
+ * View: enotf/protokoll/abschluss/4.php
  */
 
 
@@ -67,10 +67,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" data-requires="ebesonderheiten">
                                 <span>Einsatzverlauf Besonderheiten</span>
                             </a>
-                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '2') ?>" data-requires="na_nachf" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '2') ?>" data-requires="na_nachf">
                                 <span>Nachforderung NA</span>
                             </a>
-                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '4') ?>" data-requires="rea_status">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '4') ?>" data-requires="rea_status" class="active">
                                 <span>Reanimationssituation</span>
                             </a>
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>">
@@ -80,13 +80,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>An Leitstelle senden</span>
                             </a>
                         </div>
-                        <div class="w-2/12 d-flex flex-column edivi__interactbutton px-3">
-                            <input type="radio" class="btn-check" id="na_nachf-1" name="na_nachf" value="1" <?php echo ($daten['na_nachf'] == 1 ? 'checked' : '') ?> autocomplete="off">
-                            <label for="na_nachf-1">nein</label>
-
-                            <input type="radio" class="btn-check" id="na_nachf-2" name="na_nachf" value="2" <?php echo ($daten['na_nachf'] == 2 ? 'checked' : '') ?> autocomplete="off">
-                            <label for="na_nachf-2">ja</label>
-                        </div>
+                        <?php
+                        $reaDaten = $daten;
+                        $reaGesperrt = $ist_freigegeben;
+                        $reaCol = 'w-2/12';
+                        $reaColWide = 'w-3/12';
+                        include dirname(__DIR__, 2) . '/_partials/reanimation.php';
+                        ?>
                     </div>
                 </div>
             </div>
@@ -97,14 +97,6 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     include dirname(__DIR__, 6) . '/assets/functions/enotf/clock.php';
     ?>
     <?php if ($ist_freigegeben) : ?><script src="<?= BASE_PATH ?>assets/js/enotf-lock.js"></script><?php endif; ?>
-    <script>
-        var modalCloseButton = document.querySelector('#myModal4 .btn-close');
-        var freigeberInput = document.getElementById('freigeber');
-
-        modalCloseButton.addEventListener('click', function() {
-            freigeberInput.value = '';
-        });
-    </script>
     <script>
         function sendPatientToDispatch(e) {
             e.preventDefault();

@@ -16,6 +16,8 @@
  *     exklusiv, gespeichert über den Multi-JSON-Handler in edivi-bridge.js
  *     (data-ev2-multijson, psych-Muster).
  *   ?t=nanachf (v1 2.php): na_nachf Radio 1=nein/2=ja (nur prot_by != 1).
+ *   ?t=rea (v1 4.php): Reanimationssituation als Spaltenbaum, gemeinsames
+ *     Partial plugins/enotf/templates/enotf/_partials/reanimation.php.
  *   ?t=uebergabe (v1 3_1/3_2.php): Wizard mit zwei Schritten Ort/An
  *     (uebergabe_ort/uebergabe_an-Radios), Subnav Ort/An/Freigabe.
  *   ?t=freigabe (v1 freigabe.php): Zusammenfassung + Plausibilität +
@@ -35,6 +37,7 @@
 
 use App\Models\Personnel;
 use App\Models\Vehicle;
+use Plugin\Enotf\Helpers\ReanimationCatalog;
 use Plugin\EnotfV2\Catalogs\EinsatzCatalog;
 use Plugin\EnotfV2\Catalogs\UebergabeCatalog;
 use Plugin\EnotfV2\Helpers\EnotfV2Url;
@@ -50,7 +53,7 @@ $protBy = ($protokoll['prot_by'] !== null && $protokoll['prot_by'] !== '')
     : null;
 
 $fokus = $fokusThema ?? null;
-$erlaubt = ['besonderheiten', 'nanachf', 'uebergabe', 'freigabe'];
+$erlaubt = ['besonderheiten', 'nanachf', 'rea', 'uebergabe', 'freigabe'];
 if (!in_array($fokus, $erlaubt, true)) {
     $fokus = null;
 }
@@ -199,6 +202,9 @@ $themenSpalte = static function (?string $aktiv) use ($fokusUrl, $e, $protBy): s
             . ($aktiv === 'nanachf' ? ' class="active"' : '') . '>'
             . '<span>Nachforderung NA</span></a>';
     }
+    $html .= '<a href="' . $e($fokusUrl('rea')) . '" data-requires="rea_status"'
+        . ($aktiv === 'rea' ? ' class="active"' : '') . '>'
+        . '<span>Reanimationssituation</span></a>';
     $html .= '<a href="' . $e($fokusUrl('uebergabe')) . '"'
         . ($aktiv === 'uebergabe' ? ' class="active"' : '') . '>'
         . '<span>Übergabe</span></a>';
@@ -263,6 +269,20 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
     <div class="row" style="margin-left: 0">
         <?= $themenSpalte('nanachf') ?>
         <?= $radioSpalte('na_nachf', [1 => 'nein', 2 => 'ja']) ?>
+    </div>
+
+<?php elseif ($fokus === 'rea'): ?>
+
+    <!-- ── REANIMATIONSSITUATION (v1 abschluss/4.php) ── -->
+    <div class="row" style="margin-left: 0">
+        <?= $themenSpalte('rea') ?>
+        <?php
+        $reaDaten = $protokoll;
+        $reaGesperrt = $istGesperrt;
+        $reaCol = 'col-2';
+        $reaColWide = 'col-3';
+        include dirname(__DIR__, 3) . '/enotf/templates/enotf/_partials/reanimation.php';
+        ?>
     </div>
 
 <?php elseif ($fokus === 'uebergabe'): ?>
@@ -747,6 +767,17 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
                                         <option value="0" <?= $protBy === 0 ? 'selected' : '' ?>>Transportmittel</option>
                                         <option value="1" <?= $protBy === 1 ? 'selected' : '' ?>>Notarzt</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row edivi__box edivi__box-clickable" data-href="<?= $e($fokusUrl('rea')) ?>" style="cursor:pointer">
+                        <h5 class="text-light px-2 py-1">Reanimationssituation</h5>
+                        <div class="col">
+                            <div class="row my-2">
+                                <div class="col">
+                                    <label class="edivi__description" style="display:none">Reanimationssituation</label>
+                                    <input type="text" name="rea_display" class="w-100 ignis-input edivi__input-check" value="<?= $e(ReanimationCatalog::STATUS[(int) ($protokoll['rea_status'] ?? 0)] ?? '') ?>" readonly>
                                 </div>
                             </div>
                         </div>

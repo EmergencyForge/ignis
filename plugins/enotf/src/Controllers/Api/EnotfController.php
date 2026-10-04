@@ -1170,7 +1170,7 @@ final class EnotfController
     /** Felder die der save-fields-Endpoint schreiben darf. */
     private const ALLOWED_FIELDS = [
         'pat_vorname', 'pat_nachname', 'patgebdat', 'patsex',
-        'edatum', 'ezeit', 'eort', 'eart', 'ebesonderheiten', 'elokation',
+        'edatum', 'ezeit', 'eort', 'eart', 'ebesonderheiten', 'elokation', 'az_vor_ereignis',
         'awfrei_1', 'awsicherung_1', 'awsicherung_neu', 'hws_immo',
         'zyanose_1', 'o2gabe', 'b_symptome', 'b_auskult', 'b_beatmung',
         'spo2', 'atemfreq', 'etco2',
@@ -1189,6 +1189,8 @@ final class EnotfController
         'transportziel', 'pfname', 'prot_by',
         'uebergabe_ort', 'uebergabe_an',
         'na_nachf', 'rettungstechnik', 'lagerung',
+        'rea_status', 'rea_ursache', 'rea_sport', 'rea_fr_eintreffen', 'rea_kollaps', 'rea_hdm_durch',
+        'rea_hdm_zeit', 'rea_defi', 'rea_rosc', 'rea_kh_aufnahme', 'rea_tod_zeit', 'rea_erfolglos',
         'waerme_passiv', 'waerme_aktiv',
         'e_reposition', 'e_verband', 'e_krintervention', 'e_kuehlung',
         'e_narkose', 'e_tourniquet', 'e_cpr',

@@ -54,23 +54,25 @@ class EnotfV2ConditionsServiceTest extends TestCase
             // [7] Abschluss
             'ebesonderheiten' => 'keine', 'na_nachf' => 1,
             'pfname' => 'Mustermann', 'prot_by' => 2,
+            'rea_status' => 1,
         ];
     }
 
     // ── Regelanzahl ──────────────────────────────────────────────────
 
     #[Test]
-    public function basisregelwerk_umfasst_33_regeln(): void
+    public function basisregelwerk_umfasst_35_regeln(): void
     {
-        $this->assertCount(33, $this->service->baseRequired());
+        $this->assertCount(35, $this->service->baseRequired());
     }
 
     #[Test]
-    public function leeres_protokoll_verletzt_alle_33_basisregeln(): void
+    public function leeres_protokoll_verletzt_34_basisregeln(): void
     {
+        // rea_details greift erst bei rea_status=2, alle anderen sind offen
         $open = $this->service->evaluate([]);
 
-        $this->assertSame(33, array_sum(array_map('count', $open)));
+        $this->assertSame(34, array_sum(array_map('count', $open)));
     }
 
     // ── transportziel=4 (Fehleinsatz): Overrides ────────────────────
@@ -120,7 +122,7 @@ class EnotfV2ConditionsServiceTest extends TestCase
         foreach ([2, 21, 22] as $ziel) {
             $active = $this->service->activeRequired($ziel);
 
-            $this->assertCount(36, $active, "transportziel=$ziel");
+            $this->assertCount(38, $active, "transportziel=$ziel");
             $this->assertArrayHasKey('ziel_adresse', $active);
             $this->assertArrayHasKey('s7', $active);
             $this->assertArrayHasKey('s8', $active);
@@ -246,5 +248,46 @@ class EnotfV2ConditionsServiceTest extends TestCase
         unset($daten['na_nachf']);
 
         $this->assertTrue($this->service->isReleasable($daten));
+    }
+
+    // ── Reanimationssituation ────────────────────────────────────────
+
+    #[Test]
+    public function reanimation_durchgefuehrt_braucht_pflichtdetails(): void
+    {
+        $daten = $this->vollstaendigeDaten();
+        $daten['rea_status'] = 2;
+        $daten['rea_ursache'] = 1;
+
+        $this->assertFalse($this->service->isReleasable($daten));
+        $open = $this->service->evaluate($daten);
+        $this->assertSame(['rea_details'], array_column($open['abschluss'] ?? [], 'key'));
+
+        $daten += [
+            'rea_kollaps' => 99, 'rea_hdm_durch' => 4, 'rea_hdm_zeit' => '12:03',
+            'rea_rosc' => 2, 'rea_kh_aufnahme' => 1,
+        ];
+        $this->assertTrue($this->service->isReleasable($daten));
+    }
+
+    #[Test]
+    public function reanimation_nicht_durchgefuehrt_schliesst_den_baum_ab(): void
+    {
+        foreach ([1, 3, 4, 5, 6] as $status) {
+            $daten = $this->vollstaendigeDaten();
+            $daten['rea_status'] = $status;
+
+            $this->assertTrue($this->service->isReleasable($daten), "rea_status=$status");
+        }
+    }
+
+    #[Test]
+    public function ohne_reanimationssituation_nicht_freigebbar(): void
+    {
+        $daten = $this->vollstaendigeDaten();
+        unset($daten['rea_status']);
+
+        $open = $this->service->evaluate($daten);
+        $this->assertSame(['rea_status'], array_column($open['abschluss'] ?? [], 'key'));
     }
 }

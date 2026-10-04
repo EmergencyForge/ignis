@@ -255,6 +255,22 @@ function enotf_get_base_required(): array
             'html'    => [],
             'db'      => ['na_nachf'],
         ],
+        'rea_status' => [
+            'section' => 7,
+            'message' => '[7] Abschluss: Reanimationssituation ist nicht gesetzt.',
+            'check'   => function ($d) { return ($d['rea_status'] ?? null) === null; },
+            'html'    => ['rea_display'],
+            'db'      => ['rea_status'],
+        ],
+        // Details nur bei "Reanimation durchgeführt", deshalb ohne db:
+        // die Section-Navigation zählt sie nicht als feste Pflichtspalten
+        'rea_details' => [
+            'section' => 7,
+            'message' => '[7] Abschluss: Reanimation durchgeführt, Details unvollständig.',
+            'check'   => function ($d) { return \Plugin\Enotf\Helpers\ReanimationCatalog::fehlendeDetails($d) !== []; },
+            'html'    => [],
+            'db'      => [],
+        ],
         'pfname' => [
             'section' => 7,
             'message' => '[7] Abschluss: Kein Protokollant gesetzt.',
@@ -290,7 +306,7 @@ function enotf_get_condition_overrides(): array
             'naca_initial',
             'diagnose_haupt',
             'awsicherung_neu', 'b_beatmung', 'c_zugang', 'medis',
-            'na_nachf',
+            'na_nachf', 'rea_status', 'rea_details',
         ],
     ];
 }
