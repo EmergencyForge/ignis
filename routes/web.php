@@ -122,6 +122,9 @@ $router->match(['GET', 'POST'], '/users/registration-codes',     [UserController
 
 $router->post('/users/toggle-active',     [UserController::class, 'setActive'], $userAuth);
 
+// Konto mit Mitarbeiter verknüpfen oder lösen (Benutzerbearbeitung und Mitarbeiterprofil)
+$router->post('/users/personnel-link',    [UserController::class, 'linkPersonnel'], $userAuth);
+
 // Rollen-Verwaltung
 $router->get('/users/roles',           [RoleController::class, 'index'], $userAuth);
 $router->get('/users/roles/',          [RoleController::class, 'index'], $userAuth);

@@ -38,7 +38,7 @@
       fetch(inviteUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ label: fullname })
+        body: JSON.stringify({ label: fullname, mitarbeiter_id: config.profileId })
       })
       .then(r => r.json())
       .then(data => {

@@ -3,6 +3,7 @@
  * View: Registrierungs-Codes / Einladungen verwalten
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RegistrationCode> $codes
+ * @var iterable<\App\Models\Personnel>                                              $freePersonnel Mitarbeiter ohne Konto
  * @var string                                                                       $registrationMode
  * @var string                                                                       $systemUrl
  */
@@ -67,6 +68,7 @@ $bodyId = 'benutzer';
                             <thead>
                                 <tr>
                                     <th scope="col">Bezeichnung</th>
+                                    <th scope="col">Mitarbeiter</th>
                                     <th scope="col">Erstellt von</th>
                                     <th scope="col">Erstellt am</th>
                                     <th scope="col">Gültig bis</th>
@@ -87,6 +89,13 @@ $bodyId = 'benutzer';
                                                 <?= htmlspecialchars($code->label) ?>
                                             <?php else: ?>
                                                 <span class="text-tertiary-text">Ohne Bezeichnung</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($code->mitarbeiter !== null): ?>
+                                                <a href="<?= BASE_PATH ?>personnel/profile?id=<?= (int) $code->mitarbeiter->id ?>"><?= htmlspecialchars($code->mitarbeiter->fullname) ?></a>
+                                            <?php else: ?>
+                                                -
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($code->creator?->username ?? 'System') ?></td>
@@ -155,6 +164,16 @@ $bodyId = 'benutzer';
             <label for="label" class="ignis-field__label">Bezeichnung <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
             <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Einladung für Max Mustermann">
             <span class="ignis-field__hint">Hilft dir zu erkennen, für wen die Einladung erstellt wurde.</span>
+        </div>
+        <div class="ignis-field mb-3">
+            <label for="mitarbeiter_id" class="ignis-field__label">Mitarbeiter <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
+            <select name="mitarbeiter_id" id="mitarbeiter_id" data-custom-dropdown="true">
+                <option value="">Kein Mitarbeiter</option>
+                <?php foreach ($freePersonnel as $person): ?>
+                    <option value="<?= (int) $person->id ?>"><?= htmlspecialchars($person->fullname) ?> (<?= htmlspecialchars((string) $person->dienstnr) ?>)</option>
+                <?php endforeach; ?>
+            </select>
+            <span class="ignis-field__hint">Wer die Einladung einlöst, ist danach mit diesem Mitarbeiter verknüpft.</span>
         </div>
         <div class="ignis-field mb-3">
             <label for="expires_at" class="ignis-field__label">Gültig bis <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>

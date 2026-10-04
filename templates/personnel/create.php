@@ -79,8 +79,8 @@ $formFields = [
                             </div>
                         <?php endif; ?>
                         <div>
-                            <label for="cm_discordtag" class="ignis-field__label">Discord-ID <small class="form-hint">(17 bis 20 Ziffern)</small></label>
-                            <input class="ignis-input ignis-mono" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag"<?= \App\Support\FormErrors::attributes($formErrors, 'discordtag', 'cm_discordtag') ?> pattern="[0-9]{17,20}" maxlength="20" value="<?= htmlspecialchars((string) old('discordtag')) ?>" placeholder="123456789012345678" required>
+                            <label for="cm_discordtag" class="ignis-field__label">Discord-ID <small class="form-hint">(optional, 17 bis 20 Ziffern)</small></label>
+                            <input class="ignis-input ignis-mono" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag"<?= \App\Support\FormErrors::attributes($formErrors, 'discordtag', 'cm_discordtag') ?> pattern="[0-9]{17,20}" maxlength="20" value="<?= htmlspecialchars((string) old('discordtag')) ?>" placeholder="123456789012345678">
                             <?= \App\Support\FormErrors::hint($formErrors, 'discordtag', 'cm_discordtag', 'ignis') ?>
                         </div>
                         <div>

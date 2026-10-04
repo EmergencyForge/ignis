@@ -16,6 +16,7 @@
  *   @var string                       $accountStatus 'none'|'pending'|'active'|'inactive'
  *   @var array<string, mixed>|null    $panelakte     Verlinkter User oder null
  *   @var array<string, mixed>|null    $pendingInvite Pending Registration-Code oder null
+ *   @var iterable<\App\Models\User>   $linkCandidates Freie Konten zum Verknüpfen (leer ohne Recht)
  *
  * Bindet folgende Legacy-Partials ein, die unverändert bleiben:
  *   - assets/components/profiles/checks.php
@@ -89,6 +90,32 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                 </button>
                                 <span id="inviteResult" style="font-size: var(--fs-xs);"></span>
                             <?php endif; ?>
+                        <?php endif; ?>
+                        <?php if ($panelakte && \App\Auth\Gate::allows('user.update') && (int) $panelakte['id'] !== (int) ($_SESSION['userid'] ?? 0)): ?>
+                            <form method="post" action="<?= BASE_PATH ?>users/personnel-link" class="inline" id="unlinkAccountForm">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="action" value="unlink">
+                                <input type="hidden" name="id" value="<?= (int) $panelakte['id'] ?>">
+                                <input type="hidden" name="mitarbeiter_id" value="<?= (int) $row['id'] ?>">
+                                <input type="hidden" name="back" value="profile">
+                                <button type="submit" class="ignis-btn ignis-btn--ghost ignis-btn--sm"><i class="fa-solid fa-link-slash mr-1" aria-hidden="true"></i>Verknüpfung lösen</button>
+                            </form>
+                        <?php endif; ?>
+                        <?php if ($panelakte === null && count($linkCandidates) > 0): ?>
+                            <form method="post" action="<?= BASE_PATH ?>users/personnel-link" class="flex flex-wrap items-center gap-2" id="linkAccountForm">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="action" value="link">
+                                <input type="hidden" name="mitarbeiter_id" value="<?= (int) $row['id'] ?>">
+                                <input type="hidden" name="back" value="profile">
+                                <label for="linkAccountSelect" class="sr-only">Konto verknüpfen</label>
+                                <select name="id" id="linkAccountSelect" data-custom-dropdown="true" required>
+                                    <option value="">Konto wählen</option>
+                                    <?php foreach ($linkCandidates as $candidate): ?>
+                                        <option value="<?= (int) $candidate->id ?>"><?= htmlspecialchars($candidate->username) ?><?= !empty($candidate->fullname) ? ' (' . htmlspecialchars($candidate->fullname) . ')' : '' ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-link mr-1" aria-hidden="true"></i>Verknüpfen</button>
+                            </form>
                         <?php endif; ?>
                     </div>
 
