@@ -48,18 +48,15 @@ if (!isset($GLOBALS['app_container'])) {
 SessionManager::start();
 
 // ============================================================================
-// Permissions mit TTL (Time-to-Live)
+// Permissions bei jedem Request
 // ============================================================================
-// Permissions werden alle 5 Minuten neu aus der DB geladen.
-// Das stellt sicher, dass Änderungen an Rollen zeitnah wirksam werden.
+// Die Rechte kommen bei jedem Aufruf frisch aus der DB (zwei Abfragen über
+// den Primärschlüssel). Eine geänderte Rolle oder Gruppe gilt so ab dem
+// nächsten Neuladen, ohne Abmelden. Vorher galt ein 5-Minuten-Cache.
 if (SessionManager::isLoggedIn()) {
-    $permissionsTTL = 300; // 5 Minuten
-
-    if (!SessionManager::has('permissions') || SessionManager::permissionsAge() > $permissionsTTL) {
-        SessionManager::setPermissions(
-            Permissions::retrieveFromDatabase((int) SessionManager::userId())
-        );
-    }
+    SessionManager::setPermissions(
+        Permissions::retrieveFromDatabase((int) SessionManager::userId())
+    );
 }
 
 // Legacy-PDO-Verbindung aufbauen und in den Container schieben. Der App-Code
