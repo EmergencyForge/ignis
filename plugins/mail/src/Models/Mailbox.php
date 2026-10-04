@@ -6,7 +6,6 @@ namespace Plugin\Mail\Models;
 
 use App\Models\Model;
 use App\Models\Personnel;
-use App\Models\User;
 use App\Session\SessionManager;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,9 +18,10 @@ use Illuminate\Database\UniqueConstraintViolationException;
  *
  * Zustellbar ist ein Postfach nur, wenn es aktiv UND nicht gesperrt ist.
  *
- * Wem es gehört, sagt allein `user_id`. Die Discord-ID am Mitarbeiter
- * pflegt die Personalverwaltung; sie entscheidet nur, welches Konto ein
- * noch freies Postfach bekommt (autoBind()), danach nie wieder.
+ * Wem es gehört, sagt allein `user_id`. Die Verknüpfung Konto und
+ * Mitarbeiter (`intra_users.aktenid`, App\Personnel\AccountLink)
+ * entscheidet nur, welches Konto ein noch freies Postfach bekommt
+ * (autoBind()), danach nie wieder.
  * Umhängen geht nur in der Postfachverwaltung („Konto zuordnen“).
  *
  * @property int         $id
@@ -131,22 +131,15 @@ class Mailbox extends Model
     }
 
     /**
-     * Aktive Konten, die zum Mitarbeiter passen: Discord-ID gleich
-     * `discordtag`, oder `intra_users.aktenid` zeigt auf ihn.
+     * Aktive Konten, die mit dem Mitarbeiter verknüpft sind
+     * (`intra_users.aktenid`, eindeutig, also höchstens eines).
      *
      * @return list<int>
      */
     public static function accountsFor(int $mitarbeiterId): array
     {
-        $tag = trim((string) Personnel::query()->whereKey($mitarbeiterId)->value('discordtag'));
-
         $ids = Capsule::table('intra_users')->where('is_active', 1)
-            ->where(static function ($q) use ($mitarbeiterId, $tag): void {
-                $q->where('aktenid', $mitarbeiterId);
-                if ($tag !== '') {
-                    $q->orWhere('discord_id', $tag);
-                }
-            })
+            ->where('aktenid', $mitarbeiterId)
             ->pluck('id')
             ->all();
 
@@ -154,27 +147,14 @@ class Mailbox extends Model
     }
 
     /**
-     * Mitarbeiter-ID eines Kontos: erst über die Discord-ID, dann über
-     * aktenid. Nur für noch freie Postfächer und Hinweise, nie für den
-     * Zugriff auf ein gebundenes.
+     * Mitarbeiter-ID eines Kontos über die Verknüpfung. Nur für noch freie
+     * Postfächer und Hinweise, nie für den Zugriff auf ein gebundenes.
      */
     public static function mitarbeiterIdForUser(int $userId): ?int
     {
-        $user = User::query()->find($userId, ['id', 'discord_id', 'aktenid']);
-        if ($user === null) {
-            return null;
-        }
-        if (!empty($user->discord_id)) {
-            $id = Personnel::query()->where('discordtag', $user->discord_id)->value('id');
-            if ($id !== null) {
-                return (int) $id;
-            }
-        }
-        if (!empty($user->aktenid) && Personnel::query()->whereKey($user->aktenid)->exists()) {
-            return (int) $user->aktenid;
-        }
+        $id = Capsule::table('intra_users')->where('id', $userId)->value('aktenid');
 
-        return null;
+        return $id === null ? null : (int) $id;
     }
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Documents\Editor;
 
 use App\Models\Personnel;
-use App\Session\SessionManager;
+use App\Personnel\AccountLink;
 
 /**
  * Welche Platzhalter eine Vorlage kennt und womit sie beim Ausstellen
@@ -143,19 +143,14 @@ final class VariableCatalog
     }
 
     /**
-     * Wer stellt aus: der angemeldete Benutzer über seine Discord-Kennung.
+     * Wer stellt aus: der mit dem angemeldeten Konto verknüpfte Mitarbeiter.
      * Ohne Mitarbeiterdatensatz bleiben die Aussteller-Felder leer. Der
      * Name aus dem Benutzerkonto allein wäre in einer Urkunde irreführend,
      * weil dort der Dienstgrad danebenstünde.
      */
     private static function issuer(): ?Personnel
     {
-        $discordTag = SessionManager::get('discordtag');
-        if (!is_string($discordTag) || $discordTag === '') {
-            return null;
-        }
-
-        return Personnel::query()->where('discordtag', $discordTag)->first();
+        return AccountLink::current();
     }
 
     /**

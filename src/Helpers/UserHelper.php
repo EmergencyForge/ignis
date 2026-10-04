@@ -4,80 +4,46 @@ namespace App\Helpers;
 
 use App\Models\Personnel;
 use App\Models\User;
+use App\Personnel\AccountLink;
 
 class UserHelper
 {
     /**
-     * Get user's fullname from linked Mitarbeiter profile based on Discord ID
-     * Falls back to intra_users.fullname if no Mitarbeiter profile is linked
-     *
-     * @param string $discordId The Discord ID of the user
-     * @return string|null The fullname or null if not found
-     */
-    public function getFullnameByDiscordId(string $discordId): ?string
-    {
-        // First try to get fullname from Mitarbeiter profile
-        $fullname = Personnel::where('discordtag', $discordId)->value('fullname');
-
-        if (!empty($fullname)) {
-            return $fullname;
-        }
-
-        // Fallback to intra_users table
-        return User::where('discord_id', $discordId)->value('fullname');
-    }
-
-    /**
-     * Get user's fullname from session
-     * This is a convenience method that uses the Discord ID from session
-     *
-     * @return string The fullname, defaults to 'Unknown' if not found
+     * Name des angemeldeten Kontos: der verknüpfte Mitarbeiter, sonst der
+     * Name am Konto. 'Unknown', wenn beides fehlt.
      */
     public function getCurrentUserFullname(): string
     {
-        if (!isset($_SESSION['discordtag'])) {
-            return 'Unknown';
-        }
-
-        $fullname = $this->getFullnameByDiscordId($_SESSION['discordtag']);
-        return $fullname ?? 'Unknown';
+        return $this->currentName() ?? 'Unknown';
     }
 
     /**
-     * Get user's fullname for actions/operations
-     * Returns 'Admin #ID' if no profile is linked, allowing the user to continue working
-     *
-     * @return string The fullname or 'Admin #ID' if not found
+     * Name für Protokolle und Benachrichtigungen; ohne Namen 'Admin #ID',
+     * damit das Konto trotzdem arbeiten kann.
      */
     public function getCurrentUserFullnameForAction(): string
     {
-        if (!isset($_SESSION['discordtag'])) {
-            $userId = $_SESSION['userid'] ?? 'Unknown';
-            return 'Admin #' . $userId;
-        }
-
-        $fullname = $this->getFullnameByDiscordId($_SESSION['discordtag']);
-
-        if ($fullname === null) {
-            $userId = $_SESSION['userid'] ?? 'Unknown';
-            return 'Admin #' . $userId;
-        }
-
-        return $fullname;
+        return $this->currentName() ?? 'Admin #' . ($_SESSION['userid'] ?? 'Unknown');
     }
 
     /**
-     * Check if current user has a linked Mitarbeiter profile
-     *
-     * @return bool True if user has linked profile, false otherwise
+     * Ist das angemeldete Konto mit einem Mitarbeiter verknüpft?
      */
     public function hasLinkedProfile(): bool
     {
-        if (!isset($_SESSION['discordtag'])) {
-            return false;
-        }
+        return AccountLink::current() !== null;
+    }
 
-        return Personnel::where('discordtag', $_SESSION['discordtag'])->exists();
+    private function currentName(): ?string
+    {
+        $fullname = AccountLink::current()?->fullname;
+        if (!empty($fullname)) {
+            return $fullname;
+        }
+        $userId = (int) ($_SESSION['userid'] ?? 0);
+        $fullname = $userId > 0 ? User::query()->whereKey($userId)->value('fullname') : null;
+
+        return !empty($fullname) ? (string) $fullname : null;
     }
 
     /**

@@ -71,9 +71,9 @@ class LexiconController extends Controller
         $query = Capsule::table('intra_kb_entries as kb')
             ->leftJoin('intra_kb_categories as kc', 'kb.category_id', '=', 'kc.id')
             ->leftJoin('intra_users as creator', 'kb.created_by', '=', 'creator.id')
-            ->leftJoin('intra_mitarbeiter as creator_m', 'creator.discord_id', '=', 'creator_m.discordtag')
+            ->leftJoin('intra_mitarbeiter as creator_m', 'creator.aktenid', '=', 'creator_m.id')
             ->leftJoin('intra_users as updater', 'kb.updated_by', '=', 'updater.id')
-            ->leftJoin('intra_mitarbeiter as updater_m', 'updater.discord_id', '=', 'updater_m.discordtag')
+            ->leftJoin('intra_mitarbeiter as updater_m', 'updater.aktenid', '=', 'updater_m.id')
             ->selectRaw('kb.*,
                 kc.name as category_name, kc.icon as category_icon,
                 COALESCE(creator_m.fullname, creator.fullname) as creator_name,
@@ -198,9 +198,9 @@ class LexiconController extends Controller
             ->leftJoin('intra_kb_categories as kc', 'kb.category_id', '=', 'kc.id')
             ->leftJoin('intra_kb_categories as kc_parent', 'kc.parent_id', '=', 'kc_parent.id')
             ->leftJoin('intra_users as creator', 'kb.created_by', '=', 'creator.id')
-            ->leftJoin('intra_mitarbeiter as creator_m', 'creator.discord_id', '=', 'creator_m.discordtag')
+            ->leftJoin('intra_mitarbeiter as creator_m', 'creator.aktenid', '=', 'creator_m.id')
             ->leftJoin('intra_users as updater', 'kb.updated_by', '=', 'updater.id')
-            ->leftJoin('intra_mitarbeiter as updater_m', 'updater.discord_id', '=', 'updater_m.discordtag')
+            ->leftJoin('intra_mitarbeiter as updater_m', 'updater.aktenid', '=', 'updater_m.id')
             ->where('kb.id', $id)
             ->selectRaw('kb.*,
                    kc.name as category_name, kc.icon as category_icon,

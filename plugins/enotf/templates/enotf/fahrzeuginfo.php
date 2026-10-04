@@ -191,12 +191,12 @@ $currentDate = date('d.m.Y');
                                             last_log.last_status_user, last_log.last_status_details, last_log.last_status_at
                                             FROM intra_fahrzeuge_defects d
                                             LEFT JOIN intra_users u ON d.reported_by = u.id
-                                            LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
+                                            LEFT JOIN intra_mitarbeiter m ON u.aktenid = m.id
                                             LEFT JOIN (
                                                 SELECT l.defect_id, COALESCE(mp.fullname, up.username) AS last_status_user, l.details AS last_status_details, l.created_at AS last_status_at
                                                 FROM intra_fahrzeuge_defect_log l
                                                 LEFT JOIN intra_users up ON l.user_id = up.id
-                                                LEFT JOIN intra_mitarbeiter mp ON up.discord_id = mp.discordtag
+                                                LEFT JOIN intra_mitarbeiter mp ON up.aktenid = mp.id
                                                 WHERE l.id = (
                                                     SELECT l2.id FROM intra_fahrzeuge_defect_log l2
                                                     WHERE l2.defect_id = l.defect_id AND l2.action IN ('updated', 'resolved')

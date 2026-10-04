@@ -767,19 +767,7 @@ class CalendarController extends Controller
 
     private function resolveMitarbeiterId(): ?int
     {
-        if (isset($_SESSION['mitarbeiter_id']) && (int) $_SESSION['mitarbeiter_id'] > 0) {
-            return (int) $_SESSION['mitarbeiter_id'];
-        }
-        $discordId = $_SESSION['discordtag'] ?? null;
-        if (!$discordId) {
-            return null;
-        }
-        try {
-            $row = Personnel::query()->where('discordtag', $discordId)->first(['id']);
-            return $row ? (int) $row->id : null;
-        } catch (\Throwable) {
-            return null;
-        }
+        return \App\Personnel\AccountLink::currentId();
     }
 
     private function mitarbeiterIdForUser(int $userId): ?int
@@ -787,12 +775,8 @@ class CalendarController extends Controller
         if ($userId <= 0) {
             return null;
         }
-        $discordId = Capsule::table('intra_users')->where('id', $userId)->value('discord_id');
-        if (!$discordId) {
-            return null;
-        }
-        $row = Personnel::query()->where('discordtag', $discordId)->first(['id']);
-        return $row ? (int) $row->id : null;
+        $id = Capsule::table('intra_users')->where('id', $userId)->value('aktenid');
+        return $id === null ? null : (int) $id;
     }
 
     /**

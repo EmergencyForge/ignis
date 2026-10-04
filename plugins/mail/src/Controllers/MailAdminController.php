@@ -354,24 +354,27 @@ final class MailAdminController extends Controller
     }
 
     /**
-     * Konten, denen das Postfach gehören darf: aktiv, Discord-ID gleich
-     * dem aktuellen `discordtag` des Mitarbeiters, ohne eigenes Postfach
-     * und nicht das Konto, das gerade verwaltet.
+     * Konten, denen das Postfach gehören darf: aktiv, mit dem Mitarbeiter
+     * verknüpft (`aktenid`) oder mit seiner Discord-ID, ohne eigenes
+     * Postfach und nicht das Konto, das gerade verwaltet.
      *
      * @return array<int,string> Id => Benutzername
      */
     private function eligibleAccounts(Mailbox $mailbox): array
     {
-        $tag = $mailbox->mitarbeiter_id !== null
-            ? trim((string) Capsule::table('intra_mitarbeiter')->where('id', $mailbox->mitarbeiter_id)->value('discordtag'))
-            : '';
-        if ($tag === '') {
+        if ($mailbox->mitarbeiter_id === null) {
             return [];
         }
+        $tag = trim((string) Capsule::table('intra_mitarbeiter')->where('id', $mailbox->mitarbeiter_id)->value('discordtag'));
 
         return Capsule::table('intra_users as u')
             ->where('u.is_active', 1)
-            ->where('u.discord_id', $tag)
+            ->where(static function ($q) use ($mailbox, $tag): void {
+                $q->where('u.aktenid', $mailbox->mitarbeiter_id);
+                if ($tag !== '') {
+                    $q->orWhere('u.discord_id', $tag);
+                }
+            })
             ->where('u.id', '!=', (int) SessionManager::userId())
             ->whereNotExists(static function ($q) use ($mailbox): void {
                 $q->selectRaw('1')->from('intra_mail_mailboxes as mb')->whereColumn('mb.user_id', 'u.id')->where('mb.id', '!=', $mailbox->id);

@@ -14,8 +14,8 @@ final class OpenTasks
     /** @return list<array{label:string,reason:string,href:string}>|null */
     public static function forCurrentUser(PluginLoader $plugins): ?array
     {
-        $discord = (string) ($_SESSION['discordtag'] ?? '');
-        if ($discord === '') {
+        $mitarbeiterId = \App\Personnel\AccountLink::currentId();
+        if ($mitarbeiterId === null && (string) ($_SESSION['discordtag'] ?? '') === '') {
             return null;
         }
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
@@ -27,8 +27,9 @@ final class OpenTasks
             return null;
         }
         if ($canDecideForms) {
-            $forms = Form::query()->with('typ')->where('discordid', $discord)
-                ->where('cirs_status', Form::STATUS_IN_PROGRESS)->orderBy('time_added')->limit(20)->get();
+            $forms = Form::query()->with('typ');
+            Form::whereOwn($forms);
+            $forms = $forms->where('cirs_status', Form::STATUS_IN_PROGRESS)->orderBy('time_added')->limit(20)->get();
             foreach ($forms as $form) {
                 if (!Gate::allows('forms.view', $form)) {
                     continue;
@@ -39,9 +40,9 @@ final class OpenTasks
                     'href' => $base . 'forms/admin/view?antrag=' . rawurlencode($form->uniqueid)];
             }
         }
-        if ($canEditIncidents) {
-            $incidents = Capsule::table('intra_fire_incidents as i')->join('intra_mitarbeiter as m', 'm.id', '=', 'i.leader_id')
-                ->where('m.discordtag', $discord)->where('i.archived', 0)->where('i.finalized', 0)
+        if ($canEditIncidents && $mitarbeiterId !== null) {
+            $incidents = Capsule::table('intra_fire_incidents as i')
+                ->where('i.leader_id', $mitarbeiterId)->where('i.archived', 0)->where('i.finalized', 0)
                 ->orderBy('i.created_at')->limit(20)->get(['i.id', 'i.incident_number', 'i.location']);
             foreach ($incidents as $incident) {
                 $tasks[] = ['label' => (string) $incident->incident_number . ' · ' . (string) $incident->location,

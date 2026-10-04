@@ -44,7 +44,7 @@ final class AttendeeResolver
     /**
      * User-IDs (intra_users.id) der Personen, die fuer dieses Event eine
      * Notification bekommen sollen. Nutzt die Mitarbeiter-Liste aus resolve()
-     * und joint via discordtag <-> discord_id.
+     * und liest das verknüpfte Konto (intra_users.aktenid).
      *
      * @return array<int>
      */
@@ -55,13 +55,8 @@ final class AttendeeResolver
             return [];
         }
 
-        $discordTags = $mitarbeiter->pluck('discordtag')->filter()->unique()->values()->all();
-        if ($discordTags === []) {
-            return [];
-        }
-
         $rows = Capsule::table('intra_users')
-            ->whereIn('discord_id', $discordTags)
+            ->whereIn('aktenid', $mitarbeiter->pluck('id')->all())
             ->pluck('id')
             ->all();
 
@@ -115,21 +110,19 @@ final class AttendeeResolver
         if ($roleIds === []) {
             return new Collection();
         }
-        $discordIds = Capsule::table('intra_users')
+        $ids = Capsule::table('intra_users')
             ->whereIn('role', $roleIds)
-            ->pluck('discord_id')
-            ->filter()
-            ->unique()
-            ->values()
+            ->whereNotNull('aktenid')
+            ->pluck('aktenid')
             ->all();
 
-        if ($discordIds === []) {
+        if ($ids === []) {
             return new Collection();
         }
 
         /** @var Collection<int, Personnel> $personnel */
         $personnel = Personnel::query()
-            ->whereIn('discordtag', $discordIds)
+            ->whereIn('id', $ids)
             ->get();
 
         return $personnel;
@@ -142,7 +135,7 @@ final class AttendeeResolver
             return 0;
         }
         return (int) Capsule::table('intra_users as u')
-            ->join('intra_mitarbeiter as m', 'm.discordtag', '=', 'u.discord_id')
+            ->join('intra_mitarbeiter as m', 'm.id', '=', 'u.aktenid')
             ->whereIn('u.role', $roleIds)
             ->count();
     }

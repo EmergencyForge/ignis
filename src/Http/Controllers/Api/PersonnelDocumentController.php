@@ -38,12 +38,12 @@ final class PersonnelDocumentController
 
         try {
             $row = Capsule::table('intra_mitarbeiter_dokumente as pd')
-                ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
-                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->leftJoin('intra_users as u', 'pd.aussteller_user_id', '=', 'u.id')
+                ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
                 ->leftJoin('intra_mitarbeiter as emp', 'pd.profileid', '=', 'emp.id')
                 ->select(
                     'pd.id', 'pd.docid', 'pd.type', 'pd.erhalter', 'pd.ausstellungsdatum',
-                    'pd.ausstellerid', 'pd.profileid', 'pd.timestamp',
+                    'pd.ausstellerid', 'pd.aussteller_user_id', 'pd.profileid', 'pd.timestamp',
                     'emp.fullname as empfaenger_fullname',
                 )
                 ->selectRaw('IFNULL(pd.is_archived, 0) as is_archived')
@@ -59,8 +59,7 @@ final class PersonnelDocumentController
 
             // Wer es selbst ausgestellt hat, darf es auch ohne das
             // allgemeine Leserecht ansehen.
-            $discordId = $_SESSION['discordtag'] ?? null;
-            $isOwn = is_string($discordId) && $discordId !== '' && (string) ($doc['ausstellerid'] ?? '') === $discordId;
+            $isOwn = \App\Models\PersonnelDocument::issuedByCurrentUser($doc['aussteller_user_id'], $doc['ausstellerid']);
             if (!$isOwn && Gate::denies('document.view')) {
                 return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
             }

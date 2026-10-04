@@ -103,6 +103,8 @@ trait MailFixtures
             $person->{$key} = $value;
         }
         $person->save();
+        // Wie nach PersonnelSaved: über die Discord-ID verknüpfen, wenn sie eindeutig passt.
+        \App\Personnel\AccountLink::autoLinkByDiscord($person->discordtag);
 
         return $person;
     }

@@ -22,7 +22,7 @@ $vehicles = Capsule::table('intra_fahrzeuge')
 
 // Benutzer laden für Zuweisungs-Dropdown
 $users = Capsule::table('intra_users as u')
-    ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+    ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
     ->where('u.is_active', 1)
     ->orderBy('fullname')
     ->get(['u.id', Capsule::connection()->raw('COALESCE(m.fullname, u.username) AS fullname')])
@@ -65,7 +65,7 @@ if ($tableExists) {
     $statusCounts[''] = array_sum($statusCounts);
     $lastLogSub = Capsule::table('intra_fahrzeuge_defect_log as l')
         ->leftJoin('intra_users as u', 'l.user_id', '=', 'u.id')
-        ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+        ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
         ->whereRaw("l.id = (
                     SELECT l2.id FROM intra_fahrzeuge_defect_log l2
                     WHERE l2.defect_id = l.defect_id AND l2.action IN ('updated', 'resolved')
@@ -81,11 +81,11 @@ if ($tableExists) {
     $query = Capsule::table('intra_fahrzeuge_defects as d')
         ->join('intra_fahrzeuge as f', 'd.vehicle_id', '=', 'f.id')
         ->leftJoin('intra_users as u1', 'd.reported_by', '=', 'u1.id')
-        ->leftJoin('intra_mitarbeiter as m1', 'u1.discord_id', '=', 'm1.discordtag')
+        ->leftJoin('intra_mitarbeiter as m1', 'u1.aktenid', '=', 'm1.id')
         ->leftJoin('intra_users as u2', 'd.assigned_to', '=', 'u2.id')
-        ->leftJoin('intra_mitarbeiter as m2', 'u2.discord_id', '=', 'm2.discordtag')
+        ->leftJoin('intra_mitarbeiter as m2', 'u2.aktenid', '=', 'm2.id')
         ->leftJoin('intra_users as u3', 'd.resolved_by', '=', 'u3.id')
-        ->leftJoin('intra_mitarbeiter as m3', 'u3.discord_id', '=', 'm3.discordtag')
+        ->leftJoin('intra_mitarbeiter as m3', 'u3.aktenid', '=', 'm3.id')
         ->leftJoinSub($lastLogSub, 'last_log', 'last_log.defect_id', '=', 'd.id')
         ->select([
             'd.*',

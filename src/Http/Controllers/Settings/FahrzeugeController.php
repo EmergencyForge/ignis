@@ -120,7 +120,7 @@ class FahrzeugeController extends Controller
         try {
             $defects = Capsule::table('intra_fahrzeuge_defects as d')
                 ->leftJoin('intra_users as u', 'd.reported_by', '=', 'u.id')
-                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
                 ->where('d.vehicle_id', (int) $id)
                 ->orderByRaw("FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved')")
                 ->orderByRaw("CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC")

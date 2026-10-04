@@ -32,13 +32,13 @@ final class IcalExporter
     {
         $user = Capsule::table('intra_users')
             ->where('id', $userId)
-            ->first(['id', 'role', 'cirs_username', 'discord_id']);
+            ->first(['id', 'role', 'username', 'aktenid']);
         if ($user === null) {
             return self::wrapEmpty();
         }
 
         $roleId        = $user->role !== null ? (int) $user->role : null;
-        $mitarbeiterId = self::resolveMitarbeiterId((string) ($user->discord_id ?? ''));
+        $mitarbeiterId = $user->aktenid !== null ? (int) $user->aktenid : null;
 
         $from = (new DateTimeImmutable('today'))->modify('-' . self::RANGE_BACK_MONTHS . ' months');
         $to   = (new DateTimeImmutable('today'))->modify('+' . self::RANGE_FWD_MONTHS . ' months');
@@ -57,7 +57,7 @@ final class IcalExporter
         $lines[] = 'PRODID:' . self::PRODID;
         $lines[] = 'CALSCALE:GREGORIAN';
         $lines[] = 'METHOD:PUBLISH';
-        $calName = 'ıgnıs Kalender: ' . ($user->cirs_username ?? '');
+        $calName = 'ıgnıs Kalender: ' . ($user->username ?? '');
         $lines[] = 'X-WR-CALNAME:' . self::escapeText($calName);
         $lines[] = 'X-WR-TIMEZONE:Europe/Berlin';
 
@@ -196,15 +196,6 @@ final class IcalExporter
             'PRODID:' . self::PRODID,
             'END:VCALENDAR',
         ]);
-    }
-
-    private static function resolveMitarbeiterId(string $discordId): ?int
-    {
-        if ($discordId === '') return null;
-        $id = Capsule::table('intra_mitarbeiter')
-            ->where('discordtag', $discordId)
-            ->value('id');
-        return $id !== null ? (int) $id : null;
     }
 
     /**

@@ -6,11 +6,8 @@
 
 $fireRows = \Illuminate\Database\Capsule\Manager::table('intra_fire_incidents as i')
     ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
-    ->where('i.leader_id', '=', function ($q) {
-        $q->select('id')
-            ->from('intra_mitarbeiter')
-            ->where('discordtag', $_SESSION['discordtag']);
-    })
+    // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
+    ->where('i.leader_id', '=', \App\Personnel\AccountLink::currentId() ?? 0)
     ->where('i.archived', 0)
     ->orderByDesc('i.created_at')
     ->get([

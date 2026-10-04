@@ -6,7 +6,8 @@
 
 $ediviRows = \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
     ->join('intra_mitarbeiter as m', function ($join) {
-        $join->where('m.discordtag', '=', $_SESSION['discordtag']);
+        // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
+        $join->where('m.id', '=', \App\Personnel\AccountLink::currentId() ?? 0);
     })
     ->where(function ($q) {
         $q->whereRaw("e.pfname LIKE CONCAT('%', m.fullname, '%')")

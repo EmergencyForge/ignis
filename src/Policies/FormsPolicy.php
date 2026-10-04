@@ -35,7 +35,8 @@ class FormsPolicy
      *
      * Logik:
      *   - Mit `application.view` Permission: jeden Antrag
-     *   - Sonst: nur eigene Anträge (matched über Discord-Tag)
+     *   - Sonst: nur eigene Anträge (über den verknüpften Mitarbeiter,
+     *     alte Anträge ohne mitarbeiter_id über die Discord-ID)
      *
      * Wenn `$target` null ist (z.B. Permission-Check vor Load), wird auf
      * die globale Permission geprüft.
@@ -47,6 +48,9 @@ class FormsPolicy
         }
         if ($target === null) {
             return false;
+        }
+        if ($target->mitarbeiter_id !== null) {
+            return $target->mitarbeiter_id === \App\Personnel\AccountLink::currentId();
         }
         $own = $_SESSION['discordtag'] ?? null;
         return $own !== null && $own !== '' && $target->discordid === $own;

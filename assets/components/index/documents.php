@@ -4,15 +4,13 @@
  * Eingebunden aus index.php innerhalb einer ignis-card.
  */
 
-$userData = \App\Models\Personnel::query()
-    ->where('discordtag', $_SESSION['discordtag'])
-    ->first(['id']);
+$userData = \App\Personnel\AccountLink::current();
 
 $dokuresult = [];
 if ($userData) {
     $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
-        ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
-        ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+        ->leftJoin('intra_users as u', 'pd.aussteller_user_id', '=', 'u.id')
+        ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
         ->where('pd.profileid', $userData->id)
         ->orderByDesc('pd.ausstellungsdatum')
         ->get([

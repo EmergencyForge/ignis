@@ -104,30 +104,10 @@ class CalendarPolicy
 
     /**
      * Resolved den Mitarbeiter-Datensatz, der zum aktuell eingeloggten User
-     * gehoert (via discord_id <-> discordtag), und gibt seine ID zurueck.
-     * Liegt in der Session-Persona kein Mitarbeiter, gibt's null.
+     * gehoert (AccountLink), und gibt seine ID zurueck. Ohne Verknuepfung null.
      */
     private static function resolveMitarbeiterId(): ?int
     {
-        // SessionManager kennt user_id; Mitarbeiter-Lookup erfolgt einmal pro
-        // Request via Cached-Lookup im SessionManager. Falls nicht verfuegbar,
-        // direkter DB-Lookup.
-        if (isset($_SESSION['mitarbeiter_id']) && (int) $_SESSION['mitarbeiter_id'] > 0) {
-            return (int) $_SESSION['mitarbeiter_id'];
-        }
-
-        $discordId = $_SESSION['discordtag'] ?? null;
-        if (!$discordId) {
-            return null;
-        }
-
-        try {
-            $row = \App\Models\Personnel::query()
-                ->where('discordtag', $discordId)
-                ->first(['id']);
-            return $row ? (int) $row->id : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
+        return \App\Personnel\AccountLink::currentId();
     }
 }

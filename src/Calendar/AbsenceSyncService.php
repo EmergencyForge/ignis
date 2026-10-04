@@ -95,22 +95,21 @@ final class AbsenceSyncService
         // Mitarbeiter (Antragsteller) als Attendee+Organizer setzen, fuers
         // "Wer ist heute da"-Widget zaehlt das. Bei multi-day-Updates wird
         // firstOrCreate verwendet, sodass keine Duplikate entstehen.
-        if (!empty($antrag->discordid)) {
-            $mitarbeiter = Personnel::query()
-                ->where('discordtag', $antrag->discordid)
-                ->first(['id']);
-            if ($mitarbeiter !== null) {
-                CalendarAttendee::firstOrCreate(
-                    [
-                        'event_id'       => $event->id,
-                        'mitarbeiter_id' => $mitarbeiter->id,
-                    ],
-                    [
-                        'response'     => CalendarAttendee::RESPONSE_ACCEPTED,
-                        'is_organizer' => true,
-                    ]
-                );
-            }
+        // Alte Anträge ohne mitarbeiter_id kennen nur die Discord-ID.
+        $mitarbeiter = $antrag->mitarbeiter_id !== null
+            ? Personnel::query()->find($antrag->mitarbeiter_id, ['id'])
+            : (!empty($antrag->discordid) ? Personnel::query()->where('discordtag', $antrag->discordid)->first(['id']) : null);
+        if ($mitarbeiter !== null) {
+            CalendarAttendee::firstOrCreate(
+                [
+                    'event_id'       => $event->id,
+                    'mitarbeiter_id' => $mitarbeiter->id,
+                ],
+                [
+                    'response'     => CalendarAttendee::RESPONSE_ACCEPTED,
+                    'is_organizer' => true,
+                ]
+            );
         }
 
         return $event;
@@ -175,7 +174,7 @@ final class AbsenceSyncService
     /**
      * Liefert eine User-ID, die als created_by gesetzt werden kann.
      * Vorrang: Bearbeiter (cirs_manager_id, falls vorhanden) → Antragsteller
-     * (via discordid → intra_users.id) → erster Admin-User.
+     * (verknüpftes Konto, bei alten Anträgen über die Discord-ID) → erster Admin-User.
      */
     private static function resolveCreatorUserId(Form $antrag): int
     {
@@ -184,8 +183,13 @@ final class AbsenceSyncService
             return (int) $antrag->cirs_manager_userid;
         }
 
-        // 2) Antragsteller via Discord-ID
-        if (!empty($antrag->discordid)) {
+        // 2) Antragsteller: verknüpftes Konto, alte Anträge über die Discord-ID
+        if ($antrag->mitarbeiter_id !== null) {
+            $uid = Capsule::table('intra_users')->where('aktenid', $antrag->mitarbeiter_id)->value('id');
+            if ($uid !== null) {
+                return (int) $uid;
+            }
+        } elseif (!empty($antrag->discordid)) {
             $uid = Capsule::table('intra_users')
                 ->where('discord_id', $antrag->discordid)
                 ->value('id');
