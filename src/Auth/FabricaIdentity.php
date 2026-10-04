@@ -40,15 +40,10 @@ final class FabricaIdentity
 
                 $role = Role::query()->where('default', 1)->first();
                 if ($role === null) throw new DomainException('Es ist keine Standardrolle eingerichtet. Bitte wende dich an die Instanzverwaltung.');
+                $invitation = null;
                 if ($mode === 'code') {
-                    $now = date('Y-m-d H:i:s');
-                    $reserved = RegistrationCode::query()->where('code', $code ?? '')
-                        ->where('is_used', 0)->whereNull('used_at')
-                        ->where(function ($query) use ($now): void {
-                            $query->whereNull('expires_at')->orWhere('expires_at', '>', $now);
-                        })
-                        ->update(['used_at' => $now, 'is_used' => 1]);
-                    if ($reserved !== 1) {
+                    $invitation = RegistrationCode::reserve($code ?? '');
+                    if ($invitation === null) {
                         throw new DomainException('Als neuer Benutzer benötigst du einen gültigen, noch nicht verwendeten Einladungscode.');
                     }
                 }
@@ -62,7 +57,7 @@ final class FabricaIdentity
                     'full_admin' => false,
                 ]);
                 Capsule::table(self::TABLE)->insert(['issuer' => $issuer, 'subject' => $subject, 'user_id' => $user->id]);
-                if ($mode === 'code') RegistrationCode::query()->where('code', $code)->update(['used_by' => $user->id]);
+                $invitation?->redeemFor($user);
                 return $user;
             }, 3);
         } catch (QueryException $e) {
