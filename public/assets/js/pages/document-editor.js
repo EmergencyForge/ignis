@@ -160,8 +160,8 @@
             content: content,
             editable: !readOnly,
             toolbar: toolbar,
+            features: 'document',
             variables: variables,
-            sections: true,
             templateMode: false,
             onBlocked: createBlockedNotifier(),
             onUpdate: function () {

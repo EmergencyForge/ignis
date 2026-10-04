@@ -109,7 +109,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
+                <div class="efe-frame mb-4">
                     <div id="document-toolbar"></div>
                     <div class="efe-surround">
                         <div class="efe-page"

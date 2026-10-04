@@ -169,9 +169,7 @@
             editor = window.EmergencyForgeEditor.createEditor(mount, {
                 content: content,
                 toolbar: document.getElementById('mail-compose-toolbar'),
-                toolbarItems: ['bold', 'italic', 'strike', 'bulletList', 'orderedList', 'link', 'undo', 'redo'],
-                pages: false,
-                links: true,
+                features: 'mail',
                 onUpdate: markDirty,
             });
         });

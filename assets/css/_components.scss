@@ -282,3 +282,31 @@
 .ignis-profile-photo__error {
   color: var(--danger-text);
 }
+
+// Editor-Paket (efe-*): Rahmen, Toolbar, Schnellleiste und Menüs in den
+// Farben des Themas. Am body, nicht auf :root: der Skin setzt --accent
+// am body, auf :root rechnete der Editor mit dem Akzent ohne Skin. Das
+// A4-Blatt bleibt hell, sein Akzent deshalb dunkler als der Knopfakzent.
+body {
+  --efe-accent: var(--accent-text, var(--accent));
+  --efe-accent-soft: var(--accent-soft);
+  --efe-surface: var(--surface);
+  --efe-surface-raised: var(--surface-2);
+  --efe-text: var(--text);
+  --efe-text-muted: var(--text-2);
+  --efe-border: var(--border-control, var(--border));
+  --efe-focus-ring: var(--accent-focus, var(--accent));
+  --efe-bubble-bg: var(--overlay, var(--surface-2));
+  --efe-surround-bg: var(--well, var(--bg));
+  --efe-page-accent: color-mix(in srgb, var(--accent) 80%, black);
+  --efe-danger: var(--danger);
+  // Die Toolbar klebt unter der Kopfzeile. Drawer und Karte (overflow:
+  // hidden) sind eigene Scrollbereiche, dort klebt sie an deren Oberkante,
+  // sonst rueckte sie um die Kopfzeilenhoehe in den Text.
+  --efe-sticky-top: var(--topbar-h);
+}
+
+.ignis-drawer,
+.ignis-card {
+  --efe-sticky-top: 0px;
+}

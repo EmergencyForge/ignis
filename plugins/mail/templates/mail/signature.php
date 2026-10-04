@@ -14,7 +14,6 @@
 $layout     = 'admin';
 $bodyId     = 'mail';
 $SITE_TITLE = 'Signatur';
-$layoutHead = '<link rel="stylesheet" href="' . htmlspecialchars(asset('assets/dist/editor.css')) . '">';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
 <link rel="stylesheet" href="<?= htmlspecialchars(asset('assets/dist/editor.css')) ?>">
@@ -28,7 +27,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 Steht in neuen Mails nach einer Leerzeile unter dem Text und lässt sich dort noch ändern oder löschen.
                 <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange du keine eigene speicherst, gilt die Standard-Signatur mit den Angaben aus deinem Mitarbeiterprofil.' ?>
             </p>
-            <div class="ignis-mail-compose__editor">
+            <div class="efe-frame">
                 <div id="mail-signature-toolbar"></div>
                 <div id="mail-signature-editor" class="efe-page ignis-mail__editor" data-efe-content="<?= htmlspecialchars((string) json_encode($bodyJson, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES) ?>"></div>
             </div>
@@ -56,9 +55,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         var editor = window.EmergencyForgeEditor.createEditor(mount, {
             content: content,
             toolbar: document.getElementById('mail-signature-toolbar'),
-            toolbarItems: ['bold', 'italic', 'link', 'undo', 'redo'],
-            pages: false,
-            links: true,
+            features: 'signature',
         });
         hidden.value = JSON.stringify(editor.getJSON());
         editor.on('update', function () {

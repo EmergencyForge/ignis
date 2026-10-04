@@ -24,7 +24,6 @@
 $layout     = 'admin';
 $bodyId     = 'mail';
 $SITE_TITLE = $title;
-$layoutHead = '<link rel="stylesheet" href="' . htmlspecialchars(asset('assets/dist/editor.css')) . '">';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $json       = static fn (mixed $value): string => htmlspecialchars((string) json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES);
 $values     = static fn (array $options): string => htmlspecialchars(implode(',', array_column($options, 'value')), ENT_QUOTES);
@@ -72,7 +71,7 @@ $fullPage   = !\App\Helpers\Layout::wantsFragment();
 
     <div class="ignis-field">
         <span class="ignis-field__label">Text</span>
-        <div class="ignis-mail-compose__editor">
+        <div class="efe-frame">
             <div id="mail-compose-toolbar"></div>
             <div id="mail-compose-editor" class="efe-page ignis-mail__editor" data-efe-content="<?= $json($bodyJson) ?>"></div>
         </div>

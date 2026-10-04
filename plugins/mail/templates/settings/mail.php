@@ -64,7 +64,7 @@ $signatureJson = (string) json_encode($form['signature'], JSON_UNESCAPED_UNICODE
                     <div>
                         <span id="mail-default-signature-label" class="ignis-field__label">Standard-Signatur</span>
                         <input type="hidden" name="signature" id="mail-default-signature-json" value="<?= htmlspecialchars($signatureJson) ?>">
-                        <div class="ignis-mail-compose__editor">
+                        <div class="efe-frame">
                             <div id="mail-default-signature-toolbar"></div>
                             <div id="mail-default-signature-editor" class="efe-page ignis-mail__editor" aria-labelledby="mail-default-signature-label"
                                  data-efe-content="<?= htmlspecialchars($signatureJson) ?>"
@@ -108,9 +108,7 @@ $signatureJson = (string) json_encode($form['signature'], JSON_UNESCAPED_UNICODE
         var editor = window.EmergencyForgeEditor.createEditor(mount, {
             content: read('data-efe-content', { type: 'doc', content: [] }),
             toolbar: document.getElementById('mail-default-signature-toolbar'),
-            toolbarItems: ['bold', 'italic', 'link', 'undo', 'redo'],
-            pages: false,
-            links: true,
+            features: 'signature',
             variables: variables,
         });
         hidden.value = JSON.stringify(editor.getJSON());

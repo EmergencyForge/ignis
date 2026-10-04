@@ -228,10 +228,10 @@
     /**
      * Hängt die beiden ignis-eigenen Knöpfe an den Editor.
      *
-     * Sie stehen in einer eigenen Leiste und nicht in der Toolbar des
-     * Pakets: `createToolbar()` leert seinen Container beim Mounten, da
-     * bliebe nichts stehen. Und das Paket selbst bringt sie bewusst nicht
-     * mit. Es ist produktneutral, die Bedienoberfläche gehört dem Produkt.
+     * Das Markup legt sie schon in den Toolbar-Container, `createToolbar()`
+     * stellt sie hinter die eigenen Knöpfe. Das Paket selbst bringt sie
+     * bewusst nicht mit. Es ist produktneutral, die Bedienoberfläche
+     * gehört dem Produkt.
      */
     function wireTemplateTools(editor, mount) {
         var fieldButton = document.getElementById('template-field-button');
@@ -400,8 +400,8 @@
             content: content,
             editable: true,
             toolbar: toolbar,
+            features: 'document',
             variables: variables,
-            sections: true,
             templateMode: true,
         });
 

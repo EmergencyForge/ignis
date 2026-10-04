@@ -83,15 +83,18 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
-                    <div id="template-toolbar"></div>
-                    <div class="efe-toolbar" role="toolbar" aria-label="Vorlagen-Bausteine">
-                        <button type="button" id="template-field-button"
-                                class="efe-toolbar__button efe-toolbar__button--labelled"
-                                aria-label="Ausfüllbares Feld einfügen oder bearbeiten">Feld …</button>
-                        <button type="button" id="template-section-button"
-                                class="efe-toolbar__button efe-toolbar__button--labelled"
-                                aria-label="Titel, Hinweis und Wiederholung des Abschnitts">Abschnitt …</button>
+                <div class="efe-frame mb-4">
+                    <!-- Die eigenen Bausteine liegen schon im Container, die
+                         Toolbar des Pakets stellt sie hinter ihre Knöpfe. -->
+                    <div id="template-toolbar">
+                        <div class="efe-toolbar__group" role="group" aria-label="Vorlagen-Bausteine">
+                            <button type="button" id="template-field-button"
+                                    class="efe-btn efe-btn--labelled"
+                                    aria-label="Ausfüllbares Feld einfügen oder bearbeiten">Feld …</button>
+                            <button type="button" id="template-section-button"
+                                    class="efe-btn efe-btn--labelled"
+                                    aria-label="Titel, Hinweis und Wiederholung des Abschnitts">Abschnitt …</button>
+                        </div>
                     </div>
                     <div class="efe-surround">
                         <div class="efe-page"
