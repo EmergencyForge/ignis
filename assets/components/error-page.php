@@ -95,6 +95,8 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <title><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?> - Fehler</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/dist/vendor.css">
+    <?php // Die Seite nutzt Hilfsklassen wie container, py-4 und mb-3, die kommen aus Tailwind. ?>
+    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/dist/tailwind.css">
     <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist/css/all.min.css">
     <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist-mono/css/all.min.css">
     <style>

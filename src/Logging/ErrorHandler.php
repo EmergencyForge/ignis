@@ -292,6 +292,38 @@ class ErrorHandler
     }
 
     /**
+     * Rendert eine Vorlage in einen Puffer und gibt sie erst aus, wenn sie
+     * ganz durchgelaufen ist. Wirft sie, bleibt nichts Halbes stehen und
+     * der Aufrufer nimmt den nächsten Rückfall.
+     *
+     * @param array<string, mixed> $vars
+     */
+    private static function renderTemplate(string $template, array $vars): bool
+    {
+        if (!is_file($template)) {
+            return false;
+        }
+
+        $level = ob_get_level();
+        ob_start();
+        try {
+            (static function (string $__template, array $__vars): void {
+                extract($__vars, EXTR_SKIP);
+                require $__template;
+            })($template, $vars);
+            $html = (string) ob_get_clean();
+        } catch (Throwable) {
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+            return false;
+        }
+
+        echo $html;
+        return true;
+    }
+
+    /**
      * Render HTML error page for browser requests
      */
     private static function renderHtmlError(?Throwable $exception, ?string $message = null, string $errorId = ''): void
@@ -311,6 +343,13 @@ class ErrorHandler
         if (!headers_sent()) {
             header_remove('Content-Type');
             header('Content-Type: text/html; charset=utf-8');
+        }
+
+        // Für alle außer im Entwicklungsmodus die Fehlerseite im Look der
+        // 404 und 403. Wirft sie selbst, folgen die ausführliche Seite und
+        // zuletzt die Inline-Seite.
+        if (!$isDev && self::renderTemplate(dirname(__DIR__, 2) . '/templates/errors/500.php', ['errorId' => $errorId])) {
+            return;
         }
 
         // Try to use a nice error template, fall back to inline

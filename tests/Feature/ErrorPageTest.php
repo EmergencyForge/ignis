@@ -47,6 +47,34 @@ final class ErrorPageTest extends FeatureTestCase
     }
 
     #[Test]
+    public function die_500_zeigt_ziffern_fehlercode_und_die_adresse_ohne_query(): void
+    {
+        $previous = $_SERVER['REQUEST_URI'] ?? null;
+        $_SERVER['REQUEST_URI'] = '/settings/mail?token=<geheim>';
+        $errorId = 'B6A924A5';
+
+        ob_start();
+        try {
+            require dirname(__DIR__, 2) . '/templates/errors/500.php';
+        } finally {
+            $body = (string) ob_get_clean();
+            $_SERVER['REQUEST_URI'] = $previous;
+        }
+
+        $this->assertStringContainsString('<body data-ui-skin="core" data-page="error-500">', $body);
+        $this->assertMatchesRegularExpression(
+            '~<span class="ignis-error-stage__digit" data-digit="5"></span>\s*'
+            . '<span class="ignis-error-stage__digit" data-digit="0"></span>\s*'
+            . '<span class="ignis-error-stage__digit" data-digit="0"></span>~',
+            $body,
+        );
+        $this->assertStringContainsString('<span class="ignis-sr-only">Fehler 500: </span>Ein unerwarteter Fehler ist aufgetreten</h1>', $body);
+        $this->assertStringContainsString('<span>Fehlercode</span><code>B6A924A5</code>', $body);
+        $this->assertStringContainsString('<span>Adresse</span><code>/settings/mail</code>', $body);
+        $this->assertStringNotContainsString('geheim', $body);
+    }
+
+    #[Test]
     public function eine_sehr_lange_adresse_wird_gekuerzt(): void
     {
         $body = $this->get('/' . str_repeat('a', 300))->body;

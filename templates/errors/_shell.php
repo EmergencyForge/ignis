@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Gemeinsame Huelle der Fehlerseiten (404, 403).
+ * Gemeinsame Huelle der Fehlerseiten (404, 403, 500).
  *
  * Standalone, ohne Navigation und Seitenleiste: sie muss auch ohne aktive
  * Sitzung tragen, etwa wenn jemand ohne Anmeldung eine geschuetzte URL
@@ -11,10 +11,11 @@
  *
  * Erwartete Variablen:
  *   @var string      $errTitle      Titel im Browser-Tab
- *   @var string      $errCode       '404' oder '403', die Ziffern der Bühne
+ *   @var string      $errCode       '404', '403' oder '500', die Ziffern der Bühne
  *   @var string      $errHeadline   Ueberschrift
  *   @var string      $errText       Ein Satz dazu, was passiert ist
- *   @var string|null $errPath       Aufgerufene Adresse (nur 404), schon gekürzt
+ *   @var string|null $errPath       Aufgerufene Adresse (404 und 500), schon gekürzt
+ *   @var string|null $errId         Fehlercode aus dem Log (nur 500), optional
  *   @var string      $errBackUrl    Ziel des ersten Knopfes
  *   @var string      $errBackLabel  Beschriftung dieses Knopfes
  *   @var string      $errBackIcon   Font-Awesome-Klasse dieses Knopfes
@@ -86,6 +87,9 @@ $errBase = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 <p class="twplus-login__lead"><?= htmlspecialchars($errText) ?></p>
                 <?php if ($errPath !== null): ?>
                     <p class="twplus-login__path"><span>Adresse</span><code><?= htmlspecialchars($errPath) ?></code></p>
+                <?php endif; ?>
+                <?php if (($errId ?? null) !== null): ?>
+                    <p class="twplus-login__path"><span>Fehlercode</span><code><?= htmlspecialchars($errId) ?></code></p>
                 <?php endif; ?>
                 <div class="twplus-login__actions twplus-login__actions--row">
                     <a class="ignis-btn ignis-btn--primary ignis-btn--lg" href="<?= htmlspecialchars($errBackUrl) ?>"><i class="fa-solid <?= $errBackIcon ?>" aria-hidden="true"></i> <?= htmlspecialchars($errBackLabel) ?></a>
