@@ -27,9 +27,9 @@ final class LinkUsersToPersonnelMigrationTest extends IntegrationTestCase
 
     private function migration(): \LinkUsersToPersonnel
     {
-        require_once dirname(__DIR__, 3) . '/database/migrations/20261004000001_link_users_to_personnel.php';
+        require_once dirname(__DIR__, 3) . '/database/migrations/20261004200001_link_users_to_personnel.php';
         $adapter = new MysqlAdapter(['name' => $_ENV['DB_NAME'], 'connection' => Capsule::connection()->getPdo()]);
-        $migration = new \LinkUsersToPersonnel('testing', 20261004000001);
+        $migration = new \LinkUsersToPersonnel('testing', 20261004200001);
         $migration->setAdapter($adapter);
 
         return $migration;
