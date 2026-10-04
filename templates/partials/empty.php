@@ -6,6 +6,9 @@
  *             'title' => 'Keine offenen Mängel', 'text' => '…'];
  *   require dirname(__DIR__) . '/partials/empty.php';
  *
+ * Ein Schritt in 'steps' ist ['label' => …, 'state' => 'done'|'current'|'todo'],
+ * optional mit 'note' (kleine Zeile darunter) und 'action' (Knopf).
+ *
  * Läuft im Scope des Aufrufers und weist deshalb nur Variablen mit dem
  * Präfix `empty` zu. Alles, was hineinkommt, wird hier escaped.
  */
@@ -118,7 +121,8 @@ if (($empty['steps'] ?? []) !== []) {
         $emptyState = in_array($emptyItem['state'] ?? 'todo', ['done', 'current', 'todo'], true) ? ($emptyItem['state'] ?? 'todo') : 'todo';
         echo '<li data-state="' . $emptyState . '"><span class="ignis-empty__step-no">'
             . ($emptyState === 'done' ? '<i class="fa-solid fa-check" aria-hidden="true"></i><span class="ignis-sr-only">erledigt</span>' : (string) ($emptyIndex + 1))
-            . '</span><span>' . $emptyE($emptyItem['label'] ?? '') . '</span>'
+            . '</span><span>' . $emptyE($emptyItem['label'] ?? '')
+            . (($emptyItem['note'] ?? '') !== '' ? '<span class="ignis-empty__step-note">' . $emptyE($emptyItem['note']) . '</span>' : '') . '</span>'
             . (isset($emptyItem['action']) ? $emptyAction($emptyItem['action']) : '') . '</li>';
     }
     echo '</ol>';

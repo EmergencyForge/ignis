@@ -25,9 +25,9 @@ class InsertIntraKbConfig29112025 extends AbstractMigration
                 'config_value'  => 'false',
                 'config_type'   => 'boolean',
                 'category'      => 'funktionen',
-                'description'   => 'Soll die Wissensdatenbank ohne Login einsehbar sein?',
+                'description'   => 'Lexikon ohne Anmeldung',
                 'is_editable'   => 1,
-                'display_order' => 60,
+                'display_order' => 20,
             ],
         ])->saveData();
     }

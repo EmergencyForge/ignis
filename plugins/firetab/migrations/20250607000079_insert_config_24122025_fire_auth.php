@@ -27,10 +27,10 @@ class InsertConfig24122025FireAuth extends AbstractMigration
                 '" . self::CONFIG_KEY . "',
                 'false',
                 'boolean',
-                'funktionen',
-                'Wird eine Registrierung/Anmeldung im Hauptsystem für die Fahrzeuganmeldung im Einsatzprotokoll vorausgesetzt?',
+                'firetab',
+                'Nur mit ignis-Konto',
                 1,
-                35
+                10
             )
             ON DUPLICATE KEY UPDATE
                 config_type   = VALUES(config_type),

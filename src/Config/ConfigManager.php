@@ -6,6 +6,23 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 class ConfigManager
 {
+    /**
+     * Abschnitte der System-Konfiguration in Seitenreihenfolge, Schlüssel =>
+     * Überschrift. Eine Kategorie, die hier fehlt (etwa aus einem Plugin),
+     * erscheint dahinter als eigener Abschnitt.
+     */
+    public const CATEGORIES = [
+        'organisation' => 'Organisation',
+        'adresse'      => 'Adresse und Anmeldung',
+        'enotf'        => 'eNOTF',
+        'firetab'      => 'fireTab',
+        'funktionen'   => 'Funktionen',
+        'vernetzung'   => 'Vernetzung',
+        'rechtliches'  => 'Rechtliches',
+        'webhooks'     => 'Webhooks',
+        'technik'      => 'Technik',
+    ];
+
     /** @var array<int, array<string, mixed>>|null */
     private static ?array $configCache = null;
 
@@ -76,7 +93,11 @@ class ConfigManager
             $grouped[$category][] = $config;
         }
 
-        return $grouped;
+        // Bekannte Abschnitte in fester Reihenfolge, unbekannte dahinter in
+        // der Reihenfolge ihres ersten Eintrags.
+        $known = array_intersect_key(array_fill_keys(array_keys(self::CATEGORIES), []), $grouped);
+
+        return array_replace($known, $grouped);
     }
 
     /**
@@ -206,15 +227,6 @@ class ConfigManager
      */
     public function getCategoryDisplayName(string $category): string
     {
-        $names = [
-            'basis' => 'Basis Daten',
-            'server' => 'Server Daten',
-            'rp' => 'RP Daten',
-            'funktionen' => 'Funktionen',
-            'integrationen' => 'Integrationen',
-            'rechtliches' => 'Rechtliches',
-        ];
-
-        return $names[$category] ?? ucfirst($category);
+        return self::CATEGORIES[$category] ?? ucfirst($category);
     }
 }

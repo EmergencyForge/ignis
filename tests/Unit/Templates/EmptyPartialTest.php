@@ -84,6 +84,16 @@ final class EmptyPartialTest extends TestCase
         self::assertStringContainsString('<li data-state="current">', $html);
     }
 
+    public function testStepCanCarryANote(): void
+    {
+        $html = $this->render([
+            'title' => 'T',
+            'steps' => [['label' => 'Systemdaten anpassen', 'note' => 'Noch offen: <URL>'], ['label' => 'Rollen']],
+        ]);
+        self::assertStringContainsString('<span>Systemdaten anpassen<span class="ignis-empty__step-note">Noch offen: &lt;URL&gt;</span></span>', $html);
+        self::assertStringContainsString('<span>Rollen</span>', $html);
+    }
+
     public function testStepNumbersIgnoreStringKeys(): void
     {
         $html = $this->render([

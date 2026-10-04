@@ -201,4 +201,38 @@ final class DashboardTest extends FeatureTestCase
         $this->assertBodyNotContains('alert-warning', $page);
         $this->assertBodyNotContains('d-none', $page);
     }
+
+    /** @param array<string, string> $values */
+    private function setConfig(array $values): void
+    {
+        foreach ($values as $key => $value) {
+            Capsule::table('intra_config')->where('config_key', $key)->update(['config_value' => $value, 'is_editable' => 1]);
+        }
+        (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
+    }
+
+    /** Der Schritt Systemdaten nennt die offenen Felder und führt in den Einrichtungsmodus. */
+    #[Test]
+    public function der_systemdaten_schritt_nennt_die_offenen_felder(): void
+    {
+        $this->setConfig(['SYSTEM_URL' => 'CHANGE_ME', 'SERVER_NAME' => '']);
+        $this->login();
+
+        $page = $this->get('/index');
+
+        $this->assertBodyContains('<span>Systemdaten anpassen<span class="ignis-empty__step-note">Noch offen: System-URL, Servername</span></span>', $page);
+        $this->assertBodyContains('href="/settings/system/config?setup=1">Jetzt einrichten</a>', $page);
+    }
+
+    #[Test]
+    public function mit_url_und_servername_ist_der_schritt_erledigt(): void
+    {
+        $this->setConfig(['SYSTEM_URL' => 'intra.example.de', 'SERVER_NAME' => 'Rheinstadt RP']);
+        $this->login();
+
+        $page = $this->get('/index');
+
+        $this->assertBodyNotContains('ignis-empty__step-note', $page);
+        $this->assertBodyNotContains('href="/settings/system/config?setup=1"', $page);
+    }
 }

@@ -6,6 +6,7 @@
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Config\ConfigManager;
+use App\Setup\SetupCheck;
 use App\Utils\AuditLogger;
 
 $configManager = new ConfigManager();
@@ -79,7 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
         Flash::set('info', 'Keine Änderungen vorgenommen.');
     }
 
-    header("Location: " . BASE_PATH . "settings/system/config.php");
+    // Im Einrichtungsmodus nach dem Speichern dort bleiben, damit der Hinweis
+    // zeigt, was noch fehlt.
+    header("Location: " . BASE_PATH . "settings/system/config.php" . (isset($_GET['setup']) ? '?setup=1' : ''));
     exit();
 }
 
@@ -94,6 +97,26 @@ $configByCategory = array_filter(array_map(
     )),
     $configManager->getConfigByCategory(),
 ));
+
+// Einrichtungsmodus (?setup=1, verlinkt vom Dashboard und der Übersicht):
+// Hinweis oben, offene Felder markiert, die Seite öffnet auf dem Abschnitt
+// des ersten offenen Felds. Ohne den Modus öffnet sie auf dem ersten Abschnitt.
+$setupMode  = isset($_GET['setup']);
+$setupOpen  = $setupMode ? (new SetupCheck($configManager->getAllConfig()))->open() : [];
+$setupLevel = array_column($setupOpen, 'level', 'key');
+$setupText  = array_column($setupOpen, 'text', 'key');
+$setupRequired    = array_values(array_filter($setupOpen, static fn (array $item): bool => $item['level'] === SetupCheck::REQUIRED));
+$setupRecommended = array_values(array_filter($setupOpen, static fn (array $item): bool => $item['level'] === SetupCheck::RECOMMENDED));
+
+$activeCategory = (string) array_key_first($configByCategory);
+foreach ($setupOpen as $setupItem) {
+    foreach ($configByCategory as $category => $configs) {
+        if (in_array($setupItem['key'], array_column($configs, 'config_key'), true)) {
+            $activeCategory = (string) $category;
+            break 2;
+        }
+    }
+}
 
 $layout = 'admin';
 $bodyId = 'settings';
@@ -111,33 +134,68 @@ $SITE_TITLE = 'System-Konfiguration';
                         </div>
                     </div>
 
+                    <?php if ($setupMode): ?>
+                        <?php
+                        $setupLinks = static fn (array $items): string => implode(', ', array_map(
+                            static fn (array $item): string => '<a href="#cfg-' . htmlspecialchars($item['key']) . '" data-setup-jump>' . htmlspecialchars($item['label']) . '</a>',
+                            $items,
+                        ));
+                        ?>
+                        <div class="ignis-alert ignis-alert--<?= $setupRequired === [] ? 'ok' : 'warn' ?> mb-4" id="setup-notice" role="status">
+                            <i class="fa-solid <?= $setupRequired === [] ? 'fa-circle-check' : 'fa-flag-checkered' ?> ignis-alert__icon" aria-hidden="true"></i>
+                            <div class="ignis-alert__body">
+                                <?php if ($setupRequired === []): ?>
+                                    <div class="ignis-alert__title">Alles Nötige ist eingetragen</div>
+                                    <p class="m-0">Der Schritt Systemdaten auf dem Dashboard ist erledigt.</p>
+                                <?php else: ?>
+                                    <div class="ignis-alert__title">Noch offen: <?= $setupLinks($setupRequired) ?></div>
+                                <?php endif; ?>
+                                <?php if ($setupRecommended !== []): ?>
+                                    <p class="mt-2 mb-1"><?= $setupRequired === [] ? 'Noch empfohlen:' : 'Außerdem empfohlen:' ?></p>
+                                    <ul class="m-0 pl-4 list-disc">
+                                        <?php foreach ($setupRecommended as $setupItem): ?>
+                                            <li><a href="#cfg-<?= htmlspecialchars($setupItem['key']) ?>" data-setup-jump><?= htmlspecialchars($setupItem['label']) ?></a>: <?= htmlspecialchars($setupItem['text']) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
                     <div class="ignis-list-toolbar">
-                        <div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Kategorie">
-                            <button type="button" aria-pressed="true" data-category="">Alle</button>
+                        <div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Abschnitt">
                             <?php foreach ($configByCategory as $category => $configs): ?>
-                                <button type="button" aria-pressed="false" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
+                                <button type="button" aria-pressed="<?= $category === $activeCategory ? 'true' : 'false' ?>" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
                             <?php endforeach; ?>
+                            <button type="button" aria-pressed="false" data-category="">Alle</button>
                         </div>
                     </div>
 
                     <form method="post" id="configForm">
                         <?= csrf_field() ?>
                         <?php foreach ($configByCategory as $category => $configs): ?>
-                            <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>">
+                            <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>"<?= $category === $activeCategory ? '' : ' hidden' ?>>
                                 <div class="ignis-card mb-4">
                                     <div class="ignis-card__header">
                                         <h2 class="ignis-card__title"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></h2>
                                     </div>
                                     <div class="ignis-card__body">
-                                        <?php foreach ($configs as $config): ?>
-                                            <div class="twplus-form-section">
+                                        <?php foreach ($configs as $config):
+                                            $configLevel = $setupLevel[$config['config_key']] ?? null;
+                                            $configHint  = trim((string) ($config['hint'] ?? ''));
+                                        ?>
+                                            <div class="twplus-form-section<?= $configLevel !== null ? ' twplus-form-section--setup' : '' ?>" id="cfg-<?= htmlspecialchars($config['config_key']) ?>"<?= $configLevel !== null ? ' data-setup="' . $configLevel . '"' : '' ?>>
                                                 <div>
                                                     <label for="<?= htmlspecialchars($config['config_key']) ?>" class="twplus-form-section__label">
                                                         <?= htmlspecialchars($config['description']) ?>
                                                     </label>
-                                                    <div class="twplus-form-section__hint">
-                                                        <?= htmlspecialchars($config['config_key']) ?> · <?= htmlspecialchars($config['config_type']) ?>
-                                                    </div>
+                                                    <div class="twplus-form-section__key"><?= htmlspecialchars($config['config_key']) ?> · <?= htmlspecialchars($config['config_type']) ?></div>
+                                                    <?php if ($configLevel !== null): ?>
+                                                        <div class="twplus-form-section__setup">
+                                                            <span class="ignis-chip ignis-chip--sm ignis-chip--<?= $configLevel === SetupCheck::REQUIRED ? 'warn' : 'info' ?>"><?= $configLevel === SetupCheck::REQUIRED ? 'Pflicht' : 'Empfohlen' ?></span>
+                                                            <?= htmlspecialchars($setupText[$config['config_key']]) ?>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div>
 
@@ -176,7 +234,6 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                                         </button>
                                                     </div>
-                                                    <div class="ignis-field__hint">Dieser API-Schlüssel wird für externe Schnittstellen verwendet. Ein neuer Schlüssel macht alte Integrationen ungültig.</div>
 
                                                 <?php elseif ($config['config_key'] === 'INSTALLATION_ID'): ?>
                                                     <input
@@ -185,7 +242,6 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         readonly>
-                                                    <div class="ignis-field__hint">Wird beim ersten Telemetrie-Kontakt vergeben und lässt sich nicht ändern.</div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'boolean'): ?>
                                                     <label class="ignis-switch" for="<?= htmlspecialchars($config['config_key']) ?>">
@@ -196,9 +252,6 @@ $SITE_TITLE = 'System-Konfiguration';
                                                             <?= ($config['config_value'] === 'true' || $config['config_value'] === '1') ? 'checked' : '' ?>>
                                                         <span></span>
                                                     </label>
-                                                    <?php if ($config['config_key'] === 'TABLET_LOGIN_ENABLED'): ?>
-                                                        <div class="ignis-field__hint">Der FiveM-Server fordert mit dem API-Schlüssel einen Einmal-Link für die Discord-ID des Spielers an, das Tablet meldet sich damit an. Das klappt nur für bestehende, aktive Benutzer mit hinterlegter Discord-ID; neue Konten entstehen so nicht.</div>
-                                                    <?php endif; ?>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'color'): ?>
                                                     <input
@@ -207,7 +260,6 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>">
-                                                    <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
                                                     <?php if ($config['config_key'] === 'SYSTEM_COLOR' && \App\Helpers\Theme::accentLooksLikeDanger((string) $config['config_value'])): ?>
                                                         <div class="ignis-alert ignis-alert--warn mt-2" id="system-color-danger" role="status">
                                                             <i class="fa-solid fa-triangle-exclamation ignis-alert__icon" aria-hidden="true"></i>
@@ -257,12 +309,11 @@ $SITE_TITLE = 'System-Konfiguration';
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'META_IMAGE_URL'): ?>
                                                     <input
                                                         type="text"
-                                                        class="ignis-input mb-2"
+                                                        class="ignis-input"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         oninput="updateMetaImagePreview(this.value)">
-                                                    <div class="ignis-field__hint">Vollständige URL zum Bild für Link-Vorschau.</div>
                                                     <div class="mt-2"<?= trim((string) $config['config_value']) === '' ? ' hidden' : '' ?>>
                                                         <span class="ignis-field__label block mb-1">Vorschau</span>
                                                         <img
@@ -281,11 +332,10 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         data-custom-dropdown="true"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>">
-                                                        <option value="open" <?= $config['config_value'] === 'open' ? 'selected' : '' ?>>Offen (für jeden möglich)</option>
-                                                        <option value="code" <?= $config['config_value'] === 'code' ? 'selected' : '' ?>>Mit Code (nur mit Registrierungscode)</option>
-                                                        <option value="closed" <?= $config['config_value'] === 'closed' ? 'selected' : '' ?>>Geschlossen (keine Registrierung)</option>
+                                                        <option value="open" <?= $config['config_value'] === 'open' ? 'selected' : '' ?>>Offen für alle</option>
+                                                        <option value="code" <?= $config['config_value'] === 'code' ? 'selected' : '' ?>>Nur mit Einladungscode</option>
+                                                        <option value="closed" <?= $config['config_value'] === 'closed' ? 'selected' : '' ?>>Geschlossen</option>
                                                     </select>
-                                                    <div class="ignis-field__hint"><?= htmlspecialchars($config['description']) ?></div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'ENOTF_BZ_UNIT'): ?>
                                                     <select
@@ -296,7 +346,6 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         <option value="mg/dl" <?= $config['config_value'] === 'mg/dl' ? 'selected' : '' ?>>mg/dl (Milligramm pro Deziliter)</option>
                                                         <option value="mmol/l" <?= $config['config_value'] === 'mmol/l' ? 'selected' : '' ?>>mmol/l (Millimol pro Liter)</option>
                                                     </select>
-                                                    <div class="ignis-field__hint">Blutzuckerwerte werden automatisch umgerechnet (1 mg/dl = 0,0555 mmol/l)</div>
 
                                                 <?php elseif ($config['is_editable']): ?>
                                                     <input
@@ -305,6 +354,9 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>">
+                                                <?php endif; ?>
+                                                <?php if ($configHint !== ''): ?>
+                                                    <div class="ignis-field__hint"><?= htmlspecialchars($configHint) ?></div>
                                                 <?php endif; ?>
                                                 </div>
                                             </div>
@@ -325,16 +377,44 @@ $SITE_TITLE = 'System-Konfiguration';
     </div>
 
     <script>
-        // Kategorie-Filter: blendet die Karten der anderen Kategorien aus.
-        document.querySelectorAll('#categoryFilter button').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#categoryFilter button').forEach(function(b) { b.setAttribute('aria-pressed', String(b === btn)); });
-                var cat = this.dataset.category;
-                document.querySelectorAll('.config-section').forEach(function(section) {
+        // Abschnitte: zeigt nur die Karte des gewählten Abschnitts ("Alle" zeigt
+        // alle). Ausgeblendete Felder bleiben im Formular und werden mitgespeichert.
+        (function () {
+            var buttons = document.querySelectorAll('#categoryFilter button');
+
+            function showCategory(cat) {
+                buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.category === cat)); });
+                document.querySelectorAll('.config-section').forEach(function (section) {
                     section.hidden = !!cat && section.dataset.configCategory !== cat;
                 });
+            }
+
+            // Springt zu einem Feld (#cfg-<KEY>), auch wenn sein Abschnitt gerade zu ist.
+            function jumpTo(id) {
+                var row = document.getElementById(id);
+                var section = row && row.closest('.config-section');
+                if (!section) return false;
+                if (section.hidden) showCategory(section.dataset.configCategory);
+                row.scrollIntoView({ block: 'center' });
+                var field = row.querySelector('input:not([type=hidden]):not([type=file]), select, textarea');
+                if (field) field.focus({ preventScroll: true });
+                return true;
+            }
+
+            buttons.forEach(function (btn) {
+                btn.addEventListener('click', function () { showCategory(btn.dataset.category); });
             });
-        });
+            document.querySelectorAll('[data-setup-jump]').forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    var id = link.getAttribute('href').slice(1);
+                    if (jumpTo(id)) {
+                        event.preventDefault();
+                        history.replaceState(null, '', '#' + id);
+                    }
+                });
+            });
+            if (location.hash.indexOf('#cfg-') === 0) jumpTo(location.hash.slice(1));
+        })();
 
         function updateLogoPreview(value) {
             document.getElementById('logo_preview').src = value;

@@ -66,9 +66,13 @@ final class SystemPagesTest extends FeatureTestCase
         $page = $this->get('/settings/system/config');
 
         $this->assertOk($page);
-        $this->assertBodyContains('<div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Kategorie">', $page);
-        $this->assertBodyContains('<button type="button" aria-pressed="true" data-category="">Alle</button>', $page);
+        $this->assertBodyContains('<div class="ignis-segmented" id="categoryFilter" role="group" aria-label="Abschnitt">', $page);
+        // Ohne Einrichtungsmodus öffnet die Seite auf dem ersten Abschnitt, „Alle" steht am Ende.
+        $this->assertBodyContains('<button type="button" aria-pressed="true" data-category="organisation">Organisation</button>', $page);
+        $this->assertBodyContains('<button type="button" aria-pressed="false" data-category="">Alle</button>', $page);
+        $this->assertBodyContains('<div class="config-section" data-config-category="adresse" hidden>', $page);
         $this->assertBodyContains('name="save_config" class="ignis-btn ignis-btn--primary"', $page);
+        $this->assertBodyNotContains('setup-notice', $page);
         $this->assertBodyNotContains('form-select', $page);
         $this->assertBodyNotContains('input-group', $page);
         $this->assertBodyNotContains('btn-toolbar-group', $page);
@@ -132,6 +136,104 @@ final class SystemPagesTest extends FeatureTestCase
         $this->assertBodyContains('id="logo_preview"', $page);
         // Standard-Logo aktiv: kein Entfernen-Knopf.
         $this->assertBodyContains('id="system-logo-remove" hidden', $page);
+    }
+
+    /** @param array<string, array<string, mixed>> $rows Schlüssel => Spalten */
+    private function setConfig(array $rows): void
+    {
+        foreach ($rows as $key => $columns) {
+            Capsule::table('intra_config')->where('config_key', $key)->update($columns);
+        }
+        (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
+    }
+
+    /**
+     * Neun Abschnitte in fester Reihenfolge; Schlüssel und Typ stehen klein
+     * unter der Beschriftung, der Hinweis aus der Spalte hint unter dem Feld.
+     */
+    #[Test]
+    public function system_konfiguration_in_neun_abschnitten(): void
+    {
+        $page = $this->get('/settings/system/config');
+
+        preg_match_all('~<h2 class="ignis-card__title">([^<]+)</h2>~', $page->body, $titles);
+        $this->assertSame(
+            ['Organisation', 'Adresse und Anmeldung', 'eNOTF', 'fireTab', 'Funktionen', 'Vernetzung', 'Rechtliches', 'Webhooks', 'Technik'],
+            array_slice($titles[1], 0, 9),
+        );
+        $this->assertBodyContains('<div class="twplus-form-section__key">REGISTRATION_MODE · string</div>', $page);
+        $this->assertBodyContains('<div class="ignis-field__hint">Wer sich selbst ein Konto anlegen darf. Codes vergibst du unter Einladungen.</div>', $page);
+        // Die Beschriftung wiederholt die Optionen nicht mehr.
+        $this->assertBodyNotContains('open = für jeden möglich', $page);
+    }
+
+    /** Eine Kategorie, die die Seite nicht kennt (etwa aus einem Plugin), bekommt einen eigenen Abschnitt am Ende. */
+    #[Test]
+    public function unbekannte_kategorie_erscheint_als_eigener_abschnitt(): void
+    {
+        Capsule::table('intra_config')->insert([
+            'config_key' => 'ZZ_PLUGIN_SWITCH', 'config_value' => 'true', 'config_type' => 'boolean',
+            'category' => 'zubehoer', 'description' => 'Zubehör anzeigen', 'is_editable' => 1, 'display_order' => 1,
+        ]);
+        $this->setConfig([]);
+
+        $page = $this->get('/settings/system/config');
+
+        preg_match_all('~<h2 class="ignis-card__title">([^<]+)</h2>~', $page->body, $titles);
+        $this->assertSame('Zubehoer', end($titles[1]));
+        $this->assertBodyContains('name="ZZ_PLUGIN_SWITCH"', $page);
+    }
+
+    /** ?setup=1 auf einer frischen Installation: Pflicht und Empfehlungen als Sprunglinks, Felder markiert. */
+    #[Test]
+    public function einrichtungsmodus_listet_und_markiert_offene_felder(): void
+    {
+        $this->setConfig([
+            'SYSTEM_URL'    => ['config_value' => 'CHANGE_ME', 'is_editable' => 1],
+            'SERVER_NAME'   => ['config_value' => 'CHANGE_ME'],
+            'RP_STREET'     => ['config_value' => 'Musterweg 0815'],
+            'ENOTF_USE_PIN' => ['config_value' => 'true'],
+            'ENOTF_PIN'     => ['config_value' => '1234'],
+        ]);
+
+        $page = $this->get('/settings/system/config', ['query' => ['setup' => '1']]);
+
+        $this->assertOk($page);
+        $this->assertBodyContains('<div class="ignis-alert ignis-alert--warn mb-4" id="setup-notice" role="status">', $page);
+        $this->assertBodyContains('Noch offen: <a href="#cfg-SYSTEM_URL" data-setup-jump>System-URL</a>, <a href="#cfg-SERVER_NAME" data-setup-jump>Servername</a>', $page);
+        $this->assertBodyContains('<li><a href="#cfg-RP_STREET" data-setup-jump>Straße</a>: Steht noch auf dem Beispielwert „Musterweg 0815“.</li>', $page);
+        $this->assertBodyContains('Die Standard-PIN ist ein Sicherheitsrisiko', $page);
+        $this->assertBodyContains('<div class="twplus-form-section twplus-form-section--setup" id="cfg-SYSTEM_URL" data-setup="required">', $page);
+        $this->assertBodyContains('<div class="twplus-form-section twplus-form-section--setup" id="cfg-ENOTF_PIN" data-setup="recommended">', $page);
+        $this->assertBodyContains('<div class="twplus-form-section" id="cfg-BASE_PATH">', $page);
+        // Die Seite öffnet auf dem Abschnitt des ersten offenen Felds.
+        $this->assertBodyContains('<button type="button" aria-pressed="true" data-category="adresse">', $page);
+        $this->assertBodyContains('<div class="config-section" data-config-category="organisation" hidden>', $page);
+    }
+
+    /** Gesperrte Felder (fabrica setzt SYSTEM_URL) zählen als erledigt; ohne Pflichtfeld meldet der Hinweis das. */
+    #[Test]
+    public function einrichtungsmodus_ohne_pflichtfelder_meldet_fertig(): void
+    {
+        $this->setConfig([
+            'SYSTEM_URL'    => ['config_value' => 'CHANGE_ME', 'is_editable' => 0],
+            'SERVER_NAME'   => ['config_value' => 'Rheinstadt RP'],
+            'SYSTEM_NAME'   => ['config_value' => 'BF Rheinstadt'],
+            'RP_STREET'     => ['config_value' => 'Ring 1'],
+            'RP_ZIP'        => ['config_value' => '50667'],
+            'SERVER_CITY'   => ['config_value' => 'Musterstadt'],
+            'ENOTF_USE_PIN' => ['config_value' => 'false'],
+        ]);
+
+        $page = $this->get('/settings/system/config', ['query' => ['setup' => '1']]);
+
+        $this->assertBodyContains('<div class="ignis-alert ignis-alert--ok mb-4" id="setup-notice" role="status">', $page);
+        $this->assertBodyContains('Alles Nötige ist eingetragen', $page);
+        $this->assertBodyContains('Noch empfohlen:', $page);
+        $this->assertBodyContains('<a href="#cfg-SERVER_CITY" data-setup-jump>Stadt</a>', $page);
+        $this->assertBodyNotContains('id="cfg-SYSTEM_URL"', $page);
+        $this->assertBodyNotContains('data-setup="required"', $page);
+        $this->assertBodyContains('<button type="button" aria-pressed="true" data-category="organisation">', $page);
     }
 
     #[Test]

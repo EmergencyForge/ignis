@@ -29,8 +29,10 @@
 // Ein Alert mit `hidden` bleibt weg, obwohl .ignis-alert (Paket) display: flex
 // setzt (der Hosting-Hinweis auf dashboard.php wird per Skript eingeblendet).
 // [hidden] und .ignis-alert haben dieselbe Spezifitaet; ohne diese Regel
-// gewinnt die Klasse gegen das Browser-Attribut.
-.ignis-alert[hidden] {
+// gewinnt die Klasse gegen das Browser-Attribut. Dasselbe gilt für die
+// Kacheln, die die Suche auf /settings/index ausblendet.
+.ignis-alert[hidden],
+.twplus-link-card[hidden] {
   display: none;
 }
 
@@ -172,4 +174,65 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+// =====================================================
+// System-Konfiguration (templates/settings/system/config.php): Schlüssel
+// und Typ klein unter der Beschriftung. Im Einrichtungsmodus (?setup=1)
+// trägt ein offenes Feld den Warnton, Pflichtfelder zusätzlich die Fläche.
+// =====================================================
+
+.twplus-form-section {
+  scroll-margin-top: 6rem;
+
+  &__key {
+    margin-top: 0.2rem;
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    overflow-wrap: anywhere;
+  }
+
+  &__setup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    color: var(--text-2);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  &--setup,
+  &--setup:first-child,
+  &--setup:last-child {
+    margin-inline: -0.75rem;
+    padding: 0.9rem 0.75rem;
+    border-radius: var(--radius-2);
+    box-shadow: inset 3px 0 0 var(--warn);
+  }
+
+  &--setup[data-setup='required'] {
+    background: var(--warn-soft);
+  }
+}
+
+// Ein Alert mit Knopf (Einrichtungshinweis auf /settings/index): auf
+// schmalen Bildschirmen rutscht der Knopf unter den Text, statt ihn auf ein
+// paar Wörter je Zeile zu quetschen.
+.ignis-alert:has(> .ignis-btn) {
+  flex-wrap: wrap;
+
+  > .ignis-alert__body { min-width: 14rem; }
+  > .ignis-btn { margin-left: auto; }
+}
+
+// Unter einem Schritt der Einrichtung (templates/partials/empty.php,
+// 'note'): was dort noch fehlt.
+.ignis-empty__step-note {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--text-3);
+  font-size: 0.75rem;
 }

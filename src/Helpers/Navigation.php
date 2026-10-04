@@ -249,7 +249,7 @@ final class Navigation
      * Markiert genau einen Eintrag als aktiv: den, dessen href oder eines
      * seiner `match`-Präfixe am längsten mit dem aktuellen Pfad
      * übereinstimmt. „Benutzer" (match /users/list, /users/edit) verliert
-     * so gegen „Registrierungscodes" (href /users/registration-codes).
+     * so gegen „Einladungen" (href /users/registration-codes).
      *
      * @param list<array<string, mixed>> $groups
      */

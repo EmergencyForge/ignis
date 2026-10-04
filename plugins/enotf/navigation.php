@@ -46,6 +46,7 @@ return [
                     [
                         'label'        => 'POIs',
                         'href'         => BASE_PATH . 'settings/pois/index',
+                        'icon'         => 'fa-solid fa-location-dot',
                         // Abteilungen und Zugangscodes hängen unter /settings/pois/.
                         'match'        => ['/settings/pois'],
                         'description'  => 'Points of Interest für Einsätze verwalten.',
@@ -57,8 +58,16 @@ return [
                         ],
                     ],
                     [
+                        'label'       => 'Krankenhaus-Zugangscodes',
+                        'href'        => BASE_PATH . 'settings/pois/access-codes',
+                        'icon'        => 'fa-solid fa-key',
+                        'description' => 'Codes, mit denen Kliniken im Verfügbarkeits-Portal ihre Fachrichtungen pflegen.',
+                        'permissions' => ['admin', 'pois.manage'],
+                    ],
+                    [
                         'label'        => 'Medikamente',
                         'href'         => BASE_PATH . 'settings/medications/index',
+                        'icon'         => 'fa-solid fa-pills',
                         'description'  => 'Medikamentenliste für eNOTF verwalten.',
                         'permissions'  => ['admin', 'edivi.view'],
                         'quick_action' => [
@@ -70,7 +79,7 @@ return [
                     [
                         'label'        => 'Schnellzugriff',
                         'href'         => BASE_PATH . 'settings/enotf/index',
-                        // Die Kategorien liegen unter /settings/enotf/kategorien/.
+                        'icon'         => 'fa-solid fa-bolt',
                         'match'        => ['/settings/enotf'],
                         'description'  => 'Schnellzugriffs-Links im eNOTF pflegen.',
                         'permissions'  => ['admin', 'edivi.view'],
@@ -79,6 +88,13 @@ return [
                             'target' => 'schnellzugriff-link-create',
                             'label'  => 'Neuen Link anlegen',
                         ],
+                    ],
+                    [
+                        'label'       => 'Schnellzugriff-Kategorien',
+                        'href'        => BASE_PATH . 'settings/enotf/kategorien/index',
+                        'icon'        => 'fa-solid fa-folder-tree',
+                        'description' => 'Gruppen, in denen die Schnellzugriffs-Links stehen.',
+                        'permissions' => ['admin', 'edivi.view'],
                     ],
                 ],
             ],

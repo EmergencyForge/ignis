@@ -200,7 +200,7 @@ return [
 
         [
             'id'        => 'personnel-quals',
-            'label'     => 'Personal & Qualifikationen',
+            'label'     => 'Personal',
             'placement' => 'settings',
             'items'     => [
                 [
@@ -260,7 +260,7 @@ return [
 
         [
             'id'        => 'access',
-            'label'     => 'Zugang & Rechte',
+            'label'     => 'Zugang',
             'placement' => 'settings',
             'items'     => [
                 [
@@ -277,10 +277,10 @@ return [
                     ],
                 ],
                 [
-                    'label'        => 'Registrierungscodes',
+                    'label'        => 'Einladungen',
                     'href'         => BASE_PATH . 'users/registration-codes',
                     'icon'         => 'fa-solid fa-ticket',
-                    'description'  => 'Einladungscodes für neue Mitarbeiter verwalten.',
+                    'description'  => 'Codes, mit denen sich neue Mitarbeiter registrieren.',
                     'permissions'  => ['admin', 'users.create'],
                     'quick_action' => [
                         'type'   => 'modal',
@@ -299,41 +299,15 @@ return [
         ],
 
         [
-            'id'        => 'vehicles-settings',
-            'label'     => 'Fahrzeuge',
-            'placement' => 'settings',
-            'items'     => [
-                [
-                    'label'       => 'Beladelisten',
-                    'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
-                    'icon'        => 'fa-solid fa-boxes-stacked',
-                    'description' => 'Beladelisten für Fahrzeuge pflegen.',
-                    'permissions' => ['admin', 'vehicles.manage'],
-                    'match'       => ['/settings/vehicles/vehload'],
-                ],
-            ],
-        ],
-
-        // Anker für die eNOTF-Einstellungen (POIs, Medikamente, Schnell-
-        // zugriff); ohne das Plugin bleibt die Gruppe leer und verschwindet
-        // wie „Protokolle" oben.
-        [
-            'id'        => 'enotf',
-            'label'     => 'eNOTF / Rettungsdienst',
-            'placement' => 'settings',
-            'items'     => [],
-        ],
-
-        [
             'id'        => 'templates-forms',
-            'label'     => 'Vorlagen & Formulare',
+            'label'     => 'Inhalte',
             'placement' => 'settings',
             'items'     => [
                 [
-                    'label'       => 'Dokumente',
+                    'label'       => 'Dokumentvorlagen',
                     'href'        => BASE_PATH . 'settings/documents/editor-templates',
                     'icon'        => 'fa-solid fa-file-lines',
-                    'description' => 'Vorlagen für Mitarbeiter-Dokumente verwalten.',
+                    'description' => 'Vorlagen für Urkunden, Zertifikate und Schreiben.',
                     'permissions' => ['admin', 'personnel.documents.manage'],
                     'match'       => ['/settings/documents'],
                 ],
@@ -341,7 +315,7 @@ return [
                     'label'        => 'Antragstypen',
                     'href'         => BASE_PATH . 'settings/forms/list',
                     'icon'         => 'fa-solid fa-list-check',
-                    'description'  => 'Antragstypen für das Formularsystem verwalten.',
+                    'description'  => 'Welche Anträge Mitarbeiter stellen können.',
                     'permissions'  => ['admin'],
                     'match'        => ['/settings/forms'],
                     'quick_action' => [
@@ -354,11 +328,38 @@ return [
                     'label'       => 'Dashboard',
                     'href'        => BASE_PATH . 'settings/dashboard/index',
                     'icon'        => 'fa-solid fa-table-cells-large',
-                    'description' => 'Kacheln und Layout des Dashboards konfigurieren.',
+                    'description' => 'Kacheln und Kategorien auf dem Dashboard.',
                     'permissions' => ['admin', 'dashboard.manage'],
                     'match'       => ['/settings/dashboard'],
                 ],
+                [
+                    'label'       => 'Beladelisten',
+                    'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
+                    'icon'        => 'fa-solid fa-boxes-stacked',
+                    'description' => 'Was auf welchem Fahrzeug verladen ist.',
+                    'permissions' => ['admin', 'vehicles.manage'],
+                    'match'       => ['/settings/vehicles/vehload'],
+                ],
             ],
+        ],
+
+        // Anker für die eNOTF-Einstellungen (POIs, Medikamente, Schnell-
+        // zugriff); ohne das Plugin bleibt die Gruppe leer und verschwindet
+        // wie „Protokolle" oben.
+        [
+            'id'        => 'enotf',
+            'label'     => 'eNOTF',
+            'placement' => 'settings',
+            'items'     => [],
+        ],
+
+        // Anker für die Verwaltung des Mail-Plugins (Verteiler, Postfächer,
+        // Mail-Einstellungen), damit „Mail" vor „System" steht.
+        [
+            'id'        => 'mail-settings',
+            'label'     => 'Mail',
+            'placement' => 'settings',
+            'items'     => [],
         ],
 
         // Bleibt Anker für Plugins, die noch in die alte Gruppe „settings"
@@ -366,14 +367,21 @@ return [
         // verschwinden.
         [
             'id'        => 'settings',
-            'label'     => 'System & Integrationen',
+            'label'     => 'System',
             'placement' => 'settings',
             'items'     => [
                 [
-                    'label'       => 'System',
-                    'href'        => BASE_PATH . 'settings/system/index',
+                    'label'       => 'System-Konfiguration',
+                    'href'        => BASE_PATH . 'settings/system/config',
                     'icon'        => 'fa-solid fa-sliders',
-                    'description' => 'Wartung, Konfiguration und Diagnostik des Systems.',
+                    'description' => 'Name, Adresse, Anmeldung, eNOTF-PIN und Schnittstellen.',
+                    'permissions' => ['admin'],
+                ],
+                [
+                    'label'       => 'Wartung und Diagnose',
+                    'href'        => BASE_PATH . 'settings/system/index',
+                    'icon'        => 'fa-solid fa-screwdriver-wrench',
+                    'description' => 'Updates, Plugins, Logs, Cronjobs und Leistung.',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/system'],
                 ],

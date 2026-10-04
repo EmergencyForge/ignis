@@ -4,7 +4,8 @@
  * Mail: der Eintrag in der Einstiegsgruppe mit Zähler der ungelesenen
  * Mails (counters.php) und „Neue Mail“ als Schnellaktion im Drawer. Die
  * Verwaltung (Verteiler, Postfächer, Einstellungen) erscheint als
- * Abschnitt auf /settings/index.
+ * Abschnitt auf /settings/index, im Anker „mail-settings" aus
+ * config/navigation.php oder ohne ihn als eigene Gruppe.
  */
 
 return [
@@ -29,10 +30,11 @@ return [
         ],
     ],
     [
-        'id'        => 'mail-settings',
-        'label'     => 'Mail',
-        'placement' => 'settings',
-        'items'     => [
+        'merge_into' => 'mail-settings',
+        'id'         => 'mail-settings',
+        'label'      => 'Mail',
+        'placement'  => 'settings',
+        'items'      => [
             [
                 'label'       => 'Verteiler',
                 'href'        => BASE_PATH . 'mail/lists',

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Auth\Gate;
 use App\Helpers\Navigation;
 use App\Http\Controllers\Controller;
+use App\Setup\SetupCheck;
 
 /**
  * SettingsController: Übersicht /settings/index (Alias /settings).
@@ -16,6 +18,9 @@ use App\Http\Controllers\Controller;
  * config/navigation.php; welche Kacheln ein Betrachter sieht, entscheidet
  * dieselbe Rechteprüfung wie in der Sidebar (Navigation::groups()), damit
  * beide nie auseinanderlaufen.
+ *
+ * Wer die System-Konfiguration bearbeiten darf, sieht oben einen Hinweis,
+ * solange dort Pflichtangaben fehlen (App\Setup\SetupCheck).
  */
 class SettingsController extends Controller
 {
@@ -28,6 +33,11 @@ class SettingsController extends Controller
             static fn (array $group): bool => ($group['placement'] ?? null) === 'settings' && $group['items'] !== [],
         ));
 
-        $this->renderView('settings/index', ['settingsSections' => $sections]);
+        $setupRequired = Gate::allows('system.admin') ? SetupCheck::fromConfig()->required() : [];
+
+        $this->renderView('settings/index', [
+            'settingsSections' => $sections,
+            'setupRequired'    => $setupRequired,
+        ]);
     }
 }

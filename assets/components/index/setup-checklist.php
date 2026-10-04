@@ -33,16 +33,8 @@ function _setupCount(string $table): int
 }
 }
 
-// Check what's configured
-$checkConfigDone = false;
-try {
-    $cfgVal = Capsule::table('intra_config')
-        ->where('config_key', 'SYSTEM_URL')
-        ->limit(1)
-        ->value('config_value');
-    $checkConfigDone = ($cfgVal && $cfgVal !== 'CHANGE_ME');
-} catch (Exception $e) {
-}
+// Systemdaten: was in intra_config noch Pflicht ist, weiß App\Setup\SetupCheck.
+$setupConfigOpen = \App\Setup\SetupCheck::fromConfig()->required();
 
 // POIs gehören zum eNOTF-Plugin, ohne aktives Plugin entfällt der Schritt.
 $setupEnotfActive = function_exists('app') && app(\App\Plugins\PluginLoader::class)->isActive('enotf');
@@ -55,7 +47,7 @@ $checkPois        = _setupCount('intra_edivi_pois');
 $checkFahrzeuge   = _setupCount('intra_fahrzeuge');
 
 // Step completion flags (computed once, reused in HTML)
-$doneConfig       = $checkConfigDone;
+$doneConfig       = $setupConfigOpen === [];
 $doneDienstgrade  = $checkDienstgrade > 0;
 $doneQuali        = $checkQuali > 0;
 $doneRollen       = $checkRollen > 0;
@@ -72,7 +64,7 @@ if ($completedRequired >= $requiredSteps) return;
 
 // Jede Prüfung ist ein Schritt; der erste offene bekommt seinen Link als Aktion.
 $setupSteps = [
-    [$doneConfig, 'Systemdaten anpassen', 'settings/system/config'],
+    [$doneConfig, 'Systemdaten anpassen', 'settings/system/config?setup=1'],
     [$doneDienstgrade, 'Dienstgrade anlegen', 'settings/personnel/ranks/index'],
     [$doneQuali, 'Qualifikationen konfigurieren', 'settings/personnel/ambskills/index'],
     [$doneRollen, 'Rollen und Berechtigungen einrichten', 'users/rollen/index'],
@@ -94,6 +86,10 @@ $empty = [
 ];
 foreach ($setupSteps as [$setupDone, $setupLabel, $setupPath]) {
     $setupStep = ['label' => $setupLabel, 'state' => $setupDone ? 'done' : 'todo'];
+    // Der Systemdaten-Schritt nennt die Felder, die noch fehlen.
+    if (!$setupDone && $setupConfigOpen !== [] && str_starts_with($setupPath, 'settings/system/config')) {
+        $setupStep['note'] = 'Noch offen: ' . implode(', ', array_column($setupConfigOpen, 'label'));
+    }
     if (!$setupDone && !$setupCurrentFound) {
         $setupCurrentFound = true;
         $setupStep['state'] = 'current';
