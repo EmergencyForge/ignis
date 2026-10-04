@@ -75,62 +75,74 @@
 
   // Zeigt eine Server-Fehlermeldung im Fehler-Slot der Paket-Dropzone
   // (gleiche Stelle, die file.js selbst für Client-Validierung nutzt).
-  function showDropzoneError(wrap, input, message) {
-    const error = wrap.querySelector('.ignis-file__error');
-    if (error) {
-      error.hidden = false;
-      error.textContent = message;
-    }
-    input.setAttribute('aria-invalid', 'true');
-  }
+  const PFP_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+  const PFP_MAX_BYTES = 2 * 1024 * 1024;
 
+  // Profilbild: Auswahl über den Knopf oder per Ziehen aufs Foto, das Bild
+  // wird sofort hochgeladen und ersetzt das angezeigte (auch den Platzhalter).
   function bindPfpUpload(config) {
     const toast = getToastFn(config);
-    const wrap  = document.getElementById('pfp-dropzone');
+    const wrap  = document.getElementById('pfp-photo');
     const input = document.getElementById('pfp-upload');
-    if (!wrap || !input) return;
+    const image = document.getElementById('pfp-image');
+    if (!wrap || !input || !image) return;
+    const error = wrap.querySelector('.ignis-profile-photo__error');
 
-    input.addEventListener('change', function () {
-      // file.js hängt seinen eigenen change-Listener erst beim eigenen
-      // Init an (dieses Script läuft als klassisches Script davor und
-      // damit früher) - setTimeout schiebt den Upload hinter die
-      // Paket-eigene Typ-/Größenprüfung, die im selben change-Event läuft.
-      setTimeout(function () {
-        const file = input.files && input.files[0];
-        if (!file || input.getAttribute('aria-invalid') === 'true') return;
+    function showError(message) {
+      if (!error) return;
+      error.textContent = message;
+      error.hidden = !message;
+    }
 
-        const formData = new FormData();
-        formData.append('pfp', file);
-        formData.append('id', String(config.profileId));
+    function upload(file) {
+      showError('');
+      if (PFP_TYPES.indexOf(file.type) === -1) {
+        showError('Bitte ein Bild als JPEG, PNG oder WebP wählen.');
+        return;
+      }
+      if (file.size > PFP_MAX_BYTES) {
+        showError('Das Bild ist größer als 2 MB.');
+        return;
+      }
 
-        input.disabled = true;
-        wrap.style.opacity = '0.6';
+      const formData = new FormData();
+      formData.append('pfp', file);
+      formData.append('id', String(config.profileId));
 
-        fetch(config.basePath + 'api/personnel/upload-pfp', {
-          method: 'POST',
-          body: formData
-        })
+      input.disabled = true;
+      wrap.classList.add('is-busy');
+
+      fetch(config.basePath + 'api/personnel/upload-pfp', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
-          input.disabled = false;
-          wrap.style.opacity = '1';
           if (data.success) {
-            wrap.dataset.ignisFileCurrent = data.url + '?t=' + Date.now();
+            image.src = data.url + '?t=' + Date.now();
             toast('Profilbild aktualisiert', 'success');
           } else {
-            input.value = '';
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-            showDropzoneError(wrap, input, data.message || 'Upload fehlgeschlagen');
+            showError(data.message || 'Upload fehlgeschlagen');
           }
         })
-        .catch(() => {
+        .catch(() => showError('Upload fehlgeschlagen'))
+        .finally(() => {
           input.disabled = false;
-          wrap.style.opacity = '1';
           input.value = '';
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-          showDropzoneError(wrap, input, 'Upload fehlgeschlagen');
+          wrap.classList.remove('is-busy');
         });
-      }, 0);
+    }
+
+    input.addEventListener('change', function () {
+      if (input.files && input.files[0]) upload(input.files[0]);
+    });
+    wrap.addEventListener('dragover', function (event) {
+      event.preventDefault();
+      wrap.classList.add('is-dragover');
+    });
+    wrap.addEventListener('dragleave', function () { wrap.classList.remove('is-dragover'); });
+    wrap.addEventListener('drop', function (event) {
+      event.preventDefault();
+      wrap.classList.remove('is-dragover');
+      const file = event.dataTransfer && event.dataTransfer.files[0];
+      if (file && !input.disabled) upload(file);
     });
   }
 

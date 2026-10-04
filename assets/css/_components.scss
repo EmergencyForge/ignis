@@ -236,3 +236,49 @@
   color: var(--text-3);
   font-size: 0.75rem;
 }
+
+// Profilbild im Mitarbeiterprofil: Foto oder Platzhalter, darunter der Knopf
+// zum Ändern. Ziehen aufs Foto lädt ebenfalls hoch (mitarbeiter-profile.js).
+.ignis-profile-photo {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 8px auto 12px;
+}
+
+.ignis-profile-photo__img {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-4);
+  background: var(--fill-2);
+}
+
+.ignis-profile-photo.is-dragover .ignis-profile-photo__img {
+  outline: 2px dashed var(--accent);
+  outline-offset: 3px;
+}
+
+.ignis-profile-photo.is-busy .ignis-profile-photo__img {
+  opacity: 0.6;
+}
+
+.ignis-profile-photo input:focus-visible + .ignis-btn {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ignis-profile-photo__hint,
+.ignis-profile-photo__error {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.ignis-profile-photo__hint {
+  color: var(--text-3);
+}
+
+.ignis-profile-photo__error {
+  color: var(--danger-text);
+}

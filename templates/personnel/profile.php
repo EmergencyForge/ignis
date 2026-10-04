@@ -166,22 +166,15 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                 ?>
 
                                 <div class="w-full text-center">
-                                    <?php if ($canEdit): ?>
-                                        <div class="mt-2 mb-3 mx-auto" style="max-width: 260px;">
-                                            <div class="ignis-file ignis-file--dropzone ignis-file--photo" id="pfp-dropzone" data-ignis-file data-max-bytes="2097152"<?= !empty($row['pfp']) ? ' data-ignis-file-current="' . htmlspecialchars($row['pfp'], ENT_QUOTES) . '"' : '' ?>>
-                                                <input type="file" id="pfp-upload" name="pfp" accept="image/png,image/jpeg,image/webp" class="ignis-file__input">
-                                                <label for="pfp-upload" class="ignis-file__zone">
-                                                    <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
-                                                    <span class="ignis-file__title">Foto hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
-                                                    <span class="ignis-file__hint">JPEG, PNG oder WebP, max. 2 MB</span>
-                                                </label>
-                                                <div class="ignis-file__selected" hidden></div>
-                                                <p class="ignis-file__error" role="alert" hidden></p>
-                                            </div>
-                                        </div>
-                                    <?php else: ?>
-                                        <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" class="border" style="width: 120px; height: 120px; object-fit: cover;">
-                                    <?php endif; ?>
+                                    <div class="ignis-profile-photo" id="pfp-photo">
+                                        <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" class="ignis-profile-photo__img" id="pfp-image">
+                                        <?php if ($canEdit): ?>
+                                            <input type="file" id="pfp-upload" name="pfp" accept="image/png,image/jpeg,image/webp" class="ignis-sr-only" data-own-upload>
+                                            <label for="pfp-upload" class="ignis-btn ignis-btn--sm ignis-btn--secondary"><i class="fa-solid fa-camera" aria-hidden="true"></i>Foto ändern</label>
+                                            <p class="ignis-profile-photo__hint">JPEG, PNG oder WebP, höchstens 2 MB</p>
+                                            <p class="ignis-profile-photo__error" role="alert" hidden></p>
+                                        <?php endif; ?>
+                                    </div>
 
                                     <p class="mt-3">
                                     <h4 class="mt-0" id="display-profilename"><?= htmlspecialchars($profileName) ?></h4>
