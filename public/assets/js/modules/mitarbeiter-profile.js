@@ -75,74 +75,79 @@
 
   // Zeigt eine Server-Fehlermeldung im Fehler-Slot der Paket-Dropzone
   // (gleiche Stelle, die file.js selbst für Client-Validierung nutzt).
-  const PFP_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
-  const PFP_MAX_BYTES = 2 * 1024 * 1024;
-
-  // Profilbild: Auswahl über den Knopf oder per Ziehen aufs Foto, das Bild
-  // wird sofort hochgeladen und ersetzt das angezeigte (auch den Platzhalter).
+  // Profilbild: „Foto ändern“ öffnet einen Dialog mit der Dropzone aus dem
+  // Template. file.js prüft Typ und Größe, danach wird sofort hochgeladen.
   function bindPfpUpload(config) {
-    const toast = getToastFn(config);
-    const wrap  = document.getElementById('pfp-photo');
-    const input = document.getElementById('pfp-upload');
-    const image = document.getElementById('pfp-image');
-    if (!wrap || !input || !image) return;
-    const error = wrap.querySelector('.ignis-profile-photo__error');
+    const toast  = getToastFn(config);
+    const button = document.getElementById('pfp-change');
+    const wrap   = document.getElementById('pfp-dropzone');
+    const input  = document.getElementById('pfp-upload');
+    const image  = document.getElementById('pfp-image');
+    if (!button || !wrap || !input || !image) return;
+    let dialog = null;
 
     function showError(message) {
-      if (!error) return;
-      error.textContent = message;
-      error.hidden = !message;
+      const error = wrap.querySelector('.ignis-file__error');
+      if (error) {
+        error.hidden = false;
+        error.textContent = message;
+      }
+      input.setAttribute('aria-invalid', 'true');
     }
 
-    function upload(file) {
-      showError('');
-      if (PFP_TYPES.indexOf(file.type) === -1) {
-        showError('Bitte ein Bild als JPEG, PNG oder WebP wählen.');
-        return;
-      }
-      if (file.size > PFP_MAX_BYTES) {
-        showError('Das Bild ist größer als 2 MB.');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('pfp', file);
-      formData.append('id', String(config.profileId));
-
-      input.disabled = true;
-      wrap.classList.add('is-busy');
-
-      fetch(config.basePath + 'api/personnel/upload-pfp', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            image.src = data.url + '?t=' + Date.now();
-            toast('Profilbild aktualisiert', 'success');
-          } else {
-            showError(data.message || 'Upload fehlgeschlagen');
-          }
-        })
-        .catch(() => showError('Upload fehlgeschlagen'))
-        .finally(() => {
-          input.disabled = false;
-          input.value = '';
-          wrap.classList.remove('is-busy');
-        });
+    function reset() {
+      input.value = '';
+      input.dispatchEvent(new Event('change', { bubbles: true }));
     }
+
+    button.addEventListener('click', function () {
+      if (!global.Dialog) return;
+      dialog = new global.Dialog({
+        title: 'Profilbild ändern',
+        body: wrap,
+        preserveBody: true,
+        size: 'sm',
+        actions: [{ label: 'Abbrechen', variant: 'secondary', close: true }],
+        onClose: reset
+      });
+      dialog.open();
+    });
 
     input.addEventListener('change', function () {
-      if (input.files && input.files[0]) upload(input.files[0]);
-    });
-    wrap.addEventListener('dragover', function (event) {
-      event.preventDefault();
-      wrap.classList.add('is-dragover');
-    });
-    wrap.addEventListener('dragleave', function () { wrap.classList.remove('is-dragover'); });
-    wrap.addEventListener('drop', function (event) {
-      event.preventDefault();
-      wrap.classList.remove('is-dragover');
-      const file = event.dataTransfer && event.dataTransfer.files[0];
-      if (file && !input.disabled) upload(file);
+      // file.js hängt seinen change-Listener erst beim eigenen Init an, dieses
+      // Script läuft früher. setTimeout wartet dessen Prüfung im selben Event ab.
+      setTimeout(function () {
+        const file = input.files && input.files[0];
+        if (!file || input.getAttribute('aria-invalid') === 'true') return;
+
+        const formData = new FormData();
+        formData.append('pfp', file);
+        formData.append('id', String(config.profileId));
+
+        input.disabled = true;
+        wrap.style.opacity = '0.6';
+
+        fetch(config.basePath + 'api/personnel/upload-pfp', { method: 'POST', body: formData })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              image.src = data.url + '?t=' + Date.now();
+              toast('Profilbild aktualisiert', 'success');
+              if (dialog) dialog.close();
+            } else {
+              reset();
+              showError(data.message || 'Upload fehlgeschlagen');
+            }
+          })
+          .catch(() => {
+            reset();
+            showError('Upload fehlgeschlagen');
+          })
+          .finally(() => {
+            input.disabled = false;
+            wrap.style.opacity = '1';
+          });
+      }, 0);
     });
   }
 

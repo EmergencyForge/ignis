@@ -14,9 +14,6 @@ use PHPUnit\Framework\TestCase;
  *
  * eNOTF (plugins/enotf*) ist wie bei ComponentClassTest nicht Teil des
  * Redesigns und bleibt außen vor.
- *
- * Ein Feld mit eigenem Upload (data-own-upload, etwa das Profilbild, das
- * sofort hochlädt und keine Dropzone zeigt) ist ausdrücklich ausgenommen.
  */
 final class FileInputDropzoneTest extends TestCase
 {
@@ -57,7 +54,6 @@ final class FileInputDropzoneTest extends TestCase
             '  <input type="file">',                                    // 5 - violation
             '</div>',                                                   // 6
             '<input type="text">',                                      // 7
-            '<input type="file" data-own-upload>',                      // 8
         ]);
 
         self::assertSame([5], self::violations($src));
@@ -79,7 +75,7 @@ final class FileInputDropzoneTest extends TestCase
             $selfClosed = str_ends_with(rtrim($whole, '>'), '/');
 
             if ($tagName === 'input' && preg_match('/type\s*=\s*["\']file["\']/i', $attrs) === 1) {
-                $wrapped = str_contains($attrs, 'data-own-upload');
+                $wrapped = false;
                 foreach ($stack as $entry) {
                     if ($entry) {
                         $wrapped = true;
