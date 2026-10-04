@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.21-beta
+
+Ein im Panel eingeschaltetes oder abgeschaltetes Plugin wirkte bis zum Neustart des Containers nicht richtig: Seiten wie /enotf-v2/ antworteten mit 404, andere landeten bei einer falschen Aktion und zeigten Fehler 500, etwa die Mail-Einstellungen. Der Routen-Cache wurde zwar neu geschrieben, PHP las aber weiter die alte Fassung aus dem OPcache. Jetzt verwirft ignis diese Fassung beim Neuschreiben.
+
 ## 2026.0.20-beta
 
 Texte in der Oberfläche, Meldungen und Seitentitel kommen ohne Gedankenstriche aus. Leere Werte zeigen „-“ oder einen kurzen Hinweis wie „keine Angabe“, Bereiche stehen als „1 bis 25“.
