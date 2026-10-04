@@ -38,5 +38,17 @@ fi
 echo "[entrypoint] Running database migrations..."
 cd /var/www/html && php tools/db-migrate.php || echo "[entrypoint] WARNING: Migration had issues (may be normal on first run)"
 
+# Eine Hosting-Verwaltung (fabrica) gibt die Adresse vor. Dann gilt sie und
+# ist in den Einstellungen nicht mehr änderbar, sonst wäre sie beim nächsten
+# Start ohnehin wieder überschrieben.
+if [ -n "$SYSTEM_URL" ]; then
+    php -r '
+        $url = preg_replace("#^https?://#i", "", rtrim(getenv("SYSTEM_URL"), "/"));
+        $pdo = new PDO("mysql:host=" . getenv("DB_HOST") . ";dbname=" . getenv("DB_NAME"), getenv("DB_USER"), getenv("DB_PASS"));
+        $pdo->prepare("UPDATE intra_config SET config_value = ?, is_editable = 0 WHERE config_key = ?")->execute([$url, "SYSTEM_URL"]);
+    ' && echo "[entrypoint] SYSTEM_URL aus der Umgebung übernommen" \
+      || echo "[entrypoint] WARNING: SYSTEM_URL konnte nicht gesetzt werden"
+fi
+
 echo "[entrypoint] Starting Apache..."
 exec "$@"

@@ -36,7 +36,7 @@ function _setupCount(string $table): int
 // Check what's configured
 $checkConfigDone = false;
 try {
-    $cfgVal = Capsule::table('intra_system_config')
+    $cfgVal = Capsule::table('intra_config')
         ->where('config_key', 'SYSTEM_URL')
         ->limit(1)
         ->value('config_value');
