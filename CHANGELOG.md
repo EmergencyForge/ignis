@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.0.25-beta
+
+Seitliche Fenster gleiten jetzt ruhig herein, ohne über den Fensterrand hinauszuschießen und zurückzufedern. Das gilt auch beim Vergrößern und Verkleinern.
+
+Im Editor schließen Schnellleiste, Menüs und das Link-Fenster mit einer kurzen Animation. Wer weniger Bewegung eingestellt hat, sieht weder beim Öffnen noch beim Schließen eine Animation.
+
+Nach einem Update lädt der Browser Skripte und Styles sofort neu. Vorher konnte er bis zu Stunden die alte Fassung verwenden, sodass neue Funktionen erst nach einem harten Neuladen sichtbar waren.
+
+Bilder, die aus keinem Artikel der Wissensdatenbank mehr genutzt werden, entfernt ein täglicher Cron-Job. Bilder, die gerade erst hochgeladen wurden, bleiben einen Tag lang erhalten.
+
+In der eingeklappten Seitenleiste ist die Versionsangabe ausgeblendet, sie steht weiterhin im Footer.
+
+Aktualisiert sind das UI-Paket auf 0.8.6 und das Editor-Paket auf 0.4.1.
+
 ## 2026.0.24-beta
 
 Der Editor für Mails, Signaturen, Dokumente und Vorlagen ist neu. Die Werkzeugleiste ordnet die Knöpfe in Gruppen und nutzt dieselben Symbole wie der Rest von ignis. Aktive Formate sind mit einem Strich darunter markiert. Wer Text markiert, bekommt eine Schnellleiste mit Fett, Kursiv, Unterstrichen, Durchgestrichen, Link und „Formatierung entfernen“. Links setzt man in einem kleinen Fenster statt in einer Abfrage, auch mit Strg+K. Neu sind Unterstreichen und Zitate. Jede Stelle bietet nur die Funktionen an, die dort passen, und was dort nicht erlaubt ist, lässt sich auch nicht einfügen.
