@@ -184,7 +184,7 @@ $pgLabel = 'Mitarbeiter';
                                     $profileUrl = BASE_PATH . 'personnel/profile?id=' . (int) $m->id;
                                 ?>
                                     <tr>
-                                        <td data-label="Dienstnummer" data-mobile-context><span class="ignis-mono"><?= htmlspecialchars($m->dienstnr) ?></span> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars($m->dienstnr, ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button></td>
+                                        <td data-label="Dienstnummer" data-mobile-context><span class="ignis-mono"><?= htmlspecialchars($m->dienstnr) ?></span></td>
                                         <td data-label="Name" data-mobile-primary>
                                             <a href="<?= $profileUrl ?>" data-mitarbeiter-card="<?= (int) $m->id ?>" class="no-underline">
                                                 <?= htmlspecialchars($m->fullname) ?>

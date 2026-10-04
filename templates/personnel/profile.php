@@ -54,7 +54,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal / <a href="<?= BASE_PATH ?>personnel/list">Mitarbeiter</a></p>
                             <h1><?= htmlspecialchars($row['fullname']) ?></h1>
-                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '-')) ?> <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-copy="<?= htmlspecialchars((string) ($row['dienstnr'] ?? ''), ENT_QUOTES) ?>" aria-label="Dienstnummer kopieren"><i class="fa-regular fa-copy" aria-hidden="true"></i><span data-copy-label>Kopieren</span></button> · <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><?= htmlspecialchars($dienstgradText) ?></p>
+                            <p class="twplus-page-header__description">Dienstnummer <?= htmlspecialchars((string) ($row['dienstnr'] ?? '-')) ?> · <?php include __DIR__ . '/../../assets/components/profiles/_rank-badge.php'; ?><?= htmlspecialchars($dienstgradText) ?></p>
                         </div>
                     </header>
 
