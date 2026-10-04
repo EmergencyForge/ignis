@@ -195,6 +195,10 @@ date_default_timezone_set('Europe/Berlin');
            Schritts liegen als display:contents-Wrapper in der v1-Row */
         .ev2-stepwrap { display: contents; }
         .ev2-stepwrap.is-hidden { display: none !important; }
+        /* Ohne min-width:0 hält das Verlaufs-Diagramm die Spalte auf seiner
+           alten Breite: wird das Fenster schmaler (etwa durch die
+           Scrollleiste), bricht der Inhalt unter die Navigation um */
+        #edivi__content { min-width: 0; }
     </style>
     <?php
     // Ev2Select/Ev2Suggest im v1-Look: geteilter Block (auch _v1head.php);
