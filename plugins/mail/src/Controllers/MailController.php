@@ -27,7 +27,6 @@ use EmergencyForge\Mail\Recipient;
 use EmergencyForge\Mail\RecipientResolver;
 use EmergencyForge\Mail\RecipientSet;
 use EmergencyForge\Mail\ReplyBuilder;
-use EmergencyForge\Mail\SignatureAppender;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use InvalidArgumentException;
 use Plugin\Mail\AttachmentStorage;
@@ -41,6 +40,7 @@ use Plugin\Mail\Models\Mailbox;
 use Plugin\Mail\Models\MailList;
 use Plugin\Mail\Models\Message;
 use Plugin\Mail\Models\Signature;
+use Plugin\Mail\ProfileSignature;
 
 /**
  * Das eigene Postfach: Entwürfe, Senden, Ordner, Anhänge, Adressbuch.
@@ -217,11 +217,9 @@ final class MailController extends Controller
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
-        $own = Signature::query()->where('mailbox_id', $mailbox->id)->first();
-
         return $this->page('mail/signature', [
-            'bodyJson' => $own->body_json ?? $this->defaultSignature() ?? ['type' => 'doc', 'content' => [['type' => 'paragraph']]],
-            'hasOwn'   => $own !== null,
+            'bodyJson' => $this->signature($mailbox) ?? ['type' => 'doc', 'content' => [['type' => 'paragraph']]],
+            'hasOwn'   => Signature::query()->where('mailbox_id', $mailbox->id)->exists(),
         ]);
     }
 
@@ -856,21 +854,44 @@ final class MailController extends Controller
     }
 
     /**
-     * Hängt die Signatur an: die eigene, sonst die Standard-Signatur. Ohne
-     * Inhalt keine Signatur, auch kein einsamer Trenner „-- “.
+     * Setzt die Signatur unter die erste, leere Zeile, getrennt durch eine
+     * Leerzeile: der Text kommt oben hin, die Signatur ist gewöhnlicher
+     * Inhalt und lässt sich bearbeiten oder löschen. Folgt noch etwas (das
+     * Zitat einer Antwort), steht davor wieder eine Leerzeile. Ohne Text in
+     * der Signatur bleibt der Inhalt, wie er ist.
      *
      * @param array<string,mixed> $body
      * @return array<string,mixed>
      */
     private function withSignature(array $body, Mailbox $mailbox): array
     {
-        $own       = Signature::query()->where('mailbox_id', $mailbox->id)->first();
-        $signature = $own !== null ? $own->body_json : $this->defaultSignature();
+        $signature = $this->signature($mailbox);
         if ($signature === null || !self::hasText($signature)) {
             return $body;
         }
 
-        return SignatureAppender::append($body, $signature);
+        $rest  = array_values((array) ($body['content'] ?? []));
+        $first = array_shift($rest) ?? ['type' => 'paragraph'];
+        $blank = ['type' => 'paragraph'];
+        $body['content'] = [$first, $blank, ...array_values((array) ($signature['content'] ?? [])), ...($rest === [] ? [] : [$blank, ...$rest])];
+
+        return $body;
+    }
+
+    /**
+     * Welche Signatur gilt: die eigene (auch leer, das heißt „keine“), sonst
+     * die Standard-Signatur der Instanz, sonst die aus dem Mitarbeiterprofil.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function signature(Mailbox $mailbox): ?array
+    {
+        $own = Signature::query()->where('mailbox_id', $mailbox->id)->first();
+        if ($own !== null) {
+            return $own->body_json;
+        }
+
+        return $this->defaultSignature() ?? ProfileSignature::for($mailbox->mitarbeiter);
     }
 
     /** @return array<string,mixed>|null */

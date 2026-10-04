@@ -235,17 +235,92 @@ final class MailPagesTest extends FeatureTestCase
         $this->assertSame($before, Message::query()->count(), 'GET legt keinen Entwurf an.');
         $this->assertBodyContains('data-ignis-drawer-native', $compose);
         $this->assertBodyContains('data-draft-id=""', $compose);
-        $this->assertBodyContains('Leitstelle', $compose);
-        $this->assertBodyContains('&quot;-- &quot;', $compose);
+        // Text oben, eine Leerzeile, dann die Signatur, ohne Trennzeile davor.
+        $this->assertSame(['', '', 'Wache 1', 'Leitstelle'], self::composeLines($compose));
         $this->assertBodyContains('Bob Empfang &lt;' . $this->bob['mailbox']->address . '&gt;', $compose);
         $this->assertBodyContains('assets/js/ui/multi-select.js', $compose);
         $this->assertBodyContains('plugins/mail/assets/mail-compose.js', $compose);
 
-        // Eine leere eigene Signatur heißt: keine, auch kein Trenner.
+        // Eine leere eigene Signatur heißt: keine, auch keine aus dem Profil.
         Signature::query()->create(['mailbox_id' => $this->alice['mailbox']->id, 'body_json' => ['type' => 'doc', 'content' => [['type' => 'paragraph']]]]);
-        $plain = $this->get('/mail/compose');
-        $this->assertBodyNotContains('Leitstelle', $plain);
-        $this->assertBodyNotContains('&quot;-- &quot;', $plain);
+        $this->assertSame([''], self::composeLines($this->get('/mail/compose')));
+    }
+
+    #[Test]
+    public function ohne_eigene_signatur_kommt_sie_aus_dem_mitarbeiterprofil(): void
+    {
+        $rank = new \App\Models\Rank();
+        $rank->name     = 'Brandmeister*in';
+        $rank->name_m   = 'Brandmeister';
+        $rank->name_w   = 'Brandmeisterin';
+        $rank->priority = 10;
+        $rank->archive  = false;
+        $rank->save();
+        $this->fachdienst(997, 'Signaturtest Leitstelle');
+        $this->fachdienst(996, 'Signaturtest Presse');
+        $this->fachdienst(995, 'Signaturtest Abgeschaltet');
+        Capsule::table('intra_mitarbeiter_fdquali')->where('sgnr', 995)->update(['disabled' => 1]);
+        $this->alice['person']->forceFill([
+            'geschlecht'  => 1,
+            'dienstgrad'  => $rank->id,
+            'zusatz'      => 'Wachabteilungsleiterin',
+            'fachdienste' => '["997","995",996]',
+        ])->save();
+
+        $this->loginAs($this->alice['user']);
+        $compose = $this->get('/mail/compose');
+        $lines   = self::composeLines($compose);
+        $this->assertSame(['', '', 'Alice Absender', 'Brandmeisterin', 'Wachabteilungsleiterin', 'Signaturtest Presse, Signaturtest Leitstelle'], array_slice($lines, 0, 6));
+        // Die letzte Zeile ist die Organisation (Art und Stadt), sofern eingestellt.
+        $this->assertLessThanOrEqual(7, count($lines));
+        $this->assertSame([['type' => 'bold']], self::composeContent($compose)[2]['content'][0]['marks'] ?? null, 'Der Name steht fett.');
+
+        // Antworten: Signatur über dem Zitat, mit Leerzeile davor und danach.
+        $id = $this->sendRound();
+        $this->loginAs($this->alice['user']);
+        $reply = self::composeContent($this->get('/mail/compose/reply/' . $id));
+        $this->assertSame('Alice Absender', $reply[2]['content'][0]['text'] ?? null);
+        $this->assertSame(['type' => 'paragraph'], $reply[count($reply) - 2]);
+        $this->assertSame('blockquote', $reply[count($reply) - 1]['type']);
+
+        // Leere Angaben fallen weg, ohne Platzhalter.
+        $this->bob['person']->forceFill(['zusatz' => '', 'fachdienste' => null])->save();
+        $this->loginAs($this->bob['user']);
+        $bob = self::composeLines($this->get('/mail/compose'));
+        $this->assertSame(['', '', 'Bob Empfang', $this->rank()->name_m], array_slice($bob, 0, 4));
+        $this->assertNotContains('-', $bob);
+
+        // Die Signaturseite zeigt sie als Vorlage; eine eigene geht vor.
+        $this->loginAs($this->alice['user']);
+        $this->assertBodyContains('Wachabteilungsleiterin', $this->get('/mail/signature'));
+        $this->assertRedirect($this->post('/mail/signature', ['body_json' => self::doc('Gruß, Alice')]), '/mail/signature');
+        $this->assertSame(['', '', 'Gruß, Alice'], self::composeLines($this->get('/mail/compose')));
+
+        // Eine Standard-Signatur der Instanz geht der aus dem Profil vor.
+        Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => \Plugin\Mail\SignatureText::toJson('Wache 1')]);
+        $this->loginAs($this->bob['user']);
+        $this->assertSame(['', '', 'Wache 1'], self::composeLines($this->get('/mail/compose')));
+    }
+
+    /**
+     * Die Absätze des Editors auf der Verfassen-Seite.
+     *
+     * @return list<array<string,mixed>>
+     */
+    private static function composeContent(\EmergencyForge\Http\Response $page): array
+    {
+        preg_match('~id="mail-compose-editor"[^>]*data-efe-content="([^"]*)"~', $page->body, $m);
+        $doc = json_decode(html_entity_decode($m[1] ?? '', ENT_QUOTES), true);
+
+        return is_array($doc) ? array_values((array) ($doc['content'] ?? [])) : [];
+    }
+
+    /** @return list<string> Text je Absatz, ein Zitat als „[Zitat]“ */
+    private static function composeLines(\EmergencyForge\Http\Response $page): array
+    {
+        return array_map(static fn (array $node): string => ($node['type'] ?? null) === 'blockquote'
+            ? '[Zitat]'
+            : implode('', array_map(static fn (array $t): string => (string) ($t['text'] ?? ''), (array) ($node['content'] ?? []))), self::composeContent($page));
     }
 
     #[Test]

@@ -2,8 +2,9 @@
 /**
  * View: eigene Signatur des Postfachs, als Drawer aus der Ordnerleiste
  * (drawer-form.js schickt das Formular ab) oder als Seite. Der Editor im
- * Mailmodus schreibt sein JSON vor dem Absenden ins versteckte Feld; die
- * Standard-Signatur der Instanz gilt, solange keine eigene gespeichert ist.
+ * Mailmodus schreibt sein JSON vor dem Absenden ins versteckte Feld. Ohne
+ * eigene steht die geltende Signatur als Vorlage im Editor: die
+ * Standard-Signatur der Instanz oder die aus dem Mitarbeiterprofil.
  *
  * @var array<string,mixed> $bodyJson
  * @var bool                $hasOwn
@@ -23,8 +24,8 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         <input type="hidden" name="body_json" id="mail-signature-json">
         <div class="ignis-card__body">
             <p class="ignis-field__hint">
-                Wird neuen Mails unter „-- “ angehängt.
-                <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange du keine eigene speicherst, gilt die Standard-Signatur.' ?>
+                Steht in neuen Mails nach einer Leerzeile unter dem Text und lässt sich dort noch ändern oder löschen.
+                <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange du keine eigene speicherst, gilt die Standard-Signatur oder die aus deinem Mitarbeiterprofil.' ?>
             </p>
             <div class="ignis-mail-compose__editor">
                 <div id="mail-signature-toolbar"></div>

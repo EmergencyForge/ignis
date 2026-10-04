@@ -58,7 +58,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                     <div>
                         <label for="mail-signature" class="ignis-field__label">Standard-Signatur</label>
                         <textarea id="mail-signature" name="signature" class="ignis-input" rows="5" maxlength="<?= SignatureText::MAX_LENGTH ?>"><?= htmlspecialchars($form['signature']) ?></textarea>
-                        <p class="ignis-field__hint">Gilt für alle ohne eigene Signatur. Eine Zeile je Absatz, höchstens <?= SignatureText::MAX_LINES ?> Zeilen. Leer lassen für keine.</p>
+                        <p class="ignis-field__hint">Gilt für alle ohne eigene Signatur. Eine Zeile je Absatz, höchstens <?= SignatureText::MAX_LINES ?> Zeilen. Leer gelassen bekommt jeder eine Signatur aus seinem Mitarbeiterprofil (Name, Dienstgrad, Position, Fachdienste, Organisation).</p>
                     </div>
                 </div>
                 <div class="ignis-card__footer" data-form-actions>
