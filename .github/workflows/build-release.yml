@@ -236,6 +236,16 @@ jobs:
             ${{ env.archive_name }}     die Anwendung (wird vom Assistenten entpackt)
             readme.txt                   diese Anleitung
 
+          Voraussetzungen:
+
+            PHP 8.3 oder neuer mit den Erweiterungen curl, fileinfo, gd, intl,
+            json, mbstring, openssl, pdo, pdo_mysql, xml und zip
+            MySQL 8 oder MariaDB 10.6 (oder neuer), Zeichensatz utf8mb4
+            eine leere Datenbank samt Benutzer
+            Apache mit mod_rewrite oder nginx
+            HTTPS (ohne HTTPS klappt die Anmeldung über Discord nicht)
+            eine Discord-Applikation (Client ID und Client Secret)
+
           So installierst du ignis:
 
           1. Lade setup.php UND ${{ env.archive_name }} unverändert in das
@@ -246,15 +256,39 @@ jobs:
           2. Rufe setup.php im Browser auf:
              https://deine-domain.de/setup.php
 
-          3. Folge dem Assistenten. Er prüft die Server-Anforderungen, entpackt
-             die Anwendung, richtet Datenbank und Konfiguration ein und legt den
-             ersten Admin-Zugang an.
+          3. Folge dem Assistenten. Er prüft die Anforderungen, entpackt die
+             Anwendung, richtet Datenbank und Konfiguration ein (.env, Domain,
+             Basis-Pfad, Servername) und führt die Datenbank-Migrationen aus.
+             Composer brauchst du nicht, alle Abhängigkeiten sind im Archiv.
+             Die Redirect-URI für Discord zeigt der Assistent an, sie lautet
+             https://deine-domain.de/auth/callback.php (bei einem Unterordner
+             mit dessen Pfad davor). Trage sie in der Discord-Applikation unter
+             OAuth2 > Redirects ein.
 
           Nach erfolgreichem Abschluss räumt das Setup selbst auf:
           ZIP-Archiv, readme.txt und setup.php werden automatisch gelöscht.
 
-          Voraussetzungen: PHP 8.3 oder neuer (u. a. mit zip- und pdo_mysql-
-          Erweiterung), MySQL- oder MariaDB-Datenbank, Apache oder nginx.
+          Danach:
+
+          1. Melde dich sofort mit Discord an. Die erste Anmeldung bekommt
+             Administratorrechte, einen Admin-Zugang legt das Setup nicht an.
+
+          2. Empfohlen: Stelle das Docroot deiner Domain auf den Unterordner
+             public/ der Installation um (z. B. /var/www/ignis/public). Geht
+             das bei deinem Webspace nicht, leitet die .htaccess im
+             Hauptverzeichnis alle Anfragen nach public/ weiter und sperrt die
+             internen Ordner.
+
+          3. Richte den Cron ein, sonst laufen geplante Aufgaben nicht:
+             als System-Cron jede Minute
+               * * * * * cd /pfad/zu/ignis && php cli/intra.php cron:tick
+             oder über einen externen Cron-Dienst, der jede Minute
+               https://deine-domain.de/cron.php?token=<CRON_ENDPOINT_TOKEN>
+             aufruft. Den Token findest du in ignis unter
+             Einstellungen > System-Konfiguration > Technik.
+
+          Ausführliche Anleitung:
+          https://github.com/EmergencyForge/ignis/blob/main/INSTALL.md
 
           Fragen oder Probleme? https://github.com/EmergencyForge/ignis
           EOF

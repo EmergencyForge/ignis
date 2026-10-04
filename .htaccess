@@ -73,6 +73,13 @@ Options -Indexes
     RewriteRule ^storage/documents/[0-9]{7}\.pdf$ - [F,L,NC]
     RewriteRule ^\.github/ - [F,L]
 
+    # Installationsassistent: Solange setup.php im Hauptverzeichnis liegt,
+    # bleibt sie samt ihrer Fortschritts- und AJAX-Anfragen erreichbar.
+    # Nach der Installation löscht sie sich selbst, dann greift die Regel
+    # nicht mehr. Gilt nur für genau diese Datei.
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^setup\.php$ - [L]
+
     # Alles nach public/ durchreichen, es sei denn, die Anfrage zeigt
     # schon dorthin (das ist nach dem internen Redirect der Fall). Dort
     # liefert public/.htaccess echte Dateien aus und schickt den Rest an
