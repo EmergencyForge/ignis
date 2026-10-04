@@ -167,15 +167,15 @@
     switch (status) {
       case "connected":
         iconEl.style.color = "#28a745";
-        parentEl.title = "Session aktiv";
+        parentEl.dataset.ignisTooltip = "Session aktiv";
         break;
       case "disconnected":
         iconEl.style.color = "#dc3545";
-        parentEl.title = "Session-Verbindung unterbrochen";
+        parentEl.dataset.ignisTooltip = "Session-Verbindung unterbrochen";
         break;
       default:
         iconEl.style.color = "#ffffff";
-        parentEl.title = "Session-Status unbekannt";
+        parentEl.dataset.ignisTooltip = "Session-Status unbekannt";
         break;
     }
   }

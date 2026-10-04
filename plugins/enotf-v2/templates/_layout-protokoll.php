@@ -142,6 +142,7 @@ date_default_timezone_set('Europe/Berlin');
     <!-- Vanilla-UI + v2-Technik (kein jQuery) -->
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
     <script type="module" src="<?= asset('plugins/enotf-v2/assets/ev2-select.js') ?>"></script>
     <script type="module" src="<?= asset('plugins/enotf-v2/assets/autosave.js') ?>"></script>
     <script type="module" src="<?= asset('plugins/enotf-v2/assets/wizard.js') ?>"></script>
@@ -160,6 +161,11 @@ date_default_timezone_set('Europe/Berlin');
 
     <!-- Crew-Session-Live-Sync (10s-Poll gegen die v2-Session-API) -->
     <script defer src="<?= asset('plugins/enotf-v2/assets/session-sync.js') ?>"></script>
+
+    <!-- Favicon (v1-Parität) -->
+    <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico" />
 
     <!-- CitizenFX: Session-ID an den FiveM-Client durchreichen (CEF-Embed) -->
     <script>
@@ -300,18 +306,18 @@ date_default_timezone_set('Europe/Berlin');
                      (unter dem Session-Icon, gleiche 8px-Spaltenraster). -->
                 <div class="d-flex flex-column align-items-start mr-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
                     <div class="flex align-items-center" style="gap: 8px;">
-                        <span id="leitstelle-conn-icon" title="Verbindung zur Leitstelle">
+                        <span id="leitstelle-conn-icon" data-ignis-tooltip="Verbindung zur Leitstelle" role="img" aria-label="Verbindung zur Leitstelle">
                             <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
                         </span>
-                        <span id="session-conn-icon" title="Session-Verbindung">
+                        <span id="session-conn-icon" data-ignis-tooltip="Session-Verbindung" role="img" aria-label="Session-Verbindung">
                             <i class="fa-solid fa-network-wired" style="color: #ffffff;"></i>
                         </span>
                     </div>
                     <div class="flex align-items-center" style="gap: 8px;">
-                        <span id="pat-sync-icon" title="Patientendaten-Sync" <?= $__istGesperrt ? '' : 'role="button" data-ev2-pat' ?>>
+                        <span id="pat-sync-icon" data-ignis-tooltip="Patientendaten-Sync" aria-label="Patientendaten-Sync" <?= $__istGesperrt ? '' : 'role="button" data-ev2-pat' ?>>
                             <i class="fa-solid fa-up-down" style="color: <?= $__patSyncColor ?>;"></i>
                         </span>
-                        <span class="ev2-sync" data-autosave-status title="Speicherstatus (Autosave)">
+                        <span class="ev2-sync" data-autosave-status data-ignis-tooltip="Speicherstatus (Autosave)">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span data-autosave-status-text><?= $__istGesperrt ? 'Gesperrt' : 'Bereit' ?></span>
                         </span>
@@ -493,14 +499,14 @@ date_default_timezone_set('Europe/Berlin');
                             var diff = (Date.now() - new Date(data.last_emd_sync.replace(' ', 'T')).getTime()) / 1000;
                             if (diff <= SYNC_TIMEOUT) {
                                 towerIcon.style.color = '#28a745';
-                                towerIcon.parentElement.title = 'Verbindung zur Leitstelle aktiv';
+                                towerIcon.parentElement.dataset.ignisTooltip = 'Verbindung zur Leitstelle aktiv';
                             } else {
                                 towerIcon.style.color = '#dc3545';
-                                towerIcon.parentElement.title = 'Keine Verbindung zur Leitstelle';
+                                towerIcon.parentElement.dataset.ignisTooltip = 'Keine Verbindung zur Leitstelle';
                             }
                         } else {
                             towerIcon.style.color = '#ffffff';
-                            towerIcon.parentElement.title = 'Verbindung zur Leitstelle unbekannt';
+                            towerIcon.parentElement.dataset.ignisTooltip = 'Verbindung zur Leitstelle unbekannt';
                         }
                     })
                     .catch(function () {});

@@ -82,7 +82,7 @@ ob_start();
 <div class="ev2-page-head">
     <h1 class="ev2-page-title"><?= $e($sections[$activeSection]['label']) ?></h1>
     <span class="ev2-chip font-mono">#<?= $e($enr) ?></span>
-    <span class="ev2-chip" title="Protokollart">
+    <span class="ev2-chip" data-ignis-tooltip="Protokollart">
         <?= (int) ($protokoll['prot_by'] ?? 0) === 1 ? 'Notarzt' : 'Rettungsdienst' ?>
     </span>
 </div>

@@ -213,7 +213,7 @@ if ($charLocked && $hasPrefill) {
                                     <div class="mt-3 flex gap-2">
                                         <button type="button" class="edivi__nidabutton grow" id="btn-join-session">Beitreten</button>
                                         <button type="button" class="edivi__nidabutton grow" id="btn-new-session">Neue Besatzung</button>
-                                        <button type="button" class="edivi__nidabutton" id="btn-delete-session" style="background-color:#dc3545;border-color:#dc3545;aspect-ratio:1;padding:0;width:42px;min-width:42px;" title="Session löschen"><i class="fa-solid fa-trash"></i></button>
+                                        <button type="button" class="edivi__nidabutton" id="btn-delete-session" style="background-color:#dc3545;border-color:#dc3545;aspect-ratio:1;padding:0;width:42px;min-width:42px;" data-ignis-tooltip="Session löschen" aria-label="Session löschen"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 </div>
                             </div>

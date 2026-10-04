@@ -163,7 +163,7 @@ function init() {
             const status = Object.hasOwn(STATE_CLASS, info.status) ? info.status : 'nocheck';
             Object.values(STATE_CLASS).forEach((cls) => badge.classList.remove(cls));
             badge.classList.add(STATE_CLASS[status]);
-            badge.title = status === 'nocheck'
+            badge.dataset.ignisTooltip = status === 'nocheck'
                 ? 'Keine Pflichtangaben'
                 : (info.filled ?? 0) + ' von ' + (info.total ?? 0) + ' Pflichtangaben';
         });

@@ -88,6 +88,7 @@ $__initials = static function (string $name): string {
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
     <!-- Custom-Select: FiveM-CEF zeigt native <select>-Popups teils nicht,
          die Komponente enhanced ALLE select.ignis-input (auch in Dialogen),
          das native Select bleibt Quelle der Wahrheit (Opt-out: data-ev2-native) -->
@@ -95,6 +96,11 @@ $__initials = static function (string $name): string {
     <?php if ($__enr !== null): ?>
     <script type="module" src="<?= asset('plugins/enotf-v2/assets/autosave.js') ?>"></script>
     <?php endif; ?>
+
+    <!-- Favicon (v1-Parität) -->
+    <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico" />
 
     <!-- CitizenFX: Session-ID an den FiveM-Client durchreichen (CEF-Embed) -->
     <script>
@@ -917,7 +923,7 @@ $__initials = static function (string $name): string {
                     <span class="ev2-topbar__ctx">
                         <span class="ev2-topbar__enr font-mono">#<?= $__e($__enr) ?></span>
                         <?php if ($__protArt !== null): ?>
-                            <span class="ev2-tag" title="Protokollart: <?= $__protArt === 'NA' ? 'Notarzt' : 'Rettungsdienst' ?>"><?= $__e($__protArt) ?></span>
+                            <span class="ev2-tag" data-ignis-tooltip="Protokollart: <?= $__protArt === 'NA' ? 'Notarzt' : 'Rettungsdienst' ?>"><?= $__e($__protArt) ?></span>
                         <?php endif; ?>
                     </span>
                 <?php else: ?>
@@ -934,10 +940,10 @@ $__initials = static function (string $name): string {
                 <button type="button" class="ev2-pat" data-ev2-pat
                         data-state="<?= (int) ($__patSynced ?? 0) ?>"
                         <?= ($__patname === null || $__patname === '') ? 'disabled' : '' ?>
-                        title="Patientendaten anfordern/senden">
+                        data-ignis-tooltip="Patientendaten anfordern/senden">
                     <i class="fa-solid fa-user-injured"></i>
                     <span class="ev2-pat__name"><?= ($__patname !== null && $__patname !== '') ? $__e($__patname) : 'Kein Patient' ?></span>
-                    <span class="ev2-pat__dot" title="Patientendaten-Sync"></span>
+                    <span class="ev2-pat__dot" data-ignis-tooltip="Patientendaten-Sync"></span>
                 </button>
             <?php endif; ?>
 
@@ -946,12 +952,12 @@ $__initials = static function (string $name): string {
             <!-- Zone rechts: funktionaler Cluster mit feinen Dividern -->
             <div class="ev2-topbar__tools">
                 <!-- Live-Uhr (tickt über das Layout-Script) -->
-                <span class="ev2-clock" data-ev2-clock title="Uhrzeit">--:--</span>
+                <span class="ev2-clock" data-ev2-clock data-ignis-tooltip="Uhrzeit">-</span>
 
                 <?php if ($__enr !== null): ?>
                     <span class="ev2-topbar__sep"></span>
                     <!-- Leitstellen-Verbindung: Poll über /api/enotf-v2/sync-status -->
-                    <span class="ev2-conn" data-ev2-emd title="Verbindung zur Leitstelle unbekannt">
+                    <span class="ev2-conn" data-ev2-emd data-ignis-tooltip="Verbindung zur Leitstelle unbekannt" role="img" aria-label="Verbindung zur Leitstelle">
                         <i class="fa-solid fa-tower-broadcast"></i>
                     </span>
                     <!-- Sync-Status-Platzhalter: Autosave-Client schreibt hierauf -->
@@ -969,14 +975,14 @@ $__initials = static function (string $name): string {
                     ?>
                     <a class="ignis-btn ignis-btn--sm ignis-btn--ghost ev2-topbar__print"
                        href="<?= $__e($__printUrl) ?>" target="_blank" rel="noopener"
-                       title="Protokoll-Druckansicht öffnen">
+                       data-ignis-tooltip="Protokoll-Druckansicht öffnen">
                         <i class="fa-solid fa-print"></i><span class="ev2-topbar__printlabel"> Drucken</span>
                     </a>
                 <?php endif; ?>
 
                 <?php if ($__crew !== null && $__crew['vehicle'] !== ''): ?>
                     <span class="ev2-topbar__sep"></span>
-                    <span class="ev2-chip" title="Angemeldetes Fahrzeug (<?= $__e($__crew['vehicle']) ?>)">
+                    <span class="ev2-chip" data-ignis-tooltip="Angemeldetes Fahrzeug (<?= $__e($__crew['vehicle']) ?>)">
                         <i class="fa-solid fa-truck-medical"></i>
                         <?= $__e($__crew['vehicle_label'] ?? $__crew['vehicle']) ?>
                     </span>
@@ -991,20 +997,20 @@ $__initials = static function (string $name): string {
                         <span class="ev2-crew" aria-label="Besatzung">
                             <?php foreach ($__crewShown as $__member): ?>
                                 <span class="ev2-crew__avatar"
-                                      title="<?= $__e(ucfirst($__member['position'])) ?>: <?= $__e($__member['name']) ?><?= $__member['quali'] !== '' ? ' (' . $__e($__member['quali']) . ')' : '' ?>">
+                                      data-ignis-tooltip="<?= $__e(ucfirst($__member['position'])) ?>: <?= $__e($__member['name']) ?><?= $__member['quali'] !== '' ? ' (' . $__e($__member['quali']) . ')' : '' ?>">
                                     <?= $__e($__initials((string) $__member['name'])) ?>
                                 </span>
                             <?php endforeach; ?>
                             <?php if ($__crewRest !== []): ?>
                                 <span class="ev2-crew__avatar"
-                                      title="<?= $__e(implode(', ', array_map(static fn ($m) => ucfirst($m['position']) . ': ' . $m['name'] . ($m['quali'] !== '' ? ' (' . $m['quali'] . ')' : ''), $__crewRest))) ?>">
+                                      data-ignis-tooltip="<?= $__e(implode(', ', array_map(static fn ($m) => ucfirst($m['position']) . ': ' . $m['name'] . ($m['quali'] !== '' ? ' (' . $m['quali'] . ')' : ''), $__crewRest))) ?>">
                                     +<?= count($__crewRest) ?>
                                 </span>
                             <?php endif; ?>
                         </span>
                     <?php endif; ?>
                     <span class="ev2-topbar__sep"></span>
-                    <a class="ignis-btn ignis-btn--sm ignis-btn--ghost" href="<?= $__e(EnotfV2Url::page('loggedout')) ?>" title="Abmelden">
+                    <a class="ignis-btn ignis-btn--sm ignis-btn--ghost" href="<?= $__e(EnotfV2Url::page('loggedout')) ?>" data-ignis-tooltip="Abmelden" aria-label="Abmelden">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </a>
                 <?php endif; ?>
@@ -1040,7 +1046,7 @@ $__initials = static function (string $name): string {
                             ? (int) round($__pflichtErledigt / $__pflichtGesamt * 100)
                             : 0;
                     ?>
-                        <div class="ev2-progress" title="Gesamtfortschritt Pflichtangaben">
+                        <div class="ev2-progress" data-ignis-tooltip="Gesamtfortschritt Pflichtangaben">
                             <span class="ev2-progress__text" data-ev2-progress-text><?= $__pflichtErledigt ?> von <?= $__pflichtGesamt ?> Pflichtangaben</span>
                             <span class="ev2-progress__short" data-ev2-progress-short><?= $__pflichtErledigt ?>/<?= $__pflichtGesamt ?></span>
                             <span class="ev2-progress__bar"><span class="ev2-progress__fill" data-ev2-progress-fill style="width: <?= $__pflichtProzent ?>%"></span></span>
@@ -1050,7 +1056,7 @@ $__initials = static function (string $name): string {
                     <?php $__i = 0; foreach ($__sections as $__key => $__section): $__i++; ?>
                         <a class="ev2-step <?= $__key === $__activeSection ? 'is-active' : '' ?>"
                            href="<?= $__e(EnotfV2Url::protokoll((string) $__enr, (string) $__key)) ?>"
-                           title="<?= $__e($__section['label']) ?>"
+                           data-ignis-tooltip="<?= $__e($__section['label']) ?>"
                            <?= $__key === $__activeSection ? 'aria-current="page"' : '' ?>>
                             <span class="ev2-step__num"><?= $__i ?></span>
                             <span class="ev2-step__label"><?= $__e($__section['label']) ?></span>
@@ -1068,16 +1074,16 @@ $__initials = static function (string $name): string {
                             ?>
                                 <span class="ev2-state <?= $__stateClass[$__fill['status']] ?? 'ev2-state-none' ?>"
                                       data-section-fill="<?= $__e($__key) ?>"
-                                      title="<?= $__e($__fillTitle) ?>"></span>
+                                      data-ignis-tooltip="<?= $__e($__fillTitle) ?>"></span>
                             <?php endif; ?>
                         </a>
                     <?php endforeach; ?>
 
                     <!-- Collapse-Toggle: klappt die Sidebar auf eine Icon-Rail
-                         (Nummern + Status-Punkte, Labels als title-Tooltips);
+                         (Nummern + Status-Punkte, Labels als Tooltips);
                          Zustand überlebt in localStorage -->
                     <button type="button" class="ev2-sidebar__toggle" data-ev2-sidebar-toggle
-                            title="Seitenleiste ein-/ausklappen">
+                            data-ignis-tooltip="Seitenleiste ein-/ausklappen">
                         <i class="fa-solid fa-angles-left"></i>
                         <i class="fa-solid fa-angles-right"></i>
                         <span>Einklappen</span>
@@ -1164,13 +1170,13 @@ $__initials = static function (string $name): string {
                             var diff = (Date.now() - new Date(data.last_emd_sync.replace(' ', 'T')).getTime()) / 1000;
                             if (diff <= SYNC_TIMEOUT) {
                                 connEl.classList.add('ev2-conn--ok');
-                                connEl.title = 'Verbindung zur Leitstelle aktiv';
+                                connEl.dataset.ignisTooltip = 'Verbindung zur Leitstelle aktiv';
                             } else {
                                 connEl.classList.add('ev2-conn--down');
-                                connEl.title = 'Keine Verbindung zur Leitstelle';
+                                connEl.dataset.ignisTooltip = 'Keine Verbindung zur Leitstelle';
                             }
                         } else {
-                            connEl.title = 'Verbindung zur Leitstelle unbekannt';
+                            connEl.dataset.ignisTooltip = 'Verbindung zur Leitstelle unbekannt';
                         }
                     })
                     .catch(function () { /* Anzeige behält den letzten Stand */ });

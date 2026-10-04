@@ -82,10 +82,10 @@ date_default_timezone_set('Europe/Berlin');
                     <small style="font-size: 0.65rem;" data-crew-linklabel><?= $crewAngemeldet ? 'Abmelden' : 'Anmelden' ?></small>
                 </a>
                 <div class="d-flex flex-column align-items-start mr-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
-                    <span id="leitstelle-conn-icon" title="Verbindung zur Leitstelle">
+                    <span id="leitstelle-conn-icon" data-ignis-tooltip="Verbindung zur Leitstelle" role="img" aria-label="Verbindung zur Leitstelle">
                         <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
                     </span>
-                    <span id="session-conn-icon" title="Session-Verbindung">
+                    <span id="session-conn-icon" data-ignis-tooltip="Session-Verbindung" role="img" aria-label="Session-Verbindung">
                         <i class="fa-solid fa-network-wired" style="color: #ffffff;"></i>
                     </span>
                 </div>
@@ -111,8 +111,8 @@ date_default_timezone_set('Europe/Berlin');
                                 <h4 class="fw-bold">Einsatzprotokolle</h4>
                             </div>
                             <div class="col flex justify-content-end align-items-center gap-2">
-                                <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" title="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
-                                <a href="<?= $e(EnotfV2Url::page('create')) ?>" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
+                                <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" data-ignis-tooltip="Seite neu laden" aria-label="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
+                                <a href="<?= $e(EnotfV2Url::page('create')) ?>" class="edivi__nidabutton" style="display:inline-block" data-ignis-tooltip="Neuen Einsatz erstellen" aria-label="Neuen Einsatz erstellen"><i class="fa-solid fa-plus"></i></a>
                             </div>
                         </div>
                         <div class="row pl-3">
