@@ -28,4 +28,8 @@ declare(strict_types=1);
 
 // Modul-Events kommen aus den Plugin-Fragmenten (plugins/*/events.php)
 // per PluginLoader::mergeEventMap() dazu.
-return [];
+// Kern-Listener laufen vor denen der Plugins: das Mail-Plugin liest die
+// Verknüpfung, die LinkSavedPersonnel gerade gesetzt hat.
+return [
+    \App\Events\PersonnelSaved::class => [\App\Personnel\LinkSavedPersonnel::class],
+];

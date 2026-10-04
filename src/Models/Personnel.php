@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * für die Fraktion arbeiten). Distinkt von App\Models\User, das System-
  * Login-Accounts repräsentiert.
  *
- * Die Verbindung zwischen User-Account und Mitarbeiter-Profil läuft über
- * `discordtag` (Mitarbeiter) ↔ `discord_id` (User).
+ * Die Verbindung zwischen User-Account und Mitarbeiter-Profil ist
+ * `intra_users.aktenid`, siehe App\Personnel\AccountLink.
  *
  * Geschlecht: 0=männlich, 1=weiblich, 2=divers
  *

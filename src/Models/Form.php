@@ -21,7 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int         $antragstyp_id
  * @property string      $name_dn      "Vorname Nachname (Dienstnummer)"
  * @property string|null $dienstgrad
- * @property string|null $discordid    Discord-Tag des Einreichers
+ * @property string|null $discordid    Discord-Tag des Einreichers (alte Anträge)
+ * @property int|null    $mitarbeiter_id Einreicher, siehe AccountLink
  * @property int         $cirs_status
  * @property string|null $cirs_manager
  * @property string|null $cirs_text    Bemerkung des Bearbeiters
@@ -50,6 +51,7 @@ class Form extends Model
     protected $casts = [
         'id'            => 'integer',
         'antragstyp_id' => 'integer',
+        'mitarbeiter_id' => 'integer',
         'cirs_status'   => 'integer',
         'time_added'    => 'datetime',
         'cirs_time'     => 'datetime',
@@ -81,6 +83,32 @@ class Form extends Model
     {
         $row = $this->daten->firstWhere('feldname', $feldname);
         return $row?->wert;
+    }
+
+    /**
+     * Schränkt auf die Anträge des angemeldeten Kontos ein: über den
+     * verknüpften Mitarbeiter, alte Anträge ohne mitarbeiter_id über die
+     * Discord-ID. Ohne beides bleibt die Abfrage leer.
+     *
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<self> $query
+     * @param string $prefix Tabellen-Alias mit Punkt, z. B. "a."
+     */
+    public static function whereOwn(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $query, string $prefix = ''): void
+    {
+        $mitarbeiterId = \App\Personnel\AccountLink::currentId();
+        $discordId     = (string) ($_SESSION['discordtag'] ?? '');
+
+        $query->where(function ($own) use ($mitarbeiterId, $discordId, $prefix): void {
+            $own->whereRaw('1 = 0');
+            if ($mitarbeiterId !== null) {
+                $own->orWhere($prefix . 'mitarbeiter_id', $mitarbeiterId);
+            }
+            if ($discordId !== '') {
+                $own->orWhere(function ($legacy) use ($discordId, $prefix): void {
+                    $legacy->whereNull($prefix . 'mitarbeiter_id')->where($prefix . 'discordid', $discordId);
+                });
+            }
+        });
     }
 
     public function statusLabel(): string

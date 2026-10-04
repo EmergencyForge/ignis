@@ -138,6 +138,8 @@ abstract class FeatureTestCase extends IntegrationTestCase
         foreach ($opts['session'] ?? [] as $k => $v) {
             $_SESSION[$k] = $v;
         }
+        // Jeder Request liest die Verknüpfung Konto und Mitarbeiter neu, wie ein echter.
+        \App\Personnel\AccountLink::forget();
 
         // Headers → $_SERVER mapping (HTTP_*), damit Request::header() sie findet
         $server = $opts['server'] ?? [];

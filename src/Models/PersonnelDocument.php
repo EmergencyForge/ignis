@@ -25,7 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null    $erhalter_rang_rd
  * @property int|null    $erhalter_quali
  * @property \DateTime|null $ausstellungsdatum
- * @property int         $ausstellerid
+ * @property int         $ausstellerid      Discord-ID des Ausstellers (alte Dokumente)
+ * @property int|null    $aussteller_user_id Konto des Ausstellers
  * @property string|null $aussteller_name
  * @property int|null    $aussteller_rang
  * @property \DateTime   $timestamp
@@ -87,6 +88,20 @@ class PersonnelDocument extends Model
      * andere Code-Stellen schon `mitarbeiter`/`empfaenger` als Variablen-Namen
      * benutzen. Wir bleiben bei der Standard-Eloquent-Konvention.
      */
+    /**
+     * Hat das angemeldete Konto dieses Dokument ausgestellt? Neue
+     * Dokumente tragen das Konto, alte nur die Discord-ID.
+     */
+    public static function issuedByCurrentUser(mixed $ausstellerUserId, mixed $ausstellerId): bool
+    {
+        if ($ausstellerUserId !== null) {
+            return (int) $ausstellerUserId === (int) ($_SESSION['userid'] ?? 0);
+        }
+        $discordId = (string) ($_SESSION['discordtag'] ?? '');
+
+        return $discordId !== '' && (string) $ausstellerId === $discordId;
+    }
+
     public static function typeLabel(int $type): string
     {
         return self::TYPE_LABELS[$type] ?? 'Unbekannt';
