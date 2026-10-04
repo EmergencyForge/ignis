@@ -95,7 +95,7 @@ final class EnotfArrivalboardTest extends FeatureTestCase
     public static function gueltigeVoranmeldung(): array
     {
         return [
-            'wie aus dem Formular' => [[], ['arrival' => date('Y-m-d') . ' 12:30:00', 'alter' => '54', 'gcs' => '15', 'priority' => '1']],
+            'wie aus dem Formular' => [[], ['arrival' => '2026-03-05 12:30:00', 'alter' => '54', 'gcs' => '15', 'priority' => '1']],
             'Datum als d.m.Y'      => [['arrival_date' => '5.3.2026'], ['arrival' => '2026-03-05 12:30:00']],
             'GCS leer, Alter 0'    => [['_GCS_' => '', '_AGE_' => '0'], ['gcs' => '', 'alter' => '0']],
             'Freitext leer'        => [['text' => ''], ['text' => '']],
@@ -105,7 +105,7 @@ final class EnotfArrivalboardTest extends FeatureTestCase
             ],
             'Grenzwerte' => [
                 ['arrival_time' => '00:00', '_GCS_' => '3', '_AGE_' => '150', 'priority' => '2', 'kreislauf' => '0', 'intubiert' => '1'],
-                ['arrival' => date('Y-m-d') . ' 00:00:00', 'gcs' => '3', 'alter' => '150', 'priority' => '2', 'kreislauf' => '0', 'intubiert' => '1'],
+                ['arrival' => '2026-03-05 00:00:00', 'gcs' => '3', 'alter' => '150', 'priority' => '2', 'kreislauf' => '0', 'intubiert' => '1'],
             ],
         ];
     }
@@ -154,7 +154,7 @@ final class EnotfArrivalboardTest extends FeatureTestCase
             '_GCS_'        => '15',
             'kreislauf'    => '1',
             'intubiert'    => '0',
-            'arrival_date' => date('Y-m-d'),
+            'arrival_date' => '2026-03-05',
             'arrival_time' => '12:30',
             'priority'     => '1',
         ], $abweichung);
