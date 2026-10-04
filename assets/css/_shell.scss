@@ -537,12 +537,6 @@ html.is-collapsed body.ignis-app--legacy {
   flex-shrink: 0;
 }
 
-.ignis-sidebar__version-mark {
-  display: none;
-  font-weight: 800;
-  font-style: italic;
-}
-
 .ignis-sidebar-scrim { display: none; }
 
 // Schwebt frei über dem Grund: Abstand und Höhe kommen von hier, die
@@ -571,8 +565,8 @@ html.is-collapsed body.ignis-app--legacy {
 
     .ignis-sidebar__row:has(.ignis-sidebar__quick) .ignis-sidebar__link { padding-right: 0; }
 
-    .ignis-sidebar__version { justify-content: center; }
-    .ignis-sidebar__version-mark { display: inline; }
+    // Die Version passt nicht in die schmale Leiste, sie steht auch im Footer.
+    .ignis-sidebar__version { display: none; }
   }
 }
 

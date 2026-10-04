@@ -97,7 +97,6 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
 
     <?php if ($navVersion !== null): ?>
         <div class="ignis-sidebar__version" data-ignis-tooltip="ıgnıs <?= htmlspecialchars($navVersion, ENT_QUOTES) ?>" data-placement="right">
-            <span class="ignis-sidebar__version-mark" aria-hidden="true">ı</span>
             <span class="ignis-sidebar__label">ıgnıs <?= htmlspecialchars($navVersion) ?></span>
         </div>
     <?php endif; ?>
