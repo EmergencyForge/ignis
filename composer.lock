@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ff3ffa0ed6591c77a909cf8539d7b24",
+    "content-hash": "938aebdd986265abe1c2d301e013f55f",
     "packages": [
         {
             "name": "brick/math",
@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "6a31cef1a84cbff1ee4f630a265c4a12d737756f"
+                "reference": "65d84bf2d7db846a3f2d14cbf2f65569791c16f1"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -810,11 +810,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.3.2",
+            "version": "0.4.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "1aa569cf8e3e8532bc4f6b411ad22975f487e7df"
+                "reference": "42c2975410fb1226ed06528ada68ab9bb33570aa"
             },
             "require": {
                 "php": ">=8.3",
@@ -918,7 +918,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "146205fc151b2a485cbcbdb1254cedb3f58a8e90"
+                "reference": "06cea920f61730c8081110c3aff602f12959f52c"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
+                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
