@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026.0.24-beta
+
+Der Editor für Mails, Signaturen, Dokumente und Vorlagen ist neu. Die Werkzeugleiste ordnet die Knöpfe in Gruppen und nutzt dieselben Symbole wie der Rest von ignis. Aktive Formate sind mit einem Strich darunter markiert. Wer Text markiert, bekommt eine Schnellleiste mit Fett, Kursiv, Unterstrichen, Durchgestrichen, Link und „Formatierung entfernen“. Links setzt man in einem kleinen Fenster statt in einer Abfrage, auch mit Strg+K. Neu sind Unterstreichen und Zitate. Jede Stelle bietet nur die Funktionen an, die dort passen, und was dort nicht erlaubt ist, lässt sich auch nicht einfügen.
+
+Die Wissensdatenbank nutzt jetzt denselben Editor. Artikel können Bilder enthalten, die direkt hochgeladen werden. Bestehende Artikel bleiben, wie sie sind, und lassen sich normal weiter bearbeiten. Der bisherige Editor ist entfernt, das macht ignis um rund 34 MB kleiner. Im hellen Theme waren Artikel, Liste und Formular der Wissensdatenbank kaum lesbar, das ist behoben. Außerdem werden Artikel jetzt beim Speichern und Anzeigen gefiltert: Vorher konnte jemand mit Schreibrechten Skripte in einen Artikel einbauen, die bei allen Lesern liefen.
+
+Die Standard-Signatur in den Mail-Einstellungen hat jetzt den Editor und Platzhalter für Name, Dienstgrad, Position, Fachdienste, Dienstnummer, Mailadresse und Organisation. Platzhalter fügt man mit „{{“ oder über die Knöpfe unter dem Editor ein. Beim Schreiben einer Mail setzt ignis die Daten des Absenders ein, vor dem Dienstgrad steht das Dienstgradabzeichen. Ohne gespeicherte Standard-Signatur gilt die eingebaute Vorlage.
+
+Geänderte Rollen und Rechte gelten jetzt beim nächsten Neuladen der Seite, vorher erst nach bis zu fünf Minuten oder nach erneuter Anmeldung.
+
+Einladungen ließen sich nicht löschen, und in der Spalte „Aktionen“ stand Code als Text. Das ist behoben.
+
+Das Profilfoto ändert man jetzt in einem Dialog mit Ablagefläche und dem Hinweis zu Dateityp und Größe. Der Dialog „Über ignis“ in der Fußzeile ist überarbeitet und passt in beiden Themes.
+
+Seitliche Fenster gleiten beim Vergrößern und Verkleinern weich auf die neue Breite.
+
+Aktualisiert sind das UI-Paket auf 0.8.5, das Editor-Paket auf 0.4.0 und Font Awesome auf 7.3.1.
+
 ## 2026.0.23-beta
 
 Die Ankündigungen aus dem Forum erschienen auf der Startseite nie. Im Docker-Image schlug jeder Cron-Job fehl, der einen eigenen PHP-Prozess startet, weil der Webserver keinen Pfad zur PHP-Kommandozeile kannte. Betroffen waren auch Warteschlange, Telemetrie, Instanzvernetzung und Speicherbereinigung. Diese Jobs laufen jetzt wieder. Klappt der Abruf der Ankündigungen nicht, nennt die Karte den Grund und verweist auf die Cron-Jobs.
