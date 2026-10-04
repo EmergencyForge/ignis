@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026.0.26-beta
+
+Es gibt jetzt eine ausführliche Installationsanleitung in der [INSTALL.md](https://github.com/EmergencyForge/ignis/blob/main/INSTALL.md). Sie beschreibt die Installation auf einem Webspace mit dem Assistenten, auf einem eigenen Server mit Apache oder nginx und mit Docker, dazu Reverse Proxy und HTTPS, Cloudflare, Cronjobs, Updates und Backups.
+
+Docker wird offiziell unterstützt. Mit `docker-compose.prod.yml` startet ignis aus dem fertigen Image zusammen mit MariaDB, Daten und Plugins liegen in eigenen Volumes und überstehen ein Neuanlegen des Containers. Das Image prüft seinen Zustand selbst. Updates kommen als neues Image, der Updater in den Einstellungen zeigt im Container nur noch an, wie das geht.
+
+Der Installationsassistent im Installationspaket ist überarbeitet. Er verlangt PHP 8.3, trägt Domain, Basis-Pfad und den neuen Servernamen direkt in die Einstellungen ein und startet kein Composer mehr. Die Fortschrittsanzeige läuft jetzt wirklich mit, und bricht die Installation ab, lässt sich der Assistent erneut aufrufen. Ohne mitgeliefertes Paket lädt er die neueste Version, auch wenn sie eine Beta ist. Am Ende erklärt er, dass die erste Discord-Anmeldung Administrator wird und wie es weitergeht.
+
+Die eNOTF-Abrechnung aus ignisTab funktioniert wieder. Seit April lehnte ignis die Anfragen des Gameservers ab, weil die Schnittstelle eine Browser-Anmeldung verlangte. Jetzt reicht der API-Schlüssel.
+
+Ein abweichender Datenbank-Port (`DB_PORT`) wird jetzt überall beachtet, auch beim Einrichten der Datenbank. Das nginx-Beispiel speichert Skripte und Styles nicht mehr tagelang zwischen und erlaubt die Zertifikatsprüfung von Let's Encrypt.
+
 ## 2026.0.25-beta
 
 Seitliche Fenster gleiten jetzt ruhig herein, ohne über den Fensterrand hinauszuschießen und zurückzufedern. Das gilt auch beim Vergrößern und Verkleinern.
