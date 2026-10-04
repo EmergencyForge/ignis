@@ -64,6 +64,37 @@ class FederatedPersonnel
     }
 
     /**
+     * RD-Qualifikation je lokalem Mitarbeiter für die eNOTF-Crew-Anmeldung:
+     * Name => Abkürzung. Nur Qualifikationen, die dort als Option stehen
+     * (none = 0, Abkürzung gesetzt). Tragen zwei Mitarbeiter denselben Namen
+     * mit verschiedener Quali, fällt der Name raus.
+     *
+     * @return array<string, string>
+     */
+    public static function rdQualiByName(): array
+    {
+        $rows = Capsule::table('intra_mitarbeiter as m')
+            ->join('intra_mitarbeiter_rdquali as q', 'q.id', '=', 'm.qualird')
+            ->where('q.none', 0)
+            ->whereNotNull('q.abkuerzung')
+            ->where('q.abkuerzung', '!=', '')
+            ->get(['m.fullname', 'q.abkuerzung']);
+
+        $map = [];
+        $ambiguous = [];
+        foreach ($rows as $row) {
+            $name = (string) $row->fullname;
+            $quali = (string) $row->abkuerzung;
+            if (isset($map[$name]) && $map[$name] !== $quali) {
+                $ambiguous[$name] = true;
+            }
+            $map[$name] = $quali;
+        }
+
+        return array_diff_key($map, $ambiguous);
+    }
+
+    /**
      * Get all personnel as options for a leader dropdown.
      * Returns local IDs as integers, remote IDs as "fed:{instance_id}:{remote_id}".
      *

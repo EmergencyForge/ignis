@@ -13,6 +13,7 @@
  * @var bool                             $charLocked
  * @var string                           $charName
  * @var list<string>                     $fullnames
+ * @var array<string,string>             $personnelQuali  Name => RD-Quali-Abkürzung
  * @var array<int,array<string,mixed>>   $qualifikationen
  * @var array<int,array<string,mixed>>   $vehicles
  * @var array<string,string>             $prefill
@@ -34,6 +35,9 @@ if ($charLocked && $hasPrefill) {
     elseif (($prefill['beifahrername'] ?? '') === $charName) $charLockOwnPosition = 'beifahrer';
     elseif (($prefill['praktikantname'] ?? '') === $charName) $charLockOwnPosition = 'praktikant';
 }
+
+// Char-Lock: Quali des eigenen Charakters aus der Personalliste vorwählen
+$charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -114,7 +118,7 @@ if ($charLocked && $hasPrefill) {
                                         <select class="form-select ignis-input my-2" id="charlock-quali" data-placeholder="Qualifikation">
                                             <option value=""></option>
                                             <?php foreach ($qualifikationen as $quali): ?>
-                                                <option value="<?= $e($quali['abkuerzung']) ?>"><?= $e($quali['abkuerzung']) ?></option>
+                                                <option value="<?= $e($quali['abkuerzung']) ?>" <?= $charQuali === $quali['abkuerzung'] ? 'selected' : '' ?>><?= $e($quali['abkuerzung']) ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                         <label>Qualifikation</label>
@@ -231,7 +235,7 @@ if ($charLocked && $hasPrefill) {
                                             <select id="join-quali" class="form-select ignis-input" data-placeholder="Qualifikation">
                                                 <option value=""></option>
                                                 <?php foreach ($qualifikationen as $quali): ?>
-                                                    <option value="<?= $e($quali['abkuerzung']) ?>"><?= $e($quali['abkuerzung']) ?></option>
+                                                    <option value="<?= $e($quali['abkuerzung']) ?>" <?= $charQuali === $quali['abkuerzung'] ? 'selected' : '' ?>><?= $e($quali['abkuerzung']) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
@@ -267,6 +271,8 @@ if ($charLocked && $hasPrefill) {
     <!-- Namensliste für die Ev2Suggest-Vorschläge (datalist-Ersatz, CEF).
          JSON_HEX_TAG hält das JSON script-sicher. -->
     <script type="application/json" data-ev2-suggest-source="ev2-personnel"><?= json_encode($fullnames, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?></script>
+    <!-- RD-Quali je Mitarbeiter (Name => Abkürzung) für die Quali-Vorauswahl -->
+    <script type="application/json" id="ev2-personnel-quali"><?= json_encode((object) $personnelQuali, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?></script>
 
     <script>
         // Select-Werte programmatisch ändern: change-Event dispatchen,
@@ -275,6 +281,27 @@ if ($charLocked && $hasPrefill) {
         function refreshSelect(el) {
             el.dispatchEvent(new Event('change', { bubbles: true }));
         }
+
+        // Name aus der Personalliste gewählt: hinterlegte RD-Quali in das
+        // Feld daneben setzen. Ohne Treffer bleibt die Auswahl, wie sie ist.
+        const personnelQuali = JSON.parse(document.getElementById('ev2-personnel-quali').textContent);
+
+        function bindPersonnelQuali(nameId, qualiId) {
+            const input = document.getElementById(nameId);
+            const select = document.getElementById(qualiId);
+            if (!input || !select || select.tagName !== 'SELECT') return;
+            input.addEventListener('change', function() {
+                const quali = personnelQuali[input.value.trim()];
+                if (typeof quali !== 'string' || select.value === quali) return;
+                if (!Array.from(select.options).some(o => o.value === quali)) return;
+                select.value = quali;
+                refreshSelect(select);
+            });
+        }
+        bindPersonnelQuali('fahrername', 'fahrerquali');
+        bindPersonnelQuali('beifahrername', 'beifahrerquali');
+        bindPersonnelQuali('praktikantname', 'praktikantquali');
+        bindPersonnelQuali('join-name', 'join-quali');
 
         document.getElementById('crew__delete')?.addEventListener('click', function() {
             // Text-Inputs leeren

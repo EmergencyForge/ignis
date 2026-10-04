@@ -90,6 +90,7 @@ class LoginController extends EnotfV2Controller
             'charLocked'      => $charLocked,
             'charName'        => $charName,
             'fullnames'       => $fullnames,
+            'personnelQuali'  => FederatedPersonnel::rdQualiByName(),
             'qualifikationen' => $qualifikationen,
             'vehicles'        => $vehicles,
             'prefill'         => $prefill,

@@ -5,6 +5,7 @@
  * @var bool                            $charLocked
  * @var string                          $charName
  * @var array<int,string>               $fullnames
+ * @var array<string,string>            $personnelQuali  Name => RD-Quali-Abkürzung
  * @var array<int,array<string,mixed>>  $qualifikationen
  * @var array<int,array<string,mixed>>  $vehicles
  * @var array<string,mixed>             $prefill
@@ -22,6 +23,9 @@ $currentDate = date('d.m.Y');
 // POST-Handler, Daten-Loading und Auth-Gates liegen im EnotfController.
 // Variablen werden via $data von renderView() im Template-Scope bereitgestellt.
 $hasPrefill = !empty($prefill);
+
+// Char-Lock: Quali des eigenen Charakters aus der Personalliste vorwählen
+$charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
 ?>
 
 <!DOCTYPE html>
@@ -155,7 +159,7 @@ $hasPrefill = !empty($prefill);
                                         <select class="form-select my-2" id="charlock-quali" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                             <option value=""></option>
                                             <?php foreach ($qualifikationen as $quali): ?>
-                                                <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                                <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= $charQuali === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                         <label>Qualifikation</label>
@@ -286,7 +290,7 @@ $hasPrefill = !empty($prefill);
                                             <select id="join-quali" class="form-select" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                                 <option value=""></option>
                                                 <?php foreach ($qualifikationen as $quali): ?>
-                                                    <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                                    <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= $charQuali === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
@@ -322,6 +326,8 @@ $hasPrefill = !empty($prefill);
     <script>
         // Name suggestions data from PHP
         const nameSuggestions = <?= json_encode($fullnames, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+        // RD-Quali je Mitarbeiter (Name => Abkürzung) für die Quali-Vorauswahl
+        const personnelQuali = <?= json_encode((object) $personnelQuali, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         const basePath = <?= json_encode(BASE_PATH) ?>;
 
         // Setup custom dropdown for name inputs
@@ -345,6 +351,7 @@ $hasPrefill = !empty($prefill);
                     item.addEventListener('click', function() {
                         input.value = name;
                         dropdown.style.display = 'none';
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
                     });
                     dropdown.appendChild(item);
                 });
@@ -383,6 +390,25 @@ $hasPrefill = !empty($prefill);
         setupNameAutocomplete('beifahrername', 'beifahrername-dropdown');
         setupNameAutocomplete('praktikantname', 'praktikantname-dropdown');
         setupNameAutocomplete('join-name', 'join-name-dropdown');
+
+        // Name aus der Personalliste gewählt: hinterlegte RD-Quali in das
+        // Feld daneben setzen. Ohne Treffer bleibt die Auswahl, wie sie ist.
+        function bindPersonnelQuali(nameId, qualiId) {
+            const input = document.getElementById(nameId);
+            const select = document.getElementById(qualiId);
+            if (!input || !select || select.tagName !== 'SELECT') return;
+            input.addEventListener('change', function() {
+                const quali = personnelQuali[input.value.trim()];
+                if (typeof quali !== 'string' || select.value === quali) return;
+                if (!Array.from(select.options).some(o => o.value === quali)) return;
+                select.value = quali;
+                if (typeof eNOTFCustomDropdown !== 'undefined') eNOTFCustomDropdown.refresh(select);
+            });
+        }
+        bindPersonnelQuali('fahrername', 'fahrerquali');
+        bindPersonnelQuali('beifahrername', 'beifahrerquali');
+        bindPersonnelQuali('praktikantname', 'praktikantquali');
+        bindPersonnelQuali('join-name', 'join-quali');
 
         document.getElementById('crew__delete')?.addEventListener('click', function() {
             // Text-Inputs leeren
