@@ -21,6 +21,7 @@ try {
     /** @var ChangelogClient $client */
     $client   = app(ChangelogClient::class);
     $items    = $client->get(5);
+    $problem  = $items === [] ? $client->fetchProblem() : null;
     $forumUrl = $client->getForumUrl() . ChangelogClient::CATEGORY_PATH;
 } catch (\Throwable $e) {
     \App\Logging\Logger::warning('Announcements widget: ' . $e->getMessage());
@@ -41,13 +42,21 @@ $annE = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES
 
     <?php if ($items === []): ?>
         <?php
-        $empty = [
+        $empty = $problem === null ? [
             'variant' => 'sm',
             'tone'    => 'neutral',
             'icon'    => 'fa-bullhorn',
             'title'   => 'Noch keine Ankündigungen geladen',
             'text'    => 'Der nächste Abruf läuft in spätestens 30 Minuten.',
             'code'    => 'php cli/intra.php changelog:refresh',
+        ] : [
+            'variant' => 'sm',
+            'tone'    => 'warn',
+            'icon'    => 'fa-triangle-exclamation',
+            'title'   => $problem['title'],
+            'text'    => $problem['text'],
+            'code'    => 'php cli/intra.php changelog:refresh',
+            'actions' => [['label' => 'Cron-Jobs öffnen', 'href' => BASE_PATH . 'settings/system/cron']],
         ];
         require dirname(__DIR__, 3) . '/templates/partials/empty.php';
         ?>

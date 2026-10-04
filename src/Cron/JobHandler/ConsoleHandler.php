@@ -48,7 +48,29 @@ final class ConsoleHandler implements JobHandlerInterface
             allowlist: self::ALLOWLIST,
             isPluginCommand: fn (string $name): bool => $this->isPluginCommand($name),
             workingDir: $appRoot,
+            phpBinary: self::cliBinary(),
         );
+    }
+
+    /**
+     * PHP-CLI für den Unterprozess. PHP_BINARY taugt nur, wenn der Tick
+     * selbst aus der CLI kommt: unter mod_php (unser Docker-Image) ist es
+     * leer, unter FPM zeigt es auf php-fpm. Der Piggyback-Tick und
+     * public/cron.php laufen aber im Webserver, ohne diesen Weg schlug
+     * dort jeder Console-Job mit "sh: 1: : Permission denied" fehl.
+     */
+    public static function cliBinary(
+        string $sapi = PHP_SAPI,
+        string $binary = PHP_BINARY,
+        string $binDir = PHP_BINDIR,
+    ): string {
+        if ($sapi === 'cli' && $binary !== '') {
+            return $binary;
+        }
+
+        $candidate = $binDir . DIRECTORY_SEPARATOR . 'php';
+
+        return is_file($candidate) && is_executable($candidate) ? $candidate : 'php';
     }
 
     public function isAvailable(string $handler): bool

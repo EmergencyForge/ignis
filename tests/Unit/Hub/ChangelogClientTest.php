@@ -87,4 +87,34 @@ final class ChangelogClientTest extends TestCase
         self::assertNull(ChangelogClient::mapTopics(['errors' => ['nope']], self::BASE, 10));
         self::assertNull(ChangelogClient::mapTopics(null, self::BASE, 10));
     }
+
+    public function testEmptyCacheWithWorkingCronHasNoProblem(): void
+    {
+        self::assertNull(ChangelogClient::describeProblem(['active' => 1, 'last_status' => 'success'], ''));
+        self::assertNull(ChangelogClient::describeProblem(['active' => 1, 'last_status' => null], ''));
+    }
+
+    public function testPausedOrMissingCronIsReported(): void
+    {
+        foreach ([null, ['active' => 0, 'last_status' => 'success']] as $job) {
+            $problem = ChangelogClient::describeProblem($job, '');
+            self::assertSame('Automatischer Abruf ist aus', $problem['title'] ?? null);
+        }
+    }
+
+    public function testFailedFetchIsShownWithItsReason(): void
+    {
+        // Forum-Fehler zählen beim Command als Erfolg, damit der Cron nicht
+        // rot wird. Der Grund steht deshalb in intra_changelog_meta.
+        $problem = ChangelogClient::describeProblem(['active' => 1, 'last_status' => 'success'], 'Forum nicht erreichbar');
+        self::assertStringContainsString('Forum nicht erreichbar', $problem['text'] ?? '');
+        self::assertStringNotContainsString('30 Minuten', $problem['text'] ?? '');
+    }
+
+    public function testFailedCronRunIsReported(): void
+    {
+        // So sah es im Docker-Image aus: der Job kam nie bis zum Forum.
+        $problem = ChangelogClient::describeProblem(['active' => 1, 'last_status' => 'failed'], '');
+        self::assertSame('Ankündigungen konnten nicht geladen werden', $problem['title'] ?? null);
+    }
 }

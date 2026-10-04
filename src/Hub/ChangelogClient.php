@@ -33,6 +33,7 @@ final class ChangelogClient
     public const CATEGORY_PATH      = '/c/ankuendigungen/5';
     private const TIMEOUT_SECONDS   = 5;
     private const HARD_CAP          = 25;
+    private const CRON_IDENTIFIER   = 'changelog.refresh';
 
     public function __construct(
         private readonly ConfigManager $config,
@@ -115,8 +116,7 @@ final class ChangelogClient
 
         // Forum konnte nicht erreicht werden (Timeout / DNS / TLS). Alter Cache bleibt.
         if ($result === null) {
-            Logger::info('ChangelogClient: forum unreachable, keeping stale cache');
-            return ['success' => false, 'status' => 0, 'message' => 'Forum nicht erreichbar', 'count' => 0];
+            return $this->failed(0, 'Forum nicht erreichbar');
         }
 
         $status = $result['status'];
@@ -124,30 +124,31 @@ final class ChangelogClient
 
         // 304 Not Modified: Cache ist noch valide, nichts zu tun.
         if ($status === 304) {
+            $this->saveMeta(['last_error' => '']);
             return ['success' => true, 'status' => 304, 'message' => 'Cache aktuell', 'count' => 0];
         }
 
-        // 429/5xx: alter Cache bleibt. Loggen, fuer naechsten Refresh.
+        // 429/5xx: alter Cache bleibt, der naechste Refresh versucht es erneut.
         if ($status === 429 || $status >= 500) {
-            Logger::warning(sprintf('ChangelogClient: forum returned %d, keeping stale cache', $status));
-            return ['success' => false, 'status' => $status, 'message' => "Forum-Fehler ($status)", 'count' => 0];
+            return $this->failed($status, "Forum-Fehler ($status)");
         }
 
         // Sonstige nicht-200-Statuscodes (z.B. 403, 404 wegen falscher Kategorie)
         if ($status !== 200 || !is_string($body) || $body === '') {
-            Logger::warning(sprintf('ChangelogClient: unexpected response status=%d', $status));
-            return ['success' => false, 'status' => $status, 'message' => "HTTP $status", 'count' => 0];
+            return $this->failed($status, "HTTP $status");
         }
 
         // Ohne topic_list (z.B. 200 mit {"errors": [...]}) bleibt der alte Cache,
         // statt ihn durch eine leere Liste zu ersetzen.
         $items = self::mapTopics(json_decode($body, true), $this->getForumUrl(), $limit);
         if ($items === null) {
-            Logger::warning('ChangelogClient: malformed response payload');
-            return ['success' => false, 'status' => $status, 'message' => 'Antwort unlesbar', 'count' => 0];
+            return $this->failed($status, 'Antwort unlesbar');
         }
 
         $written = $this->persist($items);
+        if ($written === null) {
+            return $this->failed($status, 'Cache konnte nicht gespeichert werden');
+        }
 
         // ETag/Last-Modified fuer naechsten conditional Request merken.
         $newEtag         = $this->headerValue($result['headers'], 'ETag');
@@ -156,6 +157,7 @@ final class ChangelogClient
             'etag'           => $newEtag,
             'last_modified'  => $newLastModified,
             'last_refreshed' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'last_error'     => '',
         ]);
 
         return [
@@ -164,6 +166,64 @@ final class ChangelogClient
             'message' => sprintf('OK: %d Eintrag/e aktualisiert', $written),
             'count'   => $written,
         ];
+    }
+
+    /**
+     * Warum der Cache leer bleibt, falls es einen erkennbaren Grund gibt.
+     * Das Dashboard zeigt dann diesen Text statt "spätestens 30 Minuten".
+     *
+     * @return array{title:string, text:string}|null
+     */
+    public function fetchProblem(): ?array
+    {
+        try {
+            $job = Capsule::table('intra_cron_jobs')
+                ->where('identifier', self::CRON_IDENTIFIER)
+                ->first(['active', 'last_status']);
+            $lastError = (string) Capsule::table('intra_changelog_meta')
+                ->where('key_name', 'last_error')
+                ->value('value');
+        } catch (\PDOException $e) {
+            Logger::warning('ChangelogClient: status read failed: ' . $e->getMessage());
+            return null;
+        }
+
+        return self::describeProblem($job === null ? null : (array) $job, $lastError);
+    }
+
+    /**
+     * @param array<string,mixed>|null $job Zeile aus intra_cron_jobs, null = Job fehlt
+     * @return array{title:string, text:string}|null
+     */
+    public static function describeProblem(?array $job, string $lastError): ?array
+    {
+        if ($job === null || !(bool) ($job['active'] ?? false)) {
+            return [
+                'title' => 'Automatischer Abruf ist aus',
+                'text'  => 'Der Cron-Job „Forum-Ankündigungen aktualisieren“ ist pausiert oder fehlt. Bis er wieder läuft, lädt nur der Befehl unten neue Ankündigungen.',
+            ];
+        }
+        if ($lastError !== '') {
+            return [
+                'title' => 'Ankündigungen konnten nicht geladen werden',
+                'text'  => 'Letzter Versuch: ' . $lastError . '. Der Cron-Job versucht es weiter, von Hand geht es mit diesem Befehl:',
+            ];
+        }
+        if (($job['last_status'] ?? null) === 'failed') {
+            return [
+                'title' => 'Ankündigungen konnten nicht geladen werden',
+                'text'  => 'Der Cron-Job ist beim letzten Lauf fehlgeschlagen. Die Meldung dazu steht bei den Cron-Jobs.',
+            ];
+        }
+        return null;
+    }
+
+    /** @return array{success:bool, status:int, message:string, count:int} */
+    private function failed(int $status, string $message): array
+    {
+        Logger::warning(sprintf('ChangelogClient: refresh failed, keeping stale cache (status=%d): %s', $status, $message));
+        $this->saveMeta(['last_error' => $message]);
+        return ['success' => false, 'status' => $status, 'message' => $message, 'count' => 0];
     }
 
     public function getForumUrl(): string
@@ -232,7 +292,7 @@ final class ChangelogClient
      * @param list<array{id:string, title:string, url:string, published_at:string,
      *     preview:?string, tags:list<string>, pinned:bool}> $items
      */
-    private function persist(array $items): int
+    private function persist(array $items): ?int
     {
         // Atomar: Cache leer, dann frisch befuellen. Wenn ein Insert fehlt,
         // rollen wir zurueck. Alter Cache bleibt sichtbar.
@@ -258,7 +318,7 @@ final class ChangelogClient
         } catch (\Throwable $e) {
             $connection->rollBack();
             Logger::warning('ChangelogClient: persist failed: ' . $e->getMessage());
-            return 0;
+            return null;
         }
     }
 
