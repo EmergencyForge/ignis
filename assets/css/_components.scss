@@ -277,6 +277,7 @@ body {
   --efe-border: var(--border-control, var(--border));
   --efe-focus-ring: var(--accent-focus, var(--accent));
   --efe-bubble-bg: var(--overlay, var(--surface-2));
+  --efe-shadow: var(--shadow-pop);
   --efe-surround-bg: var(--well, var(--bg));
   --efe-page-accent: color-mix(in srgb, var(--accent) 80%, black);
   --efe-danger: var(--danger);
