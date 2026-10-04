@@ -199,11 +199,32 @@ class KBHelper
     }
 
     /**
-     * Sanitize HTML content for safe output
-     * Allows only safe HTML tags used by CKEditor
-     * 
-     * @param string|null $content The HTML content to sanitize
-     * @return string Sanitized HTML
+     * Elemente, die der CKEditor der Wissensdatenbank erzeugt: Überschriften
+     * 1 bis 3 der Toolbar landen als h2 bis h4, Tabellen in figure.table.
+     */
+    private const ALLOWED_TAGS = [
+        'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'h2', 'h3', 'h4',
+        'ul', 'ol', 'li', 'blockquote', 'a',
+        'figure', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    ];
+
+    /** Elemente, die samt Inhalt entfallen. Alle anderen werden entpackt. */
+    private const DROPPED_TAGS = [
+        'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed', 'applet',
+        'noscript', 'noembed', 'noframes', 'template', 'svg', 'math', 'textarea',
+        'select', 'title', 'xmp',
+    ];
+
+    private const ALLOWED_SCHEMES = ['http', 'https', 'mailto'];
+
+    /**
+     * Bereinigt Editor-HTML über eine Allowlist. Das HTML wird mit libxml
+     * geparst und aus dem Baum neu geschrieben: nur erlaubte Elemente mit
+     * ihren wenigen erlaubten Attributen, aller Text escaped. Läuft beim
+     * Speichern und bei jeder Ausgabe, damit auch Altbestände sauber sind.
+     *
+     * @param string|null $content Editor-HTML
+     * @return string Bereinigtes HTML
      */
     public static function sanitizeContent(?string $content): string
     {
@@ -211,19 +232,117 @@ class KBHelper
             return '';
         }
 
-        // Define allowed tags that CKEditor uses
-        $allowedTags = '<p><br><strong><b><em><i><u><s><h1><h2><h3><h4><h5><h6><ul><ol><li><blockquote><a><table><thead><tbody><tr><th><td><span><div>';
-        
-        // Strip tags except allowed ones
-        $sanitized = strip_tags($content, $allowedTags);
-        
-        // Remove potentially dangerous attributes
-        // This is a basic sanitization - for production, consider using HTMLPurifier
-        $sanitized = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $sanitized);
-        $sanitized = preg_replace('/\s*javascript\s*:/i', '', $sanitized);
-        $sanitized = preg_replace('/\s*data\s*:/i', '', $sanitized);
-        $sanitized = preg_replace('/\s*vbscript\s*:/i', '', $sanitized);
-        
-        return $sanitized;
+        // Alles außerhalb von ASCII als numerische Entity: libxml muss dann
+        // keine Kodierung raten, und ein meta charset im Inhalt ändert nichts.
+        $ascii = mb_encode_numericentity(
+            str_replace("\0", '', mb_scrub($content, 'UTF-8')),
+            [0x80, 0x10FFFF, 0, 0x1FFFFF],
+            'UTF-8'
+        );
+
+        $doc = new \DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $loaded = $doc->loadHTML(
+            '<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body>'
+                . $ascii . '</body></html>',
+            LIBXML_NONET | LIBXML_COMPACT
+        );
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        // Ab dem Dokument selbst, denn Text hinter einem </html> im Inhalt
+        // hängt libxml in ein zweites html-Element neben dem ersten.
+        return $loaded ? self::sanitizeChildren($doc) : '';
+    }
+
+    private static function sanitizeChildren(\DOMNode $parent): string
+    {
+        $html = '';
+        foreach ($parent->childNodes as $node) {
+            if ($node instanceof \DOMText) {
+                $text = htmlspecialchars($node->data, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                // CKEditor schreibt geschützte Leerzeichen als Entity, so bleibt es beim Speichern gleich
+                $html .= str_replace("\u{A0}", '&nbsp;', $text);
+                continue;
+            }
+            // Kommentare, Processing Instructions usw. entfallen
+            if (!$node instanceof \DOMElement) {
+                continue;
+            }
+
+            $tag = strtolower($node->tagName);
+            if (in_array($tag, self::DROPPED_TAGS, true)) {
+                continue;
+            }
+            $attributes = in_array($tag, self::ALLOWED_TAGS, true) ? self::allowedAttributes($tag, $node) : null;
+            if ($attributes === null) {
+                $html .= self::sanitizeChildren($node);
+                continue;
+            }
+
+            $html .= '<' . $tag . $attributes . '>';
+            if ($tag !== 'br') {
+                $html .= self::sanitizeChildren($node) . '</' . $tag . '>';
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * Erlaubte Attribute eines Elements als fertiger HTML-Schnipsel.
+     * null heißt: Element entpacken (Link ohne brauchbares Ziel).
+     */
+    private static function allowedAttributes(string $tag, \DOMElement $node): ?string
+    {
+        switch ($tag) {
+            case 'a':
+                $href = self::safeHref($node->getAttribute('href'));
+                if ($href === null) {
+                    return null;
+                }
+                $html = ' href="' . htmlspecialchars($href, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"';
+                if (strtolower(trim($node->getAttribute('target'))) === '_blank') {
+                    $html .= ' target="_blank" rel="noopener noreferrer"';
+                }
+                return $html;
+
+            case 'td':
+            case 'th':
+                $html = '';
+                foreach (['colspan', 'rowspan'] as $name) {
+                    $value = trim($node->getAttribute($name));
+                    if (preg_match('/^[1-9][0-9]{0,2}$/', $value) === 1) {
+                        $html .= ' ' . $name . '="' . $value . '"';
+                    }
+                }
+                return $html;
+
+            case 'figure':
+                return $node->getAttribute('class') === 'table' ? ' class="table"' : '';
+
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Linkziel prüfen. Der Wert ist vom Parser schon entity-dekodiert.
+     * Steuerzeichen fallen weg, weil Browser sie in URLs ignorieren
+     * ("java\tscript:"). Mit Schema nur http, https und mailto; ohne
+     * Schema ist es ein relativer Link und damit unkritisch.
+     */
+    private static function safeHref(string $href): ?string
+    {
+        $href = trim((string) preg_replace('/[\x00-\x1F\x7F]+/', '', $href), ' ');
+        if ($href === '') {
+            return null;
+        }
+        if (preg_match('/^([a-z][a-z0-9+.\-]*):/i', $href, $match) === 1
+            && !in_array(strtolower($match[1]), self::ALLOWED_SCHEMES, true)) {
+            return null;
+        }
+
+        return $href;
     }
 }

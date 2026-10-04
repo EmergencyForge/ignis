@@ -188,7 +188,7 @@ class LexiconController extends Controller
         $publicAccess = defined('KB_PUBLIC_ACCESS') && KB_PUBLIC_ACCESS === true;
         $isLoggedIn   = isset($_SESSION['userid']) && isset($_SESSION['permissions']);
 
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
         if (!$id) {
             Flash::error('Ungültige ID');
             $this->redirect('lexicon/index');
@@ -389,7 +389,7 @@ class LexiconController extends Controller
         $title            = trim($_POST['title'] ?? '');
         $subtitle         = trim($_POST['subtitle'] ?? '');
         $competency_level = !empty($_POST['competency_level']) ? $_POST['competency_level'] : null;
-        $content          = $_POST['content'] ?? '';
+        $content          = KBHelper::sanitizeContent($_POST['content'] ?? '');
         $category_id      = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
         $selectedTags     = $_POST['tags'] ?? [];
         $selectedRels     = $_POST['relations'] ?? [];
@@ -404,6 +404,10 @@ class LexiconController extends Controller
         $detail = [];
         foreach ($fields as $f) {
             $detail[$f] = trim($_POST[$f] ?? '');
+        }
+        // Wirkstoff und Wirkstoffgruppe sind Klartext, der Rest kommt aus dem Editor
+        foreach (array_diff($fields, ['med_wirkstoff', 'med_wirkstoffgruppe']) as $f) {
+            $detail[$f] = KBHelper::sanitizeContent($detail[$f]);
         }
 
         $errors = [];
