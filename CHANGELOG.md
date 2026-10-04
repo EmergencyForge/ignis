@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.0.23-beta
+
+Die Ankündigungen aus dem Forum erschienen auf der Startseite nie. Im Docker-Image schlug jeder Cron-Job fehl, der einen eigenen PHP-Prozess startet, weil der Webserver keinen Pfad zur PHP-Kommandozeile kannte. Betroffen waren auch Warteschlange, Telemetrie, Instanzvernetzung und Speicherbereinigung. Diese Jobs laufen jetzt wieder. Klappt der Abruf der Ankündigungen nicht, nennt die Karte den Grund und verweist auf die Cron-Jobs.
+
+Neue Mails beginnen mit einer Signatur aus dem Mitarbeiterprofil: Name, Dienstgrad, Position, Fachdienste und Organisation. Zwischen Text und Signatur steht eine Leerzeile, die Signatur lässt sich wie normaler Text ändern oder löschen. Eine eigene Signatur und die Standardsignatur aus den Mail-Einstellungen gehen weiterhin vor. Bei Antworten steht die Signatur jetzt über der zitierten Mail. Im Mail-Editor war der Text auf dunklem Hintergrund kaum zu sehen.
+
+Seitliche Fenster wie „Neue Mail“ lassen sich über einen Knopf neben dem Schließen-Kreuz auf die volle Bildschirmbreite vergrößern.
+
+Das Mitarbeiterprofil zeigt das Foto oder einen Platzhalter und darunter „Foto ändern“. Ein Bild lässt sich auch direkt auf das Foto ziehen. Nach dem Kopieren der Dienstnummer stand das Kopier-Symbol neben „Kopiert“, das ist behoben.
+
+Bei der eNOTF-Anmeldung setzt die Auswahl eines Namens aus der Personalliste die hinterlegte RD-Qualifikation daneben, in v1 und v2. Sie lässt sich danach noch ändern.
+
+Aktualisiert ist das UI-Paket auf 0.8.4.
+
 ## 2026.0.22-beta
 
 Konten aus der zentralen Anmeldung haben keine Discord-ID und fanden deshalb ihren Mitarbeiter nicht: Eigene Anträge, Dokumente, Termine, das Postfach und die Listen auf der Startseite blieben leer. Konto und Mitarbeiter sind jetzt fest verknüpft. Beim Update verknüpft ignis bestehende Konten über die Discord-ID, wenn genau ein Konto und genau ein Mitarbeiter zusammenpassen. Neue Konten werden bei der Anmeldung über Discord verknüpft oder über eine Einladung, die einem Mitarbeiter gilt. Die Einladung aus dem Mitarbeiterprofil gilt automatisch diesem Mitarbeiter, unter „Einladungen“ lässt er sich auswählen. Von Hand verknüpfen und lösen geht in der Benutzerbearbeitung und im Kontostatus des Profils. Die Discord-ID ist beim Anlegen eines Mitarbeiters keine Pflicht mehr, und das Tablet-Login findet ein Konto auch über den Mitarbeiter mit dieser Discord-ID. Auf der Startseite konnten Konten ohne Discord-ID vorher Dokumente und Anträge anderer sehen.
