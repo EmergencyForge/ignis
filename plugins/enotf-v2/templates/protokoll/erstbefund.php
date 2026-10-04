@@ -279,7 +279,7 @@ $verletzung = static function (string $feld) use ($wert, $schwereLabels): string
 };
 
 // GCS-Summe (Punkte = max − Code), nur wenn alle drei Teilwerte gesetzt
-$gcsSumme = '--';
+$gcsSumme = '-';
 if ($wert('d_gcs_1') !== '' && $wert('d_gcs_2') !== '' && $wert('d_gcs_3') !== '') {
     $gcsSumme = (string) ((4 - (int) $wert('d_gcs_1')) + (5 - (int) $wert('d_gcs_2')) + (6 - (int) $wert('d_gcs_3')));
 }
@@ -427,14 +427,14 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                         <h5 class="text-light px-2 py-1">Vitalparameter</h5>
                         <div class="col">
                             <div class="row">
-                                <div class="col"><?= $checkInput('SpO<sub>2</sub>', $wert('spo2'), 'ov_spo2') ?></div>
-                                <div class="col"><?= $checkInput('AF', $wert('atemfreq'), 'ov_af') ?></div>
-                                <div class="col"><?= $checkInput('etCO<sub>2</sub>', $wert('etco2'), 'ov_etco2', true) ?></div>
-                                <div class="col"><?= $checkInput('HF', $wert('herzfreq'), 'ov_hf') ?></div>
-                                <div class="col"><?= $checkInput('RR<sub>sys</sub>', $wert('rrsys'), 'ov_rrsys') ?></div>
-                                <div class="col"><?= $checkInput('RR<sub>dia</sub>', $wert('rrdias'), 'ov_rrdia', true) ?></div>
-                                <div class="col"><?= $checkInput('BZ', $bzDisplay, 'ov_bz') ?></div>
-                                <div class="col"><?= $checkInput('Temp', $wert('temp'), 'ov_temp', true) ?></div>
+                                <div class="col"><?= $checkInput('SpO<sub>2</sub>', $wert('spo2'), 'spo2') ?></div>
+                                <div class="col"><?= $checkInput('AF', $wert('atemfreq'), 'af') ?></div>
+                                <div class="col"><?= $checkInput('etCO<sub>2</sub>', $wert('etco2'), 'etco2', true) ?></div>
+                                <div class="col"><?= $checkInput('HF', $wert('herzfreq'), 'hf') ?></div>
+                                <div class="col"><?= $checkInput('RR<sub>sys</sub>', $wert('rrsys'), 'rrsys') ?></div>
+                                <div class="col"><?= $checkInput('RR<sub>dia</sub>', $wert('rrdias'), 'rrdia', true) ?></div>
+                                <div class="col"><?= $checkInput('BZ', $bzDisplay, 'bz') ?></div>
+                                <div class="col"><?= $checkInput('Temp', $wert('temp'), 'temp', true) ?></div>
                             </div>
                         </div>
                     </div>
@@ -500,6 +500,12 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
                 </div>
             </div>
             <div class="col-5">
+                <!-- Range Strip (Normbereichs-Färbung des aktiven Felds) -->
+                <div class="range-strip-wrapper">
+                    <div class="range-strip-container">
+                        <div class="range-strip" id="rangeStrip"></div>
+                    </div>
+                </div>
                 <div class="keypad-container">
                     <div class="keypad-grid">
                         <?php foreach (['7', '8', '9', '4', '5', '6', '1', '2', '3'] as $d): ?>
@@ -1113,45 +1119,17 @@ $checkInput = static function (string $label, string $value, string $id, bool $o
 <?php endif; ?>
 
 <?php if ($fokus === 'messwerte'): ?>
+<script src="<?= $e(asset('plugins/enotf-v2/assets/vitals-keypad.js')) ?>"></script>
 <script>
-    // Messwerte: Keypad + Batch-Save (v1-Bedienung, v2-Technik)
+    // Messwerte: Keypad und Skala aus vitals-keypad.js, Speichern als v2-Batch
     (function () {
         'use strict';
         var locked = <?= $istGesperrt ? 'true' : 'false' ?>;
         var FIELDS = ['spo2', 'atemfreq', 'etco2', 'herzfreq', 'rrsys', 'rrdias', 'bz', 'temp'];
-        var current = null;
-
-        document.querySelectorAll('.keypad-input').forEach(function (input) {
-            input.addEventListener('focus', function () { current = input; });
-        });
-
-        function ziel() {
-            if (current) return current;
-            current = document.getElementById('spo2');
-            return current;
-        }
-
-        document.querySelectorAll('[data-keypad-digit]').forEach(function (btn) {
-            btn.addEventListener('mousedown', function (e) { e.preventDefault(); });
-            btn.addEventListener('click', function () {
-                if (locked) return;
-                var t = ziel();
-                if (['ng', 'nm'].indexOf(t.value) !== -1) t.value = '';
-                t.value += btn.dataset.keypadDigit;
-                t.focus();
-            });
-        });
-        var clearBtn = document.querySelector('[data-keypad-clear]');
-        if (clearBtn) clearBtn.addEventListener('click', function () { if (!locked) { var t = ziel(); t.value = ''; t.focus(); } });
-        var backBtn = document.querySelector('[data-keypad-backspace]');
-        if (backBtn) backBtn.addEventListener('click', function () { if (!locked) { var t = ziel(); t.value = t.value.slice(0, -1); t.focus(); } });
-        document.querySelectorAll('[data-keypad-set]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                if (locked) return;
-                var t = ziel();
-                t.value = btn.dataset.keypadSet;
-                t.focus();
-            });
+        window.EnotfV2VitalsKeypad.init({
+            bzUnit: <?= json_encode($bzUnit) ?>,
+            required: ['spo2', 'atemfreq', 'herzfreq', 'rrsys', 'bz'],
+            locked: locked,
         });
 
         // Speichern: EIN Batch über den v2-Autosave (BZ → mg/dl)
