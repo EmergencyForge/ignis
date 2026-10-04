@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.0.22-beta
+
+Konten aus der zentralen Anmeldung haben keine Discord-ID und fanden deshalb ihren Mitarbeiter nicht: Eigene Anträge, Dokumente, Termine, das Postfach und die Listen auf der Startseite blieben leer. Konto und Mitarbeiter sind jetzt fest verknüpft. Beim Update verknüpft ignis bestehende Konten über die Discord-ID, wenn genau ein Konto und genau ein Mitarbeiter zusammenpassen. Neue Konten werden bei der Anmeldung über Discord verknüpft oder über eine Einladung, die einem Mitarbeiter gilt. Die Einladung aus dem Mitarbeiterprofil gilt automatisch diesem Mitarbeiter, unter „Einladungen“ lässt er sich auswählen. Von Hand verknüpfen und lösen geht in der Benutzerbearbeitung und im Kontostatus des Profils. Die Discord-ID ist beim Anlegen eines Mitarbeiters keine Pflicht mehr, und das Tablet-Login findet ein Konto auch über den Mitarbeiter mit dieser Discord-ID. Auf der Startseite konnten Konten ohne Discord-ID vorher Dokumente und Anträge anderer sehen.
+
+Die Einstellungen sind neu sortiert in Personal, Zugang, Inhalte, eNOTF, Mail und System und haben ein Suchfeld. Die System-Konfiguration ist in Abschnitte geteilt, jedes Feld hat einen Hinweis. Solange System-URL oder Servername fehlen, weisen Startseite und Einstellungen darauf hin. „Jetzt einrichten“ öffnet die Konfiguration, markiert die offenen Felder und nennt Empfehlungen, etwa eine andere eNOTF-PIN als 1234. Der Einrichtungsschritt auf der Startseite gilt als erledigt, sobald die System-URL gesetzt ist, auch wenn sie im Container aus der Umgebung kommt. Aus „Registrierungscodes“ wurden „Einladungen“.
+
+Das eNOTF fragt in v1 und v2 in der Anamnese den Allgemeinzustand vor dem Ereignis ab (optional) und im Abschluss die Reanimation. Ob reanimiert wurde, ist Pflicht. Wenn ja, sind auch Ursache, Kollaps, Laienreanimation, Defibrillation, ROSC, Klinikaufnahme und die Zeiten Pflicht.
+
+In eNOTF v2 zeigt die Messwert-Maske im Erstbefund die Skala mit den Normbereichen, färbt die Werte und markiert leere Pflichtfelder rot, wie in v1. In der Übersicht stehen bei fehlenden Pflicht-Messwerten wieder die Ausrufezeichen. Der Verlauf rutscht nicht mehr unter die Navigation, wenn das Fenster schmaler wird. eNOTF v2 hat jetzt das Favicon und die Tooltips von ignis.
+
+Ein Serverfehler zeigt jetzt dieselbe Fehlerseite wie 404 und 403, mit einem Fehlercode für die Verwaltung. Vorher fehlten der Seite die Styles.
+
+Aktualisiert ist das UI-Paket auf 0.8.3.
+
 ## 2026.0.21-beta
 
 Ein im Panel eingeschaltetes oder abgeschaltetes Plugin wirkte bis zum Neustart des Containers nicht richtig: Seiten wie /enotf-v2/ antworteten mit 404, andere landeten bei einer falschen Aktion und zeigten Fehler 500, etwa die Mail-Einstellungen. Der Routen-Cache wurde zwar neu geschrieben, PHP las aber weiter die alte Fassung aus dem OPcache. Jetzt verwirft ignis diese Fassung beim Neuschreiben.
