@@ -16,7 +16,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Plugin\Mail\MailAddressRules;
 use Plugin\Mail\Models\Mailbox;
-use Plugin\Mail\SignatureText;
+use Plugin\Mail\SignatureTemplate;
 
 /**
  * Postfachverwaltung und Mail-Einstellungen (`mail.admin`).
@@ -229,16 +229,18 @@ final class MailAdminController extends Controller
         $post = $request->post;
         $text = static fn (string $key): ?string => is_string($post[$key] ?? null) ? $post[$key] : null;
 
+        // Die Signatur kommt als Editor-JSON aus dem versteckten Feld.
+        $signature = SignatureTemplate::parse($post['signature'] ?? null);
         $form = [
             'domain'    => MailAddressRules::normalize($text('domain') ?? ''),
             'pattern'   => $text('pattern') ?? '',
             'allowed'   => trim($text('allowed') ?? ''),
-            'signature' => $text('signature'),
+            'signature' => is_array($signature) ? $signature : $this->currentSettings()['signature'],
             'cooldown'  => trim($text('cooldown') ?? ''),
         ];
 
         $error = null;
-        if (in_array(null, [$text('domain'), $text('pattern'), $text('allowed'), $form['signature'], $text('cooldown')], true)) {
+        if (in_array(null, [$text('domain'), $text('pattern'), $text('allowed'), $text('cooldown')], true)) {
             $error = 'Ungültige Eingabe.';
         } elseif (preg_match('/^\d{1,4}$/', $form['cooldown']) !== 1 || (int) $form['cooldown'] > self::MAX_SEND_COOLDOWN) {
             $error = 'Die Sendepause muss eine ganze Zahl von 0 bis ' . self::MAX_SEND_COOLDOWN . ' Sekunden sein.';
@@ -250,29 +252,26 @@ final class MailAdminController extends Controller
             $invalid = array_filter(preg_split('/[\s,;]+/', $form['allowed']) ?: [], static fn (string $d): bool => $d !== '' && !MailAddressRules::isDomain(MailAddressRules::normalize($d)));
             $error = $invalid !== []
                 ? 'Keine gültige Domain: ' . implode(', ', $invalid) . '.'
-                : SignatureText::validate((string) $form['signature']);
+                : (is_string($signature) ? $signature : null);
         }
-        if ($error !== null) {
-            Flash::error($error);
+        if ($error !== null || !is_array($signature)) {
+            Flash::error($error ?? 'Ungültige Eingabe.');
 
-            return $this->settingsForm(['signature' => (string) $form['signature']] + $form, 422);
+            return $this->settingsForm($form, 422);
         }
 
         $values = [
             'MAIL_DOMAIN'            => $form['domain'],
             'MAIL_ADDRESS_PATTERN'   => $form['pattern'],
             'MAIL_ALLOWED_DOMAINS'   => implode(', ', array_values(array_diff(MailAddressRules::parseDomains($form['allowed']), [$form['domain']]))),
-            'MAIL_DEFAULT_SIGNATURE' => SignatureText::toJson((string) $form['signature']),
+            'MAIL_DEFAULT_SIGNATURE' => SignatureTemplate::toStored($signature),
             'MAIL_SEND_COOLDOWN'     => (string) (int) $form['cooldown'],
         ];
         $before  = Capsule::table('intra_config')->whereIn('config_key', array_keys($values))->pluck('config_value', 'config_key')->all();
         $changed = [];
         foreach ($values as $key => $value) {
             $old = (string) ($before[$key] ?? '');
-            // Die Signatur zählt am Text, nicht am JSON: Formatierung aus
-            // einem älteren Wert bleibt sonst bei jedem Speichern „geändert“.
-            $same = $key === 'MAIL_DEFAULT_SIGNATURE' ? SignatureText::toText($old) === SignatureText::toText($value) : $old === $value;
-            if ($same) {
+            if ($old === $value) {
                 continue;
             }
             Capsule::table('intra_config')->where('config_key', $key)->update([
@@ -385,7 +384,12 @@ final class MailAdminController extends Controller
             ->all();
     }
 
-    /** @return array{domain:string, pattern:string, allowed:string, signature:string, cooldown:string} */
+    /**
+     * Ohne gespeicherte Standard-Signatur steht die eingebaute Vorlage im
+     * Editor, damit sichtbar ist, was gilt.
+     *
+     * @return array{domain:string, pattern:string, allowed:string, signature:array<string,mixed>, cooldown:string}
+     */
     private function currentSettings(): array
     {
         $values = Capsule::table('intra_config')->where('category', 'mail')->pluck('config_value', 'config_key')->all();
@@ -394,7 +398,7 @@ final class MailAdminController extends Controller
             'domain'    => (string) ($values['MAIL_DOMAIN'] ?? MailAddressRules::DEFAULT_DOMAIN),
             'pattern'   => (string) ($values['MAIL_ADDRESS_PATTERN'] ?? 'initial_dot_last'),
             'allowed'   => (string) ($values['MAIL_ALLOWED_DOMAINS'] ?? ''),
-            'signature' => SignatureText::toText((string) ($values['MAIL_DEFAULT_SIGNATURE'] ?? '')),
+            'signature' => SignatureTemplate::decode((string) ($values['MAIL_DEFAULT_SIGNATURE'] ?? '')) ?? SignatureTemplate::builtIn(),
             'cooldown'  => (string) ($values['MAIL_SEND_COOLDOWN'] ?? '10'),
         ];
     }

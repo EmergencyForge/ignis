@@ -66,11 +66,19 @@
 .ignis-mail-compose { display: grid; gap: 14px; }
 .ignis-mail-compose > .ignis-btn { justify-self: start; }
 .ignis-mail-compose__editor { border: 1px solid var(--border-control, var(--border-subtle)); border-radius: var(--radius-2, 6px); background: var(--surface); }
-.ignis-mail-compose__editor #mail-compose-toolbar, .ignis-mail-compose__editor #mail-signature-toolbar { border-bottom: 1px solid var(--border-subtle); }
+.ignis-mail-compose__editor #mail-compose-toolbar, .ignis-mail-compose__editor #mail-signature-toolbar, .ignis-mail-compose__editor #mail-default-signature-toolbar { border-bottom: 1px solid var(--border-subtle); }
 /* --efe-page-text: Absätze färbt das Editor-Paket über dieses Token, sonst bliebe der Text auf dunklem Grund dunkel. */
 .ignis-mail__editor.efe-page { width: auto; min-height: 12rem; margin: 0; padding: 12px 14px; background: transparent; color: inherit; --efe-page-text: currentColor; box-shadow: none; }
 .ignis-mail-compose__footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
 .ignis-mail-compose__footer [role='status'] { flex: 1 1 auto; color: var(--secondary-text); font-size: var(--fs-sm, 13px); }
+
+/* Dienstgradabzeichen in der Signatur, im Editor wie im Lesebereich. Wie
+   _rank-badge.php: feste Box 36×16, links ausgerichtet, damit quer- und
+   hochformatige Abzeichen gleich viel Platz brauchen. */
+.ignis-mail__editor .efe-image, .ignis-mail__body .efe-image { width: 36px; height: 16px; object-fit: contain; object-position: left center; vertical-align: middle; margin-right: .35rem; }
+
+/* Standard-Signatur in den Einstellungen: Knöpfe für die Platzhalter. */
+.ignis-mail-signature__variables { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 8px; }
 
 /* Verteiler: die Kriterien der Regel als Raster, auch bei langen Listen. */
 .ignis-mail-rule__options { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 4px 16px; }

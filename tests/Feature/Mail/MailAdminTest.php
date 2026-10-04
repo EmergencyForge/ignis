@@ -155,12 +155,19 @@ final class MailAdminTest extends FeatureTestCase
         $this->asAdmin();
         $this->assertOk($this->get('/settings/mail'));
 
-        $valid = ['domain' => 'Feuerwehr.test', 'pattern' => 'first_dot_last', 'allowed' => 'lspd.de, rettung.test', 'signature' => "Mit Gruß\nWache 1", 'cooldown' => '15'];
+        $doc = static fn (array ...$inline): string => (string) json_encode(['type' => 'doc', 'content' => [
+            ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Mit Gruß']]],
+            ['type' => 'paragraph', 'attrs' => ['textAlign' => null], 'content' => $inline],
+        ]]);
+        $valid = ['domain' => 'Feuerwehr.test', 'pattern' => 'first_dot_last', 'allowed' => 'lspd.de, rettung.test', 'signature' => $doc(['type' => 'text', 'text' => 'Wache 1 ']), 'cooldown' => '15'];
         $this->assertStatus(422, $this->post('/settings/mail', ['domain' => 'kaputt'] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['pattern' => 'nachname'] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['allowed' => 'gut.de, -schlecht'] + $valid));
-        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => str_repeat("x\n", 101) . 'x'] + $valid));
-        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => "Gru\xC3\x28"] + $valid));
+        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => $doc(['type' => 'text', 'text' => str_repeat('x', 17000)])] + $valid));
+        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => $doc(['type' => 'docVariable', 'attrs' => ['name' => 'absender.passwort']])] + $valid));
+        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => $doc(['type' => 'image', 'attrs' => ['src' => '/a.png']])] + $valid));
+        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => "Mit Gruß\nWache 1"] + $valid));
+        $this->assertStatus(422, $this->post('/settings/mail', ['signature' => ['x']] + $valid));
         $this->assertStatus(422, $this->post('/settings/mail', ['domain' => ['x']] + $valid));
         foreach (['-1', '3601', 'zehn', '1.5', ''] as $cooldown) {
             $this->assertStatus(422, $this->post('/settings/mail', ['cooldown' => $cooldown] + $valid));
@@ -171,7 +178,11 @@ final class MailAdminTest extends FeatureTestCase
         $this->assertSame('feuerwehr.test', $config['MAIL_DOMAIN']);
         $this->assertSame('first_dot_last', $config['MAIL_ADDRESS_PATTERN']);
         $this->assertSame('lspd.de, rettung.test', $config['MAIL_ALLOWED_DOMAINS']);
-        $this->assertStringContainsString('Wache 1', $config['MAIL_DEFAULT_SIGNATURE']);
+        $this->assertSame(
+            '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Mit Gruß"}]},{"type":"paragraph","content":[{"type":"text","text":"Wache 1 "}]}]}',
+            $config['MAIL_DEFAULT_SIGNATURE'],
+            'Gespeichert wird das neu aufgebaute Editor-JSON, ohne Ausrichtung.',
+        );
         $this->assertSame('15', $config['MAIL_SEND_COOLDOWN']);
 
         $audit = $this->auditRows();
@@ -182,8 +193,40 @@ final class MailAdminTest extends FeatureTestCase
         // Neue Postfächer folgen den neuen Werten.
         $this->assertSame('max.muster@feuerwehr.test', $this->member('Max Muster')['mailbox']->address);
 
+        // Die eingebaute Vorlage unverändert gespeichert heißt: leer, sie gilt weiter.
+        $builtIn = (string) json_encode(\Plugin\Mail\SignatureTemplate::builtIn());
+        $this->assertRedirect($this->post('/settings/mail', ['signature' => $builtIn] + $valid), '/settings/mail');
+        $this->assertSame('', Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->value('config_value'));
+
         // Die allgemeine Konfigurationsseite zeigt die Mail-Werte nicht.
         $this->loginAs($this->admin['user'], ['full_admin']);
         $this->assertBodyNotContains('MAIL_DOMAIN', $this->get('/settings/system/config'));
+    }
+
+    #[Test]
+    public function die_standard_signatur_steht_im_editor_mit_platzhaltern(): void
+    {
+        $this->asAdmin();
+
+        // Nichts gespeichert: die eingebaute Vorlage steht im Editor.
+        $page = $this->get('/settings/mail');
+        $this->assertOk($page);
+        $this->assertBodyContains('id="mail-default-signature-editor"', $page);
+        $this->assertBodyContains('assets/dist/editor.iife.js', $page);
+        $this->assertBodyContains('assets/dist/editor.css', $page);
+        $this->assertBodyContains('data-mail-variable="absender.dienstgrad"', $page);
+        $this->assertBodyNotContains('<textarea id="mail-signature"', $page);
+        preg_match('~id="mail-default-signature-editor"[^>]*data-efe-content="([^"]*)"~', $page->body, $m);
+        $this->assertSame(\Plugin\Mail\SignatureTemplate::builtIn(), json_decode(html_entity_decode($m[1] ?? '', ENT_QUOTES), true));
+        preg_match('~data-efe-variables="([^"]*)"~', $page->body, $m);
+        $this->assertSame(\Plugin\Mail\SignatureTemplate::catalog(), json_decode(html_entity_decode($m[1] ?? '', ENT_QUOTES), true));
+
+        // Alter Klartext erscheint als Absätze.
+        Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => "Wache 1\nLeitstelle"]);
+        preg_match('~id="mail-default-signature-editor"[^>]*data-efe-content="([^"]*)"~', $this->get('/settings/mail')->body, $m);
+        $this->assertSame(['type' => 'doc', 'content' => [
+            ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Wache 1']]],
+            ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Leitstelle']]],
+        ]], json_decode(html_entity_decode($m[1] ?? '', ENT_QUOTES), true));
     }
 }

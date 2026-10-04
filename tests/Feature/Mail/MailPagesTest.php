@@ -229,7 +229,8 @@ final class MailPagesTest extends FeatureTestCase
         $this->loginAs($this->alice['user']);
         $before = Message::query()->count();
 
-        Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => \Plugin\Mail\SignatureText::toJson("Wache 1\nLeitstelle")]);
+        // Alter Klartext aus der Zeit vor dem Editor gilt weiter, eine Zeile je Absatz.
+        Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => "Wache 1\nLeitstelle"]);
         $compose = $this->get('/mail/compose', ['query' => ['to' => $this->bob['mailbox']->address]]);
         $this->assertOk($compose);
         $this->assertSame($before, Message::query()->count(), 'GET legt keinen Entwurf an.');
@@ -255,6 +256,7 @@ final class MailPagesTest extends FeatureTestCase
         $rank->name_w   = 'Brandmeisterin';
         $rank->priority = 10;
         $rank->archive  = false;
+        $rank->badge    = '/assets/img/dienstgrade/bf/2.png';
         $rank->save();
         $this->fachdienst(997, 'Signaturtest Leitstelle');
         $this->fachdienst(996, 'Signaturtest Presse');
@@ -274,6 +276,21 @@ final class MailPagesTest extends FeatureTestCase
         // Die letzte Zeile ist die Organisation (Art und Stadt), sofern eingestellt.
         $this->assertLessThanOrEqual(7, count($lines));
         $this->assertSame([['type' => 'bold']], self::composeContent($compose)[2]['content'][0]['marks'] ?? null, 'Der Name steht fett.');
+        // Vor dem Dienstgrad das Abzeichen, im selben Absatz.
+        $rankLine = self::composeContent($compose)[3]['content'] ?? [];
+        $this->assertSame(['image', 'text'], array_column($rankLine, 'type'));
+        $this->assertStringStartsWith('/assets/img/dienstgrade/bf/2.png', (string) ($rankLine[0]['attrs']['src'] ?? ''));
+        $this->assertSame('', $rankLine[0]['attrs']['alt'] ?? null);
+
+        // So wie es im Editor steht, kommt es beim Empfänger an.
+        $sent = (int) $this->send([
+            'subject'   => 'Mit Abzeichen',
+            'body_json' => (string) json_encode(['type' => 'doc', 'content' => self::composeContent($compose)]),
+            'to'        => [$this->bob['mailbox']->address],
+        ])['messageId'];
+        $this->loginAs($this->bob['user']);
+        $this->assertMatchesRegularExpression('~<img class="efe-image" src="/assets/img/dienstgrade/bf/2\.png[^"]*" alt="">Brandmeisterin~', self::pane($this->get('/mail/inbox/' . $sent)->body));
+        $this->loginAs($this->alice['user']);
 
         // Antworten: Signatur über dem Zitat, mit Leerzeile davor und danach.
         $id = $this->sendRound();
@@ -283,23 +300,32 @@ final class MailPagesTest extends FeatureTestCase
         $this->assertSame(['type' => 'paragraph'], $reply[count($reply) - 2]);
         $this->assertSame('blockquote', $reply[count($reply) - 1]['type']);
 
-        // Leere Angaben fallen weg, ohne Platzhalter.
+        // Leere Angaben fallen weg, ohne Platzhalter. Ohne Abzeichen kein Bild.
         $this->bob['person']->forceFill(['zusatz' => '', 'fachdienste' => null])->save();
         $this->loginAs($this->bob['user']);
-        $bob = self::composeLines($this->get('/mail/compose'));
+        $bobCompose = $this->get('/mail/compose');
+        $bob = self::composeLines($bobCompose);
         $this->assertSame(['', '', 'Bob Empfang', $this->rank()->name_m], array_slice($bob, 0, 4));
         $this->assertNotContains('-', $bob);
+        $this->assertSame(['text'], array_column(self::composeContent($bobCompose)[3]['content'] ?? [], 'type'));
 
         // Die Signaturseite zeigt sie als Vorlage; eine eigene geht vor.
         $this->loginAs($this->alice['user']);
-        $this->assertBodyContains('Wachabteilungsleiterin', $this->get('/mail/signature'));
+        $signaturePage = $this->get('/mail/signature');
+        $this->assertBodyContains('Wachabteilungsleiterin', $signaturePage);
+        $this->assertBodyContains('dienstgrade/bf/2.png', $signaturePage);
         $this->assertRedirect($this->post('/mail/signature', ['body_json' => self::doc('Gruß, Alice')]), '/mail/signature');
         $this->assertSame(['', '', 'Gruß, Alice'], self::composeLines($this->get('/mail/compose')));
 
-        // Eine Standard-Signatur der Instanz geht der aus dem Profil vor.
-        Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => \Plugin\Mail\SignatureText::toJson('Wache 1')]);
+        // Eine gespeicherte Standard-Signatur ersetzt die eingebaute Vorlage,
+        // ihre Platzhalter füllt das Profil des Absenders.
+        Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->update(['config_value' => json_encode(['type' => 'doc', 'content' => [
+            ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => 'Wache 1']]],
+            ['type' => 'paragraph', 'content' => [['type' => 'docVariable', 'attrs' => ['name' => 'absender.name']], ['type' => 'text', 'text' => ', '], ['type' => 'docVariable', 'attrs' => ['name' => 'absender.mailadresse']]]],
+            ['type' => 'paragraph', 'content' => [['type' => 'docVariable', 'attrs' => ['name' => 'absender.position']]]],
+        ]])]);
         $this->loginAs($this->bob['user']);
-        $this->assertSame(['', '', 'Wache 1'], self::composeLines($this->get('/mail/compose')));
+        $this->assertSame(['', '', 'Wache 1', 'Bob Empfang, ' . $this->bob['mailbox']->address], self::composeLines($this->get('/mail/compose')));
     }
 
     /**

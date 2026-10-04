@@ -40,7 +40,7 @@ use Plugin\Mail\Models\Mailbox;
 use Plugin\Mail\Models\MailList;
 use Plugin\Mail\Models\Message;
 use Plugin\Mail\Models\Signature;
-use Plugin\Mail\ProfileSignature;
+use Plugin\Mail\SignatureTemplate;
 
 /**
  * Das eigene Postfach: Entwürfe, Senden, Ordner, Anhänge, Adressbuch.
@@ -217,8 +217,14 @@ final class MailController extends Controller
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
+        // Der Editor braucht mindestens einen Absatz.
+        $signature = $this->signature($mailbox);
+        if (($signature['content'] ?? []) === []) {
+            $signature = ['type' => 'doc', 'content' => [['type' => 'paragraph']]];
+        }
+
         return $this->page('mail/signature', [
-            'bodyJson' => $this->signature($mailbox) ?? ['type' => 'doc', 'content' => [['type' => 'paragraph']]],
+            'bodyJson' => $signature,
             'hasOwn'   => Signature::query()->where('mailbox_id', $mailbox->id)->exists(),
         ]);
     }
@@ -866,7 +872,7 @@ final class MailController extends Controller
     private function withSignature(array $body, Mailbox $mailbox): array
     {
         $signature = $this->signature($mailbox);
-        if ($signature === null || !self::hasText($signature)) {
+        if (!self::hasText($signature)) {
             return $body;
         }
 
@@ -880,27 +886,22 @@ final class MailController extends Controller
 
     /**
      * Welche Signatur gilt: die eigene (auch leer, das heißt „keine“), sonst
-     * die Standard-Signatur der Instanz, sonst die aus dem Mitarbeiterprofil.
+     * die Standard-Signatur der Instanz mit den Angaben aus dem
+     * Mitarbeiterprofil, ohne gespeicherte die eingebaute Vorlage.
      *
-     * @return array<string,mixed>|null
+     * @return array<string,mixed>
      */
-    private function signature(Mailbox $mailbox): ?array
+    private function signature(Mailbox $mailbox): array
     {
         $own = Signature::query()->where('mailbox_id', $mailbox->id)->first();
         if ($own !== null) {
             return $own->body_json;
         }
 
-        return $this->defaultSignature() ?? ProfileSignature::for($mailbox->mitarbeiter);
-    }
+        $stored   = Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->value('config_value');
+        $template = SignatureTemplate::decode(is_string($stored) ? $stored : null) ?? SignatureTemplate::builtIn();
 
-    /** @return array<string,mixed>|null */
-    private function defaultSignature(): ?array
-    {
-        $raw = Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->value('config_value');
-        $doc = is_string($raw) && $raw !== '' ? json_decode($raw, true) : null;
-
-        return is_array($doc) && ($doc['type'] ?? null) === 'doc' ? $doc : null;
+        return SignatureTemplate::resolve($template, $mailbox->mitarbeiter, $mailbox->address);
     }
 
     /**

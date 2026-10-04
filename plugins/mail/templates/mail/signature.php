@@ -4,7 +4,8 @@
  * (drawer-form.js schickt das Formular ab) oder als Seite. Der Editor im
  * Mailmodus schreibt sein JSON vor dem Absenden ins versteckte Feld. Ohne
  * eigene steht die geltende Signatur als Vorlage im Editor: die
- * Standard-Signatur der Instanz oder die aus dem Mitarbeiterprofil.
+ * Standard-Signatur der Instanz, ausgefüllt mit den Angaben aus dem
+ * Mitarbeiterprofil.
  *
  * @var array<string,mixed> $bodyJson
  * @var bool                $hasOwn
@@ -25,7 +26,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         <div class="ignis-card__body">
             <p class="ignis-field__hint">
                 Steht in neuen Mails nach einer Leerzeile unter dem Text und lässt sich dort noch ändern oder löschen.
-                <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange du keine eigene speicherst, gilt die Standard-Signatur oder die aus deinem Mitarbeiterprofil.' ?>
+                <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange du keine eigene speicherst, gilt die Standard-Signatur mit den Angaben aus deinem Mitarbeiterprofil.' ?>
             </p>
             <div class="ignis-mail-compose__editor">
                 <div id="mail-signature-toolbar"></div>
