@@ -552,7 +552,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 $gcs_total = $gcs_augen + $gcs_verbal + $gcs_motorik;
                                             }
                                             ?>
-                                            <input type="text" id="_GCS_" name="_GCS_" class="w-100 ignis-input" placeholder="--" value="<?= $gcs_total ?>" readonly>
+                                            <input type="text" id="_GCS_" name="_GCS_" class="w-100 ignis-input" placeholder="-" value="<?= $gcs_total ?>" readonly>
                                         </div>
                                     </div>
                                     <div class="row mt-2">

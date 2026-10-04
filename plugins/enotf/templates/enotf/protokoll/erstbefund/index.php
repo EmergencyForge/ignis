@@ -378,7 +378,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         <div class="col">
                                                             <?php
                                                             // GCS-Berechnung: nur anzeigen wenn alle drei Werte gesetzt sind
-                                                            $gcs_value = '--';
+                                                            $gcs_value = '-';
                                                             if (
                                                                 isset($daten['d_gcs_1']) && isset($daten['d_gcs_2']) && isset($daten['d_gcs_3']) &&
                                                                 $daten['d_gcs_1'] !== null && $daten['d_gcs_2'] !== null && $daten['d_gcs_3'] !== null

@@ -29,22 +29,22 @@ $SITE_TITLE = 'Performance';
             <div class="twplus-stats mb-4" aria-label="Kennzahlen">
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-database mr-1" aria-hidden="true"></i> Datenbank-Größe</span>
-                    <span class="twplus-stats__value" id="dbSize">--</span>
+                    <span class="twplus-stats__value" id="dbSize">-</span>
                     <span class="block text-xs text-tertiary-text" id="dbSizeDetail">Lade...</span>
                 </div>
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-table mr-1" aria-hidden="true"></i> Tabellen / Zeilen</span>
-                    <span class="twplus-stats__value" id="dbTables">--</span>
-                    <span class="block text-xs text-tertiary-text" id="dbRows">--</span>
+                    <span class="twplus-stats__value" id="dbTables">-</span>
+                    <span class="block text-xs text-tertiary-text" id="dbRows">-</span>
                 </div>
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-users mr-1" aria-hidden="true"></i> Aktive Benutzer</span>
-                    <span class="twplus-stats__value" id="activeUsers">--</span>
+                    <span class="twplus-stats__value" id="activeUsers">-</span>
                     <span class="block text-xs text-tertiary-text" id="activeUsersDetail">Lade...</span>
                 </div>
                 <div class="twplus-stats__item">
                     <span class="twplus-stats__label"><i class="fa-solid fa-server mr-1" aria-hidden="true"></i> Server-Uptime</span>
-                    <span class="twplus-stats__value" id="uptime">--</span>
+                    <span class="twplus-stats__value" id="uptime">-</span>
                     <span class="block text-xs text-tertiary-text" id="uptimeDetail">Lade...</span>
                 </div>
             </div>
