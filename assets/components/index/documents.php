@@ -4,7 +4,9 @@
  * Eingebunden aus index.php innerhalb einer ignis-card.
  */
 
-$userData = \App\Models\Personnel::query()
+// Ohne Discord-ID (Konto aus der zentralen Anmeldung) würde where(..., null)
+// zu IS NULL und träfe eine fremde Akte.
+$userData = empty($_SESSION['discordtag']) ? null : \App\Models\Personnel::query()
     ->where('discordtag', $_SESSION['discordtag'])
     ->first(['id']);
 

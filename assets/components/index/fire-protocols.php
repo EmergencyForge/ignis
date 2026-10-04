@@ -4,7 +4,8 @@
  * hat, neueste zuerst. Eingebunden aus index.php, nur bei aktivem fireTab.
  */
 
-$fireRows = \Illuminate\Database\Capsule\Manager::table('intra_fire_incidents as i')
+// Ohne Discord-ID würde die Bedingung zu IS NULL, siehe documents.php.
+$fireRows = empty($_SESSION['discordtag']) ? [] : \Illuminate\Database\Capsule\Manager::table('intra_fire_incidents as i')
     ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
     ->where('i.leader_id', '=', function ($q) {
         $q->select('id')

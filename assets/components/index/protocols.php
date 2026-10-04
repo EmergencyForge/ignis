@@ -4,7 +4,8 @@
  * steht, neueste zuerst. Eingebunden aus index.php, nur bei aktivem eNOTF.
  */
 
-$ediviRows = \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
+// Ohne Discord-ID würde die Bedingung zu IS NULL, siehe documents.php.
+$ediviRows = empty($_SESSION['discordtag']) ? [] : \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
     ->join('intra_mitarbeiter as m', function ($join) {
         $join->where('m.discordtag', '=', $_SESSION['discordtag']);
     })
