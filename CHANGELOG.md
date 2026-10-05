@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.29-beta
+
+In der Reanimationssituation im eNOTF erscheinen die Begründungen erst nach „Reanimation nicht durchgeführt,“ und die Detailfragen erst, wenn „Reanimation durchgeführt“ gewählt ist. Bisher waren beide Spalten von Anfang an offen. Das gilt für v1 und v2.
+
 ## 2026.0.28-beta
 
 Die Freigabeseite im eNOTF v1 lässt sich wieder öffnen. Seit 2026.0.22-beta brach sie mit einem Fehler ab, weil die Prüfung der Reanimationsdetails mit dem gespeicherten Protokoll nicht zurechtkam.
