@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.28-beta
+
+Die Freigabeseite im eNOTF v1 lässt sich wieder öffnen. Seit 2026.0.22-beta brach sie mit einem Fehler ab, weil die Prüfung der Reanimationsdetails mit dem gespeicherten Protokoll nicht zurechtkam.
+
 ## 2026.0.27-beta
 
 Neben der Dienstnummer in der Mitarbeiterliste und im Profilkopf gibt es keinen Kopieren-Knopf mehr.
