@@ -39,16 +39,21 @@ $reaRadio = static function (string $name, int $code, string $label) use ($reaE,
     <a href="#" data-rea-open="details" data-rea-requires="<?= $reaE(implode(',', ReanimationCatalog::pflichtDetails())) ?>"<?= $reaDurchgefuehrt ? '' : ' style="display:none"' ?>><span>Details</span></a>
 </div>
 
-<div class="<?= $reaE($reaColWide) ?> d-flex flex-column edivi__interactbutton px-3" data-rea-panel="nicht"<?= $reaNicht ? '' : ' style="display:none"' ?>>
-    <?php foreach (ReanimationCatalog::NICHT_DURCHGEFUEHRT as $code => $label) : ?>
-        <?= $reaRadio('rea_status', $code, $label) ?>
-    <?php endforeach; ?>
+<?php // Ein-/Ausblenden am Wrapper: .d-flex setzt display mit !important und schlägt sonst display:none ?>
+<div data-rea-panel="nicht" style="display:<?= $reaNicht ? 'contents' : 'none' ?>">
+    <div class="<?= $reaE($reaColWide) ?> d-flex flex-column edivi__interactbutton px-3">
+        <?php foreach (ReanimationCatalog::NICHT_DURCHGEFUEHRT as $code => $label) : ?>
+            <?= $reaRadio('rea_status', $code, $label) ?>
+        <?php endforeach; ?>
+    </div>
 </div>
 
-<div class="<?= $reaE($reaCol) ?> d-flex flex-column edivi__interactbutton-more px-3" data-rea-panel="details"<?= $reaDurchgefuehrt ? '' : ' style="display:none"' ?>>
-    <?php foreach (ReanimationCatalog::DETAILS as $feld => $detail) : ?>
-        <a href="#" data-rea-detail-open="<?= $reaE($feld) ?>"<?= $detail['pflicht'] ? ' data-rea-requires="' . $reaE($feld) . '"' : '' ?>><span><?= $reaE($detail['label']) ?></span></a>
-    <?php endforeach; ?>
+<div data-rea-panel="details" style="display:<?= $reaDurchgefuehrt ? 'contents' : 'none' ?>">
+    <div class="<?= $reaE($reaCol) ?> d-flex flex-column edivi__interactbutton-more px-3">
+        <?php foreach (ReanimationCatalog::DETAILS as $feld => $detail) : ?>
+            <a href="#" data-rea-detail-open="<?= $reaE($feld) ?>"<?= $detail['pflicht'] ? ' data-rea-requires="' . $reaE($feld) . '"' : '' ?>><span><?= $reaE($detail['label']) ?></span></a>
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <?php foreach (ReanimationCatalog::DETAILS as $feld => $detail) : ?>
@@ -90,7 +95,7 @@ $reaRadio = static function (string $name, int $code, string $label) use ($reaE,
         function show(el, on, mode) { el.style.display = on ? (mode || '') : 'none'; }
 
         function openPanel(name) {
-            panels.forEach(function (p) { show(p, p.dataset.reaPanel === name); });
+            panels.forEach(function (p) { show(p, p.dataset.reaPanel === name, 'contents'); });
             container.querySelectorAll('[data-rea-open]').forEach(function (a) {
                 a.classList.toggle('active', a.dataset.reaOpen === name);
             });
