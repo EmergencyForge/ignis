@@ -33,7 +33,9 @@ $enotfCrewAuth  = [...$enotfLoginAuth, CrewSessionMiddleware::class];
 $enotfHandler = fn (string $method) => [EnotfController::class, $method];
 
 // ── Refactored Endpoints ──
-$router->match(['GET', 'POST'], '/api/enotf/prereg',         $enotfHandler('prereg'),              $enotfApiAuth);
+// Pollt die öffentliche Ankunftstafel (/enotf/schnittstelle), ohne Anmeldung
+// wie die Seite selbst. Liefert nichts, was die Seite nicht schon zeigt.
+$router->match(['GET', 'POST'], '/api/enotf/prereg',         $enotfHandler('prereg'),              [JsonExceptionMiddleware::class]);
 
 $router->match(['POST', 'DELETE'], '/api/enotf/delete-vehicle-session',     $enotfHandler('deleteVehicleSession'), $enotfLoginAuth);
 
