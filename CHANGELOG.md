@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.30-beta
+
+Im eNOTF v1 speichert eine Crew wieder ohne ignis-Konto, solange „Nur mit ignis-Konto“ ausgeschaltet ist. Seit dem Frühjahr verlangte der Server dafür immer ein Konto: Das Protokoll ließ sich öffnen, aber Eingaben, Teilen, Patienten-Sync und Klinikcode schlugen fehl. Ganz ohne Anmeldung bleibt das Speichern gesperrt.
+
+Die Ankunftstafel der Klinik aktualisiert sich auch ohne Anmeldung wieder alle 15 Sekunden. Bisher zeigte sie neue Voranmeldungen erst nach einem Neuladen der Seite.
+
 ## 2026.0.29-beta
 
 In der Reanimationssituation im eNOTF erscheinen die Begründungen erst nach „Reanimation nicht durchgeführt,“ und die Detailfragen erst, wenn „Reanimation durchgeführt“ gewählt ist. Bisher waren beide Spalten von Anfang an offen. Das gilt für v1 und v2.
