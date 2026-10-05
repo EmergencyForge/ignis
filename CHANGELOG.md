@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.31-beta
+
+Über die Fahrzeuginfo im eNOTF v1 lassen sich Mängel wieder ohne ignis-Konto melden, solange „Nur mit ignis-Konto“ ausgeschaltet ist. Bisher lehnte der Server die Meldung ohne Konto ab. Die Mängelliste und das Bearbeiten bleiben Konten mit den passenden Rechten vorbehalten.
+
 ## 2026.0.30-beta
 
 Im eNOTF v1 speichert eine Crew wieder ohne ignis-Konto, solange „Nur mit ignis-Konto“ ausgeschaltet ist. Seit dem Frühjahr verlangte der Server dafür immer ein Konto: Das Protokoll ließ sich öffnen, aber Eingaben, Teilen, Patienten-Sync und Klinikcode schlugen fehl. Ganz ohne Anmeldung bleibt das Speichern gesperrt.
