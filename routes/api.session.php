@@ -147,7 +147,9 @@ $router->match(['GET', 'POST'], '/api/telemetry-background.php', [TelemetryApiCo
 // ============================================================================
 //  Vehicles: alle Endpoints refactored.
 // ============================================================================
-$router->match(['GET', 'POST'], '/api/vehicles/defects-handler',     [\App\Http\Controllers\Api\VehicleDefectsController::class, 'handle'], $auth);
+// Die eNOTF-Fahrzeuginfo meldet hierüber Mängel, auch ohne ignis-Konto. Der
+// Controller lässt eine Crew nur melden, alles andere braucht ein Konto.
+$router->match(['GET', 'POST'], '/api/vehicles/defects-handler',     [\App\Http\Controllers\Api\VehicleDefectsController::class, 'handle'], [JsonExceptionMiddleware::class, new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')]);
 $router->match(['GET', 'POST'], '/api/vehicles/import-handler',      [\App\Http\Controllers\Api\VehicleImportController::class,  'handle'], $auth);
 
 $router->match(['GET', 'POST'], '/api/vehicles/tz-templates',     [VehicleTzTemplatesController::class, 'handle'], $auth);
