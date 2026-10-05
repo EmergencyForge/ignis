@@ -117,10 +117,12 @@ final class ReanimationCatalog
     /**
      * Fehlende Pflichtdetails als Labels; leer, wenn rea_status != 2.
      *
-     * @param array<string,mixed> $daten
+     * v1 übergibt das Edivi-Model selbst, v2 dessen Attribut-Array.
+     *
+     * @param array<string,mixed>|\ArrayAccess<string,mixed> $daten
      * @return list<string>
      */
-    public static function fehlendeDetails(array $daten): array
+    public static function fehlendeDetails(array|\ArrayAccess $daten): array
     {
         if ((int) ($daten['rea_status'] ?? 0) !== self::STATUS_DURCHGEFUEHRT) {
             return [];
