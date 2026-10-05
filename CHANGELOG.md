@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.27-beta
+
+Neben der Dienstnummer in der Mitarbeiterliste und im Profilkopf gibt es keinen Kopieren-Knopf mehr.
+
+Das Docker-Image ist auf GitHub jetzt mit dem Repository verknüpft und erscheint dort unter Packages.
+
 ## 2026.0.26-beta
 
 Es gibt jetzt eine ausführliche Installationsanleitung in der [INSTALL.md](https://github.com/EmergencyForge/ignis/blob/main/INSTALL.md). Sie beschreibt die Installation auf einem Webspace mit dem Assistenten, auf einem eigenen Server mit Apache oder nginx und mit Docker, dazu Reverse Proxy und HTTPS, Cloudflare, Cronjobs, Updates und Backups.
