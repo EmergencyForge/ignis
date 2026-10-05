@@ -21,51 +21,57 @@ use Plugin\Enotf\Controllers\Api\HospitalAvailabilityController;
 use Plugin\Enotf\Controllers\Api\KlinikCodeController;
 use Plugin\Enotf\Controllers\Api\PoiCardController;
 use Plugin\Enotf\Controllers\Api\PoiDepartmentsController;
+use Plugin\Enotf\Http\CrewSessionMiddleware;
 
 $enotfApiAuth = [JsonExceptionMiddleware::class, new AuthMiddleware()];
+
+// Konto nur, wenn ENOTF_REQUIRE_USER_AUTH es verlangt, wie bei den Webseiten.
+// Login-Seite: dort gibt es noch keine Crew-Sitzung.
+$enotfLoginAuth = [JsonExceptionMiddleware::class, new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')];
+$enotfCrewAuth  = [...$enotfLoginAuth, CrewSessionMiddleware::class];
 
 $enotfHandler = fn (string $method) => [EnotfController::class, $method];
 
 // ── Refactored Endpoints ──
 $router->match(['GET', 'POST'], '/api/enotf/prereg',         $enotfHandler('prereg'),              $enotfApiAuth);
 
-$router->match(['POST', 'DELETE'], '/api/enotf/delete-vehicle-session',     $enotfHandler('deleteVehicleSession'), $enotfApiAuth);
+$router->match(['POST', 'DELETE'], '/api/enotf/delete-vehicle-session',     $enotfHandler('deleteVehicleSession'), $enotfLoginAuth);
 
-$router->match(['GET'], '/api/enotf/sync-status',     $enotfHandler('syncStatus'), $enotfApiAuth);
+$router->match(['GET'], '/api/enotf/sync-status',     $enotfHandler('syncStatus'), $enotfCrewAuth);
 
-$router->match(['POST'], '/api/enotf/session-update',     $enotfHandler('sessionUpdate'), $enotfApiAuth);
+$router->match(['POST'], '/api/enotf/session-update',     $enotfHandler('sessionUpdate'), $enotfCrewAuth);
 
-$router->match(['GET'], '/api/enotf/check-vehicle-session',     $enotfHandler('checkVehicleSession'), $enotfApiAuth);
+$router->match(['GET'], '/api/enotf/check-vehicle-session',     $enotfHandler('checkVehicleSession'), $enotfLoginAuth);
 
-$router->match(['GET'], '/api/enotf/session-status',     $enotfHandler('sessionStatus'), $enotfApiAuth);
+$router->match(['GET'], '/api/enotf/session-status',     $enotfHandler('sessionStatus'), $enotfCrewAuth);
 
-$router->match(['GET', 'POST'], '/api/enotf/poi/poi-search',     $enotfHandler('poiSearch'), $enotfApiAuth);
+$router->match(['GET', 'POST'], '/api/enotf/poi/poi-search',     $enotfHandler('poiSearch'), $enotfCrewAuth);
 
-$router->match(['GET'], '/api/enotf/share/get-available-vehicles',     $enotfHandler('shareGetAvailableVehicles'), $enotfApiAuth);
+$router->match(['GET'], '/api/enotf/share/get-available-vehicles',     $enotfHandler('shareGetAvailableVehicles'), $enotfCrewAuth);
 
-$router->match(['POST'], '/api/enotf/check-conflict',     $enotfHandler('checkConflict'), $enotfApiAuth);
+$router->match(['POST'], '/api/enotf/check-conflict',     $enotfHandler('checkConflict'), $enotfCrewAuth);
 
-$router->match(['POST'], '/api/enotf/patient-sync',     $enotfHandler('patientSync'), $enotfApiAuth);
+$router->match(['POST'], '/api/enotf/patient-sync',     $enotfHandler('patientSync'), $enotfCrewAuth);
 
-$router->match(['POST'], '/api/enotf/poi/save-field',     $enotfHandler('poiSaveField'), $enotfApiAuth);
+$router->match(['POST'], '/api/enotf/poi/save-field',     $enotfHandler('poiSaveField'), $enotfCrewAuth);
 
-$router->match(['POST', 'DELETE'], '/api/enotf/delete-protocol',     $enotfHandler('deleteProtocol'), $enotfApiAuth);
+$router->match(['POST', 'DELETE'], '/api/enotf/delete-protocol',     $enotfHandler('deleteProtocol'), $enotfCrewAuth);
 
-$router->match(['GET'],  '/api/enotf/share/check-requests',       $enotfHandler('shareCheckRequests'),    $enotfApiAuth);
-$router->match(['GET'],  '/api/enotf/share/get-own-protocols',    $enotfHandler('shareGetOwnProtocols'),  $enotfApiAuth);
-$router->match(['POST'], '/api/enotf/share/reject-request',       $enotfHandler('shareRejectRequest'),    $enotfApiAuth);
-$router->match(['POST'], '/api/enotf/share/send-request',         $enotfHandler('shareSendRequest'),      $enotfApiAuth);
+$router->match(['GET'],  '/api/enotf/share/check-requests',       $enotfHandler('shareCheckRequests'),    $enotfCrewAuth);
+$router->match(['GET'],  '/api/enotf/share/get-own-protocols',    $enotfHandler('shareGetOwnProtocols'),  $enotfCrewAuth);
+$router->match(['POST'], '/api/enotf/share/reject-request',       $enotfHandler('shareRejectRequest'),    $enotfCrewAuth);
+$router->match(['POST'], '/api/enotf/share/send-request',         $enotfHandler('shareSendRequest'),      $enotfCrewAuth);
 
 $router->match(['GET', 'POST', 'DELETE'], '/api/enotf/bulk-delete-empty',     $enotfHandler('bulkDeleteEmpty'), $enotfApiAuth);
 
-$router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler('saveFields'),         $enotfApiAuth);
+$router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler('saveFields'),         $enotfCrewAuth);
 
-$router->match(['POST'],        '/api/enotf/share/accept-request',     $enotfHandler('shareAcceptRequest'), $enotfApiAuth);
+$router->match(['POST'],        '/api/enotf/share/accept-request',     $enotfHandler('shareAcceptRequest'), $enotfCrewAuth);
 
 // Legacy-Aliase (alte Redirect-Stubs)
-$router->post('/api/enotf-delete-protocol.php', $enotfHandler('deleteProtocol'), $enotfApiAuth);
-$router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),    $enotfApiAuth);
-$router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $enotfApiAuth);
+$router->post('/api/enotf-delete-protocol.php', $enotfHandler('deleteProtocol'), $enotfCrewAuth);
+$router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),    $enotfCrewAuth);
+$router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $enotfCrewAuth);
 
 // Abrechnung: ruft der FiveM-Server (ignisTab) ab, ohne Browser-Session.
 // Deshalb API-Key statt Session und keine CSRF-Prüfung (CsrfMiddleware::EXEMPT).
@@ -87,8 +93,8 @@ $router->post('/api/hospital-availability-update.php',   $hospitalUpdate, $enotf
 //  Klinik-Code
 // ============================================================================
 $klinikHandler = [KlinikCodeController::class, 'generate'];
-$router->post('/api/klinik/generate-code',      $klinikHandler, $enotfApiAuth);
-$router->post('/api/generate-klinikcode.php',   $klinikHandler, $enotfApiAuth);
+$router->post('/api/klinik/generate-code',      $klinikHandler, $enotfCrewAuth);
+$router->post('/api/generate-klinikcode.php',   $klinikHandler, $enotfCrewAuth);
 
 // ============================================================================
 //  POIs (Point-of-Interest Admin)
