@@ -7,6 +7,7 @@ namespace Tests\Feature\Mail;
 use App\Events\EventDispatcher;
 use App\Events\PersonnelSaved;
 use App\Models\Personnel;
+use App\Models\PersonnelTitle;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Plugin\Mail\MailboxProvisioner;
@@ -61,6 +62,16 @@ final class MailProvisioningTest extends FeatureTestCase
         $this->assertSame('Max von der Heide', $mailbox->display_name);
         $this->assertSame('ignis.ef', $mailbox->domain);
         $this->assertTrue($mailbox->active);
+    }
+
+    #[Test]
+    public function titel_im_anzeigenamen_aber_nicht_in_der_adresse(): void
+    {
+        $dr = (int) PersonnelTitle::query()->where('name', 'Dr.')->value('id');
+        $mailbox = $this->provision($this->mitarbeiter('Max Muster', ['titel_id' => $dr]));
+
+        $this->assertSame('m.muster@ignis.ef', $mailbox->address);
+        $this->assertSame('Dr. Max Muster', $mailbox->display_name);
     }
 
     #[Test]

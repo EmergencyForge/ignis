@@ -113,7 +113,7 @@ final class MailboxProvisioner
             ? AddressPattern::FirstDotLast
             : AddressPattern::InitialDotLast;
         $name  = $this->displayName($mitarbeiter);
-        $parts = AddressGenerator::splitFullname($name);
+        $parts = AddressGenerator::splitFullname($this->addressName($mitarbeiter));
 
         for ($attempt = 1; $attempt <= self::MAX_ADDRESS_ATTEMPTS; $attempt++) {
             try {
@@ -161,7 +161,18 @@ final class MailboxProvisioner
 
     private function displayName(Personnel $mitarbeiter): string
     {
-        return mb_substr(trim((string) preg_replace('/\s+/u', ' ', (string) $mitarbeiter->fullname)), 0, 150);
+        return $this->normalize($mitarbeiter->formalName());
+    }
+
+    /** Die Adresse entsteht ohne Titel, sonst hieße Dr. Max Muster "d.max-muster". */
+    private function addressName(Personnel $mitarbeiter): string
+    {
+        return $this->normalize((string) $mitarbeiter->fullname);
+    }
+
+    private function normalize(string $name): string
+    {
+        return mb_substr(trim((string) preg_replace('/\s+/u', ' ', $name)), 0, 150);
     }
 
     private function touch(Mailbox $mailbox): Mailbox
