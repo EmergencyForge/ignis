@@ -35,6 +35,7 @@ final class VariableCatalog
     {
         return [
             'mitarbeiter.name'             => 'Mitarbeiter: Name',
+            'mitarbeiter.titel'            => 'Mitarbeiter: Titel',
             'mitarbeiter.dienstgrad'       => 'Mitarbeiter: Dienstgrad',
             'mitarbeiter.qualifikation_fw' => 'Mitarbeiter: Qualifikation Feuerwehr',
             'mitarbeiter.qualifikation_rd' => 'Mitarbeiter: Qualifikation Rettungsdienst',
@@ -47,6 +48,7 @@ final class VariableCatalog
             'mitarbeiter.seine_ihre'       => 'seine / ihre',
             'mitarbeiter.zum_zur'          => 'zum / zur',
             'aussteller.name'              => 'Aussteller: Name',
+            'aussteller.titel'             => 'Aussteller: Titel',
             'aussteller.dienstgrad'        => 'Aussteller: Dienstgrad',
             'aussteller.zusatz'            => 'Aussteller: Zusatz',
             'organisation.name'            => 'Organisation: Name',
@@ -81,7 +83,7 @@ final class VariableCatalog
             $issuerValues = self::person($issuer, 'aussteller');
             // Der Aussteller braucht nur Name, Dienstgrad und Zusatz; der
             // Rest waere in einem Dokument ueber jemand anderen verwirrend.
-            foreach (['aussteller.name', 'aussteller.dienstgrad', 'aussteller.zusatz'] as $key) {
+            foreach (['aussteller.name', 'aussteller.titel', 'aussteller.dienstgrad', 'aussteller.zusatz'] as $key) {
                 if (isset($issuerValues[$key])) {
                     $values[$key] = $issuerValues[$key];
                 }
@@ -111,7 +113,7 @@ final class VariableCatalog
         $weiblich   = $geschlecht === 1;
 
         $values = [
-            "{$prefix}.name"        => (string) $p->fullname,
+            "{$prefix}.name"        => $p->formalName(),
             "{$prefix}.anrede"      => $weiblich ? 'Frau' : 'Herr',
             "{$prefix}.briefanrede" => $weiblich ? 'Sehr geehrte Frau' : 'Sehr geehrter Herr',
             "{$prefix}.ihm_ihr"     => $weiblich ? 'ihr' : 'ihm',
@@ -121,6 +123,9 @@ final class VariableCatalog
 
         if (($p->zusatz ?? '') !== '') {
             $values["{$prefix}.zusatz"] = (string) $p->zusatz;
+        }
+        if ($p->titel !== null) {
+            $values["{$prefix}.titel"] = (string) $p->titel->name;
         }
         if (($p->dienstnr ?? '') !== '') {
             $values["{$prefix}.dienstnummer"] = (string) $p->dienstnr;
