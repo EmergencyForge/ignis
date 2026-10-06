@@ -34,7 +34,7 @@ final class VariableCatalog
     public static function catalog(): array
     {
         return [
-            'mitarbeiter.name'             => 'Mitarbeiter: Name',
+            'mitarbeiter.name'             => 'Mitarbeiter: Name mit Titel',
             'mitarbeiter.titel'            => 'Mitarbeiter: Titel',
             'mitarbeiter.dienstgrad'       => 'Mitarbeiter: Dienstgrad',
             'mitarbeiter.qualifikation_fw' => 'Mitarbeiter: Qualifikation Feuerwehr',
@@ -47,7 +47,7 @@ final class VariableCatalog
             'mitarbeiter.ihm_ihr'          => 'ihm / ihr',
             'mitarbeiter.seine_ihre'       => 'seine / ihre',
             'mitarbeiter.zum_zur'          => 'zum / zur',
-            'aussteller.name'              => 'Aussteller: Name',
+            'aussteller.name'              => 'Aussteller: Name mit Titel',
             'aussteller.titel'             => 'Aussteller: Titel',
             'aussteller.dienstgrad'        => 'Aussteller: Dienstgrad',
             'aussteller.zusatz'            => 'Aussteller: Zusatz',
@@ -81,8 +81,8 @@ final class VariableCatalog
         $issuer = self::issuer();
         if ($issuer instanceof Personnel) {
             $issuerValues = self::person($issuer, 'aussteller');
-            // Der Aussteller braucht nur Name, Dienstgrad und Zusatz; der
-            // Rest waere in einem Dokument ueber jemand anderen verwirrend.
+            // Der Aussteller braucht nur Name, Titel, Dienstgrad und Zusatz; der
+            // Rest wäre in einem Dokument über jemand anderen verwirrend.
             foreach (['aussteller.name', 'aussteller.titel', 'aussteller.dienstgrad', 'aussteller.zusatz'] as $key) {
                 if (isset($issuerValues[$key])) {
                     $values[$key] = $issuerValues[$key];

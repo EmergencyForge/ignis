@@ -18,12 +18,13 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
- * Die vier Stammdaten-Kataloge des Personals: Dienstgrade,
- * Feuerwehr-Qualifikationen, Rettungsdienst-Qualifikationen, Fachdienste.
+ * Die fünf Stammdaten-Kataloge des Personals: Dienstgrade,
+ * Feuerwehr-Qualifikationen, Rettungsdienst-Qualifikationen, Fachdienste
+ * und Titel.
  *
- * Alle vier sind dasselbe: eine Liste mit Modal, dazu drei POST-Ziele für
+ * Alle fünf sind dasselbe: eine Liste mit Modal, dazu drei POST-Ziele für
  * Anlegen, Ändern und Löschen. Deshalb steht das Gemeinsame in
- * {@see store()}, {@see update()} und {@see destroy()}, und die zwölf
+ * {@see store()}, {@see update()} und {@see destroy()}, und die fünfzehn
  * öffentlichen Methoden sagen nur noch, um welchen Katalog es geht. Die
  * Routen sind fest verdrahtet, sonst wären es drei Methoden mit einem
  * Parameter.
@@ -37,7 +38,7 @@ use PDOException;
 class PersonalController extends Controller
 {
     /**
-     * Die vier Kataloge: Tabelle, Regelmenge, Spalte für die Sortierung,
+     * Die fünf Kataloge: Tabelle, Regelmenge, Spalte für die Sortierung,
      * Seite, Modul im Prüfprotokoll und die Bezeichnung für dessen Text.
      *
      * @var array<string,array{

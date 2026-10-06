@@ -41,7 +41,7 @@ final class SignatureTemplate
     public static function catalog(): array
     {
         return [
-            'absender.name'         => 'Name',
+            'absender.name'         => 'Name mit Titel',
             'absender.titel'        => 'Titel',
             'absender.dienstgrad'   => 'Dienstgrad mit Abzeichen',
             'absender.position'     => 'Position',

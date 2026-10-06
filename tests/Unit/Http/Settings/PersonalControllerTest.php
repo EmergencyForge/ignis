@@ -26,6 +26,7 @@ class PersonalControllerTest extends TestCase
             'fwQualiIndex', 'fwQualiStore', 'fwQualiUpdate', 'fwQualiDelete',
             'rdQualiIndex', 'rdQualiStore', 'rdQualiUpdate', 'rdQualiDelete',
             'fdQualiIndex', 'fdQualiStore', 'fdQualiUpdate', 'fdQualiDelete',
+            'titelIndex', 'titelStore', 'titelUpdate', 'titelDelete',
         ];
         foreach ($methods as $method) {
             $this->assertTrue(

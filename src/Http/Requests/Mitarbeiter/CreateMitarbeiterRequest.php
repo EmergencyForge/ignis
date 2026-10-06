@@ -13,7 +13,8 @@ use Respect\Validation\Validator as v;
  *
  * Felder:
  *   - fullname    (string, 1-255)
- *   - gebdatum    (date YYYY-MM-DD)
+ *   - titel_id    (optional, Verweis auf intra_mitarbeiter_titel)
+ *   - gebdatum   (date YYYY-MM-DD)
  *   - dienstgrad  (int, positive)
  *   - geschlecht  (0|1|2)
  *   - discordtag  (optional, 17-20 Ziffern; leer wird null)

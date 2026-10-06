@@ -11,8 +11,8 @@ use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
 
 /**
- * Die vier Stammdaten-Kataloge des Personals: Dienstgrade, FW- und
- * RD-Qualifikationen, Fachdienste.
+ * Die fünf Stammdaten-Kataloge des Personals: Dienstgrade, FW- und
+ * RD-Qualifikationen, Fachdienste, Titel.
  *
  * Sie hatten keine Tests, und der Controller las seine Felder roh aus
  * `$_POST`. Beim Umbau auf FormRequests kam heraus, dass die drei

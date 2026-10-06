@@ -188,11 +188,13 @@
           input = document.createElement('select');
           input.className = 'ignis-input';
           input.dataset.customDropdown = 'true';
+          // Ein gespeicherter leerer Wert (Titel entfernt) schlägt das veraltete data-raw.
+          const current = currentData[field] !== undefined ? String(currentData[field]) : raw;
           for (const [k, label] of optionEntries(cell)) {
             const opt = document.createElement('option');
             opt.value = k;
             opt.textContent = label;
-            if (k === String(currentData[field] || raw)) opt.selected = true;
+            if (k === current) opt.selected = true;
             input.appendChild(opt);
           }
         } else if (type === 'date') {

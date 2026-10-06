@@ -19,7 +19,8 @@ use Plugin\Mail\Models\Mailbox;
  *
  * Regel (Konzept, Entscheidung 1):
  * - Mitarbeiter im Dienst: Postfach anlegen oder wieder aktivieren, den
- *   Anzeigenamen dem aktuellen `fullname` nachziehen.
+ *   Anzeigenamen dem formellen Namen mit Titel nachziehen. Die Adresse
+ *   entsteht weiter aus `fullname`, damit der Titel nie in ihr landet.
  * - Mitarbeiter im Archiv-Dienstgrad (ausgeschieden): Postfach inaktiv.
  * - Mitarbeiter gelöscht: Postfach inaktiv, es bleibt mit Adresse und
  *   Namen für die alten Mails stehen.
