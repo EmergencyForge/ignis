@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.33-beta
+
+Mitarbeiter können einen Titel wie „Dr.“ oder „Prof.“ tragen. Die Auswahl pflegt der Admin unter Einstellungen, Personal, Titel, mitgeliefert sind Dr., Dr. med., Prof. und Prof. Dr. Gesetzt wird der Titel beim Anlegen oder in der Personalakte. Er steht dann im Kopf der Akte, in Mail-Signaturen, in Dokumenten („Sehr geehrter Herr Dr. Max Muster“) und im Absendernamen. Listen, Suche und die Mail-Adresse bleiben ohne Titel. Ein Titel, den noch jemand trägt, lässt sich nicht löschen.
+
 ## 2026.0.32-beta
 
 Die Charakter-ID eines Mitarbeiters bleibt beim Bearbeiten des Profils erhalten. Bisher löschte jede Änderung im Profil und jedes Speichern der Qualifikationen sie, wenn Charakter-IDs eingeschaltet sind.
