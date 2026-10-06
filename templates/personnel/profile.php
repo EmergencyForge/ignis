@@ -212,7 +212,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                             </tr>
                                             <tr>
                                                 <td class="font-bold">Titel</td>
-                                                <td class="inline-edit-cell" data-field="titel_id" data-type="select" data-options="<?= htmlspecialchars(json_encode($titelOptions, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>" data-raw="<?= htmlspecialchars((string) ($row['titel_id'] ?? '')) ?>"><?= htmlspecialchars($mitarbeiter->titel?->name ?? 'Kein Titel') ?></td>
+                                                <td class="inline-edit-cell" data-field="titel_id" data-type="select" data-options="<?= htmlspecialchars(json_encode($titelOptions, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>" data-raw="<?= htmlspecialchars((string) ($row['titel_id'] ?? '')) ?>"><?= htmlspecialchars($mitarbeiter->titel->name ?? 'Kein Titel') ?></td>
                                             </tr>
                                             <?php endif; ?>
                                             <tr>
