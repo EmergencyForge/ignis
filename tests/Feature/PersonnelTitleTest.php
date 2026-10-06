@@ -100,9 +100,15 @@ final class PersonnelTitleTest extends FeatureTestCase
         $dr     = (int) PersonnelTitle::query()->where('name', 'Dr.')->value('id');
         $person = FixtureFactory::personnel(['fullname' => 'Max Muster']);
 
+        // Vorab speichern, damit Telefon und Profilbild normalisiert sind und
+        // danach allein der Titel einen Unterschied machen kann.
+        $this->assertStatus(200, $this->saveProfile($person, []));
+
         $response = $this->saveProfile($person, ['titel_id' => (string) $dr]);
         $this->assertStatus(200, $response);
-        $this->assertSame('Herr Dr. Max Muster', $this->assertJsonResponse($response)['display']['profileName']);
+        $json = $this->assertJsonResponse($response);
+        $this->assertSame(['basedata'], $json['changes']);
+        $this->assertSame('Herr Dr. Max Muster', $json['display']['profileName']);
         $this->assertSame($dr, (int) Personnel::query()->whereKey($person->id)->value('titel_id'));
 
         // Ein Client ohne das Feld darf den Titel nicht löschen.
@@ -113,7 +119,10 @@ final class PersonnelTitleTest extends FeatureTestCase
         $this->assertBodyContains('Herr Dr. Max Muster', $page);
         $this->assertBodyContains('data-field="titel_id"', $page);
 
-        $this->assertStatus(200, $this->saveProfile($person, ['titel_id' => '']));
+        // Telefon bleibt gleich, nur der Titel fällt weg.
+        $cleared = $this->saveProfile($person, ['telefonnr' => '555', 'titel_id' => '']);
+        $this->assertStatus(200, $cleared);
+        $this->assertSame(['basedata'], $this->assertJsonResponse($cleared)['changes']);
         $this->assertNull(Personnel::query()->whereKey($person->id)->value('titel_id'));
     }
 }
