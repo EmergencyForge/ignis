@@ -116,7 +116,7 @@ $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleI
 <div class="ignis-preview__section">
     <h4>
         <span><?= $openDefects === 0 ? 'Keine offenen Mängel' : ($openDefects === 1 ? '1 offener Mangel' : $openDefects . ' offene Mängel') ?></span>
-        <?php if ($openDefects > 0): ?><a href="<?= htmlspecialchars($defectsUrl) ?>">alle</a><?php endif; ?>
+        <?php if ($openDefects > 0): ?><a href="<?= htmlspecialchars($defectsUrl) ?>">Alle anzeigen</a><?php endif; ?>
     </h4>
     <?php if ($defects === []): ?>
         <p class="ignis-preview__muted">Nichts gemeldet.</p>

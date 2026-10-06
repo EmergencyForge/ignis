@@ -553,9 +553,7 @@ html.is-collapsed body.ignis-app--legacy {
 @media (min-width: 901px) {
   html.is-collapsed {
     .ignis-sidebar__label,
-    .ignis-sidebar__group,
     .ignis-sidebar__external,
-    .ignis-sidebar__count,
     .ignis-sidebar__quick { display: none; }
 
     .ignis-sidebar__link {

@@ -24,7 +24,7 @@ $vehicleIcons = [1 => 'fa-truck-medical', 2 => 'fa-truck-medical', 3 => 'fa-truc
         <i class="fa-solid fa-truck-medical" aria-hidden="true"></i>
         <h2 class="ignis-bezel__title" id="dashboard-vehicles-title">Fahrzeuge <span class="ignis-count"><?= $dashboardVehicles['total'] ?></span></h2>
         <div class="ignis-bezel__actions">
-            <a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Alle</a>
+            <a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Alle anzeigen</a>
         </div>
     </div>
     <div class="ignis-bezel__well ignis-bezel__well--list">

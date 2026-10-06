@@ -15,11 +15,12 @@ declare(strict_types=1);
  * App\Support\NavigationCounters an die Zeile; er steht auch bei 0 im
  * Markup (versteckt), weil notifications.js ihn per Polling nachführt.
  *
- * 240 px breit, eingeklappt 64 px: dann bleiben die Symbole mit Tooltip
- * (data-ignis-tooltip, das Paket zeigt ihn dort nur eingeklappt), Labels
- * und Gruppen verschwinden (CSS über html.is-collapsed, Zustand hält
- * shell.js in localStorage). Unter 900 px ist sie ein Drawer hinter dem
- * Menü-Knopf der Topbar, mit Scrim.
+ * 256 px breit, eingeklappt 56 px (beides setzt der Skin): dann bleiben
+ * die Symbole mit Tooltip (data-ignis-tooltip, das Paket zeigt ihn dort
+ * nur eingeklappt), die Labels verschwinden, eine Gruppe wird zur kurzen
+ * Linie und ein Zähler zum Eckbadge (CSS über html.is-collapsed, Zustand
+ * hält shell.js in localStorage). Unter 900 px ist sie ein Drawer hinter
+ * dem Menü-Knopf der Topbar, mit Scrim.
  *
  * Läuft per `require` im Scope des Layouts (oder des Shims navbar.php) und
  * teilt dessen Variablen. Alle lokalen Variablen tragen darum das Präfix

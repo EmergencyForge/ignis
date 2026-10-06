@@ -23,13 +23,14 @@ $dashboardVehicles  = Overview::vehicles();
 $dashboardProtocols = Overview::openProtocols($dashboardPlugins, $dashboardNow);
 
 // Delta der Einsätze gegen gestern bis zur selben Uhrzeit, in der Kachel
-// und im Fuß der Schale. Mehr Einsätze sind weder gut noch schlecht. Die
-// Richtung steht als Text für Screenreader in der Pille, ein aria-label an
-// einem span lesen sie nicht vor.
+// und im Fuß der Schale. Mehr Einsätze sind weder gut noch schlecht, die
+// Pille bleibt deshalb neutral. Die Richtung steht als Text für
+// Screenreader in der Pille, ein aria-label an einem span lesen sie nicht
+// vor.
 $dashboardDelta = '';
 if ($dashboardIncidents !== null) {
     $dashboardDiff = $dashboardIncidents['today'] - $dashboardIncidents['yesterday'];
-    $dashboardDelta = '<span class="ignis-delta">' . match (true) {
+    $dashboardDelta = '<span class="ignis-delta" data-trend="neutral">' . match (true) {
         $dashboardDiff > 0 => '<span class="ignis-sr-only">plus </span><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>' . $dashboardDiff,
         $dashboardDiff < 0 => '<span class="ignis-sr-only">minus </span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i>' . -$dashboardDiff,
         default            => '<span aria-hidden="true">0</span><span class="ignis-sr-only">unverändert</span>',

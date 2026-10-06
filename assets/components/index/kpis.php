@@ -36,8 +36,7 @@ if ($dashboardIncidents === null && $dashboardVehicles === null && $dashboardPro
     <?php if ($dashboardVehicles !== null): ?>
         <a class="ignis-kpi" href="<?= BASE_PATH ?>settings/vehicles/vehicles/index" data-ignis-reveal>
             <div class="ignis-kpi__top">
-                <span class="ignis-kpi__label">Fahrzeuge einsatzbereit</span>
-                <span class="ignis-glyph ignis-glyph--sm" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
+                <span class="ignis-kpi__label"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i>Fahrzeuge einsatzbereit</span>
             </div>
             <div class="ignis-kpi__value"><span data-ignis-count><?= $dashboardVehicles['ready'] ?></span> <span class="ignis-unit">von <?= $dashboardVehicles['total'] ?></span></div>
             <div class="ignis-kpi__sub"><?= $dashboardVehicles['unknown'] > 0
