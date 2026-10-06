@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int         $id
  * @property string      $fullname
+ * @property int|null    $titel_id
  * @property \DateTime   $gebdatum
  * @property string      $charakterid
  * @property int         $geschlecht
@@ -37,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Rank|null $dienstgradModel
  * @property-read FdSkill|null    $fwQualiModel
  * @property-read AmbSkill|null    $rdQualiModel
+ * @property-read PersonnelTitle|null $titel
  *
  * @method static Builder<static> active(array<int> $archiveDienstgradIds = [])
  * @method static Builder<static> archived(array<int> $archiveDienstgradIds = [])
@@ -53,6 +55,7 @@ class Personnel extends Model
     protected $casts = [
         'id'          => 'integer',
         'geschlecht'  => 'integer',
+        'titel_id'    => 'integer',
         'forumprofil' => 'integer',
         'dienstgrad'  => 'integer',
         'qualifw2'    => 'integer',
@@ -88,6 +91,25 @@ class Personnel extends Model
     public function rdQualiModel(): BelongsTo
     {
         return $this->belongsTo(AmbSkill::class, 'qualird', 'id');
+    }
+
+    /**
+     * @return BelongsTo<PersonnelTitle, $this>
+     */
+    public function titel(): BelongsTo
+    {
+        return $this->belongsTo(PersonnelTitle::class, 'titel_id', 'id');
+    }
+
+    /**
+     * Name für Profilkopf, Signaturen, Dokumente und Absender. Listen,
+     * Suche und Zuordnungen nehmen weiter fullname ohne Titel.
+     */
+    public function formalName(): string
+    {
+        $titel = trim((string) $this->titel?->name);
+
+        return $titel === '' ? (string) $this->fullname : $titel . ' ' . $this->fullname;
     }
 
     /**
