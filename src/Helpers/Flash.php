@@ -193,6 +193,13 @@ class Flash
                 'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Die Qualifikation wurde nicht gefunden.'],
                 'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Qualifikations-ID.'],
             ],
+            'title' => [
+                'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Titel wurde erfolgreich gelöscht.'],
+                'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Titel wurde erfolgreich erstellt.'],
+                'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Der Titel wurde nicht gefunden.'],
+                'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Titel-ID.'],
+                'in-use' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Der Titel ist noch Mitarbeitern zugewiesen und lässt sich nicht löschen.'],
+            ],
             'personal' => [
                 'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Das Profil wurde erfolgreich gelöscht.'],
             ],

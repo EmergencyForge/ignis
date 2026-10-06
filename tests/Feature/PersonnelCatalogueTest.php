@@ -52,6 +52,9 @@ final class PersonnelCatalogueTest extends FeatureTestCase
             'Fachdienste' => ['/settings/personnel/specialties', 'intra_mitarbeiter_fdquali', [
                 'sgnr' => '7', 'sgname' => 'Höhenrettung',
             ], 'sgname'],
+            'Titel' => ['/settings/personnel/titles', 'intra_mitarbeiter_titel', [
+                'name' => 'Dr. rer. nat.', 'priority' => '50',
+            ], 'name'],
         ];
     }
 
@@ -130,5 +133,18 @@ final class PersonnelCatalogueTest extends FeatureTestCase
         $this->post('/settings/personnel/specialties/create', ['sgnr' => 'abc', 'sgname' => 'Krumm']);
 
         $this->assertSame($vorher, Capsule::table('intra_mitarbeiter_fdquali')->count());
+    }
+
+    #[Test]
+    public function ein_titel_in_gebrauch_laesst_sich_nicht_loeschen(): void
+    {
+        $id = (int) Capsule::table('intra_mitarbeiter_titel')->insertGetId(['name' => 'Dr. phil.', 'priority' => 60]);
+        FixtureFactory::personnel(['titel_id' => $id]);
+        unset($_SESSION['flash']);
+
+        $this->assertRedirect($this->post('/settings/personnel/titles/delete', ['id' => (string) $id]), '/settings/personnel/titles');
+
+        $this->assertTrue(Capsule::table('intra_mitarbeiter_titel')->where('id', $id)->exists());
+        $this->assertStringContainsString('noch Mitarbeitern zugewiesen', (string) json_encode($_SESSION['flash'] ?? null, JSON_UNESCAPED_UNICODE));
     }
 }

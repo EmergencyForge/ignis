@@ -255,6 +255,14 @@ return [
                         'label'  => 'Neuen Fachdienst anlegen',
                     ],
                 ],
+                [
+                    'label'       => 'Titel',
+                    'href'        => BASE_PATH . 'settings/personnel/titles/index',
+                    'icon'        => 'fa-solid fa-graduation-cap',
+                    'description' => 'Titel wie Dr. oder Prof. für Mitarbeiter pflegen.',
+                    'permissions' => ['admin', 'personnel.view'],
+                    'match'       => ['/settings/personnel/titles'],
+                ],
             ],
         ],
 

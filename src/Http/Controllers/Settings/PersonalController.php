@@ -11,6 +11,7 @@ use App\Http\Requests\Personnel\SaveFireSkillRequest;
 use App\Http\Requests\Personnel\SaveMedicSkillRequest;
 use App\Http\Requests\Personnel\SaveRankRequest;
 use App\Http\Requests\Personnel\SaveSpecialtyRequest;
+use App\Http\Requests\Personnel\SaveTitleRequest;
 use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -48,7 +49,11 @@ class PersonalController extends Controller
      *     module: string,
      *     label: string,
      *     flash: string,
+     *     usedBy?: array{0:string,1:string},
      * }>
+     *
+     * `usedBy` nennt Tabelle und Spalte, die auf den Katalog zeigen. Solange
+     * ein Eintrag dort benutzt wird, lässt er sich nicht löschen.
      *
      * `flash` ist der Schlüssel in der Meldungstabelle von
      * {@see \App\Helpers\Flash}. Die drei Qualifikationskataloge standen
@@ -97,6 +102,17 @@ class PersonalController extends Controller
             'module'  => 'Fachdienste',
             'label'   => 'Fachdienst',
             'flash'   => 'qualification',
+        ],
+        'titles' => [
+            'table'   => 'intra_mitarbeiter_titel',
+            'request' => SaveTitleRequest::class,
+            'order'   => 'priority',
+            'view'    => 'settings/personnel/titles',
+            'path'    => 'settings/personnel/titles',
+            'module'  => 'Titel',
+            'label'   => 'Titel',
+            'flash'   => 'title',
+            'usedBy'  => ['intra_mitarbeiter', 'titel_id'],
         ],
     ];
 
@@ -188,6 +204,28 @@ class PersonalController extends Controller
         $this->destroy('specialties');
     }
 
+    // ── Titel ───────────────────────────────────────────────────
+
+    public function titelIndex(): void
+    {
+        $this->index('titles', 'titles');
+    }
+
+    public function titelStore(): void
+    {
+        $this->store('titles');
+    }
+
+    public function titelUpdate(): void
+    {
+        $this->update('titles');
+    }
+
+    public function titelDelete(): void
+    {
+        $this->destroy('titles');
+    }
+
     // ── Das Gemeinsame ──────────────────────────────────────────
 
     /** @param non-empty-string $variable Name der Liste in der Ansicht */
@@ -263,6 +301,11 @@ class PersonalController extends Controller
         // löschten stillschweigend nichts. Jetzt alle gleich.
         if (!Capsule::table($k['table'])->where('id', $id)->exists()) {
             Flash::set($k['flash'], 'not-found');
+            $this->redirect($k['path'] . '/index');
+        }
+
+        if (isset($k['usedBy']) && Capsule::table($k['usedBy'][0])->where($k['usedBy'][1], $id)->exists()) {
+            Flash::set($k['flash'], 'in-use');
             $this->redirect($k['path'] . '/index');
         }
 

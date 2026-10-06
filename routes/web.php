@@ -483,7 +483,7 @@ $router->get('/settings/vehicles/defects/index.php', [\App\Http\Controllers\Sett
 $router->get('/settings/federation/index',      [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
 $router->post('/settings/federation/index',     [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
 
-// Personal-Settings (Dienstgrade + 3x Qualifikationen)
+// Personal-Settings (Dienstgrade, 3x Qualifikationen, Titel)
 $router->get('/settings/personnel/ranks/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradeIndex'], $settingsAuth);
 $router->post('/settings/personnel/ranks/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradStore'],  $settingsAuth);
 $router->post('/settings/personnel/ranks/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradUpdate'], $settingsAuth);
@@ -503,6 +503,11 @@ $router->get('/settings/personnel/specialties/index',     [\App\Http\Controllers
 $router->post('/settings/personnel/specialties/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiStore'],  $settingsAuth);
 $router->post('/settings/personnel/specialties/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiUpdate'], $settingsAuth);
 $router->post('/settings/personnel/specialties/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiDelete'], $settingsAuth);
+
+$router->get('/settings/personnel/titles/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'titelIndex'], $settingsAuth);
+$router->post('/settings/personnel/titles/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'titelStore'],  $settingsAuth);
+$router->post('/settings/personnel/titles/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'titelUpdate'], $settingsAuth);
+$router->post('/settings/personnel/titles/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'titelDelete'], $settingsAuth);
 
 // System-Settings
 $router->get('/settings/system/index',        [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
