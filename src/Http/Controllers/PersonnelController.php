@@ -14,6 +14,7 @@ use App\Models\AmbSkill;
 use App\Models\FdSkill;
 use App\Models\Personnel;
 use App\Models\PersonnelDocument;
+use App\Models\PersonnelTitle;
 use App\Models\Rank;
 use App\Models\User;
 use App\Notifications\NotificationManager;
@@ -600,6 +601,7 @@ class PersonnelController extends Controller
 
         $this->renderView('personnel/create', [
             'dienstgrade' => Rank::query()->where('archive', 0)->orderBy('priority')->get(),
+            'titel'       => PersonnelTitle::query()->orderBy('priority')->orderBy('name')->get(),
         ]);
     }
 
@@ -650,6 +652,7 @@ class PersonnelController extends Controller
 
         $mitarbeiter = new Personnel();
         $mitarbeiter->fullname    = $data['fullname'];
+        $mitarbeiter->titel_id    = PersonnelTitle::existingId($data['titel_id']);
         $mitarbeiter->gebdatum    = $data['gebdatum'];
         $mitarbeiter->dienstgrad  = $data['dienstgrad'];
         $mitarbeiter->geschlecht  = $data['geschlecht'];

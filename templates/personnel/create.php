@@ -7,6 +7,7 @@
  * Seite es noch nicht hat, damit es auch im Drawer läuft.
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rank> $dienstgrade
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\PersonnelTitle> $titel
  */
 
 $layout = 'admin';
@@ -19,6 +20,7 @@ $charIdRequired = defined('CHAR_ID') ? (bool) constant('CHAR_ID') : false;
 $formErrors = \App\Support\FormErrors::pull('personnel.create');
 $formFields = [
     'fullname' => ['cm_fullname', 'Vor- und Zuname'],
+    'titel_id' => ['cm_titel', 'Titel'],
     'gebdatum' => ['cm_gebdatum', 'Geburtsdatum'],
     'dienstgrad' => ['cm_dienstgrad', 'Dienstgrad'],
     'geschlecht' => ['cm_geschlecht', 'Geschlecht'],
@@ -45,6 +47,16 @@ $formFields = [
                             <label for="cm_fullname" class="ignis-field__label">Vor- und Zuname</label>
                             <input class="ignis-input" type="text" name="fullname" id="cm_fullname"<?= \App\Support\FormErrors::attributes($formErrors, 'fullname', 'cm_fullname') ?> value="<?= htmlspecialchars((string) old('fullname')) ?>" placeholder="Max Mustermann" required autofocus>
                             <?= \App\Support\FormErrors::hint($formErrors, 'fullname', 'cm_fullname', 'ignis') ?>
+                        </div>
+                        <div>
+                            <label for="cm_titel" class="ignis-field__label">Titel <small class="form-hint">(optional)</small></label>
+                            <select class="ignis-input" data-custom-dropdown="true" name="titel_id" id="cm_titel"<?= \App\Support\FormErrors::attributes($formErrors, 'titel_id', 'cm_titel') ?>>
+                                <option value="">Kein Titel</option>
+                                <?php foreach ($titel as $t): ?>
+                                    <option value="<?= (int) $t->id ?>"<?= (string) old('titel_id', '') === (string) $t->id ? ' selected' : '' ?>><?= htmlspecialchars((string) $t->name) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?= \App\Support\FormErrors::hint($formErrors, 'titel_id', 'cm_titel', 'ignis') ?>
                         </div>
                         <div>
                             <label for="cm_gebdatum" class="ignis-field__label">Geburtsdatum</label>

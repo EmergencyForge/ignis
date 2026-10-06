@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Personnel;
 use App\Models\PersonnelTitle;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -41,5 +43,33 @@ final class PersonnelTitleTest extends FeatureTestCase
         $options = PersonnelTitle::options();
         $this->assertSame(['', 'Kein Titel'], $options[0]);
         $this->assertSame([(string) $dr, 'Dr.'], $options[1]);
+    }
+
+    #[Test]
+    public function anlegen_mit_titel_und_ohne(): void
+    {
+        $user = FixtureFactory::user(['full_admin' => true]);
+        $this->actingAs($user->id, ['permissions' => ['full_admin'], 'cirs_username' => $user->username]);
+        $dr   = (int) PersonnelTitle::query()->where('name', 'Dr.')->value('id');
+        $rank = (int) Capsule::table('intra_mitarbeiter_dienstgrade')->where('archive', 0)->min('id');
+
+        foreach (['Titel Mit' => (string) $dr, 'Titel Ohne' => ''] as $name => $titelId) {
+            $response = $this->post('/personnel/create', [
+                'fullname'    => $name,
+                'titel_id'    => $titelId,
+                'gebdatum'    => '1990-01-01',
+                'dienstgrad'  => (string) $rank,
+                'geschlecht'  => '0',
+                'discordtag'  => '',
+                'telefonnr'   => '',
+                'dienstnr'    => 'TT-' . uniqid(),
+                'einstdatum'  => '2024-01-01',
+                'charakterid' => 'ABC12345',
+            ]);
+            $this->assertRedirect($response, '/personnel/profile');
+        }
+
+        $this->assertSame($dr, (int) Personnel::query()->where('fullname', 'Titel Mit')->value('titel_id'));
+        $this->assertNull(Personnel::query()->where('fullname', 'Titel Ohne')->value('titel_id'));
     }
 }

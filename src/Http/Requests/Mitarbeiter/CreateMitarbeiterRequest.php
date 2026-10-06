@@ -34,6 +34,7 @@ class CreateMitarbeiterRequest extends FormRequest
 
         return v::keySet(
             v::key('fullname',    v::stringType()->notBlank()->length(1, 255)),
+            v::key('titel_id',    v::optional(v::stringVal()->intVal()->positive()), false),
             v::key('gebdatum',    v::stringType()->regex($dateRegex)),
             v::key('dienstgrad',  v::stringVal()->intVal()->positive()),
             v::key('geschlecht',  v::stringVal()->intVal()->in(['0', '1', '2'])),
@@ -61,6 +62,7 @@ class CreateMitarbeiterRequest extends FormRequest
     {
         return [
             'fullname'    => trim((string) $input['fullname']),
+            'titel_id'    => ($input['titel_id'] ?? '') === '' ? null : (int) $input['titel_id'],
             'gebdatum'    => (string) $input['gebdatum'],
             'dienstgrad'  => (int) $input['dienstgrad'],
             'geschlecht'  => (int) $input['geschlecht'],
