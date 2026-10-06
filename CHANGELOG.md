@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.0.34-beta
+
+Filter über den Listen stehen als kompakte Knöpfe mit ihrem Wert, etwa „Dienstgrad Alle“. Eine Auswahl filtert sofort, ein gesetzter Filter ist hervorgehoben. Das gilt für die Mitarbeiter, das Audit Log, die Defekt-Meldungen und das Fahrtenbuch. Im Fahrtenbuch bleibt der Knopf „Filtern“, weil sich der Zeitraum sonst nicht übernehmen lässt.
+
+Mitarbeiter und Benutzer zeigen den Namen mit den Initialen davor. Unter den Listen steht „26 bis 50 von 60 Mitarbeitern“, die aktuelle Seite ist grau statt orange hervorgehoben, und auch der Pfeil der sortierten Spalte ist nicht mehr orange.
+
+Auf dem Dashboard heißen die Links zu den vollen Listen einheitlich „Alle anzeigen“, ebenso bei den offenen Mängeln in der Fahrzeugvorschau. Lange Hinweislisten scrollen in ihrem Kasten und blenden unten aus, solange weitere folgen. Die Kachel „Fahrzeuge einsatzbereit“ trägt ihr Symbol vor der Beschriftung. In der eingeklappten Seitenleiste trennt eine kurze Linie die Gruppen.
+
+Aktualisiert ist das UI-Paket auf 0.9.1, neu dabei ist das Listen-Paket list-query 0.1.0.
+
 ## 2026.0.33-beta
 
 Mitarbeiter können einen Titel wie „Dr.“ oder „Prof.“ tragen. Die Auswahl pflegt der Admin unter Einstellungen, Personal, Titel, mitgeliefert sind Dr., Dr. med., Prof. und Prof. Dr. Gesetzt wird der Titel beim Anlegen oder in der Personalakte. Er steht dann im Kopf der Akte, in Mail-Signaturen, in Dokumenten („Sehr geehrter Herr Dr. Max Muster“) und im Absendernamen. Listen, Suche und die Mail-Adresse bleiben ohne Titel. Ein Titel, den noch jemand trägt, lässt sich nicht löschen.
