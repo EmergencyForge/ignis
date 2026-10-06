@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.32-beta
+
+Die Charakter-ID eines Mitarbeiters bleibt beim Bearbeiten des Profils erhalten. Bisher löschte jede Änderung im Profil und jedes Speichern der Qualifikationen sie, wenn Charakter-IDs eingeschaltet sind.
+
 ## 2026.0.31-beta
 
 Über die Fahrzeuginfo im eNOTF v1 lassen sich Mängel wieder ohne ignis-Konto melden, solange „Nur mit ignis-Konto“ ausgeschaltet ist. Bisher lehnte der Server die Meldung ohne Konto ab. Die Mängelliste und das Bearbeiten bleiben Konten mit den passenden Rechten vorbehalten.
