@@ -163,6 +163,18 @@ class UpdateProfileRequestTest extends TestCase
     }
 
     #[Test]
+    public function titel_id_wird_gecastet_und_fehlt_wenn_nicht_gesendet(): void
+    {
+        $mit = UpdateProfileRequest::validate($this->validBase() + ['titel_id' => '3']);
+        $leer = UpdateProfileRequest::validate($this->validBase() + ['titel_id' => '']);
+        $ohne = UpdateProfileRequest::validate($this->validBase());
+
+        $this->assertSame(3, $mit['titel_id']);
+        $this->assertNull($leer['titel_id']);
+        $this->assertArrayNotHasKey('titel_id', $ohne);
+    }
+
+    #[Test]
     public function validation_exception_carries_field_errors(): void
     {
         try {

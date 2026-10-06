@@ -44,6 +44,7 @@ class UpdateProfileRequest extends FormRequest
             v::key('zusatzqual',  v::optional(v::stringType()->length(0, 500)), false),
             v::key('pfp',         v::optional(v::stringType()->length(0, 500)), false),
             v::key('charakterid', v::optional(v::stringType()->length(0, 100)), false),
+            v::key('titel_id',    v::optional(v::intVal()->positive()), false),
         );
     }
 
@@ -63,6 +64,7 @@ class UpdateProfileRequest extends FormRequest
             'zusatzqual' => 'Zusatzqualifikation darf maximal 500 Zeichen haben.',
             'pfp'        => 'Profilbild-Pfad darf maximal 500 Zeichen haben.',
             'charakterid' => 'Charakter-ID darf maximal 100 Zeichen haben.',
+            'titel_id' => 'Titel muss eine positive Zahl sein.',
         ];
     }
 
@@ -73,12 +75,12 @@ class UpdateProfileRequest extends FormRequest
      * @return array{
      *   id:int,fullname:string,gebdatum:string,dienstgrad:int,discordtag:string,
      *   telefonnr:string,dienstnr:string,qualird:int,qualifw2:int,geschlecht:int,
-     *   zusatzqual:string,pfp:string,charakterid:string
+     *   zusatzqual:string,pfp:string,charakterid:string,titel_id?:int|null
      * }
      */
     protected static function cast(array $input): array
     {
-        return [
+        $data = [
             'id'          => (int) $input['id'],
             'fullname'    => trim((string) $input['fullname']),
             'gebdatum'    => (string) $input['gebdatum'],
@@ -93,5 +95,11 @@ class UpdateProfileRequest extends FormRequest
             'pfp'         => trim((string) ($input['pfp'] ?? '')),
             'charakterid' => trim((string) ($input['charakterid'] ?? '')),
         ];
+        // Nur wenn gesendet: ein fehlendes Feld heißt "unverändert", nicht "leer".
+        if (array_key_exists('titel_id', $input)) {
+            $data['titel_id'] = ($input['titel_id'] === '' || $input['titel_id'] === null) ? null : (int) $input['titel_id'];
+        }
+
+        return $data;
     }
 }

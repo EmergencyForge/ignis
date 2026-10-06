@@ -17,6 +17,7 @@
  *   @var array<string, mixed>|null    $panelakte     Verlinkter User oder null
  *   @var array<string, mixed>|null    $pendingInvite Pending Registration-Code oder null
  *   @var iterable<\App\Models\User>   $linkCandidates Freie Konten zum Verknüpfen (leer ohne Recht)
+ *   @var list<array{0:string,1:string}> $titelOptions Auswahl für die Titel-Zelle
  *
  * Bindet folgende Legacy-Partials ein, die unverändert bleiben:
  *   - assets/components/profiles/checks.php
@@ -161,7 +162,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                 $canEdit       = Permissions::check(['admin', 'personnel.edit']);
                                 $profileImage  = !empty($row['pfp']) ? $row['pfp'] : BASE_PATH . 'assets/img/empty_user.png';
                                 $geschlechtText = match ((int) $row['geschlecht']) { 0 => 'Herr', 1 => 'Frau', default => 'Divers' };
-                                $profileName   = $geschlechtText . ' ' . $row['fullname'];
+                                $profileName   = $geschlechtText . ' ' . $mitarbeiter->formalName();
                                 ?>
 
                                 <div class="w-full text-center">
@@ -208,6 +209,10 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                             <tr>
                                                 <td class="font-bold">Vor- und Zuname</td>
                                                 <td class="inline-edit-cell" data-field="fullname" data-type="text"><?= htmlspecialchars($row['fullname']) ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bold">Titel</td>
+                                                <td class="inline-edit-cell" data-field="titel_id" data-type="select" data-options="<?= htmlspecialchars(json_encode($titelOptions, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>" data-raw="<?= htmlspecialchars((string) ($row['titel_id'] ?? '')) ?>"><?= htmlspecialchars($mitarbeiter->titel?->name ?? 'Kein Titel') ?></td>
                                             </tr>
                                             <?php endif; ?>
                                             <tr>
@@ -333,6 +338,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
         canInvite:  <?= Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code' ? 'true' : 'false' ?>,
         currentData: <?= json_encode([
             'fullname'    => $row['fullname'],
+            'titel_id'    => (string) ($row['titel_id'] ?? ''),
             'gebdatum'    => (string) $row['gebdatum'],
             'geschlecht'  => (string) $row['geschlecht'],
             'charakterid' => $row['charakterid'] ?? '',

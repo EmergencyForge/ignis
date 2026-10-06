@@ -9,6 +9,7 @@ const source = readFileSync(new URL('../../assets/js/modules/mitarbeiter-profile
 
 const currentData = {
     fullname: 'Max Muster',
+    titel_id: '2',
     gebdatum: '1990-01-15',
     geschlecht: '0',
     charakterid: 'CHAR-42',

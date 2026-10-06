@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Personnel;
 use App\Models\PersonnelTitle;
+use EmergencyForge\Http\Request;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
@@ -71,5 +72,48 @@ final class PersonnelTitleTest extends FeatureTestCase
 
         $this->assertSame($dr, (int) Personnel::query()->where('fullname', 'Titel Mit')->value('titel_id'));
         $this->assertNull(Personnel::query()->where('fullname', 'Titel Ohne')->value('titel_id'));
+    }
+
+    /** @param array<string,mixed> $extra */
+    private function saveProfile(Personnel $p, array $extra): \EmergencyForge\Http\Response
+    {
+        $payload = $extra + [
+            'id' => $p->id, 'fullname' => $p->fullname, 'gebdatum' => '1990-01-01',
+            'dienstgrad' => (string) $p->dienstgrad, 'discordtag' => '', 'telefonnr' => '',
+            'dienstnr' => $p->dienstnr, 'qualird' => (string) $p->qualird, 'qualifw2' => (string) $p->qualifw2,
+            'geschlecht' => '0', 'zusatzqual' => '', 'pfp' => '', 'charakterid' => '',
+        ];
+
+        return $this->router->dispatch(new Request(
+            'POST',
+            '/api/personnel/update-profile',
+            server: ['HTTP_X_CSRF_TOKEN' => $this->csrfToken(), 'CONTENT_TYPE' => 'application/json'],
+            rawBody: json_encode($payload, JSON_THROW_ON_ERROR),
+        ));
+    }
+
+    #[Test]
+    public function profil_setzt_titel_zeigt_ihn_im_kopf_und_behaelt_ihn_ohne_feld(): void
+    {
+        $user = FixtureFactory::user(['full_admin' => true]);
+        $this->actingAs($user->id, ['permissions' => ['full_admin'], 'cirs_username' => $user->username]);
+        $dr     = (int) PersonnelTitle::query()->where('name', 'Dr.')->value('id');
+        $person = FixtureFactory::personnel(['fullname' => 'Max Muster']);
+
+        $response = $this->saveProfile($person, ['titel_id' => (string) $dr]);
+        $this->assertStatus(200, $response);
+        $this->assertSame('Herr Dr. Max Muster', $this->assertJsonResponse($response)['display']['profileName']);
+        $this->assertSame($dr, (int) Personnel::query()->whereKey($person->id)->value('titel_id'));
+
+        // Ein Client ohne das Feld darf den Titel nicht löschen.
+        $this->assertStatus(200, $this->saveProfile($person, ['telefonnr' => '555']));
+        $this->assertSame($dr, (int) Personnel::query()->whereKey($person->id)->value('titel_id'));
+
+        $page = $this->get('/personnel/profile', ['query' => ['id' => (string) $person->id]]);
+        $this->assertBodyContains('Herr Dr. Max Muster', $page);
+        $this->assertBodyContains('data-field="titel_id"', $page);
+
+        $this->assertStatus(200, $this->saveProfile($person, ['titel_id' => '']));
+        $this->assertNull(Personnel::query()->whereKey($person->id)->value('titel_id'));
     }
 }

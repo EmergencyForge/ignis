@@ -11,6 +11,7 @@ use App\Logging\Logger;
 use App\Models\AmbSkill;
 use App\Models\FdSkill;
 use App\Models\Personnel;
+use App\Models\PersonnelTitle;
 use App\Models\Rank;
 use App\Models\RegistrationCode;
 use App\Personnel\AccountLink;
@@ -194,6 +195,8 @@ final class PersonnelController
                 return Response::json(['success' => false, 'message' => 'Mitarbeiter nicht gefunden'], 404);
             }
             $current = (array) $currentRow;
+            $currentTitelId = isset($current['titel_id']) ? (int) $current['titel_id'] : null;
+            $titelId = array_key_exists('titel_id', $data) ? PersonnelTitle::existingId($data['titel_id']) : $currentTitelId;
 
             $userHelper = new UserHelper();
             $edituser   = $userHelper->getCurrentUserFullnameForAction();
@@ -241,6 +244,7 @@ final class PersonnelController
 
             $baseDataChanged = (
                 $current['fullname'] !== $fullname ||
+                $currentTitelId !== $titelId ||
                 $current['gebdatum'] !== $gebdatum ||
                 ($current['discordtag'] ?? '') !== $discordtag ||
                 $current['telefonnr'] !== $telefonnr ||
@@ -254,6 +258,7 @@ final class PersonnelController
             if ($baseDataChanged) {
                 $updateData = [
                     'fullname'   => $fullname,
+                    'titel_id'   => $titelId,
                     'gebdatum'   => $gebdatum,
                     'discordtag' => $discordtag !== '' ? $discordtag : null,
                     'telefonnr'  => $telefonnr,
@@ -316,7 +321,7 @@ final class PersonnelController
                     'fwShortname'    => $updated['fw_shortname'] ?? '',
                     'fwNone'         => (bool) $updated['fw_none'],
                     'pfp'            => !empty($updated['pfp']) ? $updated['pfp'] : $base . 'assets/img/empty_user.png',
-                    'profileName'    => $geschlechtText . ' ' . $updated['fullname'],
+                    'profileName'    => $geschlechtText . ' ' . (Personnel::query()->with('titel')->find($id)?->formalName() ?? $updated['fullname']),
                 ],
             ]);
         } catch (\Throwable $e) {

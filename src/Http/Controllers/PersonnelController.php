@@ -232,7 +232,7 @@ class PersonnelController extends Controller
 
         /** @var Personnel|null $mitarbeiter */
         $mitarbeiter = Personnel::query()
-            ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
+            ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel', 'titel'])
             ->find($id);
 
         if ($mitarbeiter === null) {
@@ -330,6 +330,7 @@ class PersonnelController extends Controller
             'panelakte'         => $panelakte,
             'pendingInvite'     => $pendingInvite,
             'linkCandidates'    => $linkCandidates,
+            'titelOptions'      => PersonnelTitle::options(),
             'openedID'          => $openedID,
             'editdg'            => $editdg,
             'edituseric'        => $edituseric,

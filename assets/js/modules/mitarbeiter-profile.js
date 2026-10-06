@@ -151,6 +151,18 @@
     });
   }
 
+  // data-options als Liste aus [Wert, Text] behält die Reihenfolge. Ein
+  // Objekt mit Zahlen-Schlüsseln sortiert der Browser nach Größe um.
+  function optionEntries(cell) {
+    const opts = JSON.parse(cell.dataset.options);
+    return Array.isArray(opts) ? opts : Object.entries(opts);
+  }
+
+  function optionLabel(cell, value) {
+    const hit = optionEntries(cell).find(function (entry) { return entry[0] === String(value); });
+    return hit ? hit[1] : '';
+  }
+
   function bindInlineEdit(config) {
     const toast      = getToastFn(config);
     const profileId  = config.profileId;
@@ -176,11 +188,10 @@
           input = document.createElement('select');
           input.className = 'ignis-input';
           input.dataset.customDropdown = 'true';
-          const opts = JSON.parse(cell.dataset.options);
-          for (const k in opts) {
+          for (const [k, label] of optionEntries(cell)) {
             const opt = document.createElement('option');
             opt.value = k;
-            opt.textContent = opts[k];
+            opt.textContent = label;
             if (k === String(currentData[field] || raw)) opt.selected = true;
             input.appendChild(opt);
           }
@@ -282,8 +293,7 @@
               currentData[field] = newValue;
               const d = res.data.display;
               if (type === 'select') {
-                const opts = JSON.parse(cell.dataset.options);
-                cell.textContent = opts[newValue] || newValue;
+                cell.textContent = optionLabel(cell, newValue) || newValue;
               } else if (type === 'date') {
                 cell.textContent = d[field === 'gebdatum' ? 'gebdatum' : field] || newValue;
               } else {
@@ -316,8 +326,7 @@
           document.removeEventListener('mousedown', outside);
           cell.classList.remove('inline-editing', 'dienstnr-container');
           if (type === 'select') {
-            const opts = JSON.parse(cell.dataset.options);
-            cell.textContent = opts[currentData[field]] || originalText;
+            cell.textContent = optionLabel(cell, currentData[field]) || originalText;
           } else {
             cell.innerHTML = originalHtml;
           }
