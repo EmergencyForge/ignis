@@ -15,7 +15,7 @@ $bodyId = 'benutzer';
 $SITE_TITLE = 'Audit-Log';
 
 $pgPath  = 'users/audit-log';
-$pgLabel = 'Einträge';
+$pgLabel = 'Einträgen';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->

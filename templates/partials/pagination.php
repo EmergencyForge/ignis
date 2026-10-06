@@ -12,7 +12,7 @@ declare(strict_types=1);
  *
  *   @var \App\Support\ListQuery $list    Listenzustand aus dem Controller (nach paginate())
  *   @var string                 $pgPath  Pfad der Liste ohne Basispfad, z. B. "users/list"
- *   @var string                 $pgLabel Bezeichnung der Einträge im Zähler, z. B. "Benutzer"
+ *   @var string                 $pgLabel Bezeichnung im Dativ Plural, z. B. "Benutzern"
  */
 ?>
 <?= $list->footer($pgPath, $pgLabel) ?>

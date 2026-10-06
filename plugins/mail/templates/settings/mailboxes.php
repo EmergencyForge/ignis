@@ -13,7 +13,7 @@ $bodyId     = 'settings';
 $SITE_TITLE = 'Postfächer';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $pgPath     = 'settings/mail/mailboxes';
-$pgLabel    = 'Postfächer';
+$pgLabel    = 'Postfächern';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">

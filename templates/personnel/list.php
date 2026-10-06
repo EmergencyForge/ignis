@@ -21,7 +21,7 @@ $bodyId = 'mitarbeiter';
 $SITE_TITLE = 'Mitarbeiter';
 
 $pgPath  = 'personnel/list';
-$pgLabel = 'Mitarbeiter';
+$pgLabel = 'Mitarbeitern';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->

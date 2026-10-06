@@ -53,7 +53,7 @@ $SITE_TITLE = 'Fahrzeuge';
                     </div>
                     <?php
                     $pgPath  = 'settings/vehicles/vehicles/index';
-                    $pgLabel = 'Fahrzeuge';
+                    $pgLabel = 'Fahrzeugen';
                     $canManage = Permissions::check(['admin', 'vehicles.manage']);
                     $rdTypes = [
                         1 => 'RD - Mit NA',

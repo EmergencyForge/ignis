@@ -95,7 +95,7 @@ final class AuditLogListTest extends FeatureTestCase
         $this->assertBodyContains('Eintrag 51', $first);
         $this->assertBodyContains('Eintrag 02', $first);
         $this->assertBodyNotContains('Eintrag 01<', $first);
-        $this->assertBodyContains('1 bis 50 von 51 Einträge', $first);
+        $this->assertBodyContains('1 bis 50 von 51 Einträgen', $first);
 
         $second = $this->get('/users/audit-log', ['query' => ['q' => 'audit-page', 'page' => '2']]);
         $this->assertBodyContains('Eintrag 01', $second);

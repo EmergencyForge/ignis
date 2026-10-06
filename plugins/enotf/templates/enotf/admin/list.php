@@ -23,7 +23,7 @@ $bodyId = 'protokolle';
 $SITE_TITLE = 'eNOTF-QM';
 
 $pgPath  = 'enotf/admin/list';
-$pgLabel = 'Protokolle';
+$pgLabel = 'Protokollen';
 
 $statusMap = [
     0 => ['secondary', 'Ungesehen'],

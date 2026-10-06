@@ -18,7 +18,7 @@ $bodyId = 'benutzer';
 $SITE_TITLE = 'Benutzer';
 
 $pgPath  = 'users/list';
-$pgLabel = 'Benutzer';
+$pgLabel = 'Benutzern';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->

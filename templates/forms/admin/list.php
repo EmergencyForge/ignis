@@ -18,7 +18,7 @@ $layout = 'admin';
 $bodyId = 'mitarbeiter';
 
 $pgPath  = 'forms/admin/list';
-$pgLabel = 'Anträge';
+$pgLabel = 'Anträgen';
 
 // Chip-Semantik der Statusfarben (STATUS_DISPLAY nennt die alten Namen).
 $chipFor = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'success' => 'ok'];

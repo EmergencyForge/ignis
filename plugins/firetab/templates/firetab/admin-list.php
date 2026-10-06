@@ -22,7 +22,7 @@ $bodyId = 'protokolle';
 $SITE_TITLE = 'Einsatz-QM';
 
 $pgPath  = 'firetab/admin/list';
-$pgLabel = 'Protokolle';
+$pgLabel = 'Protokollen';
 
 $statusMap = [
     0 => ['secondary', 'Ungesehen'],
