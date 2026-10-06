@@ -381,21 +381,10 @@
     }
   }
 
+  // update-profile leert jedes Grundfeld, das fehlt. Deshalb alle Felder aus
+  // currentData mitschicken statt einer Liste, die ein neues Feld vergisst.
   function buildPayload(currentData, profileId) {
-    return {
-      id:         profileId,
-      fullname:   currentData.fullname,
-      gebdatum:   currentData.gebdatum,
-      dienstgrad: currentData.dienstgrad,
-      discordtag: currentData.discordtag,
-      telefonnr:  currentData.telefonnr,
-      dienstnr:   currentData.dienstnr,
-      qualird:    currentData.qualird,
-      qualifw2:   currentData.qualifw2,
-      geschlecht: currentData.geschlecht,
-      zusatzqual: currentData.zusatzqual,
-      pfp:        ''
-    };
+    return Object.assign({}, currentData, { id: profileId, pfp: '' });
   }
 
   function bindAjaxPagination(config) {
