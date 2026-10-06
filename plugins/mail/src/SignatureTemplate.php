@@ -42,6 +42,7 @@ final class SignatureTemplate
     {
         return [
             'absender.name'         => 'Name',
+            'absender.titel'        => 'Titel',
             'absender.dienstgrad'   => 'Dienstgrad mit Abzeichen',
             'absender.position'     => 'Position',
             'absender.fachdienste'  => 'Fachdienste',
@@ -208,7 +209,8 @@ final class SignatureTemplate
             ? [['type' => 'image', 'attrs' => ['src' => $badge, 'alt' => '']], ...$rankText]
             : $rankText;
 
-        $values['absender.name']         = $text($person->fullname);
+        $values['absender.name']         = $text($person->formalName());
+        $values['absender.titel']        = $text($person->titel?->name);
         $values['absender.position']     = $text($person->zusatz);
         $values['absender.fachdienste']  = $text(implode(', ', self::fachdienste($person)));
         $values['absender.dienstnummer'] = $text($person->dienstnr);
