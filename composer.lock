@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "938aebdd986265abe1c2d301e013f55f",
+    "content-hash": "9550a84d169331ba8b62b82cf6a735cf",
     "packages": [
         {
             "name": "brick/math",
@@ -943,6 +943,40 @@
                 "MIT"
             ],
             "description": "Schlanker HTTP-Kern der EmergencyForge-Anwendungen: Router (FastRoute), Middleware-Pipeline, Request/Response ohne PSR-7.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/list-query",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/list-query",
+                "reference": "f5166b0fd0b7ab85605115eac8933214754492a7"
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\ListQuery\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\ListQuery\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Zustand einer Listenansicht aus der Query (Suche, Filter, Sortierung, Seite) und das Markup für Sortierköpfe und Seitennavigation, ohne Datenbank, für Lex und ignis.",
             "transport-options": {
                 "symlink": true,
                 "relative": true

@@ -34,16 +34,13 @@ $pgLabel = 'Einträge';
                     </div>
 
                     <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" id="auditFilter" role="search">
-                        <?php if ($list->sort !== 'zeit' || $list->dir !== 'desc'): ?>
-                            <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
-                            <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
-                        <?php endif; ?>
+                        <?= $list->hiddenFields(['q', 'modul']) ?>
                         <label class="ignis-list-toolbar__search">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Aktion, Details oder Benutzer" aria-label="Log durchsuchen">
                         </label>
-                        <label class="ignis-field" for="filterModul">
-                            <span class="ignis-field__label text-sm">Modul</span>
+                        <label class="ignis-filter">
+                            <span class="ignis-filter__label">Modul</span>
                             <select class="ignis-input" data-custom-dropdown="true" name="modul" id="filterModul">
                                 <option value="">Alle</option>
                                 <?php foreach ($modules as $module): ?>
@@ -51,7 +48,7 @@ $pgLabel = 'Einträge';
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary" data-ignis-filter-submit>Filtern</button>
                         <?php if ($list->q !== '' || $list->filter('modul') !== ''): ?>
                             <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'modul' => null, 'page' => null])) ?>">Zurücksetzen</a>
                         <?php endif; ?>
@@ -122,9 +119,3 @@ $pgLabel = 'Einträge';
             </div>
         </div>
     </div>
-
-    <script>
-        document.querySelectorAll('#auditFilter select').forEach(function (select) {
-            select.addEventListener('change', function () { select.form.requestSubmit(); });
-        });
-    </script>

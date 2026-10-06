@@ -199,16 +199,18 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="search" id="defectLocalSearch" class="ignis-input" placeholder="Titel, Fahrzeug, Kategorie, Melder" aria-label="Defekte durchsuchen"<?= empty($defects) ? ' disabled' : '' ?>>
                         </label>
-                        <label for="defectVehicleFilter" class="sr-only">Fahrzeug</label>
-                        <select name="vehicle" id="defectVehicleFilter" class="ignis-input" data-custom-dropdown="true" style="width:auto;max-width:18rem;">
-                            <option value="">Alle Fahrzeuge</option>
-                            <?php foreach ($vehicles as $v): ?>
-                                <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['veh_type']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
+                        <label class="ignis-filter">
+                            <span class="ignis-filter__label">Fahrzeug</span>
+                            <select name="vehicle" id="defectVehicleFilter" class="ignis-input" data-custom-dropdown="true">
+                                <option value="">Alle</option>
+                                <?php foreach ($vehicles as $v): ?>
+                                    <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['veh_type']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary" data-ignis-filter-submit>Filtern</button>
                         <?php if ($filterVehicle > 0): ?>
                             <a href="<?= htmlspecialchars($listUrl(['vehicle' => null])) ?>" class="ignis-btn ignis-btn--ghost">Zurücksetzen</a>
                         <?php endif; ?>

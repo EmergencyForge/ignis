@@ -52,13 +52,7 @@ $segmentAttr = static fn (int $value): string => $segment === $value ? ' class="
             </div>
 
             <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
-                <?php if ($segment !== 0): ?>
-                    <input type="hidden" name="view" value="<?= $segment ?>">
-                <?php endif; ?>
-                <?php if ($list->sort !== 'created' || $list->dir !== 'desc'): ?>
-                    <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
-                    <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
-                <?php endif; ?>
+                <?= $list->hiddenFields(['q']) ?>
                 <label class="ignis-list-toolbar__search">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Einsatznummer, Patient oder Protokollant" aria-label="Protokolle suchen">

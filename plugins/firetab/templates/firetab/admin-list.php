@@ -50,13 +50,7 @@ $statusMap = [
             </div>
 
             <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
-                <?php if ($showArchived): ?>
-                    <input type="hidden" name="show_archived" value="1">
-                <?php endif; ?>
-                <?php if ($list->sort !== ($showArchived ? 'archived' : 'created') || $list->dir !== 'desc'): ?>
-                    <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
-                    <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
-                <?php endif; ?>
+                <?= $list->hiddenFields(['q']) ?>
                 <label class="ignis-list-toolbar__search">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Einsatznummer, Ort, Stichwort oder Leiter" aria-label="Protokolle suchen">

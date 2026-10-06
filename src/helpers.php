@@ -239,6 +239,26 @@ if (!function_exists('ignis_like_prefix')) {
     }
 }
 
+if (!function_exists('ignis_initials')) {
+    /**
+     * Initialen für den Avatar einer Personenzelle: erster und letzter
+     * Namensteil, bei nur einem Wort dessen erste zwei Zeichen. Fotos
+     * zeigt die Liste bewusst nicht.
+     */
+    function ignis_initials(string $name): string
+    {
+        $parts = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if ($parts === []) {
+            return '';
+        }
+        $initials = count($parts) === 1
+            ? mb_substr($parts[0], 0, 2)
+            : mb_substr($parts[0], 0, 1) . mb_substr($parts[count($parts) - 1], 0, 1);
+
+        return mb_strtoupper($initials);
+    }
+}
+
 if (!function_exists('old')) {
     /**
      * Die Eingabe aus dem letzten gescheiterten Formular-Post, damit das

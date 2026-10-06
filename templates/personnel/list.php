@@ -52,19 +52,13 @@ $pgLabel = 'Mitarbeiter';
                     </div>
 
                     <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" id="mitarbeiterFilter" role="search">
-                        <?php if ($showArchive): ?>
-                            <input type="hidden" name="archiv" value="1">
-                        <?php endif; ?>
-                        <?php if ($list->sort !== 'einstdatum' || $list->dir !== 'asc'): ?>
-                            <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
-                            <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
-                        <?php endif; ?>
+                        <?= $list->hiddenFields(['q', 'dg', 'rd', 'fw']) ?>
                         <label class="ignis-list-toolbar__search">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Name oder Dienstnummer" aria-label="Mitarbeiter suchen">
                         </label>
-                        <label class="ignis-field" for="filterDienstgrad">
-                            <span class="ignis-field__label text-sm">Dienstgrad</span>
+                        <label class="ignis-filter">
+                            <span class="ignis-filter__label">Dienstgrad</span>
                             <select class="ignis-input" data-custom-dropdown="true" name="dg" id="filterDienstgrad">
                                 <option value="">Alle</option>
                                 <?php foreach ($dienstgrade as $dg): ?>
@@ -72,8 +66,8 @@ $pgLabel = 'Mitarbeiter';
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <label class="ignis-field" for="filterRDQuali">
-                            <span class="ignis-field__label text-sm">RD-Qualifikation</span>
+                        <label class="ignis-filter">
+                            <span class="ignis-filter__label">RD-Qualifikation</span>
                             <select class="ignis-input" data-custom-dropdown="true" name="rd" id="filterRDQuali">
                                 <option value="">Alle</option>
                                 <?php foreach ($rdQualis as $rd): ?>
@@ -83,8 +77,8 @@ $pgLabel = 'Mitarbeiter';
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <label class="ignis-field" for="filterFWQuali">
-                            <span class="ignis-field__label text-sm">FW-Qualifikation</span>
+                        <label class="ignis-filter">
+                            <span class="ignis-filter__label">FW-Qualifikation</span>
                             <select class="ignis-input" data-custom-dropdown="true" name="fw" id="filterFWQuali">
                                 <option value="">Alle</option>
                                 <?php foreach ($fwQualis as $fw): ?>
@@ -94,7 +88,7 @@ $pgLabel = 'Mitarbeiter';
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary" data-ignis-filter-submit>Filtern</button>
                         <?php if ($list->q !== '' || $list->filter('dg') !== '' || $list->filter('rd') !== '' || $list->filter('fw') !== ''): ?>
                             <a class="ignis-btn ignis-btn--ghost" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'dg' => null, 'rd' => null, 'fw' => null, 'page' => null])) ?>">
                                 <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
@@ -186,8 +180,12 @@ $pgLabel = 'Mitarbeiter';
                                     <tr>
                                         <td data-label="Dienstnummer" data-mobile-context><span class="ignis-mono"><?= htmlspecialchars($m->dienstnr) ?></span></td>
                                         <td data-label="Name" data-mobile-primary>
-                                            <a href="<?= $profileUrl ?>" data-mitarbeiter-card="<?= (int) $m->id ?>" class="no-underline">
-                                                <?= htmlspecialchars($m->fullname) ?>
+                                            <a class="ignis-entry" href="<?= $profileUrl ?>" data-mitarbeiter-card="<?= (int) $m->id ?>">
+                                                <span class="ignis-avatar ignis-avatar--sm" aria-hidden="true"><?= htmlspecialchars(ignis_initials($m->fullname)) ?></span>
+                                                <span class="ignis-entry__title"><?= htmlspecialchars($m->fullname) ?></span>
+                                                <?php if ($m->dienstgradLabel() !== '-'): ?>
+                                                    <span class="ignis-entry__meta"><?= htmlspecialchars($m->dienstgradLabel()) ?></span>
+                                                <?php endif; ?>
                                             </a>
                                         </td>
                                         <td data-label="Dienstgrad" data-mobile-context>
@@ -226,10 +224,3 @@ $pgLabel = 'Mitarbeiter';
             </div>
         </div>
     </div>
-
-    <script>
-        // Die Auswahl in den Filtern schickt das Formular ab; ohne JS bleibt der Knopf.
-        document.querySelectorAll('#mitarbeiterFilter select').forEach(function (select) {
-            select.addEventListener('change', function () { select.form.requestSubmit(); });
-        });
-    </script>

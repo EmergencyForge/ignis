@@ -40,13 +40,7 @@ $chipFor = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'succes
                 </div>
 
                     <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
-                        <?php if ($list->sort !== 'datum' || $list->dir !== 'desc'): ?>
-                            <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
-                            <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
-                        <?php endif; ?>
-                        <?php if ($list->filter('status') !== ''): ?>
-                            <input type="hidden" name="status" value="<?= htmlspecialchars($list->filter('status')) ?>">
-                        <?php endif; ?>
+                        <?= $list->hiddenFields(['q']) ?>
                         <label class="ignis-list-toolbar__search">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Nummer, Name oder Typ" aria-label="Anträge suchen">

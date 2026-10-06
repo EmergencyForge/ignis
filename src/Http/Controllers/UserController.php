@@ -90,9 +90,9 @@ class UserController extends Controller
             ->leftJoin('intra_users_roles', 'intra_users.role', '=', 'intra_users_roles.id')
             ->select(
                 'intra_users.*',
-                Capsule::connection()->raw(
-                    "COALESCE(intra_mitarbeiter.fullname, 'Kein Profil verbunden') as mitarbeiter_fullname"
-                ),
+                // Ohne Profil bleibt der Name leer, das Template zeigt dann
+                // einen Hinweis und nimmt die Initialen aus dem Benutzernamen.
+                'intra_mitarbeiter.fullname as mitarbeiter_fullname',
                 'intra_users_roles.name as role_name'
             );
 

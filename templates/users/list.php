@@ -40,13 +40,7 @@ $pgLabel = 'Benutzer';
                     </div>
 
                     <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
-                        <?php if ($list->sort !== 'name' || $list->dir !== 'asc'): ?>
-                            <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
-                            <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
-                        <?php endif; ?>
-                        <?php if ($list->filter('status') !== ''): ?>
-                            <input type="hidden" name="status" value="<?= htmlspecialchars($list->filter('status')) ?>">
-                        <?php endif; ?>
+                        <?= $list->hiddenFields(['q']) ?>
                         <label class="ignis-list-toolbar__search">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Benutzer suchen" aria-label="Benutzer suchen">
@@ -132,9 +126,10 @@ $pgLabel = 'Benutzer';
                                     <tr<?= $isActive ? '' : ' class="is-muted"' ?>>
                                         <td class="ignis-table__num"><?= (int) $user->id ?></td>
                                         <td>
-                                            <span data-user-card="<?= (int) $user->id ?>" style="cursor:help;">
-                                                <?= htmlspecialchars($user->mitarbeiter_fullname ?? 'Kein Profil verbunden') ?>
-                                                (<strong><?= htmlspecialchars($user->username) ?></strong>)
+                                            <span class="ignis-entry" data-user-card="<?= (int) $user->id ?>" style="cursor:help;">
+                                                <span class="ignis-avatar ignis-avatar--sm" aria-hidden="true"><?= htmlspecialchars(ignis_initials($user->mitarbeiter_fullname ?? $user->username)) ?></span>
+                                                <span class="ignis-entry__title"><?= htmlspecialchars($user->mitarbeiter_fullname ?? 'Kein Profil verbunden') ?></span>
+                                                <span class="ignis-entry__meta"><?= htmlspecialchars($user->username) ?></span>
                                             </span>
                                         </td>
                                         <td><span class="ignis-chip<?= $roleChipMod ?>"><?= htmlspecialchars($roleName) ?></span></td>

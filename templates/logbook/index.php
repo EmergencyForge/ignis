@@ -129,8 +129,8 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="search" id="fbLocalSearch" class="ignis-input" placeholder="Fahrzeug, Fahrer, Grund" aria-label="Einträge durchsuchen"<?= empty($entries) ? ' disabled' : '' ?>>
                     </label>
-                    <label class="ignis-list-toolbar__field">
-                        <span class="ignis-field__label">Fahrzeug</span>
+                    <label class="ignis-filter">
+                        <span class="ignis-filter__label">Fahrzeug</span>
                         <select name="vehicle" class="ignis-input" data-custom-dropdown="true">
                             <option value="">Alle</option>
                             <?php foreach ($vehicles as $v): ?>
@@ -140,8 +140,8 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label class="ignis-list-toolbar__field">
-                        <span class="ignis-field__label">Fahrttyp</span>
+                    <label class="ignis-filter">
+                        <span class="ignis-filter__label">Fahrttyp</span>
                         <select name="fahrttyp" class="ignis-input" data-custom-dropdown="true">
                             <option value="">Alle</option>
                             <?php foreach ($fahrttypen as $slug => $label): ?>
