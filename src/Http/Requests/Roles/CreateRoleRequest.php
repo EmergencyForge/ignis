@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /benutzer/rollen/create.
+ * Validierung für POST /users/roles/create.
  *
  * Felder:
  *   - name        (string, 1-255)
