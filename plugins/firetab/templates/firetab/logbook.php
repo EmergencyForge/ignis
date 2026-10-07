@@ -50,7 +50,7 @@ use App\Helpers\Flash;
                         <?php
                         $context = 'firetab';
                         $entry = null;
-                        include dirname(__DIR__, 4) . '/assets/components/logbook/_form-fields.php';
+                        include dirname(__DIR__, 4) . '/plugins/logbook/templates/partials/_form-fields.php';
                         ?>
 
                         <div class="mt-3 flex gap-2">
@@ -73,7 +73,7 @@ use App\Helpers\Flash;
                         <?php
                         $context = 'firetab';
                         $entry = null;
-                        include dirname(__DIR__, 4) . '/assets/components/logbook/_form-fields.php';
+                        include dirname(__DIR__, 4) . '/plugins/logbook/templates/partials/_form-fields.php';
                         ?>
 
                         <div class="mt-3 flex gap-2">
@@ -90,7 +90,7 @@ use App\Helpers\Flash;
                     $canEdit = true;
                     $canDelete = false;
                     $actionsUrl = BASE_PATH . 'logbook/actions';
-                    include dirname(__DIR__, 4) . '/assets/components/logbook/_list-table.php';
+                    include dirname(__DIR__, 4) . '/plugins/logbook/templates/partials/_list-table.php';
                     ?>
                 </div>
             </div>

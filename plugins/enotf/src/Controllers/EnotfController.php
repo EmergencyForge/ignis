@@ -505,6 +505,11 @@ class EnotfController extends Controller
             $this->redirectAbsolute(EnotfUrl::page('loggedout'));
         }
 
+        // Das Fahrtenbuch ist ein eigenes Plugin; ohne es gibt es die Seite nicht.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('logbook')) {
+            $this->redirectAbsolute(EnotfUrl::page('overview'));
+        }
+
         $vehicleIdentifier = $_SESSION['protfzg'];
         $fahrerName        = $_SESSION['fahrername'];
 

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Policies;
+namespace Plugin\Logbook\Policies;
 
 use App\Auth\Permissions;
-use App\Models\LogbookEntry;
+use Plugin\Logbook\Models\LogbookEntry;
 
 /**
  * LogbookPolicy: wer darf was mit Fahrtenbuch-Einträgen.

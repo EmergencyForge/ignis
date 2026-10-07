@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Http\Controllers\LogbookController;
+use Plugin\Logbook\Controllers\LogbookController;
 use App\Models\Poi;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

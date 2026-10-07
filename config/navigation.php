@@ -164,13 +164,7 @@ return [
                         'label'  => 'Mangel melden',
                     ],
                 ],
-                [
-                    'label'       => 'Fahrtenbuch',
-                    'href'        => BASE_PATH . 'logbook/index',
-                    'icon'        => 'fa-solid fa-road',
-                    'permissions' => ['admin', 'logbook.view', 'logbook.manage'],
-                    'match'       => ['/logbook'],
-                ],
+                // Fahrtenbuch hängt das Plugin `logbook` hier ein.
             ],
         ],
 

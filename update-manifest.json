@@ -13,6 +13,13 @@
     "manv",
     "settings",
     "templates/enotf/schnittstelle/php_errors.log",
-    "plugins/enotf/templates/enotf/schnittstelle/php_errors.log"
+    "plugins/enotf/templates/enotf/schnittstelle/php_errors.log",
+    "src/Http/Controllers/LogbookController.php",
+    "src/Http/Requests/Fahrtenbuch",
+    "src/Policies/LogbookPolicy.php",
+    "src/Models/LogbookEntry.php",
+    "database/migrations/20250607000147_create_intra_fahrtenbuch_04042026.php",
+    "templates/logbook",
+    "assets/components/logbook"
   ]
 }

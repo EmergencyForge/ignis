@@ -34,7 +34,6 @@ declare(strict_types=1);
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\FormsController;
 use App\Http\Controllers\InboxController;
-use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\ProfileController;
@@ -187,43 +186,7 @@ foreach (['/notifications', '/notifications/', '/notifications/index', '/notific
     $router->get($notifPath, $notifRedirect);
 }
 
-// ----------------------------------------------------------------------------
-//  Fahrtenbuch-Modul
-//
-//  `index()` ist Admin-only mit Policy-Middleware. `store/update/destroy`
-//  werden über /logbook/actions angesprochen und sind multi-context
-//  (Admin + eNOTF + FireTab). Der Controller checkt die verschiedenen
-//  Auth-Szenarien selbst via `requireAnyContext()` / `Gate::denies`.
-// ----------------------------------------------------------------------------
-
-$fahrtListAuth   = [new AuthMiddleware(), new PolicyMiddleware('logbook.viewList')];
-
-$router->get('/logbook',           [LogbookController::class, 'index'], $fahrtListAuth);
-$router->get('/logbook/',          [LogbookController::class, 'index'], $fahrtListAuth);
-$router->get('/logbook/index',     [LogbookController::class, 'index'], $fahrtListAuth);
-$router->get('/logbook/index.php', [LogbookController::class, 'index'], $fahrtListAuth);
-
-// POST /logbook/actions: Multi-Context-Dispatcher.
-// Keine Router-Middleware, weil die drei Auth-Kontexte (userid/fahrername/
-// einsatz_vehicle_id) im Controller via `requireAnyContext()` geprüft werden.
-$fahrtPostDispatch = function (\EmergencyForge\Http\Request $request) {
-    $controller = app(LogbookController::class);
-    $action     = (string) ($request->post['action'] ?? '');
-
-    match ($action) {
-        'create' => $controller->store(),
-        'update' => $controller->update(),
-        'delete' => $controller->destroy(),
-        default  => (function () {
-            \App\Helpers\Flash::error('Unbekannte Aktion.');
-            header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '/') . 'logbook/index');
-            exit;
-        })(),
-    };
-    return \EmergencyForge\Http\Response::empty();
-};
-
-$router->post('/logbook/actions',     $fahrtPostDispatch);
+// Fahrtenbuch: Plugin `logbook` (plugins/logbook/routes.web.php).
 
 // ----------------------------------------------------------------------------
 //  Kalender-Modul

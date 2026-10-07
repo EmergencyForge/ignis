@@ -1171,6 +1171,11 @@ class FiretabController extends Controller
             $this->redirect('firetab/login-vehicle');
         }
 
+        // Das Fahrtenbuch ist ein eigenes Plugin; ohne es gibt es die Seite nicht.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('logbook')) {
+            $this->redirect('firetab/');
+        }
+
         date_default_timezone_set('Europe/Berlin');
 
         $vehicleId   = (int) $_SESSION['einsatz_vehicle_id'];
