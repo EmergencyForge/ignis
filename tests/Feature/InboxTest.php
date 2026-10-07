@@ -65,12 +65,14 @@ final class InboxTest extends FeatureTestCase
         $this->assertBodyContains('Status: Genehmigt.', $page);
         $this->assertBodyContains('class="ignis-inbox__day">Heute<', $page);
         $this->assertBodyContains('ignis-chip--sm">Anträge<', $page);
-        // Der Eintrag führt über open zum Ziel; der Zähler steht an der Glocke und in der Sidebar.
+        // Der Eintrag führt über open zum Ziel; der Zähler steht an der Glocke.
+        // Einen Sidebar-Eintrag „Posteingang“ gibt es nicht mehr, die Glocke führt hierher.
         $this->assertMatchesRegularExpression('~href="/inbox/(\d+)/open" class="ignis-inbox__link"~', $page->body);
         $this->assertBodyContains('aria-label="Posteingang, 1 ungelesen"', $page);
         $this->assertBodyContains('>Ungelesen <span class="ignis-segmented__count">1</span></a>', $page);
         $this->assertBodyContains('class="ignis-btn__dot notification-poll-badge" data-count="1">', $page);
-        $this->assertBodyContains('class="ignis-sidebar__count notification-poll-badge">1<', $page);
+        $this->assertBodyNotContains('class="ignis-sidebar__count notification-poll-badge">1<', $page);
+        $this->assertBodyNotContains('ignis-sidebar__label">Posteingang<', $page);
         $this->assertBodyContains('data-ignis-inbox="/inbox/popover"', $page);
         $this->assertBodyNotContains('notifications/index', $page);
         $this->assertSame(1, NavigationCounters::for('inbox'));
