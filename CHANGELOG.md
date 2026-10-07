@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026.0.35-beta
+
+Rollen lassen sich wieder anlegen, bearbeiten und löschen. Seit der Umstellung auf englische Adressen im Mai endete jedes Speichern auf „Seite nicht gefunden“, auch wenn die Änderung gespeichert war. Dieselbe Ursache hatten weitere Fehler: Speichern im FireTab-Fahrtenbuch endete ebenso auf dieser Fehlerseite, die alte Zielverwaltung im eNOTF und der Hinweis für Konten ohne Adminrecht in den eNOTF-Einstellungen führten ins Leere, und Aufrufe von außen auf alte Adressen mit .php, etwa von älteren ignisTab-Versionen, kamen nicht mehr an. Im eNOTF fragt die Übersicht wieder nach Anfragen zum Teilen von Protokollen, nach „Alle löschen“ und beim Abmelden aus der Klinikansicht bleibt man auf der Seite statt auf dem Dashboard zu landen, und der Schnelllink „Fahrzeuginfo“ funktioniert auch im eNOTF v2.
+
+Plugins lassen sich als ZIP auf die Plugin-Seite ziehen. Vor jeder Installation, jedem Update und jedem Upload steht eine Bestätigungsseite mit Herausgeber, Quelle, Prüfsumme, Abhängigkeiten und Berechtigungen. Bei Uploads und Plugins, die nicht offiziell sind, muss der Admin bestätigen, dass der Code mit vollen Serverrechten läuft. Installation, Update, Entfernen und Ein- oder Ausschalten stehen im Audit-Log. Im Katalog erscheinen die mitgelieferten Module als „Mitgeliefert“ statt mit „SHA256 fehlt“.
+
+Gruppenpostfächer gehören einer Wache, Abteilung oder einem Team. Alle Mitglieder sehen dieselben Ordner, denselben Lesestand und dieselben Entwürfe und schreiben unter der Adresse der Gruppe; in gesendeten Mails steht, wer geschrieben hat. Mitglieder trägt ein anderer Mail-Admin ein, niemand sich selbst. Wer mehrere Postfächer lesen darf, wechselt oben in Mail zwischen ihnen. Eigene Signaturen können jetzt Platzhalter wie Name, Dienstgrad oder Postfachname enthalten und haben einen Editor mit Vorschau.
+
+Dokumente zeigen über der Seite unter „Noch offen“ die leeren Pflichtfelder und die Platzhalter ohne Wert, ein Klick springt hin. Wer trotzdem ausstellt, wird vorher gefragt; leere Platzhalter bleiben im PDF leer statt als {{name}} zu erscheinen. Gesperrte Abschnitte stehen im Editor ohne Rahmen da, Platzhalter mit ihrem Wert, und ein Schalter zeigt die Vorschau.
+
+Die FiveM-Ressource heißt jetzt ef_bridge statt ignisTab. Die Tablet-Anmeldung steht im Audit-Log als „Anmeldung über ef_bridge“.
+
+Der Eintrag „Posteingang“ ist aus der Seitenleiste verschwunden, die Glocke oben zeigt dasselbe. In den Reanimationsdetails im eNOTF ist „erfolglos“ ein direkter Schalter statt eines Links auf eine eigene Spalte.
+
+Aktualisiert ist das Editor-Paket auf 0.5.0.
+
 ## 2026.0.34-beta
 
 Filter über den Listen stehen als kompakte Knöpfe mit ihrem Wert, etwa „Dienstgrad Alle“. Eine Auswahl filtert sofort, ein gesetzter Filter ist hervorgehoben. Das gilt für die Mitarbeiter, das Audit Log, die Defekt-Meldungen und das Fahrtenbuch. Im Fahrtenbuch bleibt der Knopf „Filtern“, weil sich der Zeitraum sonst nicht übernehmen lässt.
