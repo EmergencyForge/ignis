@@ -157,7 +157,7 @@ Statt einer `.env` kannst du die Werte auch als Umgebungsvariablen setzen. Dann 
 Der Webserver-Benutzer (meist `www-data`) muss in diese Ordner schreiben dürfen:
 
 - `storage/` mit allen Unterordnern
-- `plugins/`, damit Plugins aus dem Katalog installiert werden können
+- `plugins/`, damit Plugins hochgeladen oder aus dem Katalog installiert werden können
 - das Hauptverzeichnis selbst, wenn du den eingebauten Updater nutzen willst
 
 ```bash
@@ -400,7 +400,7 @@ Hat dein Hoster `proc_open` abgeschaltet, schlagen die meisten Aufgaben fehl. Da
 
 ### Plugins
 
-eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eingeschaltet, eNOTF v2 ist mitgeliefert, aber aus. Unter **Einstellungen › Wartung und Diagnose › Plugins** schaltest du sie ein und aus und installierst weitere aus dem Katalog.
+eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eingeschaltet, eNOTF v2 ist mitgeliefert, aber aus. Unter **Einstellungen › Wartung und Diagnose › Plugins** schaltest du sie ein und aus und installierst weitere aus dem Katalog oder lädst ein Plugin-ZIP hoch. Plugins von Drittanbietern laufen mit vollen Rechten auf dem Server; vor der Installation fragt ignis deshalb ausdrücklich nach.
 
 ### ignisTab für FiveM
 

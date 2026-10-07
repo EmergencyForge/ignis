@@ -39,7 +39,10 @@ jeweiligen Register gemergt. Drei Besonderheiten:
 - **Plugin-Routen können Kern-Routen nicht überschreiben**, sie werden nach
   den Kern-Routen registriert.
 
-Verwaltet werden Plugins unter **Einstellungen → System → Plugins**.
+Verwaltet werden Plugins unter **Einstellungen → System → Plugins**. Dort
+lässt sich ein Plugin-ZIP per Drag-and-Drop hochladen oder ein Eintrag aus dem
+Hub-Katalog installieren; beides läuft über eine Bestätigungsseite mit dem
+Hinweis zu Drittanbietern (Details in [PLUGINS.md](../PLUGINS.md#installieren)).
 
 Das Manifest ist die einzige Pflichtdatei:
 
