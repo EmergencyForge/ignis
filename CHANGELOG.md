@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.0.37-beta
+
+In Signaturen fällt eine Zeile ohne Wert jetzt auch dann weg, wenn die Platzhalter mit Umschalt+Enter untereinander in einem Absatz stehen. Bisher blieb dort eine Leerzeile, etwa zwischen Dienstgrad und Organisation, wenn jemand keine Position hat. Die Vorschau unter dem Editor zeigt es genauso.
+
+In Formularen im Seitenfenster steht „Ungespeicherte Änderungen“ jetzt auf einer Linie mit den Knöpfen und ist gelb. Scheitert das Speichern, steht dort rot „Nicht gespeichert“, nach dem Speichern grün „Gespeichert“.
+
+Aktualisiert ist das UI-Paket auf 0.9.2.
+
 ## 2026.0.36-beta
 
 Wie lange das eNOTF ohne Eingabe offen bleibt, lässt sich jetzt einstellen. Unter Einstellungen → System → eNOTF steht bei „Sperren nach“ eine Auswahl von 2 bis 60 Minuten, vorher waren es fest fünf. Das Feld erscheint nur, solange „PIN abfragen“ an ist. Die Warnung kommt weiterhin eine Minute vor der Sperre.
