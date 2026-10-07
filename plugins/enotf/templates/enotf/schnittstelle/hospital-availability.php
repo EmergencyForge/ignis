@@ -14,7 +14,7 @@ $departments = [];
 // Logout handling
 if (isset($_GET['logout'])) {
     SessionManager::forget('hospital_poi_id');
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header('Location: ' . (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH));
     exit();
 }
 

@@ -56,11 +56,9 @@ class EnotfProtokollController extends Controller
             return;
         }
 
-        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-        if (
-            strpos($scriptName, '/enotf/login.php') === false &&
-            strpos($scriptName, '/enotf/loggedout.php') === false
-        ) {
+        // SCRIPT_NAME ist unter dem Front-Controller immer /index.php.
+        $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+        if (!preg_match('~/enotf/(login|loggedout)$~', $path)) {
             \App\Session\SessionManager::setRedirectUrl(\Plugin\Enotf\Helpers\EnotfUrl::page('login'));
         }
 
@@ -81,7 +79,7 @@ class EnotfProtokollController extends Controller
             return;
         }
 
-        if (basename($_SERVER['PHP_SELF']) !== 'lockscreen.php') {
+        if (!preg_match('~/enotf/lockscreen$~', (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH))) {
             \App\Session\SessionManager::setPinReturnUrl($_SERVER['REQUEST_URI'] ?? '/');
         }
         \App\Session\SessionManager::setPinVerified(false);

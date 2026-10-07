@@ -365,7 +365,8 @@ class EnotfController extends Controller
                     'freigegeben'    => 1,
                 ]);
 
-            $this->redirectAbsolute($_SERVER['PHP_SELF']);
+            // Zurück auf die Seite, von der das Formular kam (PHP_SELF wäre /index.php).
+            $this->redirectAbsolute((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH));
         } catch (\PDOException $e) {
             \App\Helpers\Flash::error('Fehler beim Löschen der Protokolle.');
             error_log('Fehler beim Löschen der Protokolle: ' . $e->getMessage());
@@ -632,11 +633,9 @@ class EnotfController extends Controller
             return;
         }
 
-        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-        if (
-            strpos($scriptName, '/enotf/login.php') === false &&
-            strpos($scriptName, '/enotf/loggedout.php') === false
-        ) {
+        // SCRIPT_NAME ist unter dem Front-Controller immer /index.php.
+        $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+        if (!preg_match('~/enotf/(login|loggedout)$~', $path)) {
             \App\Session\SessionManager::setRedirectUrl(EnotfUrl::page('login'));
         }
 
@@ -658,7 +657,7 @@ class EnotfController extends Controller
             return;
         }
 
-        if (basename($_SERVER['PHP_SELF']) !== 'lockscreen.php') {
+        if (!preg_match('~/enotf/lockscreen$~', (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH))) {
             \App\Session\SessionManager::setPinReturnUrl($_SERVER['REQUEST_URI'] ?? '/');
         }
 
