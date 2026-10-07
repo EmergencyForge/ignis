@@ -80,8 +80,12 @@ final class InternalLinksTest extends TestCase
      */
     private function routePatterns(): array
     {
-        if (!defined('BASE_PATH')) {
-            define('BASE_PATH', '/');
+        // Name in einer Variablen: ein zweites wörtliches define('BASE_PATH')
+        // ließe PHPStan die Konstante im ganzen Projekt vergessen (siehe
+        // NavigationConfigTest).
+        $constant = 'BASE_PATH';
+        if (!defined($constant)) {
+            define($constant, '/');
         }
 
         $router = new class {
