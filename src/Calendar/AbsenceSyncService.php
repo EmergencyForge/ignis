@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Calendar;
 
-use App\Models\Form;
+use Plugin\Forms\Models\Form;
 use App\Models\CalendarAttendee;
 use App\Models\CalendarEvent;
 use App\Models\Personnel;
@@ -44,7 +44,7 @@ final class AbsenceSyncService
      * (anhand des Typ-Namens). Zentrale Stelle, damit FormsController
      * und Console-Backfill dieselbe Regel benutzen.
      */
-    public static function isAbsenceAntrag(\App\Models\Form $antrag): bool
+    public static function isAbsenceAntrag(\Plugin\Forms\Models\Form $antrag): bool
     {
         $name = strtolower(trim((string) ($antrag->typ?->name ?? '')));
         return in_array($name, self::URLAUB_TYP_NAMES, true);

@@ -117,13 +117,7 @@ return [
                         'permissions' => ['admin', 'personnel.edit'],
                     ],
                 ],
-                [
-                    'label'       => 'Anträge',
-                    'href'        => BASE_PATH . 'forms/admin/list',
-                    'icon'        => 'fa-solid fa-file-signature',
-                    'permissions' => ['admin', 'application.view'],
-                    'match'       => ['/forms/admin'],
-                ],
+                // Anträge hängt das Plugin `forms` hier ein.
             ],
         ],
 
@@ -307,19 +301,7 @@ return [
                     'permissions' => ['admin', 'personnel.documents.manage'],
                     'match'       => ['/settings/documents'],
                 ],
-                [
-                    'label'        => 'Antragstypen',
-                    'href'         => BASE_PATH . 'settings/forms/list',
-                    'icon'         => 'fa-solid fa-list-check',
-                    'description'  => 'Welche Anträge Mitarbeiter stellen können.',
-                    'permissions'  => ['admin'],
-                    'match'        => ['/settings/forms'],
-                    'quick_action' => [
-                        'type'   => 'link',
-                        'target' => BASE_PATH . 'settings/forms/create',
-                        'label'  => 'Neuen Antragstyp anlegen',
-                    ],
-                ],
+                // Antragstypen hängt das Plugin `forms` hier ein.
                 [
                     'label'       => 'Dashboard',
                     'href'        => BASE_PATH . 'settings/dashboard/index',

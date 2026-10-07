@@ -28,21 +28,25 @@ final class LinkUsersToPersonnel extends AbstractMigration
                 ->update();
         }
 
-        $antraege = $this->table('intra_antraege');
-        if (!$antraege->hasColumn('mitarbeiter_id')) {
-            $antraege->addColumn('mitarbeiter_id', 'integer', ['null' => true, 'after' => 'discordid'])
-                ->addForeignKey('mitarbeiter_id', 'intra_mitarbeiter', 'id', ['delete' => 'SET_NULL', 'update' => 'CASCADE', 'constraint' => 'fk_antraege_mitarbeiter'])
-                ->update();
+        // intra_antraege gehört dem Plugin Anträge; ohne das Plugin gibt es
+        // die Tabelle nicht.
+        if ($this->hasTable('intra_antraege')) {
+            $antraege = $this->table('intra_antraege');
+            if (!$antraege->hasColumn('mitarbeiter_id')) {
+                $antraege->addColumn('mitarbeiter_id', 'integer', ['null' => true, 'after' => 'discordid'])
+                    ->addForeignKey('mitarbeiter_id', 'intra_mitarbeiter', 'id', ['delete' => 'SET_NULL', 'update' => 'CASCADE', 'constraint' => 'fk_antraege_mitarbeiter'])
+                    ->update();
+            }
+            // Nur eindeutige Discord-IDs: teilen sich zwei Mitarbeiter eine, bleibt der Antrag offen.
+            $this->execute(
+                "UPDATE intra_antraege a
+                 JOIN (SELECT discordtag, MIN(id) AS id FROM intra_mitarbeiter
+                       WHERE discordtag IS NOT NULL AND discordtag <> ''
+                       GROUP BY discordtag HAVING COUNT(*) = 1) m ON m.discordtag = a.discordid
+                 SET a.mitarbeiter_id = m.id
+                 WHERE a.mitarbeiter_id IS NULL"
+            );
         }
-        // Nur eindeutige Discord-IDs: teilen sich zwei Mitarbeiter eine, bleibt der Antrag offen.
-        $this->execute(
-            "UPDATE intra_antraege a
-             JOIN (SELECT discordtag, MIN(id) AS id FROM intra_mitarbeiter
-                   WHERE discordtag IS NOT NULL AND discordtag <> ''
-                   GROUP BY discordtag HAVING COUNT(*) = 1) m ON m.discordtag = a.discordid
-             SET a.mitarbeiter_id = m.id
-             WHERE a.mitarbeiter_id IS NULL"
-        );
 
         $dokumente = $this->table('intra_mitarbeiter_dokumente');
         if (!$dokumente->hasColumn('aussteller_user_id')) {
@@ -123,6 +127,9 @@ final class LinkUsersToPersonnel extends AbstractMigration
             'intra_antraege'              => 'mitarbeiter_id',
             'intra_mitarbeiter_dokumente' => 'aussteller_user_id',
         ] as $tableName => $column) {
+            if (!$this->hasTable($tableName)) {
+                continue;
+            }
             $table = $this->table($tableName);
             if ($table->hasForeignKey($column)) {
                 $table->dropForeignKey($column)->update();

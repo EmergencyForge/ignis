@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Models;
 
-use App\Models\Form;
-use App\Models\FormField;
-use App\Models\FormType;
+use Plugin\Forms\Models\Form;
+use Plugin\Forms\Models\FormField;
+use Plugin\Forms\Models\FormType;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\IntegrationTestCase;
 
@@ -33,7 +33,7 @@ class AntragTypModelTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if (!empty($this->cleanupAntragIds)) {
-            \App\Models\FormData::whereIn('antrag_id', $this->cleanupAntragIds)->delete();
+            \Plugin\Forms\Models\FormData::whereIn('antrag_id', $this->cleanupAntragIds)->delete();
             Form::whereIn('id', $this->cleanupAntragIds)->delete();
         }
         FormField::where('antragstyp_id', $this->typId)->delete();

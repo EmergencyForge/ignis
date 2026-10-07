@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Calendar\AbsenceSyncService;
-use App\Models\Form;
-use App\Models\FormType;
+use Plugin\Forms\Models\Form;
+use Plugin\Forms\Models\FormType;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,6 +30,11 @@ final class CalendarBackfillAbsencesCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('forms')) {
+            $output->writeln('<comment>Das Plugin Anträge ist nicht aktiv, es gibt nichts zu spiegeln.</comment>');
+            return Command::SUCCESS;
+        }
+
         // Nimm alle Antragstypen die als Abwesenheit gelten (siehe
         // AbsenceSyncService::URLAUB_TYP_NAMES). Match case-insensitive
         // direkt in der DB, weil Sammelliste klein ist.

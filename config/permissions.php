@@ -18,10 +18,6 @@
 declare(strict_types=1);
 
 return [
-    'Anträge' => [
-        'application.view' => 'Anträge ansehen',
-        'application.edit' => 'Anträge bearbeiten',
-    ],
     'Protokolle' => [
     ],
     'Lexikon' => [

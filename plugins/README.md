@@ -4,14 +4,22 @@ Hier liegen die installierten ignis-Plugins, je ein Unterordner mit einer
 `manifest.php`. Der `PluginRegistry` entdeckt sie beim Boot, der
 `PluginRepository` (Tabelle `intra_plugins`) entscheidet, welche aktiv sind.
 
-Die Module **eNOTF (v1 und v2), fireTab, MANV-Board, Wissensdatenbank, Mail
-und Fahrtenbuch** werden als Plugins ausgeliefert; alle übrigen Funktionen
-sind fester Bestandteil des Cores.
+Die Module **eNOTF (v1 und v2), fireTab, MANV-Board, Wissensdatenbank, Mail,
+Fahrtenbuch und Anträge** werden als Plugins ausgeliefert. Grundmodule im
+Core sind Personal, Benutzer, Dokumente und Fahrzeuge.
 
 Das Fahrtenbuch (`logbook`) hat zwei Abnehmer unter den Plugins: eNOTF und
 fireTab zeigen es für das angemeldete Fahrzeug an und schreiben über
 `/logbook/actions` hinein. Ist es abgeschaltet, blenden beide ihren Link aus
 und leiten die Seite auf ihre Startseite um.
+
+Die Anträge (`forms`) melden `Plugin\Forms\Events\FormDecided` und
+`FormDeleted`. Der Kalender spiegelt darüber genehmigte Abwesenheiten; das
+Antrags-Plugin weiß nichts vom Kalender. Dashboard und offene Aufgaben
+zeigen Anträge nur, solange das Plugin aktiv ist.
+
+`merge_after` in einem `navigation.php`-Fragment setzt die Einträge hinter
+den Eintrag mit dieser Beschriftung, statt sie ans Ende der Gruppe zu hängen.
 
 ## Aufbau eines Plugins
 

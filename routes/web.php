@@ -32,7 +32,6 @@ declare(strict_types=1);
  */
 
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\FormsController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\PluginAssetController;
@@ -135,37 +134,7 @@ $router->post('/users/roles/update',     [RoleController::class, 'update'], $use
 
 $router->post('/users/roles/delete',     [RoleController::class, 'destroy'], $userAuth);
 
-// ----------------------------------------------------------------------------
-//  Antrag-Modul
-//
-//  Das komplette Antragssystem (Urlaub, Beförderung, etc.) läuft über den
-//  FormsController mit Eloquent-Models. Alle Permission-Checks sind über
-//  Policies abgedeckt. Die einzelne Antrags-Ansicht prüft Ownership
-//  im Controller, weil dort der Antrag erst geladen wird.
-//
-//  Jede Route ist mit und ohne `.php`-Suffix registriert, damit die
-//  ehemaligen File-Stubs (antrag/create.php, antrag/view.php, etc.)
-//  transparent über den Router laufen.
-// ----------------------------------------------------------------------------
-
-$antragAuth       = [new AuthMiddleware()];
-$antragCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('forms.create')];
-$antragDecideAuth = [new AuthMiddleware(), new PolicyMiddleware('forms.decide')];
-$antragListAuth   = [new AuthMiddleware(), new PolicyMiddleware('forms.viewAny')];
-
-$router->get('/forms/select',      [FormsController::class, 'selectType'], $antragAuth);
-
-$router->get('/forms/create',      [FormsController::class, 'create'], $antragCreateAuth);
-$router->post('/forms/create',     [FormsController::class, 'store'],  $antragCreateAuth);
-
-// view() prüft intern Gate::denies('forms.view', $antrag) mit dem geladenen
-// Model, deshalb nur AuthMiddleware hier, keine PolicyMiddleware.
-$router->get('/forms/view',        [FormsController::class, 'view'], $antragAuth);
-
-$router->get('/forms/admin/list',      [FormsController::class, 'adminList'], $antragListAuth);
-
-$router->get('/forms/admin/view',      [FormsController::class, 'adminView'], $antragDecideAuth);
-$router->post('/forms/admin/view',     [FormsController::class, 'decide'],    $antragDecideAuth);
+// Anträge: Plugin `forms` (plugins/forms/routes.web.php).
 
 // ----------------------------------------------------------------------------
 //  Posteingang (App\Notifications\NotificationManager)
@@ -323,21 +292,7 @@ $settingsAuth = [new AuthMiddleware()];
 $router->get('/settings/index', [\App\Http\Controllers\Settings\SettingsController::class, 'index'], $settingsAuth);
 $router->get('/settings',       [\App\Http\Controllers\Settings\SettingsController::class, 'index'], $settingsAuth);
 
-// Antrag-Settings
-$router->get('/settings/forms/list',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'listAction'],  $settingsAuth);
-$router->get('/settings/forms/create',     [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
-// Das Anlegen postete bisher auf die GET-Route darueber und bekam 405.
-$router->post('/settings/forms/create',    [\App\Http\Controllers\Settings\AntragSettingsController::class, 'store'],      $settingsAuth);
-$router->get('/settings/forms/edit',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
-$router->post('/settings/forms/edit',      [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
-
-// Umschalten, Loeschen und die Reihenfolge liefen als ?toggle=, ?delete=
-// und ?delete_feld= ueber GET, also eine Zustandsaenderung an einer Adresse,
-// die jeder Bildaufruf und jeder Vorablade-Mechanismus ausloest.
-$router->post('/settings/forms/toggle',        [\App\Http\Controllers\Settings\AntragSettingsController::class, 'toggle'],       $settingsAuth);
-$router->post('/settings/forms/delete',        [\App\Http\Controllers\Settings\AntragSettingsController::class, 'destroy'],      $settingsAuth);
-$router->post('/settings/forms/sort',          [\App\Http\Controllers\Settings\AntragSettingsController::class, 'sort'],         $settingsAuth);
-$router->post('/settings/forms/fields/delete', [\App\Http\Controllers\Settings\AntragSettingsController::class, 'destroyField'], $settingsAuth);
+// Antragstypen: Plugin `forms` (plugins/forms/routes.web.php).
 
 // Dashboard-Settings
 $router->get('/settings/dashboard/index',      [\App\Http\Controllers\Settings\DashboardController::class, 'index'], $settingsAuth);

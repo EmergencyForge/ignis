@@ -1,0 +1,452 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Plugin\Forms\Controllers;
+
+use App\Auth\Gate;
+use App\Events\EventDispatcher;
+use App\Helpers\Flash;
+use App\Helpers\UserHelper;
+use App\Http\Controllers\Controller;
+use App\Notifications\NotificationManager;
+use App\Personnel\AccountLink;
+use App\Support\ListQuery;
+use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Forms\Events\FormDecided;
+use Plugin\Forms\Models\Form;
+use Plugin\Forms\Models\FormData;
+use Plugin\Forms\Models\FormField;
+use Plugin\Forms\Models\FormType;
+use Plugin\Forms\Requests\DecideAntragRequest;
+use Plugin\Forms\Validation\AntragFieldValidator;
+
+/**
+ * FormsController: Antragssystem (Urlaub, Beförderung, etc.).
+ */
+class FormsController extends Controller
+{
+    /**
+     * Views liegen im templates/-Verzeichnis des Plugins.
+     */
+    protected function viewBasePath(): string
+    {
+        return dirname(__DIR__, 2) . '/templates';
+    }
+
+    /** @var array<int,array{class:string,text:string,icon:string}> */
+    private const STATUS_DISPLAY = [
+        Form::STATUS_IN_PROGRESS => ['class' => 'info',    'text' => 'In Bearbeitung', 'icon' => 'fa-regular fa-clock'],
+        Form::STATUS_REJECTED    => ['class' => 'danger',  'text' => 'Abgelehnt',      'icon' => 'fa-solid fa-circle-xmark'],
+        Form::STATUS_DEFERRED    => ['class' => 'warning', 'text' => 'Aufgeschoben',   'icon' => 'fa-solid fa-circle-pause'],
+        Form::STATUS_ACCEPTED    => ['class' => 'success', 'text' => 'Angenommen',     'icon' => 'fa-solid fa-circle-check'],
+    ];
+
+    // -----------------------------------------------------------------------
+    //  Public Routes
+    // -----------------------------------------------------------------------
+
+    /**
+     * GET /forms/select: Liste der aktiven Antragstypen als Karten.
+     *
+     * Auth-Middleware im Router erzwingt Login; keine zusätzliche
+     * Permission nötig. Jede:r eingeloggte User sieht die Typen-Auswahl.
+     */
+    public function selectType(): void
+    {
+        $typen = FormType::active()
+            ->withCount('felder')
+            ->get();
+
+        $this->renderView('forms/select', [
+            'typen' => $typen,
+        ]);
+    }
+
+    /**
+     * GET /forms/create?typ=X: Form-Renderer für einen Antragstyp.
+     *
+     * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
+     */
+    public function create(): void
+    {
+        $mitarbeiter = $this->loadCurrentMitarbeiter();
+        if ($mitarbeiter === null) {
+            Flash::set('error', 'Dein Konto ist mit keinem Mitarbeiter verknüpft.');
+            $this->redirect('index');
+        }
+
+        $typId = (int) ($_GET['typ'] ?? 0);
+        if ($typId <= 0) {
+            Flash::set('error', 'Kein Antragstyp ausgewählt.');
+            $this->redirect('index');
+        }
+
+        /** @var FormType|null $typ */
+        $typ = FormType::query()->where('id', $typId)->where('aktiv', 1)->first();
+        if ($typ === null) {
+            Flash::set('error', 'Antragstyp nicht gefunden oder nicht aktiv.');
+            $this->redirect('index');
+        }
+
+        $felder = $typ->felder;
+
+        $this->renderView('forms/create', [
+            'typ'         => $typ,
+            'felder'      => $felder,
+            'mitarbeiter' => $mitarbeiter,
+        ]);
+    }
+
+    /**
+     * POST /forms/create?typ=X: Antrag einreichen, Daten in Transaction speichern.
+     *
+     * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
+     */
+    public function store(): void
+    {
+        $mitarbeiter = $this->loadCurrentMitarbeiter();
+        if ($mitarbeiter === null) {
+            Flash::set('error', 'Dein Konto ist mit keinem Mitarbeiter verknüpft.');
+            $this->redirect('index');
+        }
+
+        $typId = (int) ($_GET['typ'] ?? 0);
+        if ($typId <= 0) {
+            Flash::set('error', 'Kein Antragstyp ausgewählt.');
+            $this->redirect('index');
+        }
+
+        /** @var FormType|null $typ */
+        $typ = FormType::query()->where('id', $typId)->where('aktiv', 1)->first();
+        if ($typ === null) {
+            Flash::set('error', 'Antragstyp nicht gefunden oder nicht aktiv.');
+            $this->redirect('index');
+        }
+
+        $felder = $typ->felder;
+
+        // Validierung: Typ-Check pro Feld, Pflichtfeld-Check, Mass-Assignment-
+        // Schutz. Readonly-Felder werden hier bewusst NICHT aus $_POST gezogen.
+        // Die befüllen wir unten aus dem Server-Kontext (auto_fill).
+        try {
+            $validated = AntragFieldValidator::validate($felder, $_POST);
+        } catch (ValidationException $e) {
+            $errorMsgs = $e->errors();
+            Flash::set('error', reset($errorMsgs) ?: 'Bitte überprüfe die Eingaben.');
+            $this->redirect('forms/create?typ=' . $typId);
+        }
+
+        // Eindeutige Public-ID generieren (6 Stellen)
+        do {
+            $uniqueId = (string) random_int(100000, 999999);
+        } while (Form::query()->where('uniqueid', $uniqueId)->exists());
+
+        try {
+            Capsule::connection()->transaction(function () use ($typ, $felder, $mitarbeiter, $uniqueId, $validated): void {
+                $antrag = new Form();
+                $antrag->uniqueid      = $uniqueId;
+                $antrag->antragstyp_id = $typ->id;
+                $antrag->name_dn       = $mitarbeiter->fullname . ' (' . $mitarbeiter->dienstnr . ')';
+                $antrag->dienstgrad    = $mitarbeiter->dienstgrad_name ?? null;
+                $antrag->discordid     = $_SESSION['discordtag'] ?? null;
+                $antrag->mitarbeiter_id = (int) $mitarbeiter->id;
+                $antrag->cirs_status   = Form::STATUS_IN_PROGRESS;
+                $antrag->save();
+
+                foreach ($felder as $feld) {
+                    $wert = (bool) $feld->readonly
+                        ? $this->resolveAutoFillValue($feld, $mitarbeiter)
+                        : ($validated[$feld->feldname] ?? '');
+
+                    $data = new FormData();
+                    $data->antrag_id = $antrag->id;
+                    $data->feldname  = $feld->feldname;
+                    $data->wert      = $wert;
+                    $data->save();
+                }
+            });
+        } catch (\Throwable $e) {
+            Flash::set('error', 'Fehler beim Speichern: ' . $e->getMessage());
+            $this->redirect('forms/create?typ=' . $typId);
+        }
+
+        Flash::set('success', 'Antrag erfolgreich eingereicht!');
+        $this->redirect('forms/view?antrag=' . $uniqueId);
+    }
+
+    /**
+     * Übersetzt einen `auto_fill`-Key aus FormField in den Wert aus dem
+     * aktuellen Mitarbeiter-Profil. Spiegel der gleichnamigen Template-
+     * Logik in `templates/antraege/create.php`, hier server-seitig als
+     * Source of Truth für readonly-Felder, damit client-seitiges Editieren
+     * (DevTools) keine falschen Werte einschleusen kann.
+     */
+    private function resolveAutoFillValue(FormField $feld, \stdClass $mitarbeiter): string
+    {
+        $key = (string) ($feld->auto_fill ?? '');
+        if ($key === '') {
+            return (string) ($feld->standardwert ?? '');
+        }
+
+        return match ($key) {
+            'fullname_dienstnr' => $mitarbeiter->fullname . ' (' . $mitarbeiter->dienstnr . ')',
+            'fullname'          => (string) $mitarbeiter->fullname,
+            'dienstnr'          => (string) $mitarbeiter->dienstnr,
+            'dienstgrad'        => (string) ($mitarbeiter->dienstgrad_name ?? ''),
+            'discordtag'        => (string) $mitarbeiter->discordtag,
+            default             => (string) ($feld->standardwert ?? ''),
+        };
+    }
+
+    /**
+     * GET /forms/view?antrag=X: Detailansicht eines Antrags.
+     *
+     * Auth-Middleware erzwingt Login. Die eigentliche Zugriffs-Prüfung
+     * (`Gate::denies('forms.view', $antrag)` mit geladenem Model) passiert
+     * unten im Controller, weil dafür der Antrag erst geladen werden muss.
+     */
+    public function view(): void
+    {
+        $caseId = (string) ($_GET['antrag'] ?? '');
+        if ($caseId === '') {
+            Flash::set('error', 'Keine Antragsnummer angegeben.');
+            $this->redirect('index');
+        }
+
+        /** @var Form|null $antrag */
+        $antrag = Form::query()
+            ->with(['typ', 'daten'])
+            ->where('uniqueid', $caseId)
+            ->first();
+
+        if ($antrag === null) {
+            Flash::set('error', 'Antrag nicht gefunden.');
+            $this->redirect('index');
+        }
+
+        if (Gate::denies('forms.view', $antrag)) {
+            Flash::set('error', 'Sie haben keine Berechtigung, diesen Antrag anzusehen.');
+            $this->redirect('index');
+        }
+
+        $felderMitWerten = $this->loadFieldsWithValues($antrag);
+
+        $this->renderView('forms/view', [
+            'antrag'           => $antrag,
+            'felderMitWerten'  => $felderMitWerten,
+            'currentStatus'    => self::STATUS_DISPLAY[$antrag->cirs_status] ?? ['class' => 'dark', 'text' => 'Unbekannt', 'icon' => 'fa-solid fa-circle-question'],
+        ]);
+    }
+
+    /**
+     * GET /forms/admin/list: Admin-Übersicht aller Anträge.
+     *
+     * Auth + PolicyMiddleware('forms.viewAny') laufen vor dem Controller.
+     */
+    public function adminList(): void
+    {
+        $list = ListQuery::fromQuery($_GET, [
+            'nr'     => 'intra_antraege.uniqueid',
+            'typ'    => 'typ_name',
+            'von'    => 'intra_antraege.name_dn',
+            'status' => 'intra_antraege.cirs_status',
+            'datum'  => 'intra_antraege.time_added',
+        ], 'datum', 'desc', 25, ['status']);
+
+        $query = Form::query()
+            ->with('typ')
+            ->leftJoin('intra_antrag_typen', 'intra_antraege.antragstyp_id', '=', 'intra_antrag_typen.id')
+            ->select('intra_antraege.*', 'intra_antrag_typen.name as typ_name');
+
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('intra_antraege.uniqueid', 'LIKE', $list->like())
+                    ->orWhere('intra_antraege.name_dn', 'LIKE', $list->like())
+                    ->orWhere('intra_antrag_typen.name', 'LIKE', $list->like());
+            });
+        }
+        $byStatus = ListQuery::countBy($query, 'intra_antraege.cirs_status');
+        if ($list->filter('status') !== '' && isset(self::STATUS_DISPLAY[(int) $list->filter('status')])) {
+            $query->where('intra_antraege.cirs_status', (int) $list->filter('status'));
+        }
+
+        $this->renderView('forms/admin/list', [
+            'antraege'      => $list->paginate($query),
+            'statusDisplay' => self::STATUS_DISPLAY,
+            'list'          => $list,
+            'counts'        => ['' => array_sum($byStatus)] + $byStatus,
+        ]);
+    }
+
+    /**
+     * GET /forms/admin/view?antrag=X: Admin-Detailansicht mit Status-Form.
+     *
+     * Auth + PolicyMiddleware('forms.decide') laufen vor dem Controller.
+     */
+    public function adminView(): void
+    {
+        $caseId = (string) ($_GET['antrag'] ?? '');
+        if ($caseId === '') {
+            Flash::set('error', 'Keine Antragsnummer angegeben.');
+            $this->redirect('forms/admin/list');
+        }
+
+        /** @var Form|null $antrag */
+        $antrag = Form::query()
+            ->with(['typ', 'daten'])
+            ->where('uniqueid', $caseId)
+            ->first();
+
+        if ($antrag === null) {
+            Flash::set('error', 'Antrag nicht gefunden.');
+            $this->redirect('forms/admin/list');
+        }
+
+        $felderMitWerten = $this->loadFieldsWithValues($antrag);
+        $userHelper      = new UserHelper();
+
+        $this->renderView('forms/admin/view', [
+            'antrag'             => $antrag,
+            'felderMitWerten'    => $felderMitWerten,
+            'currentStatus'      => self::STATUS_DISPLAY[$antrag->cirs_status] ?? ['class' => 'dark', 'text' => 'Unbekannt', 'icon' => 'fa-solid fa-circle-question'],
+            'currentUserFullname' => $userHelper->getCurrentUserFullnameForAction(),
+        ]);
+    }
+
+    /**
+     * POST /forms/admin/view?antrag=X: Status-Änderung durch Bearbeiter.
+     * Schreibt Audit-Log-Einträge für jede einzelne Änderung und sendet eine
+     * Notification an den Antragsteller.
+     *
+     * Auth + PolicyMiddleware('forms.decide') laufen vor dem Controller.
+     */
+    public function decide(): void
+    {
+        $caseId = (string) ($_GET['antrag'] ?? '');
+        if ($caseId === '') {
+            Flash::set('error', 'Keine Antragsnummer angegeben.');
+            $this->redirect('forms/admin/list');
+        }
+
+        /** @var Form|null $antrag */
+        $antrag = Form::query()->where('uniqueid', $caseId)->first();
+        if ($antrag === null) {
+            Flash::set('error', 'Antrag nicht gefunden.');
+            $this->redirect('forms/admin/list');
+        }
+
+        try {
+            $data = DecideAntragRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('forms/admin/view?antrag=' . $caseId);
+        }
+
+        $userHelper       = new UserHelper();
+        $newCirsManager   = $userHelper->getCurrentUserFullnameForAction();
+        $currentUserId    = (int) $_SESSION['userid'];
+        $auditLogger      = new AuditLogger();
+
+        // Diff-Audit: nur tatsächliche Änderungen loggen
+        if ($antrag->cirs_manager !== $newCirsManager) {
+            $auditLogger->log($currentUserId, 'Bearbeiter geändert [ID: ' . $caseId . ']', $newCirsManager, 'Anträge', 1);
+        }
+        if ($antrag->cirs_status !== $data['cirs_status']) {
+            $auditLogger->log($currentUserId, 'Status geändert [ID: ' . $caseId . ']', 'Neuer Status: ' . $data['cirs_status'], 'Anträge', 1);
+        }
+        if (($antrag->cirs_text ?? '') !== $data['cirs_text']) {
+            $auditLogger->log($currentUserId, 'Bemerkung geändert [ID: ' . $caseId . ']', '"' . $data['cirs_text'] . '"', 'Anträge', 1);
+        }
+
+        $antrag->cirs_manager = $newCirsManager;
+        $antrag->cirs_status  = $data['cirs_status'];
+        $antrag->cirs_text    = $data['cirs_text'];
+        $antrag->cirs_time    = new \DateTime();
+        $antrag->save();
+
+        // Der Kalender spiegelt genehmigte Abwesenheitsanträge als Termin.
+        // Er hört auf das Event; ist er abgeschaltet, passiert nichts.
+        $antrag->loadMissing('typ', 'daten');
+        app(EventDispatcher::class)->fire(new FormDecided($antrag, (int) $data['cirs_status']));
+
+        // Notification an den Antragsteller
+        $notificationManager = new NotificationManager();
+        $statusName          = Form::STATUS_LABELS[$data['cirs_status']] ?? 'Unbekannt';
+        // Alte Anträge ohne mitarbeiter_id kennen nur die Discord-ID.
+        $userId = $antrag->mitarbeiter_id !== null
+            ? AccountLink::userFor((int) $antrag->mitarbeiter_id)?->id
+            : (($antrag->discordid ?? '') !== '' ? $notificationManager->getUserIdByDiscordTag($antrag->discordid) : null);
+        if ($userId) {
+            $notificationManager->create(
+                (int) $userId,
+                'antrag',
+                "Ihr Antrag #{$caseId} wurde bearbeitet",
+                "Status: {$statusName}. Bearbeiter: {$newCirsManager}",
+                BASE_PATH . "forms/view?antrag={$caseId}"
+            );
+        }
+
+        Flash::set('success', 'Antrag erfolgreich aktualisiert');
+        $this->redirect('forms/view?antrag=' . $caseId);
+    }
+
+    // -----------------------------------------------------------------------
+    //  Private Helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Lädt den mit dem Konto verknüpften Mitarbeiter (AccountLink).
+     * Returns null ohne Verknüpfung oder bei archiviertem Rank.
+     *
+     * Bewusst via Capsule (es gibt kein Mitarbeiter-Model). Der
+     * geschlechts-bedingte Rank-Name ist sehr Mitarbeiter-spezifisch
+     * und gehört eigentlich in das Mitarbeiter-Modul, wenn das migriert wird.
+     */
+    private function loadCurrentMitarbeiter(): ?\stdClass
+    {
+        $mitarbeiterId = AccountLink::currentId();
+        if ($mitarbeiterId === null) {
+            return null;
+        }
+
+        $row = Capsule::table('intra_mitarbeiter as m')
+            ->leftJoin('intra_mitarbeiter_dienstgrade as dg', 'm.dienstgrad', '=', 'dg.id')
+            ->where('m.id', $mitarbeiterId)
+            ->where('dg.archive', 0)
+            ->select(
+                'm.id',
+                'm.fullname',
+                'm.dienstnr',
+                'm.geschlecht',
+                'm.discordtag',
+                Capsule::connection()->raw("CASE m.geschlecht WHEN 0 THEN dg.name_m WHEN 1 THEN dg.name_w ELSE dg.name END AS dienstgrad_name")
+            )
+            ->first();
+
+        return $row ?: null;
+    }
+
+    /**
+     * Joint die Field-Definitionen mit den eingegebenen Werten für die View.
+     * Returns Array von stdClass-Rows mit allen Field-Spalten + 'wert'.
+     *
+     * @return array<int,\stdClass>
+     */
+    private function loadFieldsWithValues(Form $antrag): array
+    {
+        return Capsule::table('intra_antrag_felder as af')
+            ->leftJoin('intra_antraege_daten as ad', function ($join) use ($antrag) {
+                $join->on('af.feldname', '=', 'ad.feldname')
+                     ->where('ad.antrag_id', '=', $antrag->id);
+            })
+            ->where('af.antragstyp_id', $antrag->antragstyp_id)
+            ->orderBy('af.sortierung')
+            ->select('af.*', 'ad.wert')
+            ->get()
+            ->all();
+    }
+
+}
