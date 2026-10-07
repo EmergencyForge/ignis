@@ -226,7 +226,7 @@ class SessionManager
 
     /**
      * Anmeldung eines bestehenden Kontos mit den Rechten seiner Rolle.
-     * Discord-Callback, zentrale Anmeldung und ignisTab laufen hier durch.
+     * Discord-Callback, zentrale Anmeldung und ef_bridge laufen hier durch.
      *
      * @param array<string,mixed> $user Row aus intra_users
      */

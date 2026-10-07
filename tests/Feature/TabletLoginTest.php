@@ -13,7 +13,7 @@ use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
 
 /**
- * Anmeldung über ignisTab: Der FiveM-Server holt per API-Schlüssel einen
+ * Anmeldung über ef_bridge: Der FiveM-Server holt per API-Schlüssel einen
  * Einmal-Token für eine Discord-ID, das Tablet löst ihn unter /auth/tablet ein.
  */
 final class TabletLoginTest extends FeatureTestCase
@@ -211,7 +211,7 @@ final class TabletLoginTest extends FeatureTestCase
         $this->assertSame($user->discord_id, $_SESSION['discordtag']);
         $this->assertSame(['personnel.view'], $_SESSION['permissions']);
         $this->assertTrue(
-            Capsule::table('intra_audit_log')->where('user', $user->id)->where('action', 'Anmeldung über ignisTab')->exists(),
+            Capsule::table('intra_audit_log')->where('user', $user->id)->where('action', 'Anmeldung über ef_bridge')->exists(),
         );
     }
 

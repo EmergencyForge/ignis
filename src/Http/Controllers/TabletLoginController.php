@@ -15,7 +15,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Anmeldung über ignisTab. Discord-OAuth läuft im CEF von FiveM nicht, also
+ * Anmeldung über ef_bridge (vormals ignisTab). Discord-OAuth läuft im CEF von FiveM nicht, also
  * holt der FiveM-Server mit dem API-Schlüssel einen Einmal-Token für die
  * Discord-ID des Spielers, und das Tablet öffnet damit /auth/tablet.
  *
@@ -112,7 +112,7 @@ final class TabletLoginController
         }
 
         SessionManager::loginAccount($user->toArray());
-        (new AuditLogger())->log((int) $user->id, 'Anmeldung über ignisTab', null, 'System', 0, ['user_id' => (int) $user->id]);
+        (new AuditLogger())->log((int) $user->id, 'Anmeldung über ef_bridge', null, 'System', 0, ['user_id' => (int) $user->id]);
 
         return self::private(Response::redirect(BASE_PATH . 'index'));
     }
