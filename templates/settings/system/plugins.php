@@ -10,6 +10,7 @@
  * @var bool                                $catalogStale
  * @var string|null                         $catalogFetchedAt
  * @var string|null                         $catalogError
+ * @var int                                 $maxUploadBytes
  */
 
 use App\Security\CsrfProtection;
@@ -51,7 +52,8 @@ $SITE_TITLE = 'Plugins';
                         <div class="ignis-alert__title">Community-Plugins: Nutzung auf eigenes Risiko</div>
                         Nicht offiziell mitgelieferte Plugins bleiben nach dem Hochladen zunächst
                         vollständig inaktiv: Es wird kein Code ausgeführt und keine Migration
-                        angewendet, bis die Installation hier ausdrücklich gestartet wird.
+                        angewendet, bis die Installation auf der Bestätigungsseite ausdrücklich
+                        gestartet wird.
                         Für Community-Plugins übernimmt EmergencyForge keine Gewähr, weder für
                         Funktion und Sicherheit noch für mögliche Datenverluste. Support leistet
                         der jeweilige Herausgeber.
@@ -63,6 +65,33 @@ $SITE_TITLE = 'Plugins';
                         <?= htmlspecialchars($message) ?>
                     </div>
                 <?php endif; ?>
+
+                <section class="mb-6" aria-labelledby="plugin-upload-heading">
+                    <p class="twplus-page-header__eyebrow">Eigenes Paket</p>
+                    <h2 id="plugin-upload-heading" class="mb-2">Plugin hochladen</h2>
+                    <form method="post" enctype="multipart/form-data" id="plugin-upload-form">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                        <input type="hidden" name="plugin_action" value="upload">
+                        <div class="ignis-file ignis-file--dropzone mb-2" id="plugin-upload-dropzone" data-ignis-file data-max-bytes="<?= (int) $maxUploadBytes ?>">
+                            <input type="file" id="plugin-upload" name="plugin_zip" accept=".zip,application/zip,application/x-zip-compressed" class="ignis-file__input" required>
+                            <label for="plugin-upload" class="ignis-file__zone">
+                                <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-file-zipper"></i></span>
+                                <span class="ignis-file__title">Plugin-ZIP hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                                <span class="ignis-file__hint">ZIP mit manifest.php, max. <?= htmlspecialchars(number_format($maxUploadBytes / 1048576, 0, ',', '.')) ?> MB</span>
+                            </label>
+                            <div class="ignis-file__selected" hidden></div>
+                            <p class="ignis-file__error" role="alert" hidden></p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="plugin-upload-submit">
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i>Prüfen
+                            </button>
+                            <span class="text-tertiary-text" style="font-size: 0.78rem;">
+                                Das Archiv wird zuerst nur geprüft. Installiert wird erst nach deiner Bestätigung auf der nächsten Seite.
+                            </span>
+                        </div>
+                    </form>
+                </section>
 
                 <?php if ($rows === []): ?>
                     <?php
@@ -128,14 +157,16 @@ $SITE_TITLE = 'Plugins';
                             </div>
                             <div class="shrink-0 flex flex-wrap gap-2">
                                 <?php if (!$row['installed']): ?>
+                                    <a href="<?= BASE_PATH ?>settings/system/plugins?confirm=install&amp;plugin=<?= rawurlencode($row['id']) ?>"
+                                        class="ignis-btn ignis-btn--sm ignis-btn--secondary">
+                                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>Installieren
+                                    </a>
                                     <form method="post" class="inline"
-                                        onsubmit="event.preventDefault(); showConfirm('<?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an. EmergencyForge übernimmt keinerlei Gewähr für Funktion, Sicherheit oder mögliche Datenverluste. Nutzung auf eigenes Risiko. Erstelle vorher ein Backup und fahre nur fort, wenn du der Quelle vertraust.', {title: 'Community-Plugin installieren', confirmText: 'Jetzt installieren', cancelText: 'Abbrechen', danger: true}).then(result => { if (result) this.submit(); });">
+                                        onsubmit="event.preventDefault(); showConfirm('Nur die Plugin-Dateien werden entfernt. Das Plugin war nie installiert, es gibt also keine Tabellen oder Daten.', {title: 'Plugin-Dateien entfernen', confirmText: 'Dateien entfernen', cancelText: 'Abbrechen', danger: true}).then(result => { if (result) this.submit(); });">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                                        <input type="hidden" name="plugin_action" value="install">
+                                        <input type="hidden" name="plugin_action" value="remove">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
-                                            <i class="fa-solid fa-triangle-exclamation mr-1"></i>Installieren
-                                        </button>
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">Verwerfen</button>
                                     </form>
                                 <?php elseif ($row['enabled']): ?>
                                     <?php $blocked = !$m->removable || $row['requiredBy'] !== []; ?>
@@ -232,32 +263,34 @@ $SITE_TITLE = 'Plugins';
                                     </div>
                                     <div class="ignis-card__body">
                                         <p class="ignis-card__text"><?= htmlspecialchars((string) ($plugin['description'] ?: 'Keine Beschreibung hinterlegt.')) ?></p>
+                                        <div class="text-tertiary-text mb-1" style="font-size:0.78rem;">
+                                            <?php if (($plugin['publisher'] ?? '') !== ''): ?>von <?= htmlspecialchars((string) $plugin['publisher']) ?> &middot; <?php endif; ?>
+                                            <?= $plugin['third_party'] ? 'Drittanbieter' : 'EmergencyForge' ?>
+                                        </div>
                                         <div class="text-tertiary-text" style="font-size:0.72rem;font-family:var(--mono);">
                                             SHA256 <?= $plugin['sha256'] !== '' ? htmlspecialchars(substr((string) $plugin['sha256'], 0, 12)) . '…' : 'fehlt' ?>
                                         </div>
                                     </div>
                                     <div class="ignis-card__footer">
                                         <?php if ($installedVersion === null): ?>
-                                            <form method="post" class="inline"
-                                                onsubmit="event.preventDefault(); showConfirm('Das ZIP wird von GitHub geladen, gegen den Katalog-Digest geprüft und zunächst nur inaktiv bereitgestellt. Bei ungetesteten Plugins erfolgt die Nutzung auf eigenes Risiko.', {title: 'Plugin aus Katalog laden', confirmText: 'Prüfen und laden', cancelText: 'Abbrechen', danger: <?= $trust === 'untested' ? 'true' : 'false' ?>}).then(result => { if (result) this.submit(); });">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                                                <input type="hidden" name="plugin_action" value="catalog_stage">
-                                                <input type="hidden" name="plugin_id" value="<?= htmlspecialchars((string) $plugin['slug']) ?>">
-                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary" <?= !$plugin['installable'] ? 'disabled data-ignis-tooltip="Kein SHA256-Digest oder Download hinterlegt"' : '' ?>>
-                                                    Installieren
-                                                </button>
-                                            </form>
+                                            <?php if ($plugin['installable']): ?>
+                                                <a href="<?= BASE_PATH ?>settings/system/plugins?confirm=catalog&amp;plugin=<?= rawurlencode((string) $plugin['slug']) ?>"
+                                                    class="ignis-btn ignis-btn--sm ignis-btn--secondary">Installieren</a>
+                                            <?php else: ?>
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" disabled data-ignis-tooltip="Kein SHA256-Digest oder Download hinterlegt">Installieren</button>
+                                            <?php endif; ?>
                                         <?php elseif (!($plugin['installed'] ?? false)): ?>
-                                            <span class="ignis-chip ignis-chip--warn">Geprüft · Installation noch bestätigen</span>
+                                            <span class="ignis-chip ignis-chip--warn">Heruntergeladen</span>
+                                            <a href="<?= BASE_PATH ?>settings/system/plugins?confirm=install&amp;plugin=<?= rawurlencode((string) $plugin['slug']) ?>"
+                                                class="ignis-btn ignis-btn--sm ignis-btn--secondary">Installation bestätigen</a>
                                         <?php elseif ($plugin['update_available']): ?>
                                             <span class="ignis-chip ignis-chip--warn">Update von <?= htmlspecialchars((string) $installedVersion) ?></span>
-                                            <form method="post" class="inline"
-                                                onsubmit="event.preventDefault(); showConfirm('Das bestehende Plugin wird gesichert und erst nach Digest- und Manifestprüfung atomar ersetzt.', {title: 'Plugin aktualisieren', confirmText: 'Update installieren', cancelText: 'Abbrechen'}).then(result => { if (result) this.submit(); });">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                                                <input type="hidden" name="plugin_action" value="catalog_update">
-                                                <input type="hidden" name="plugin_id" value="<?= htmlspecialchars((string) $plugin['slug']) ?>">
-                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary" <?= !$plugin['installable'] ? 'disabled' : '' ?>>Update</button>
-                                            </form>
+                                            <?php if ($plugin['installable']): ?>
+                                                <a href="<?= BASE_PATH ?>settings/system/plugins?confirm=update&amp;plugin=<?= rawurlencode((string) $plugin['slug']) ?>"
+                                                    class="ignis-btn ignis-btn--sm ignis-btn--secondary">Update</a>
+                                            <?php else: ?>
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" disabled>Update</button>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <span class="ignis-chip ignis-chip--ok">Installiert <?= htmlspecialchars((string) $installedVersion) ?></span>
                                         <?php endif; ?>
@@ -271,3 +304,26 @@ $SITE_TITLE = 'Plugins';
             </div>
         </div>
     </div>
+
+    <script>
+        // Ein gültiges ZIP direkt prüfen lassen, ohne Umweg über den Knopf.
+        // file.js validiert Typ und Größe im selben change-Event, der
+        // Timeout schiebt das Absenden dahinter (wie beim System-Logo).
+        // Geprüft wird nur, installiert wird erst nach der Bestätigung.
+        (function () {
+            var form  = document.getElementById('plugin-upload-form');
+            var input = document.getElementById('plugin-upload');
+            if (!form || !input) return;
+            input.addEventListener('change', function () {
+                setTimeout(function () {
+                    if (!input.files || !input.files[0] || input.getAttribute('aria-invalid') === 'true') return;
+                    var button = document.getElementById('plugin-upload-submit');
+                    if (button) {
+                        button.disabled = true;
+                        button.textContent = 'Wird geprüft …';
+                    }
+                    form.submit();
+                }, 0);
+            });
+        })();
+    </script>
