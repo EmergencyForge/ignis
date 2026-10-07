@@ -557,6 +557,15 @@ $legacyApiPaths = [
     '/assets/functions/system/global-search-api' => '/api/system/global-search',
     '/assets/functions/system/performance-api'   => '/api/system/performance',
     '/assets/functions/system/theme-api'         => '/api/system/theme',
+    '/assets/functions/enotf/check_conflict'               => '/api/enotf/check-conflict',
+    '/assets/functions/enotf/poi/poi-search'               => '/api/enotf/poi/poi-search',
+    '/assets/functions/enotf/poi/save-field'               => '/api/enotf/poi/save-field',
+    '/assets/functions/enotf/share/accept-request'         => '/api/enotf/share/accept-request',
+    '/assets/functions/enotf/share/check-requests'         => '/api/enotf/share/check-requests',
+    '/assets/functions/enotf/share/get-available-vehicles' => '/api/enotf/share/get-available-vehicles',
+    '/assets/functions/enotf/share/get-own-protocols'      => '/api/enotf/share/get-own-protocols',
+    '/assets/functions/enotf/share/reject-request'         => '/api/enotf/share/reject-request',
+    '/assets/functions/enotf/share/send-request'           => '/api/enotf/share/send-request',
 ];
 foreach ($legacyApiPaths as $legacyPath => $target) {
     $router->match(['GET', 'POST', 'DELETE'], $legacyPath, $legacyApiRedirect($target));
