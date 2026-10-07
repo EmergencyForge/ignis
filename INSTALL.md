@@ -404,7 +404,7 @@ eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eing
 
 ### ef_bridge für FiveM
 
-Die FiveM-Ressource ef_bridge (vormals ignisTab) bringt eNOTF und fireTab als Tablets ins Spiel. Sie hat eine eigene Anleitung im Repository [EmergencyForge/ignisTab](https://github.com/EmergencyForge/ignisTab/blob/main/INSTALL.md). Auf der ignis-Seite brauchst du dafür den API-Schlüssel (**Einstellungen › System-Konfiguration › Technik**) und für die Anmeldung im Spiel die Option **Anmeldung über ef_bridge** unter **Funktionen**.
+Die FiveM-Ressource ef_bridge (vormals ignisTab) bringt eNOTF und fireTab als Tablets ins Spiel. Sie hat eine eigene Anleitung im Repository [EmergencyForge/ef_bridge](https://github.com/EmergencyForge/ef_bridge/blob/main/INSTALL.md). Auf der ignis-Seite brauchst du dafür den API-Schlüssel (**Einstellungen › System-Konfiguration › Technik**) und für die Anmeldung im Spiel die Option **Anmeldung über ef_bridge** unter **Funktionen**.
 
 ### Telemetrie
 
