@@ -24,7 +24,7 @@ $currentDate = date('d.m.Y');
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <form name="form" method="post" action="">
         <?= csrf_field() ?>
         <input type="hidden" name="new" value="1" />

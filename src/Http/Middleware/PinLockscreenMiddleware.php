@@ -16,7 +16,7 @@ use EmergencyForge\Http\Response;
  *  - Admin + User mit `edivi.view` sind vom Lockscreen ausgenommen
  *  - Kliniker-Zugriff via Einmal-Code (2h-Window, `$_SESSION['klinik_access_*']`)
  *    bypassed den Lockscreen ebenfalls
- *  - Sonst: 5-Minuten-Inaktivität → Redirect zu `lockscreen.php`
+ *  - Sonst: nach ENOTF_PIN_TIMEOUT Minuten ohne Aktivität → Redirect zu `lockscreen.php`
  *  - Nach PIN-Eingabe wird `pin_verified` + `pin_last_activity` gesetzt,
  *    die Middleware aktualisiert `pin_last_activity` bei jedem Request
  *
@@ -24,7 +24,6 @@ use EmergencyForge\Http\Response;
  */
 final class PinLockscreenMiddleware implements MiddlewareInterface
 {
-    private const TIMEOUT_SECONDS       = 300;
     private const KLINIK_WINDOW_SECONDS = 7200;
 
     /**
@@ -63,7 +62,7 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
         $now          = time();
         $pinVerified  = isset($_SESSION['pin_verified']) && $_SESSION['pin_verified'] === true;
         $lastActivity = $_SESSION['pin_last_activity'] ?? null;
-        $timedOut     = ($lastActivity === null || ($now - (int) $lastActivity) > self::TIMEOUT_SECONDS);
+        $timedOut     = ($lastActivity === null || ($now - (int) $lastActivity) > \App\Session\SessionManager::pinTimeout());
 
         if (!$pinVerified || $timedOut) {
             // Aktuelle URL merken, damit der User nach PIN-Eingabe

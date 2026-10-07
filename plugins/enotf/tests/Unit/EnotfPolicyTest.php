@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\Enotf\Tests\Unit;
 
+use App\Session\SessionManager;
 use Plugin\Enotf\Policies\EnotfPolicy;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -71,6 +72,30 @@ class EnotfPolicyTest extends TestCase
 
         // Either pin exempt (admin) or correctly verified
         $this->assertTrue(EnotfPolicy::pinVerified() || EnotfPolicy::pinExempt());
+    }
+
+    #[Test]
+    public function pin_timeout_defaults_to_five_minutes_without_setting(): void
+    {
+        if (defined('ENOTF_PIN_TIMEOUT')) {
+            $this->markTestSkipped('ENOTF_PIN_TIMEOUT already defined');
+        }
+
+        $this->assertSame(300, SessionManager::pinTimeout());
+    }
+
+    #[Test]
+    public function pin_verified_returns_false_after_timeout(): void
+    {
+        if (!defined('ENOTF_USE_PIN')) define('ENOTF_USE_PIN', true);
+        if (ENOTF_USE_PIN !== true || EnotfPolicy::pinExempt()) {
+            $this->markTestSkipped('PIN lockscreen not active for this session');
+        }
+
+        $_SESSION['pin_verified']      = true;
+        $_SESSION['pin_last_activity'] = time() - SessionManager::pinTimeout() - 1;
+
+        $this->assertFalse(EnotfPolicy::pinVerified());
     }
 
     #[Test]

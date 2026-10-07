@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\EnotfV2\Policies;
 
 use App\Auth\Permissions;
+use App\Session\SessionManager;
 
 /**
  * EnotfV2Policy: Authorization für eNOTF v2.
@@ -18,8 +19,9 @@ use App\Auth\Permissions;
  *    User-Login (`$_SESSION['userid']`) vorhanden sein. Klinikzugriff via
  *    Code (`$_SESSION['klinik_access_*']`, TTL 2h) bypassed das Gate.
  *
- * 2. **PIN-Lockscreen** (`ENOTF_USE_PIN`, `ENOTF_PIN`): 5-Minuten-
- *    Inaktivitäts-Timeout über `pin_verified`/`pin_last_activity`.
+ * 2. **PIN-Lockscreen** (`ENOTF_USE_PIN`, `ENOTF_PIN`): Inaktivitäts-
+ *    Timeout über `pin_verified`/`pin_last_activity`, Dauer aus
+ *    `ENOTF_PIN_TIMEOUT` (SessionManager::pinTimeout(), wie in v1).
  *    Admins/edivi.view-User sind exempt. Durchgesetzt wird das über die
  *    geteilte PinLockscreenMiddleware (auf den v2-Routen mit dem eigenen
  *    Lockscreen /enotf-v2/lockscreen als Ziel, die PIN-Session ist
@@ -36,7 +38,6 @@ use App\Auth\Permissions;
 class EnotfV2Policy
 {
     public const KLINIK_ACCESS_TTL = 7200; // 2 Stunden
-    public const PIN_TIMEOUT       = 300;  // 5 Minuten
 
     /**
      * User-Auth-Gate: muss ein User-Login vorhanden sein, um eNOTF zu nutzen?
@@ -114,7 +115,7 @@ class EnotfV2Policy
             return false;
         }
 
-        return (time() - (int) $lastActivity) <= self::PIN_TIMEOUT;
+        return (time() - (int) $lastActivity) <= SessionManager::pinTimeout();
     }
 
     /**
@@ -134,7 +135,7 @@ class EnotfV2Policy
 
         $lastActivity = $_SESSION['pin_last_activity'] ?? null;
 
-        return $lastActivity !== null && (time() - (int) $lastActivity) <= self::PIN_TIMEOUT;
+        return $lastActivity !== null && (time() - (int) $lastActivity) <= SessionManager::pinTimeout();
     }
 
     /**

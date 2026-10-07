@@ -44,7 +44,7 @@ date_default_timezone_set('Europe/Berlin');
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>" data-base-path="<?= BASE_PATH ?>" data-session-token="<?= $e($_SESSION['enotf_session_token'] ?? '') ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>" data-base-path="<?= BASE_PATH ?>" data-session-token="<?= $e($_SESSION['enotf_session_token'] ?? '') ?>">
     <!-- ── Topbar: v1-Nachbau (assets/components/enotf/topbar.php, Overview-Variante) ── -->
     <div class="container-fluid" id="edivi__topbar">
         <div class="row">

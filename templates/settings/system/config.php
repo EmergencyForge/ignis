@@ -6,6 +6,7 @@
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Config\ConfigManager;
+use App\Session\SessionManager;
 use App\Setup\SetupCheck;
 use App\Utils\AuditLogger;
 
@@ -42,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
             if (!isset($_POST[$key])) continue;
             $value = $_POST[$key];
         }
+
+        // Sperrzeit nur aus der Auswahl, sonst bleibt der alte Wert.
+        if ($key === 'ENOTF_PIN_TIMEOUT' && !in_array((int) $value, SessionManager::PIN_TIMEOUT_CHOICES, true)) continue;
 
         // Der Farbwähler liefert Hex in Großbuchstaben, gespeichert ist oft Kleinschreibung.
         if ($config['config_type'] === 'color' && strcasecmp((string) $oldValue, $value) === 0) continue;
@@ -337,6 +341,21 @@ $SITE_TITLE = 'System-Konfiguration';
                                                         <option value="closed" <?= $config['config_value'] === 'closed' ? 'selected' : '' ?>>Geschlossen</option>
                                                     </select>
 
+                                                <?php elseif ($config['is_editable'] && $config['config_key'] === 'ENOTF_PIN_TIMEOUT'):
+                                                    // Ein von Hand eingetragener Wert außerhalb der Auswahl bleibt sichtbar.
+                                                    $pinTimeoutChoices = array_unique(array_merge(SessionManager::PIN_TIMEOUT_CHOICES, [(int) $config['config_value']]));
+                                                    sort($pinTimeoutChoices);
+                                                ?>
+                                                    <select
+                                                        class="ignis-input"
+                                                        data-custom-dropdown="true"
+                                                        id="<?= htmlspecialchars($config['config_key']) ?>"
+                                                        name="<?= htmlspecialchars($config['config_key']) ?>">
+                                                        <?php foreach ($pinTimeoutChoices as $minutes): if ($minutes < 1) continue; ?>
+                                                            <option value="<?= $minutes ?>" <?= (int) $config['config_value'] === $minutes ? 'selected' : '' ?>><?= $minutes ?> Minuten</option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'ENOTF_BZ_UNIT'): ?>
                                                     <select
                                                         class="ignis-input"
@@ -377,6 +396,17 @@ $SITE_TITLE = 'System-Konfiguration';
     </div>
 
     <script>
+        // Die Sperrzeit gibt es nur mit PIN; ausgeblendet bleibt ihr Wert erhalten.
+        (function () {
+            var pinSwitch = document.getElementById('ENOTF_USE_PIN');
+            var timeoutRow = document.getElementById('cfg-ENOTF_PIN_TIMEOUT');
+            if (!pinSwitch || !timeoutRow) return;
+            // style statt hidden: .twplus-form-section setzt display: grid.
+            function sync() { timeoutRow.style.display = pinSwitch.checked ? '' : 'none'; }
+            pinSwitch.addEventListener('change', sync);
+            sync();
+        })();
+
         // Abschnitte: zeigt nur die Karte des gewählten Abschnitts ("Alle" zeigt
         // alle). Ausgeblendete Felder bleiben im Formular und werden mitgespeichert.
         (function () {

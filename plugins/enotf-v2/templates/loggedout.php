@@ -72,7 +72,7 @@ $pinEnabled = EnotfV2Policy::pinEnabled() ? 'true' : 'false';
     </style>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <div class="container-fluid" id="edivi__container">
         <div class="h-full">
             <div id="edivi__content">

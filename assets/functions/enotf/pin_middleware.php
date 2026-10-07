@@ -32,7 +32,7 @@ if (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) {
     // Wenn Benutzer ausgenommen ist oder Klinikzugriff aktiv, Lockscreen-Logik überspringen
     if (!$is_exempt_user && !$is_klinik_access) {
         $current_time = time();
-        $timeout = 300; // 5 Minuten = 300 Sekunden
+        $timeout = \App\Session\SessionManager::pinTimeout();
 
         $pin_verified = isset($_SESSION['pin_verified']) && $_SESSION['pin_verified'] === true;
 

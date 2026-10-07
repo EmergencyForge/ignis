@@ -21,7 +21,7 @@ use Plugin\Enotf\Policies\EnotfPolicy;
  *
  * Der Controller kümmert sich zentral um:
  *   - User-Auth-Gate (ENOTF_REQUIRE_USER_AUTH)
- *   - PIN-Lockscreen (ENOTF_USE_PIN, 5min Timeout)
+ *   - PIN-Lockscreen (ENOTF_USE_PIN, Sperrzeit aus ENOTF_PIN_TIMEOUT)
  *   - Klinik-Access-Bypass (für Krankenhaus-Code-Login)
  *   - CitizenFX-Header-Removal
  */

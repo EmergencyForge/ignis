@@ -80,7 +80,7 @@ $charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
     </style>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-page="enotf-v2" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-page="enotf-v2" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <!-- Normales Anmeldeformular (POST /enotf-v2/login, login_mode=new) -->
     <form name="form" method="post" action="<?= $e(EnotfV2Url::page('login')) ?>" id="login-form-new">
         <input type="hidden" name="login_mode" value="new" />

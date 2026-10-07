@@ -19,7 +19,7 @@ use Plugin\Enotf\Policies\EnotfPolicy;
  *
  * Multi-Layer-Auth (siehe EnotfPolicy):
  *   1. User-Auth-Gate (ENOTF_REQUIRE_USER_AUTH), bypassbar via Klinikzugriff
- *   2. PIN-Lockscreen (ENOTF_USE_PIN, 5 min Timeout), bypassbar via admin/edivi.view
+ *   2. PIN-Lockscreen (ENOTF_USE_PIN, Sperrzeit aus ENOTF_PIN_TIMEOUT), bypassbar via admin/edivi.view
  *   3. Crew-Login (fahrername+protfzg in Session), Voraussetzung für overview
  *
  * Side-Effects auf GET (Legacy):
@@ -643,7 +643,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * Setzt den PIN-Lockscreen durch (ENOTF_USE_PIN, 5min Timeout).
+     * Setzt den PIN-Lockscreen durch (ENOTF_USE_PIN, Sperrzeit aus ENOTF_PIN_TIMEOUT).
      * Bei Denial: Redirect zum Lockscreen mit gespeicherter Return-URL.
      */
     private function enforcePinLockscreen(): void
