@@ -31,6 +31,14 @@ $reaRadio = static function (string $name, int $code, string $label) use ($reaE,
     return '<input type="radio" class="btn-check" id="' . $reaE($id) . '" name="' . $reaE($name) . '" value="' . $code . '"' . $checked . $reaDis . ' autocomplete="off">'
         . '<label for="' . $reaE($id) . '">' . $reaE($label) . '</label>';
 };
+// Ein Schalter wie „erfolglos“ ist selbst die Auswahl und steht direkt in der
+// Detailspalte. Als Link öffnete er eine Spalte, in der nur er noch einmal stand.
+$reaToggle = static function (string $name, string $label) use ($reaE, $reaWert, $reaDis): string {
+    $id = str_replace('_', '', $name) . '_1';
+    $checked = $reaWert($name) === '1' ? ' checked' : '';
+    return '<input type="checkbox" class="btn-check" id="' . $reaE($id) . '" name="' . $reaE($name) . '" value="1"' . $checked . $reaDis . ' autocomplete="off">'
+        . '<label for="' . $reaE($id) . '">' . $reaE($label) . '</label>';
+};
 ?>
 <div class="<?= $reaE($reaCol) ?> d-flex flex-column edivi__interactbutton px-3" id="rea-tree">
     <?= $reaRadio('rea_status', 1, ReanimationCatalog::STATUS[1]) ?>
@@ -51,12 +59,19 @@ $reaRadio = static function (string $name, int $code, string $label) use ($reaE,
 <div data-rea-panel="details" style="display:<?= $reaDurchgefuehrt ? 'contents' : 'none' ?>">
     <div class="<?= $reaE($reaCol) ?> d-flex flex-column edivi__interactbutton-more px-3">
         <?php foreach (ReanimationCatalog::DETAILS as $feld => $detail) : ?>
-            <a href="#" data-rea-detail-open="<?= $reaE($feld) ?>"<?= $detail['pflicht'] ? ' data-rea-requires="' . $reaE($feld) . '"' : '' ?>><span><?= $reaE($detail['label']) ?></span></a>
+            <?php if ($detail['typ'] === 'toggle') : ?>
+                <?= $reaToggle($feld, $detail['label']) ?>
+            <?php else : ?>
+                <a href="#" data-rea-detail-open="<?= $reaE($feld) ?>"<?= $detail['pflicht'] ? ' data-rea-requires="' . $reaE($feld) . '"' : '' ?>><span><?= $reaE($detail['label']) ?></span></a>
+            <?php endif; ?>
         <?php endforeach; ?>
     </div>
 </div>
 
 <?php foreach (ReanimationCatalog::DETAILS as $feld => $detail) : ?>
+    <?php if ($detail['typ'] === 'toggle') {
+        continue;
+    } ?>
     <div data-rea-detail="<?= $reaE($feld) ?>" style="display:none">
         <?php if ($detail['typ'] === 'radio') : ?>
             <?php foreach (array_chunk($detail['optionen'], 9, true) as $spalte) : ?>
@@ -66,15 +81,10 @@ $reaRadio = static function (string $name, int $code, string $label) use ($reaE,
                     <?php endforeach; ?>
                 </div>
             <?php endforeach; ?>
-        <?php elseif ($detail['typ'] === 'zeit') : ?>
+        <?php else : ?>
             <div class="<?= $reaE($reaCol) ?> d-flex flex-column edivi__interactbutton px-3">
                 <label class="edivi__interactbutton-text"><?= $reaE($feld === 'rea_tod_zeit' ? 'Todeszeitpunkt' : 'Uhrzeit') ?></label>
                 <input type="time" name="<?= $reaE($feld) ?>" id="<?= $reaE($feld) ?>" class="edivi__interactbutton-input" value="<?= $reaE($reaWert($feld)) ?>"<?= $reaGesperrt ? ' readonly' : '' ?>>
-            </div>
-        <?php else : ?>
-            <div class="<?= $reaE($reaCol) ?> d-flex flex-column edivi__interactbutton px-3">
-                <input type="checkbox" class="btn-check" id="reaerfolglos_1" name="<?= $reaE($feld) ?>" value="1"<?= $reaWert($feld) === '1' ? ' checked' : '' ?><?= $reaDis ?> autocomplete="off">
-                <label for="reaerfolglos_1"><?= $reaE($detail['label']) ?></label>
             </div>
         <?php endif; ?>
     </div>
