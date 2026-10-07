@@ -65,7 +65,9 @@ final class MailPagesTest extends FeatureTestCase
         $this->assertOk($page);
         $this->assertSame('private, no-store', $page->headers['Cache-Control'] ?? null);
         $this->assertBodyContains('data-ignis-workbench', $page);
-        $this->assertBodyContains('data-ignis-preview-url="/mail/inbox/{id}/preview"', $page);
+        // Vorschau und Skripte nennen das gewählte Postfach (MailController::currentMailbox()).
+        $this->assertBodyContains('data-ignis-preview-url="/mail/inbox/{id}/preview?postfach=' . $this->bob['mailbox']->id . '"', $page);
+        $this->assertBodyContains('data-mail-mailbox="' . $this->bob['mailbox']->id . '"', $page);
         $this->assertBodyContains('data-ignis-row="' . $id . '"', $page);
         $this->assertBodyContains('class="is-unread"', $page);
         $this->assertBodyContains('Wachplan KW 40', $page);

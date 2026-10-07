@@ -2,7 +2,8 @@
 
 /**
  * Mail-Zähler für die Sidebar (App\Support\NavigationCounters): die
- * ungelesenen Mails im Posteingang des eigenen Postfachs.
+ * ungelesenen Mails im Posteingang des eigenen Postfachs und der
+ * Gruppenpostfächer, in denen das Konto Mitglied ist.
  */
 
 declare(strict_types=1);
@@ -12,8 +13,8 @@ use Plugin\Mail\Models\Mailbox;
 
 return [
     'mail' => static function (): ?int {
-        $mailbox = Mailbox::current();
+        $mailboxIds = Mailbox::accessibleIds();
 
-        return $mailbox === null ? null : (MailController::unreadCounts($mailbox)['inbox'] ?? 0);
+        return $mailboxIds === [] ? null : array_sum(MailController::inboxUnread($mailboxIds));
     },
 ];

@@ -311,7 +311,7 @@ final class MailListController extends Controller
             ->where(static fn ($q) => $q->where('active', true)->where('locked', false))
             ->orWhereIn('id', array_merge($stored, $members === [] ? [0] : $members))
             ->orderBy('display_name')
-            ->get(['id', 'address', 'display_name', 'active', 'locked']);
+            ->get(['id', 'kind', 'address', 'display_name', 'active', 'locked']);
 
         $domains = $this->rules->allowedDomains();
         if ($form['domain'] !== '' && !in_array($form['domain'], $domains, true) && $list !== null) {

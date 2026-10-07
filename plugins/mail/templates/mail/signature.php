@@ -1,35 +1,46 @@
 <?php
 /**
- * View: eigene Signatur des Postfachs, als Drawer aus der Ordnerleiste
- * (drawer-form.js schickt das Formular ab) oder als Seite. Der Editor im
- * Mailmodus schreibt sein JSON vor dem Absenden ins versteckte Feld. Ohne
- * eigene steht die geltende Signatur als Vorlage im Editor: die
- * Standard-Signatur der Instanz, ausgefüllt mit den Angaben aus dem
- * Mitarbeiterprofil.
+ * View: Signatur des gewählten Postfachs, als Drawer aus der Ordnerleiste
+ * (drawer-form.js schickt das Formular ab) oder als Seite. Der Editor mit
+ * Platzhaltern und Vorschau ist mail/_signature-editor.php. Ohne eigene
+ * steht die Standard-Signatur als Vorlage darin, mit ihren Platzhaltern.
  *
- * @var array<string,mixed> $bodyJson
- * @var bool                $hasOwn
+ * `mailbox_id` hält fest, für welches Postfach das Formular geöffnet wurde,
+ * auch wenn ein zweiter Tab inzwischen ein anderes zeigt.
+ *
+ * @var \Plugin\Mail\Models\Mailbox                  $mailbox
+ * @var array<string,mixed>                          $bodyJson
+ * @var bool                                         $hasOwn
+ * @var array<string,list<array<string,mixed>>>      $values   Werte für die Vorschau
  */
 
 $layout     = 'admin';
 $bodyId     = 'mail';
-$SITE_TITLE = 'Signatur';
+$SITE_TITLE = $mailbox->isGroup() ? 'Signatur: ' . $mailbox->display_name : 'Signatur';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
 <link rel="stylesheet" href="<?= htmlspecialchars(asset('assets/dist/editor.css')) ?>">
 <div class="twplus-page">
-    <form method="post" action="<?= htmlspecialchars($base . 'mail/signature') ?>" id="mail-signature-form" class="ignis-card"
-          data-editor-src="<?= htmlspecialchars(asset('assets/dist/editor.iife.js')) ?>">
+    <form method="post" action="<?= htmlspecialchars($base . 'mail/signature') ?>" id="mail-signature-form" class="ignis-card">
         <?= csrf_field() ?>
-        <input type="hidden" name="body_json" id="mail-signature-json">
-        <div class="ignis-card__body">
+        <input type="hidden" name="mailbox_id" value="<?= (int) $mailbox->id ?>">
+        <div class="ignis-card__body grid gap-3">
             <p class="ignis-field__hint">
+                <?php if ($mailbox->isGroup()): ?>
+                    Signatur des Gruppenpostfachs <b><?= htmlspecialchars($mailbox->display_name) ?></b>, gilt für alle Mitglieder. Die Platzhalter für den Absender füllt ignis mit den Angaben dessen, der gerade schreibt.
+                <?php endif; ?>
                 Steht in neuen Mails nach einer Leerzeile unter dem Text und lässt sich dort noch ändern oder löschen.
-                <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange du keine eigene speicherst, gilt die Standard-Signatur mit den Angaben aus deinem Mitarbeiterprofil.' ?>
+                <?= $hasOwn ? 'Leer speichern heißt: keine Signatur.' : 'Solange keine eigene gespeichert ist, gilt die Standard-Signatur; sie steht hier als Vorlage.' ?>
             </p>
-            <div class="efe-frame">
-                <div id="mail-signature-toolbar"></div>
-                <div id="mail-signature-editor" class="efe-page ignis-mail__editor" data-efe-content="<?= htmlspecialchars((string) json_encode($bodyJson, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES) ?>"></div>
+            <div>
+                <?php
+                $sigPrefix = 'mail-signature';
+                $sigField  = 'body_json';
+                $sigLabel  = 'Signatur';
+                $sigDoc    = $bodyJson;
+                $sigValues = $values;
+                require __DIR__ . '/_signature-editor.php';
+                ?>
             </div>
         </div>
         <div class="ignis-card__footer" data-form-actions>
@@ -38,39 +49,3 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         </div>
     </form>
 </div>
-<script>
-(function () {
-    'use strict';
-    var form = document.getElementById('mail-signature-form');
-    var mount = document.getElementById('mail-signature-editor');
-    var hidden = document.getElementById('mail-signature-json');
-    if (!form || !mount || !hidden) return;
-
-    // Das Editor-Bundle gehört nicht zur Hülle. Im Drawer ersetzt
-    // drawer-form.js die <script>-Tags neu, zwei externe Skripte hätten dann
-    // keine feste Reihenfolge; deshalb lädt dieser Block es selbst nach.
-    function mountEditor() {
-        var content;
-        try { content = JSON.parse(mount.getAttribute('data-efe-content') || ''); } catch (e) { content = { type: 'doc', content: [] }; }
-        var editor = window.EmergencyForgeEditor.createEditor(mount, {
-            content: content,
-            toolbar: document.getElementById('mail-signature-toolbar'),
-            features: 'signature',
-        });
-        hidden.value = JSON.stringify(editor.getJSON());
-        editor.on('update', function () {
-            hidden.value = JSON.stringify(editor.getJSON());
-            form.dispatchEvent(new Event('input', { bubbles: true }));
-        });
-    }
-
-    if (window.EmergencyForgeEditor) {
-        mountEditor();
-        return;
-    }
-    var script = document.createElement('script');
-    script.src = form.getAttribute('data-editor-src') || '';
-    script.onload = mountEditor;
-    document.body.appendChild(script);
-})();
-</script>

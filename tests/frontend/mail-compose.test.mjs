@@ -26,7 +26,7 @@ function element(extra = {}) {
     };
 }
 
-function compose({ draftId = '', inDrawer = false, onMailPage = false } = {}) {
+function compose({ draftId = '', inDrawer = false, onMailPage = false, mailboxId = '' } = {}) {
     const timers = [];
     const requests = [];
     const snacks = [];
@@ -44,7 +44,7 @@ function compose({ draftId = '', inDrawer = false, onMailPage = false } = {}) {
     }) : null;
     const token = element({ value: 'tok-1' });
     const form = element({
-        attrs: { 'data-base': '/', 'data-draft-id': draftId, 'data-editor-src': '/editor.js' },
+        attrs: { 'data-base': '/', 'data-draft-id': draftId, 'data-editor-src': '/editor.js', 'data-mailbox-id': mailboxId },
         querySelector: (selector) => (selector === 'input[name="csrf_token"]' ? token : null),
         closest: (selector) => (selector === '.ignis-drawer' ? drawer : null),
     });
@@ -206,4 +206,14 @@ test('Ohne Drawer geht es nach „Gesendet“, die Meldung kommt mit', async () 
 
     assert.equal(c.location.href, '/mail/sent');
     assert.equal(JSON.parse(c.stored.get('ignis.mail.snack')).text, 'Mail gesendet.');
+});
+
+// Das Fenster sendet aus dem Postfach, in dem es geöffnet wurde (auch einem
+// Gruppenpostfach), nicht aus dem, das ein anderer Tab gerade zeigt.
+test('Jede Anfrage nennt das Postfach des Fensters, danach geht es in dessen Ordner', async () => {
+    const c = compose({ draftId: '7', mailboxId: '42' });
+    await sendOnce(c);
+
+    assert.equal(c.requests[0].body.values.get('mailbox_id'), '42');
+    assert.equal(c.location.href, '/mail/sent?postfach=42');
 });

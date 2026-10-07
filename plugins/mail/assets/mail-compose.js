@@ -62,6 +62,8 @@
         var draftId = form.getAttribute('data-draft-id') || '';
         var inReplyTo = form.getAttribute('data-in-reply-to') || '';
         var forwardFrom = form.getAttribute('data-forward-from') || '';
+        var mailboxId = form.getAttribute('data-mailbox-id') || '';
+        var inBox = mailboxId ? '?postfach=' + encodeURIComponent(mailboxId) : '';
         var tokenInput = form.querySelector('input[name="csrf_token"]');
         var statusEl = document.getElementById('mail-compose-status');
         var subject = document.getElementById('mail-compose-subject');
@@ -100,6 +102,8 @@
         function post(url, body) {
             var run = queue.then(function () {
                 if (tokenInput) body.set('csrf_token', tokenInput.value);
+                // Absender ist das Postfach, in dem das Fenster geöffnet wurde.
+                if (mailboxId) body.set('mailbox_id', mailboxId);
                 return fetch(url, { method: 'POST', body: body, headers: { Accept: 'application/json' }, credentials: 'same-origin' })
                     .then(function (response) {
                         return response.json().catch(function () { return null; }).then(function (data) {
@@ -304,11 +308,11 @@
                 settle().then(function () {
                     // Nie angelegt: nichts zu löschen, nichts neu zu laden.
                     if (!draftId) {
-                        closeOrGo(base + 'mail/drafts');
+                        closeOrGo(base + 'mail/drafts' + inBox);
                         return;
                     }
                     post(base + 'mail/messages/' + draftId + '/delete', new FormData()).then(function () {
-                        leave(base + 'mail/drafts');
+                        leave(base + 'mail/drafts' + inBox);
                     });
                 });
             });
@@ -324,7 +328,7 @@
                 .then(function (result) {
                     if (result.ok) {
                         var missing = result.data.unresolvedAddresses || [];
-                        leave(base + 'mail/sent', missing.length ? 'warning' : 'success', missing.length
+                        leave(base + 'mail/sent' + inBox, missing.length ? 'warning' : 'success', missing.length
                             ? 'Gesendet. Nicht zustellbar: ' + missing.join(', ')
                             : 'Mail gesendet.');
                         return;

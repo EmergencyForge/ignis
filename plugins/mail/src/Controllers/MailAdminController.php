@@ -6,6 +6,7 @@ namespace Plugin\Mail\Controllers;
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Models\Personnel;
 use App\Http\Controllers\Controller;
 use App\Notifications\NotificationManager;
 use App\Session\SessionManager;
@@ -16,6 +17,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Plugin\Mail\MailAddressRules;
 use Plugin\Mail\Models\Mailbox;
+use Plugin\Mail\Models\MailboxMember;
 use Plugin\Mail\SignatureTemplate;
 
 /**
@@ -34,6 +36,13 @@ use Plugin\Mail\SignatureTemplate;
  * (intra_mail_address_history). Die eigene Adresse ändert hier niemand:
  * sich selbst eine Adresse aussuchen und die alte freigeben, das macht
  * ein anderer Admin.
+ *
+ * Gruppenpostfächer legt nur die Verwaltung an, mit Name und Adresse von
+ * Hand und Mitgliedern statt eines Kontos. Mitglied werden heißt mitlesen:
+ * sich selbst nimmt niemand auf, das macht eine andere Person mit
+ * Postfachverwaltung, wie beim eigenen Postfach. Austreten darf jeder. Ins
+ * Audit-Log kommen IDs, nie Inhalte. Ein Gruppenpostfach wird gesperrt,
+ * nicht gelöscht: es steht als Absender in den Postfächern der Empfänger.
  */
 final class MailAdminController extends Controller
 {
@@ -54,17 +63,164 @@ final class MailAdminController extends Controller
             'name'    => 'mb.display_name',
             'address' => 'mb.address',
             'state'   => '(mb.locked * 2 + (1 - mb.active))',
-        ], 'name', 'asc', 50);
+        ], 'name', 'asc', 50, filterKeys: ['kind']);
 
         $query = Capsule::table('intra_mail_mailboxes as mb')
             ->leftJoin('intra_mitarbeiter as m', 'm.id', '=', 'mb.mitarbeiter_id')
-            ->select('mb.id', 'mb.address', 'mb.display_name', 'mb.domain', 'mb.active', 'mb.locked', 'mb.mitarbeiter_id', 'mb.user_id', 'm.fullname as owner');
+            ->select('mb.id', 'mb.kind', 'mb.address', 'mb.display_name', 'mb.domain', 'mb.active', 'mb.locked', 'mb.mitarbeiter_id', 'mb.user_id', 'm.fullname as owner')
+            ->selectSub(Capsule::table('intra_mail_mailbox_members as mm')->selectRaw('COUNT(*)')->whereColumn('mm.mailbox_id', 'mb.id'), 'members');
+        $kind = $list->filter('kind');
+        if (array_key_exists($kind, Mailbox::KIND_LABELS)) {
+            $query->where('mb.kind', $kind);
+        }
         if ($list->q !== '') {
             $like = $list->like();
             $query->where(static fn ($w) => $w->where('mb.address', 'like', $like)->orWhere('mb.display_name', 'like', $like));
         }
 
         return $this->page('settings/mailboxes', ['rows' => $list->paginate($query)->all(), 'list' => $list, 'ownId' => $this->ownMailboxId()]);
+    }
+
+    /** GET /settings/mail/mailboxes/groups/create */
+    public function createGroup(Request $request): Response
+    {
+        return $this->groupForm(['name' => '', 'local' => '', 'domain' => $this->rules->defaultDomain()]);
+    }
+
+    /** POST /settings/mail/mailboxes/groups */
+    public function storeGroup(Request $request): Response
+    {
+        $text   = static fn (mixed $v): ?string => is_string($v) ? trim($v) : null;
+        $name   = $text($request->post['name'] ?? '');
+        $local  = $text($request->post['local'] ?? '');
+        $raw    = $text($request->post['domain'] ?? '');
+        // Ohne `mail.domain.choose` gilt die Standard-Domain, ein mitgeschickter Wert zählt nicht.
+        $domain = Permissions::check(['admin', 'mail.domain.choose']) && $raw !== null ? MailAddressRules::normalize($raw) : $this->rules->defaultDomain();
+        $form   = ['name' => $name ?? '', 'local' => $local ?? '', 'domain' => $domain];
+
+        $address = MailAddressRules::compose($form['local'], $domain);
+        $error   = $name === null || $local === null
+            ? 'Ungültige Eingabe.'
+            : (self::groupNameError($form['name']) ?? $this->rules->validate($address));
+        if ($error !== null) {
+            Flash::error($error);
+
+            return $this->groupForm($form, 422);
+        }
+
+        $mailbox = new Mailbox();
+        $mailbox->kind         = Mailbox::KIND_GROUP;
+        $mailbox->address      = $address;
+        $mailbox->display_name = $form['name'];
+        $mailbox->domain       = $domain;
+        $mailbox->active       = true;
+        $mailbox->locked       = false;
+        try {
+            $mailbox->save();
+        } catch (UniqueConstraintViolationException) {
+            Flash::error('Die Adresse ' . $address . ' ist bereits vergeben.');
+
+            return $this->groupForm($form, 422);
+        }
+
+        self::audit('Gruppenpostfach angelegt', $address, ['mailbox_id' => $mailbox->id, 'address' => $address]);
+        Flash::success('Gruppenpostfach ' . $address . ' ist angelegt. Jetzt fehlen noch die Mitglieder.');
+
+        return Response::redirect(MailController::basePath() . 'settings/mail/mailboxes/' . $mailbox->id . '/edit');
+    }
+
+    /** POST /settings/mail/mailboxes/{id}/name: Namen eines Gruppenpostfachs ändern. */
+    public function renameGroup(Request $request, string $id): Response
+    {
+        $mailbox = $this->group((int) $id);
+        if ($mailbox === null) {
+            return $this->mailboxNotFound();
+        }
+        $back = Response::redirect(MailController::basePath() . 'settings/mail/mailboxes/' . $mailbox->id . '/edit');
+        $raw  = $request->post['name'] ?? null;
+        $name = is_string($raw) ? trim($raw) : '';
+        $error = is_string($raw) ? self::groupNameError($name) : 'Ungültige Eingabe.';
+        if ($error !== null) {
+            Flash::error($error);
+
+            return $back;
+        }
+        if ($name === $mailbox->display_name) {
+            Flash::info('Keine Änderungen.');
+
+            return $back;
+        }
+
+        $before = $mailbox->display_name;
+        $mailbox->display_name = $name;
+        $mailbox->setAttribute('updated_at', date('Y-m-d H:i:s'));
+        $mailbox->save();
+
+        self::audit('Gruppenpostfach umbenannt', $before . ' → ' . $name, ['mailbox_id' => $mailbox->id, 'von' => $before, 'auf' => $name]);
+        Flash::success('Das Gruppenpostfach heißt jetzt „' . $name . '“.');
+
+        return $back;
+    }
+
+    /** POST /settings/mail/mailboxes/{id}/members: ein aktives Konto aufnehmen, nie das eigene. */
+    public function addMember(Request $request, string $id): Response
+    {
+        $mailbox = $this->group((int) $id);
+        if ($mailbox === null) {
+            return $this->mailboxNotFound();
+        }
+        $back = Response::redirect(MailController::basePath() . 'settings/mail/mailboxes/' . $mailbox->id . '/edit');
+        $raw  = $request->post['user_id'] ?? null;
+        $userId = is_string($raw) && preg_match('/^[1-9]\d{0,9}$/', $raw) === 1 ? (int) $raw : null;
+        $name   = $userId !== null ? self::accountName($userId, activeOnly: true) : null;
+
+        $error = match (true) {
+            $userId === null || $name === null     => 'Bitte ein aktives Konto wählen.',
+            $userId === SessionManager::userId()   => 'Sich selbst nimmt niemand in ein Gruppenpostfach auf: das macht eine andere Person mit Postfachverwaltung.',
+            $mailbox->hasMember($userId)           => $name . ' ist bereits Mitglied.',
+            default                                => null,
+        };
+        if ($error !== null) {
+            Flash::error($error);
+
+            return $back;
+        }
+
+        try {
+            MailboxMember::query()->create(['mailbox_id' => $mailbox->id, 'user_id' => $userId]);
+        } catch (UniqueConstraintViolationException) {
+            Flash::info($name . ' ist bereits Mitglied.');
+
+            return $back;
+        }
+        Mailbox::forget();
+
+        self::audit('Gruppenpostfach: Mitglied aufgenommen', $mailbox->address . ': Konto #' . $userId, ['mailbox_id' => $mailbox->id, 'user_id' => $userId]);
+        Flash::success($name . ' liest jetzt ' . $mailbox->address . ' mit.');
+
+        return $back;
+    }
+
+    /** POST /settings/mail/mailboxes/{id}/members/{userId}/delete */
+    public function removeMember(Request $request, string $id, string $userId): Response
+    {
+        $mailbox = $this->group((int) $id);
+        if ($mailbox === null) {
+            return $this->mailboxNotFound();
+        }
+        $back    = Response::redirect(MailController::basePath() . 'settings/mail/mailboxes/' . $mailbox->id . '/edit');
+        $removed = MailboxMember::query()->where('mailbox_id', $mailbox->id)->where('user_id', (int) $userId)->delete();
+        if ($removed === 0) {
+            Flash::info('Dieses Konto ist kein Mitglied.');
+
+            return $back;
+        }
+        Mailbox::forget();
+
+        self::audit('Gruppenpostfach: Mitglied entfernt', $mailbox->address . ': Konto #' . (int) $userId, ['mailbox_id' => $mailbox->id, 'user_id' => (int) $userId]);
+        Flash::success((self::accountName((int) $userId) ?? 'Das Konto') . ' liest ' . $mailbox->address . ' nicht mehr mit.');
+
+        return $back;
     }
 
     /** GET /settings/mail/mailboxes/{id}/edit */
@@ -161,6 +317,11 @@ final class MailAdminController extends Controller
         }
         $back = MailController::basePath() . 'settings/mail/mailboxes/' . $mailbox->id . '/edit';
         $me   = (int) SessionManager::userId();
+        if ($mailbox->isGroup()) {
+            Flash::error('Ein Gruppenpostfach hat kein eigenes Konto. Wer es liest, steht bei den Mitgliedern.');
+
+            return Response::redirect($back);
+        }
 
         $raw    = $request->post['user_id'] ?? null;
         $target = is_string($raw) && preg_match('/^[1-9]\d{0,9}$/', $raw) === 1 ? (int) $raw : null;
@@ -316,7 +477,7 @@ final class MailAdminController extends Controller
 
         Flash::success($locked
             ? 'Postfach ' . $mailbox->address . ' ist gesperrt. Es stellt nichts mehr zu und lässt sich nicht öffnen.'
-            : ($mailbox->active
+            : ($mailbox->active || $mailbox->isGroup()
                 ? 'Postfach ' . $mailbox->address . ' ist entsperrt.'
                 : 'Die Sperre ist aufgehoben. Das Postfach bleibt inaktiv, weil der Mitarbeiter ausgeschieden oder gelöscht ist.'));
 
@@ -342,6 +503,8 @@ final class MailAdminController extends Controller
 
         return $this->page('settings/mailbox-edit', [
             'mailbox'    => $mailbox,
+            'members'    => $mailbox->isGroup() ? $this->members($mailbox) : [],
+            'memberCandidates' => $mailbox->isGroup() ? $this->memberCandidates($mailbox) : [],
             'owner'      => is_string($owner) ? $owner : null,
             'account'    => is_string($account) ? $account : null,
             'candidates' => $this->eligibleAccounts($mailbox),
@@ -406,7 +569,98 @@ final class MailAdminController extends Controller
     /** @param array<string,mixed> $form */
     private function settingsForm(array $form, int $status = 200): Response
     {
-        return $this->page('settings/mail', ['form' => $form], $status);
+        return $this->page('settings/mail', ['form' => $form, 'previewValues' => $this->previewValues()], $status);
+    }
+
+    /**
+     * Die Angaben des angemeldeten Kontos für die Vorschau der
+     * Standard-Signatur: sein Mitarbeiter und sein Postfach, soweit es sie gibt.
+     *
+     * @return array<string,list<array<string,mixed>>>
+     */
+    private function previewValues(): array
+    {
+        $userId  = SessionManager::userId();
+        $mailbox = $userId !== null ? Mailbox::ownedBy($userId) : null;
+        $personId = $mailbox->mitarbeiter_id ?? ($userId !== null ? Mailbox::mitarbeiterIdForUser($userId) : null);
+
+        return SignatureTemplate::values(
+            $personId !== null ? Personnel::query()->find($personId) : null,
+            $mailbox->address ?? '',
+            $mailbox->display_name ?? '',
+        );
+    }
+
+    private function group(int $id): ?Mailbox
+    {
+        $mailbox = Mailbox::query()->find($id);
+
+        return $mailbox !== null && $mailbox->isGroup() ? $mailbox : null;
+    }
+
+    private static function groupNameError(string $name): ?string
+    {
+        return match (true) {
+            $name === ''           => 'Bitte gib dem Gruppenpostfach einen Namen.',
+            mb_strlen($name) > 150 => 'Der Name darf höchstens 150 Zeichen lang sein.',
+            default                => null,
+        };
+    }
+
+    /** Anzeigename eines Kontos (vollständiger Name, sonst Benutzername), null wenn es fehlt. */
+    private static function accountName(int $userId, bool $activeOnly = false): ?string
+    {
+        $user = Capsule::table('intra_users')->where('id', $userId)
+            ->when($activeOnly, static fn ($q) => $q->where('is_active', 1))
+            ->first(['fullname', 'username']);
+
+        return $user === null ? null : (string) (($user->fullname ?? '') !== '' ? $user->fullname : $user->username);
+    }
+
+    /**
+     * Mitglieder eines Gruppenpostfachs, auch inaktive Konten.
+     *
+     * @return list<array{id:int, name:string, active:bool}>
+     */
+    private function members(Mailbox $mailbox): array
+    {
+        return Capsule::table('intra_mail_mailbox_members as mm')
+            ->join('intra_users as u', 'u.id', '=', 'mm.user_id')
+            ->where('mm.mailbox_id', $mailbox->id)
+            ->orderByRaw("COALESCE(NULLIF(u.fullname, ''), u.username)")
+            ->get(['u.id', 'u.fullname', 'u.username', 'u.is_active'])
+            ->map(static fn ($u): array => ['id' => (int) $u->id, 'name' => (string) (($u->fullname ?? '') !== '' ? $u->fullname : $u->username), 'active' => (int) $u->is_active === 1])
+            ->all();
+    }
+
+    /**
+     * Konten, die „Mitglied aufnehmen“ anbietet: aktiv, noch nicht Mitglied,
+     * nicht das eigene.
+     *
+     * @return array<int,string> Id => Name
+     */
+    private function memberCandidates(Mailbox $mailbox): array
+    {
+        return Capsule::table('intra_users as u')
+            ->where('u.is_active', 1)
+            ->where('u.id', '!=', (int) SessionManager::userId())
+            ->whereNotExists(static function ($q) use ($mailbox): void {
+                $q->selectRaw('1')->from('intra_mail_mailbox_members as mm')->whereColumn('mm.user_id', 'u.id')->where('mm.mailbox_id', $mailbox->id);
+            })
+            ->orderByRaw("COALESCE(NULLIF(u.fullname, ''), u.username)")
+            ->get(['u.id', 'u.fullname', 'u.username'])
+            ->mapWithKeys(static fn ($u): array => [(int) $u->id => (string) (($u->fullname ?? '') !== '' ? $u->fullname : $u->username)])
+            ->all();
+    }
+
+    /** @param array{name:string, local:string, domain:string} $form */
+    private function groupForm(array $form, int $status = 200): Response
+    {
+        return $this->page('settings/mailbox-group', [
+            'form'      => $form,
+            'domains'   => $this->rules->allowedDomains(),
+            'canChoose' => Permissions::check(['admin', 'mail.domain.choose']),
+        ], $status);
     }
 
     private function mailboxNotFound(): Response

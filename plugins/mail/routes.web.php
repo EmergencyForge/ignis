@@ -5,8 +5,10 @@ declare(strict_types=1);
 /**
  * Mail: Web-Routen.
  *
- * Alles hinter AuthMiddleware + `mail.use`. Das Postfach kommt immer aus
- * der Sitzung (Mailbox::current()), keine Route nimmt ein fremdes an.
+ * Alles hinter AuthMiddleware + `mail.use`. Das Postfach wählt der
+ * MailController unter denen, die das Konto lesen darf (das eigene und
+ * Gruppenpostfächer mit Mitgliedschaft, Mailbox::selected()); ein fremdes
+ * nimmt keine Route an, auch nicht per Parameter.
  * Schreibende Routen prüft die globale CsrfMiddleware.
  *
  * @var \EmergencyForge\Http\Router $router
@@ -63,6 +65,11 @@ $adminAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'mail.adm
 $router->get( '/settings/mail',                            [MailAdminController::class, 'settings'],      $adminAuth);
 $router->post('/settings/mail',                            [MailAdminController::class, 'saveSettings'],  $adminAuth);
 $router->get( '/settings/mail/mailboxes',                  [MailAdminController::class, 'mailboxes'],     $adminAuth);
+$router->get( '/settings/mail/mailboxes/groups/create',    [MailAdminController::class, 'createGroup'],   $adminAuth);
+$router->post('/settings/mail/mailboxes/groups',           [MailAdminController::class, 'storeGroup'],    $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}/name',    [MailAdminController::class, 'renameGroup'],   $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}/members', [MailAdminController::class, 'addMember'],     $adminAuth);
+$router->post('/settings/mail/mailboxes/{id:\d+}/members/{userId:\d+}/delete', [MailAdminController::class, 'removeMember'], $adminAuth);
 $router->get( '/settings/mail/mailboxes/{id:\d+}/edit',    [MailAdminController::class, 'editMailbox'],   $adminAuth);
 $router->post('/settings/mail/mailboxes/{id:\d+}',         [MailAdminController::class, 'updateMailbox'], $adminAuth);
 $router->post('/settings/mail/mailboxes/{id:\d+}/lock',    [MailAdminController::class, 'lockMailbox'],   $adminAuth);

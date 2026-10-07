@@ -13,6 +13,8 @@
  *
  * @var string                                  $folder
  * @var \Plugin\Mail\Models\Message             $message
+ * @var \Plugin\Mail\Models\Mailbox             $mailbox    das gewählte Postfach; die Verfassen-Links nennen es
+ * @var string|null                             $sentBy     Gruppenpostfach: wer für die Gruppe geschrieben hat
  * @var bool                                    $isDraft
  * @var array{to:list<string>,cc:list<string>,bcc:list<string>} $header
  * @var string                                  $bodyHtml   Momentaufnahme aus dem Renderer
@@ -23,6 +25,7 @@
 $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $sender = $message->senderMailbox;
 $id     = (int) $message->id;
+$inBox  = '?postfach=' . (int) $mailbox->id;
 $list   = static fn (array $addresses): string => $addresses === [] ? '(keine)' : htmlspecialchars(implode(', ', $addresses));
 ?>
 <div class="ignis-mail__reading" data-mail-folder="<?= htmlspecialchars($folder) ?>"<?= $needsMarkRead ? ' data-mail-mark-read="' . $id . '"' : '' ?>>
@@ -30,7 +33,14 @@ $list   = static fn (array $addresses): string => $addresses === [] ? '(keine)' 
 
     <dl class="ignis-preview__dl">
         <dt>Von</dt>
-        <dd><?= htmlspecialchars($sender->display_name) ?> <span class="ignis-preview__muted">&lt;<?= htmlspecialchars($sender->address) ?>&gt;</span></dd>
+        <dd>
+            <?= htmlspecialchars($sender->display_name) ?> <span class="ignis-preview__muted">&lt;<?= htmlspecialchars($sender->address) ?>&gt;</span>
+            <?php if ($sender->isGroup()): ?><span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($sender->kindLabel()) ?></span><?php endif; ?>
+        </dd>
+        <?php if ($sentBy !== null): ?>
+            <dt><?= $isDraft ? 'Bearbeitet von' : 'Geschrieben von' ?></dt>
+            <dd><?= htmlspecialchars($sentBy) ?></dd>
+        <?php endif; ?>
         <dt>An</dt>
         <dd><?= $list($header['to']) ?></dd>
         <?php if ($header['cc'] !== []): ?>
@@ -64,22 +74,22 @@ $list   = static fn (array $addresses): string => $addresses === [] ? '(keine)' 
 
     <div class="ignis-preview__actions">
         <?php if ($isDraft): ?>
-            <a href="<?= htmlspecialchars($base . 'mail/compose/draft/' . $id) ?>" class="ignis-btn ignis-btn--sm ignis-btn--primary" data-ignis-drawer>
+            <a href="<?= htmlspecialchars($base . 'mail/compose/draft/' . $id . $inBox) ?>" class="ignis-btn ignis-btn--sm ignis-btn--primary" data-ignis-drawer>
                 <i class="fa-solid fa-pen" aria-hidden="true"></i> Weiter bearbeiten
             </a>
             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger" data-mail-action="discard" data-mail-id="<?= $id ?>">
                 <i class="fa-solid fa-trash" aria-hidden="true"></i> Verwerfen
             </button>
         <?php else: ?>
-            <a href="<?= htmlspecialchars($base . 'mail/compose/reply/' . $id) ?>" class="ignis-btn ignis-btn--sm ignis-btn--primary" data-ignis-drawer>
+            <a href="<?= htmlspecialchars($base . 'mail/compose/reply/' . $id . $inBox) ?>" class="ignis-btn ignis-btn--sm ignis-btn--primary" data-ignis-drawer>
                 <i class="fa-solid fa-reply" aria-hidden="true"></i> Antworten
             </a>
             <?php if (count($header['to']) + count($header['cc']) > 1): ?>
-                <a href="<?= htmlspecialchars($base . 'mail/compose/reply-all/' . $id) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer>
+                <a href="<?= htmlspecialchars($base . 'mail/compose/reply-all/' . $id . $inBox) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer>
                     <i class="fa-solid fa-reply-all" aria-hidden="true"></i> Allen antworten
                 </a>
             <?php endif; ?>
-            <a href="<?= htmlspecialchars($base . 'mail/compose/forward/' . $id) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer>
+            <a href="<?= htmlspecialchars($base . 'mail/compose/forward/' . $id . $inBox) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer>
                 <i class="fa-solid fa-share" aria-hidden="true"></i> Weiterleiten
             </a>
             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-mail-action="flag" data-mail-flagged="<?= $flagged ? '1' : '0' ?>" data-mail-id="<?= $id ?>" aria-pressed="<?= $flagged ? 'true' : 'false' ?>">

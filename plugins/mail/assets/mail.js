@@ -31,6 +31,9 @@
         var run = queue.then(function () {
             var meta = document.querySelector('meta[name="csrf-token"]');
             if (meta) body.set('csrf_token', meta.getAttribute('content') || '');
+            // Das Postfach, für das die Seite gerendert wurde, nicht die Wahl eines anderen Tabs.
+            var r = root();
+            if (r && r.getAttribute('data-mail-mailbox')) body.set('mailbox_id', r.getAttribute('data-mail-mailbox'));
             return fetch(url, { method: 'POST', body: body, headers: { Accept: 'application/json' }, credentials: 'same-origin' })
                 .then(function (response) {
                     return response.json().catch(function () { return null; }).then(function (data) {
@@ -60,7 +63,9 @@
     function reloadFolder(scope) {
         var pane = scope && scope.closest ? scope.closest('[data-mail-folder]') : null;
         var folder = pane ? pane.getAttribute('data-mail-folder') : 'inbox';
-        window.location.href = base() + 'mail/' + folder;
+        var r = root();
+        var mailbox = r && r.getAttribute('data-mail-mailbox') ? '?postfach=' + encodeURIComponent(r.getAttribute('data-mail-mailbox')) : '';
+        window.location.href = base() + 'mail/' + folder + mailbox;
     }
 
     function confirmDanger(text, title, confirmText) {
