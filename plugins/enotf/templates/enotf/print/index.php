@@ -146,7 +146,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 </head>
 
 <body>
-    <div id="topbar" class="container-fluid" data-pin-enabled="<?= $pinEnabled ?>">
+    <div id="topbar" class="container-fluid" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
         <div class="row">
             <div class="col">
                 <?php if (!isset($_SESSION['klinik_access_enr'])): ?>

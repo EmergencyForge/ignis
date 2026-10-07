@@ -31,7 +31,7 @@ $createError = (string) ($_GET['error'] ?? '');
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <form name="form" method="post" action="<?= $e(EnotfV2Url::page('create')) ?>" id="enrForm">
         <input type="hidden" name="prot_by" id="prot_by" value="" />
         <input type="hidden" name="force_create" id="force_create" value="0" />

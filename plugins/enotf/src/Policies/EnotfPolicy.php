@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Policies;
 
 use App\Auth\Permissions;
+use App\Session\SessionManager;
 
 /**
  * EnotfPolicy: Authorization für das eNOTF-Modul.
@@ -17,7 +18,8 @@ use App\Auth\Permissions;
  *    zugänglich sind. Klinikzugriff via Code (`klinik_access_*`) bypassed das.
  *
  * 2. **PIN-Lockscreen** (`ENOTF_USE_PIN`): Wenn aktiv, muss eine PIN eingegeben
- *    werden. Admins/edivi.view-User sind exempt. 5-Minuten-Timeout.
+ *    werden. Admins/edivi.view-User sind exempt. Sperrzeit aus ENOTF_PIN_TIMEOUT
+ *    (SessionManager::pinTimeout()).
  *
  * 3. **Crew-Login** (`fahrername` + `protfzg` in Session): Voraussetzung für
  *    overview/protokoll/etc. Wird via login.php gesetzt, via loggedout.php
@@ -30,7 +32,6 @@ use App\Auth\Permissions;
 class EnotfPolicy
 {
     public const KLINIK_ACCESS_TTL = 7200; // 2 Stunden
-    public const PIN_TIMEOUT       = 300;  // 5 Minuten
 
     /**
      * User-Auth-Gate: muss ein User-Login vorhanden sein, um eNOTF zu nutzen?
@@ -110,7 +111,7 @@ class EnotfPolicy
             return false;
         }
 
-        return (time() - (int) $lastActivity) <= self::PIN_TIMEOUT;
+        return (time() - (int) $lastActivity) <= SessionManager::pinTimeout();
     }
 
     /**

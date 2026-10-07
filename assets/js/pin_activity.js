@@ -5,7 +5,8 @@
   let activityTimer = null;
   const updateInterval = 30000; // Alle 30 Sekunden Session aktualisieren
   const checkInterval = 10000; // Alle 10 Sekunden Timeout prüfen
-  const timeout = 300000; // 5 Minuten in Millisekunden
+  // Sperrzeit in Sekunden vom Server (ENOTF_PIN_TIMEOUT), sonst 5 Minuten
+  const timeout = (parseInt(document.body.dataset.pinTimeout, 10) || 300) * 1000;
 
   let lastActivity = Date.now();
 
@@ -31,7 +32,7 @@
     const timeSinceActivity = now - lastActivity;
 
     if (timeSinceActivity >= timeout) {
-      console.log("🔒 User inactive for 5 minutes, redirecting to lockscreen");
+      console.log("🔒 User inactive, redirecting to lockscreen");
       window.location.href = lockscreenUrl();
     }
   }
@@ -66,7 +67,7 @@
   const timeoutChecker = setInterval(checkTimeout, checkInterval);
 
   let warningShown = false;
-  const warningTime = 240000; // 4 Minuten - 1 Minute vor Timeout
+  const warningTime = timeout - 60000; // 1 Minute vor der Sperre
 
   // FÜR TESTS: Warnung nach 10 Sekunden statt 4 Minuten
   const testMode = window.location.search.includes("timer=show");

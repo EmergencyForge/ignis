@@ -118,7 +118,7 @@ $charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
     </style>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <!-- Normales Anmeldeformular -->
     <form name="form" method="post" action="" id="login-form-new">
         <?= csrf_field() ?>

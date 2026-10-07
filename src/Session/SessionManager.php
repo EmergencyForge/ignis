@@ -503,6 +503,27 @@ class SessionManager
     // PIN-Lockscreen
     // ──────────────────────────────────────────────────────────────────
 
+    /** Wählbare Sperrzeiten in Minuten (Einstellung ENOTF_PIN_TIMEOUT). */
+    public const PIN_TIMEOUT_CHOICES = [2, 5, 10, 15, 20, 30, 60];
+
+    /** Sperrzeit in Minuten, solange ENOTF_PIN_TIMEOUT fehlt oder unbrauchbar ist. */
+    public const PIN_TIMEOUT_DEFAULT = 5;
+
+    /**
+     * Sekunden ohne Aktivität, nach denen das eNOTF wieder nach der PIN
+     * fragt. Kommt aus ENOTF_PIN_TIMEOUT (Minuten) und gilt für v1, v2 und
+     * pin_activity.js (über data-pin-timeout).
+     */
+    public static function pinTimeout(): int
+    {
+        $minutes = defined('ENOTF_PIN_TIMEOUT') ? (int) constant('ENOTF_PIN_TIMEOUT') : self::PIN_TIMEOUT_DEFAULT;
+        if ($minutes < 1 || $minutes > 240) {
+            $minutes = self::PIN_TIMEOUT_DEFAULT;
+        }
+
+        return $minutes * 60;
+    }
+
     /**
      * Markiert die Session als PIN-verifiziert und merkt sich die
      * Return-URL nach erfolgreicher PIN-Eingabe.

@@ -28,7 +28,7 @@ $currentDate = date('d.m.Y');
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <?php
     $topbar_left_html = '
         <a href="' . EnotfUrl::page('overview') . '" class="edivi__iconlink">

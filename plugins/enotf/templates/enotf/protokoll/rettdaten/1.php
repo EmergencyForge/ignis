@@ -108,7 +108,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="stammdaten" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" data-page="stammdaten" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <form name="form" method="post" action="">
         <?= csrf_field() ?>
         <input type="hidden" name="new" value="1" />
