@@ -15,4 +15,4 @@ use Plugin\ManvBoard\Controllers\Api\MciController;
 $mciAuth = [JsonExceptionMiddleware::class, new AuthMiddleware()];
 
 $router->match(['GET', 'POST'], '/api/mci/api',     [MciController::class, 'handle'], $mciAuth);
-$router->match(['GET', 'POST'], '/api/mci-api.php', [MciController::class, 'handle'], $mciAuth);
+$router->match(['GET', 'POST'], '/api/mci-api', [MciController::class, 'handle'], $mciAuth);

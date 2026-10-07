@@ -76,7 +76,7 @@ $router->post('/api/emd/sync',
 // Legacy-Alias: vor langem umgezogener Redirect-Stub (api/emd-sync.php →
 // api/emd/sync.php). Wir honorieren den alten Pfad für den Fall dass noch
 // irgendwo ein FiveM-Script darauf zeigt.
-$router->post('/api/emd-sync.php',
+$router->post('/api/emd-sync',
     [EmdSyncController::class, 'sync'],
     [ApiKeyMiddleware::class]
 );
@@ -134,8 +134,9 @@ $router->post('/api/notifications/mark-read',
     [NotificationController::class, 'markRead'],
     [new AuthMiddleware()]
 );
-// Legacy-Stub-Alias: benachrichtigungen/mark-read.php → NotificationController
-$router->post('/benachrichtigungen/mark-read.php',
+// Alte Adresse benachrichtigungen/mark-read.php: der Front-Controller
+// schneidet .php ab und leitet per UrlMap hierher um.
+$router->post('/notifications/mark-read',
     [NotificationController::class, 'markRead'],
     [new AuthMiddleware()]
 );

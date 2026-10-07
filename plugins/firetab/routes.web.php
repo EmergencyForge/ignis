@@ -69,5 +69,5 @@ $einsatzApiRedirect = function (string $target): \Closure {
         return \EmergencyForge\Http\Response::redirect($url, 308);
     };
 };
-$router->match(['GET', 'POST'], '/firetab/lagekarte-api.php', $einsatzApiRedirect('/api/fire/lagekarte'));
-$router->match(['GET', 'POST'], '/firetab/status-api.php',    $einsatzApiRedirect('/api/fire/status'));
+$router->match(['GET', 'POST'], '/firetab/lagekarte-api', $einsatzApiRedirect('/api/fire/lagekarte'));
+$router->match(['GET', 'POST'], '/firetab/status-api',    $einsatzApiRedirect('/api/fire/status'));

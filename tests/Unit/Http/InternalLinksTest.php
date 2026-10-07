@@ -61,6 +61,20 @@ final class InternalLinksTest extends TestCase
         $this->assertSame([], $old, "Alte Pfade:\n" . implode("\n", $old));
     }
 
+    #[Test]
+    public function keine_route_endet_auf_php(): void
+    {
+        // public/index.php schneidet .php vor dem Routing ab (außer bei
+        // index.php). Eine Route /api/x.php ist deshalb nie erreichbar, ein
+        // alter Aufruf von /api/x.php landet auf /api/x.
+        $unreachable = array_values(array_filter(
+            array_keys($this->routePatterns()),
+            static fn (string $path): bool => str_ends_with($path, '.php') && !str_ends_with($path, 'index.php'),
+        ));
+
+        $this->assertSame([], $unreachable);
+    }
+
     /**
      * @return array<string, string> Rohpfad => Regex
      */
