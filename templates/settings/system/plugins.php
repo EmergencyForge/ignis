@@ -267,12 +267,20 @@ $SITE_TITLE = 'Plugins';
                                             <?php if (($plugin['publisher'] ?? '') !== ''): ?>von <?= htmlspecialchars((string) $plugin['publisher']) ?> &middot; <?php endif; ?>
                                             <?= $plugin['third_party'] ? 'Drittanbieter' : 'EmergencyForge' ?>
                                         </div>
-                                        <div class="text-tertiary-text" style="font-size:0.72rem;font-family:var(--mono);">
-                                            SHA256 <?= $plugin['sha256'] !== '' ? htmlspecialchars(substr((string) $plugin['sha256'], 0, 12)) . '…' : 'fehlt' ?>
-                                        </div>
+                                        <?php if ($plugin['bundled']): ?>
+                                            <div class="text-tertiary-text" style="font-size:0.72rem;">
+                                                Im Lieferumfang von ignis enthalten, Updates kommen mit dem ignis-Update.
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="text-tertiary-text" style="font-size:0.72rem;font-family:var(--mono);">
+                                                SHA256 <?= $plugin['sha256'] !== '' ? htmlspecialchars(substr((string) $plugin['sha256'], 0, 12)) . '…' : 'fehlt' ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="ignis-card__footer">
-                                        <?php if ($installedVersion === null): ?>
+                                        <?php if ($plugin['bundled']): ?>
+                                            <span class="ignis-chip ignis-chip--ok">Mitgeliefert<?= $installedVersion !== null ? ' ' . htmlspecialchars((string) $installedVersion) : '' ?></span>
+                                        <?php elseif ($installedVersion === null): ?>
                                             <?php if ($plugin['installable']): ?>
                                                 <a href="<?= BASE_PATH ?>settings/system/plugins?confirm=catalog&amp;plugin=<?= rawurlencode((string) $plugin['slug']) ?>"
                                                     class="ignis-btn ignis-btn--sm ignis-btn--secondary">Installieren</a>

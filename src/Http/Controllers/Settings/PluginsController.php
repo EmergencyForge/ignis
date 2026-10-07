@@ -137,7 +137,10 @@ final class PluginsController extends Controller
             $installedVersion = $installedVersions[$entry['slug']] ?? null;
             $entry['installed_version'] = $installedVersion;
             $entry['installed'] = $installedStates[$entry['slug']] ?? false;
-            $entry['update_available'] = $installedVersion !== null && $entry['installed']
+            // Mitgelieferte Module haben kein eigenes Artefakt und damit
+            // keinen SHA256-Pin. Sie kommen mit dem ignis-Update.
+            $entry['bundled'] = PluginLoader::isBundled((string) $entry['slug']);
+            $entry['update_available'] = !$entry['bundled'] && $installedVersion !== null && $entry['installed']
                 && version_compare((string) $entry['version'], $installedVersion, '>');
             $entry['third_party'] = CatalogClient::isThirdParty($entry);
             $catalogRows[] = $entry;
