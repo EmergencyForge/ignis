@@ -89,6 +89,7 @@ final class InternalLinksTest extends TestCase
             public array $paths = [];
             private string $prefix = '';
 
+            /** @param array<int, mixed> $args */
             public function __call(string $name, array $args): void
             {
                 if (in_array($name, ['get', 'post', 'put', 'delete', 'patch'], true)) {

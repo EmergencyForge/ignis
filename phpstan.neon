@@ -37,7 +37,6 @@ parameters:
             paths:
                 - assets/components/enotf/topbar.php
                 - assets/functions/enotf/pin_middleware.php
-                - assets/functions/enotf/share/accept-request.php
             reportUnmatched: false
 
         -
