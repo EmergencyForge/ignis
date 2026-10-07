@@ -23,7 +23,7 @@ final class InternalLinksTest extends TestCase
     private const ROOT = __DIR__ . '/../../..';
 
     /** Pfade, die keine Route sind, sondern Dateien unter public/. */
-    private const STATIC_PREFIXES = ['assets/', 'public/assets/', 'storage/', 'vendor/', 'uploads/', 'favicon', 'cron'];
+    private const STATIC_PREFIXES = ['assets/', 'storage/', 'vendor/', 'uploads/', 'favicon', 'cron'];
 
     #[Test]
     public function jeder_interne_pfad_trifft_eine_route(): void
@@ -51,6 +51,10 @@ final class InternalLinksTest extends TestCase
                 $old[] = "$where  $path -> " . ltrim($translated, '/');
             } elseif (preg_match('~\.php$~', $path)) {
                 $old[] = "$where  $path -> " . preg_replace('~(/index)?\.php$~', '', $path);
+            } elseif (str_starts_with($path, 'public/')) {
+                // Das Docroot ist public/, /public/... geht nur über die
+                // Umschreibregel für Links aus der Zeit vor dem Umzug.
+                $old[] = "$where  $path -> " . substr($path, strlen('public/'));
             }
         }
 
@@ -156,12 +160,16 @@ final class InternalLinksTest extends TestCase
      */
     private function references(): array
     {
+        // Muster => Präfix, das der Code vor den gefundenen Pfad setzt
         $patterns = [
-            '~BASE_PATH\s*\?>\s*([a-z][a-z0-9_\-/.]*)~i',
-            '~BASE_PATH\s*\.\s*[\'"]([a-z][a-z0-9_\-/.]*)~i',
-            '~->redirect\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i',
-            '~redirectTo:\s*[\'"]([a-z][a-z0-9_\-/.]*)~i',
-            '~ensureAdmin\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i',
+            '~BASE_PATH\s*\?>\s*([a-z][a-z0-9_\-/.]*)~i' => '',
+            '~BASE_PATH\s*\.\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => '',
+            '~->redirect\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => '',
+            '~redirectTo:\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => '',
+            '~ensureAdmin\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => '',
+            '~EnotfUrl::page\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/',
+            '~EnotfUrl::admin\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/admin/',
+            '~EnotfUrl::schnittstelle\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/schnittstelle/',
         ];
 
         $root = strtr((string) realpath(self::ROOT), "\\", "/");
@@ -178,10 +186,10 @@ final class InternalLinksTest extends TestCase
                     continue;
                 }
                 $source = (string) file_get_contents($name);
-                foreach ($patterns as $pattern) {
+                foreach ($patterns as $pattern => $prefix) {
                     preg_match_all($pattern, $source, $matches, PREG_OFFSET_CAPTURE);
                     foreach ($matches[1] as [$path, $offset]) {
-                        $path = rtrim($path, '.');
+                        $path = $prefix . rtrim($path, '.');
                         if ($path === '' || $this->isStatic($path)) {
                             continue;
                         }

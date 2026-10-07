@@ -6,7 +6,7 @@
  * @var int  $pinLength
  */
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
+$prot_url = "https://" . SYSTEM_URL . \Plugin\Enotf\Helpers\EnotfUrl::page('index');
 ?>
 
 <!DOCTYPE html>

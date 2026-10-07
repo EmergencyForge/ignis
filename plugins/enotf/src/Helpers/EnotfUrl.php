@@ -5,15 +5,13 @@ namespace Plugin\Enotf\Helpers;
 /**
  * URL-Helfer für saubere eNOTF-URLs.
  *
- * Generiert in Nicht-Entwicklungsumgebungen Clean-URLs (ohne .php, ENR als Pfadsegment).
- * Lokal (APP_ENV=development) werden die klassischen URLs mit Query-Parametern erzeugt.
- *
- * Clean-URL-Schema:
- *   /enotf/overview              statt /enotf/overview.php
- *   /enotf/p/{enr}               statt /enotf/protokoll/index.php?enr={enr}
- *   /enotf/p/{enr}/erstbefund    statt /enotf/protokoll/erstbefund/index.php?enr={enr}
- *   /enotf/p/{enr}/diagnose/1    statt /enotf/protokoll/diagnose/1.php?enr={enr}
- *   /enotf/print/{enr}           statt /enotf/print/index.php?enr={enr}
+ * Die Pfade kommen ohne .php, die ENR steht als Query-Parameter in der URL
+ * (/enotf/protokoll/diagnose/1?enr=X). Das Schema mit der ENR als Segment
+ * ist aus, siehe useCleanUrls(). Es sähe so aus:
+ *   /enotf/p/{enr}               statt /enotf/protokoll/index?enr={enr}
+ *   /enotf/p/{enr}/erstbefund    statt /enotf/protokoll/erstbefund/index?enr={enr}
+ *   /enotf/p/{enr}/diagnose/1    statt /enotf/protokoll/diagnose/1?enr={enr}
+ *   /enotf/print/{enr}           statt /enotf/print/index?enr={enr}
  */
 class EnotfUrl
 {
@@ -38,15 +36,7 @@ class EnotfUrl
      */
     public static function page(string $page, array $params = []): string
     {
-        $base = self::basePath();
-
-        if (self::useCleanUrls()) {
-            $url = $base . 'enotf/' . $page;
-        } else {
-            $url = $base . 'enotf/' . $page . '.php';
-        }
-
-        return self::appendParams($url, $params);
+        return self::appendParams(self::basePath() . 'enotf/' . $page, $params);
     }
 
     // ---------------------------------------------------------------
@@ -83,31 +73,27 @@ class EnotfUrl
             return $url;
         }
 
-        // Legacy-URLs
+        // ENR als Query-Parameter. Verzeichnisse enden auf /index wie früher
+        // auf /index.php, damit relative Pfade der Seiten gleich auflösen.
         if ($section === '') {
-            return $base . 'enotf/protokoll/index.php?enr=' . rawurlencode($enr);
+            return $base . 'enotf/protokoll/index?enr=' . rawurlencode($enr);
         }
 
         if ($subpath === '') {
-            return $base . 'enotf/protokoll/' . $section . '/index.php?enr=' . rawurlencode($enr);
+            return $base . 'enotf/protokoll/' . $section . '/index?enr=' . rawurlencode($enr);
         }
 
-        // Subpath kann ein Directory-Index oder eine Datei sein.
-        // Konvention: Wenn der letzte Segment kein "/" enthält und kein reines Verzeichnis
-        // ist, wird .php angehängt. Verzeichnisse enden auf /index.php.
         $parts = explode('/', $subpath);
-        $lastPart = end($parts);
 
-        // Sektionen, deren Kinder immer Verzeichnisse (mit index.php) sind
+        // Sektionen, deren Kinder immer Verzeichnisse sind
         $directorySections = ['erstbefund', 'massnahmen'];
 
         if (count($parts) === 1 && in_array($section, $directorySections, true)) {
-            // z.B. erstbefund/atemwege → erstbefund/atemwege/index.php
-            return $base . 'enotf/protokoll/' . $section . '/' . $subpath . '/index.php?enr=' . rawurlencode($enr);
+            // z.B. erstbefund/atemwege → erstbefund/atemwege/index
+            return $base . 'enotf/protokoll/' . $section . '/' . $subpath . '/index?enr=' . rawurlencode($enr);
         }
 
-        // Alles andere: letzte Komponente ist eine .php-Datei
-        return $base . 'enotf/protokoll/' . $section . '/' . $subpath . '.php?enr=' . rawurlencode($enr);
+        return $base . 'enotf/protokoll/' . $section . '/' . $subpath . '?enr=' . rawurlencode($enr);
     }
 
     // ---------------------------------------------------------------
@@ -122,7 +108,7 @@ class EnotfUrl
             return $base . 'enotf/print/' . rawurlencode($enr);
         }
 
-        return $base . 'enotf/print/index.php?enr=' . rawurlencode($enr);
+        return $base . 'enotf/print/index?enr=' . rawurlencode($enr);
     }
 
     // ---------------------------------------------------------------
@@ -139,7 +125,7 @@ class EnotfUrl
         if (self::useCleanUrls()) {
             $url = $base . 'enotf/admin/' . $page;
         } else {
-            $url = $base . 'enotf/admin/' . $page . '.php';
+            $url = $base . 'enotf/admin/' . $page;
         }
 
         return self::appendParams($url, $params);
@@ -174,9 +160,9 @@ class EnotfUrl
             }
         } else {
             if ($page !== '') {
-                $url = $base . 'enotf/schnittstelle/' . $page . '.php';
+                $url = $base . 'enotf/schnittstelle/' . $page;
             } else {
-                $url = $base . 'enotf/schnittstelle/index.php';
+                $url = $base . 'enotf/schnittstelle/index';
             }
         }
 

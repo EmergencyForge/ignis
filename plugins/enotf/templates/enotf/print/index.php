@@ -121,14 +121,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <title>[#<?= e($daten['enr']) ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <!-- vendor.css liefert FontAwesome für die Topbar-Icons -->
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/print.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/vendor.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/print.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/freehand/css/all.min.css" />
     <!-- Bootstrap -->
     <!-- Chart.js (lokales Bundle statt CDN, rendert auch ohne Außenanbindung) -->
-    <script src="<?= BASE_PATH ?>public/assets/dist/vendor-chart.js"></script>
+    <script src="<?= BASE_PATH ?>assets/dist/vendor-chart.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />

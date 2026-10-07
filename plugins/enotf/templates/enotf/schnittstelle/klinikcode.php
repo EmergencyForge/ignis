@@ -50,10 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
 
     <!-- Bootstrap, FontAwesome und jQuery wie auf den übrigen eNOTF-Seiten
          (_head.php); die Seite bindet den gemeinsamen Head nicht ein -->
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor-enotf.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
-    <script src="<?= BASE_PATH ?>public/assets/dist/vendor.js"></script>
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/vendor.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/vendor-enotf.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/divi.css" />
+    <script src="<?= BASE_PATH ?>assets/dist/vendor.js"></script>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
