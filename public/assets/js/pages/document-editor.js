@@ -15,8 +15,10 @@
  *
  * Dazu zwei Dinge rund um die Vorlagen-Bausteine des Editor-Pakets: eine
  * Snackbar an `onBlocked` (der Guard verwirft sonst stumm, und mit Feldern
- * tippt man irgendwann neben das Feld), und der Ausstellen-Knopf prüft vorab
- * auf leere Pflichtfelder und speichert einen ungespeicherten Entwurf erst.
+ * tippt man irgendwann neben das Feld), die Liste „Noch offen" über dem Blatt
+ * (leere Pflichtfelder, Platzhalter ohne Wert), und der Ausstellen-Knopf prüft
+ * vorab auf leere Pflichtfelder, fragt bei Platzhaltern ohne Wert nach und
+ * speichert einen ungespeicherten Entwurf erst.
  *
  * Bewusst KEIN ES-Modul (siehe template-editor.js, identisches Muster,
  * unverändert von Vite kopiert nach public/assets/js/pages/).
@@ -58,8 +60,8 @@
      * mit den fuer den aktuellen Kontext aufgeloesten Werten
      * (VariableCatalog::resolve(), kann Luecken haben) zu der von
      * createEditor erwarteten Form name -> { label, value }. Eine
-     * Variable ohne aufgeloesten Wert bleibt ohne `value` -> der Chip zeigt
-     * `{{name}}` (siehe variable.js::render()).
+     * Variable ohne aufgeloesten Wert bleibt ohne `value`, der Editor zeigt
+     * sie als „fehlt" (siehe variable-view.js im Editor-Paket).
      */
     function buildVariableMap(labels, resolved) {
         var map = {};
@@ -149,7 +151,9 @@
         var content = readJsonAttr(mount, 'data-efe-content', { type: 'doc', content: [] });
         var labels = readJsonAttr(mount, 'data-efe-variables', {});
         var resolved = readJsonAttr(mount, 'data-efe-resolved', {});
+        var reasons = readJsonAttr(mount, 'data-efe-missing-reasons', {});
         var variables = buildVariableMap(labels, resolved);
+        var openBox = document.getElementById('document-open-items');
 
         // Autosave soll nur tatsaechlich geaenderte Entwuerfe schicken:
         // dirty wird bei jeder Editor-Aenderung UND bei Titel-Aenderungen
@@ -162,12 +166,133 @@
             toolbar: toolbar,
             features: 'document',
             variables: variables,
+            // Schreibmodus: Platzhalter zeigen ihren Wert oder „fehlt",
+            // auch wenn der Kontext gerade gar keine Werte liefert.
+            variableDisplay: 'values',
             templateMode: false,
             onBlocked: createBlockedNotifier(),
             onUpdate: function () {
                 dirty = true; setStatus('Ungespeicherte Änderungen', 'changed');
+                scheduleOpenItems();
             },
         });
+
+        // ── Noch offen ───────────────────────────────────────────────
+        // Leere Pflichtfelder und Platzhalter ohne Wert, in
+        // Dokumentreihenfolge. Jeder Eintrag springt an seine Stelle.
+        // Verbindlich prüft der Server beim Ausstellen, das hier zeigt nur,
+        // was er sagen wird, bevor man klickt.
+
+        function openItems() {
+            var EF = window.EmergencyForgeEditor;
+            if (typeof EF.collectOpenItems === 'function') {
+                return EF.collectOpenItems(editor);
+            }
+            // Älteres Editor-Bundle: wenigstens die Pflichtfelder.
+            return (EF.collectEmptyRequiredFields ? EF.collectEmptyRequiredFields(editor) : []).map(function (f) {
+                return { kind: 'field', state: 'empty', label: f.label, section: '' };
+            });
+        }
+
+        function itemText(item) {
+            if (item.kind === 'field') {
+                return 'Pflichtfeld: ' + (item.label || 'ohne Beschriftung');
+            }
+            if (item.state === 'unknown') {
+                return 'Unbekannter Platzhalter {{' + item.name + '}}';
+            }
+            return item.label + ' fehlt';
+        }
+
+        function variableNames(items) {
+            return items.map(function (item) {
+                return item.state === 'unknown' ? '{{' + item.name + '}}' : item.label;
+            });
+        }
+
+        function renderOpenItems() {
+            if (!openBox || readOnly) {
+                return;
+            }
+            var items = openItems();
+            openBox.replaceChildren();
+            openBox.hidden = false;
+            openBox.classList.toggle('ignis-doc-review--done', items.length === 0);
+
+            var head = document.createElement('p');
+            head.className = 'ignis-doc-review__head';
+            var icon = document.createElement('i');
+            icon.className = 'fa-solid ' + (items.length === 0 ? 'fa-circle-check' : 'fa-list-check');
+            icon.setAttribute('aria-hidden', 'true');
+            head.append(icon, document.createTextNode(items.length === 0
+                ? ' Alles ausgefüllt. Platzhalter füllt ignis beim Ausstellen mit den Werten von jetzt.'
+                : ' Noch offen vor dem Ausstellen'));
+            openBox.append(head);
+            if (items.length === 0) {
+                return;
+            }
+
+            // Platzhalter mit demselben Grund (alles von „Aussteller", weil
+            // das Konto keinen Mitarbeiter hat) stehen in einem Eintrag,
+            // sonst wird die Liste lang, ohne mehr zu sagen.
+            var entries = [];
+            var byReason = {};
+            items.forEach(function (item) {
+                if (item.kind === 'variable' && item.state === 'missing' && reasons[item.name]) {
+                    var key = reasons[item.name];
+                    if (byReason[key]) {
+                        byReason[key].items.push(item);
+                        return;
+                    }
+                    byReason[key] = { items: [item], why: key };
+                    entries.push(byReason[key]);
+                    return;
+                }
+                entries.push({
+                    items: [item],
+                    why: item.kind === 'field'
+                        ? (item.section ? 'in „' + item.section + '“' : '')
+                        : (item.state === 'unknown' ? 'Die Vorlage nennt einen Platzhalter, den ignis nicht kennt.' : ''),
+                });
+            });
+
+            var list = document.createElement('ul');
+            list.className = 'ignis-doc-review__list';
+            entries.forEach(function (entry) {
+                var first = entry.items[0];
+                var li = document.createElement('li');
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'ignis-doc-review__item ignis-doc-review__item--' + (first.kind === 'field' ? 'field' : first.state);
+                var label = document.createElement('span');
+                label.className = 'ignis-doc-review__label';
+                label.textContent = entry.items.length === 1
+                    ? itemText(first)
+                    : variableNames(entry.items).join(', ') + ' fehlen';
+                button.append(label);
+                if (entry.why) {
+                    var note = document.createElement('span');
+                    note.className = 'ignis-doc-review__why';
+                    note.textContent = entry.why;
+                    button.append(note);
+                }
+                button.addEventListener('click', function () {
+                    if (window.EmergencyForgeEditor.revealOpenItem) {
+                        window.EmergencyForgeEditor.revealOpenItem(editor, first);
+                    }
+                });
+                li.append(button);
+                list.append(li);
+            });
+            openBox.append(list);
+        }
+
+        var openItemsTimer = null;
+        function scheduleOpenItems() {
+            window.clearTimeout(openItemsTimer);
+            openItemsTimer = window.setTimeout(renderOpenItems, 150);
+        }
+        renderOpenItems();
 
         titleInput.addEventListener('input', function () {
             dirty = true; setStatus('Ungespeicherte Änderungen', 'changed');
@@ -305,6 +430,10 @@
             var missing = missingRequiredLabels();
             if (missing.length > 0) {
                 event.preventDefault();
+                var firstField = openItems().filter(function (item) { return item.kind === 'field'; })[0];
+                if (firstField && window.EmergencyForgeEditor.revealOpenItem) {
+                    window.EmergencyForgeEditor.revealOpenItem(editor, firstField);
+                }
                 var message = 'Diese Pflichtfelder sind noch leer: ' + missing.join(', ') + '.';
                 var stack = snack();
                 if (stack) {
@@ -314,6 +443,41 @@
                     // Browser-Fenster: der Knopf wirkt sonst kaputt.
                     window.alert(message);
                 }
+                return;
+            }
+
+            var accept = document.getElementById('document-issue-accept-missing');
+            var empty = openItems().filter(function (item) { return item.kind === 'variable'; });
+            if (accept) {
+                accept.value = '0';
+            }
+
+            if (empty.length > 0 && !readOnly) {
+                // Platzhalter ohne Wert: kein Hindernis, aber die Rückfrage
+                // sagt, was leer bleibt, und erst mit ihr schickt das
+                // Formular accept_missing=1 (DocumentController::issue()).
+                // Sie ersetzt die Rückfrage im onsubmit, darum submit()
+                // statt requestSubmit(): einmal fragen reicht.
+                event.preventDefault();
+                var ready = dirty ? save(false) : Promise.resolve(true);
+                ready.then(function (saved) {
+                    if (!saved) {
+                        return;
+                    }
+                    return confirmIssue(variableNames(empty)).then(function (confirmed) {
+                        if (!confirmed) {
+                            return;
+                        }
+                        if (accept) {
+                            accept.value = '1';
+                        }
+                        var issueCsrf = document.getElementById('document-issue-csrf-input');
+                        if (issueCsrf) {
+                            issueCsrf.value = csrfInput.value;
+                        }
+                        issueForm.submit();
+                    });
+                });
                 return;
             }
 
@@ -330,6 +494,26 @@
                     issueForm.requestSubmit();
                 }
             });
+        }
+
+        /**
+         * Rückfrage vor dem Ausstellen mit leeren Platzhaltern. Der Dialog
+         * der UI-Module, wenn er geladen ist, sonst der des Browsers.
+         *
+         * @returns {Promise<boolean>}
+         */
+        function confirmIssue(names) {
+            var message = 'Diese Platzhalter haben keinen Wert und bleiben im Dokument leer: '
+                + names.join(', ') + '. Trotzdem ausstellen? Das ist unwiderruflich, '
+                + 'der Entwurf kann danach nicht mehr bearbeitet werden.';
+            if (typeof window.showConfirm === 'function') {
+                return Promise.resolve(window.showConfirm(message, {
+                    title: 'Dokument ausstellen',
+                    confirmText: 'Ausstellen',
+                    danger: true,
+                }));
+            }
+            return Promise.resolve(window.confirm(message));
         }
 
         if (saveButton) {

@@ -6,6 +6,7 @@
  *   @var \App\Models\EditorDocument $document
  *   @var array<string,string>       $variables   aufgelöste Werte
  *   @var array<string,string>       $catalog     Schlüssel auf Beschriftung
+ *   @var array<string,string>       $missingReasons  warum ein Platzhalter leer bleibt
  *   @var string                     $saveAction
  *
  * Gespeichert wird per fetch, nicht als Formular mit Weiterleitung: ein
@@ -41,6 +42,12 @@ $labelsJson = htmlspecialchars(
 );
 $resolvedJson = htmlspecialchars(
     json_encode($variables, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+    ENT_QUOTES,
+);
+
+// Warum ein Platzhalter leer bleibt, für die Liste „Noch offen".
+$reasonsJson = htmlspecialchars(
+    json_encode($missingReasons, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
     ENT_QUOTES,
 );
 
@@ -109,6 +116,14 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     </div>
                 </div>
 
+                <?php if (!$readOnly): ?>
+                    <!-- Was vor dem Ausstellen noch offen ist (document-editor.js):
+                         leere Pflichtfelder und Platzhalter ohne Wert, jeder Eintrag
+                         springt an seine Stelle. Ohne JS bleibt der Kasten leer, der
+                         Server prüft beim Ausstellen ohnehin. -->
+                    <div id="document-open-items" class="ignis-doc-review mb-4" aria-live="polite" hidden></div>
+                <?php endif; ?>
+
                 <div class="efe-frame mb-4">
                     <div id="document-toolbar"></div>
                     <div class="efe-surround">
@@ -117,6 +132,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                              data-efe-content="<?= $contentJson ?>"
                              data-efe-variables="<?= $labelsJson ?>"
                              data-efe-resolved="<?= $resolvedJson ?>"
+                             data-efe-missing-reasons="<?= $reasonsJson ?>"
                              data-efe-readonly="<?= $readOnly ? '1' : '0' ?>"></div>
                     </div>
                 </div>
@@ -136,6 +152,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                   onsubmit="<?= htmlspecialchars($tokenCopy, ENT_QUOTES) ?><?= confirm_attr($confirmText) ?>">
                 <input type="hidden" name="csrf_token" id="document-issue-csrf-input"
                        value="<?= htmlspecialchars($csrfToken) ?>">
+                <input type="hidden" name="accept_missing" id="document-issue-accept-missing" value="0">
             </form>
         </div>
     </div>

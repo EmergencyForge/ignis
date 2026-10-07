@@ -4,12 +4,14 @@
  * Standard-Signatur (Einstellungen › Mail) und der eigenen Signatur eines
  * Postfachs (mail/signature.php).
  *
- * Die Chips zeigen `{{schlüssel}}` wie in den Dokumentvorlagen, die
- * Beschriftung steht im Tooltip und in der Auswahl nach `{{`; die
- * Knopfleiste fügt sie an der Schreibmarke ein. Darunter die Vorschau: die
+ * Die Chips nennen, wofür sie stehen (wie in den Dokumentvorlagen), der
+ * Schlüssel `{{schlüssel}}` steht im Tooltip; einfügen lassen sie sich mit
+ * `{{` im Text oder über die Knopfleiste an der Schreibmarke. Darunter die Vorschau: die
  * Signatur mit den Angaben aus `$sigValues` (dem angemeldeten Konto), nach
  * denselben Regeln wie beim Verfassen (SignatureTemplate::resolve(): leere
- * Platzhalter bleiben leer, ein Absatz ohne Text danach fällt weg). Das
+ * Platzhalter bleiben leer, ein Absatz ohne Text danach fällt weg). Was
+ * dabei leer bleibt, steht unter der Vorschau, sonst wundert man sich über
+ * eine fehlende Zeile. Das
  * Editor-JSON steht nach jeder Änderung im versteckten Feld `$sigField`.
  *
  * @var string                                         $sigPrefix  Präfix der IDs
@@ -47,6 +49,7 @@ $sigCatalog = SignatureTemplate::catalog();
     <div id="<?= htmlspecialchars($sigPrefix) ?>-preview" class="efe-page ignis-mail__editor" aria-labelledby="<?= htmlspecialchars($sigPrefix) ?>-preview-label" aria-live="polite"></div>
 </div>
 <p class="ignis-field__hint" id="<?= htmlspecialchars($sigPrefix) ?>-preview-empty" hidden>Mit deinen Angaben bliebe die Signatur leer.</p>
+<p class="ignis-field__hint" id="<?= htmlspecialchars($sigPrefix) ?>-preview-missing" hidden></p>
 
 <script>
 (function () {
@@ -56,6 +59,7 @@ $sigCatalog = SignatureTemplate::catalog();
     var jsonField = document.getElementById(prefix + '-json');
     var previewMount = document.getElementById(prefix + '-preview');
     var previewEmpty = document.getElementById(prefix + '-preview-empty');
+    var previewMissing = document.getElementById(prefix + '-preview-missing');
     if (!mount || !jsonField || !previewMount) return;
 
     function read(attr, fallback) {
@@ -102,6 +106,26 @@ $sigCatalog = SignatureTemplate::catalog();
         return { type: 'doc', content: content };
     }
 
+    // Beschriftungen der Platzhalter im Entwurf, die mit den Angaben des
+    // Kontos leer bleiben, jeder einmal in Reihenfolge des Texts.
+    function emptyLabels(doc, values, catalog) {
+        var seen = {};
+        var labels = [];
+        (function walk(node) {
+            if (!node || typeof node !== 'object') return;
+            if (node.type === 'docVariable') {
+                var name = (node.attrs && node.attrs.name) || '';
+                if (!seen[name] && !(values[name] || []).some(hasText)) {
+                    seen[name] = true;
+                    labels.push(catalog[name] || name);
+                }
+                return;
+            }
+            (node.content || []).forEach(walk);
+        })(doc);
+        return labels;
+    }
+
     function mountEditor() {
         var catalog = read('data-efe-variables', {});
         var values = read('data-signature-values', {});
@@ -128,6 +152,11 @@ $sigCatalog = SignatureTemplate::catalog();
             jsonField.value = JSON.stringify(doc);
             preview.commands.setContent(resolved);
             if (previewEmpty) previewEmpty.hidden = hasText(resolved);
+            if (previewMissing) {
+                var missing = emptyLabels(doc, values, catalog);
+                previewMissing.textContent = missing.length ? 'Bei dir ohne Wert, darum hier weggelassen: ' + missing.join(', ') + '.' : '';
+                previewMissing.hidden = missing.length === 0;
+            }
         }
         sync();
         editor.on('update', function () {

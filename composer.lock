@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9550a84d169331ba8b62b82cf6a735cf",
+    "content-hash": "681a454b57df9ab63a0e194d7f5fb9d8",
     "packages": [
         {
             "name": "brick/math",
@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "65d84bf2d7db846a3f2d14cbf2f65569791c16f1"
+                "reference": "6a31cef1a84cbff1ee4f630a265c4a12d737756f"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -810,11 +810,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.4.1",
+            "version": "0.5.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "42c2975410fb1226ed06528ada68ab9bb33570aa"
+                "reference": "273410adb99d53b4cfa17fdc1b48256945efb120"
             },
             "require": {
                 "php": ">=8.3",
@@ -849,7 +849,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/fuzzy-search",
-                "reference": "4427f102cd2ffc856e50b9b584f401e1d1bdd277"
+                "reference": "b3fa193136c2103719a5a5385296fdaa169bb0ca"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -884,7 +884,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "764aaa28937fd3d5bb2f8ed7dbb7870ffef7dc99"
+                "reference": "e61a8f0733035fb30b4a96f31cb40f3350273039"
             },
             "require": {
                 "php": ">=8.3"
@@ -988,7 +988,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
+                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1023,7 +1023,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "86d39abe912783f75a01293284400eb680c7721c"
+                "reference": "104305c7824343cbfb2b92ae7b677c2b4ced8a7f"
             },
             "require": {
                 "ext-tokenizer": "*",
@@ -7819,5 +7819,5 @@
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

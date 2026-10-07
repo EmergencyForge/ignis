@@ -63,8 +63,9 @@ final class VariableCatalog
 
     /**
      * Die Werte zu den Schlüsseln. Was sich nicht auflösen lässt, fehlt im
-     * Ergebnis; der Renderer lässt den Chip dann leer, statt einen
-     * Platzhalter ins PDF zu schreiben.
+     * Ergebnis. Im Editor steht der Platzhalter dann als „fehlt“, beim
+     * Ausstellen fragt ignis nach, und im PDF bleibt die Stelle leer
+     * (PdfGenerator, blankUnresolved).
      *
      * @param  array{mitarbeiter?: Personnel|null, docid?: string|null}  $context
      * @return array<string,string>
@@ -100,6 +101,58 @@ final class VariableCatalog
         $values['datum'] = date('d.m.Y');
 
         return $values;
+    }
+
+    /**
+     * Warum ein Platzhalter ohne Wert bleibt, je fehlendem Schlüssel ein
+     * Satz für den Schreiber: was er (oder jemand anderes) eintragen muss,
+     * damit der Wert kommt. Gleicher Kontext wie {@see resolve()};
+     * Schlüssel mit Wert kommen nicht vor.
+     *
+     * @param  array{mitarbeiter?: Personnel|null, docid?: string|null}  $context
+     * @return array<string,string>
+     */
+    public static function missingReasons(array $context = []): array
+    {
+        $resolved = self::resolve($context);
+        $reasons  = [];
+
+        $mitarbeiter = $context['mitarbeiter'] ?? null;
+        $issuer      = self::issuer();
+
+        foreach (array_keys(self::catalog()) as $name) {
+            if (isset($resolved[$name])) {
+                continue;
+            }
+            [$group, $field] = array_pad(explode('.', $name, 2), 2, '');
+
+            $reasons[$name] = match ($group) {
+                'mitarbeiter' => $mitarbeiter instanceof Personnel
+                    ? self::personReason($field, 'Beim Mitarbeiter')
+                    : 'Das Dokument hängt an keinem Mitarbeiter.',
+                'aussteller' => $issuer instanceof Personnel
+                    ? self::personReason($field, 'In deinem Mitarbeiterdatensatz')
+                    : 'Dein Benutzerkonto ist mit keinem Mitarbeiter verknüpft. Das erledigt die Personalverwaltung.',
+                'organisation' => 'In den Systemeinstellungen ist dazu nichts eingetragen.',
+                'dokument'     => 'Das Dokument hat noch keine Kennung.',
+                default        => 'Dafür ist kein Wert erfasst.',
+            };
+        }
+
+        return $reasons;
+    }
+
+    private static function personReason(string $field, string $where): string
+    {
+        return $where . ' ' . match ($field) {
+            'titel'            => 'ist kein Titel eingetragen.',
+            'dienstgrad'       => 'ist kein Dienstgrad eingetragen.',
+            'qualifikation_fw' => 'ist keine Qualifikation Feuerwehr eingetragen.',
+            'qualifikation_rd' => 'ist keine Qualifikation Rettungsdienst eingetragen.',
+            'dienstnummer'     => 'ist keine Dienstnummer eingetragen.',
+            'zusatz'           => 'ist kein Zusatz eingetragen.',
+            default            => 'fehlt dieser Wert.',
+        };
     }
 
     /**
