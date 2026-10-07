@@ -38,6 +38,7 @@ class PluginLoader
         'mail',
         'logbook',
         'forms',
+        'calendar',
     ];
 
     /**

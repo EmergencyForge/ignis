@@ -6,7 +6,7 @@
 // benannten Import aus ../ui/.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -42,4 +42,27 @@ test('jeder benannte Import aus ../ui/ existiert im gebauten Modul', () => {
         }
     }
     assert.deepEqual(missing, []);
+});
+
+// Plugin-Skripte liegen unter /plugins/<id>/assets/, ein relativer Import
+// auf ../ui/ landet dort im Leeren und bricht das ganze Modul ab. Sie
+// greifen auf die globalen Namen des UI-Pakets zu (window.Dialog usw.).
+test('Plugin-Skripte importieren keine UI-Module des Kerns relativ', () => {
+    const pluginsDir = join(root, 'plugins');
+    const offenders = [];
+    const walk = (dir) => {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+            const path = join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(path);
+            } else if (entry.name.endsWith('.js') && !entry.name.endsWith('.min.js')) {
+                if (/from\s*['"](\.\.\/)+ui\//.test(readFileSync(path, 'utf8'))) offenders.push(path.slice(root.length + 1));
+            }
+        }
+    };
+    for (const plugin of readdirSync(pluginsDir, { withFileTypes: true })) {
+        const assets = join(pluginsDir, plugin.name, 'assets');
+        if (plugin.isDirectory() && existsSync(assets)) walk(assets);
+    }
+    assert.deepEqual(offenders, []);
 });

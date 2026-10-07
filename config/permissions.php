@@ -36,11 +36,6 @@ return [
         'personnel.documents.manage' => 'Mitarbeiter-Dokumente verwalten',
         'audit.view'                 => 'Logs einsehen',
     ],
-    'Kalender' => [
-        'calendar.view'   => 'Kalender ansehen',
-        'calendar.create' => 'Termine und Dienste erstellen',
-        'calendar.manage' => 'Alle Termine bearbeiten/löschen (auch fremde)',
-    ],
     'Sonstiges' => [
         'admin'             => '<strong> Admin (Alle Rechte)</strong>',
         'dashboard.manage'  => 'Dashboard verwalten',

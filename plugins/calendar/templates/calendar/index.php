@@ -1,0 +1,103 @@
+<?php
+/**
+ * View: Kalender-Hauptseite mit FullCalendar-Mount.
+ *
+ * Seitenkopf wie die übrigen Seiten (Brotkrumen, Titel, Aktionen rechts);
+ * die Kategorie-Filter sind Schalter-Chips (ignis-chip--toggle) über dem
+ * Kalender, calendar.js liest die Kästchen darin (.filter-category).
+ *
+ * @var \Illuminate\Support\Collection<int,\App\Models\Personnel> $mitarbeiter
+ * @var array<int,array<string,mixed>>                              $roles
+ * @var array<string,string>                                        $categories
+ * @var array<int,string>                                           $colors
+ * @var \Illuminate\Support\Collection<int,\App\Models\Personnel> $absentToday
+ */
+
+
+$SITE_TITLE = 'Kalender';
+
+$layout = 'admin';
+$bodyId = 'kalender';
+?>
+<?php ob_start(); ?>
+    <link rel="stylesheet" href="<?= asset('plugins/calendar/assets/css/calendar.css') ?>">
+<?php $layoutHead = ob_get_clean(); ?>
+
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="twplus-page">
+            <div class="mb-6">
+                <nav class="ignis-breadcrumb">
+                    <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
+                    <span class="ignis-breadcrumb__item" aria-current="page">Kalender</span>
+                </nav>
+
+                <div class="page-header twplus-page-header mb-4">
+                    <div class="twplus-page-header__copy">
+                        <p class="twplus-page-header__eyebrow">Organisation</p>
+                        <h1>Kalender</h1>
+                        <p class="twplus-page-header__description">Termine, Abwesenheiten und Einladungen in einer gemeinsamen Ansicht.</p>
+                    </div>
+                    <div class="header-actions twplus-page-header__actions">
+                        <button type="button" class="ignis-btn ignis-btn--secondary" id="btn-subscribe" data-ignis-tooltip="Diesen Kalender abonnieren">
+                            <i class="fa-solid fa-rss"></i> Abonnieren
+                        </button>
+                        <a href="<?= BASE_PATH ?>calendar/create" class="ignis-btn ignis-btn--primary" id="btn-new-event" data-ignis-drawer>
+                            <i class="fa-solid fa-plus"></i> Neuer Termin
+                        </a>
+                    </div>
+                </div>
+
+                <?php if (isset($absentToday) && $absentToday->isNotEmpty()): ?>
+                    <div class="calendar-absence-strip mb-3">
+                        <i class="fa-solid fa-plane-departure" aria-hidden="true"></i>
+                        <span class="calendar-absence-strip__label">Heute abwesend (<?= $absentToday->count() ?>):</span>
+                        <span class="calendar-absence-strip__list">
+                            <?php $names = $absentToday->map(fn ($m) => trim((string) ($m->fullname ?? '')))->filter()->all(); ?>
+                            <?= htmlspecialchars(implode(', ', $names)) ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
+
+                <div class="calendar-toolbar mb-3">
+                    <div class="calendar-toolbar__filters" role="group" aria-label="Kategorien filtern">
+                        <span class="calendar-toolbar__label">Kategorien:</span>
+                        <?php foreach ($categories as $key => $label): ?>
+                            <label class="ignis-chip ignis-chip--toggle is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
+                                <input type="checkbox" class="filter-category" data-category="<?= htmlspecialchars($key) ?>" checked hidden>
+                                <?= htmlspecialchars($label) ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div id="calendar-grid" class="ignis-card twplus-section-card p-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Felder fuer den Bearbeiten-Dialog (Dialog.form in calendar.js); Anlegen laeuft ueber /calendar/create im Drawer -->
+    <template id="calendarEventFormTemplate">
+        <?php require __DIR__ . '/_event-form.php'; ?>
+    </template>
+
+    <script>
+        window.CalendarPageConfig = {
+            basePath:           <?= json_encode(BASE_PATH) ?>,
+            eventsApiUrl:       <?= json_encode(BASE_PATH . 'api/calendar/events') ?>,
+            eventApiUrl:        <?= json_encode(BASE_PATH . 'api/calendar/event') ?>,
+            subscribeInfoUrl:   <?= json_encode(BASE_PATH . 'api/calendar/subscribe-info') ?>,
+            subscribeRotateUrl: <?= json_encode(BASE_PATH . 'api/calendar/subscribe-regenerate') ?>,
+            createUrl:          <?= json_encode(BASE_PATH . 'calendar/create') ?>,
+            updateUrl:          <?= json_encode(BASE_PATH . 'calendar/update') ?>,
+            deleteUrl:          <?= json_encode(BASE_PATH . 'calendar/delete') ?>,
+            viewUrl:            <?= json_encode(BASE_PATH . 'calendar/view') ?>,
+        };
+    </script>
+
+    <!-- FullCalendar (lokales Bundle, kein CDN) -->
+    <script src="<?= asset('plugins/calendar/assets/fullcalendar/index.global.min.js') ?>"></script>
+    <script src="<?= asset('plugins/calendar/assets/fullcalendar/locales/de.global.min.js') ?>"></script>
+    <!-- Searchable Multi-Select fuer Rollen + Mitarbeiter (Tag-Picker) -->
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/multi-select.js"></script>
+    <!-- Page-Logic -->
+    <script type="module" src="<?= asset('plugins/calendar/assets/js/calendar.js') ?>"></script>

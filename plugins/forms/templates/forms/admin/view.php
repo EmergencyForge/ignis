@@ -23,7 +23,9 @@ $bodyId = 'antrag-admin-view';
 // Chip-Semantik der Statusfarben (STATUS_DISPLAY nennt die alten Namen).
 $chipFor    = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'success' => 'ok'];
 $statusChip = '<span class="ignis-chip ignis-chip--dot ignis-chip--' . ($chipFor[$currentStatus['class']] ?? 'secondary') . '">' . htmlspecialchars($currentStatus['text']) . '</span>';
-$isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') === 0;
+// Der Hinweis auf den Kalender nur, wenn es den Kalender gibt.
+$isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') === 0
+    && app(\App\Plugins\PluginLoader::class)->isActive('calendar');
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">

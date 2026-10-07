@@ -454,19 +454,19 @@ parameters:
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
-			path: src/Calendar/AbsenceSyncService.php
+			path: plugins/calendar/src/AbsenceSyncService.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\Calendar\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: src/Calendar/IcalExporter.php
+			path: plugins/calendar/src/IcalExporter.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between string and false will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: src/Calendar/IcalExporter.php
+			path: plugins/calendar/src/IcalExporter.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between ''1337''\|''Berufsfeuerwehr''\|''CHANGE_ME''\|''Musterstadt''\|''Musterweg 0815'' and '''' will always evaluate to true\.$#'
@@ -523,10 +523,10 @@ parameters:
 			path: src/Http/Controllers/Api/VehicleDefectsController.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\Calendar\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: src/Http/Controllers/CalendarController.php
+			path: plugins/calendar/src/Controllers/CalendarController.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
@@ -550,7 +550,7 @@ parameters:
 			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 2
-			path: src/Http/Requests/Calendar/CreateEventRequest.php
+			path: plugins/calendar/src/Requests/CreateEventRequest.php
 
 		-
 			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
@@ -616,7 +616,7 @@ parameters:
 			message: '#^Variable \$absentToday in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.variable
 			count: 1
-			path: templates/calendar/index.php
+			path: plugins/calendar/templates/calendar/index.php
 
 		-
 			message: '#^Right side of && is always true\.$#'

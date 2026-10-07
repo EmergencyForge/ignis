@@ -55,11 +55,10 @@ class NotificationManager
      */
     public static function coreTypes(): array
     {
-        // `antrag` bringt das Plugin Anträge mit (ApplicationNotificationType).
+        // `antrag` und `calendar` bringen die Plugins Anträge und Kalender mit.
         return [
             new GenericType('protokoll',      'Protokolle',     'fa-solid fa-truck-medical'),
             new GenericType('dokument',       'Dokumente',      'fa-solid fa-folder-open'),
-            new GenericType('calendar',       'Termine',        'fa-solid fa-calendar-days'),
             new GenericType('vehicle_defect', 'Fahrzeugmängel', 'fa-solid fa-wrench', ['admin', 'vehicles.view', 'vehicles.manage']),
             new GenericType('system',         'System',         'fa-solid fa-gears'),
         ];

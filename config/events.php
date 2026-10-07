@@ -32,8 +32,4 @@ declare(strict_types=1);
 // Verknüpfung, die LinkSavedPersonnel gerade gesetzt hat.
 return [
     \App\Events\PersonnelSaved::class => [\App\Personnel\LinkSavedPersonnel::class],
-    // Kalender ← Anträge: genehmigte Abwesenheiten als Termin. Feuert nur,
-    // solange das Antrags-Plugin aktiv ist.
-    \Plugin\Forms\Events\FormDecided::class => [\App\Calendar\Listeners\SyncAbsenceOnFormDecided::class],
-    \Plugin\Forms\Events\FormDeleted::class => [\App\Calendar\Listeners\RemoveAbsenceOnFormDeleted::class],
 ];
