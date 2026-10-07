@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 
 /**
- * eNOTF-Abrechnung: ignisTab ruft die freigegebenen Protokolle vom
+ * eNOTF-Abrechnung: ef_bridge ruft die freigegebenen Protokolle vom
  * FiveM-Server ab, mit API-Key und ohne Browser-Session. Früher hing die
  * Route hinter der Session-Anmeldung, der Spielserver bekam immer 401.
  */
@@ -63,7 +63,7 @@ final class EnotfBillingApiTest extends FeatureTestCase
     {
         $id = $this->protocol('Max Abrechnung');
 
-        // So schickt ignisTab die Anfrage: Schlüssel im JSON-Body, keine Session.
+        // So schickt ef_bridge die Anfrage: Schlüssel im JSON-Body, keine Session.
         $response = $this->billing(['intraRP_API_Key' => (string) constant('API_KEY'), 'timestamp' => time()]);
 
         $this->assertStatus(200, $response);

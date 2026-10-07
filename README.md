@@ -81,10 +81,10 @@ der `X-Forwarded-Proto` und `X-Forwarded-Host` setzt (Beispiel am Ende von
 `up -d`. Der Updater in den Einstellungen installiert im Container nichts.
 `docker-compose.yml` ist das Entwicklungs-Setup.
 
-### Anmeldung über ignisTab
+### Anmeldung über ef_bridge
 
-Discord-OAuth funktioniert im Browser von FiveM nicht. Für das Tablet-Skript
-ignisTab gibt es deshalb eine eigene Anmeldung, die unter Einstellungen ›
+Discord-OAuth funktioniert im Browser von FiveM nicht. Für die FiveM-Ressource
+ef_bridge (vormals ignisTab) gibt es deshalb eine eigene Anmeldung, die unter Einstellungen ›
 System-Konfiguration › Funktionen mit `TABLET_LOGIN_ENABLED` eingeschaltet
 wird (ab Werk aus). Der FiveM-Server schickt `POST /api/tablet/login-token`
 mit dem API-Schlüssel im Header `X-API-Key` und `{"discord_id": "…"}` und

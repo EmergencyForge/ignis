@@ -157,7 +157,7 @@ Statt einer `.env` kannst du die Werte auch als Umgebungsvariablen setzen. Dann 
 Der Webserver-Benutzer (meist `www-data`) muss in diese Ordner schreiben dürfen:
 
 - `storage/` mit allen Unterordnern
-- `plugins/`, damit Plugins aus dem Katalog installiert werden können
+- `plugins/`, damit Plugins hochgeladen oder aus dem Katalog installiert werden können
 - das Hauptverzeichnis selbst, wenn du den eingebauten Updater nutzen willst
 
 ```bash
@@ -400,11 +400,11 @@ Hat dein Hoster `proc_open` abgeschaltet, schlagen die meisten Aufgaben fehl. Da
 
 ### Plugins
 
-eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eingeschaltet, eNOTF v2 ist mitgeliefert, aber aus. Unter **Einstellungen › Wartung und Diagnose › Plugins** schaltest du sie ein und aus und installierst weitere aus dem Katalog.
+eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eingeschaltet, eNOTF v2 ist mitgeliefert, aber aus. Unter **Einstellungen › Wartung und Diagnose › Plugins** schaltest du sie ein und aus und installierst weitere aus dem Katalog oder lädst ein Plugin-ZIP hoch. Plugins von Drittanbietern laufen mit vollen Rechten auf dem Server; vor der Installation fragt ignis deshalb ausdrücklich nach.
 
-### ignisTab für FiveM
+### ef_bridge für FiveM
 
-Das Tablet-Skript für FiveM hat eine eigene Anleitung im Repository [EmergencyForge/ignisTab](https://github.com/EmergencyForge/ignisTab/blob/main/INSTALL.md). Auf der ignis-Seite brauchst du dafür den API-Schlüssel (**Einstellungen › System-Konfiguration › Technik**) und für die Anmeldung im Spiel die Option **Anmeldung über ignisTab** unter **Funktionen**.
+Die FiveM-Ressource ef_bridge (vormals ignisTab) bringt eNOTF und fireTab als Tablets ins Spiel. Sie hat eine eigene Anleitung im Repository [EmergencyForge/ef_bridge](https://github.com/EmergencyForge/ef_bridge/blob/main/INSTALL.md). Auf der ignis-Seite brauchst du dafür den API-Schlüssel (**Einstellungen › System-Konfiguration › Technik**) und für die Anmeldung im Spiel die Option **Anmeldung über ef_bridge** unter **Funktionen**.
 
 ### Telemetrie
 

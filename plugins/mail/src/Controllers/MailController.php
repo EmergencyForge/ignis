@@ -8,6 +8,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use App\Http\ErrorPage;
+use App\Models\Personnel;
 use App\Notifications\NotificationManager;
 use App\Security\CsrfProtection;
 use App\Session\SessionManager;
@@ -45,8 +46,10 @@ use Plugin\Mail\SignatureTemplate;
 /**
  * Das eigene Postfach: Entwürfe, Senden, Ordner, Anhänge, Adressbuch.
  *
- * „Postfach“ ist immer das des angemeldeten Nutzers (Mailbox::current()),
- * es gibt keinen Parameter für ein fremdes. Jede Aktion prüft zusätzlich,
+ * „Postfach“ ist das gewählte (currentMailbox()): das persönliche des
+ * angemeldeten Nutzers oder ein Gruppenpostfach, in dem er Mitglied ist.
+ * Ein Parameter (`mailbox_id`, `?postfach=`) wählt nur unter diesen aus,
+ * ein fremdes lässt sich damit nicht ansprechen. Jede Aktion prüft zusätzlich,
  * dass dieses Postfach an der Nachricht beteiligt ist; `mail.admin` ist
  * davon ausdrücklich nicht ausgenommen. Ein Admin liest keine fremden
  * Mails.
@@ -111,7 +114,7 @@ final class MailController extends Controller
     /** GET /mail/{folder}: Arbeitsbereich mit leerem Lesebereich. */
     public function folder(Request $request, string $folder): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
 
         return $mailbox === null ? $this->noMailboxPage() : $this->renderFolder($mailbox, $folder, null);
     }
@@ -122,7 +125,7 @@ final class MailController extends Controller
      */
     public function messagePage(Request $request, string $folder, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
@@ -137,7 +140,7 @@ final class MailController extends Controller
     /** GET /mail/{folder}/{id}/preview: nur der Lesebereich (workbench.js). */
     public function messagePreview(Request $request, string $folder, string $id): Response
     {
-        $mailbox  = Mailbox::current();
+        $mailbox  = $this->currentMailbox($request);
         $delivery = $mailbox !== null ? $this->deliveryIn((int) $id, $mailbox, $folder) : null;
         if ($mailbox === null || $delivery === null) {
             return Response::html('<p class="ignis-preview__muted">Diese Mail gibt es hier nicht mehr.</p>', 404)->withHeader('Cache-Control', 'private, no-store');
@@ -149,7 +152,7 @@ final class MailController extends Controller
     /** GET /mail/compose: neue Mail, ohne Schreibzugriff. */
     public function composeNew(Request $request): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
@@ -170,25 +173,25 @@ final class MailController extends Controller
     /** GET /mail/compose/reply/{id} */
     public function composeReply(Request $request, string $id): Response
     {
-        return $this->composeFromOriginal($id, 'Antworten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::reply($o, $as));
+        return $this->composeFromOriginal($request, $id, 'Antworten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::reply($o, $as));
     }
 
     /** GET /mail/compose/reply-all/{id}: ohne BCC und ohne mich selbst. */
     public function composeReplyAll(Request $request, string $id): Response
     {
-        return $this->composeFromOriginal($id, 'Allen antworten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::replyAll($o, $as));
+        return $this->composeFromOriginal($request, $id, 'Allen antworten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::replyAll($o, $as));
     }
 
     /** GET /mail/compose/forward/{id}: Anhänge kommen beim Anlegen des Entwurfs mit. */
     public function composeForward(Request $request, string $id): Response
     {
-        return $this->composeFromOriginal($id, 'Weiterleiten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::forward($o));
+        return $this->composeFromOriginal($request, $id, 'Weiterleiten', static fn (OriginalMessage $o, MailboxRef $as): Draft => ReplyBuilder::forward($o));
     }
 
     /** GET /mail/compose/draft/{id}: eigenen Entwurf weiter bearbeiten. */
     public function composeDraft(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
@@ -210,22 +213,30 @@ final class MailController extends Controller
         ]);
     }
 
-    /** GET /mail/signature */
+    /**
+     * GET /mail/signature: die Signatur des gewählten Postfachs. Ohne eigene
+     * steht die Standard-Signatur als Vorlage im Editor, mit ihren
+     * Platzhaltern; die Vorschau darunter zeigt sie mit den Angaben dessen,
+     * der gerade schreibt.
+     */
     public function signatureForm(Request $request): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
+        $own      = Signature::query()->where('mailbox_id', $mailbox->id)->first();
+        $template = $own !== null ? $own->body_json : $this->defaultSignature();
         // Der Editor braucht mindestens einen Absatz.
-        $signature = $this->signature($mailbox);
-        if (($signature['content'] ?? []) === []) {
-            $signature = ['type' => 'doc', 'content' => [['type' => 'paragraph']]];
+        if (($template['content'] ?? []) === []) {
+            $template = ['type' => 'doc', 'content' => [['type' => 'paragraph']]];
         }
 
         return $this->page('mail/signature', [
-            'bodyJson' => $signature,
-            'hasOwn'   => Signature::query()->where('mailbox_id', $mailbox->id)->exists(),
+            'mailbox'  => $mailbox,
+            'bodyJson' => $template,
+            'hasOwn'   => $own !== null,
+            'values'   => SignatureTemplate::values($this->writer($mailbox), $mailbox->address, $mailbox->display_name),
         ]);
     }
 
@@ -235,7 +246,7 @@ final class MailController extends Controller
      */
     public function saveSignature(Request $request): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
@@ -244,13 +255,13 @@ final class MailController extends Controller
         if (!is_array($body)) {
             Flash::error(is_string($body) ? $body : 'Die Signatur fehlt.');
 
-            return Response::redirect(self::basePath() . 'mail/signature');
+            return Response::redirect(self::basePath() . 'mail/signature?postfach=' . $mailbox->id);
         }
 
         Signature::query()->updateOrCreate(['mailbox_id' => $mailbox->id], ['body_json' => $body, 'updated_at' => date('Y-m-d H:i:s')]);
-        Flash::success('Signatur gespeichert.');
+        Flash::success($mailbox->isGroup() ? 'Signatur von ' . $mailbox->display_name . ' gespeichert.' : 'Signatur gespeichert.');
 
-        return Response::redirect(self::basePath() . 'mail/signature');
+        return Response::redirect(self::basePath() . 'mail/signature?postfach=' . $mailbox->id);
     }
 
     // ── Entwürfe und Senden ───────────────────────────────────────
@@ -264,7 +275,7 @@ final class MailController extends Controller
      */
     public function createDraft(Request $request): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -312,7 +323,7 @@ final class MailController extends Controller
     /** POST /mail/drafts/{id}: Entwurf an Ort und Stelle speichern (Autosave). */
     public function updateDraft(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -346,7 +357,7 @@ final class MailController extends Controller
      */
     public function sendDraft(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -436,7 +447,7 @@ final class MailController extends Controller
      */
     public function move(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -470,7 +481,7 @@ final class MailController extends Controller
      */
     public function markRead(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -500,7 +511,7 @@ final class MailController extends Controller
      */
     public function flag(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -526,7 +537,7 @@ final class MailController extends Controller
      */
     public function delete(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -560,7 +571,7 @@ final class MailController extends Controller
     /** POST /mail/drafts/{id}/attachments */
     public function uploadAttachment(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -589,9 +600,13 @@ final class MailController extends Controller
      */
     public function downloadAttachment(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        // Jedes Postfach, das dieses Konto lesen darf, nicht nur das gewählte.
         $attachment = Attachment::query()->find((int) $id);
-        if ($mailbox === null || $attachment === null || $this->participantMessage($attachment->message_id, $mailbox) === null) {
+        $readable   = false;
+        foreach ($attachment !== null ? Mailbox::accessible() : [] as $mailbox) {
+            $readable = $readable || $this->participantMessage($attachment->message_id, $mailbox) !== null;
+        }
+        if ($attachment === null || !$readable) {
             return Response::text('Anhang wurde nicht gefunden.', 404)->withHeader('Cache-Control', 'private, no-store');
         }
 
@@ -612,7 +627,7 @@ final class MailController extends Controller
     /** POST /mail/attachments/{id}/delete: nur am eigenen Entwurf. */
     public function deleteAttachment(Request $request, string $id): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return self::noMailbox();
         }
@@ -640,7 +655,7 @@ final class MailController extends Controller
 
         $mailboxes = Mailbox::query()->where('active', true)->where('locked', false)
             ->when($q !== '', static fn ($query) => $query->where(static fn ($w) => $w->where('address', 'like', $like)->orWhere('display_name', 'like', $like)))
-            ->orderBy('display_name')->limit(20)->get(['address', 'display_name']);
+            ->orderBy('display_name')->limit(20)->get(['address', 'display_name', 'kind']);
 
         $lists = MailList::query()
             ->when(!self::canManageLists(), static fn ($query) => $query->where('senders', MailList::SENDERS_ALL))
@@ -648,11 +663,12 @@ final class MailController extends Controller
             ->orderBy('name')->limit(20)->get(['address', 'name']);
 
         $results = [];
+        // Gruppenpostfach und Verteiler tragen ihre Art im Namen.
         foreach ($mailboxes as $mailbox) {
-            $results[] = ['address' => $mailbox->address, 'label' => $mailbox->display_name . ' <' . $mailbox->address . '>'];
+            $results[] = ['address' => $mailbox->address, 'label' => $mailbox->display_name . ' <' . $mailbox->address . '>' . ($mailbox->kind === Mailbox::KIND_GROUP ? ' · ' . Mailbox::KIND_LABELS[Mailbox::KIND_GROUP] : ''), 'kind' => $mailbox->kind];
         }
         foreach ($lists as $list) {
-            $results[] = ['address' => $list->address, 'label' => $list->name . ' <' . $list->address . '> · Verteiler'];
+            $results[] = ['address' => $list->address, 'label' => $list->name . ' <' . $list->address . '> · ' . Mailbox::LIST_LABEL, 'kind' => 'list'];
         }
 
         return self::json(['success' => true, 'results' => $results], 200, withToken: false);
@@ -699,10 +715,14 @@ final class MailController extends Controller
             }
         }
 
+        $mailboxes = Mailbox::accessible();
+
         return $this->page('mail/index', [
             'folder'         => $folder,
             'folders'        => self::folders(),
             'mailbox'        => $mailbox,
+            'mailboxes'      => $mailboxes,
+            'inboxUnread'    => self::inboxUnread(array_map(static fn (Mailbox $m): int => $m->id, $mailboxes)),
             'deliveries'     => array_values($unique),
             'unreadCounts'   => self::unreadCounts($mailbox),
             'readingPane'    => $selected !== null ? $this->readingPane($selected, $mailbox, $folder) : null,
@@ -725,6 +745,29 @@ final class MailController extends Controller
             ->pluck('c', 'folder')->map(static fn ($c): int => (int) $c)->all();
     }
 
+    /**
+     * Ungelesene im Posteingang je Postfach, für den Wechsel zwischen
+     * persönlichem Postfach und Gruppenpostfächern und den Zähler am
+     * Navigationseintrag.
+     *
+     * @param list<int> $mailboxIds
+     * @return array<int,int>
+     */
+    public static function inboxUnread(array $mailboxIds): array
+    {
+        if ($mailboxIds === []) {
+            return [];
+        }
+
+        return Capsule::table('intra_mail_deliveries')
+            ->whereIn('mailbox_id', $mailboxIds)->where('folder', 'inbox')->where('role', '!=', 'sender')
+            ->whereNull('deleted_at')->whereNull('read_at')
+            ->selectRaw('mailbox_id, COUNT(DISTINCT message_id) as c')->groupBy('mailbox_id')
+            ->pluck('c', 'mailbox_id')
+            ->mapWithKeys(static fn ($c, $id): array => [(int) $id => (int) $c])
+            ->all();
+    }
+
     /** Die Kopie der Mail in genau diesem Ordner; ein fremder Ordner in der URL findet nichts. */
     private function deliveryIn(int $messageId, Mailbox $mailbox, string $folder): ?Delivery
     {
@@ -743,9 +786,19 @@ final class MailController extends Controller
         $message = $delivery->message;
         $isDraft = $message->status === 'draft';
 
+        // Wer für ein Gruppenpostfach geschrieben hat, sehen nur dessen
+        // Mitglieder, in der Kopie der Gruppe. Empfänger sehen das Postfach.
+        $sentBy = null;
+        if ($mailbox->isGroup() && $message->sender_mailbox_id === $mailbox->id && $message->sent_by_user_id !== null) {
+            $user   = Capsule::table('intra_users')->where('id', $message->sent_by_user_id)->first(['fullname', 'username']);
+            $sentBy = $user !== null ? (string) (($user->fullname ?? '') !== '' ? $user->fullname : $user->username) : null;
+        }
+
         return [
             'folder'        => $folder,
             'message'       => $message,
+            'mailbox'       => $mailbox,
+            'sentBy'        => $sentBy,
             'isDraft'       => $isDraft,
             'header'        => self::visibleHeader($message, $mailbox, $delivery),
             'bodyHtml'      => $isDraft ? $this->renderer->render($message->body_json) : (string) $message->body_html,
@@ -776,9 +829,9 @@ final class MailController extends Controller
     /**
      * @param callable(OriginalMessage, MailboxRef): Draft $build
      */
-    private function composeFromOriginal(string $id, string $title, callable $build): Response
+    private function composeFromOriginal(Request $request, string $id, string $title, callable $build): Response
     {
-        $mailbox = Mailbox::current();
+        $mailbox = $this->currentMailbox($request);
         if ($mailbox === null) {
             return $this->noMailboxPage();
         }
@@ -836,6 +889,7 @@ final class MailController extends Controller
             $options[$key] = array_map(fn (string $address): array => ['value' => $address, 'label' => $this->addressLabel($address)], array_values(array_filter((array) ($data['recipients'][$key] ?? []), 'is_string')));
         }
         $data['recipients'] = $options;
+        $data['mailbox']    = $mailbox;
 
         return $this->page('mail/compose', $data);
     }
@@ -849,7 +903,9 @@ final class MailController extends Controller
     {
         $mailbox = $this->directory->findMailbox($address);
         if ($mailbox !== null) {
-            return ($mailbox->displayName ?? $address) . ' <' . $mailbox->address . '>';
+            $isGroup = Mailbox::query()->whereKey($mailbox->id)->value('kind') === Mailbox::KIND_GROUP;
+
+            return ($mailbox->displayName ?? $address) . ' <' . $mailbox->address . '>' . ($isGroup ? ' · ' . Mailbox::KIND_LABELS[Mailbox::KIND_GROUP] : '');
         }
         $list = MailList::query()->where('address', MailAddressRules::normalize($address))->first();
         if ($list === null || ($list->senders === MailList::SENDERS_MANAGERS && !self::canManageLists())) {
@@ -886,22 +942,45 @@ final class MailController extends Controller
 
     /**
      * Welche Signatur gilt: die eigene (auch leer, das heißt „keine“), sonst
-     * die Standard-Signatur der Instanz mit den Angaben aus dem
-     * Mitarbeiterprofil, ohne gespeicherte die eingebaute Vorlage.
+     * die Standard-Signatur der Instanz, ohne gespeicherte die eingebaute
+     * Vorlage. Die Platzhalter füllt das Profil dessen, der schreibt; bei
+     * einem Gruppenpostfach Adresse und Name der Gruppe.
      *
      * @return array<string,mixed>
      */
     private function signature(Mailbox $mailbox): array
     {
-        $own = Signature::query()->where('mailbox_id', $mailbox->id)->first();
-        if ($own !== null) {
-            return $own->body_json;
+        $own      = Signature::query()->where('mailbox_id', $mailbox->id)->first();
+        $template = $own !== null ? $own->body_json : $this->defaultSignature();
+
+        return SignatureTemplate::resolve($template, $this->writer($mailbox), $mailbox->address, $mailbox->display_name);
+    }
+
+    /**
+     * Die Standard-Signatur der Instanz als Vorlage, ohne gespeicherte die eingebaute.
+     *
+     * @return array<string,mixed>
+     */
+    private function defaultSignature(): array
+    {
+        $stored = Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->value('config_value');
+
+        return SignatureTemplate::decode(is_string($stored) ? $stored : null) ?? SignatureTemplate::builtIn();
+    }
+
+    /**
+     * Wer schreibt: beim persönlichen Postfach sein Mitarbeiter, beim
+     * Gruppenpostfach der Mitarbeiter des angemeldeten Kontos.
+     */
+    private function writer(Mailbox $mailbox): ?Personnel
+    {
+        if (!$mailbox->isGroup()) {
+            return $mailbox->mitarbeiter;
         }
+        $userId        = SessionManager::userId();
+        $mitarbeiterId = $userId !== null ? Mailbox::mitarbeiterIdForUser($userId) : null;
 
-        $stored   = Capsule::table('intra_config')->where('config_key', 'MAIL_DEFAULT_SIGNATURE')->value('config_value');
-        $template = SignatureTemplate::decode(is_string($stored) ? $stored : null) ?? SignatureTemplate::builtIn();
-
-        return SignatureTemplate::resolve($template, $mailbox->mitarbeiter, $mailbox->address);
+        return $mitarbeiterId !== null ? Personnel::query()->find($mitarbeiterId) : null;
     }
 
     /**
@@ -1173,6 +1252,36 @@ final class MailController extends Controller
         $message = $this->participantMessage($messageId, $mailbox);
 
         return $message !== null && $message->status === 'draft' && $message->sender_mailbox_id === $mailbox->id ? $message : null;
+    }
+
+    /**
+     * Das Postfach dieser Anfrage, siehe Mailbox::selected(). Formulare und
+     * fetch-Aufrufe nennen es (`mailbox_id`, das Postfach, für das die Seite
+     * gerendert wurde), Links zum Wechseln tragen `?postfach=`. So sendet ein
+     * zweiter Tab mit einem anderen Postfach nichts aus dem falschen. Ohne
+     * Angabe gilt die Auswahl aus der Sitzung. Ein genanntes Postfach, das
+     * das Konto nicht lesen darf, ergibt null, nie das eigene als Ersatz.
+     * Nur `?postfach=` auf einer Seite merkt sich die Wahl.
+     */
+    private function currentMailbox(Request $request): ?Mailbox
+    {
+        $fromPost  = $request->post['mailbox_id'] ?? null;
+        $fromQuery = $request->query['postfach'] ?? null;
+        $raw       = $fromPost ?? $fromQuery;
+        if ($raw === null || $raw === '') {
+            return Mailbox::selected();
+        }
+        $id = self::positiveInt($raw);
+        if ($id === null) {
+            return null;
+        }
+
+        $mailbox = Mailbox::selected($id);
+        if ($mailbox !== null && $fromPost === null && $request->isMethod('GET')) {
+            Mailbox::remember($mailbox->id);
+        }
+
+        return $mailbox;
     }
 
     public static function canManageLists(): bool

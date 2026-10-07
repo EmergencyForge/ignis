@@ -44,6 +44,33 @@ final class CatalogClientTest extends TestCase
     }
 
     #[Test]
+    public function it_keeps_publisher_and_source_and_treats_only_official_entries_as_first_party(): void
+    {
+        $cache = sys_get_temp_dir() . '/ignis-catalog-publisher-' . getmypid() . '.json';
+        @unlink($cache);
+        $fetcher = static fn (): array => ['status' => 200, 'body' => json_encode(['plugins' => [
+            ['slug' => 'official', 'name' => 'Offiziell', 'version' => '1.0.0', 'status' => 'official', 'publisher' => 'EmergencyForge'],
+            ['slug' => 'checked', 'name' => 'Geprüft', 'version' => '1.0.0', 'status' => 'verified', 'author' => ['name' => 'Jemand'], 'repository' => 'https://github.com/jemand/checked'],
+            ['slug' => 'community', 'name' => 'Community', 'version' => '1.0.0', 'repository' => 'javascript:alert(1)'],
+        ]])];
+
+        try {
+            $plugins = (new CatalogClient('https://hub.example/v1/plugins', $cache, $fetcher))->catalog()['plugins'];
+
+            $this->assertSame('EmergencyForge', $plugins[0]['publisher']);
+            $this->assertFalse(CatalogClient::isThirdParty($plugins[0]));
+            $this->assertSame('Jemand', $plugins[1]['publisher']);
+            $this->assertSame('https://github.com/jemand/checked', $plugins[1]['source_url']);
+            $this->assertTrue(CatalogClient::isThirdParty($plugins[1]), 'Geprüft heißt nicht, dass der Code von EmergencyForge stammt.');
+            $this->assertSame('', $plugins[2]['source_url']);
+            $this->assertSame('untested', $plugins[2]['trust']);
+            $this->assertTrue(CatalogClient::isThirdParty($plugins[2]));
+        } finally {
+            @unlink($cache);
+        }
+    }
+
+    #[Test]
     public function it_uses_stale_cache_when_refresh_fails(): void
     {
         $cache = sys_get_temp_dir() . '/ignis-catalog-stale-' . getmypid() . '.json';

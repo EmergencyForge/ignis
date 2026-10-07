@@ -35,7 +35,10 @@ final class PdfGenerator
      */
     public function generate(EditorDocument $document, array $variables): string
     {
-        $result = (new Renderer())->render($document->content, $variables);
+        // Ein Platzhalter ohne Wert bleibt leer, `{{name}}` gehört nicht in
+        // eine Urkunde. Ausgestellt wird so etwas erst nach Rückfrage
+        // (EditorDocumentController::issue()).
+        $result = (new Renderer())->render($document->content, $variables, blankUnresolved: true);
 
         if ($result->error) {
             throw new RuntimeException(

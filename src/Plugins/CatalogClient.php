@@ -111,16 +111,40 @@ final class CatalogClient
             $trust = 'untested';
         }
 
+        $publisher = $entry['publisher'] ?? $entry['vendor'] ?? $entry['author'] ?? '';
+        if (is_array($publisher)) {
+            $publisher = $publisher['name'] ?? $publisher['login'] ?? '';
+        }
+        $sourceUrl = trim((string) ($entry['repository'] ?? $entry['repo_url'] ?? $entry['source_url'] ?? $entry['homepage'] ?? ''));
+        if (!preg_match('#^https://#i', $sourceUrl)) {
+            $sourceUrl = '';
+        }
+
         return [
             'slug' => $slug,
             'name' => $name,
             'description' => trim((string) ($entry['description'] ?? '')),
             'version' => $version,
+            'publisher' => is_scalar($publisher) ? trim((string) $publisher) : '',
+            'source_url' => $sourceUrl,
             'zip_url' => $zipUrl,
             'sha256' => $sha256,
             'trust' => $trust,
             'installable' => $zipUrl !== '' && $sha256 !== '',
         ];
+    }
+
+    /**
+     * Stammt der Eintrag von einem Drittanbieter? Als eigenes Paket gilt nur,
+     * was der Hub als `official` führt. `verified` und `tested` heißen, dass
+     * EmergencyForge das Plugin angesehen hat, der Code kommt aber weiter
+     * vom Herausgeber und läuft mit vollen Rechten auf dem Server.
+     *
+     * @param array<string,mixed> $entry
+     */
+    public static function isThirdParty(array $entry): bool
+    {
+        return ($entry['trust'] ?? 'untested') !== 'official';
     }
 
     /** @return array{timestamp:int,plugins:list<array<string,mixed>>}|null */

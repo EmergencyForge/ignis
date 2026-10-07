@@ -291,3 +291,82 @@ body {
 .ignis-card {
   --efe-sticky-top: 0px;
 }
+
+// Dokumenteneditor: „Noch offen" über dem Blatt (document-editor.js).
+// Jeder Eintrag ist ein Knopf, der an seine Stelle springt.
+.ignis-doc-review {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--warn-soft);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--radius-lg);
+  background: var(--warn-soft);
+}
+
+.ignis-doc-review--done {
+  border-color: var(--ok-soft);
+  border-left-color: var(--ok);
+  background: var(--ok-soft);
+}
+
+.ignis-doc-review__head {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+
+  i {
+    color: var(--warn);
+  }
+}
+
+.ignis-doc-review--done .ignis-doc-review__head {
+  font-weight: 500;
+
+  i {
+    color: var(--ok);
+  }
+}
+
+.ignis-doc-review__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ignis-doc-review__item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border-control, var(--border));
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--accent);
+  }
+}
+
+.ignis-doc-review__item--field .ignis-doc-review__label::before {
+  content: "\2217\00a0";
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.ignis-doc-review__item--unknown {
+  border-style: dashed;
+}
+
+.ignis-doc-review__why {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}

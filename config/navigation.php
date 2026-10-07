@@ -26,7 +26,7 @@
  *           match?: string[],         Pfadpräfixe (ohne BASE_PATH), unter denen der
  *                                     Eintrag als aktiv gilt, zusätzlich zum href
  *           counter?: string,         Schlüssel für App\Support\NavigationCounters,
- *                                     Zähler an der Zeile (z.B. 'inbox')
+ *                                     Zähler an der Zeile (z.B. 'mail')
  *           external?: bool,          target=_blank mit Pfeil
  *           quick_action?: array{
  *               type: 'drawer'|'link'|'modal',
@@ -81,15 +81,9 @@ return [
                     'icon'  => 'fa-solid fa-house',
                     'match' => ['/'],
                 ],
-                // Benachrichtigungen des Betrachters; der Zähler sind die
-                // ungelesenen, ohne die Typen, die er nicht sehen darf.
-                [
-                    'label'   => 'Posteingang',
-                    'href'    => BASE_PATH . 'inbox',
-                    'icon'    => 'fa-solid fa-inbox',
-                    'match'   => ['/inbox'],
-                    'counter' => 'inbox',
-                ],
+                // Kein Eintrag „Posteingang“: die Benachrichtigungen zeigt die
+                // Glocke in der Topbar mit Zähler, ihr „Alle anzeigen“ führt
+                // auf /inbox. Ein zweiter Weg in der Sidebar war doppelt.
                 [
                     'label'        => 'Kalender',
                     'href'         => BASE_PATH . 'calendar',

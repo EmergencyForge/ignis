@@ -54,9 +54,46 @@ fireTab (`Plugin\Firetab\Notifications\FireProtocolType`) ist die Vorlage.
 zeigt den Wert, `null` oder 0 blendet ihn aus. Das Mail-Plugin
 (`plugins/mail/counters.php`) ist die Vorlage.
 
-Ein heruntergeladenes Plugin bleibt vollständig inert. Erst die separate
+Ein heruntergeladenes Plugin bleibt vollständig inert. Erst die
 Installationsbestätigung in der Verwaltung legt den `.installed`-Marker an,
-führt Migrationen aus und aktiviert das Plugin.
+führt Migrationen aus und aktiviert das Plugin. Ein `.installed` im Archiv
+wird beim Entpacken entfernt.
+
+## Installieren
+
+Unter Einstellungen → System → Plugins gibt es drei Wege, die alle auf
+derselben Bestätigungsseite enden:
+
+- **Hochladen**: Ein Plugin-ZIP auf die Dropzone ziehen oder auswählen. Das
+  Archiv wird geprüft und wartet in `plugins/.staging/`, bis die Installation
+  bestätigt oder verworfen ist (nach einer Stunde räumt ignis es weg). Das
+  Manifest liegt im Archiv-Root; ein gezippter Plugin-Ordner mit genau einem
+  Unterverzeichnis wird ebenfalls angenommen.
+- **Aus dem Katalog**: Das ZIP wird erst nach der Bestätigung von GitHub
+  geladen und gegen den SHA256-Digest des Katalogs geprüft.
+- **Bereitliegend**: Ein Plugin, das ohne Installation in `plugins/` liegt
+  (von Hand kopiert oder nur heruntergeladen), wird aus der Liste installiert.
+
+Die Bestätigungsseite zeigt ID, Version, Herausgeber, Quelle, Prüfsumme,
+Abhängigkeiten und die mitgebrachten Rechte. Bei Plugins von Drittanbietern
+verlangt sie ein Häkchen zum Risiko-Hinweis, und der Server lehnt die
+Installation ohne dieses Häkchen ab. Als Drittanbieter gilt jeder Upload und
+jeder Katalog-Eintrag, der nicht den Status `official` trägt; auch `verified`
+heißt nur, dass EmergencyForge die Version angesehen hat. Wahlweise bleibt ein
+neues Plugin nach der Prüfung erst einmal inaktiv liegen.
+
+Vor dem Verschieben prüft ignis bei jedem Weg dasselbe: höchstens 50 MB
+Archiv, 5000 Dateien und 200 MB entpackt, keine absoluten Pfade, kein `..`,
+keine Symlinks oder Gerätedateien, ein literal-only Manifest mit gültiger ID,
+keine ID eines mitgelieferten Plugins und keine, die schon ein anderer Ordner
+trägt, und die `requires.ignis`-Angabe. Ein vorhandenes Plugin gleicher ID
+wird nur ersetzt, wenn die Bestätigungsseite es als Update angekündigt hat;
+die alte Version landet in `plugins/.backup/`, ältere Versionen werden nicht
+eingespielt. Jeder Schritt steht im Audit Log unter „Plugins“.
+
+Für Uploads müssen `upload_max_filesize` und `post_max_size` (PHP) sowie
+`client_max_body_size` (nginx) groß genug sein; das Docker-Image und
+`nginx.conf.example` erlauben 50 MB.
 
 ## Assets
 
@@ -100,7 +137,10 @@ sich mit jeder Version ändern.
 Der Katalog verweist auf ein öffentliches GitHub-Release-ZIP und einen
 SHA256-Digest. ıgnıs akzeptiert nur HTTPS-Downloads von GitHub, prüft Größe,
 Digest, Archivpfade, Manifest-ID und Versionskompatibilität und verschiebt das
-Plugin anschließend atomar nach `plugins/<id>/`.
+Plugin anschließend atomar nach `plugins/<id>/`. Ein Katalog-Eintrag kann
+`publisher` (oder `vendor`/`author`) und `repository` (HTTPS-URL) mitbringen;
+beides steht auf der Bestätigungsseite. `status` ist `official`, `verified`,
+`tested` oder `untested` (Standard).
 
 Neue Plugins werden über das GitHub-Issue-Template „Plugin einreichen“
 vorgeschlagen. Ungetestete Community-Plugins werden entsprechend markiert;

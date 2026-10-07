@@ -21,7 +21,13 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * dessen Platzhalter alle leer bleiben und der sonst keinen Text hat,
  * fällt weg, damit keine leeren Zeilen entstehen. Weil das bei jedem
  * Verfassen neu passiert, folgt die Signatur Beförderungen und Wechseln
- * von selbst. Eine eigene Signatur des Postfachs geht immer vor.
+ * von selbst. Eine eigene Signatur des Postfachs geht immer vor; auch sie
+ * darf Platzhalter tragen und wird genauso ausgefüllt. Ein Platzhalter mit
+ * unbekanntem Namen bleibt dabei leer, speichern lässt er sich in der
+ * Standard-Signatur gar nicht (parse()).
+ *
+ * Bei einem Gruppenpostfach ist der Absender das Mitglied, das gerade
+ * schreibt; Mailadresse und Postfachname kommen vom Gruppenpostfach.
  */
 final class SignatureTemplate
 {
@@ -48,6 +54,7 @@ final class SignatureTemplate
             'absender.fachdienste'  => 'Fachdienste',
             'absender.dienstnummer' => 'Dienstnummer',
             'absender.mailadresse'  => 'Mailadresse',
+            'postfach.name'         => 'Postfach',
             'organisation'          => 'Organisation',
         ];
     }
@@ -159,9 +166,9 @@ final class SignatureTemplate
      * @param array<string,mixed> $template
      * @return array<string,mixed>
      */
-    public static function resolve(array $template, ?Personnel $person, string $address): array
+    public static function resolve(array $template, ?Personnel $person, string $address, string $mailboxName = ''): array
     {
-        $values  = self::values($person, $address);
+        $values  = self::values($person, $address, $mailboxName);
         $content = [];
         foreach ((array) ($template['content'] ?? []) as $node) {
             if (!is_array($node)) {
@@ -182,11 +189,11 @@ final class SignatureTemplate
      * Die Angaben je Platzhalter als Inline-Knoten. Leer heißt: keine
      * Knoten. Der Dienstgrad bekommt sein Abzeichen davor, wenn es eines
      * gibt und der Editor-Renderer die Adresse zulässt (Pfad auf ignis,
-     * keine fremde Adresse).
+     * keine fremde Adresse). Öffentlich für die Vorschau im Signatur-Editor.
      *
      * @return array<string,list<array<string,mixed>>>
      */
-    private static function values(?Personnel $person, string $address): array
+    public static function values(?Personnel $person, string $address, string $mailboxName = ''): array
     {
         $text = static function (mixed $value): array {
             $value = trim((string) $value);
@@ -196,6 +203,7 @@ final class SignatureTemplate
 
         $values = [
             'absender.mailadresse' => $text($address),
+            'postfach.name'        => $text($mailboxName),
             'organisation'         => $text(self::organisation()),
         ];
         if ($person === null) {

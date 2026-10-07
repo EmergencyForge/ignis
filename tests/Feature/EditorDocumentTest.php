@@ -376,6 +376,92 @@ final class EditorDocumentTest extends FeatureTestCase
         $this->assertFileDoesNotExist(dirname(__DIR__, 2) . '/' . $path);
     }
 
+    /**
+     * Wie template(), nur steht im gesperrten Abschnitt ein Satz mit diesen
+     * Platzhaltern.
+     */
+    private function templateWithVariables(string ...$names): EditorTemplate
+    {
+        $inline = [['type' => 'text', 'text' => 'Gezeichnet: ']];
+        foreach ($names as $name) {
+            $inline[] = ['type' => 'docVariable', 'attrs' => ['name' => $name]];
+        }
+
+        $template          = $this->template();
+        $content           = $this->templateContent();
+        $content['content'][0]['content'][0]['content'] = $inline;
+        $template->content = $content;
+        $template->save();
+
+        return $template;
+    }
+
+    /**
+     * Die Testperson hat keinen Titel, `mitarbeiter.titel` bleibt also
+     * leer. Ohne ausdrückliche Bestätigung wird nicht ausgestellt, und die
+     * Meldung nennt den Platzhalter mit seiner Beschriftung.
+     */
+    #[Test]
+    public function ein_platzhalter_ohne_wert_braucht_eine_bestaetigung(): void
+    {
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.name', 'mitarbeiter.titel'));
+
+        $response = $this->postWithToken('/documents/' . $document->id . '/issue', []);
+
+        $this->assertRedirect($response, '/documents/' . $document->id . '/edit');
+        $this->assertSame(EditorDocument::STATUS_DRAFT, $document->fresh()->status);
+        $flash = (string) ($_SESSION['flash']['text'] ?? '');
+        $this->assertStringContainsString('Diese Platzhalter haben keinen Wert und blieben leer: Mitarbeiter: Titel.', $flash);
+        $this->assertStringNotContainsString('Name mit Titel', $flash);
+    }
+
+    #[Test]
+    public function bestaetigt_wird_ausgestellt_und_die_stelle_bleibt_leer(): void
+    {
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.name', 'mitarbeiter.titel'));
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/storage/private/editor-documents/' . $document->docid . '.pdf';
+
+        $response = $this->postWithToken('/documents/' . $document->id . '/issue', ['accept_missing' => '1']);
+
+        $this->assertRedirect($response, '/documents/' . $document->id);
+        $issued = $document->fresh();
+        $this->assertSame(EditorDocument::STATUS_ISSUED, $issued->status);
+
+        $html = (new \EmergencyForge\Editor\Renderer())
+            ->render($issued->content, $issued->frozen_values, blankUnresolved: true)->html;
+        $this->assertStringContainsString('<span class="efe-variable">Testperson</span><span class="efe-variable"></span>', $html);
+        $this->assertStringNotContainsString('{{', $html);
+
+        $audit = Capsule::table('intra_audit_log')->where('action', 'Dokument ausgestellt')->orderBy('id', 'desc')->first();
+        $this->assertNotNull($audit);
+        $this->assertStringContainsString('leer gelassen: Mitarbeiter: Titel', (string) $audit->details);
+    }
+
+    #[Test]
+    public function mit_allen_werten_braucht_es_keine_bestaetigung(): void
+    {
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.name', 'dokument.kennung'));
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/storage/private/editor-documents/' . $document->docid . '.pdf';
+
+        $this->postWithToken('/documents/' . $document->id . '/issue', []);
+
+        $this->assertSame(EditorDocument::STATUS_ISSUED, $document->fresh()->status);
+    }
+
+    #[Test]
+    public function der_editor_sagt_warum_ein_platzhalter_leer_bleibt(): void
+    {
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.titel'));
+
+        $response = $this->get('/documents/' . $document->id . '/edit');
+
+        $this->assertOk($response);
+        $this->assertStringContainsString('data-efe-missing-reasons=', $response->body);
+        $this->assertStringContainsString('Beim Mitarbeiter ist kein Titel eingetragen.', $response->body);
+        $this->assertStringContainsString('id="document-open-items"', $response->body);
+        $this->assertStringContainsString('name="accept_missing"', $response->body);
+    }
+
     private function pdfFixture(string $relativePath): void
     {
         $file = dirname(__DIR__, 2) . '/' . $relativePath;

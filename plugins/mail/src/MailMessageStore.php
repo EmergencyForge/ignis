@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\Mail;
 
+use App\Session\SessionManager;
 use EmergencyForge\Mail\DeliveryRole;
 use EmergencyForge\Mail\Folder;
 use EmergencyForge\Mail\MailboxRef;
@@ -80,6 +81,8 @@ final class MailMessageStore implements MessageStore
     {
         $now = date('Y-m-d H:i:s');
         $row->sender_mailbox_id = (int) $message->sender->id;
+        // Wer geschrieben hat; bei einem Gruppenpostfach sehen das die Mitglieder.
+        $row->sent_by_user_id   = SessionManager::userId();
         $row->subject           = $message->subject;
         $row->body_json         = $message->bodyJson;
         $row->body_html         = $message->bodyHtml;

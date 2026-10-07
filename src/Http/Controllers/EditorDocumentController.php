@@ -114,10 +114,11 @@ final class EditorDocumentController extends Controller
         }
 
         $this->renderView('documents/edit', [
-            'document'   => $document,
-            'variables'  => VariableCatalog::resolve($this->variableContext($document)),
-            'catalog'    => VariableCatalog::catalog(),
-            'saveAction' => BASE_PATH . 'documents/' . $document->id . '/save',
+            'document'       => $document,
+            'variables'      => VariableCatalog::resolve($this->variableContext($document)),
+            'catalog'        => VariableCatalog::catalog(),
+            'missingReasons' => VariableCatalog::missingReasons($this->variableContext($document)),
+            'saveAction'     => BASE_PATH . 'documents/' . $document->id . '/save',
         ]);
     }
 
@@ -261,8 +262,11 @@ final class EditorDocumentController extends Controller
 
         $userId = SessionManager::userId();
 
+        $acceptMissing = ($request->post['accept_missing'] ?? '') === '1';
+        $leftEmpty     = [];
+
         try {
-            $issued = Capsule::connection()->transaction(function () use (&$document, $userId, $editUrl): bool {
+            $issued = Capsule::connection()->transaction(function () use (&$document, &$leftEmpty, $userId, $editUrl, $acceptMissing): bool {
                 // Inhalt, Pflichtfelder und PDF bleiben bis zum Commit derselbe Stand.
                 $locked = EditorDocument::query()->with('mitarbeiter')->lockForUpdate()->find($document->id);
                 if ($locked === null || $locked->isIssued()) {
@@ -276,6 +280,26 @@ final class EditorDocumentController extends Controller
                     Flash::error(
                         'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden. Diese '
                         . 'Pflichtfelder sind leer: ' . implode(', ', $missing) . '.',
+                    );
+                    $this->redirect($editUrl);
+                }
+
+                // Platzhalter ohne Wert halten nicht auf wie ein leeres
+                // Pflichtfeld: oft fehlt nur etwas, das jemand anderes
+                // pflegt (Titel, Dienstnummer). Ausgestellt wird aber erst,
+                // wenn der Schreiber bestätigt hat, dass die Stellen leer
+                // bleiben dürfen. Die Rückfrage im Editor schickt dafür
+                // accept_missing=1 mit.
+                $catalog   = VariableCatalog::catalog();
+                $leftEmpty = array_map(
+                    static fn (string $name): string => $catalog[$name] ?? $name,
+                    Renderer::unresolvedVariables($document->content, $frozen),
+                );
+                if ($leftEmpty !== [] && !$acceptMissing) {
+                    Flash::error(
+                        'Dokument „' . $document->title . '" wurde nicht ausgestellt. Diese Platzhalter haben '
+                        . 'keinen Wert und blieben leer: ' . implode(', ', $leftEmpty) . '. Trag die Angaben nach '
+                        . 'oder bestätige beim Ausstellen, dass sie leer bleiben dürfen.',
                     );
                     $this->redirect($editUrl);
                 }
@@ -313,7 +337,11 @@ final class EditorDocumentController extends Controller
             $this->redirect($showUrl);
         }
 
-        $this->audit('Dokument ausgestellt', $document);
+        $this->audit(
+            'Dokument ausgestellt',
+            $document,
+            $leftEmpty !== [] ? ', leer gelassen: ' . implode(', ', $leftEmpty) : '',
+        );
         Flash::success('Dokument „' . $document->title . '" wurde ausgestellt.');
         $this->redirect($showUrl);
     }
@@ -418,12 +446,12 @@ final class EditorDocumentController extends Controller
         $this->redirect($redirectTo);
     }
 
-    private function audit(string $action, EditorDocument $document): void
+    private function audit(string $action, EditorDocument $document, string $extra = ''): void
     {
         (new AuditLogger())->log(
             (int) SessionManager::userId(),
             $action,
-            'Kennung: ' . $document->docid . ', Titel: ' . $document->title,
+            'Kennung: ' . $document->docid . ', Titel: ' . $document->title . $extra,
             'Dokumente',
             1,
         );

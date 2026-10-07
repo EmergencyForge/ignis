@@ -86,12 +86,13 @@ final class MailboxProvisioner
     }
 
     /**
-     * Postfächer ohne Mitarbeiter (gelöscht, der Fremdschlüssel hat
-     * `mitarbeiter_id` auf NULL gesetzt) stellen nichts mehr zu.
+     * Persönliche Postfächer ohne Mitarbeiter (gelöscht, der Fremdschlüssel
+     * hat `mitarbeiter_id` auf NULL gesetzt) stellen nichts mehr zu. Ein
+     * Gruppenpostfach hat nie einen Mitarbeiter und bleibt, wie es ist.
      */
     public function deactivateOrphans(?int $mitarbeiterId = null): int
     {
-        $query = Mailbox::query()->where('active', true)->where(static function ($q) use ($mitarbeiterId): void {
+        $query = Mailbox::query()->where('active', true)->where('kind', Mailbox::KIND_PERSONAL)->where(static function ($q) use ($mitarbeiterId): void {
             $q->whereNull('mitarbeiter_id');
             if ($mitarbeiterId !== null) {
                 $q->orWhere('mitarbeiter_id', $mitarbeiterId);
