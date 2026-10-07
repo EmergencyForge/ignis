@@ -158,6 +158,37 @@ final class MailTextTest extends TestCase
     }
 
     #[Test]
+    public function leere_zeile_im_absatz_faellt_samt_umbruch_weg(): void
+    {
+        $break = ['type' => 'hardBreak'];
+        // Platzhalter untereinander in einem Absatz (Umschalt+Enter), ohne
+        // Mitarbeiter bleiben Name und Position leer.
+        $template = ['type' => 'doc', 'content' => [self::para([
+            self::variable('absender.name'), $break,
+            self::variable('postfach.name'), $break,
+            self::variable('absender.position'), $break,
+            self::variable('absender.mailadresse'),
+        ])]];
+        $this->assertSame(
+            [self::para([['type' => 'text', 'text' => 'Leitstelle'], $break, ['type' => 'text', 'text' => 'leitstelle@ignis.ef']])],
+            SignatureTemplate::resolve($template, null, 'leitstelle@ignis.ef', 'Leitstelle')['content'],
+        );
+
+        // Eine Leerzeile ohne Platzhalter ist gewollt und bleibt.
+        $template = ['type' => 'doc', 'content' => [self::para([
+            ['type' => 'text', 'text' => 'Gruß'], $break, $break, self::variable('absender.mailadresse'),
+        ])]];
+        $this->assertSame(
+            [self::para([['type' => 'text', 'text' => 'Gruß'], $break, $break, ['type' => 'text', 'text' => 'leitstelle@ignis.ef']])],
+            SignatureTemplate::resolve($template, null, 'leitstelle@ignis.ef')['content'],
+        );
+
+        // Bleibt keine Zeile übrig, fällt der Absatz weg.
+        $template = ['type' => 'doc', 'content' => [self::para([self::variable('absender.name'), $break, self::variable('absender.position')])]];
+        $this->assertSame([], SignatureTemplate::resolve($template, null, '')['content']);
+    }
+
+    #[Test]
     public function klartext_aus_dem_gerenderten_html(): void
     {
         $this->assertSame('Hallo Anna, anbei der Plan für Mo & Di. Zeile zwei Punkt Zitat', MailBodyRenderer::plainText(

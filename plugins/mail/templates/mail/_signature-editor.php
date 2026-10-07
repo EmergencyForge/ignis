@@ -9,7 +9,7 @@
  * `{{` im Text oder über die Knopfleiste an der Schreibmarke. Darunter die Vorschau: die
  * Signatur mit den Angaben aus `$sigValues` (dem angemeldeten Konto), nach
  * denselben Regeln wie beim Verfassen (SignatureTemplate::resolve(): leere
- * Platzhalter bleiben leer, ein Absatz ohne Text danach fällt weg). Was
+ * Platzhalter bleiben leer, eine Zeile ohne Text danach fällt weg). Was
  * dabei leer bleibt, steht unter der Vorschau, sonst wundert man sich über
  * eine fehlende Zeile. Das
  * Editor-JSON steht nach jeder Änderung im versteckten Feld `$sigField`.
@@ -94,12 +94,35 @@ $sigCatalog = SignatureTemplate::catalog();
         return Object.assign({}, node, { content: children });
     }
 
+    // Wie SignatureTemplate::fillLines(): Zeilen innerhalb eines Absatzes
+    // (getrennt durch Umschalt+Enter) fallen einzeln weg, wenn ihre
+    // Platzhalter leer bleiben.
+    function fillLines(node, values, state) {
+        if (node.type !== 'paragraph' || !Array.isArray(node.content)) return fill(node, values, state);
+        var lines = [[]];
+        node.content.forEach(function (child) {
+            if (child && child.type === 'hardBreak') { lines.push([]); return; }
+            lines[lines.length - 1].push(child);
+        });
+        var content = [];
+        var kept = 0;
+        lines.forEach(function (line) {
+            var lineState = { hadVariable: false };
+            var filled = fill({ type: 'paragraph', content: line }, values, lineState).content;
+            if (lineState.hadVariable) state.hadVariable = true;
+            if (lineState.hadVariable && !hasText({ content: filled })) return;
+            if (kept++ > 0) content.push({ type: 'hardBreak' });
+            content.push.apply(content, filled);
+        });
+        return Object.assign({}, node, { content: content });
+    }
+
     function resolve(doc, values) {
         var content = [];
         (doc.content || []).forEach(function (node) {
             if (!node || typeof node !== 'object') return;
             var state = { hadVariable: false };
-            var filled = fill(node, values, state);
+            var filled = fillLines(node, values, state);
             if (state.hadVariable && !hasText(filled)) return;
             content.push(filled);
         });

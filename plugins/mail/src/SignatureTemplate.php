@@ -17,9 +17,10 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * `MAIL_DEFAULT_SIGNATURE`. Leer heißt: es gilt die eingebaute Vorlage
  * (builtIn(), Name, Dienstgrad, Position, Fachdienste, Organisation).
  *
- * Beim Verfassen setzt resolve() die Angaben des Absenders ein. Ein Absatz,
- * dessen Platzhalter alle leer bleiben und der sonst keinen Text hat,
- * fällt weg, damit keine leeren Zeilen entstehen. Weil das bei jedem
+ * Beim Verfassen setzt resolve() die Angaben des Absenders ein. Eine Zeile
+ * (Absatz oder Stück zwischen zwei Umbrüchen mit Umschalt+Enter), deren
+ * Platzhalter alle leer bleiben und die sonst keinen Text hat, fällt weg,
+ * damit keine leeren Zeilen entstehen. Weil das bei jedem
  * Verfassen neu passiert, folgt die Signatur Beförderungen und Wechseln
  * von selbst. Eine eigene Signatur des Postfachs geht immer vor; auch sie
  * darf Platzhalter tragen und wird genauso ausgefüllt. Ein Platzhalter mit
@@ -160,8 +161,9 @@ final class SignatureTemplate
     }
 
     /**
-     * Setzt die Angaben des Absenders in die Vorlage ein. Ein Absatz, der
-     * Platzhalter hatte und danach keinen Text mehr, fällt weg.
+     * Setzt die Angaben des Absenders in die Vorlage ein. Eine Zeile, die
+     * Platzhalter hatte und danach keinen Text mehr, fällt weg, ein Absatz
+     * ohne verbliebene Zeile ebenso.
      *
      * @param array<string,mixed> $template
      * @return array<string,mixed>
@@ -175,7 +177,7 @@ final class SignatureTemplate
                 continue;
             }
             $hadVariable = false;
-            $node = self::fill($node, $values, $hadVariable);
+            $node = self::fillLines($node, $values, $hadVariable);
             if ($hadVariable && !self::hasText($node)) {
                 continue;
             }
@@ -224,6 +226,51 @@ final class SignatureTemplate
         $values['absender.dienstnummer'] = $text($person->dienstnr);
 
         return $values;
+    }
+
+    /**
+     * Füllt einen Absatz Zeile für Zeile; Zeilen trennt ein Umbruch
+     * (hardBreak, Umschalt+Enter). Eine Zeile, die Platzhalter hatte und
+     * danach keinen Text, fällt samt ihrem Umbruch weg. Sonst bliebe eine
+     * Leerzeile, wenn die Platzhalter in einem Absatz untereinander stehen.
+     * Eine Leerzeile ohne Platzhalter ist gewollt und bleibt.
+     *
+     * @param array<string,mixed>                       $node
+     * @param array<string,list<array<string,mixed>>>   $values
+     * @return array<string,mixed>
+     */
+    private static function fillLines(array $node, array $values, bool &$hadVariable): array
+    {
+        if (($node['type'] ?? null) !== 'paragraph' || !is_array($node['content'] ?? null)) {
+            return self::fill($node, $values, $hadVariable);
+        }
+
+        $lines = [[]];
+        foreach ($node['content'] as $child) {
+            if (is_array($child) && ($child['type'] ?? null) === 'hardBreak') {
+                $lines[] = [];
+                continue;
+            }
+            $lines[array_key_last($lines)][] = $child;
+        }
+
+        $content = [];
+        $kept    = 0;
+        foreach ($lines as $line) {
+            $lineHadVariable = false;
+            $filled = self::fill(['type' => 'paragraph', 'content' => $line], $values, $lineHadVariable)['content'];
+            $hadVariable = $hadVariable || $lineHadVariable;
+            if ($lineHadVariable && !self::hasText(['content' => $filled])) {
+                continue;
+            }
+            if ($kept++ > 0) {
+                $content[] = ['type' => 'hardBreak'];
+            }
+            array_push($content, ...$filled);
+        }
+        $node['content'] = $content;
+
+        return $node;
     }
 
     /**
