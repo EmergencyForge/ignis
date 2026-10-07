@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "6a31cef1a84cbff1ee4f630a265c4a12d737756f"
+                "reference": "65d84bf2d7db846a3f2d14cbf2f65569791c16f1"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -814,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "273410adb99d53b4cfa17fdc1b48256945efb120"
+                "reference": "6f704d0a8603494db339582206755b4fe3f09d16"
             },
             "require": {
                 "php": ">=8.3",
@@ -849,7 +849,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/fuzzy-search",
-                "reference": "b3fa193136c2103719a5a5385296fdaa169bb0ca"
+                "reference": "4427f102cd2ffc856e50b9b584f401e1d1bdd277"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -884,7 +884,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "e61a8f0733035fb30b4a96f31cb40f3350273039"
+                "reference": "764aaa28937fd3d5bb2f8ed7dbb7870ffef7dc99"
             },
             "require": {
                 "php": ">=8.3"
@@ -918,7 +918,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "06cea920f61730c8081110c3aff602f12959f52c"
+                "reference": "3fa7c5bd8647206af09b1a0e7fa8c0a925675793"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/list-query",
-                "reference": "f5166b0fd0b7ab85605115eac8933214754492a7"
+                "reference": "0bfbf9477d9d507ddbe536e2d388d63b536b4eae"
             },
             "require": {
                 "php": ">=8.3"
@@ -988,7 +988,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
+                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1023,7 +1023,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "104305c7824343cbfb2b92ae7b677c2b4ced8a7f"
+                "reference": "86d39abe912783f75a01293284400eb680c7721c"
             },
             "require": {
                 "ext-tokenizer": "*",
