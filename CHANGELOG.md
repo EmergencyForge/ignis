@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.38-beta
+
+Das Fahrtenbuch ist jetzt ein Plugin und lässt sich unter Einstellungen → System → Plugins abschalten. Es wird mitgeliefert und ist eingeschaltet, Einträge, Rechte und der Platz unter „Fahrzeuge“ in der Seitenleiste bleiben wie bisher. Ist es aus, verschwindet der Fahrtenbuch-Link im eNOTF und in fireTab, beide laufen ohne es weiter.
+
+Wer ignis über die eingebaute Aktualisierung einspielt, bekommt die alten Dateien des Fahrtenbuchs aus dem Kern entfernt.
+
 ## 2026.0.37-beta
 
 In Signaturen fällt eine Zeile ohne Wert jetzt auch dann weg, wenn die Platzhalter mit Umschalt+Enter untereinander in einem Absatz stehen. Bisher blieb dort eine Leerzeile, etwa zwischen Dienstgrad und Organisation, wenn jemand keine Position hat. Die Vorschau unter dem Editor zeigt es genauso.
