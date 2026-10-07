@@ -68,7 +68,7 @@ echo \App\Helpers\Theme::accentStyleTag(); ?>
 <!-- Metas -->
 <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
 <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
-<meta property="og:url" content="https://<?php echo SYSTEM_URL . BASE_PATH ?>dashboard.php" />
+<meta property="og:url" content="https://<?php echo SYSTEM_URL . BASE_PATH ?>dashboard" />
 <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
 <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
 <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />

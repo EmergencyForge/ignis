@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /benutzer/registration-codes (action=generate).
+ * Validierung für POST /users/registration-codes (action=generate).
  *
  * Alle Felder sind optional:
  *   - label          (string, max 255): wird zu null wenn leer

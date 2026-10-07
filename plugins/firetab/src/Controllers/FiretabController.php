@@ -45,7 +45,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/index.php: Entry-Point.
+     * GET /firetab/index: Entry-Point.
      * Wenn FireTab-Session existiert → list.php, sonst → login-fahrzeug.php.
      */
     public function index(): void
@@ -53,13 +53,13 @@ class FiretabController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (Gate::allows('fireIncident.hasFireTabSession')) {
-            $this->redirect('einsatz/list');
+            $this->redirect('firetab/list');
         }
         $this->redirect('firetab/login-vehicle');
     }
 
     /**
-     * GET /einsatz/login-fahrzeug.php: Fahrzeug-Auswahl.
+     * GET /firetab/login-vehicle: Fahrzeug-Auswahl.
      * Lädt verfügbare Fahrzeuge (rd_type=3, optional jobgefiltert) und
      * Mitarbeiter-Liste, plus Charakter-Lock-Logik wenn ENOTF_CHAR_LOCK aktiv.
      */
@@ -130,7 +130,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /einsatz/login-fahrzeug.php: Fahrzeug-Login durchführen.
+     * POST /firetab/login-vehicle: Fahrzeug-Login durchführen.
      */
     public function login(): void
     {
@@ -194,11 +194,11 @@ class FiretabController extends Controller
         );
 
         Flash::success('Erfolgreich auf ' . $vehicleLabel . ' angemeldet als ' . $operator->fullname);
-        $this->redirect('einsatz/list');
+        $this->redirect('firetab/list');
     }
 
     /**
-     * GET /einsatz/list.php: Einsatzliste für eingeloggtes Fahrzeug.
+     * GET /firetab/list: Einsatzliste für eingeloggtes Fahrzeug.
      * Zeigt alle aktiven (nicht finalisierten, nicht archivierten) Einsätze,
      * an denen das aktuelle Fahrzeug beteiligt ist.
      */
@@ -258,7 +258,7 @@ class FiretabController extends Controller
     // ── Einsatz-Detail / CRUD / Actions ──────────────────
 
     /**
-     * GET /einsatz/view.php?id=X: Einsatz-Detail-View mit Tab-Container.
+     * GET /firetab/view?id=X: Einsatz-Detail-View mit Tab-Container.
      * Die 7 Tabs (stammdaten, bericht, fahrzeuge, lagemeldungen, lagekarte,
      * abschluss, log) werden als Includes aus einsatz/tabs/ geladen.
      */
@@ -316,7 +316,7 @@ class FiretabController extends Controller
                 $this->redirect('firetab/login-vehicle');
             }
             Flash::error('Ihr Fahrzeug ist diesem Einsatz nicht zugeordnet. Zugriff verweigert.');
-            $this->redirect('einsatz/list');
+            $this->redirect('firetab/list');
         }
 
         // Load vehicles
@@ -364,7 +364,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/create.php: Neuen Einsatz anlegen (Formular).
+     * GET /firetab/create: Neuen Einsatz anlegen (Formular).
      */
     public function createForm(): void
     {
@@ -392,7 +392,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /einsatz/create.php: Neuen Einsatz speichern.
+     * POST /firetab/create: Neuen Einsatz speichern.
      */
     public function store(): void
     {
@@ -481,7 +481,7 @@ class FiretabController extends Controller
             Capsule::connection()->getPdo()->commit();
 
             Flash::success('Einsatz wurde erstellt.');
-            $this->redirect('einsatz/view?id=' . $incidentId);
+            $this->redirect('firetab/view?id=' . $incidentId);
         } catch (PDOException $e) {
             Capsule::connection()->getPdo()->rollBack();
             $leaders = FederatedPersonnel::getLeaderOptions();
@@ -493,7 +493,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * POST /einsatz/actions.php: Dispatcher für die 12 Action-Typen.
+     * POST /firetab/actions: Dispatcher für die 12 Action-Typen.
      * Wird vom Stub aufgerufen, ermittelt $_POST['action'] und delegiert.
      */
     public function dispatchAction(): void
@@ -543,7 +543,7 @@ class FiretabController extends Controller
 
         // Archive/unarchive redirect to admin list (handled inside those methods)
         \App\Session\SessionManager::skipNextViewLog();
-        $this->redirect('einsatz/view?id=' . $id . '&tab=' . urlencode($returnTab));
+        $this->redirect('firetab/view?id=' . $id . '&tab=' . urlencode($returnTab));
     }
 
     // ── Individual action methods ──────────────────────────
@@ -1000,7 +1000,7 @@ class FiretabController extends Controller
         }
 
         Flash::success('Einsatz wurde archiviert.');
-        $this->redirect('einsatz/admin/list');
+        $this->redirect('firetab/admin/list');
     }
 
     /**
@@ -1027,13 +1027,13 @@ class FiretabController extends Controller
         }
 
         Flash::success('Einsatz wurde wiederhergestellt.');
-        $this->redirect('einsatz/admin/list');
+        $this->redirect('firetab/admin/list');
     }
 
     // ── Statusmeldungen / ASU / Fahrtenbuch / Admin ──────
 
     /**
-     * GET /einsatz/statusmeldungen.php: Fahrzeug-Status-Meldungen (S0–S6).
+     * GET /firetab/status-reports: Fahrzeug-Status-Meldungen (S0–S6).
      * Zeigt Grid mit Statusbuttons, aktiver Einsatz und periodischem Polling.
      */
     public function statusmeldungen(): void
@@ -1107,7 +1107,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/asu.php: Atemschutzüberwachung (ASU-Protokoll-Formular).
+     * GET /firetab/asu: Atemschutzüberwachung (ASU-Protokoll-Formular).
      * Kann mit ?incident_id=X&incident_number=Y&location=Z&asu_id=A aufgerufen werden.
      */
     public function asuForm(): void
@@ -1154,7 +1154,7 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /einsatz/fahrtenbuch.php: Fahrtenbuch im FireTab-Kontext.
+     * GET /firetab/logbook: Fahrtenbuch im FireTab-Kontext.
      * Zeigt Fahrten des eingeloggten Fahrzeugs mit Inline-Create/Edit-Formularen.
      */
     public function fireTabFahrtenbuch(): void
@@ -1331,14 +1331,14 @@ class FiretabController extends Controller
     public function adminBulkDelete(): void
     {
         $this->requireAuth();
-        $this->ensure('fireIncident.manageQm', redirectTo: 'einsatz/admin/list');
+        $this->ensure('fireIncident.manageQm', redirectTo: 'firetab/admin/list');
 
         $raw = $_POST['ids'] ?? [];
         $ids = is_array($raw) ? array_values(array_unique(array_filter(array_map('intval', $raw), static fn (int $id): bool => $id > 0))) : [];
         $existing = $ids === [] ? [] : Capsule::table('intra_fire_incidents')->whereIn('id', $ids)->where('archived', 0)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
         if ($existing === []) {
             Flash::error('Kein Protokoll ausgewählt.');
-            $this->redirect('einsatz/admin/list');
+            $this->redirect('firetab/admin/list');
         }
 
         $userId = (int) ($_SESSION['userid'] ?? 0);
@@ -1360,7 +1360,7 @@ class FiretabController extends Controller
             Flash::error('Fehler: ' . $e->getMessage());
         }
 
-        $this->redirect('einsatz/admin/list');
+        $this->redirect('firetab/admin/list');
     }
 
     // ── Helpers ────────────────────────────────────────────

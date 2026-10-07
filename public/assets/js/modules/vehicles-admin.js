@@ -49,7 +49,7 @@
         global.Dialog.form({
             title:        isEdit ? 'Fahrzeug bearbeiten' : 'Neues Fahrzeug anlegen',
             template:     'fahrzeugFormTemplate',
-            formAction:   basePath + (isEdit ? 'settings/fahrzeuge/fahrzeuge/update' : 'settings/fahrzeuge/fahrzeuge/create'),
+            formAction:   basePath + (isEdit ? 'settings/vehicles/vehicles/update' : 'settings/vehicles/vehicles/create'),
             hiddenFields: isEdit ? { id: data.id } : {},
             submitLabel:  isEdit ? 'Speichern' : 'Erstellen',
             submitVariant: isEdit ? 'soft-primary' : 'success',

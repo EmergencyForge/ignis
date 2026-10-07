@@ -14,7 +14,9 @@
  * (existing) mit den neuen Actions `reorder_tiles` und `update_amount`.
  */
 
-const HANDLER_URL = (window.IgnisApiBase || '') + '/settings/fahrzeuge/beladelisten/beladung_handler';
+// Basispfad aus der Topbar, ohne / am Ende.
+const BASE = (document.querySelector('[data-base-path]')?.dataset.basePath || '/').replace(/\/+$/, '');
+const HANDLER_URL = BASE + '/settings/vehicles/vehload/beladung_handler';
 
 function postForm(action, payload) {
     const fd = new FormData();

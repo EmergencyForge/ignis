@@ -5,7 +5,7 @@
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
+$prot_url = "https://" . SYSTEM_URL . \Plugin\Enotf\Helpers\EnotfUrl::page('index');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');

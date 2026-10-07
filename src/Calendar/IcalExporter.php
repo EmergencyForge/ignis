@@ -11,7 +11,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Generiert ein RFC-5545-konformes iCal-Dokument fuer einen User. Wird
- * via tokenbasiertem Endpoint /api/kalender/ical/{token} ausgeliefert.
+ * via tokenbasiertem Endpoint /api/calendar/ical/{token} ausgeliefert.
  * Externe Kalender (Google, Apple, Outlook) refreshen periodisch.
  *
  * Range: 6 Monate rueckwaerts, 12 Monate vorwaerts. Recurring-Events

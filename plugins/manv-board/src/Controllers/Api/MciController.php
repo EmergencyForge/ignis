@@ -22,7 +22,7 @@ use Plugin\ManvBoard\Models\MANVPatient;
 final class MciController
 {
     /**
-     * GET|POST /api/manv/api?action=...
+     * GET|POST /api/mci/api?action=...
      */
     public function handle(Request $request): Response
     {

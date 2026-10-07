@@ -44,13 +44,13 @@ $public = [JsonExceptionMiddleware::class];
 // ============================================================================
 $announcementHandler = [AnnouncementController::class, 'dismiss'];
 $router->post('/api/announcements/dismiss',     $announcementHandler, $auth);
-$router->post('/api/dismiss-announcement.php',  $announcementHandler, $auth);
+$router->post('/api/dismiss-announcement',  $announcementHandler, $auth);
 
 // ============================================================================
 //  ASU-Sync (FiveM-Server, API-Key), refactored
 // ============================================================================
 $router->post('/api/asu/sync',     [AsuSyncController::class, 'sync'], $apiKey);
-$router->post('/api/asu-sync.php', [AsuSyncController::class, 'sync'], $apiKey);
+$router->post('/api/asu-sync', [AsuSyncController::class, 'sync'], $apiKey);
 
 // ============================================================================
 //  Dokumente des abgeloesten Canvas-Systems: ansehen und archivieren.
@@ -114,7 +114,7 @@ $adminAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new Permissi
 
 // Composer-Status
 $router->match(['GET', 'POST'], '/api/system/composer-status',     [SystemApiController::class, 'composerStatus'], $adminAuth);
-$router->match(['GET', 'POST'], '/api/composer-status.php',        [SystemApiController::class, 'composerStatus'], $adminAuth);
+$router->match(['GET', 'POST'], '/api/composer-status',        [SystemApiController::class, 'composerStatus'], $adminAuth);
 
 // Performance-Metrics
 $router->get('/api/system/performance',     [SystemApiController::class, 'performance'], $adminAuth);
@@ -139,10 +139,10 @@ $router->get('/api/system/global-search',     [SystemApiController::class, 'glob
 //   - background: Session-Auth (Admin-UI triggert Heartbeat manuell)
 // ============================================================================
 $router->match(['GET', 'POST'], '/api/telemetry/heartbeat',     [TelemetryApiController::class, 'heartbeat'], $apiKey);
-$router->match(['GET', 'POST'], '/api/telemetry-heartbeat.php', [TelemetryApiController::class, 'heartbeat'], $apiKey);
+$router->match(['GET', 'POST'], '/api/telemetry-heartbeat', [TelemetryApiController::class, 'heartbeat'], $apiKey);
 
 $router->match(['GET', 'POST'], '/api/telemetry/background',     [TelemetryApiController::class, 'background'], $auth);
-$router->match(['GET', 'POST'], '/api/telemetry-background.php', [TelemetryApiController::class, 'background'], $auth);
+$router->match(['GET', 'POST'], '/api/telemetry-background', [TelemetryApiController::class, 'background'], $auth);
 
 // ============================================================================
 //  Vehicles: alle Endpoints refactored.

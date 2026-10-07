@@ -10,7 +10,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation fuer POST /kalender/create.
+ * Validation fuer POST /calendar/create.
  *
  * starts_at / ends_at akzeptieren ISO-Datetime (YYYY-MM-DDTHH:MM[:SS]) und
  * deutsches Format (DD.MM.YYYY HH:MM); cast() normalisiert beide auf

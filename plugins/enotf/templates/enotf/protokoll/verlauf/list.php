@@ -78,7 +78,7 @@ foreach ($vitalparameter as $vital) {
 }
 
 date_default_timezone_set('Europe/Berlin');
-$prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . \Plugin\Enotf\Helpers\EnotfUrl::protokoll($enr);
 ?>
 
 <!DOCTYPE html>

@@ -65,7 +65,7 @@ class EnotfController extends Controller
     public function store(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/index.php');
+        $this->ensureAdmin('settings/enotf/index');
 
         $title        = trim($_POST['title'] ?? '');
         $url          = trim($_POST['url'] ?? '');
@@ -102,7 +102,7 @@ class EnotfController extends Controller
     public function update(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/index.php');
+        $this->ensureAdmin('settings/enotf/index');
 
         $id           = (int) ($_POST['id'] ?? 0);
         $title        = trim($_POST['title'] ?? '');
@@ -140,7 +140,7 @@ class EnotfController extends Controller
     public function destroy(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/index.php');
+        $this->ensureAdmin('settings/enotf/index');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
@@ -181,7 +181,7 @@ class EnotfController extends Controller
     public function categoryStore(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/kategorien/index.php');
+        $this->ensureAdmin('settings/enotf/kategorien/index');
 
         $name      = trim($_POST['name'] ?? '');
         $slug      = strtolower(trim($_POST['slug'] ?? ''));
@@ -218,7 +218,7 @@ class EnotfController extends Controller
     public function categoryUpdate(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/kategorien/index.php');
+        $this->ensureAdmin('settings/enotf/kategorien/index');
 
         $id        = (int) ($_POST['id'] ?? 0);
         $name      = trim($_POST['name'] ?? '');
@@ -259,7 +259,7 @@ class EnotfController extends Controller
     public function categoryDestroy(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/kategorien/index.php');
+        $this->ensureAdmin('settings/enotf/kategorien/index');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {

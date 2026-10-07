@@ -89,7 +89,7 @@ if ($daten['freigegeben'] == 1) {
 
 $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_edit']))->format('d.m.Y H:i') : NULL;
 $enr = $daten['enr'];
-$prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . \Plugin\Enotf\Helpers\EnotfUrl::protokoll($enr);
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -137,7 +137,7 @@ $totalVitals = EdiviVitalwert::where('enr', $enr)
     include dirname(__DIR__, 6) . '/assets/components/enotf/_head.php';
     ?>
     <!-- Chart.js (lokales Bundle statt CDN, rendert auch ohne Außenanbindung) -->
-    <script src="<?= BASE_PATH ?>public/assets/dist/vendor-chart.js"></script>
+    <script src="<?= BASE_PATH ?>assets/dist/vendor-chart.js"></script>
 
     <style>
         .chart-container {

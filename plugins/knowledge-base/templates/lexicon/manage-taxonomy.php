@@ -240,7 +240,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
             var id = document.getElementById('catId').value;
             if (id) data.id = parseInt(id);
 
-            var res = await fetch(BASE_PATH + 'api/knowledgebase/categories.php', {
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/categories', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
             });
             var result = await res.json();
@@ -250,7 +250,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
 
         async function deleteCat(id, name) {
             if (!await showConfirm('Kategorie "' + name + '" löschen?', {danger: true, confirmText: 'Löschen', title: 'Kategorie löschen'})) return;
-            var res = await fetch(BASE_PATH + 'api/knowledgebase/categories.php?id=' + id, {method: 'DELETE'});
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/categories?id=' + id, {method: 'DELETE'});
             var result = await res.json();
             if (result.success) location.reload();
             else showToast('Fehler: ' + result.error, 'error');
@@ -286,7 +286,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
             var id = document.getElementById('tagId').value;
             if (id) data.id = parseInt(id);
 
-            var res = await fetch(BASE_PATH + 'api/knowledgebase/tags.php', {
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/tags', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
             });
             var result = await res.json();
@@ -296,7 +296,7 @@ $SITE_TITLE = 'KB Kategorien & Tags';
 
         async function deleteTag(id, name) {
             if (!await showConfirm('Tag "' + name + '" löschen? Alle Verknüpfungen werden entfernt.', {danger: true, confirmText: 'Löschen', title: 'Tag löschen'})) return;
-            var res = await fetch(BASE_PATH + 'api/knowledgebase/tags.php?id=' + id, {method: 'DELETE'});
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/tags?id=' + id, {method: 'DELETE'});
             var result = await res.json();
             if (result.success) location.reload();
             else showToast('Fehler: ' + result.error, 'error');

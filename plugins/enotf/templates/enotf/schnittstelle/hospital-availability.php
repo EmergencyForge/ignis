@@ -14,7 +14,7 @@ $departments = [];
 // Logout handling
 if (isset($_GET['logout'])) {
     SessionManager::forget('hospital_poi_id');
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header('Location: ' . (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH));
     exit();
 }
 
@@ -112,10 +112,10 @@ $status_config = [
 
     <!-- Bootstrap, FontAwesome und jQuery wie auf den übrigen eNOTF-Seiten
          (_head.php); die Seite bindet den gemeinsamen Head nicht ein -->
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor-enotf.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
-    <script src="<?= BASE_PATH ?>public/assets/dist/vendor.js"></script>
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/vendor.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/vendor-enotf.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/dist/divi.css" />
+    <script src="<?= BASE_PATH ?>assets/dist/vendor.js"></script>
 
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico" />

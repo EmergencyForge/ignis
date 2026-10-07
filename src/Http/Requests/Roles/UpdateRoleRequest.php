@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /benutzer/rollen/update.
+ * Validierung für POST /users/roles/update.
  *
  * Wie CreateRoleRequest plus zusätzlich `id` als Pflichtfeld.
  */

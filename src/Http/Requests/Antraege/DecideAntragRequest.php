@@ -10,7 +10,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /antrag/admin/view (Status-Update durch Bearbeiter).
+ * Validierung für POST /forms/admin/view (Status-Update durch Bearbeiter).
  *
  * Felder:
  *   - cirs_status (int 0-3, einer der Form::STATUS_* Werte)

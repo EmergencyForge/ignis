@@ -137,7 +137,7 @@ $SITE_TITLE = 'Rollen';
             </div>
         </template>
 
-        <form id="delete-role-form" action="<?= BASE_PATH ?>users/rollen/delete" method="POST" style="display:none;">
+        <form id="delete-role-form" action="<?= BASE_PATH ?>users/roles/delete" method="POST" style="display:none;">
             <?= csrf_field() ?>
             <input type="hidden" name="id" id="role-delete-id">
         </form>
@@ -153,7 +153,7 @@ $SITE_TITLE = 'Rollen';
                 title:        'Neue Rolle erstellen',
                 template:     'roleFormTemplate',
                 size:         'md',
-                formAction:   '<?= BASE_PATH ?>users/rollen/create',
+                formAction:   '<?= BASE_PATH ?>users/roles/create',
                 submitLabel:  'Erstellen',
                 submitVariant:'success',
             });
@@ -170,7 +170,7 @@ $SITE_TITLE = 'Rollen';
                 title:        'Rolle bearbeiten',
                 template:     'roleFormTemplate',
                 size:         'md',
-                formAction:   '<?= BASE_PATH ?>users/rollen/update',
+                formAction:   '<?= BASE_PATH ?>users/roles/update',
                 hiddenFields: { id: data.id },
                 submitLabel:  'Speichern',
                 submitVariant:'soft-primary',

@@ -23,20 +23,16 @@ if (defined('ENOTF_REQUIRE_USER_AUTH') && ENOTF_REQUIRE_USER_AUTH === true) {
 
     // Wenn nicht authentifiziert UND kein Klinikzugriff
     if (!$user_authenticated && !$is_klinik_access) {
-        $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
-
-        // Only set redirect URL if not already on login or loggedout pages
-        // Use strict comparison to prevent false positives when path starts at position 0
-        if (
-            strpos($script_name, '/enotf/login.php') === false &&
-            strpos($script_name, '/enotf/loggedout.php') === false
-        ) {
+        // Only set redirect URL if not already on login or loggedout pages.
+        // SCRIPT_NAME is always /index.php under the front controller.
+        $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+        if (!preg_match('~/enotf/(login|loggedout)$~', $path)) {
             // After authentication, user should go to eNOTF login to enter crew info
             // Using BASE_PATH constant to ensure safe redirect within application
             $_SESSION['redirect_url'] = EnotfUrl::page('login');
         }
 
-        header("Location: " . BASE_PATH . "login.php?redirect=enotf");
+        header("Location: " . BASE_PATH . "login?redirect=enotf");
         exit();
     }
 }

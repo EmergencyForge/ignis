@@ -12,23 +12,23 @@ use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
 
 /**
- * RoleController: Pilot-Migration für das benutzer/rollen/-Modul.
+ * RoleController: Pilot-Migration für das users/roles-Modul.
  *
  * Verwaltet Rollen mit ihren Permissions. Permissions selbst sind in
  * config/permissions.php als gruppierte Liste definiert.
  *
  * Die Methoden entsprechen den ursprünglichen Files:
- *   index():   benutzer/rollen/index.php   (View)
- *   store():   benutzer/rollen/create.php  (POST)
- *   update():  benutzer/rollen/update.php  (POST)
- *   destroy(): benutzer/rollen/delete.php  (POST)
+ *   index():   users/roles/index.php   (View)
+ *   store():   users/roles/create  (POST)
+ *   update():  users/roles/update  (POST)
+ *   destroy(): users/roles/delete  (POST)
  *
  *
  */
 class RoleController extends Controller
 {
     /**
-     * GET /benutzer/rollen: Rollenverwaltung mit DataTable + Edit/Create-Modals.
+     * GET /users/roles: Rollenverwaltung mit DataTable + Edit/Create-Modals.
      */
     public function index(): void
     {
@@ -53,20 +53,20 @@ class RoleController extends Controller
     }
 
     /**
-     * POST /benutzer/rollen/create: Neue Rolle anlegen.
+     * POST /users/roles/create: Neue Rolle anlegen.
      * Erfordert `full_admin`. Input wird via CreateRoleRequest validiert.
      */
     public function store(): void
     {
         $this->requireAuth();
-        $this->ensure('role.create', redirectTo: 'benutzer/rollen/index');
+        $this->ensure('role.create', redirectTo: 'users/roles/index');
         $this->requireMethod('POST');
 
         try {
             $data = CreateRoleRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('benutzer/rollen/index');
+            $this->redirect('users/roles/index');
         }
 
         try {
@@ -90,24 +90,24 @@ class RoleController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('benutzer/rollen/index');
+        $this->redirect('users/roles/index');
     }
 
     /**
-     * POST /benutzer/rollen/update: Bestehende Rolle aktualisieren.
+     * POST /users/roles/update: Bestehende Rolle aktualisieren.
      * Erfordert `full_admin`. Input wird via UpdateRoleRequest validiert.
      */
     public function update(): void
     {
         $this->requireAuth();
-        $this->ensure('role.update', redirectTo: 'benutzer/rollen/index');
+        $this->ensure('role.update', redirectTo: 'users/roles/index');
         $this->requireMethod('POST');
 
         try {
             $data = UpdateRoleRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('benutzer/rollen/index');
+            $this->redirect('users/roles/index');
         }
 
         try {
@@ -115,7 +115,7 @@ class RoleController extends Controller
             $role = Role::find($data['id']);
             if ($role === null) {
                 Flash::set('role', 'not-found');
-                $this->redirect('benutzer/rollen/index');
+                $this->redirect('users/roles/index');
             }
 
             $role->name        = $data['name'];
@@ -137,24 +137,24 @@ class RoleController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('benutzer/rollen/index');
+        $this->redirect('users/roles/index');
     }
 
     /**
-     * POST /benutzer/rollen/delete: Rolle löschen.
+     * POST /users/roles/delete: Rolle löschen.
      * Erfordert `full_admin`. Lehnt Löschen ab, wenn Rolle nicht existiert.
      */
     public function destroy(): void
     {
         $this->requireAuth();
-        $this->ensure('role.delete', redirectTo: 'benutzer/rollen/index');
+        $this->ensure('role.delete', redirectTo: 'users/roles/index');
         $this->requireMethod('POST');
 
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($id <= 0) {
             Flash::set('role', 'invalid-id');
-            $this->redirect('benutzer/rollen/index');
+            $this->redirect('users/roles/index');
         }
 
         try {
@@ -162,7 +162,7 @@ class RoleController extends Controller
             $role = Role::find($id);
             if ($role === null) {
                 Flash::set('role', 'not-found');
-                $this->redirect('benutzer/rollen/index');
+                $this->redirect('users/roles/index');
             }
 
             $role->delete();
@@ -180,7 +180,7 @@ class RoleController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('benutzer/rollen/index');
+        $this->redirect('users/roles/index');
     }
 
     // -----------------------------------------------------------------------
@@ -195,7 +195,7 @@ class RoleController extends Controller
     private function requireMethod(string $method): void
     {
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== $method) {
-            $this->redirect('benutzer/rollen/index');
+            $this->redirect('users/roles/index');
         }
     }
 }

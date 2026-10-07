@@ -95,15 +95,15 @@ $enotfApiRedirect = function (string $target): \Closure {
         return \EmergencyForge\Http\Response::redirect($url, 308);
     };
 };
-$router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty.php', $enotfApiRedirect('/api/enotf/bulk-delete-empty'));
+$router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty', $enotfApiRedirect('/api/enotf/bulk-delete-empty'));
 
 // Zielverwaltung: auf POI-System konsolidiert. Legacy-URLs leiten
-// dauerhaft auf `/settings/pois` um, bis externe Bookmarks aktualisiert
+// dauerhaft auf `/settings/pois/index` um, bis externe Bookmarks aktualisiert
 // sind. Controller + Template gibt's noch im Repo, sind aber nicht mehr
 // erreichbar.
 $zielverwaltungRedirect = static function (\EmergencyForge\Http\Request $request) {
     $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-    return \EmergencyForge\Http\Response::redirect($base . 'settings/pois', 301);
+    return \EmergencyForge\Http\Response::redirect($base . 'settings/pois/index', 301);
 };
 $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung',           $zielverwaltungRedirect);
 $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/',          $zielverwaltungRedirect);
@@ -151,7 +151,7 @@ $router->match(['GET', 'POST'], '/enotf/schnittstelle/voranmeldung',     [EnotfS
 $router->get('/enotf/schnittstelle/hospital-availability',     [EnotfSchnittstelleController::class, 'hospitalAvailability'], $enotfPublic);
 
 // api-prereg: 308 auf /api/enotf/prereg
-$router->match(['GET', 'POST'], '/enotf/schnittstelle/api-prereg.php', $enotfApiRedirect('/api/enotf/prereg'));
+$router->match(['GET', 'POST'], '/enotf/schnittstelle/api-prereg', $enotfApiRedirect('/api/enotf/prereg'));
 
 // ----------------------------------------------------------------------------
 //  Protokoll-Pages
@@ -306,4 +306,4 @@ $router->post('/settings/pois/departments-create',     [PoiController::class, 'd
 $router->post('/settings/pois/departments-update',     [PoiController::class, 'departmentUpdate'],  $enotfSettingsAuth);
 $router->post('/settings/pois/departments-delete',     [PoiController::class, 'departmentDestroy'], $enotfSettingsAuth);
 $router->post('/settings/pois/departments-reset-availability',     [PoiController::class, 'departmentResetAvailability'], $enotfSettingsAuth);
-$router->match(['GET', 'POST'], '/settings/pois/departments-update-sort.php', $enotfApiRedirect('/api/pois/departments-sort'));
+$router->match(['GET', 'POST'], '/settings/pois/departments-update-sort', $enotfApiRedirect('/api/pois/departments-sort'));

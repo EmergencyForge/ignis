@@ -41,7 +41,7 @@ if (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) {
         $is_timeout = ($last_activity === null || ($current_time - $last_activity) > $timeout);
 
         if (!$pin_verified || $is_timeout) {
-            if (basename($_SERVER['PHP_SELF']) !== 'lockscreen.php') {
+            if (!preg_match('~/enotf/lockscreen$~', (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH))) {
                 $_SESSION['pin_return_url'] = $_SERVER['REQUEST_URI'];
             }
 

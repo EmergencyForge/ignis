@@ -971,7 +971,7 @@ $__initials = static function (string $name): string {
                     <?php
                     $__printUrl = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
                         ? \Plugin\Enotf\Helpers\EnotfUrl::print((string) $__enr)
-                        : BASE_PATH . 'enotf/print/index.php?enr=' . rawurlencode((string) $__enr);
+                        : BASE_PATH . 'enotf/print?enr=' . rawurlencode((string) $__enr);
                     ?>
                     <a class="ignis-btn ignis-btn--sm ignis-btn--ghost ev2-topbar__print"
                        href="<?= $__e($__printUrl) ?>" target="_blank" rel="noopener"

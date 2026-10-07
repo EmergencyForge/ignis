@@ -162,7 +162,7 @@ $SITE_TITLE = 'Wissensdatenbank';
                 <a href="<?= BASE_PATH ?>">
                     <img src="<?= systemLogoUrl() ?>" alt="<?= htmlspecialchars((string) SYSTEM_NAME, ENT_QUOTES) ?>" style="height:48px;width:auto">
                 </a>
-                <a class="ignis-btn ignis-btn--ghost" href="<?= BASE_PATH ?>login.php">Anmelden</a>
+                <a class="ignis-btn ignis-btn--ghost" href="<?= BASE_PATH ?>login">Anmelden</a>
             </div>
         </nav>
     <?php endif; ?>
@@ -432,7 +432,7 @@ $SITE_TITLE = 'Wissensdatenbank';
             
             // Debounce the search
             debounceTimer = setTimeout(function() {
-                fetch('<?= BASE_PATH ?>api/knowledgebase/search.php?q=' + encodeURIComponent(query))
+                fetch('<?= BASE_PATH ?>api/knowledgebase/search?q=' + encodeURIComponent(query))
                     .then(response => response.json())
                     .then(data => {
                         if (data.results && data.results.length > 0) {

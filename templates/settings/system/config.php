@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
 
     // Im Einrichtungsmodus nach dem Speichern dort bleiben, damit der Hinweis
     // zeigt, was noch fehlt.
-    header("Location: " . BASE_PATH . "settings/system/config.php" . (isset($_GET['setup']) ? '?setup=1' : ''));
+    header("Location: " . BASE_PATH . "settings/system/config" . (isset($_GET['setup']) ? '?setup=1' : ''));
     exit();
 }
 

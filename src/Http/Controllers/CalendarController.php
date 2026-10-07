@@ -28,13 +28,13 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *
  * URL-Mapping:
  *   GET  /kalender                 → index()         (Page mit FullCalendar-Mount)
- *   GET  /kalender/view?id=X       → show()          (Detail-Modal-HTML-Fragment)
- *   GET  /kalender/create          → create()        (Formular, Seite oder Drawer)
- *   POST /kalender/create          → store()
- *   POST /kalender/update?id=X     → update()
- *   POST /kalender/delete?id=X     → destroy()
- *   POST /kalender/respond?id=X    → respondInvite()
- *   GET  /api/kalender/events      → eventsJson()    (FullCalendar-Feed)
+ *   GET  /calendar/view?id=X       → show()          (Detail-Modal-HTML-Fragment)
+ *   GET  /calendar/create          → create()        (Formular, Seite oder Drawer)
+ *   POST /calendar/create          → store()
+ *   POST /calendar/update?id=X     → update()
+ *   POST /calendar/delete?id=X     → destroy()
+ *   POST /calendar/respond?id=X    → respondInvite()
+ *   GET  /api/calendar/events      → eventsJson()    (FullCalendar-Feed)
  */
 class CalendarController extends Controller
 {
@@ -138,7 +138,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * GET /api/kalender/subscribe-info
+     * GET /api/calendar/subscribe-info
      *
      * Liefert die persoenliche iCal-Subscribe-URL des eingeloggten Users.
      * Wird vom "Kalender abonnieren"-Dialog aufgerufen, generiert den
@@ -164,7 +164,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * POST /api/kalender/subscribe-regenerate
+     * POST /api/calendar/subscribe-regenerate
      * Erzeugt einen neuen Token (alte URL wird ungueltig).
      */
     public function subscribeRegenerate(): Response
@@ -190,11 +190,11 @@ class CalendarController extends Controller
         $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
-        return $scheme . '://' . $host . rtrim($base, '/') . '/api/v1/kalender/ical/' . $token;
+        return $scheme . '://' . $host . rtrim($base, '/') . '/api/v1/calendar/ical/' . $token;
     }
 
     /**
-     * GET /api/kalender/ical/{token}
+     * GET /api/calendar/ical/{token}
      *
      * Liefert das iCal-Feed eines Users. KEIN Cookie-Auth. Der Token in
      * der URL ist die Authentifizierung. Externe Kalender koennen das so
@@ -226,7 +226,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * GET /api/kalender/event?id=X: JSON-Detail fuer Edit-Prefill.
+     * GET /api/calendar/event?id=X: JSON-Detail fuer Edit-Prefill.
      *
      * Gibt das volle Event-Datenmodell zurueck, sodass das Frontend das
      * Edit-Form korrekt befuellen kann. Sichtbarkeit wie bei show().
@@ -270,7 +270,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * GET /kalender/view?id=X: Detail-HTML-Fragment fuer das Detail-Modal.
+     * GET /calendar/view?id=X: Detail-HTML-Fragment fuer das Detail-Modal.
      */
     public function show(): void
     {
@@ -282,7 +282,7 @@ class CalendarController extends Controller
 
         if ($event === null || Gate::denies('calendar.view', $event)) {
             Flash::error('Termin nicht gefunden oder keine Berechtigung.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         $myMitarbeiterId = $this->resolveMitarbeiterId();
@@ -369,7 +369,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * POST /kalender/create: neuen Termin anlegen.
+     * POST /calendar/create: neuen Termin anlegen.
      */
     /**
      * GET /calendar/create[?date=YYYY-MM-DD]: das Anlage-Formular, als
@@ -380,7 +380,7 @@ class CalendarController extends Controller
     public function create(): void
     {
         $this->requireAuth();
-        $this->ensure('calendar.create', redirectTo: 'kalender');
+        $this->ensure('calendar.create', redirectTo: 'calendar');
 
         $date = (string) ($_GET['date'] ?? '');
         $prefill = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1 ? $date : null;
@@ -413,7 +413,7 @@ class CalendarController extends Controller
     public function store(): void
     {
         $this->requireAuth();
-        $this->ensure('calendar.create', redirectTo: 'kalender');
+        $this->ensure('calendar.create', redirectTo: 'calendar');
 
         try {
             $data = CreateEventRequest::validate($_POST);
@@ -437,11 +437,11 @@ class CalendarController extends Controller
         $this->flashConflictHint($event, $data['attendees'] ?? []);
 
         Flash::success('Termin erstellt.');
-        $this->redirect('kalender');
+        $this->redirect('calendar');
     }
 
     /**
-     * POST /kalender/update?id=X: bestehenden Termin aendern.
+     * POST /calendar/update?id=X: bestehenden Termin aendern.
      */
     public function update(): void
     {
@@ -451,7 +451,7 @@ class CalendarController extends Controller
         $event = $id > 0 ? CalendarEvent::find($id) : null;
         if ($event === null) {
             Flash::error('Termin nicht gefunden.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         Gate::authorize('calendar.update', $event);
@@ -460,7 +460,7 @@ class CalendarController extends Controller
             $data = UpdateEventRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         $this->buildFromValidated($event, $data);
@@ -474,11 +474,11 @@ class CalendarController extends Controller
         $this->flashConflictHint($event, $data['attendees'] ?? []);
 
         Flash::success('Termin aktualisiert.');
-        $this->redirect('kalender');
+        $this->redirect('calendar');
     }
 
     /**
-     * POST /kalender/delete?id=X: Termin loeschen.
+     * POST /calendar/delete?id=X: Termin loeschen.
      */
     public function destroy(): void
     {
@@ -488,7 +488,7 @@ class CalendarController extends Controller
         $event = $id > 0 ? CalendarEvent::find($id) : null;
         if ($event === null) {
             Flash::error('Termin nicht gefunden.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         Gate::authorize('calendar.delete', $event);
@@ -500,11 +500,11 @@ class CalendarController extends Controller
         $this->auditLog('Termin gelöscht', "ID: {$eventId}, Titel: {$eventTitle}");
 
         Flash::success('Termin gelöscht.');
-        $this->redirect('kalender');
+        $this->redirect('calendar');
     }
 
     /**
-     * POST /kalender/respond?id=X: Attendee setzt Response (accepted/declined/tentative).
+     * POST /calendar/respond?id=X: Attendee setzt Response (accepted/declined/tentative).
      */
     public function respondInvite(): void
     {
@@ -520,13 +520,13 @@ class CalendarController extends Controller
 
         if (!in_array($response, $allowed, true)) {
             Flash::error('Ungültige Antwort.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         $mitarbeiterId = $this->resolveMitarbeiterId();
         if ($mitarbeiterId === null) {
             Flash::error('Kein Mitarbeiter-Profil verknüpft.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         // Event laden: wir muessen wissen ob der User ueberhaupt antworten darf
@@ -534,7 +534,7 @@ class CalendarController extends Controller
         $event = CalendarEvent::with('visibilityRoles')->find($id);
         if ($event === null) {
             Flash::error('Termin nicht gefunden.');
-            $this->redirect('kalender');
+            $this->redirect('calendar');
         }
 
         $attendee = CalendarAttendee::where('event_id', $id)
@@ -554,7 +554,7 @@ class CalendarController extends Controller
 
             if (!$hasRole) {
                 Flash::error('Du bist nicht eingeladen.');
-                $this->redirect('kalender');
+                $this->redirect('calendar');
             }
 
             $attendee = new CalendarAttendee();
@@ -568,7 +568,7 @@ class CalendarController extends Controller
         $attendee->save();
 
         Flash::success('Antwort gespeichert.');
-        $this->redirect('kalender');
+        $this->redirect('calendar');
     }
 
     // -----------------------------------------------------------------------
@@ -677,7 +677,7 @@ class CalendarController extends Controller
         $verb = $isUpdate ? 'aktualisiert' : 'angelegt';
         $when = (string) $event->starts_at;
         $msg  = "Termin am {$when}" . ($event->location ? " · {$event->location}" : '');
-        $link = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'kalender/view?id=' . $event->id;
+        $link = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'calendar/view?id=' . $event->id;
 
         // Der Ersteller bekommt keine Meldung über seinen eigenen Termin.
         $creatorUserId = (int) $event->created_by;

@@ -67,7 +67,7 @@ $setupSteps = [
     [$doneConfig, 'Systemdaten anpassen', 'settings/system/config?setup=1'],
     [$doneDienstgrade, 'Dienstgrade anlegen', 'settings/personnel/ranks/index'],
     [$doneQuali, 'Qualifikationen konfigurieren', 'settings/personnel/ambskills/index'],
-    [$doneRollen, 'Rollen und Berechtigungen einrichten', 'users/rollen/index'],
+    [$doneRollen, 'Rollen und Berechtigungen einrichten', 'users/roles/index'],
     [$doneMitarbeiter, 'Ersten Mitarbeiter erstellen', 'personnel/list'],
 ];
 if ($setupEnotfActive) {

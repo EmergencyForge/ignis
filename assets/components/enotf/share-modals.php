@@ -508,7 +508,7 @@
     }
 
     // Starte Polling für Share-Requests
-    if (window.location.pathname.includes('overview.php') || window.location.pathname.includes('enotf/index.php')) {
+    if (/\/enotf(\/(index|overview))?\/?$/.test(window.location.pathname)) {
         // Check sofort und dann alle 10 Sekunden
         checkForShareRequests();
         setInterval(checkForShareRequests, 10000);

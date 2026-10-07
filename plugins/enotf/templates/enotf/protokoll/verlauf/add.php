@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
     }
 }
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . \Plugin\Enotf\Helpers\EnotfUrl::protokoll($enr);
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');

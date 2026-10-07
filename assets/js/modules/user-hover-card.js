@@ -8,10 +8,10 @@
  *   data-user-card="42"         → /api/v1/users/42/card
  *   data-poi-card="3"           → /api/v1/pois/3/card
  *   data-vehicle-card="7"       → /api/v1/vehicles/7/card
- *   data-dienstnr-card="042"    → /api/v1/mitarbeiter/by-dienstnr/042/card
+ *   data-dienstnr-card="042"    → /api/v1/personnel/by-dienstnr/042/card
  *
  * Beispiel:
- *   <a href="/mitarbeiter/profile?id=42"
+ *   <a href="/personnel/profile?id=42"
  *      data-mitarbeiter-card="42">Max Mustermann</a>
  *
  *   <span data-poi-card="3">Klinikum Süd</span>
@@ -35,7 +35,7 @@ const SOURCES = [
     { attr: 'data-user-card',        kind: 'user',        path: (id) => '/api/v1/users/'       + encodeURIComponent(id) + '/card' },
     { attr: 'data-poi-card',         kind: 'poi',         path: (id) => '/api/v1/pois/'        + encodeURIComponent(id) + '/card' },
     { attr: 'data-vehicle-card',     kind: 'vehicle',     path: (id) => '/api/v1/vehicles/'    + encodeURIComponent(id) + '/card' },
-    { attr: 'data-dienstnr-card',    kind: 'dienstnr',    path: (nr) => '/api/v1/mitarbeiter/by-dienstnr/' + encodeURIComponent(nr) + '/card' },
+    { attr: 'data-dienstnr-card',    kind: 'dienstnr',    path: (nr) => '/api/v1/personnel/by-dienstnr/' + encodeURIComponent(nr) + '/card' },
 ];
 const ANCHOR_SELECTOR = SOURCES.map((s) => '[' + s.attr + ']').join(', ');
 
@@ -90,11 +90,16 @@ function resolveSource(anchor) {
     return null;
 }
 
+// Basispfad aus der Topbar, ohne / am Ende.
+function basePath() {
+    return (document.querySelector('[data-base-path]')?.dataset.basePath || '/').replace(/\/+$/, '');
+}
+
 async function fetchCard(source) {
     const cacheKey = source.kind + ':' + source.id;
     if (cache.has(cacheKey)) return cache.get(cacheKey);
 
-    const url = (window.IgnisApiBase || '') + source.path(source.id);
+    const url = basePath() + source.path(source.id);
 
     const promise = fetch(url, { credentials: 'same-origin' })
         .then((r) => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))

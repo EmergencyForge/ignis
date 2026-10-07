@@ -20,15 +20,15 @@ final class CsrfMiddleware implements MiddlewareInterface
     private const EXEMPT = [
         '/api/character/identify',
         '/api/emd/sync',
-        '/api/emd-sync.php',
+        '/api/emd-sync',
         '/api/asu/sync',
-        '/api/asu-sync.php',
+        '/api/asu-sync',
         '/api/telemetry/heartbeat',
-        '/api/telemetry-heartbeat.php',
+        '/api/telemetry-heartbeat',
         '/api/emd/status-poll',
         '/api/tablet/login-token',
         '/api/enotf/billing',
-        '/api/enotf-billing.php',
+        '/api/enotf-billing',
     ];
 
     public function process(Request $request, callable $next): Response

@@ -191,7 +191,7 @@ foreach (['/notifications', '/notifications/', '/notifications/index', '/notific
 //  Fahrtenbuch-Modul
 //
 //  `index()` ist Admin-only mit Policy-Middleware. `store/update/destroy`
-//  werden über /fahrtenbuch/actions.php angesprochen und sind multi-context
+//  werden über /logbook/actions angesprochen und sind multi-context
 //  (Admin + eNOTF + FireTab). Der Controller checkt die verschiedenen
 //  Auth-Szenarien selbst via `requireAnyContext()` / `Gate::denies`.
 // ----------------------------------------------------------------------------
@@ -203,7 +203,7 @@ $router->get('/logbook/',          [LogbookController::class, 'index'], $fahrtLi
 $router->get('/logbook/index',     [LogbookController::class, 'index'], $fahrtListAuth);
 $router->get('/logbook/index.php', [LogbookController::class, 'index'], $fahrtListAuth);
 
-// POST /fahrtenbuch/actions.php: Multi-Context-Dispatcher.
+// POST /logbook/actions: Multi-Context-Dispatcher.
 // Keine Router-Middleware, weil die drei Auth-Kontexte (userid/fahrername/
 // einsatz_vehicle_id) im Controller via `requireAnyContext()` geprüft werden.
 $fahrtPostDispatch = function (\EmergencyForge\Http\Request $request) {
@@ -216,7 +216,7 @@ $fahrtPostDispatch = function (\EmergencyForge\Http\Request $request) {
         'delete' => $controller->destroy(),
         default  => (function () {
             \App\Helpers\Flash::error('Unbekannte Aktion.');
-            header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '/') . 'fahrtenbuch/index.php');
+            header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '/') . 'logbook/index');
             exit;
         })(),
     };
@@ -557,6 +557,15 @@ $legacyApiPaths = [
     '/assets/functions/system/global-search-api' => '/api/system/global-search',
     '/assets/functions/system/performance-api'   => '/api/system/performance',
     '/assets/functions/system/theme-api'         => '/api/system/theme',
+    '/assets/functions/enotf/check_conflict'               => '/api/enotf/check-conflict',
+    '/assets/functions/enotf/poi/poi-search'               => '/api/enotf/poi/poi-search',
+    '/assets/functions/enotf/poi/save-field'               => '/api/enotf/poi/save-field',
+    '/assets/functions/enotf/share/accept-request'         => '/api/enotf/share/accept-request',
+    '/assets/functions/enotf/share/check-requests'         => '/api/enotf/share/check-requests',
+    '/assets/functions/enotf/share/get-available-vehicles' => '/api/enotf/share/get-available-vehicles',
+    '/assets/functions/enotf/share/get-own-protocols'      => '/api/enotf/share/get-own-protocols',
+    '/assets/functions/enotf/share/reject-request'         => '/api/enotf/share/reject-request',
+    '/assets/functions/enotf/share/send-request'           => '/api/enotf/share/send-request',
 ];
 foreach ($legacyApiPaths as $legacyPath => $target) {
     $router->match(['GET', 'POST', 'DELETE'], $legacyPath, $legacyApiRedirect($target));

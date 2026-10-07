@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /mitarbeiter/create.php (AJAX-Endpoint).
+ * Validierung für POST /personnel/create (AJAX-Endpoint).
  *
  * Felder:
  *   - fullname    (string, 1-255)

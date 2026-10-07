@@ -48,7 +48,7 @@ class EnotfPrintController extends Controller
             return;
         }
 
-        if (basename($_SERVER['PHP_SELF']) !== 'lockscreen.php') {
+        if (!preg_match('~/enotf/lockscreen$~', (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH))) {
             \App\Session\SessionManager::setPinReturnUrl($_SERVER['REQUEST_URI'] ?? '/');
         }
         \App\Session\SessionManager::setPinVerified(false);

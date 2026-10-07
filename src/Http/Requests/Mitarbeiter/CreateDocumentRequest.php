@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für POST /mitarbeiter/profile.php mit `new=6` (Dokument anlegen).
+ * Validation für POST /personnel/profile mit `new=6` (Dokument anlegen).
  *
  * Pflichtfelder sind nur `profileid` und `docType`; alle anderen Felder
  * sind formular-spezifisch (je nach Dokumententyp sind andere Felder aktiv).

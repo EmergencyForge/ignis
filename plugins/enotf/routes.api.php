@@ -71,15 +71,15 @@ $router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler
 $router->match(['POST'],        '/api/enotf/share/accept-request',     $enotfHandler('shareAcceptRequest'), $enotfCrewAuth);
 
 // Legacy-Aliase (alte Redirect-Stubs)
-$router->post('/api/enotf-delete-protocol.php', $enotfHandler('deleteProtocol'), $enotfCrewAuth);
-$router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),    $enotfCrewAuth);
-$router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $enotfCrewAuth);
+$router->post('/api/enotf-delete-protocol', $enotfHandler('deleteProtocol'), $enotfCrewAuth);
+$router->post('/api/enotf-patient-sync',    $enotfHandler('patientSync'),    $enotfCrewAuth);
+$router->get( '/api/enotf-sync-status',     $enotfHandler('syncStatus'),     $enotfCrewAuth);
 
 // Abrechnung: ruft der FiveM-Server (ignisTab) ab, ohne Browser-Session.
 // Deshalb API-Key statt Session und keine CSRF-Prüfung (CsrfMiddleware::EXEMPT).
 $enotfApiKey = [JsonExceptionMiddleware::class, ApiKeyMiddleware::class];
 $router->post('/api/enotf/billing',     $enotfHandler('billing'), $enotfApiKey);
-$router->post('/api/enotf-billing.php', $enotfHandler('billing'), $enotfApiKey);
+$router->post('/api/enotf-billing', $enotfHandler('billing'), $enotfApiKey);
 
 // ============================================================================
 //  Hospitals: Verfügbarkeiten
@@ -88,15 +88,15 @@ $hospitalGet    = [HospitalAvailabilityController::class, 'get'];
 $hospitalUpdate = [HospitalAvailabilityController::class, 'update'];
 $router->get( '/api/hospitals/availability-get',         $hospitalGet,    $enotfApiAuth);
 $router->post('/api/hospitals/availability-update',      $hospitalUpdate, $enotfApiAuth);
-$router->get( '/api/hospital-availability-get.php',      $hospitalGet,    $enotfApiAuth);
-$router->post('/api/hospital-availability-update.php',   $hospitalUpdate, $enotfApiAuth);
+$router->get( '/api/hospital-availability-get',      $hospitalGet,    $enotfApiAuth);
+$router->post('/api/hospital-availability-update',   $hospitalUpdate, $enotfApiAuth);
 
 // ============================================================================
 //  Klinik-Code
 // ============================================================================
 $klinikHandler = [KlinikCodeController::class, 'generate'];
 $router->post('/api/klinik/generate-code',      $klinikHandler, $enotfCrewAuth);
-$router->post('/api/generate-klinikcode.php',   $klinikHandler, $enotfCrewAuth);
+$router->post('/api/generate-klinikcode',   $klinikHandler, $enotfCrewAuth);
 
 // ============================================================================
 //  POIs (Point-of-Interest Admin)

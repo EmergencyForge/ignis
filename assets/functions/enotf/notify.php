@@ -548,7 +548,7 @@
                 },
                 success: function(response) {
                     if (response.includes("erfolgreich")) {
-                        window.location.href = "<?= BASE_PATH ?>enotf/protokoll/index.php?enr=" + enr;
+                        window.location.href = "<?= BASE_PATH ?>enotf/protokoll?enr=" + enr;
                     } else {
                         showToast(response, 'error');
                         $('#final').prop('disabled', false);
