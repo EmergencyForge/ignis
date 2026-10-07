@@ -119,7 +119,7 @@ final class MailGroupMailboxTest extends FeatureTestCase
         $actions = array_column($this->audit($admin['user']->id), 'action');
         $this->assertSame(['Gruppenpostfach: Mitglied aufgenommen', 'Gruppenpostfach umbenannt', 'Gruppenpostfach: Mitglied entfernt'], $actions);
         $removed = json_decode((string) $this->audit($admin['user']->id)[2]['context'], true);
-        $this->assertSame(['mailbox_id' => $group->id, 'user_id' => $member['user']->id], $removed);
+        $this->assertEquals(['mailbox_id' => $group->id, 'user_id' => $member['user']->id], $removed);
     }
 
     #[Test]
