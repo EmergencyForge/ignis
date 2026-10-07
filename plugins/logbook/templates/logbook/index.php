@@ -6,7 +6,7 @@
  * (Fahrzeug und Fahrttyp als Auswahl, Zeitraum, Suche lokal im Browser),
  * die Fahrten als ignis-Tabelle. Anlegen und Bearbeiten laufen in einem
  * Seitenpanel (twplus-slide-over) über dieselben Felder
- * (assets/components/logbook/_form-fields.php).
+ * (templates/partials/_form-fields.php).
  *
  * @var array<int,array<string,mixed>> $entries
  * @var array<int,array<string,mixed>> $vehicles
@@ -90,7 +90,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                         $vehicleIdentifier = '';
                         $vehicleId = null;
                         $fahrerName = '';
-                        include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
+                        include dirname(__DIR__) . '/partials/_form-fields.php';
                         ?>
 
                         <div class="mt-4 flex gap-2 justify-end">
@@ -112,7 +112,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                         <?php
                         $context = 'admin';
                         $entry = null;
-                        include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
+                        include dirname(__DIR__) . '/partials/_form-fields.php';
                         ?>
 
                         <div class="mt-4 flex gap-2 justify-end">
@@ -178,7 +178,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                 'text'    => 'Mit diesem Suchbegriff passt keine Fahrt.',
                                 'actions' => [['label' => 'Suche leeren', 'style' => 'secondary', 'attrs' => ['data-logbook-search-clear' => '']]],
                             ];
-                            require dirname(__DIR__) . '/partials/empty.php';
+                            require dirname(__DIR__, 4) . '/templates/partials/empty.php';
                             ?>
                         </div>
                     </div>
@@ -229,7 +229,7 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                                     ? [['label' => 'Fahrt eintragen', 'style' => 'secondary', 'icon' => 'fa-plus', 'attrs' => ['data-logbook-create' => '']]]
                                     : [],
                             ];
-                        require dirname(__DIR__) . '/partials/empty.php';
+                        require dirname(__DIR__, 4) . '/templates/partials/empty.php';
                         ?>
                     <?php else: ?>
                         <div class="twplus-table-card__scroll">

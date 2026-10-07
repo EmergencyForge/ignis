@@ -41,7 +41,7 @@ $actionSize = $context === 'admin' ? ' ignis-btn--sm' : '';
         'title'   => 'Noch keine Fahrten eingetragen',
         'text'    => 'Fahrten erscheinen hier, sobald jemand eine einträgt.',
     ];
-    require dirname(__DIR__, 3) . '/templates/partials/empty.php';
+    require dirname(__DIR__, 4) . '/templates/partials/empty.php';
     ?>
 <?php else: ?>
     <div class="twplus-table-card__scroll">

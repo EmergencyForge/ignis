@@ -63,7 +63,7 @@ $currentDate = date('d.m.Y');
 
                                 <?php
                                 $context = 'enotf';
-                                include dirname(__DIR__, 4) . '/assets/components/logbook/_form-fields.php';
+                                include dirname(__DIR__, 4) . '/plugins/logbook/templates/partials/_form-fields.php';
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
@@ -87,7 +87,7 @@ $currentDate = date('d.m.Y');
                                 $context = 'enotf';
                                 // Reset entry for edit form (will be filled by JS)
                                 $entry = null;
-                                include dirname(__DIR__, 4) . '/assets/components/logbook/_form-fields.php';
+                                include dirname(__DIR__, 4) . '/plugins/logbook/templates/partials/_form-fields.php';
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
@@ -104,7 +104,7 @@ $currentDate = date('d.m.Y');
                         $canEdit = true;
                         $canDelete = false;
                         $actionsUrl = BASE_PATH . 'logbook/actions';
-                        include dirname(__DIR__, 4) . '/assets/components/logbook/_list-table.php';
+                        include dirname(__DIR__, 4) . '/plugins/logbook/templates/partials/_list-table.php';
                         ?>
                     </div>
                 </div>

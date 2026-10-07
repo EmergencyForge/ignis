@@ -74,6 +74,7 @@ parameters:
             message: '#^Parameter \#\d+ \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
             paths:
                 - src/Http/Requests/*
+                - plugins/*/src/Requests/*
             reportUnmatched: false
 
         # OAuth2 Library type mismatch (getAccessToken returns Interface, getResourceOwner expects concrete class)

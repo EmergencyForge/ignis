@@ -42,10 +42,11 @@ $currentDate = date('d.m.Y');
                 <i class="fa-solid fa-truck-medical"></i><br>
                 <small>Fahrzeuginfo</small>
             </a>
+' . (app(\App\Plugins\PluginLoader::class)->isActive('logbook') ? '
             <a href="' . EnotfUrl::page('fahrtenbuch') . '" class="edivi__iconlink">
                 <i class="fa-solid fa-book"></i><br>
                 <small>Fahrtenbuch</small>
-            </a>';
+            </a>' : '');
         $topbar_sync = ['leitstelle', 'session'];
         $topbar_show_notices = false;
         include dirname(__DIR__, 4) . '/assets/components/enotf/topbar.php';

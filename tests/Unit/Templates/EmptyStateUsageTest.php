@@ -42,7 +42,7 @@ final class EmptyStateUsageTest extends TestCase
     public function testLiveFilterEmptyStatesAreAnnounced(): void
     {
         $toggled = [
-            'templates/logbook/index.php' => ['id="fbNoResults"'],
+            'plugins/logbook/templates/logbook/index.php' => ['id="fbNoResults"'],
             'templates/settings/vehicles/defects/index.php' => ['id="defectNoResults"'],
             'templates/settings/vehicles/vehload/index.php' => ['id="no-results-message"', 'data-beladung-empty'],
         ];

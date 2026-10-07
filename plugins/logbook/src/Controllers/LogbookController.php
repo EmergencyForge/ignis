@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace Plugin\Logbook\Controllers;
 
 use App\Auth\Gate;
 use App\Helpers\Flash;
-use App\Http\Requests\Fahrtenbuch\CreateFahrtRequest;
-use App\Http\Requests\Fahrtenbuch\UpdateFahrtRequest;
-use App\Models\LogbookEntry;
+use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Logbook\Models\LogbookEntry;
+use Plugin\Logbook\Requests\CreateFahrtRequest;
+use Plugin\Logbook\Requests\UpdateFahrtRequest;
 
 /**
- * LogbookController: Migration des `fahrtenbuch/`-Moduls.
+ * LogbookController: das Fahrtenbuch (Plugin `logbook`, vorher Kern).
  *
  * URL-Mapping:
  *   GET  /logbook/index          → index()   (Admin-Liste mit Filter + Stats)
@@ -30,6 +31,14 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  */
 class LogbookController extends Controller
 {
+    /**
+     * Views liegen im templates/-Verzeichnis des Plugins.
+     */
+    protected function viewBasePath(): string
+    {
+        return dirname(__DIR__, 2) . '/templates';
+    }
+
     /**
      * GET /fahrtenbuch: Admin-Übersicht mit Filter + Stats.
      *

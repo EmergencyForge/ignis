@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\LogbookEntry;
 use PHPUnit\Framework\Attributes\Test;
+use Plugin\Logbook\Models\LogbookEntry;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
 

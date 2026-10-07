@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace Plugin\Logbook\Models;
 
+use App\Models\Vehicle;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -82,16 +83,13 @@ class LogbookEntry extends EloquentModel
     ];
 
     /**
-     * Beziehung zum Fahrzeug (intra_fahrzeuge). Kein eigenes Eloquent-Model
-     * für Fahrzeuge in dieser Phase. Wir geben null oder eine stdClass via
-     * Capsule, wenn wir Daten brauchen.
+     * Beziehung zum Fahrzeug (intra_fahrzeuge). Die Liste joint die
+     * Fahrzeugdaten über Capsule und braucht sie nicht.
      *
-     * @return BelongsTo<self, $this>
+     * @return BelongsTo<Vehicle, $this>
      */
     public function vehicle(): BelongsTo
     {
-        // Verwende ein generisches Eloquent-Model wäre überdimensioniert;
-        // LogbookController joint stattdessen via Capsule für die Liste.
-        return $this->belongsTo(self::class, 'vehicle_id', 'id');
+        return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
 }

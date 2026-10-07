@@ -57,10 +57,12 @@ date_default_timezone_set('Europe/Berlin');
                     <i class="fa-solid fa-truck-medical"></i><br>
                     <small>Fahrzeuginfo</small>
                 </a>
+                <?php if (app(\App\Plugins\PluginLoader::class)->isActive('logbook')): ?>
                 <a href="<?= $e(EnotfUrl::page('fahrtenbuch')) ?>" class="edivi__iconlink">
                     <i class="fa-solid fa-book"></i><br>
                     <small>Fahrtenbuch</small>
                 </a>
+                <?php endif; ?>
             </div>
             <div class="col text-end flex justify-content-end align-items-center">
                 <?php

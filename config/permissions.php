@@ -40,10 +40,6 @@ return [
         'personnel.documents.manage' => 'Mitarbeiter-Dokumente verwalten',
         'audit.view'                 => 'Logs einsehen',
     ],
-    'Fahrtenbuch' => [
-        'logbook.view'   => 'Fahrtenbuch ansehen',
-        'logbook.manage' => 'Fahrtenbuch verwalten (erstellen, bearbeiten, löschen)',
-    ],
     'Kalender' => [
         'calendar.view'   => 'Kalender ansehen',
         'calendar.create' => 'Termine und Dienste erstellen',

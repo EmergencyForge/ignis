@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Policies;
+namespace Plugin\Logbook\Tests\Unit;
 
-use App\Models\LogbookEntry;
-use App\Policies\LogbookPolicy;
+use Plugin\Logbook\Models\LogbookEntry;
+use Plugin\Logbook\Policies\LogbookPolicy;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
