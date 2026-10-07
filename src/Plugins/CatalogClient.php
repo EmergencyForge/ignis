@@ -107,6 +107,10 @@ final class CatalogClient
             $sha256 = '';
         }
         $trust = strtolower((string) ($entry['status'] ?? $entry['trust'] ?? 'untested'));
+        // Der Hub nennt gesichtete Community-Plugins „approved“.
+        if ($trust === 'approved') {
+            $trust = 'verified';
+        }
         if (!in_array($trust, ['official', 'verified', 'tested', 'untested'], true)) {
             $trust = 'untested';
         }
@@ -130,7 +134,7 @@ final class CatalogClient
             'zip_url' => $zipUrl,
             'sha256' => $sha256,
             'trust' => $trust,
-            'installable' => $zipUrl !== '' && $sha256 !== '',
+            'installable' => $zipUrl !== '' && $sha256 !== '' && !PluginLoader::isBundled($slug),
         ];
     }
 

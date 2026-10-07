@@ -71,6 +71,35 @@ final class CatalogClientTest extends TestCase
     }
 
     #[Test]
+    public function it_keeps_bundled_modules_out_of_install_and_maps_hub_statuses(): void
+    {
+        $cache = sys_get_temp_dir() . '/ignis-catalog-bundled-' . getmypid() . '.json';
+        @unlink($cache);
+        $fetcher = static fn (): array => ['status' => 200, 'body' => json_encode(['plugins' => [
+            ['slug' => 'enotf', 'name' => 'eNOTF', 'tag' => 'v1.0.0', 'zip_url' => '', 'sha256' => '', 'status' => 'official'],
+            [
+                'slug' => 'community',
+                'name' => 'Community',
+                'tag' => 'v0.3.0',
+                'zip_url' => 'https://github.com/example/community/releases/download/v0.3.0/community.zip',
+                'sha256' => str_repeat('b', 64),
+                'status' => 'approved',
+            ],
+        ]])];
+
+        try {
+            $plugins = (new CatalogClient('https://hub.example/v1/plugins', $cache, $fetcher))->catalog()['plugins'];
+
+            $this->assertSame('official', $plugins[0]['trust']);
+            $this->assertFalse($plugins[0]['installable']);
+            $this->assertSame('verified', $plugins[1]['trust']);
+            $this->assertTrue($plugins[1]['installable']);
+        } finally {
+            @unlink($cache);
+        }
+    }
+
+    #[Test]
     public function it_uses_stale_cache_when_refresh_fails(): void
     {
         $cache = sys_get_temp_dir() . '/ignis-catalog-stale-' . getmypid() . '.json';
