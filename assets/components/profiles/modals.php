@@ -72,7 +72,7 @@ function openDocumentViewer(docid) {
             titleEl.textContent = doc.type_label;
             badgeEl.textContent = doc.category_name || 'Dokument';
             badgeEl.className = 'ignis-chip ' + (doc.category_color || 'ignis-chip--secondary');
-            detailLink.href = '<?= BASE_PATH ?>personnel/document-view.php?docid=' + doc.docid;
+            detailLink.href = '<?= BASE_PATH ?>personnel/document-view?docid=' + doc.docid;
 
             // Meta-Chips (kompakte Zeile)
             const chip = (icon, text) => '<span class="inline-flex items-center gap-1"><i class="fa-solid ' + icon + '" style="opacity:0.5;font-size:0.7rem;"></i>' + esc(text) + '</span>';

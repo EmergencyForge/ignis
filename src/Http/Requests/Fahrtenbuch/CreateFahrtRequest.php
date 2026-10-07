@@ -10,7 +10,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für POST /fahrtenbuch/actions.php (action=create).
+ * Validation für POST /logbook/actions (action=create).
  *
  * Datums-Felder akzeptieren ISO (YYYY-MM-DD) und German (DD.MM.YYYY).
  * Der Cast normalisiert beide auf ISO.

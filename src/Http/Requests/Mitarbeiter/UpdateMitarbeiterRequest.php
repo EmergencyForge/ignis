@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /mitarbeiter/profile.php?new=1 (Legacy Update-Form).
+ * Validierung für POST /personnel/profile?new=1 (Legacy Update-Form).
  *
  * Wird in der aktuellen UI gar nicht mehr direkt aufgerufen (Inline-Edit
  * läuft über api/personnel/update-profile.php), aber das Endpoint existiert

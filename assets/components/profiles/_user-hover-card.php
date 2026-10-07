@@ -10,10 +10,10 @@
  */
 
 $role          = $user->userRole;
-$editUrl       = (defined('BASE_PATH') ? BASE_PATH : '/') . 'benutzer/edit?id=' . (int) $user->id;
+$editUrl       = (defined('BASE_PATH') ? BASE_PATH : '/') . 'users/edit?id=' . (int) $user->id;
 $mitarbeiter   = $linkedMitarbeiter ?? null;
 $mitarbeiterUrl = $mitarbeiter !== null
-    ? (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id
+    ? (defined('BASE_PATH') ? BASE_PATH : '/') . 'personnel/profile?id=' . (int) $mitarbeiter->id
     : null;
 ?>
 <div class="user-hover-card">

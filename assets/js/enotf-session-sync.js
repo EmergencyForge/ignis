@@ -9,7 +9,7 @@
   "use strict";
 
   const POLL_INTERVAL = 10000; // 10 Sekunden
-  const LOGGEDOUT_PATH = "enotf/loggedout.php";
+  const LOGGEDOUT_PATH = "enotf/loggedout";
 
   let sessionToken = null;
   let basePath = "";

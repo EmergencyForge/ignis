@@ -39,7 +39,7 @@ class FormsController extends Controller
     // -----------------------------------------------------------------------
 
     /**
-     * GET /antrag/select: Liste der aktiven Antragstypen als Karten.
+     * GET /forms/select: Liste der aktiven Antragstypen als Karten.
      *
      * Auth-Middleware im Router erzwingt Login; keine zusätzliche
      * Permission nötig. Jede:r eingeloggte User sieht die Typen-Auswahl.
@@ -56,7 +56,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/create?typ=X: Form-Renderer für einen Antragstyp.
+     * GET /forms/create?typ=X: Form-Renderer für einen Antragstyp.
      *
      * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
      */
@@ -91,7 +91,7 @@ class FormsController extends Controller
     }
 
     /**
-     * POST /antrag/create?typ=X: Antrag einreichen, Daten in Transaction speichern.
+     * POST /forms/create?typ=X: Antrag einreichen, Daten in Transaction speichern.
      *
      * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
      */
@@ -126,7 +126,7 @@ class FormsController extends Controller
         } catch (ValidationException $e) {
             $errorMsgs = $e->errors();
             Flash::set('error', reset($errorMsgs) ?: 'Bitte überprüfe die Eingaben.');
-            $this->redirect('antrag/create?typ=' . $typId);
+            $this->redirect('forms/create?typ=' . $typId);
         }
 
         // Eindeutige Public-ID generieren (6 Stellen)
@@ -160,11 +160,11 @@ class FormsController extends Controller
             });
         } catch (\Throwable $e) {
             Flash::set('error', 'Fehler beim Speichern: ' . $e->getMessage());
-            $this->redirect('antrag/create?typ=' . $typId);
+            $this->redirect('forms/create?typ=' . $typId);
         }
 
         Flash::set('success', 'Antrag erfolgreich eingereicht!');
-        $this->redirect('antrag/view?antrag=' . $uniqueId);
+        $this->redirect('forms/view?antrag=' . $uniqueId);
     }
 
     /**
@@ -192,7 +192,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/view?antrag=X: Detailansicht eines Antrags.
+     * GET /forms/view?antrag=X: Detailansicht eines Antrags.
      *
      * Auth-Middleware erzwingt Login. Die eigentliche Zugriffs-Prüfung
      * (`Gate::denies('forms.view', $antrag)` mit geladenem Model) passiert
@@ -232,7 +232,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/admin/list: Admin-Übersicht aller Anträge.
+     * GET /forms/admin/list: Admin-Übersicht aller Anträge.
      *
      * Auth + PolicyMiddleware('forms.viewAny') laufen vor dem Controller.
      */
@@ -272,7 +272,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /antrag/admin/view?antrag=X: Admin-Detailansicht mit Status-Form.
+     * GET /forms/admin/view?antrag=X: Admin-Detailansicht mit Status-Form.
      *
      * Auth + PolicyMiddleware('forms.decide') laufen vor dem Controller.
      */
@@ -281,7 +281,7 @@ class FormsController extends Controller
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
-            $this->redirect('antrag/admin/list');
+            $this->redirect('forms/admin/list');
         }
 
         /** @var Form|null $antrag */
@@ -292,7 +292,7 @@ class FormsController extends Controller
 
         if ($antrag === null) {
             Flash::set('error', 'Antrag nicht gefunden.');
-            $this->redirect('antrag/admin/list');
+            $this->redirect('forms/admin/list');
         }
 
         $felderMitWerten = $this->loadFieldsWithValues($antrag);
@@ -307,7 +307,7 @@ class FormsController extends Controller
     }
 
     /**
-     * POST /antrag/admin/view?antrag=X: Status-Änderung durch Bearbeiter.
+     * POST /forms/admin/view?antrag=X: Status-Änderung durch Bearbeiter.
      * Schreibt Audit-Log-Einträge für jede einzelne Änderung und sendet eine
      * Notification an den Antragsteller.
      *
@@ -318,21 +318,21 @@ class FormsController extends Controller
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
-            $this->redirect('antrag/admin/list');
+            $this->redirect('forms/admin/list');
         }
 
         /** @var Form|null $antrag */
         $antrag = Form::query()->where('uniqueid', $caseId)->first();
         if ($antrag === null) {
             Flash::set('error', 'Antrag nicht gefunden.');
-            $this->redirect('antrag/admin/list');
+            $this->redirect('forms/admin/list');
         }
 
         try {
             $data = DecideAntragRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('antrag/admin/view?antrag=' . $caseId);
+            $this->redirect('forms/admin/view?antrag=' . $caseId);
         }
 
         $userHelper       = new UserHelper();
@@ -390,7 +390,7 @@ class FormsController extends Controller
         }
 
         Flash::set('success', 'Antrag erfolgreich aktualisiert');
-        $this->redirect('antrag/view?antrag=' . $caseId);
+        $this->redirect('forms/view?antrag=' . $caseId);
     }
 
     // -----------------------------------------------------------------------

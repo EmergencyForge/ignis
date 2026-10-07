@@ -38,7 +38,7 @@ class FederationSyncService
             $hasMore = true;
 
             while ($hasMore) {
-                $endpoint = rtrim($link['instance_url'], '/') . '/api/federation/personnel.php?page=' . $page . '&per_page=100';
+                $endpoint = rtrim($link['instance_url'], '/') . '/api/federation/personnel?page=' . $page . '&per_page=100';
                 $data = $this->fetchFromRemote($endpoint, $link['api_key_outgoing']);
 
                 if (!$data['success']) {
@@ -248,7 +248,7 @@ class FederationSyncService
             $hasMore = true;
 
             while ($hasMore) {
-                $url = rtrim($link['instance_url'], '/') . '/api/federation/enotf.php?page=' . $page . '&per_page=50';
+                $url = rtrim($link['instance_url'], '/') . '/api/federation/enotf?page=' . $page . '&per_page=50';
                 if ($since) {
                     $url .= '&since=' . urlencode($since);
                 }
@@ -323,7 +323,7 @@ class FederationSyncService
             $hasMore = true;
 
             while ($hasMore) {
-                $url = rtrim($link['instance_url'], '/') . '/api/federation/fire-incidents.php?page=' . $page . '&per_page=50';
+                $url = rtrim($link['instance_url'], '/') . '/api/federation/fire-incidents?page=' . $page . '&per_page=50';
                 if ($since) {
                     $url .= '&since=' . urlencode($since);
                 }

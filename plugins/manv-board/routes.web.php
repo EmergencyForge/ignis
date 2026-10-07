@@ -6,7 +6,7 @@ declare(strict_types=1);
  * MANV-Board: Web-Routen.
  *
  * MANV-Lagen (Massenanfall von Verletzten). Der MciController ruft intern
- * `ensure('mci.<ability>', redirectTo: 'index.php')` auf, das liefert
+ * `ensure('mci.<ability>', redirectTo: 'index')` auf, das liefert
  * benutzerfreundliche Redirects statt 403. Deshalb hier nur AuthMiddleware,
  * keine PolicyMiddleware (analog zu FormsController::view).
  *

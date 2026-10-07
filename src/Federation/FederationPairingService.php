@@ -213,7 +213,7 @@ class FederationPairingService
      */
     public function performHandshake(string $url, string $apiKey): array
     {
-        $endpoint = rtrim($url, '/') . '/api/federation/handshake.php';
+        $endpoint = rtrim($url, '/') . '/api/federation/handshake';
 
         $ch = curl_init();
         curl_setopt_array($ch, [

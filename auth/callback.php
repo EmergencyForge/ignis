@@ -30,6 +30,8 @@ switch ($stateResult) {
         return Response::html('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
 }
 
+// Mit .php: so steht die Redirect-URI in den Discord-App-Einstellungen,
+// Discord vergleicht sie exakt. Der Front-Controller leitet weiter.
 $provider = DiscordOAuth::createProvider('auth/callback.php');
 
 if (!isset($_GET['code'])) {

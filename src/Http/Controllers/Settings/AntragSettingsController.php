@@ -41,7 +41,7 @@ class AntragSettingsController extends Controller
     public function listAction(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         $typen = Capsule::connection()->select("
             SELECT
@@ -95,7 +95,7 @@ class AntragSettingsController extends Controller
     public function sort(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         foreach ($this->sortierungen($_POST['sortierung'] ?? null) as $id => $sortierung) {
             Capsule::table('intra_antrag_typen')->where('id', $id)->update(['sortierung' => $sortierung]);
@@ -108,7 +108,7 @@ class AntragSettingsController extends Controller
     public function createForm(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         $this->renderView('settings/forms/create', [
             'defaultSort' => $this->naechsteSortierung(),
@@ -121,7 +121,7 @@ class AntragSettingsController extends Controller
     public function store(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         try {
             $data = SaveFormTypeRequest::validate($_POST);
@@ -150,7 +150,7 @@ class AntragSettingsController extends Controller
     public function edit(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         $id  = (int) ($_GET['id'] ?? 0);
         $typ = $this->typOderZurueck($id);
@@ -192,7 +192,7 @@ class AntragSettingsController extends Controller
     public function destroyField(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         $typId = (int) ($_POST['antragstyp_id'] ?? 0);
         $this->typOderZurueck($typId);
@@ -257,7 +257,7 @@ class AntragSettingsController extends Controller
     private function postedId(string $zurueck): int
     {
         $this->requireAuth();
-        $this->ensureAdmin('index.php');
+        $this->ensureAdmin('index');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {

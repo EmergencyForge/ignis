@@ -7,6 +7,8 @@ use App\Session\SessionManager;
 
 if (\App\Auth\FabricaClient::enabled()) return \EmergencyForge\Http\Response::redirect(BASE_PATH . 'auth/fabrica');
 
+// Mit .php: so steht die Redirect-URI in den Discord-App-Einstellungen,
+// Discord vergleicht sie exakt. Der Front-Controller leitet weiter.
 $provider = DiscordOAuth::createProvider('auth/callback.php');
 
 $authorizationUrl = $provider->getAuthorizationUrl([

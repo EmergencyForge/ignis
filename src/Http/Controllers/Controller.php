@@ -82,9 +82,10 @@ abstract class Controller
      *
      * Auto-Translation: Legacy-deutsche Pfade (`'kalender'`, `'manv/board'`,
      * etc.) werden via `UrlMap::translateRelative()` transparent auf die
-     * kanonischen englischen Pfade uebersetzt. Vorteil: bestehende Calls
-     * wie `$this->redirect('kalender')` liefern direkt `/calendar` ohne
-     * extra 301-Hop, kein Edit pro Call-Site noetig.
+     * kanonischen englischen Pfade uebersetzt. Ein alter Pfad wie
+     * `'kalender'` landet so direkt auf `/calendar`, ohne extra 301-Hop.
+     * Neue Aufrufe nennen den englischen Pfad, das prüft
+     * tests/Unit/Http/InternalLinksTest.
      */
     protected function redirect(string $relativePath): never
     {

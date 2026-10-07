@@ -32,7 +32,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class PersonnelController extends Controller
 {
     /**
-     * GET /mitarbeiter/list.php: Übersicht aktiver oder archivierter Mitarbeiter.
+     * GET /personnel/list: Übersicht aktiver oder archivierter Mitarbeiter.
      *
      * Filter-Logik:
      *   - Es gibt einen "Archiv-Rank" (intra_mitarbeiter_dienstgrade.archive=1)
@@ -142,7 +142,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /mitarbeiter/profile.php?id=X: Mitarbeiter-Detail mit Inline-Editor,
+     * GET /personnel/profile?id=X: Mitarbeiter-Detail mit Inline-Editor,
      * Kommentaren, Logs, Dokumenten und Fachdienste-Modal.
      *
      * Die View bindet eine Reihe alter Partials ein (assets/components/profiles/*),
@@ -181,7 +181,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /api/mitarbeiter/by-dienstnr/{nr}/card: Hover-Card-Fragment
+     * GET /api/personnel/by-dienstnr/{nr}/card: Hover-Card-Fragment
      * gelookupt per Dienstnummer statt per Datenbank-ID.
      *
      * Verwendung: Templates rendern Dienstnr-Strings (z.B. Tabellen,
@@ -214,7 +214,7 @@ class PersonnelController extends Controller
 
     private function renderMitarbeiterCard(Personnel $mitarbeiter): \EmergencyForge\Http\Response
     {
-        $profileUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
+        $profileUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'personnel/profile?id=' . (int) $mitarbeiter->id;
 
         ob_start();
         include __DIR__ . '/../../../assets/components/profiles/_hover-card.php';
@@ -237,7 +237,7 @@ class PersonnelController extends Controller
 
         if ($mitarbeiter === null) {
             Flash::set('error', 'not-found');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         // Account-Status für die Status-Card oben in der View ermitteln
@@ -338,7 +338,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=1): Legacy Update-Form.
+     * POST /personnel/profile (new=1): Legacy Update-Form.
      *
      * Wird in der aktuellen UI praktisch nicht mehr aufgerufen (Inline-Edit
      * läuft über api/personnel/update-profile.php), aber der Endpoint bleibt
@@ -352,14 +352,14 @@ class PersonnelController extends Controller
             $data = UpdateMitarbeiterRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mitarbeiter/profile?id=' . (int) ($_POST['id'] ?? 0));
+            $this->redirect('personnel/profile?id=' . (int) ($_POST['id'] ?? 0));
         }
 
         /** @var Personnel|null $mitarbeiter */
         $mitarbeiter = Personnel::find($data['id']);
         if ($mitarbeiter === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         $userHelper = new UserHelper();
@@ -423,24 +423,24 @@ class PersonnelController extends Controller
         }
         app(\App\Events\EventDispatcher::class)->fire(new \App\Events\PersonnelSaved((int) $mitarbeiter->id));
 
-        $this->redirect('mitarbeiter/profile?id=' . $mitarbeiter->id);
+        $this->redirect('personnel/profile?id=' . $mitarbeiter->id);
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=4): Fachdienste-JSON-Update.
+     * POST /personnel/profile (new=4): Fachdienste-JSON-Update.
      */
     public function updateFachdienste(): void
     {
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         /** @var Personnel|null $mitarbeiter */
         $mitarbeiter = Personnel::find($id);
         if ($mitarbeiter === null) {
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         $fachdienste     = isset($_POST['fachdienste']) && is_array($_POST['fachdienste']) ? $_POST['fachdienste'] : [];
@@ -458,18 +458,18 @@ class PersonnelController extends Controller
             );
         }
 
-        $this->redirect('mitarbeiter/profile?id=' . $id);
+        $this->redirect('personnel/profile?id=' . $id);
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=5): Notiz/Comment hinzufügen.
+     * POST /personnel/profile (new=5): Notiz/Comment hinzufügen.
      */
     public function addNote(): void
     {
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         $content = trim((string) ($_POST['content'] ?? ''));
@@ -494,11 +494,11 @@ class PersonnelController extends Controller
             );
         }
 
-        $this->redirect('mitarbeiter/profile?id=' . $id);
+        $this->redirect('personnel/profile?id=' . $id);
     }
 
     /**
-     * POST /mitarbeiter/profile.php (new=6): Dokument für Mitarbeiter erstellen.
+     * POST /personnel/profile (new=6): Dokument für Mitarbeiter erstellen.
      *
      * Schreibt einen Eintrag in `intra_mitarbeiter_dokumente` und sendet eine
      * Notification an den Empfänger, sofern mit ihm ein Konto verknüpft
@@ -511,7 +511,7 @@ class PersonnelController extends Controller
             $data = CreateDocumentRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         $profileId = $data['profileid'];
@@ -521,7 +521,7 @@ class PersonnelController extends Controller
         $mitarbeiter = Personnel::find($profileId);
         if ($mitarbeiter === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         // Eindeutige docid generieren (7-stellig, wie Legacy)
@@ -597,7 +597,7 @@ class PersonnelController extends Controller
     {
         if (\App\Auth\Gate::denies('personnel.create')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         $this->renderView('personnel/create', [
@@ -616,11 +616,11 @@ class PersonnelController extends Controller
     {
         if (\App\Auth\Gate::denies('personnel.create')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         try {
@@ -702,7 +702,7 @@ class PersonnelController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'invalid-id');
-            $this->redirect('mitarbeiter/list');
+            $this->redirect('personnel/list');
         }
 
         $deleted = Personnel::query()->where('id', $id)->delete();
@@ -719,7 +719,7 @@ class PersonnelController extends Controller
             );
         }
 
-        $this->redirect('mitarbeiter/list');
+        $this->redirect('personnel/list');
     }
 
     /**
@@ -747,7 +747,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /mitarbeiter/dokument-view.php?docid=X: PDF-Viewer mit Toolbar.
+     * GET /personnel/document-view?docid=X: PDF-Viewer mit Toolbar.
      *
      * Joint das Dokument mit Aussteller und Empfänger. Vorlage und
      * Kategorie kommen nicht mehr dazu: die Tabellen des alten
@@ -800,7 +800,7 @@ class PersonnelController extends Controller
 
         $backUrl = $doc->empfaenger_id
             ? BASE_PATH . 'personnel/profile?id=' . (int) $doc->empfaenger_id . '#documents'
-            : BASE_PATH . 'index.php';
+            : BASE_PATH;
 
         $this->renderView('personnel/document-view', [
             'doc'        => $doc,
@@ -815,7 +815,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/dokument-delete.php: Dokument endgültig löschen.
+     * POST /personnel/document-delete: Dokument endgültig löschen.
      *
      * Erfordert CSRF-Token + personnel.documents.manage. Löscht die PDF-Datei
      * im Storage UND den DB-Eintrag.

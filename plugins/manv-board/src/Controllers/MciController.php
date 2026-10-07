@@ -32,7 +32,7 @@ class MciController extends Controller
     private const ALLOWED_STATUS = ['aktiv', 'abgeschlossen', 'archiviert'];
 
     /**
-     * GET /manv/index.php: Übersicht aller MANV-Lagen mit Status-Filter.
+     * GET /mci/index: Übersicht aller MANV-Lagen mit Status-Filter.
      */
     public function index(): void
     {
@@ -62,7 +62,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/create.php: Form für neue MANV-Lage.
+     * GET /mci/create: Form für neue MANV-Lage.
      */
     public function create(): void
     {
@@ -78,7 +78,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/create.php: Neue MANV-Lage anlegen, Audit-Log, redirect zum Board.
+     * POST /mci/create: Neue MANV-Lage anlegen, Audit-Log, redirect zum Board.
      */
     public function store(): void
     {
@@ -100,7 +100,7 @@ class MciController extends Controller
 
         if ($data['einsatznummer'] === '' || $data['einsatzort'] === '') {
             Flash::error('Einsatznummer und Einsatzort sind Pflichtfelder.');
-            $this->redirect('manv/create');
+            $this->redirect('mci/create');
         }
 
         try {
@@ -118,14 +118,14 @@ class MciController extends Controller
             );
         } catch (\Throwable $e) {
             Flash::error('Fehler beim Erstellen der MANV-Lage: ' . $e->getMessage());
-            $this->redirect('manv/create');
+            $this->redirect('mci/create');
         }
 
-        $this->redirect('manv/board?id=' . $lageId);
+        $this->redirect('mci/board?id=' . $lageId);
     }
 
     /**
-     * GET /manv/edit.php?id=X: Edit-Form für bestehende Lage.
+     * GET /mci/edit?id=X: Edit-Form für bestehende Lage.
      */
     public function edit(): void
     {
@@ -134,14 +134,14 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $users = $this->loadUsersForLeitung();
@@ -155,7 +155,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/edit.php?id=X: Bestehende Lage aktualisieren.
+     * POST /mci/edit?id=X: Bestehende Lage aktualisieren.
      */
     public function update(): void
     {
@@ -164,14 +164,14 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $data = [
@@ -191,7 +191,7 @@ class MciController extends Controller
 
         if ($data['einsatznummer'] === '' || $data['einsatzort'] === '') {
             Flash::error('Einsatznummer und Einsatzort sind Pflichtfelder.');
-            $this->redirect('manv/edit?id=' . $lageId);
+            $this->redirect('mci/edit?id=' . $lageId);
         }
 
         try {
@@ -208,11 +208,11 @@ class MciController extends Controller
             Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/edit?id=' . $lageId);
+        $this->redirect('mci/edit?id=' . $lageId);
     }
 
     /**
-     * GET /manv/log.php?id=X: Aktionslog einer MANV-Lage anzeigen.
+     * GET /mci/log?id=X: Aktionslog einer MANV-Lage anzeigen.
      */
     public function log(): void
     {
@@ -221,14 +221,14 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $logEntries = (new MANVLog())->getByLage($lageId, 200);
@@ -242,7 +242,7 @@ class MciController extends Controller
     // ── Board, Patient, Ressourcen ───────────────────────
 
     /**
-     * GET /manv/board.php?id=X: Live-Dashboard mit Patientenliste, Stats,
+     * GET /mci/board?id=X: Live-Dashboard mit Patientenliste, Stats,
      * Fahrzeug-Übersicht. Reichert Patienten-Daten mit Fahrzeug-rd_type an
      * (für die "kann transportieren?"-Logik im UI).
      */
@@ -253,7 +253,7 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvLage      = new MANVLage();
@@ -263,7 +263,7 @@ class MciController extends Controller
         $lage = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         // Sortierung der Patiententabelle auf dem Server (?sort=&dir=), die
@@ -311,7 +311,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/patient-create.php?lage_id=X: Form für neuen Patient.
+     * GET /mci/patient-create?lage_id=X: Form für neuen Patient.
      */
     public function patientCreate(): void
     {
@@ -320,14 +320,14 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvLage = new MANVLage();
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         // Verfügbare Fahrzeuge: nur Ressourcen, die noch keinem aktiven Patient zugewiesen sind
@@ -346,7 +346,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/patient-create.php?lage_id=X: Patient anlegen mit
+     * POST /mci/patient-create?lage_id=X: Patient anlegen mit
      * Fahrzeugzuweisung-Check (verhindert Doppel-Zuweisung).
      */
     public function patientStore(): void
@@ -356,7 +356,7 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvPatient = new MANVPatient();
@@ -389,7 +389,7 @@ class MciController extends Controller
                         . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
-                    $this->redirect('manv/patient-create?lage_id=' . $lageId);
+                    $this->redirect('mci/patient-create?lage_id=' . $lageId);
                 }
 
                 $transportmittel        = $fahrzeug->fahrzeugtyp;
@@ -430,14 +430,14 @@ class MciController extends Controller
             );
         } catch (\Throwable $e) {
             Flash::error('Fehler beim Erstellen des Patienten: ' . $e->getMessage());
-            $this->redirect('manv/patient-create?lage_id=' . $lageId);
+            $this->redirect('mci/patient-create?lage_id=' . $lageId);
         }
 
-        $this->redirect('manv/patient-view?id=' . $patientId);
+        $this->redirect('mci/patient-view?id=' . $patientId);
     }
 
     /**
-     * GET /manv/patient-view.php?id=X: Patient-Detail.
+     * GET /mci/patient-view?id=X: Patient-Detail.
      * Quick-Sichtung via `?quick_sk=SK1` etc. wird auch hier behandelt
      * (Original-Verhalten 1:1).
      */
@@ -448,7 +448,7 @@ class MciController extends Controller
 
         $patientId = (int) ($_GET['id'] ?? 0);
         if ($patientId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvPatient = new MANVPatient();
@@ -457,7 +457,7 @@ class MciController extends Controller
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         // Quick-Sichtung via GET: schreibt Sichtung sofort, redirect auf saubere URL
@@ -473,7 +473,7 @@ class MciController extends Controller
                 'patient',
                 $patientId
             );
-            $this->redirect('manv/patient-view?id=' . $patientId);
+            $this->redirect('mci/patient-view?id=' . $patientId);
         }
 
         $lage                   = $manvLage->getById((int) $patient['manv_lage_id']);
@@ -492,7 +492,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/patient-view.php?id=X: Patient aktualisieren.
+     * POST /mci/patient-view?id=X: Patient aktualisieren.
      * Sichtungskategorie wird separat geloggt wenn sie sich ändert.
      */
     public function patientUpdate(): void
@@ -502,7 +502,7 @@ class MciController extends Controller
 
         $patientId = (int) ($_GET['id'] ?? 0);
         if ($patientId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvPatient = new MANVPatient();
@@ -510,7 +510,7 @@ class MciController extends Controller
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         // Fahrzeugzuweisung auflösen + Doppel-Zuweisung prüfen
@@ -540,7 +540,7 @@ class MciController extends Controller
                         . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
-                    $this->redirect('manv/patient-view?id=' . $patientId);
+                    $this->redirect('mci/patient-view?id=' . $patientId);
                 }
 
                 $transportmittel        = $fahrzeug->fahrzeugtyp;
@@ -601,11 +601,11 @@ class MciController extends Controller
             Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/patient-view?id=' . $patientId);
+        $this->redirect('mci/patient-view?id=' . $patientId);
     }
 
     /**
-     * GET /manv/ressourcen.php?lage_id=X: Fahrzeug-Verwaltung einer Lage.
+     * GET /mci/resources?lage_id=X: Fahrzeug-Verwaltung einer Lage.
      * Auch der GET-basierte `delete_id`-Pfad landet hier (Legacy-Routing,
      * im Stub abgefangen).
      */
@@ -616,7 +616,7 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvLage      = new MANVLage();
@@ -625,7 +625,7 @@ class MciController extends Controller
         $lage = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         // Systemfahrzeuge (noch nicht zur Lage hinzugefügt)
@@ -653,7 +653,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/ressourcen.php?lage_id=X (action=create): neue Ressource anlegen.
+     * POST /mci/resources?lage_id=X (action=create): neue Ressource anlegen.
      */
     public function ressourceStore(): void
     {
@@ -662,7 +662,7 @@ class MciController extends Controller
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $manvRessource = new MANVRessource();
@@ -721,7 +721,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /manv/ressourcen.php?lage_id=X (action=edit): bestehende Ressource updaten.
+     * POST /mci/resources?lage_id=X (action=edit): bestehende Ressource updaten.
      */
     public function ressourceUpdate(): void
     {
@@ -731,7 +731,7 @@ class MciController extends Controller
         $lageId     = (int) ($_GET['lage_id'] ?? 0);
         $resourceId = (int) ($_POST['ressource_id'] ?? 0);
         if ($lageId <= 0 || $resourceId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         $data = [
@@ -763,7 +763,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /manv/ressourcen.php?lage_id=X&delete_id=Y: Ressource löschen.
+     * GET /mci/resources?lage_id=X&delete_id=Y: Ressource löschen.
      * Wird via Legacy-GET-Link aufgerufen (showConfirm im JS).
      */
     public function ressourceDelete(): void
@@ -774,7 +774,7 @@ class MciController extends Controller
         $lageId     = (int) ($_GET['lage_id'] ?? 0);
         $resourceId = (int) ($_GET['delete_id'] ?? 0);
         if ($lageId <= 0 || $resourceId <= 0) {
-            $this->redirect('manv/index');
+            $this->redirect('mci/index');
         }
 
         try {

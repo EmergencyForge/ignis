@@ -208,7 +208,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
 
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '<?= BASE_PATH ?>personnel/document-delete.php';
+        form.action = '<?= BASE_PATH ?>personnel/document-delete';
         form.innerHTML = '<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken()) ?>">'
             + '<input type="hidden" name="docid" value="<?= htmlspecialchars((string) $doc->docid) ?>">'
             + '<input type="hidden" name="pid" value="<?= htmlspecialchars((string) ($doc->profileid ?? '')) ?>">';

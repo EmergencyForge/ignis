@@ -98,12 +98,12 @@ $enotfApiRedirect = function (string $target): \Closure {
 $router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty.php', $enotfApiRedirect('/api/enotf/bulk-delete-empty'));
 
 // Zielverwaltung: auf POI-System konsolidiert. Legacy-URLs leiten
-// dauerhaft auf `/settings/pois` um, bis externe Bookmarks aktualisiert
+// dauerhaft auf `/settings/pois/index` um, bis externe Bookmarks aktualisiert
 // sind. Controller + Template gibt's noch im Repo, sind aber nicht mehr
 // erreichbar.
 $zielverwaltungRedirect = static function (\EmergencyForge\Http\Request $request) {
     $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-    return \EmergencyForge\Http\Response::redirect($base . 'settings/pois', 301);
+    return \EmergencyForge\Http\Response::redirect($base . 'settings/pois/index', 301);
 };
 $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung',           $zielverwaltungRedirect);
 $router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/',          $zielverwaltungRedirect);

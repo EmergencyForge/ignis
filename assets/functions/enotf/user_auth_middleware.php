@@ -36,7 +36,7 @@ if (defined('ENOTF_REQUIRE_USER_AUTH') && ENOTF_REQUIRE_USER_AUTH === true) {
             $_SESSION['redirect_url'] = EnotfUrl::page('login');
         }
 
-        header("Location: " . BASE_PATH . "login.php?redirect=enotf");
+        header("Location: " . BASE_PATH . "login?redirect=enotf");
         exit();
     }
 }

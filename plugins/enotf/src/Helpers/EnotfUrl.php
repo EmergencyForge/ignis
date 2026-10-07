@@ -153,7 +153,7 @@ class EnotfUrl
      */
     public static function adminZielverwaltung(string $action = '', array $params = []): string
     {
-        return self::appendParams(self::basePath() . 'settings/pois', $params);
+        return self::appendParams(self::basePath() . 'settings/pois/index', $params);
     }
 
     // ---------------------------------------------------------------

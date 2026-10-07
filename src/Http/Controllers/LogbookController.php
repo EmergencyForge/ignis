@@ -18,10 +18,10 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * LogbookController: Migration des `fahrtenbuch/`-Moduls.
  *
  * URL-Mapping:
- *   GET  /fahrtenbuch/index.php          → index()   (Admin-Liste mit Filter + Stats)
- *   POST /fahrtenbuch/actions.php (create) → store()
- *   POST /fahrtenbuch/actions.php (update) → update()
- *   POST /fahrtenbuch/actions.php (delete) → destroy()
+ *   GET  /logbook/index          → index()   (Admin-Liste mit Filter + Stats)
+ *   POST /logbook/actions (create) → store()
+ *   POST /logbook/actions (update) → update()
+ *   POST /logbook/actions (delete) → destroy()
  *
  * Multi-Context-Auth: Die store/update-Methoden akzeptieren BEIDE eingeloggte
  * Admin-User UND eNOTF-Sessions (set $_SESSION['fahrername']) UND FireTab-
@@ -114,7 +114,7 @@ class LogbookController extends Controller
     }
 
     /**
-     * POST /fahrtenbuch/actions.php (action=create): Eintrag anlegen.
+     * POST /logbook/actions (action=create): Eintrag anlegen.
      *
      * Multi-Context: Akzeptiert Admin/eNOTF/FireTab-Sessions. Auth-Check
      * läuft NICHT über die Standard-`requireAuth()` der Base-Klasse, weil
@@ -200,7 +200,7 @@ class LogbookController extends Controller
     }
 
     /**
-     * POST /fahrtenbuch/actions.php (action=update): bestehenden Eintrag ändern.
+     * POST /logbook/actions (action=update): bestehenden Eintrag ändern.
      */
     public function update(): void
     {
@@ -267,7 +267,7 @@ class LogbookController extends Controller
     }
 
     /**
-     * POST /fahrtenbuch/actions.php (action=delete): Eintrag löschen.
+     * POST /logbook/actions (action=delete): Eintrag löschen.
      * Nur Admin mit `fahrt.delete`. eNOTF/FireTab dürfen nicht löschen,
      * deshalb `requireAuth()` (nicht `requireAnyContext()`) + inline Gate-Check,
      * weil der Dispatcher selber multi-context ist.
@@ -326,9 +326,9 @@ class LogbookController extends Controller
     {
         $returnTo = (string) ($_POST['return_to'] ?? 'admin');
         $target = match ($returnTo) {
-            'enotf'   => 'enotf/fahrtenbuch.php',
-            'firetab' => 'einsatz/fahrtenbuch.php',
-            default   => 'fahrtenbuch/index.php',
+            'enotf'   => 'enotf/fahrtenbuch',
+            'firetab' => 'firetab/logbook',
+            default   => 'logbook/index',
         };
         $this->redirect($target);
     }

@@ -263,7 +263,7 @@ $pgPath = 'mci/board';
                 ).then(function (ok) {
                     if (!ok) return;
                     $.ajax({
-                        url:    '<?= BASE_PATH ?>api/manv/api',
+                        url:    '<?= BASE_PATH ?>api/mci/api',
                         method: 'POST',
                         data:   { action: 'transport_abfahrt', patient_id: patientId },
                         success: function (response) {

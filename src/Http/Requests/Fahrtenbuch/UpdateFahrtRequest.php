@@ -10,7 +10,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für POST /fahrtenbuch/actions.php (action=update).
+ * Validation für POST /logbook/actions (action=update).
  *
  * Wie CreateFahrtRequest, aber mit ID-Pflicht und ohne vehicle_identifier-
  * Pflicht (wird im Controller aus dem bestehenden Eintrag übernommen, falls

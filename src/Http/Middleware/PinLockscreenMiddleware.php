@@ -80,7 +80,7 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
             } else {
                 $target = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
                     ? \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen')
-                    : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen.php');
+                    : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen');
             }
 
             return Response::redirect($target);
