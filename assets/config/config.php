@@ -53,10 +53,9 @@ SessionManager::start();
 // Die Rechte kommen bei jedem Aufruf frisch aus der DB (zwei Abfragen über
 // den Primärschlüssel). Eine geänderte Rolle oder Gruppe gilt so ab dem
 // nächsten Neuladen, ohne Abmelden. Vorher galt ein 5-Minuten-Cache.
+// Ein gelöschtes oder deaktiviertes Konto ist ab dann abgemeldet.
 if (SessionManager::isLoggedIn()) {
-    SessionManager::setPermissions(
-        Permissions::retrieveFromDatabase((int) SessionManager::userId())
-    );
+    Permissions::refreshSession((int) SessionManager::userId());
 }
 
 // Legacy-PDO-Verbindung aufbauen und in den Container schieben. Der App-Code
