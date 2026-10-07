@@ -3,7 +3,7 @@
  *
  * Fragt alle 30 s GET /api/notifications/poll ab (nur bei sichtbarem Tab)
  * und hält die Marken `.notification-poll-badge` (Punkt an der Glocke in
- * der Topbar, Zähler am Sidebar-Eintrag „Posteingang"), das aria-label der Glocke,
+ * der Topbar), das aria-label der Glocke,
  * den Zähler im Browsertitel, einen Toast und den Lichtlauf an der Glocke
  * für eine neue Meldung aktuell. Ändert sich der Zähler, geht das Event `ignis:inbox-count`
  * am window heraus; shell.js lädt darauf das Popover der Glocke neu.

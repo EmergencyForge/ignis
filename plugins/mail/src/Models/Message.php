@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int                      $id
  * @property int                      $sender_mailbox_id
+ * @property int|null                 $sent_by_user_id  Konto, das zuletzt gespeichert oder gesendet hat
  * @property string                   $subject
  * @property array<string,mixed>      $body_json
  * @property string|null              $body_html
@@ -37,6 +38,7 @@ class Message extends Model
     protected $casts = [
         'id'                => 'integer',
         'sender_mailbox_id' => 'integer',
+        'sent_by_user_id'   => 'integer',
         'in_reply_to'       => 'integer',
         'body_json'         => 'array',
         'header_json'       => 'array',

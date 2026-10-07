@@ -19,6 +19,8 @@
  * @var int|null            $forwardFrom   Mail, deren Anhänge beim Anlegen kopiert werden
  * @var list<string>        $forwardNames  nur zur Anzeige
  * @var list<\Plugin\Mail\Models\Attachment> $attachments
+ * @var \Plugin\Mail\Models\Mailbox  $mailbox  Absender: das Postfach, in dem das Fenster geöffnet wurde;
+ *                                     mail-compose.js schickt es als `mailbox_id` mit jeder Anfrage mit
  */
 
 $layout     = 'admin';
@@ -49,14 +51,26 @@ $fullPage   = !\App\Helpers\Layout::wantsFragment();
       data-in-reply-to="<?= $inReplyTo !== null ? (int) $inReplyTo : '' ?>"
       data-forward-from="<?= $forwardFrom !== null ? (int) $forwardFrom : '' ?>"
       data-base="<?= htmlspecialchars($base) ?>"
+      data-mailbox-id="<?= (int) $mailbox->id ?>"
       data-editor-src="<?= htmlspecialchars(asset('assets/dist/editor.iife.js')) ?>">
     <?= csrf_field() ?>
+
+    <div class="ignis-field">
+        <span class="ignis-field__label">Von</span>
+        <p>
+            <?= htmlspecialchars($mailbox->display_name) ?> <span class="ignis-preview__muted">&lt;<?= htmlspecialchars($mailbox->address) ?>&gt;</span>
+            <span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($mailbox->kindLabel()) ?></span>
+        </p>
+        <?php if ($mailbox->isGroup()): ?>
+            <p class="ignis-field__hint">Du schreibst für das Gruppenpostfach. Empfänger sehen es als Absender, die anderen Mitglieder sehen die Mail unter Gesendet.</p>
+        <?php endif; ?>
+    </div>
 
     <?php foreach (['to' => 'An', 'cc' => 'CC', 'bcc' => 'BCC'] as $field => $label): ?>
         <div class="ignis-field" id="mail-compose-<?= $field ?>-field"<?= $field === 'bcc' && $recipients['bcc'] === [] ? ' hidden' : '' ?>>
             <label class="ignis-field__label" id="mail-compose-<?= $field ?>-label"><?= $label ?></label>
             <div data-ignis-multi-select data-mail-recipients data-name="<?= $field ?>[]" aria-labelledby="mail-compose-<?= $field ?>-label"
-                 data-placeholder="Name, Adresse oder Verteiler" data-empty-text="Kein Postfach gefunden"
+                 data-placeholder="Name, Adresse, Gruppenpostfach oder Verteiler" data-empty-text="Kein Postfach gefunden"
                  data-options="<?= $json($recipients[$field]) ?>" data-value="<?= $values($recipients[$field]) ?>"></div>
         </div>
     <?php endforeach; ?>

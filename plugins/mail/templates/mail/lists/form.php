@@ -25,7 +25,8 @@ $rankBadge  = dirname(__DIR__, 5) . '/assets/components/profiles/_rank-badge.php
 
 $options = array_map(static fn ($m): array => [
     'value' => (int) $m->id,
-    'label' => $m->display_name . ' <' . $m->address . '>' . ($m->active && !$m->locked ? '' : ' (stellt nicht zu)'),
+    // Ein Gruppenpostfach als Mitglied bekommt die Mail einmal, für alle seine Mitglieder.
+    'label' => $m->display_name . ' <' . $m->address . '>' . ($m->isGroup() ? ' · ' . $m->kindLabel() : '') . ($m->active && !$m->locked ? '' : ' (stellt nicht zu)'),
 ], $mailboxes);
 
 $groups = [

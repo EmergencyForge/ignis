@@ -19,7 +19,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Mail</p>
                     <h1>Verteiler</h1>
-                    <p class="twplus-page-header__description">Eine Adresse, die an mehrere Postfächer zustellt: als feste Liste oder als Regel aus Rolle, Dienstgrad und Qualifikation.</p>
+                    <p class="twplus-page-header__description">Eine Adresse, die an mehrere Postfächer zustellt: als feste Liste oder als Regel aus Rolle, Dienstgrad und Qualifikation. Jedes Mitglied bekommt eine eigene Kopie. Ein Postfach, das ein Team gemeinsam liest und aus dem es antwortet, ist ein Gruppenpostfach (Einstellungen, Postfächer).</p>
                 </div>
                 <div class="header-actions twplus-page-header__actions">
                     <a href="<?= $base ?>mail/lists/create" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Verteiler anlegen</a>

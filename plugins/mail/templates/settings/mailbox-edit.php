@@ -1,7 +1,8 @@
 <?php
 /**
  * View: Adresse eines Postfachs ändern (`mail.admin`, Domain nur mit
- * `mail.domain.choose`). Der Inhalt des Postfachs kommt hier nicht vor.
+ * `mail.domain.choose`), bei einem Gruppenpostfach dazu Name und
+ * Mitglieder. Der Inhalt des Postfachs kommt hier nicht vor.
  *
  * @var \Plugin\Mail\Models\Mailbox        $mailbox
  * @var string|null                        $owner     Name des Mitarbeiters, null = gelöscht
@@ -11,13 +12,16 @@
  * @var bool                               $isOwn     das eigene Postfach: nur Hinweis, kein Speichern
  * @var string|null                        $account   Benutzername des Kontos, dem das Postfach gehört
  * @var array<int,string>                  $candidates Konten, denen es gehören darf (Id => Benutzername)
+ * @var list<array{id:int, name:string, active:bool}> $members  Gruppenpostfach: Mitglieder
+ * @var array<int,string>                  $memberCandidates  Gruppenpostfach: Konten zum Aufnehmen (Id => Name)
  */
 
 use Plugin\Mail\MailAddressRules;
 
 $layout     = 'admin';
 $bodyId     = 'settings';
-$SITE_TITLE = 'Adresse ändern';
+$isGroup    = $mailbox->isGroup();
+$SITE_TITLE = $isGroup ? $mailbox->display_name : 'Adresse ändern';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
     <div class="container-full relative" id="mainpageContainer">
@@ -25,10 +29,14 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/index">Einstellungen</a></span> <span class="ignis-breadcrumb__item"><a href="<?= $base ?>settings/mail/mailboxes">Postfächer</a></span> <span class="ignis-breadcrumb__item" aria-current="page"><?= htmlspecialchars($mailbox->address) ?></span></nav>
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
-                    <h1>Adresse ändern</h1>
+                    <h1><?= $isGroup ? htmlspecialchars($mailbox->display_name) : 'Adresse ändern' ?></h1>
                     <p class="twplus-page-header__description">
-                        Postfach von <?= htmlspecialchars($owner ?? $mailbox->display_name) ?>, bisher <span class="ignis-mono"><?= htmlspecialchars($mailbox->address) ?></span>.
-                        Die alte Adresse nimmt danach keine Mails mehr an und bleibt für dieses Postfach reserviert: kein anderes Postfach und kein Verteiler bekommt sie.
+                        <?php if ($isGroup): ?>
+                            Gruppenpostfach <span class="ignis-mono"><?= htmlspecialchars($mailbox->address) ?></span><?= $mailbox->locked ? ', gesperrt' : '' ?>. Alle Mitglieder lesen dieselben Mails und senden unter dieser Adresse.
+                        <?php else: ?>
+                            Postfach von <?= htmlspecialchars($owner ?? $mailbox->display_name) ?>, bisher <span class="ignis-mono"><?= htmlspecialchars($mailbox->address) ?></span>.
+                        <?php endif; ?>
+                        Die alte Adresse nimmt nach einer Änderung keine Mails mehr an und bleibt für dieses Postfach reserviert: kein anderes Postfach und kein Verteiler bekommt sie.
                     </p>
                 </div>
             </div>
@@ -38,6 +46,23 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                     <i class="fa-solid fa-circle-info ignis-alert__icon" aria-hidden="true"></i>
                     <div class="ignis-alert__body">Das ist dein eigenes Postfach. Seine Adresse ändert eine andere Person mit Postfachverwaltung.</div>
                 </div>
+            <?php endif; ?>
+
+            <?php if ($isGroup): ?>
+            <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $mailbox->id ?>/name" class="ignis-card mb-4">
+                <?= csrf_field() ?>
+                <div class="ignis-card__header">
+                    <h2 class="ignis-card__title">Name</h2>
+                </div>
+                <div class="ignis-card__body">
+                    <label for="mailbox-name" class="ignis-field__label">Name <span class="ignis-field__required">*</span></label>
+                    <input type="text" id="mailbox-name" name="name" class="ignis-input" required maxlength="150" value="<?= htmlspecialchars($mailbox->display_name) ?>">
+                    <p class="ignis-field__hint">So erscheint das Gruppenpostfach als Absender und im Adressbuch, etwa „Leitstelle“ oder „Wache 1“.</p>
+                </div>
+                <div class="ignis-card__footer" data-form-actions>
+                    <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-check" aria-hidden="true"></i> Umbenennen</button>
+                </div>
+            </form>
             <?php endif; ?>
 
             <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $mailbox->id ?>" class="ignis-card">
@@ -70,6 +95,48 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                 </div>
             </form>
 
+            <?php if ($isGroup): ?>
+            <div class="ignis-card mt-4">
+                <div class="ignis-card__header">
+                    <h2 class="ignis-card__title">Mitglieder</h2>
+                </div>
+                <div class="ignis-card__body grid gap-3">
+                    <p class="ignis-field__hint">Mitglieder sehen das Gruppenpostfach in Mail neben ihrem eigenen und schreiben in seinem Namen. Sie brauchen das Recht „Mail nutzen“. Dich selbst nimmt eine andere Person mit Postfachverwaltung auf.</p>
+                    <?php if ($members === []): ?>
+                        <?php $empty = ['variant' => 'sm', 'tone' => 'neutral', 'icon' => 'fa-users', 'title' => 'Noch keine Mitglieder', 'text' => 'Ohne Mitglieder liest niemand dieses Postfach.']; require dirname(__DIR__, 4) . '/templates/partials/empty.php'; ?>
+                    <?php else: ?>
+                        <ul class="ignis-preview__list">
+                            <?php foreach ($members as $member): ?>
+                                <li>
+                                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                                    <span><?= htmlspecialchars($member['name']) ?></span>
+                                    <?php if (!$member['active']): ?><span class="ignis-chip ignis-chip--secondary">Konto inaktiv</span><?php endif; ?>
+                                    <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $mailbox->id ?>/members/<?= (int) $member['id'] ?>/delete" class="inline">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger" aria-label="<?= htmlspecialchars($member['name']) ?> entfernen">Entfernen</button>
+                                    </form>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                    <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $mailbox->id ?>/members" class="grid gap-3">
+                        <?= csrf_field() ?>
+                        <div>
+                            <label for="mailbox-member" class="ignis-field__label">Konto aufnehmen</label>
+                            <select id="mailbox-member" name="user_id" class="ignis-input" data-custom-dropdown="true" required>
+                                <option value="">Konto wählen</option>
+                                <?php foreach ($memberCandidates as $userId => $name): ?>
+                                    <option value="<?= (int) $userId ?>"><?= htmlspecialchars($name) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Aufnehmen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <?php else: ?>
             <form method="post" action="<?= $base ?>settings/mail/mailboxes/<?= (int) $mailbox->id ?>/account" class="ignis-card mt-4">
                 <?= csrf_field() ?>
                 <div class="ignis-card__header">
@@ -100,5 +167,6 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                     <button type="submit" class="ignis-btn ignis-btn--secondary"<?= $isOwn ? ' disabled' : '' ?>><i class="fa-solid fa-user-check" aria-hidden="true"></i> Zuordnung speichern</button>
                 </div>
             </form>
+            <?php endif; ?>
         </div>
     </div>

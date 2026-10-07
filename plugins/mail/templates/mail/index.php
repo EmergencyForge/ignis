@@ -16,7 +16,15 @@
  *
  * @var string                                   $folder
  * @var array<string, array{label:string, icon:string}> $folders
- * @var \Plugin\Mail\Models\Mailbox              $mailbox
+ * Darf das Konto mehrere Postfächer lesen (das eigene und
+ * Gruppenpostfächer), steht über den Ordnern der Wechsel. Links und
+ * Anfragen dieser Seite nennen das gewählte Postfach (`?postfach=`,
+ * `data-mail-mailbox` für mail.js), damit ein zweiter Tab mit einem anderen
+ * Postfach nichts durcheinanderbringt.
+ *
+ * @var \Plugin\Mail\Models\Mailbox              $mailbox      das gewählte Postfach
+ * @var list<\Plugin\Mail\Models\Mailbox>        $mailboxes    alle, die das Konto lesen darf
+ * @var array<int,int>                           $inboxUnread  Postfach-ID → ungelesen im Posteingang
  * @var list<\Plugin\Mail\Models\Delivery>       $deliveries
  * @var array<string,int>                        $unreadCounts
  * @var array<string,mixed>|null                 $readingPane  Variablen für _reading-pane.php
@@ -29,6 +37,7 @@ $SITE_TITLE = 'Mail · ' . $folders[$folder]['label'];
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $isOutgoing = in_array($folder, ['sent', 'drafts'], true);
 $selectedId = $readingPane !== null ? (int) $readingPane['message']->id : null;
+$inBox      = '?postfach=' . (int) $mailbox->id;
 
 $snippet = static function (?string $html): string {
     $text = \Plugin\Mail\MailBodyRenderer::plainText($html);
@@ -40,25 +49,43 @@ $snippet = static function (?string $html): string {
         <div class="twplus-page">
             <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
-                    <p class="twplus-page-header__eyebrow"><?= htmlspecialchars($mailbox->address) ?></p>
-                    <h1>Mail</h1>
-                    <p class="twplus-page-header__description">Internes Postfach. Keine Nachricht verlässt das System.</p>
+                    <p class="twplus-page-header__eyebrow"><?= htmlspecialchars($mailbox->kindLabel()) ?> · <?= htmlspecialchars($mailbox->address) ?></p>
+                    <h1><?= $mailbox->isGroup() ? htmlspecialchars($mailbox->display_name) : 'Mail' ?></h1>
+                    <p class="twplus-page-header__description"><?= $mailbox->isGroup() ? 'Alle Mitglieder sehen dieselben Mails und senden unter dieser Adresse.' : 'Internes Postfach. Keine Nachricht verlässt das System.' ?></p>
                 </div>
                 <div class="header-actions twplus-page-header__actions">
-                    <a href="<?= htmlspecialchars($base . 'mail/compose') ?>" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
+                    <a href="<?= htmlspecialchars($base . 'mail/compose' . $inBox) ?>" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
                         <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Neue Mail
                     </a>
                 </div>
             </div>
 
-            <div class="ignis-workbench ignis-mail" data-ignis-workbench data-mail-base="<?= htmlspecialchars($base) ?>"
-                 data-ignis-preview-url="<?= htmlspecialchars($base . 'mail/' . $folder . '/{id}/preview') ?>">
+            <div class="ignis-workbench ignis-mail" data-ignis-workbench data-mail-base="<?= htmlspecialchars($base) ?>" data-mail-mailbox="<?= (int) $mailbox->id ?>"
+                 data-ignis-preview-url="<?= htmlspecialchars($base . 'mail/' . $folder . '/{id}/preview' . $inBox) ?>">
                 <nav class="ignis-mail__folders" aria-label="Ordner">
+                    <?php if (count($mailboxes) > 1): ?>
+                        <p class="ignis-field__label">Postfächer</p>
+                        <ul aria-label="Postfach wechseln">
+                            <?php foreach ($mailboxes as $box): ?>
+                                <?php $isCurrent = $box->id === $mailbox->id; $boxUnread = (int) ($inboxUnread[$box->id] ?? 0); ?>
+                                <li>
+                                    <a href="<?= htmlspecialchars($base . 'mail/inbox?postfach=' . (int) $box->id) ?>" class="ignis-mail__folder<?= $isCurrent ? ' is-active' : '' ?>"<?= $isCurrent ? ' aria-current="true"' : '' ?> data-ignis-tooltip="<?= htmlspecialchars($box->kindLabel() . ': ' . $box->address) ?>">
+                                        <i class="fa-solid <?= $box->isGroup() ? 'fa-users' : 'fa-user' ?>" aria-hidden="true"></i>
+                                        <span><?= htmlspecialchars($box->isGroup() ? $box->display_name : 'Mein Postfach') ?><span class="ignis-sr-only">, <?= htmlspecialchars($box->kindLabel()) ?></span></span>
+                                        <?php if ($boxUnread > 0): ?>
+                                            <span class="ignis-chip ignis-chip--count"><?= $boxUnread ?><span class="ignis-sr-only"> ungelesen</span></span>
+                                        <?php endif; ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <p class="ignis-field__label">Ordner</p>
+                    <?php endif; ?>
                     <ul>
                         <?php foreach ($folders as $key => $meta): ?>
                             <?php $unread = (int) ($unreadCounts[$key] ?? 0); ?>
                             <li>
-                                <a href="<?= htmlspecialchars($base . 'mail/' . $key) ?>" class="ignis-mail__folder<?= $folder === $key ? ' is-active' : '' ?>"<?= $folder === $key ? ' aria-current="page"' : '' ?>>
+                                <a href="<?= htmlspecialchars($base . 'mail/' . $key . $inBox) ?>" class="ignis-mail__folder<?= $folder === $key ? ' is-active' : '' ?>"<?= $folder === $key ? ' aria-current="page"' : '' ?>>
                                     <i class="fa-solid <?= htmlspecialchars($meta['icon']) ?>" aria-hidden="true"></i>
                                     <span><?= htmlspecialchars($meta['label']) ?></span>
                                     <?php if ($unread > 0): ?>
@@ -69,7 +96,7 @@ $snippet = static function (?string $html): string {
                         <?php endforeach; ?>
                     </ul>
                     <div class="ignis-mail__tools">
-                        <a href="<?= htmlspecialchars($base . 'mail/signature') ?>" class="ignis-mail__tool" data-ignis-drawer>
+                        <a href="<?= htmlspecialchars($base . 'mail/signature' . $inBox) ?>" class="ignis-mail__tool" data-ignis-drawer>
                             <i class="fa-solid fa-signature" aria-hidden="true"></i> Signatur
                         </a>
                         <?php if ($canManageLists): ?>
@@ -91,7 +118,7 @@ $snippet = static function (?string $html): string {
                             'trash'   => ['icon' => 'fa-trash', 'title' => 'Der Papierkorb ist leer', 'text' => 'Gelöschte Mails liegen hier, bis du sie endgültig entfernst.'],
                         ][$folder] + ['variant' => 'sm', 'tone' => 'neutral'];
                         if ($folder === 'inbox' || $folder === 'drafts') {
-                            $empty['actions'] = [['label' => 'Neue Mail', 'href' => $base . 'mail/compose', 'style' => 'secondary', 'icon' => 'fa-pen-to-square', 'attrs' => ['data-ignis-drawer' => '']]];
+                            $empty['actions'] = [['label' => 'Neue Mail', 'href' => $base . 'mail/compose' . $inBox, 'style' => 'secondary', 'icon' => 'fa-pen-to-square', 'attrs' => ['data-ignis-drawer' => '']]];
                         }
                         require dirname(__DIR__, 4) . '/templates/partials/empty.php';
                         ?>
@@ -115,7 +142,7 @@ $snippet = static function (?string $html): string {
                                             ? implode(', ', (array) ($rowMessage->header_json['to'] ?? []))
                                             : $rowMessage->senderMailbox->display_name;
                                         $date       = $rowMessage->sent_at ?? $rowMessage->updated_at ?? $rowMessage->created_at;
-                                        $href       = $base . 'mail/' . $folder . '/' . $rowId;
+                                        $href       = $base . 'mail/' . $folder . '/' . $rowId . $inBox;
                                         $subject    = $rowMessage->subject !== '' ? $rowMessage->subject : '(kein Betreff)';
                                         ?>
                                         <tr data-ignis-row="<?= $rowId ?>" data-href="<?= htmlspecialchars($href) ?>" tabindex="0"<?= $unread ? ' class="is-unread"' : '' ?><?= $rowId === $selectedId ? ' aria-selected="true"' : '' ?>>
