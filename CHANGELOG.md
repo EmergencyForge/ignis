@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.36-beta
+
+Wie lange das eNOTF ohne Eingabe offen bleibt, lässt sich jetzt einstellen. Unter Einstellungen → System → eNOTF steht bei „Sperren nach“ eine Auswahl von 2 bis 60 Minuten, vorher waren es fest fünf. Das Feld erscheint nur, solange „PIN abfragen“ an ist. Die Warnung kommt weiterhin eine Minute vor der Sperre.
+
+Ein deaktiviertes oder gelöschtes Konto ist beim nächsten Seitenaufruf abgemeldet. Bisher blieb ein deaktiviertes Konto mit allen Rechten angemeldet, bis es sich selbst abmeldete oder die Sitzung ablief, und ein gelöschtes kam weiter auf Seiten, die nur eine Anmeldung verlangen. Eine eNOTF- oder FireTab-Anmeldung im selben Browser bleibt bestehen. Verliert ein Konto seine Rolle, verschwinden auch Rollenname und Rang aus der Sitzung, und ein geänderter Benutzername kommt ohne neue Anmeldung an.
+
 ## 2026.0.35-beta
 
 Rollen lassen sich wieder anlegen, bearbeiten und löschen. Seit der Umstellung auf englische Adressen im Mai endete jedes Speichern auf „Seite nicht gefunden“, auch wenn die Änderung gespeichert war. Dieselbe Ursache hatten weitere Fehler: Speichern im FireTab-Fahrtenbuch endete ebenso auf dieser Fehlerseite, die alte Zielverwaltung im eNOTF und der Hinweis für Konten ohne Adminrecht in den eNOTF-Einstellungen führten ins Leere, und Aufrufe von außen auf alte Adressen mit .php, etwa von älteren ignisTab-Versionen, kamen nicht mehr an. Im eNOTF fragt die Übersicht wieder nach Anfragen zum Teilen von Protokollen, nach „Alle löschen“ und beim Abmelden aus der Klinikansicht bleibt man auf der Seite statt auf dem Dashboard zu landen, und der Schnelllink „Fahrzeuginfo“ funktioniert auch im eNOTF v2.
