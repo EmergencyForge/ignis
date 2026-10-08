@@ -39,8 +39,6 @@ final class EnotfCrewQualiTest extends FeatureTestCase
         ]);
     }
 
-    // Nur v1: eNOTF v2 ist ab Werk aus und hat in der Test-DB keine Routen.
-    // Controller und JSON-Ausgabe sind in v2 gleich gebaut.
     #[Test]
     public function login_liefert_die_rd_quali_je_mitarbeiter(): void
     {

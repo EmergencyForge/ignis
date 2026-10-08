@@ -398,7 +398,7 @@ Hat dein Hoster `proc_open` abgeschaltet, schlagen die meisten Aufgaben fehl. Da
 
 ### Plugins
 
-eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eingeschaltet, eNOTF v2 ist mitgeliefert, aber aus. Unter **Einstellungen › Wartung und Diagnose › Plugins** schaltest du sie ein und aus und installierst weitere aus dem Katalog oder lädst ein Plugin-ZIP hoch. Plugins von Drittanbietern laufen mit vollen Rechten auf dem Server; vor der Installation fragt ignis deshalb ausdrücklich nach.
+eNOTF, fireTab, Wissensdatenbank, MANV-Board und Mail sind mitgeliefert und eingeschaltet. Unter **Einstellungen › Wartung und Diagnose › Plugins** schaltest du sie ein und aus und installierst weitere aus dem Katalog oder lädst ein Plugin-ZIP hoch. Plugins von Drittanbietern laufen mit vollen Rechten auf dem Server; vor der Installation fragt ignis deshalb ausdrücklich nach.
 
 ### ef_bridge für FiveM
 

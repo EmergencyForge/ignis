@@ -49,100 +49,64 @@ parameters:
 			path: phinx.php
 
 		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: plugins/calendar/src/AbsenceSyncService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\Calendar\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: plugins/calendar/src/Controllers/CalendarController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\Calendar\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: plugins/calendar/src/IcalExporter.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: plugins/calendar/src/IcalExporter.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: plugins/calendar/src/Requests/CreateEventRequest.php
+
+		-
+			message: '#^Variable \$absentToday in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: plugins/calendar/templates/calendar/index.php
+
+		-
 			message: '#^Variable \$updates in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1
-			path: plugins/enotf-v2/src/Controllers/Api/ShareApiController.php
+			path: plugins/enotf/src/Crew/Controllers/Api/ShareApiController.php
 
 		-
 			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
-			path: plugins/enotf-v2/src/Controllers/LoginController.php
+			path: plugins/enotf/src/Crew/Controllers/LoginController.php
 
 		-
 			message: '#^Result of && is always false\.$#'
 			identifier: booleanAnd.alwaysFalse
 			count: 3
-			path: plugins/enotf-v2/src/Policies/EnotfV2Policy.php
+			path: plugins/enotf/src/Crew/Policies/CrewPolicy.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between false and true will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 3
-			path: plugins/enotf-v2/src/Policies/EnotfV2Policy.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 2
-			path: plugins/enotf-v2/templates/_layout-protokoll.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''beifahrer''\|''praktikant'' and ''fahrer'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: plugins/enotf-v2/templates/login.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''fahrer''\|''praktikant'' and ''beifahrer'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: plugins/enotf-v2/templates/login.php
-
-		-
-			message: '#^Parameter \#1 \$array \(array\{1, 2, 3, 4, 5, 6, 7, 8, \.\.\.\}\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 2
-			path: plugins/enotf-v2/templates/protokoll/abschluss.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 2
-			path: plugins/enotf-v2/templates/protokoll/abschluss.php
-
-		-
-			message: '#^Offset ''subnav'' on array\{label\: ''EKG\-Befund'', requires\: ''c_ekg'', steps\: array\{array\{fields\: ''c_ekg'', html\: Closure\(\)\: non\-falsy\-string\}\}\}\|array\{label\: ''Messwerte'', requires\: ''spo2,atemfreq,rrsys…'', steps\: array\{array\{fields\: ''spo2,atemfreq,rrsys…'', html\: null\}\}\}\|array\{label\: ''psych\. Zustand'', requires\: ''psych'', steps\: array\{array\{fields\: ''psych'', html\: null\}\}\} in isset\(\) does not exist\.$#'
-			identifier: isset.offset
-			count: 1
-			path: plugins/enotf-v2/templates/protokoll/erstbefund.php
-
-		-
-			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\) with array\{''''\}\|array\{''links'', ''rechts''\} and ''Lokation anderer…''\|''Lokation Bein ohne…''\|''Lokation Ellbeuge…''\|''Lokation Fuß ohne…''\|''Lokation Hals ohne…''\|''Lokation Handrücken…''\|''Lokation Humerus…''\|''Lokation Kopf ohne…''\|''Lokation Oberarm…''\|''Lokation Sonstige…''\|''Lokation Sternum…''\|''Lokation Tibia…''\|''Lokation Unterarm…'' will always evaluate to true\.$#'
-			identifier: method.alreadyNarrowedType
-			count: 1
-			path: plugins/enotf-v2/tests/Unit/EnotfV2CatalogsTest.php
-
-		-
-			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: plugins/enotf/routes.web.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>pat_nachname" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>pat_vorname" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
-			message: '#^Variable \$updates in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: plugins/enotf/src/Controllers/Api/EnotfController.php
-
-		-
-			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: plugins/enotf/src/Controllers/EnotfController.php
+			path: plugins/enotf/src/Crew/Policies/CrewPolicy.php
 
 		-
 			message: '#^Offset ''fahrername'' on array\{fahrername\: string, fahrerquali\: string\|null, beifahrername\: string\|null, beifahrerquali\: string\|null, praktikantname\: string\|null, praktikantquali\: string\|null\} on left side of \?\? always exists and is not nullable\.$#'
@@ -169,94 +133,16 @@ parameters:
 			path: plugins/enotf/src/Policies/EnotfPolicy.php
 
 		-
-			message: '#^Parameter \#1 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/enotf/src/Requests/SaveFieldRequest.php
-
-		-
-			message: '#^Parameter \#2 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/enotf/src/Requests/SaveFieldRequest.php
-
-		-
-			message: '#^Parameter \#3 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/enotf/src/Requests/SaveFieldRequest.php
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 2
+			path: plugins/enotf/templates/_layout-protokoll.php
 
 		-
 			message: '#^Variable \$vehicles in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.variable
 			count: 1
 			path: plugins/enotf/templates/enotf/fahrzeuginfo.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''beifahrer''\|''praktikant'' and ''fahrer'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: plugins/enotf/templates/enotf/login.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between ''fahrer''\|''praktikant'' and ''beifahrer'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: plugins/enotf/templates/enotf/login.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/freigabe.php
-
-		-
-			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/abschluss/index.php
-
-		-
-			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/index.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 3
-			path: plugins/enotf/templates/enotf/protokoll/erstbefund/index.php
-
-		-
-			message: '#^Call to function is_array\(\) with non\-empty\-array\<int\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/index.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/load_medikamente.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 2
-			path: plugins/enotf/templates/enotf/protokoll/massnahmen/medikamente/save_medikament.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/rettdaten/1.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: plugins/enotf/templates/enotf/protokoll/rettdaten/2.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
@@ -269,6 +155,42 @@ parameters:
 			identifier: identical.alwaysFalse
 			count: 1
 			path: plugins/enotf/templates/enotf/schnittstelle/voranmeldung.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''beifahrer''\|''praktikant'' and ''fahrer'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: plugins/enotf/templates/login.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between ''fahrer''\|''praktikant'' and ''beifahrer'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: plugins/enotf/templates/login.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{1, 2, 3, 4, 5, 6, 7, 8, \.\.\.\}\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 2
+			path: plugins/enotf/templates/protokoll/abschluss.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: plugins/enotf/templates/protokoll/abschluss.php
+
+		-
+			message: '#^Offset ''subnav'' on array\{label\: ''EKG\-Befund'', requires\: ''c_ekg'', steps\: array\{array\{fields\: ''c_ekg'', html\: Closure\(\)\: non\-falsy\-string\}\}\}\|array\{label\: ''Messwerte'', requires\: ''spo2,atemfreq,rrsys…'', steps\: array\{array\{fields\: ''spo2,atemfreq,rrsys…'', html\: null\}\}\}\|array\{label\: ''psych\. Zustand'', requires\: ''psych'', steps\: array\{array\{fields\: ''psych'', html\: null\}\}\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: plugins/enotf/templates/protokoll/erstbefund.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\) with array\{''''\}\|array\{''links'', ''rechts''\} and ''Lokation anderer…''\|''Lokation Bein ohne…''\|''Lokation Ellbeuge…''\|''Lokation Fuß ohne…''\|''Lokation Hals ohne…''\|''Lokation Handrücken…''\|''Lokation Humerus…''\|''Lokation Kopf ohne…''\|''Lokation Oberarm…''\|''Lokation Sonstige…''\|''Lokation Sternum…''\|''Lokation Tibia…''\|''Lokation Unterarm…'' will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: plugins/enotf/tests/Unit/CrewCatalogsTest.php
 
 		-
 			message: '#^If condition is always false\.$#'
@@ -313,96 +235,6 @@ parameters:
 			path: plugins/firetab/src/Policies/FireIncidentPolicy.php
 
 		-
-			message: '#^Parameter \#1 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#10 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#11 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#12 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#13 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#14 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#15 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#2 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#3 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#4 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#5 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#6 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#7 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#8 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
-			message: '#^Parameter \#9 \.\.\.\$rule of static method Respect\\Validation\\StaticValidator\:\:keySet\(\) expects Respect\\Validation\\Rules\\Key, Respect\\Validation\\ChainedValidator given\.$#'
-			identifier: argument.type
-			count: 1
-			path: plugins/firetab/src/Requests/Fire/CreateMarkerRequest.php
-
-		-
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
 			count: 1
@@ -445,28 +277,16 @@ parameters:
 			path: plugins/knowledge-base/src/Controllers/LexiconController.php
 
 		-
+			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: plugins/logbook/src/Policies/LogbookPolicy.php
+
+		-
 			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: public/index.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: plugins/calendar/src/AbsenceSyncService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\Calendar\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: plugins/calendar/src/IcalExporter.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between string and false will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: plugins/calendar/src/IcalExporter.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between ''1337''\|''Berufsfeuerwehr''\|''CHANGE_ME''\|''Musterstadt''\|''Musterweg 0815'' and '''' will always evaluate to true\.$#'
@@ -523,12 +343,6 @@ parameters:
 			path: src/Http/Controllers/Api/VehicleDefectsController.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Plugin\\Calendar\\Models\\CalendarEvent\>\:\:visibleTo\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: plugins/calendar/src/Controllers/CalendarController.php
-
-		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 2
@@ -545,12 +359,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 3
 			path: src/Http/Controllers/PersonnelController.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between mixed~\(0\|0\.0\|''''\|''0''\|array\{\}\|false\|null\) and ''0'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 2
-			path: plugins/calendar/src/Requests/CreateEventRequest.php
 
 		-
 			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
@@ -595,12 +403,6 @@ parameters:
 			path: src/Plugins/CatalogInstaller.php
 
 		-
-			message: '#^Offset ''fahrername'' on non\-empty\-array\<mixed\> on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: plugins/logbook/src/Policies/LogbookPolicy.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>priority" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -611,12 +413,6 @@ parameters:
 			identifier: catch.neverThrown
 			count: 2
 			path: src/Telemetry/TelemetryManager.php
-
-		-
-			message: '#^Variable \$absentToday in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: plugins/calendar/templates/calendar/index.php
 
 		-
 			message: '#^Right side of && is always true\.$#'

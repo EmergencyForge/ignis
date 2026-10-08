@@ -122,7 +122,7 @@ final class EnotfArrivalboardTest extends FeatureTestCase
 
         $response = $this->voranmelden($abweichung);
 
-        $this->assertRedirect($response, 'enr=' . $this->enr);
+        $this->assertRedirect($response, '/enotf/p/' . $this->enr);
         $this->assertSame($vorher + 1, Capsule::table('intra_edivi_prereg')->count());
         $eintrag = (array) Capsule::table('intra_edivi_prereg')->orderByDesc('id')->first();
         foreach ($erwartet as $spalte => $wert) {

@@ -10,10 +10,10 @@
 
   let lastActivity = Date.now();
 
-  // Sperrbildschirm des Plugins, zu dem die Seite gehört: <BASE_PATH>enotf/ oder <BASE_PATH>enotf-v2/.
+  // Sperrbildschirm unter <BASE_PATH>enotf/.
   // Gierig, damit ein BASE_PATH, der selbst "enotf" enthält, trotzdem stimmt.
   const lockscreenUrl = () => {
-    const m = window.location.pathname.match(/^(.*\/enotf(?:-v2)?\/)/);
+    const m = window.location.pathname.match(/^(.*\/enotf\/)/);
     return m ? m[1] + "lockscreen" : (document.body.dataset.basePath || "/") + "enotf/lockscreen";
   };
 

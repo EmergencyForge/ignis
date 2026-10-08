@@ -41,9 +41,9 @@ final class AssetHelperTest extends TestCase
     #[Test]
     public function plugin_assets_bekommen_ihren_cache_buster_aus_dem_plugin_ordner(): void
     {
-        $url = asset('plugins/enotf-v2/assets/wizard.js');
+        $url = asset('plugins/enotf/assets/wizard.js');
 
-        $this->assertStringStartsWith($this->base() . '/plugins/enotf-v2/assets/wizard.js?v=', $url);
+        $this->assertStringStartsWith($this->base() . '/plugins/enotf/assets/wizard.js?v=', $url);
     }
 
     #[Test]

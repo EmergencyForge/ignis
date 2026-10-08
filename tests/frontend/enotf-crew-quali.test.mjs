@@ -3,13 +3,10 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import vm from 'node:vm';
 
-// Crew-Anmeldung im eNOTF (v1 und v2): Wer seinen Namen aus der
-// Personalliste wählt, bekommt die hinterlegte RD-Quali ins Feld daneben.
-// Die Funktion steht inline im Template, der Test schneidet sie dort aus.
-const templates = {
-    v1: '../../plugins/enotf/templates/enotf/login.php',
-    v2: '../../plugins/enotf-v2/templates/login.php',
-};
+// Crew-Anmeldung im eNOTF: Wer seinen Namen aus der Personalliste wählt,
+// bekommt die hinterlegte RD-Quali ins Feld daneben. Die Funktion steht
+// inline im Template, der Test schneidet sie dort aus.
+const LOGIN = '../../plugins/enotf/templates/login.php';
 
 function extractBind(path) {
     const source = readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -44,33 +41,31 @@ function setup(path, personnelQuali) {
 
 const quali = { 'Erika Muster': 'NFS', 'Max Muster': 'NA' };
 
-for (const [version, path] of Object.entries(templates)) {
-    test(`${version}: setzt die Quali eines exakt gewählten Mitarbeiters`, () => {
-        const { select, pick } = setup(path, quali);
-        pick('Erika Muster');
-        assert.equal(select.value, 'NFS');
-        assert.equal(select.events, 1);
-    });
+test(`setzt die Quali eines exakt gewählten Mitarbeiters`, () => {
+    const { select, pick } = setup(LOGIN, quali);
+    pick('Erika Muster');
+    assert.equal(select.value, 'NFS');
+    assert.equal(select.events, 1);
+});
 
-    test(`${version}: lässt eine gesetzte Quali ohne Treffer stehen`, () => {
-        const { select, pick } = setup(path, quali);
-        select.value = 'RS';
-        pick('Erika Must');
-        pick('Unbekannt [Nachbarwache]');
-        assert.equal(select.value, 'RS');
-        assert.equal(select.events, 0);
-    });
+test(`lässt eine gesetzte Quali ohne Treffer stehen`, () => {
+    const { select, pick } = setup(LOGIN, quali);
+    select.value = 'RS';
+    pick('Erika Must');
+    pick('Unbekannt [Nachbarwache]');
+    assert.equal(select.value, 'RS');
+    assert.equal(select.events, 0);
+});
 
-    test(`${version}: übernimmt keine Quali, die nicht als Option existiert`, () => {
-        const { select, pick } = setup(path, quali);
-        pick('Max Muster');
-        assert.equal(select.value, '');
-    });
+test(`übernimmt keine Quali, die nicht als Option existiert`, () => {
+    const { select, pick } = setup(LOGIN, quali);
+    pick('Max Muster');
+    assert.equal(select.value, '');
+});
 
-    test(`${version}: Namen wie constructor treffen nicht den Prototyp`, () => {
-        const { select, pick } = setup(path, {});
-        pick('constructor');
-        pick('toString');
-        assert.equal(select.value, '');
-    });
-}
+test(`Namen wie constructor treffen nicht den Prototyp`, () => {
+    const { select, pick } = setup(LOGIN, {});
+    pick('constructor');
+    pick('toString');
+    assert.equal(select.value, '');
+});

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  * hier durch; eine Seite von der Liste, die umgestellt wird, muss von der
  * Liste gestrichen werden, sonst fällt sie auch durch.
  *
- * eNOTF (plugins/enotf, plugins/enotf-v2) hat seine eigene Hülle und ist
+ * eNOTF (plugins/enotf) hat seine eigene Hülle und ist
  * nicht Teil des Redesigns; seine Admin-Seiten bekommen Topbar und Sidebar
  * über den Shim assets/components/navbar.php.
  */

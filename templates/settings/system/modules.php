@@ -3,9 +3,9 @@
  * View: Module auswählen (Einstellungen › System › Module).
  *
  * Schalter je mitgeliefertem Modul, gruppiert nach Einsatz und Verwaltung.
- * Beim ersten Start steht oben, worum es geht. Abhängigkeiten (eNOTF v2
- * braucht eNOTF) prüft der Server; das Skript unten hält die Schalter
- * nur schon beim Klicken zusammen.
+ * Beim ersten Start steht oben, worum es geht. Abhängigkeiten aus den
+ * Manifesten prüft der Server; das Skript unten hält die Schalter nur
+ * schon beim Klicken zusammen.
  *
  * @var list<array{id:string, name:string, group:string, text:string, enabled:bool, depends:list<string>}> $modules
  * @var bool $isFirstRun

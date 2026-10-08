@@ -91,7 +91,7 @@ class DiscordWebhook
                 self::field('Einsatznummer', $enr !== '' ? '**#' . $enr . '**' : null),
                 self::field('Zeitstempel', $protocolData['last_edit'] ?? date('Y-m-d H:i:s')),
             ],
-            'url'         => $enr !== '' ? self::link('enotf/protokoll?enr=' . rawurlencode($enr)) : null,
+            'url'         => $enr !== '' ? self::link('enotf/p/' . rawurlencode($enr)) : null,
         ]);
     }
 

@@ -53,9 +53,6 @@ final class ModuleSelectionTest extends FeatureTestCase
         $this->assertMatchesRegularExpression('~name="modules\[\]"\s+value="calendar"~', $page->body);
         $this->assertMatchesRegularExpression('~name="modules\[\]"\s+value="forms"~', $page->body);
         $this->assertBodyContains('id="modules-first-run"', $page);
-        // Die Abhängigkeit steht an beiden Kacheln.
-        $this->assertBodyContains('Braucht eNOTF</span>', $page);
-        $this->assertBodyContains('Gebraucht von eNOTF v2</span>', $page);
         // Grundmodule stehen nicht zur Wahl.
         $this->assertBodyNotContains('value="personnel"', $page);
     }
@@ -74,21 +71,6 @@ final class ModuleSelectionTest extends FeatureTestCase
         $this->assertTrue($this->enabled('forms'));
         $this->assertTrue(ModuleSelection::isDone());
         $this->assertSame(1, Capsule::table('intra_audit_log')->where('action', 'Plugin deaktiviert')->where('details', 'Kalender')->count());
-    }
-
-    #[Test]
-    public function enotf_v2_ohne_enotf_wird_abgelehnt(): void
-    {
-        $this->setDone(false);
-        $this->login();
-        $before = $this->enabled('enotf');
-        $selected = array_values(array_diff($this->allModules(), ['enotf']));
-
-        $response = $this->post('/settings/system/modules', ['modules' => $selected]);
-
-        $this->assertRedirect($response, '/settings/system/modules');
-        $this->assertSame($before, $this->enabled('enotf'));
-        $this->assertFalse(ModuleSelection::isDone());
     }
 
     #[Test]

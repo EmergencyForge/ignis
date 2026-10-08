@@ -455,28 +455,13 @@ $legacyApiPaths = [
     '/settings/system/regenerate-api-key'        => '/api/system/regenerate-api-key',
     '/assets/functions/checkdienstnr2'           => '/api/personnel/check-dienstnr',
     '/assets/functions/checkdnr'                 => '/api/personnel/check-dienstnr-legacy',
-    '/assets/functions/save_fields'              => '/api/enotf/save-fields',
     '/assets/functions/system/global-search-api' => '/api/system/global-search',
     '/assets/functions/system/performance-api'   => '/api/system/performance',
     '/assets/functions/system/theme-api'         => '/api/system/theme',
-    '/assets/functions/enotf/check_conflict'               => '/api/enotf/check-conflict',
-    '/assets/functions/enotf/poi/poi-search'               => '/api/enotf/poi/poi-search',
-    '/assets/functions/enotf/poi/save-field'               => '/api/enotf/poi/save-field',
-    '/assets/functions/enotf/share/accept-request'         => '/api/enotf/share/accept-request',
-    '/assets/functions/enotf/share/check-requests'         => '/api/enotf/share/check-requests',
-    '/assets/functions/enotf/share/get-available-vehicles' => '/api/enotf/share/get-available-vehicles',
-    '/assets/functions/enotf/share/get-own-protocols'      => '/api/enotf/share/get-own-protocols',
-    '/assets/functions/enotf/share/reject-request'         => '/api/enotf/share/reject-request',
-    '/assets/functions/enotf/share/send-request'           => '/api/enotf/share/send-request',
 ];
 foreach ($legacyApiPaths as $legacyPath => $target) {
     $router->match(['GET', 'POST', 'DELETE'], $legacyPath, $legacyApiRedirect($target));
 }
-
-// eNOTF v1 postet sein Anlege-Formular an dieses Skript (Form-Action in
-// plugins/enotf/templates/enotf/create.php). Es bleibt, wo es liegt, und
-// bekommt hier seine Route; seine Antwort gibt es per return zurück.
-$router->match(['GET', 'POST'], '/assets/functions/enotf/enrbridge', $rootScript('assets/functions/enotf/enrbridge.php'));
 
 // ----------------------------------------------------------------------------
 //  Statische Dateien außerhalb des Docroots
@@ -505,16 +490,6 @@ $router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileControlle
  *         [\App\Http\Controllers\UserController::class, 'update'],
  *         [new PolicyMiddleware('user.update', resourceParam: 'id')]
  *     );
- * });
- *
- * BEISPIEL: eNOTF-Protokoll (config-gated Auth + PIN-Lockscreen + FiveM-CSP)
- *
- * $router->group('/enotf', [
- *     new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'),
- *     PinLockscreenMiddleware::class,
- *     FiveMCspMiddleware::class,
- * ], function ($r) {
- *     $r->get('/protokoll/{enr}', [\Plugin\Enotf\Controllers\EnotfProtokollController::class, 'index']);
  * });
  *
  * BEISPIEL: Wissensdatenbank (public wenn KB_PUBLIC_ACCESS=true)

@@ -9,7 +9,7 @@ use App\Security\CsrfProtection;
 use EmergencyForge\Http\Middleware\MiddlewareInterface;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
-use Plugin\EnotfV2\Http\Csrf as EnotfCsrf;
+use Plugin\Enotf\Crew\Http\Csrf as EnotfCsrf;
 
 /** Globale CSRF-Prüfung; eNOTF-v2 behält seinen eigenen Sitzungstoken. */
 final class CsrfMiddleware implements MiddlewareInterface
@@ -56,8 +56,8 @@ final class CsrfMiddleware implements MiddlewareInterface
 
     private function validEnotfToken(Request $request): bool
     {
-        if (!str_starts_with($request->path, '/enotf-v2/')
-            && !str_starts_with($request->path, '/api/enotf-v2/')) {
+        if (!str_starts_with($request->path, '/enotf/')
+            && !str_starts_with($request->path, '/api/enotf/')) {
             return false;
         }
         if (!class_exists(EnotfCsrf::class)) {

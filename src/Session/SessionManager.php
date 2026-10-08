@@ -80,11 +80,9 @@ class SessionManager
         }
 
         // Methode 2: Bestimmte Pfade die typischerweise in iframes laufen.
-        // Substring-Match deckt auch die API-Pfade ab (/api/enotf/…,
-        // /api/enotf-v2/…). '/enotf/' matcht '/enotf-v2/' NICHT (der
-        // Slash nach "enotf" fehlt dort), daher eigener Eintrag.
+        // Substring-Match deckt auch die API-Pfade ab (/api/enotf/…).
         // Ältere CEF-Builds senden Sec-Fetch-Dest nicht zuverlässig.
-        $iframePaths = ['/enotf/', '/enotf-v2/', '/firetab/'];
+        $iframePaths = ['/enotf/', '/firetab/'];
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
         foreach ($iframePaths as $path) {
             if (strpos($requestUri, $path) !== false) {

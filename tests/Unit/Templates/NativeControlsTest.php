@@ -14,15 +14,15 @@ use PHPUnit\Framework\TestCase;
  *
  * Geprüft wird der Quelltext von templates/, assets/components/ und den
  * Plugin-Templates, wie in Lex' CustomComponentsTest. Außen vor bleiben die
- * Tablet-Apps: das eNOTF-v1-Protokoll (plugins/enotf/templates/enotf/ ohne
- * admin/), die fireTab-App (plugins/firetab/templates/firetab/ ohne
- * admin-list.php) und eNOTF v2, das eine eigene Auswahl (Ev2Select) hat.
+ * Tablet-Apps: die eNOTF-Crewseiten (plugins/enotf/templates/ ohne enotf/admin/
+ * und settings/), die eine eigene Auswahl (Ev2Select) haben, und die
+ * fireTab-App (plugins/firetab/templates/firetab/ ohne admin-list.php).
  */
 final class NativeControlsTest extends TestCase
 {
     private const ROOT = __DIR__ . '/../../..';
 
-    private const EXCLUDED = '~^(plugins/enotf/templates/enotf/(?!admin/)|plugins/firetab/templates/firetab/(?!admin-list\.php$)|plugins/enotf-v2/)~';
+    private const EXCLUDED = '~^(plugins/enotf/templates/enotf/(?!admin/)|plugins/firetab/templates/firetab/(?!admin-list\.php$)|plugins/enotf/templates/(?!enotf/|settings/)|plugins/enotf/assets/)~';
 
     /** Feldtyp => Attribut der Paket-Komponente; null heißt: den Typ gar nicht verwenden. */
     private const INPUTS = [

@@ -64,7 +64,7 @@ const editorDist = resolve(packagesDir, 'packages/editor/js/dist');
 const { emergencyForgeUi } = await import(pathToFileURL(resolve(packagesDir, 'packages/ui/js/vite-plugin.js')).href);
 
 // UI-Pass (`--mode ui`): Warum kein Bundle wie lex.js in Lex? Die
-// eNOTF-Seiten (assets/components/enotf/_head.php, plugins/enotf-v2)
+// eNOTF-Seiten (assets/components/enotf/_head.php, plugins/enotf)
 // binden die Module einzeln als <script type="module"> unter
 // assets/js/ui/<name>.js ein und sind eingefroren. Ein Bundle für die
 // Hülle plus Einzeldateien für eNOTF hieße denselben Code zweimal

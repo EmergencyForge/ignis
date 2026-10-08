@@ -33,7 +33,6 @@ class PluginLoader
         'knowledge-base',
         'manv-board',
         'enotf',
-        'enotf-v2',
         'firetab',
         'mail',
         'logbook',

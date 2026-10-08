@@ -37,7 +37,8 @@ final class CsrfFieldCoverageTest extends TestCase
             }
 
             foreach ($this->postFormulare($inhalt) as $nr => $rumpf) {
-                $feldname = str_starts_with($pfad, 'plugins/enotf-v2/') ? '(?:csrf_token|_csrf)' : 'csrf_token';
+                // Die Crew-Seiten des eNOTF schicken ihr eigenes Token als _csrf
+                $feldname = preg_match('~^plugins/enotf/templates/(?!enotf/|settings/)~', $pfad) === 1 ? '(?:csrf_token|_csrf)' : 'csrf_token';
                 if (preg_match('~csrf_field\(\)|name\s*=\s*["\']' . $feldname . '["\']~i', $rumpf) !== 1) {
                     $ohne[] = $pfad . ' (Formular ' . ($nr + 1) . ')';
                 }

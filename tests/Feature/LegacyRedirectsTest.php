@@ -19,10 +19,10 @@ final class LegacyRedirectsTest extends FeatureTestCase
     {
         // 308 statt 302, weil ein 302 die Methode auf GET kippen darf
         // und der Aufrufer dann mit leerem Rumpf ankaeme.
-        $response = $this->post('/assets/functions/save_fields', ['x' => '1']);
+        $response = $this->post('/assets/functions/checkdienstnr2', ['x' => '1']);
 
         $this->assertStatus(308, $response);
-        $this->assertStringEndsWith('/api/enotf/save-fields', $response->headers['Location'] ?? '');
+        $this->assertStringEndsWith('/api/personnel/check-dienstnr', $response->headers['Location'] ?? '');
     }
 
     #[Test]

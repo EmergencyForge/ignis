@@ -4,43 +4,40 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Session\SessionManager;
+use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
-use Tests\FixtureFactory;
 
 /**
- * eNOTF v1: Vitalwerte im Verlauf löschen nur per POST mit CSRF-Token.
- *
- * Vorher löschte `verlauf/list?enr=…&action=delete&id=…` per GET-Link, und
- * die ENR stand unescaped im href. Gelöscht wird weiter soft (`geloescht`),
- * hartes Löschen blockiert ein Trigger auf der Tabelle.
+ * eNOTF: Vitalwerte im Verlauf löschen nur per POST mit CSRF-Token und nur
+ * die Crew des Fahrzeugs. Gelöscht wird soft (`geloescht`), hartes Löschen
+ * blockiert ein Trigger auf der Tabelle.
  */
 final class EnotfVitalDeleteTest extends FeatureTestCase
 {
-    private const PATH = '/enotf/protokoll/verlauf/list';
+    private const PATH = '/api/enotf/vitals/delete';
 
-    private function login(): void
-    {
-        $user = FixtureFactory::user();
-        $this->actingAs($user->id, ['permissions' => ['full_admin'], 'cirs_username' => $user->username, 'username' => $user->username]);
-    }
+    private string $enr;
+    private int $id;
 
-    private function protocol(string $enr): void
+    protected function setUp(): void
     {
+        parent::setUp();
+
+        $this->enr = 'T-' . uniqid();
         Capsule::table('intra_edivi')->insert([
-            'enr'              => $enr,
+            'enr'              => $this->enr,
+            'fzg_transp'       => 'RTW-1',
             'patname'          => 'Max Muster',
             'protokoll_status' => 0,
             'hidden'           => 0,
             'freigegeben'      => 0,
         ]);
-    }
-
-    private function vital(string $enr): int
-    {
-        return (int) Capsule::table('intra_edivi_vitalparameter_einzelwerte')->insertGetId([
-            'enr'               => $enr,
+        $this->id = (int) Capsule::table('intra_edivi_vitalparameter_einzelwerte')->insertGetId([
+            'enr'               => $this->enr,
             'zeitpunkt'         => date('Y-m-d H:i:s'),
             'parameter_name'    => 'Herzfrequenz',
             'parameter_wert'    => "80'",
@@ -49,48 +46,51 @@ final class EnotfVitalDeleteTest extends FeatureTestCase
         ]);
     }
 
-    private function deleted(int $id): int
+    private function crew(string $fahrzeug): void
     {
-        return (int) Capsule::table('intra_edivi_vitalparameter_einzelwerte')->where('id', $id)->value('geloescht');
+        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']], $fahrzeug);
+    }
+
+    /** @param array<string, string> $server */
+    private function delete(array $server = []): Response
+    {
+        return $this->router->dispatch(new Request(
+            'POST',
+            self::PATH,
+            server: $server + ['CONTENT_TYPE' => 'application/json'],
+            rawBody: json_encode(['enr' => $this->enr, 'id' => $this->id], JSON_THROW_ON_ERROR),
+        ));
+    }
+
+    private function deleted(): int
+    {
+        return (int) Capsule::table('intra_edivi_vitalparameter_einzelwerte')->where('id', $this->id)->value('geloescht');
     }
 
     #[Test]
-    public function vitalwert_loescht_nur_per_post_mit_token(): void
+    public function ohne_token_wird_nichts_geloescht(): void
     {
-        $this->login();
-        $enr = 'T-' . uniqid();
-        $this->protocol($enr);
-        $id = $this->vital($enr);
+        $this->crew('RTW-1');
 
-        $this->get(self::PATH, ['query' => ['enr' => $enr, 'action' => 'delete', 'id' => (string) $id]]);
-        $this->assertSame(0, $this->deleted($id));
-
-        // request() statt post(): post() legt den Token bei.
-        $body = ['action' => 'delete', 'id' => (string) $id];
-        $this->assertStatus(403, $this->request('POST', self::PATH, ['query' => ['enr' => $enr], 'post' => $body]));
-        $this->assertSame(0, $this->deleted($id));
-
-        $response = $this->post(self::PATH, $body, ['query' => ['enr' => $enr]]);
-        $this->assertOk($response);
-        $this->assertSame(1, $this->deleted($id));
-        $this->assertBodyContains('Vitalparameter erfolgreich gelöscht.', $response);
+        $this->assertStatus(403, $this->delete());
+        $this->assertSame(0, $this->deleted());
     }
 
     #[Test]
-    public function loeschformular_escaped_enr_und_bestaetigungstext(): void
+    public function die_crew_des_fahrzeugs_loescht_soft(): void
     {
-        $this->login();
-        $enr = 'T"><b>x</b>' . uniqid();
-        $this->protocol($enr);
-        $this->vital($enr);
+        $this->crew('RTW-1');
 
-        $response = $this->get(self::PATH, ['query' => ['enr' => $enr]]);
+        $this->assertOk($this->delete(['HTTP_X_CSRF_TOKEN' => $this->csrfToken()]));
+        $this->assertSame(1, $this->deleted());
+    }
 
-        $this->assertOk($response);
-        $this->assertBodyContains('<form method="POST" action="?enr=' . urlencode($enr) . '"', $response);
-        $this->assertBodyNotContains('action=delete&', $response);
-        // Der Bestätigungstext steht als JSON-String im onsubmit: ein Apostroph
-        // im Wert (&#039; wird vor dem JS wieder zu ') beendet ihn nicht mehr.
-        $this->assertBodyContains('showConfirm(&quot;Parameter', $response);
+    #[Test]
+    public function eine_fremde_crew_loescht_nicht(): void
+    {
+        $this->crew('RTW-2');
+
+        $this->assertStatus(403, $this->delete(['HTTP_X_CSRF_TOKEN' => $this->csrfToken()]));
+        $this->assertSame(0, $this->deleted());
     }
 }

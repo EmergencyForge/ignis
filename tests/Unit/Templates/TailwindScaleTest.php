@@ -16,14 +16,14 @@ use PHPUnit\Framework\TestCase;
  * wenig Kontrast. StyleLiteralsTest sieht nur SCSS, deshalb steht die
  * Prüfung für Templates und die Skripte, die Markup bauen, hier.
  *
- * Seiten ohne Skin bleiben außen vor: die eNOTF-Protokolle, eNOTF v2,
+ * Seiten ohne Skin bleiben außen vor: die eNOTF-Crewseiten,
  * die fireTab-App auf dem Tablet und die Fehlerseiten.
  */
 final class TailwindScaleTest extends TestCase
 {
     private const ROOTS = ['templates', 'assets/components', 'assets/js/modules', 'assets/js/pages', 'plugins'];
 
-    private const WITHOUT_SKIN = '~^(plugins/enotf/templates/enotf/|plugins/enotf-v2/|plugins/[^/]+/(src|tests|migrations)/|assets/components/enotf/|assets/components/error-page\.php|assets/components/firetab-sidebar\.php|plugins/firetab/templates/firetab/(asu|create|list|logbook|login-vehicle|status-reports|view)\.php|plugins/firetab/templates/firetab/tabs/|plugins/firetab/assets/)~';
+    private const WITHOUT_SKIN = '~^(plugins/enotf/templates/(?!settings/)|plugins/enotf/assets/|plugins/[^/]+/(src|tests|migrations)/|assets/components/enotf/|assets/components/error-page\.php|assets/components/firetab-sidebar\.php|plugins/firetab/templates/firetab/(asu|create|list|logbook|login-vehicle|status-reports|view)\.php|plugins/firetab/templates/firetab/tabs/|plugins/firetab/assets/)~';
 
     private const OFF_SCALE = '~\b(?:text|bg|border)-\[(?:#|var\(|rgba?\(|hsla?\()|\b(?:text|bg|border)-(?:gray|slate|zinc|neutral|stone)-\d+|\brounded-(?:\[|2xl|3xl)~';
 

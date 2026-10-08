@@ -80,12 +80,12 @@ final class EnotfEscapingTest extends FeatureTestCase
     }
 
     #[Test]
-    public function rettdaten_spiegelt_die_enr_nicht_roh(): void
+    public function alte_protokoll_adresse_leitet_kodiert_um(): void
     {
-        $response = $this->get('/enotf/protokoll/rettdaten/index.php', ['query' => ['enr' => self::ENR]]);
+        $response = $this->get('/enotf/protokoll/rettdaten/index', ['query' => ['enr' => self::ENR]]);
 
-        $this->assertNothingRaw($response);
-        $this->assertBodyContains('value="7&quot;&gt;&lt;img src=x onerror=alert(1)&gt;" readonly', $response);
+        $this->assertStatus(301, $response);
+        $this->assertSame('/enotf/p/' . rawurlencode(self::ENR) . '/rettdaten', $response->headers['Location'] ?? null);
     }
 
     /** @return array<string, array{string, bool}> */

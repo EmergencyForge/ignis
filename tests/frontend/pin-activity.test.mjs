@@ -35,7 +35,7 @@ function run({ pathname, basePath = '/' }) {
 test('redirects to the lockscreen under the matching plugin sub-path', () => {
   const cases = [
     ['/intra/enotf/protokoll/index.php', '/intra/enotf/lockscreen'],
-    ['/intra/enotf-v2/overview', '/intra/enotf-v2/lockscreen'],
+    ['/intra/enotf/overview', '/intra/enotf/lockscreen'],
     ['/enotf/overview', '/enotf/lockscreen'],
   ];
   for (const [pathname, expected] of cases) {

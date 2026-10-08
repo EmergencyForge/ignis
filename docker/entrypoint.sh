@@ -28,6 +28,8 @@ if [ -d "$SHIPPED/plugins" ] && mountpoint -q /var/www/html/plugins; then
     for dir in "$SHIPPED"/plugins/*/; do
         rm -rf "/var/www/html/plugins/$(basename "$dir")"
     done
+    # Früher mitgeliefert, inzwischen in einem anderen Plugin aufgegangen
+    rm -rf /var/www/html/plugins/enotf-v2
     cp -a "$SHIPPED/plugins/." /var/www/html/plugins/
     # Der Katalog-Installer legt neue Plugin-Ordner als www-data an.
     chown www-data:www-data /var/www/html/plugins

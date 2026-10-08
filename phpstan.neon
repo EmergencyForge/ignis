@@ -34,29 +34,7 @@ parameters:
         # PHPStan kann deren tatsächlichen Wert nicht kennen
         -
             identifier: if.alwaysTrue
-            paths:
-                - assets/components/enotf/topbar.php
-                - assets/functions/enotf/pin_middleware.php
-            reportUnmatched: false
-
-        -
-            identifier: if.alwaysFalse
-            path: assets/functions/enotf/user_auth_middleware.php
-            reportUnmatched: false
-
-        -
-            identifier: identical.alwaysFalse
-            path: assets/functions/enotf/user_auth_middleware.php
-            reportUnmatched: false
-
-        -
-            identifier: booleanAnd.alwaysFalse
-            path: assets/functions/enotf/user_auth_middleware.php
-            reportUnmatched: false
-
-        -
-            identifier: identical.alwaysTrue
-            path: assets/functions/enotf/pin_middleware.php
+            path: assets/components/enotf/topbar.php
             reportUnmatched: false
 
         # REGISTRATION_MODE + SYSTEM_URL Konstanten werden zur Laufzeit geladen

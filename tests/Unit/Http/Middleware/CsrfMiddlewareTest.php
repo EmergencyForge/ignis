@@ -12,8 +12,8 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Plugin\EnotfV2\Http\Csrf as EnotfCsrf;
-use Plugin\EnotfV2\Http\CsrfMiddleware as EnotfCsrfMiddleware;
+use Plugin\Enotf\Crew\Http\Csrf as EnotfCsrf;
+use Plugin\Enotf\Crew\Http\CsrfMiddleware as EnotfCsrfMiddleware;
 use ReflectionClass;
 use Tests\TestCase;
 
@@ -91,7 +91,7 @@ final class CsrfMiddlewareTest extends TestCase
         int $expectedStatus,
     ): void {
         $stack = [new CsrfMiddleware()];
-        if (str_starts_with($path, '/enotf-v2/')) {
+        if (str_starts_with($path, '/enotf/')) {
             $stack[] = new EnotfCsrfMiddleware();
         }
         $response = (new Pipeline($this->container))->run(
@@ -107,18 +107,18 @@ final class CsrfMiddlewareTest extends TestCase
     public static function tokenRequests(): array
     {
         return [
-            'crew login form' => ['/enotf-v2/login', ['_csrf' => 'plugin-token'], [], 200],
-            'crew create form' => ['/enotf-v2/create', ['_csrf' => 'plugin-token'], [], 200],
-            'crew lockscreen form' => ['/enotf-v2/lockscreen', ['_csrf' => 'plugin-token'], [], 200],
-            'QM header' => ['/enotf-v2/qm', [], ['HTTP_X_CSRF_TOKEN' => 'plugin-token'], 200],
-            'autosave wrapper' => ['/api/enotf-v2/save-fields', [], ['HTTP_X_CSRF_TOKEN' => 'core-token'], 200],
-            'plugin API token' => ['/api/enotf-v2/save-fields', [], ['HTTP_X_CSRF_TOKEN' => 'plugin-token'], 200],
+            'crew login form' => ['/enotf/login', ['_csrf' => 'plugin-token'], [], 200],
+            'crew create form' => ['/enotf/create', ['_csrf' => 'plugin-token'], [], 200],
+            'crew lockscreen form' => ['/enotf/lockscreen', ['_csrf' => 'plugin-token'], [], 200],
+            'QM header' => ['/enotf/qm', [], ['HTTP_X_CSRF_TOKEN' => 'plugin-token'], 200],
+            'autosave wrapper' => ['/api/enotf/save-fields', [], ['HTTP_X_CSRF_TOKEN' => 'core-token'], 200],
+            'plugin API token' => ['/api/enotf/save-fields', [], ['HTTP_X_CSRF_TOKEN' => 'plugin-token'], 200],
             'core token' => ['/users/roles/create', ['csrf_token' => 'core-token'], [], 200],
-            'missing crew token' => ['/enotf-v2/login', [], [], 403],
-            'wrong crew token' => ['/enotf-v2/login', ['_csrf' => 'wrong-token'], [], 403],
-            'malformed crew token' => ['/enotf-v2/login', ['_csrf' => []], [], 403],
-            'missing API token' => ['/api/enotf-v2/save-fields', [], [], 403],
-            'same-origin alone is insufficient' => ['/enotf-v2/login', [], ['HTTP_ORIGIN' => 'https://example.test', 'HTTP_HOST' => 'example.test'], 403],
+            'missing crew token' => ['/enotf/login', [], [], 403],
+            'wrong crew token' => ['/enotf/login', ['_csrf' => 'wrong-token'], [], 403],
+            'malformed crew token' => ['/enotf/login', ['_csrf' => []], [], 403],
+            'missing API token' => ['/api/enotf/save-fields', [], [], 403],
+            'same-origin alone is insufficient' => ['/enotf/login', [], ['HTTP_ORIGIN' => 'https://example.test', 'HTTP_HOST' => 'example.test'], 403],
             'plugin token cannot write core' => ['/users/roles/create', [], ['HTTP_X_CSRF_TOKEN' => 'plugin-token'], 403],
             'similar API prefix' => ['/api/enotf-v20/save-fields', [], ['HTTP_X_CSRF_TOKEN' => 'plugin-token'], 403],
             'similar web prefix' => ['/enotf-v2-other/login', ['_csrf' => 'plugin-token'], [], 403],
@@ -131,7 +131,7 @@ final class CsrfMiddlewareTest extends TestCase
     {
         unset($_SESSION[EnotfCsrf::SESSION_KEY]);
         $response = (new CsrfMiddleware())->process(
-            new Request('POST', '/enotf-v2/login', post: ['_csrf' => 'plugin-token']),
+            new Request('POST', '/enotf/login', post: ['_csrf' => 'plugin-token']),
             static fn (): Response => Response::text('reached'),
         );
 

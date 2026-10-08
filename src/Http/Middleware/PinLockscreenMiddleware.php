@@ -16,7 +16,7 @@ use EmergencyForge\Http\Response;
  *  - Admin + User mit `edivi.view` sind vom Lockscreen ausgenommen
  *  - Kliniker-Zugriff via Einmal-Code (2h-Window, `$_SESSION['klinik_access_*']`)
  *    bypassed den Lockscreen ebenfalls
- *  - Sonst: nach ENOTF_PIN_TIMEOUT Minuten ohne Aktivität → Redirect zu `lockscreen.php`
+ *  - Sonst: nach ENOTF_PIN_TIMEOUT Minuten ohne Aktivität → Redirect zu /enotf/lockscreen
  *  - Nach PIN-Eingabe wird `pin_verified` + `pin_last_activity` gesetzt,
  *    die Middleware aktualisiert `pin_last_activity` bei jedem Request
  *
@@ -25,17 +25,6 @@ use EmergencyForge\Http\Response;
 final class PinLockscreenMiddleware implements MiddlewareInterface
 {
     private const KLINIK_WINDOW_SECONDS = 7200;
-
-    /**
-     * @param string|null $lockscreenPath Redirect-Ziel bei Sperre, als Pfad
-     *        relativ zu BASE_PATH (z. B. 'enotf-v2/lockscreen'). null =
-     *        bisheriges Verhalten, Redirect auf den v1-Lockscreen. So können
-     *        die v2-Routen ihren eigenen Lockscreen ansteuern, ohne dass
-     *        sich für bestehende Nutzer der Middleware etwas ändert.
-     */
-    public function __construct(private readonly ?string $lockscreenPath = null)
-    {
-    }
 
     public function process(Request $request, callable $next): Response
     {
@@ -74,13 +63,9 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
 
             \App\Session\SessionManager::setPinVerified(false);
 
-            if ($this->lockscreenPath !== null) {
-                $target = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . ltrim($this->lockscreenPath, '/');
-            } else {
-                $target = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
-                    ? \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen')
-                    : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen');
-            }
+            $target = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
+                ? \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen')
+                : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen');
 
             return Response::redirect($target);
         }

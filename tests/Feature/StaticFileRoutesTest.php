@@ -14,7 +14,7 @@ use Tests\FeatureTestCase;
  */
 final class StaticFileRoutesTest extends FeatureTestCase
 {
-    private const PLUGIN_ASSET = 'plugins/enotf-v2/assets/wizard.js';
+    private const PLUGIN_ASSET = 'plugins/enotf/assets/wizard.js';
 
     private ?string $picture = null;
     private ?string $brandingFile = null;
@@ -47,23 +47,23 @@ final class StaticFileRoutesTest extends FeatureTestCase
     #[Test]
     public function weist_pfade_mit_punkt_punkt_ab(): void
     {
-        $this->assertNotFound($this->get('/plugins/enotf-v2/assets/../manifest.php'));
-        $this->assertNotFound($this->get('/plugins/enotf-v2/assets/../../../composer.json'));
+        $this->assertNotFound($this->get('/plugins/enotf/assets/../manifest.php'));
+        $this->assertNotFound($this->get('/plugins/enotf/assets/../../../composer.json'));
     }
 
     #[Test]
     public function weist_php_und_andere_nicht_erlaubte_endungen_ab(): void
     {
-        $this->assertNotFound($this->get('/plugins/enotf-v2/assets/wizard.php'));
-        $this->assertNotFound($this->get('/plugins/enotf-v2/assets/wizard.js.bak'));
+        $this->assertNotFound($this->get('/plugins/enotf/assets/wizard.php'));
+        $this->assertNotFound($this->get('/plugins/enotf/assets/wizard.js.bak'));
     }
 
     #[Test]
     public function kennt_nur_installierte_plugins_und_nur_deren_assets_ordner(): void
     {
         $this->assertNotFound($this->get('/plugins/does-not-exist/assets/plugin.css'));
-        $this->assertNotFound($this->get('/plugins/enotf-v2/manifest.php'));
-        $this->assertNotFound($this->get('/plugins/enotf-v2/templates/x.js'));
+        $this->assertNotFound($this->get('/plugins/enotf/manifest.php'));
+        $this->assertNotFound($this->get('/plugins/enotf/templates/x.js'));
     }
 
     #[Test]

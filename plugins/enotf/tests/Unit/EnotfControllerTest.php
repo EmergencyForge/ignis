@@ -22,8 +22,7 @@ class EnotfControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass(EnotfController::class);
         $methods = [
-            'index', 'loginForm', 'login', 'overview', 'logout', 'lockscreen',
-            'createForm', 'fahrzeuginfo', 'fahrtenbuch', 'hospitalAvailability',
+            'fahrzeuginfo', 'fahrtenbuch', 'hospitalAvailability',
         ];
         foreach ($methods as $method) {
             $this->assertTrue($reflection->hasMethod($method), "EnotfController::$method() fehlt");

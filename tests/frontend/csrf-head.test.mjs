@@ -69,7 +69,7 @@ test('XHR never adds the token to GET or another origin', () => {
 test('XHR preserves an explicit plugin token and resets state when reused', () => {
     const { window, sent } = browser();
     const xhr = new window.XMLHttpRequest();
-    xhr.open('POST', '/enotf-v2/qm');
+    xhr.open('POST', '/enotf/qm');
     xhr.setRequestHeader('x-CsRf-ToKeN', 'plugin-token');
     xhr.send();
     assert.equal(sent.at(-1).headers.get('X-CSRF-Token'), 'plugin-token');
@@ -91,11 +91,11 @@ test('XHR protection works even when fetch is unavailable', () => {
 
 test('fetch retains its token behavior and does not overwrite explicit headers', async () => {
     const { window, sent } = browser();
-    assert.equal(await window.fetch('/api/enotf-v2/save-fields', { method: 'POST' }), 'response');
+    assert.equal(await window.fetch('/api/enotf/save-fields', { method: 'POST' }), 'response');
     assert.equal(sent.at(-1).headers.get('X-CSRF-Token'), 'session-token');
-    await window.fetch('/enotf-v2/qm', { method: 'POST', headers: { 'X-CSRF-Token': 'plugin-token' } });
+    await window.fetch('/enotf/qm', { method: 'POST', headers: { 'X-CSRF-Token': 'plugin-token' } });
     assert.equal(sent.at(-1).headers.get('X-CSRF-Token'), 'plugin-token');
-    await window.fetch('/api/enotf-v2/save-fields');
+    await window.fetch('/api/enotf/save-fields');
     assert.equal(sent.at(-1).headers, undefined);
 });
 

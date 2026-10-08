@@ -43,11 +43,13 @@
   function pollSessionStatus() {
     if (!sessionToken) return;
 
-    fetch(
-      basePath +
-        "api/enotf/session-status?token=" +
-        encodeURIComponent(sessionToken)
-    )
+    // Token im Header, in der URL landete es in Access-Logs
+    fetch(basePath + "api/enotf/session-status", {
+      headers: {
+        Accept: "application/json",
+        "X-Enotf-Session-Token": sessionToken,
+      },
+    })
       .then(function (r) {
         if (!r.ok) {
           // Server-Fehler (500, 404, etc.): nicht redirecten
