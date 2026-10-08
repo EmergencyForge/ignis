@@ -1,37 +1,36 @@
 <?php
 /**
- * Dashboard: die eNOTF-Protokolle, in denen der eigene Name als Personal
- * steht, neueste zuerst. Eingebunden aus index.php, nur bei aktivem eNOTF.
+ * Die eNOTF-Protokolle, in denen der eigene Name als Personal steht,
+ * neueste zuerst. Auf dem Dashboard (index.php, nur bei aktivem eNOTF)
+ * die neuesten OwnRecords::PREVIEW, auf /me/protocols mit $list und
+ * $pgPath die ganze Liste mit Suche, Sortierung und Seiten.
+ *
+ * @var \App\Support\ListQuery|null $list
+ * @var string|null                 $pgPath
  */
 
-$ediviRows = \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
-    ->join('intra_mitarbeiter as m', function ($join) {
-        // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
-        $join->where('m.id', '=', \App\Personnel\AccountLink::currentId() ?? 0);
-    })
-    ->where(function ($q) {
-        $q->whereRaw("e.pfname LIKE CONCAT('%', m.fullname, '%')")
-            ->orWhereRaw("e.fzg_transp_perso LIKE CONCAT('%', m.fullname, '%')")
-            ->orWhereRaw("e.fzg_transp_perso_2 LIKE CONCAT('%', m.fullname, '%')")
-            ->orWhereRaw("e.fzg_transp_perso_3 LIKE CONCAT('%', m.fullname, '%')")
-            ->orWhereRaw("e.fzg_na_perso LIKE CONCAT('%', m.fullname, '%')")
-            ->orWhereRaw("e.fzg_na_perso_2 LIKE CONCAT('%', m.fullname, '%')")
-            ->orWhereRaw("e.fzg_na_perso_3 LIKE CONCAT('%', m.fullname, '%')");
-    })
-    ->where('e.hidden', '<>', 1)
-    ->where('e.hidden_user', '<>', 1)
-    ->orderByDesc('e.sendezeit')
-    ->get([
-        'e.enr',
-        'e.sendezeit',
-        'e.protokoll_status',
-        'e.bearbeiter',
-        'e.freigegeben',
-        'e.freigeber_name',
-        'e.hidden_user',
-    ])
-    ->map(fn ($row) => (array) $row)
-    ->all();
+use App\Support\OwnRecords;
+
+$list   = $list ?? null;
+$pgPath = $pgPath ?? '';
+
+$ediviQuery = OwnRecords::enotfProtocols();
+if ($list !== null) {
+    if ($list->q !== '') {
+        $ediviQuery->where(function ($q) use ($list) {
+            $q->where('e.enr', 'LIKE', $list->like())
+                ->orWhere('e.bearbeiter', 'LIKE', $list->like());
+        });
+    }
+    $ediviResult = $list->paginate($ediviQuery);
+} else {
+    $ediviResult = $ediviQuery->orderByDesc('e.sendezeit')->orderByDesc('e.id')->limit(OwnRecords::PREVIEW)->get();
+}
+$ediviRows = $ediviResult->map(fn ($row) => (array) $row)->all();
+
+$ediviTh = static fn (string $key, string $label): string => $list !== null
+    ? $list->th($key, $label, $pgPath)
+    : '<th scope="col">' . $label . '</th>';
 
 // Prüfstatus => [Text, Chip-Semantik]
 $protokollStatus = [
@@ -44,22 +43,30 @@ $protokollStatus = [
 <table class="ignis-table" id="dashboardProtocols">
     <thead>
         <tr>
-            <th scope="col">Status</th>
-            <th scope="col">Nr.</th>
-            <th scope="col">Bearbeiter</th>
-            <th scope="col">Gesendet</th>
+            <?= $ediviTh('status', 'Status') ?>
+            <?= $ediviTh('nr', 'Nr.') ?>
+            <?= $ediviTh('bearbeiter', 'Bearbeiter') ?>
+            <?= $ediviTh('gesendet', 'Gesendet') ?>
             <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
         </tr>
     </thead>
     <tbody>
         <?php if (empty($ediviRows)): ?>
             <?php
-            $empty = [
-                'variant' => 'sm',
-                'icon'    => 'fa-file-medical',
-                'title'   => 'Noch keine eNOTF-Protokolle',
-                'text'    => 'Abgeschlossene Einsatzprotokolle erscheinen hier von selbst.',
-            ];
+            $empty = $list !== null && $list->q !== ''
+                ? [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-magnifying-glass',
+                    'title'   => 'Keine Protokolle gefunden',
+                    'text'    => 'Zur Suche passt kein Protokoll.',
+                    'actions' => [['label' => 'Suche zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'page' => null]), 'style' => 'secondary']],
+                ]
+                : [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-file-medical',
+                    'title'   => 'Noch keine eNOTF-Protokolle',
+                    'text'    => 'Abgeschlossene Einsatzprotokolle erscheinen hier von selbst.',
+                ];
             ?>
             <tr><td colspan="5"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>

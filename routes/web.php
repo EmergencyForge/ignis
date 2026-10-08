@@ -32,6 +32,7 @@ declare(strict_types=1);
  */
 
 use App\Http\Controllers\InboxController;
+use App\Http\Controllers\OwnListsController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\ProfileController;
@@ -148,6 +149,12 @@ $router->get('/inbox',                 [InboxController::class, 'index'],   [new
 $router->get('/inbox/popover',         [InboxController::class, 'popover'], [new AuthMiddleware()]);
 $router->get('/inbox/{id:\d+}/open',   [InboxController::class, 'open'],    [new AuthMiddleware()]);
 $router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware()]);
+
+// Eigene Dokumente, Anträge und Protokolle: die ganzen Listen hinter
+// „Alle anzeigen“ der Dashboard-Karten.
+$router->get('/me/documents',    [OwnListsController::class, 'documents'],    [new AuthMiddleware()]);
+$router->get('/me/applications', [OwnListsController::class, 'applications'], [new AuthMiddleware()]);
+$router->get('/me/protocols',    [OwnListsController::class, 'protocols'],    [new AuthMiddleware()]);
 
 $notifRedirect = static fn (): \EmergencyForge\Http\Response => \EmergencyForge\Http\Response::redirect(BASE_PATH . 'inbox', 301);
 foreach (['/notifications', '/notifications/', '/notifications/index', '/notifications/index.php'] as $notifPath) {

@@ -16,6 +16,16 @@ $dashboardEnotf   = $dashboardPlugins->isActive('enotf');
 $dashboardFiretab = $dashboardPlugins->isActive('firetab');
 $dashboardForms   = $dashboardPlugins->isActive('forms');
 
+// Gesamtzahl je eigener Liste für den Kartenkopf; die Karten zeigen nur
+// die neuesten OwnRecords::PREVIEW, der Rest steht hinter „Alle anzeigen“.
+$ownTotals = [
+    'documents'    => \App\Support\OwnRecords::documents()->count(),
+    'applications' => $dashboardForms ? \App\Support\OwnRecords::applications()->count() : 0,
+    'enotf'        => $dashboardEnotf ? \App\Support\OwnRecords::enotfProtocols()->count() : 0,
+    'firetab'      => $dashboardFiretab ? \App\Support\OwnRecords::firetabProtocols()->count() : 0,
+];
+$ownAllLink = static fn (string $path): string => '<a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="' . htmlspecialchars(BASE_PATH . $path) . '">Alle anzeigen</a>';
+
 // Übersicht wie „ignis im Dienst“ aus der Spec zu ui 0.7.0: Kacheln, Einsätze,
 // Fahrzeuge und Hinweise, jeweils nur mit Recht und echten Daten.
 $dashboardNow       = new DateTimeImmutable();
@@ -70,7 +80,10 @@ ob_start();
                     <?php include __DIR__ . '/assets/components/index/vehicles.php' ?>
                     <section class="ignis-card ignis-card--table" data-ignis-reveal data-section="documents" aria-labelledby="dashboard-documents-title">
                         <div class="ignis-card__header">
-                            <h2 class="ignis-card__title" id="dashboard-documents-title">Eigene Dokumente</h2>
+                            <h2 class="ignis-card__title" id="dashboard-documents-title">Eigene Dokumente <span class="ignis-count"><?= $ownTotals['documents'] ?></span></h2>
+                            <?php if ($ownTotals['documents'] > 0): ?>
+                                <div class="ignis-card__actions"><?= $ownAllLink('me/documents') ?></div>
+                            <?php endif; ?>
                         </div>
                         <div class="ignis-card__scroll">
                             <?php include __DIR__ . '/assets/components/index/documents.php' ?>
@@ -79,9 +92,12 @@ ob_start();
                     <?php if ($dashboardForms): ?>
                     <section class="ignis-card ignis-card--table" data-ignis-reveal data-section="applications" aria-labelledby="dashboard-applications-title">
                         <div class="ignis-card__header">
-                            <h2 class="ignis-card__title" id="dashboard-applications-title">Eigene Anträge</h2>
+                            <h2 class="ignis-card__title" id="dashboard-applications-title">Eigene Anträge <span class="ignis-count"><?= $ownTotals['applications'] ?></span></h2>
                             <div class="ignis-card__actions">
                                 <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--sm ignis-btn--secondary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
+                                <?php if ($ownTotals['applications'] > 0): ?>
+                                    <?= $ownAllLink('me/applications') ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="ignis-card__scroll">
@@ -92,7 +108,10 @@ ob_start();
                     <?php if ($dashboardEnotf): ?>
                         <section class="ignis-card ignis-card--table" data-ignis-reveal data-section="enotf" aria-labelledby="dashboard-enotf-title">
                             <div class="ignis-card__header">
-                                <h2 class="ignis-card__title" id="dashboard-enotf-title">Eigene eNOTF-Protokolle</h2>
+                                <h2 class="ignis-card__title" id="dashboard-enotf-title">Eigene eNOTF-Protokolle <span class="ignis-count"><?= $ownTotals['enotf'] ?></span></h2>
+                                <?php if ($ownTotals['enotf'] > 0): ?>
+                                    <div class="ignis-card__actions"><?= $ownAllLink('me/protocols?source=enotf') ?></div>
+                                <?php endif; ?>
                             </div>
                             <div class="ignis-card__scroll">
                                 <?php include __DIR__ . '/assets/components/index/protocols.php' ?>
@@ -102,7 +121,10 @@ ob_start();
                     <?php if ($dashboardFiretab): ?>
                         <section class="ignis-card ignis-card--table" data-ignis-reveal data-section="firetab" aria-labelledby="dashboard-firetab-title">
                             <div class="ignis-card__header">
-                                <h2 class="ignis-card__title" id="dashboard-firetab-title">Eigene fireTab-Protokolle</h2>
+                                <h2 class="ignis-card__title" id="dashboard-firetab-title">Eigene fireTab-Protokolle <span class="ignis-count"><?= $ownTotals['firetab'] ?></span></h2>
+                                <?php if ($ownTotals['firetab'] > 0): ?>
+                                    <div class="ignis-card__actions"><?= $ownAllLink('me/protocols?source=firetab') ?></div>
+                                <?php endif; ?>
                             </div>
                             <div class="ignis-card__scroll">
                                 <?php include __DIR__ . '/assets/components/index/fire-protocols.php' ?>

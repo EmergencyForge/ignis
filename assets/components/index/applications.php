@@ -1,24 +1,40 @@
 <?php
 /**
- * Dashboard: die Anträge des angemeldeten Kontos, neueste zuerst.
- * Eingebunden aus index.php innerhalb einer ignis-card.
+ * Die Anträge des angemeldeten Kontos, neueste zuerst. Auf dem Dashboard
+ * (index.php, in einer ignis-card) die neuesten OwnRecords::PREVIEW, auf
+ * /me/applications mit $list und $pgPath die ganze Liste mit Suche,
+ * Statusfilter, Sortierung und Seiten. Nur bei aktivem Plugin forms.
+ *
+ * @var \App\Support\ListQuery|null $list
+ * @var string|null                 $pgPath
  */
 
-$appQuery = \Illuminate\Database\Capsule\Manager::table('intra_antraege as a')
-    ->join('intra_antrag_typen as at', 'a.antragstyp_id', '=', 'at.id');
-\Plugin\Forms\Models\Form::whereOwn($appQuery, 'a.');
-$appresult = $appQuery
-    ->orderByDesc('a.time_added')
-    ->get([
-        'a.uniqueid',
-        'at.name as typ_name',
-        'at.icon as typ_icon',
-        'a.cirs_status',
-        'a.cirs_manager',
-        'a.time_added',
-    ])
-    ->map(fn ($row) => (array) $row)
-    ->all();
+use App\Support\OwnRecords;
+
+$list   = $list ?? null;
+$pgPath = $pgPath ?? '';
+
+$appQuery = OwnRecords::applications();
+if ($list !== null) {
+    if ($list->q !== '') {
+        $appQuery->where(function ($q) use ($list) {
+            $q->where('a.uniqueid', 'LIKE', $list->like())
+                ->orWhere('at.name', 'LIKE', $list->like())
+                ->orWhere('a.cirs_manager', 'LIKE', $list->like());
+        });
+    }
+    if ($list->filter('status') !== '') {
+        $appQuery->where('a.cirs_status', (int) $list->filter('status'));
+    }
+    $appRows = $list->paginate($appQuery);
+} else {
+    $appRows = $appQuery->orderByDesc('a.time_added')->orderByDesc('a.id')->limit(OwnRecords::PREVIEW)->get();
+}
+$appresult = $appRows->map(fn ($row) => (array) $row)->all();
+
+$appTh = static fn (string $key, string $label): string => $list !== null
+    ? $list->th($key, $label, $pgPath)
+    : '<th scope="col">' . $label . '</th>';
 
 // Status => [Text, Chip-Semantik]
 $appStatus = [
@@ -31,23 +47,31 @@ $appStatus = [
 <table class="ignis-table" id="dashboardApplications">
     <thead>
         <tr>
-            <th scope="col">Typ</th>
-            <th scope="col">Status</th>
-            <th scope="col">Nr.</th>
-            <th scope="col">Bearbeiter</th>
-            <th scope="col">Eingereicht</th>
+            <?= $appTh('typ', 'Typ') ?>
+            <?= $appTh('status', 'Status') ?>
+            <?= $appTh('nr', 'Nr.') ?>
+            <?= $appTh('bearbeiter', 'Bearbeiter') ?>
+            <?= $appTh('eingereicht', 'Eingereicht') ?>
             <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
         </tr>
     </thead>
     <tbody>
         <?php if (empty($appresult)): ?>
             <?php
-            $empty = [
-                'variant' => 'sm',
-                'icon'    => 'fa-clipboard-list',
-                'title'   => 'Noch keine Anträge',
-                'text'    => 'Den ersten stellst du über „Antrag einreichen“. Danach siehst du hier seinen Stand.',
-            ];
+            $empty = $list !== null && ($list->q !== '' || $list->filter('status') !== '')
+                ? [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-magnifying-glass',
+                    'title'   => 'Keine Anträge gefunden',
+                    'text'    => 'Mit den gesetzten Filtern passt kein Antrag.',
+                    'actions' => [['label' => 'Filter zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'status' => null, 'page' => null]), 'style' => 'secondary']],
+                ]
+                : [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-clipboard-list',
+                    'title'   => 'Noch keine Anträge',
+                    'text'    => 'Den ersten stellst du über „Antrag einreichen“. Danach siehst du hier seinen Stand.',
+                ];
             ?>
             <tr><td colspan="6"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>

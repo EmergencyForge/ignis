@@ -1,26 +1,36 @@
 <?php
 /**
- * Dashboard: die fireTab-Einsätze, die das eigene Mitarbeiterprofil geleitet
- * hat, neueste zuerst. Eingebunden aus index.php, nur bei aktivem fireTab.
+ * Die fireTab-Einsätze, die das eigene Mitarbeiterprofil geleitet hat,
+ * neueste zuerst. Auf dem Dashboard (index.php, nur bei aktivem fireTab)
+ * die neuesten OwnRecords::PREVIEW, auf /me/protocols?source=firetab mit
+ * $list und $pgPath die ganze Liste mit Suche, Sortierung und Seiten.
+ *
+ * @var \App\Support\ListQuery|null $list
+ * @var string|null                 $pgPath
  */
 
-$fireRows = \Illuminate\Database\Capsule\Manager::table('intra_fire_incidents as i')
-    ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
-    // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
-    ->where('i.leader_id', '=', \App\Personnel\AccountLink::currentId() ?? 0)
-    ->where('i.archived', 0)
-    ->orderByDesc('i.created_at')
-    ->get([
-        'i.id',
-        'i.incident_number',
-        'i.location',
-        'i.started_at',
-        'i.status',
-        'i.finalized',
-        'm.fullname AS leader_name',
-    ])
-    ->map(fn ($row) => (array) $row)
-    ->all();
+use App\Support\OwnRecords;
+
+$list   = $list ?? null;
+$pgPath = $pgPath ?? '';
+
+$fireQuery = OwnRecords::firetabProtocols();
+if ($list !== null) {
+    if ($list->q !== '') {
+        $fireQuery->where(function ($q) use ($list) {
+            $q->where('i.incident_number', 'LIKE', $list->like())
+                ->orWhere('i.location', 'LIKE', $list->like());
+        });
+    }
+    $fireResult = $list->paginate($fireQuery);
+} else {
+    $fireResult = $fireQuery->orderByDesc('i.created_at')->orderByDesc('i.id')->limit(OwnRecords::PREVIEW)->get();
+}
+$fireRows = $fireResult->map(fn ($row) => (array) $row)->all();
+
+$fireTh = static fn (string $key, string $label): string => $list !== null
+    ? $list->th($key, $label, $pgPath)
+    : '<th scope="col">' . $label . '</th>';
 
 // QM-Status => [Text, Chip-Semantik]
 $fireStatus = [
@@ -34,23 +44,31 @@ $fireStatus = [
 <table class="ignis-table" id="dashboardFireProtocols">
     <thead>
         <tr>
-            <th scope="col">Status</th>
-            <th scope="col">Nr.</th>
-            <th scope="col">Einsatzort</th>
+            <?= $fireTh('status', 'Status') ?>
+            <?= $fireTh('nr', 'Nr.') ?>
+            <?= $fireTh('ort', 'Einsatzort') ?>
             <th scope="col">Einsatzleiter</th>
-            <th scope="col">Beginn</th>
+            <?= $fireTh('beginn', 'Beginn') ?>
             <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
         </tr>
     </thead>
     <tbody>
         <?php if (empty($fireRows)): ?>
             <?php
-            $empty = [
-                'variant' => 'sm',
-                'icon'    => 'fa-fire',
-                'title'   => 'Noch keine fireTab-Protokolle',
-                'text'    => 'Einsätze, die du im fireTab leitest, erscheinen hier von selbst.',
-            ];
+            $empty = $list !== null && $list->q !== ''
+                ? [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-magnifying-glass',
+                    'title'   => 'Keine Einsätze gefunden',
+                    'text'    => 'Zur Suche passt kein Einsatz.',
+                    'actions' => [['label' => 'Suche zurücksetzen', 'href' => $list->url($pgPath, ['q' => null, 'page' => null]), 'style' => 'secondary']],
+                ]
+                : [
+                    'variant' => 'sm',
+                    'icon'    => 'fa-fire',
+                    'title'   => 'Noch keine fireTab-Protokolle',
+                    'text'    => 'Einsätze, die du im fireTab leitest, erscheinen hier von selbst.',
+                ];
             ?>
             <tr><td colspan="6"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
