@@ -10,7 +10,7 @@ Diese Anleitung führt dich durch die Installation von ignis. Es gibt drei Wege,
 
 Egal welchen Weg du nimmst: Lies vorher [Was du brauchst](#was-du-brauchst) und leg die [Discord-Anwendung](#discord-anwendung-anlegen) an. Danach geht es mit der [Ersteinrichtung](#nach-der-installation) weiter.
 
-Die Releases findest du unter <https://github.com/EmergencyForge/ignis/releases>. Empfohlen sind stabile Versionen. Im Moment sind alle 2026er-Versionen noch als Beta markiert, bis zur ersten stabilen nimmst du die neueste Beta.
+Die Releases findest du unter <https://github.com/EmergencyForge/ignis/releases>. Empfohlen sind stabile Versionen, also die ohne `-beta` im Namen.
 
 
 ## Was du brauchst
@@ -260,8 +260,6 @@ SYSTEM_URL=https://ignis.example.de
 ```
 
 - `IMAGE_TAG` ist die ignis-Version. Lässt du es leer, holt Docker die neueste stabile Version (`latest`). Willst du bei einer Version bleiben, trag sie hier ein, zum Beispiel `v2026.1.0`. Die Versionen stehen auf der [Release-Seite](https://github.com/EmergencyForge/ignis/releases).
-
-  > Im Moment sind alle 2026er-Versionen noch als Beta markiert, eine stabile gibt es noch nicht. Bis dahin trägst du hier die neueste Beta von der Release-Seite ein, zum Beispiel `v2026.0.26-beta`.
 - Datenbank und Benutzer legt MariaDB beim ersten Start mit diesen Werten an.
 - Enthält ein Passwort ein `$`, setz es in einfache Anführungszeichen, sonst liest Compose es als Variable.
 - `SYSTEM_URL` ist die öffentliche Adresse. Steht sie in der `.env`, ist sie in den Einstellungen gesperrt.

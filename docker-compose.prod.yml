@@ -24,9 +24,9 @@ name: ignis
 
 services:
   app:
-    # :latest ist die neueste stabile Version. Solange es noch keine stabile
-    # 2026er-Version gibt, in der .env IMAGE_TAG auf eine Beta setzen, die
-    # Tags stehen unter github.com/EmergencyForge/ignis/releases.
+    # :latest ist die neueste stabile Version. Eine feste Version setzt
+    # IMAGE_TAG in der .env, die Tags stehen unter
+    # github.com/EmergencyForge/ignis/releases.
     image: ghcr.io/emergencyforge/ignis:${IMAGE_TAG:-latest}
     env_file: .env
     environment:
