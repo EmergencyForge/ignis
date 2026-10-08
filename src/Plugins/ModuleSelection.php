@@ -29,7 +29,7 @@ final class ModuleSelection
      */
     public const MODULES = [
         'enotf'          => ['Einsatz', 'Elektronisches Notfallprotokoll für den Rettungsdienst, mit Voranmeldung im Krankenhaus.'],
-        'enotf-v2'       => ['Einsatz', 'Die neue Oberfläche des eNOTF, noch in Erprobung. Braucht das eNOTF.'],
+        'enotf-v2'       => ['Einsatz', 'Die neue Oberfläche des eNOTF, noch in Erprobung.'],
         'firetab'        => ['Einsatz', 'Einsatzprotokolle der Feuerwehr mit Lagekarte und Atemschutzüberwachung.'],
         'manv-board'     => ['Einsatz', 'Übersicht bei einem Massenanfall von Verletzten.'],
         'logbook'        => ['Einsatz', 'Fahrtenbuch der Fahrzeuge, auch aus eNOTF und fireTab heraus.'],

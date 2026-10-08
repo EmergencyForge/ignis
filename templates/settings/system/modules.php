@@ -51,17 +51,18 @@ $moduleNames = array_column($modules, 'name', 'id');
                                 <h2 class="ignis-card__title"><?= htmlspecialchars($group) ?></h2>
                             </div>
                             <div class="ignis-card__body">
-                                <?php foreach ($groupModules as $module):
-                                    $moduleId = 'module-' . $module['id'];
-                                    $needs = array_map(static fn (string $id): string => $moduleNames[$id] ?? $id, $module['depends']);
-                                ?>
-                                    <div class="twplus-form-section">
-                                        <div>
-                                            <label for="<?= htmlspecialchars($moduleId) ?>" class="twplus-form-section__label"><?= htmlspecialchars($module['name']) ?></label>
-                                            <div class="ignis-field__hint"><?= htmlspecialchars($module['text']) ?></div>
-                                        </div>
-                                        <div>
-                                            <label class="ignis-switch" for="<?= htmlspecialchars($moduleId) ?>">
+                                <?php // Kacheln statt Formularzeilen: ein Schalter braucht keine eigene breite Spalte. ?>
+                                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    <?php foreach ($groupModules as $module):
+                                        $moduleId = 'module-' . $module['id'];
+                                        $needs = array_map(static fn (string $id): string => $moduleNames[$id] ?? $id, $module['depends']);
+                                    ?>
+                                        <div class="flex items-start justify-between gap-4 rounded-md border border-border-subtle bg-surface-2 p-4">
+                                            <div>
+                                                <label for="<?= htmlspecialchars($moduleId) ?>" class="font-semibold cursor-pointer"><?= htmlspecialchars($module['name']) ?></label>
+                                                <div class="ignis-field__hint mt-1"><?= htmlspecialchars($module['text']) ?><?php if ($needs !== []): ?> Braucht <?= htmlspecialchars(implode(', ', $needs)) ?>.<?php endif; ?></div>
+                                            </div>
+                                            <label class="ignis-switch shrink-0" for="<?= htmlspecialchars($moduleId) ?>">
                                                 <input
                                                     type="checkbox"
                                                     id="<?= htmlspecialchars($moduleId) ?>"
@@ -71,12 +72,9 @@ $moduleNames = array_column($modules, 'name', 'id');
                                                     <?= $module['enabled'] ? 'checked' : '' ?>>
                                                 <span></span>
                                             </label>
-                                            <?php if ($needs !== []): ?>
-                                                <div class="ignis-field__hint">Braucht <?= htmlspecialchars(implode(', ', $needs)) ?>.</div>
-                                            <?php endif; ?>
                                         </div>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
