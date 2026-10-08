@@ -22,6 +22,7 @@ use Plugin\Calendar\Models\CalendarAttendee;
 use Plugin\Calendar\Models\CalendarEvent;
 use Plugin\Calendar\RecurrenceExpander;
 use Plugin\Calendar\Requests\CreateEventRequest;
+use Plugin\Calendar\Requests\EventActionRequest;
 use Plugin\Calendar\Requests\UpdateEventRequest;
 
 /**
@@ -456,7 +457,9 @@ class CalendarController extends Controller
     {
         $this->requireAuth();
 
-        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        // Kein Rückfall auf `id` im Post: UpdateEventRequest kennt das Feld
+        // nicht und lehnt so einen Post ohnehin ab.
+        $id = (int) ($_GET['id'] ?? 0);
         $event = $id > 0 ? CalendarEvent::find($id) : null;
         if ($event === null) {
             Flash::error('Termin nicht gefunden.');
@@ -493,7 +496,8 @@ class CalendarController extends Controller
     {
         $this->requireAuth();
 
-        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $input = $this->eventAction();
+        $id = (int) ($_GET['id'] ?? $input['id'] ?? 0);
         $event = $id > 0 ? CalendarEvent::find($id) : null;
         if ($event === null) {
             Flash::error('Termin nicht gefunden.');
@@ -519,8 +523,9 @@ class CalendarController extends Controller
     {
         $this->requireAuth();
 
-        $id       = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
-        $response = (string) ($_POST['response'] ?? '');
+        $input    = $this->eventAction();
+        $id       = (int) ($_GET['id'] ?? $input['id'] ?? 0);
+        $response = $input['response'];
         $allowed  = [
             CalendarAttendee::RESPONSE_ACCEPTED,
             CalendarAttendee::RESPONSE_DECLINED,
@@ -583,6 +588,19 @@ class CalendarController extends Controller
     // -----------------------------------------------------------------------
     //  Helpers
     // -----------------------------------------------------------------------
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function eventAction(): array
+    {
+        try {
+            return EventActionRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('calendar');
+        }
+    }
 
     /**
      * Uebernimmt validierte Felder in das Event-Model (nicht gespeichert).

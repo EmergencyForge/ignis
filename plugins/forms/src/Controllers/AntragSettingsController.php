@@ -12,7 +12,10 @@ use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 use Plugin\Forms\Requests\AddFormFieldRequest;
+use Plugin\Forms\Requests\EditFormActionRequest;
+use Plugin\Forms\Requests\FormIdRequest;
 use Plugin\Forms\Requests\SaveFormTypeRequest;
+use Plugin\Forms\Requests\SortRequest;
 
 /**
  * Die Antragstypen und ihre Felder.
@@ -104,7 +107,7 @@ class AntragSettingsController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('index');
 
-        foreach ($this->sortierungen($_POST['sortierung'] ?? null) as $id => $sortierung) {
+        foreach ($this->sortierung(self::LISTE)['sortierung'] as $id => $sortierung) {
             Capsule::table('intra_antrag_typen')->where('id', $id)->update(['sortierung' => $sortierung]);
         }
 
@@ -162,16 +165,22 @@ class AntragSettingsController extends Controller
         $id  = (int) ($_GET['id'] ?? 0);
         $typ = $this->typOderZurueck($id);
 
-        if (isset($_POST['update_typ'])) {
+        // Nur beim Post: validate() räumt die alte Eingabe weg, die das
+        // Formular nach einem Fehler gerade wieder anzeigen soll.
+        $aktion = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST'
+            ? EditFormActionRequest::validate($_POST)['aktion']
+            : null;
+
+        if ($aktion === EditFormActionRequest::TYP) {
             $this->updateTyp($id);
         }
 
-        if (isset($_POST['add_feld'])) {
+        if ($aktion === EditFormActionRequest::FELD) {
             $this->addFeld($id);
         }
 
-        if (isset($_POST['update_felder_sortierung'])) {
-            foreach ($this->sortierungen($_POST['feld_sortierung'] ?? null) as $feldId => $sortierung) {
+        if ($aktion === EditFormActionRequest::SORTIERUNG) {
+            foreach ($this->sortierung('settings/forms/edit?id=' . $id)['feld_sortierung'] as $feldId => $sortierung) {
                 Capsule::table('intra_antrag_felder')
                     ->where('id', $feldId)
                     ->where('antragstyp_id', $id)
@@ -201,10 +210,11 @@ class AntragSettingsController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('index');
 
-        $typId = (int) ($_POST['antragstyp_id'] ?? 0);
+        $ids   = $this->kennungen(self::LISTE);
+        $typId = $ids['antragstyp_id'];
         $this->typOderZurueck($typId);
 
-        $feldId = (int) ($_POST['id'] ?? 0);
+        $feldId = $ids['id'];
         if ($feldId <= 0) {
             Flash::set('error', 'Ungültige Feld-ID');
             $this->redirect('settings/forms/edit?id=' . $typId);
@@ -266,13 +276,39 @@ class AntragSettingsController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('index');
 
-        $id = (int) ($_POST['id'] ?? 0);
+        $id = $this->kennungen($zurueck)['id'];
         if ($id <= 0) {
             Flash::set('error', 'Ungültige Antragstyp-ID');
             $this->redirect($zurueck);
         }
 
         return $id;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function kennungen(string $zurueck): array
+    {
+        try {
+            return FormIdRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::set('error', $e->firstError() ?? 'Ungültige Antragstyp-ID');
+            $this->redirect($zurueck);
+        }
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function sortierung(string $zurueck): array
+    {
+        try {
+            return SortRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::set('error', $e->firstError() ?? 'Ungültige Sortierung.');
+            $this->redirect($zurueck);
+        }
     }
 
     /** Den Antragstyp holen, oder zurück zur Liste. */
@@ -290,34 +326,6 @@ class AntragSettingsController extends Controller
         }
 
         return $typ;
-    }
-
-    /**
-     * Die Sortierungstabelle eines Formulars als Kennung => Zahl.
-     *
-     * Der Post bringt sie als `sortierung[12]=3`. Beides muss eine Zahl
-     * sein, sonst landet ein Schlüssel wie `sortierung[abc]` als
-     * `WHERE id = 0` in der Abfrage.
-     *
-     * @return array<int,int>
-     */
-    private function sortierungen(mixed $roh): array
-    {
-        if (!is_array($roh)) {
-            return [];
-        }
-
-        $out = [];
-        foreach ($roh as $id => $sortierung) {
-            if (!is_numeric($id) || !is_numeric($sortierung)) {
-                continue;
-            }
-            if ((int) $id > 0) {
-                $out[(int) $id] = (int) $sortierung;
-            }
-        }
-
-        return $out;
     }
 
     private function naechsteSortierung(): int

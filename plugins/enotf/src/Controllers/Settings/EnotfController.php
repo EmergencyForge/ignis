@@ -7,8 +7,11 @@ namespace Plugin\Enotf\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
+use Plugin\Enotf\Requests\QuicklinkCategoryRequest;
+use Plugin\Enotf\Requests\QuicklinkRequest;
 
 /**
  * EnotfController: eNOTF-Quicklinks und -Kategorien.
@@ -67,13 +70,14 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/index');
 
-        $title        = trim($_POST['title'] ?? '');
-        $url          = trim($_POST['url'] ?? '');
-        $icon         = trim($_POST['icon'] ?? 'fa-solid fa-link');
-        $categorySlug = trim($_POST['category'] ?? 'schnellzugriff');
-        $sortOrder    = (int) ($_POST['sort_order'] ?? 0);
-        $colWidth     = trim($_POST['col_width'] ?? 'col-6');
-        $active       = isset($_POST['active']) ? 1 : 0;
+        $input        = $this->quicklinkInput();
+        $title        = $input['title'];
+        $url          = $input['url'];
+        $icon         = $input['icon'];
+        $categorySlug = $input['category'];
+        $sortOrder    = $input['sort_order'];
+        $colWidth     = $input['col_width'];
+        $active       = $input['active'];
 
         if ($title === '' || $url === '') {
             Flash::set('error', 'Titel und URL dürfen nicht leer sein.');
@@ -104,14 +108,15 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/index');
 
-        $id           = (int) ($_POST['id'] ?? 0);
-        $title        = trim($_POST['title'] ?? '');
-        $url          = trim($_POST['url'] ?? '');
-        $icon         = trim($_POST['icon'] ?? 'fa-solid fa-link');
-        $categorySlug = trim($_POST['category'] ?? 'schnellzugriff');
-        $sortOrder    = (int) ($_POST['sort_order'] ?? 0);
-        $colWidth     = trim($_POST['col_width'] ?? 'col-6');
-        $active       = isset($_POST['active']) ? 1 : 0;
+        $input        = $this->quicklinkInput();
+        $id           = $input['id'];
+        $title        = $input['title'];
+        $url          = $input['url'];
+        $icon         = $input['icon'];
+        $categorySlug = $input['category'];
+        $sortOrder    = $input['sort_order'];
+        $colWidth     = $input['col_width'];
+        $active       = $input['active'];
 
         if ($id <= 0 || $title === '' || $url === '') {
             Flash::set('error', 'Ungültige Daten.');
@@ -142,7 +147,7 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/index');
 
-        $id = (int) ($_POST['id'] ?? 0);
+        $id = $this->quicklinkInput()['id'];
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
             $this->redirect('settings/enotf/index');
@@ -183,10 +188,11 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/kategorien/index');
 
-        $name      = trim($_POST['name'] ?? '');
-        $slug      = strtolower(trim($_POST['slug'] ?? ''));
-        $sortOrder = (int) ($_POST['sort_order'] ?? 0);
-        $active    = isset($_POST['active']) ? 1 : 0;
+        $input     = $this->categoryInput();
+        $name      = $input['name'];
+        $slug      = $input['slug'];
+        $sortOrder = $input['sort_order'];
+        $active    = $input['active'];
 
         if ($name === '' || $slug === '') {
             Flash::set('error', 'Name und Slug dürfen nicht leer sein.');
@@ -220,11 +226,12 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/kategorien/index');
 
-        $id        = (int) ($_POST['id'] ?? 0);
-        $name      = trim($_POST['name'] ?? '');
-        $slug      = strtolower(trim($_POST['slug'] ?? ''));
-        $sortOrder = (int) ($_POST['sort_order'] ?? 0);
-        $active    = isset($_POST['active']) ? 1 : 0;
+        $input     = $this->categoryInput();
+        $id        = $input['id'];
+        $name      = $input['name'];
+        $slug      = $input['slug'];
+        $sortOrder = $input['sort_order'];
+        $active    = $input['active'];
 
         if ($id <= 0 || $name === '' || $slug === '') {
             Flash::set('error', 'Ungültige Daten.');
@@ -261,7 +268,7 @@ class EnotfController extends Controller
         $this->requireAuth();
         $this->ensureAdmin('settings/enotf/kategorien/index');
 
-        $id = (int) ($_POST['id'] ?? 0);
+        $id = $this->categoryInput()['id'];
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
             $this->redirect('settings/enotf/kategorien/index');
@@ -287,6 +294,32 @@ class EnotfController extends Controller
         }
 
         $this->redirect('settings/enotf/kategorien/index');
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function quicklinkInput(): array
+    {
+        try {
+            return QuicklinkRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::set('error', $e->firstError() ?? 'Ungültige Daten.');
+            $this->redirect('settings/enotf/index');
+        }
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function categoryInput(): array
+    {
+        try {
+            return QuicklinkCategoryRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::set('error', $e->firstError() ?? 'Ungültige Daten.');
+            $this->redirect('settings/enotf/kategorien/index');
+        }
     }
 
     private function ensureAdmin(string $redirect): void

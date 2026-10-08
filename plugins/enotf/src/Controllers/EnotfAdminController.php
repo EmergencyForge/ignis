@@ -14,8 +14,10 @@ use App\Helpers\Flash;
 use App\Notifications\NotificationManager;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\Requests\ProtocolDeleteRequest;
 
 /**
  * EnotfAdminController: eNOTF Admin/QM-Bereich.
@@ -126,8 +128,15 @@ class EnotfAdminController extends Controller
             throw new \EmergencyForge\Http\Exceptions\RedirectException(EnotfUrl::admin('list'));
         }
 
+        try {
+            $input = ProtocolDeleteRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            throw new \EmergencyForge\Http\Exceptions\RedirectException(EnotfUrl::admin('list'));
+        }
+
         $userid = $_SESSION['userid'];
-        $id     = (int) ($_POST['id'] ?? 0);
+        $id     = $input['id'];
 
         // Protocol-Info VOR Delete für Notification
         $protocol = Capsule::table('intra_edivi')
@@ -164,7 +173,7 @@ class EnotfAdminController extends Controller
 
         // Zurück zur Liste mit derselben Suche, Sortierung und Seite. Wie im
         // Posteingang nur auf Adressen der Liste selbst.
-        $back = (string) ($_POST['return'] ?? '');
+        $back = $input['return'];
         if (str_starts_with($back, 'enotf/admin/list') && preg_match('~^[a-z][a-z0-9/_-]*(\?[^\s]*)?$~i', $back) === 1) {
             $this->redirect($back);
         }

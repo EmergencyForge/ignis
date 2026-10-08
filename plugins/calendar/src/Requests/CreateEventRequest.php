@@ -58,12 +58,23 @@ class CreateEventRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter keySet greifen nur Texte je Feld, nicht je Regel.
         return [
-            'notBlank' => 'Pflichtfeld darf nicht leer sein.',
-            'regex'    => 'Ungültiges Format.',
-            'in'       => 'Ungültiger Wert.',
-            'length'   => 'Maximal {{maxValue}} Zeichen.',
-            'intVal'   => 'Muss eine Zahl sein.',
+            'title'               => 'Der Titel ist Pflicht und darf höchstens 160 Zeichen lang sein.',
+            'description'         => 'Die Beschreibung darf höchstens 2000 Zeichen lang sein.',
+            'location'            => 'Der Ort darf höchstens 255 Zeichen lang sein.',
+            'starts_at'           => 'Der Beginn hat kein gültiges Datum.',
+            'ends_at'             => 'Das Ende hat kein gültiges Datum.',
+            'all_day'             => 'Ungültige Angabe bei Ganztägig.',
+            'color'               => 'Diese Farbe gibt es nicht.',
+            'category'            => 'Diese Kategorie gibt es nicht.',
+            'visibility'          => 'Ungültige Sichtbarkeit.',
+            'visibility_role_ids' => 'Ungültige Rollen.',
+            'track_attendance'    => 'Ungültige Angabe bei der Anwesenheit.',
+            'attendees'           => 'Ungültige Teilnehmer.',
+            'recurrence_rule'     => 'Die Wiederholung ist ungültig.',
+            'recurrence_until'    => 'Das Ende der Wiederholung hat kein gültiges Datum.',
+            'keySet'              => 'Das Formular enthält unbekannte Felder.',
         ];
     }
 

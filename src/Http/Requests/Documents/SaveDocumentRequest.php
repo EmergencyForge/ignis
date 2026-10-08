@@ -37,7 +37,7 @@ class SaveDocumentRequest extends FormRequest
     {
         return [
             'title'  => 'Titel darf höchstens 200 Zeichen lang sein.',
-            'length' => 'Titel darf höchstens 200 Zeichen lang sein.',
+            'keySet' => 'Das Formular enthält unbekannte Felder.',
         ];
     }
 

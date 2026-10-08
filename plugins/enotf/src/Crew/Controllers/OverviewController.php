@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Crew\Controllers;
 
 use App\Helpers\Flash;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Crew\Models\Edivi;
 use Plugin\Enotf\Crew\Models\Quicklink;
 use Plugin\Enotf\Crew\Models\QuicklinkCategory;
+use Plugin\Enotf\Crew\Requests\DeleteAllRequest;
 
 /**
  * OverviewController: Protokoll-Liste + Quicklinks fürs eingeloggte
@@ -82,7 +84,12 @@ class OverviewController extends CrewController
         $this->bootPage();
         $this->requireCrewSession();
 
-        if (!isset($_POST['delete_all'])) {
+        try {
+            $deleteAll = DeleteAllRequest::validate($_POST)['delete_all'];
+        } catch (ValidationException) {
+            $deleteAll = false;
+        }
+        if (!$deleteAll) {
             $this->redirectAbsolute(EnotfUrl::page('overview'));
         }
 

@@ -13,6 +13,8 @@ use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Logbook\Models\LogbookEntry;
 use Plugin\Logbook\Requests\CreateFahrtRequest;
+use Plugin\Logbook\Requests\DeleteFahrtRequest;
+use Plugin\Logbook\Requests\ReturnToRequest;
 use Plugin\Logbook\Requests\UpdateFahrtRequest;
 
 /**
@@ -150,11 +152,13 @@ class LogbookController extends Controller
         $this->requireAnyContext();
         $this->ensure('logbook.create', redirectTo: 'index');
 
+        $returnTo = $this->returnTo();
+
         try {
             $data = CreateFahrtRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirectByReturnTo();
+            $this->redirectByReturnTo($returnTo);
         }
 
         // vehicle_id oder vehicle_identifier auflösen, falls eines fehlt
@@ -205,7 +209,7 @@ class LogbookController extends Controller
         }
 
         Flash::success('Fahrtenbuch-Eintrag erstellt.');
-        $this->redirectByReturnTo();
+        $this->redirectByReturnTo($returnTo);
     }
 
     /**
@@ -215,24 +219,26 @@ class LogbookController extends Controller
     {
         $this->requireAnyContext();
 
+        $returnTo = $this->returnTo();
+
         try {
             $data = UpdateFahrtRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirectByReturnTo();
+            $this->redirectByReturnTo($returnTo);
         }
 
         /** @var LogbookEntry|null $entry */
         $entry = LogbookEntry::find($data['id']);
         if ($entry === null) {
             Flash::error('Eintrag nicht gefunden.');
-            $this->redirectByReturnTo();
+            $this->redirectByReturnTo($returnTo);
         }
 
         // Multi-Context-Authorization via Policy
         if (Gate::denies('logbook.update', $entry)) {
             Flash::error('Keine Berechtigung zum Bearbeiten.');
-            $this->redirectByReturnTo();
+            $this->redirectByReturnTo($returnTo);
         }
 
         // Felder updaten: leere Strings für vehicle/fahrer_name überschreiben
@@ -272,7 +278,7 @@ class LogbookController extends Controller
         }
 
         Flash::success('Eintrag aktualisiert.');
-        $this->redirectByReturnTo();
+        $this->redirectByReturnTo($returnTo);
     }
 
     /**
@@ -286,10 +292,16 @@ class LogbookController extends Controller
         $this->requireAuth();
         Gate::authorize('logbook.delete');
 
-        $id = (int) ($_POST['id'] ?? 0);
+        $returnTo = $this->returnTo();
+
+        try {
+            $id = DeleteFahrtRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
+            $id = 0;
+        }
         if ($id <= 0) {
             Flash::error('Ungültige ID.');
-            $this->redirectByReturnTo();
+            $this->redirectByReturnTo($returnTo);
         }
 
         LogbookEntry::query()->where('id', $id)->delete();
@@ -303,7 +315,7 @@ class LogbookController extends Controller
         );
 
         Flash::success('Eintrag gelöscht.');
-        $this->redirectByReturnTo();
+        $this->redirectByReturnTo($returnTo);
     }
 
     // -----------------------------------------------------------------------
@@ -327,13 +339,26 @@ class LogbookController extends Controller
     }
 
     /**
-     * Redirect basierend auf POST['return_to']. Die actions.php wird aus
-     * 3 verschiedenen Kontexten aufgerufen (admin/enotf/firetab) und muss
-     * jeweils zur richtigen Page zurückspringen.
+     * `return_to` aus dem Post, vor dem eigentlichen Formular gelesen:
+     * validate() räumt die alte Eingabe weg und darf deshalb nicht nach
+     * einer gescheiterten Prüfung laufen.
      */
-    private function redirectByReturnTo(): never
+    private function returnTo(): string
     {
-        $returnTo = (string) ($_POST['return_to'] ?? 'admin');
+        try {
+            return ReturnToRequest::validate($_POST)['return_to'];
+        } catch (ValidationException) {
+            return 'admin';
+        }
+    }
+
+    /**
+     * Die actions.php wird aus 3 verschiedenen Kontexten aufgerufen
+     * (admin/enotf/firetab) und muss jeweils zur richtigen Page
+     * zurückspringen.
+     */
+    private function redirectByReturnTo(string $returnTo): never
+    {
         $target = match ($returnTo) {
             'enotf'   => 'enotf/fahrtenbuch',
             'firetab' => 'firetab/logbook',

@@ -7,12 +7,15 @@ namespace Plugin\KnowledgeBase\Controllers;
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 use Plugin\KnowledgeBase\KBHelper;
 use Plugin\KnowledgeBase\Models\KbCategory;
 use Plugin\KnowledgeBase\Models\KbEntry;
 use Plugin\KnowledgeBase\Models\KbEntryRelation;
+use Plugin\KnowledgeBase\Requests\EntryActionRequest;
+use Plugin\KnowledgeBase\Requests\SaveEntryRequest;
 
 /**
  * LexiconController: frueher als Legacy-Folder `wissensdb/` am Webroot,
@@ -25,15 +28,6 @@ use Plugin\KnowledgeBase\Models\KbEntryRelation;
  */
 class LexiconController extends Controller
 {
-    /** Felder, die im Formular ein Editor sind. Wirkstoff und Wirkstoffgruppe bleiben Klartext. */
-    private const EDITOR_FIELDS = [
-        'content',
-        'med_wirkmechanismus', 'med_indikationen', 'med_kontraindikationen',
-        'med_uaw', 'med_dosierung', 'med_besonderheiten',
-        'mass_wirkprinzip', 'mass_indikationen', 'mass_kontraindikationen',
-        'mass_risiken', 'mass_alternativen', 'mass_durchfuehrung',
-    ];
-
     /**
      * Views liegen im templates/-Verzeichnis des Plugins.
      */
@@ -342,11 +336,17 @@ class LexiconController extends Controller
         }
 
         $errors = [];
+        $input  = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            [$errors, $newId] = $this->saveEntry($isEdit, $editId);
-            if ($errors === [] && $newId !== null) {
-                Flash::success($isEdit ? 'Eintrag erfolgreich aktualisiert' : 'Eintrag erfolgreich erstellt');
-                $this->redirect('lexicon/view?id=' . $newId);
+            try {
+                $input = SaveEntryRequest::validate($_POST);
+                [$errors, $newId] = $this->saveEntry($isEdit, $editId, $input);
+                if ($errors === [] && $newId !== null) {
+                    Flash::success($isEdit ? 'Eintrag erfolgreich aktualisiert' : 'Eintrag erfolgreich erstellt');
+                    $this->redirect('lexicon/view?id=' . $newId);
+                }
+            } catch (ValidationException $e) {
+                $errors = array_values(array_unique($e->errors()));
             }
         }
 
@@ -356,16 +356,16 @@ class LexiconController extends Controller
             $formData = $entry;
         } else {
             $formData = [
-                'type'                => $_POST['type'] ?? 'general',
-                'category_id'         => $_POST['category_id'] ?? '',
-                'title'               => $_POST['title'] ?? '',
-                'subtitle'            => $_POST['subtitle'] ?? '',
-                'competency_level'    => $_POST['competency_level'] ?? '',
-                'med_wirkstoff'       => $_POST['med_wirkstoff'] ?? '',
-                'med_wirkstoffgruppe' => $_POST['med_wirkstoffgruppe'] ?? '',
+                'type'                => $input['type'] ?? 'general',
+                'category_id'         => $input['category_id'] ?? '',
+                'title'               => $input['title'] ?? '',
+                'subtitle'            => $input['subtitle'] ?? '',
+                'competency_level'    => $input['competency_level'] ?? '',
+                'med_wirkstoff'       => $input['med_wirkstoff'] ?? '',
+                'med_wirkstoffgruppe' => $input['med_wirkstoffgruppe'] ?? '',
             ];
-            foreach (self::EDITOR_FIELDS as $f) {
-                $formData[$f] = is_string($_POST[$f] ?? null) ? (KBHelper::fromEditorJson($_POST[$f]) ?? '') : '';
+            foreach (SaveEntryRequest::EDITOR_FIELDS as $f) {
+                $formData[$f] = $input['editor'][$f] ?? '';
             }
         }
 
@@ -385,21 +385,23 @@ class LexiconController extends Controller
 
     /**
      * Speichert den Eintrag (Create oder Update). Gibt [errors[], newId|null].
+     *
+     * @param  array<string,mixed> $input aus SaveEntryRequest
      * @return array{0: array<int,string>, 1: int|null}
      */
-    private function saveEntry(bool $isEdit, ?int $editId): array
+    private function saveEntry(bool $isEdit, ?int $editId, array $input): array
     {
-        $type             = $_POST['type'] ?? 'general';
-        $title            = trim($_POST['title'] ?? '');
-        $subtitle         = trim($_POST['subtitle'] ?? '');
-        $competency_level = !empty($_POST['competency_level']) ? $_POST['competency_level'] : null;
-        $category_id      = !empty($_POST['category_id']) ? (int) $_POST['category_id'] : null;
-        $selectedTags     = $_POST['tags'] ?? [];
-        $selectedRels     = $_POST['relations'] ?? [];
+        $type             = $input['type'];
+        $title            = $input['title'];
+        $subtitle         = $input['subtitle'];
+        $competency_level = $input['competency_level'];
+        $category_id      = $input['category_id'];
+        $selectedTags     = $input['tags'];
+        $selectedRels     = $input['relations'];
 
         $detail = [
-            'med_wirkstoff'       => trim($_POST['med_wirkstoff'] ?? ''),
-            'med_wirkstoffgruppe' => trim($_POST['med_wirkstoffgruppe'] ?? ''),
+            'med_wirkstoff'       => $input['med_wirkstoff'],
+            'med_wirkstoffgruppe' => $input['med_wirkstoffgruppe'],
         ];
 
         $errors = [];
@@ -412,14 +414,14 @@ class LexiconController extends Controller
 
         // Die Editoren schicken ihr JSON erst, wenn sie geladen sind. Fehlt
         // ein Feld, bleibt beim Bearbeiten der gespeicherte Wert stehen.
-        foreach (self::EDITOR_FIELDS as $f) {
-            if (!isset($_POST[$f])) {
+        foreach (SaveEntryRequest::EDITOR_FIELDS as $f) {
+            if (!array_key_exists($f, $input['editor'])) {
                 if (!$isEdit) {
                     $detail[$f] = '';
                 }
                 continue;
             }
-            $html = is_string($_POST[$f]) ? KBHelper::fromEditorJson($_POST[$f]) : null;
+            $html = $input['editor'][$f];
             if ($html === null) {
                 $errors[] = 'Der Text konnte nicht gelesen werden. Lade die Seite neu und versuche es noch einmal.';
                 break;
@@ -430,8 +432,8 @@ class LexiconController extends Controller
             return [$errors, null];
         }
 
-        $is_pinned   = isset($_POST['is_pinned']) ? 1 : 0;
-        $hide_editor = isset($_POST['hide_editor']) ? 1 : 0;
+        $is_pinned   = $input['is_pinned'];
+        $hide_editor = $input['hide_editor'];
 
         try {
             if ($isEdit && $editId) {
@@ -524,8 +526,12 @@ class LexiconController extends Controller
             $this->redirect('lexicon/index');
         }
 
-        $id     = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $action = $_POST['action'] ?? '';
+        try {
+            ['id' => $id, 'action' => $action] = EntryActionRequest::validate($_POST);
+        } catch (ValidationException) {
+            $id = null;
+            $action = '';
+        }
         if (!$id || !in_array($action, ['archive', 'restore'], true)) {
             Flash::error('Ungültige Anfrage');
             $this->redirect('lexicon/index');
@@ -563,8 +569,12 @@ class LexiconController extends Controller
             $this->redirect('lexicon/index');
         }
 
-        $id     = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $action = $_POST['action'] ?? '';
+        try {
+            ['id' => $id, 'action' => $action] = EntryActionRequest::validate($_POST);
+        } catch (ValidationException) {
+            $id = null;
+            $action = '';
+        }
         if (!$id || !in_array($action, ['pin', 'unpin'], true)) {
             Flash::error('Ungültige Anfrage');
             $this->redirect('lexicon/index');
@@ -604,7 +614,11 @@ class LexiconController extends Controller
             Flash::error('Keine Berechtigung');
             $this->redirect('lexicon/index');
         }
-        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        try {
+            $id = EntryActionRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
+            $id = null;
+        }
         if (!$id) {
             Flash::error('Ungültige ID');
             $this->redirect('lexicon/index');

@@ -19,8 +19,13 @@ use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use DateTime;
 use DateTimeZone;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
+use Plugin\Firetab\Requests\BulkDeleteRequest;
+use Plugin\Firetab\Requests\CreateIncidentRequest;
+use Plugin\Firetab\Requests\IncidentActionRequest;
+use Plugin\Firetab\Requests\VehicleLoginRequest;
 
 /**
  * FiretabController: Feuerwehr-Einsätze (FireTab-Modul).
@@ -141,8 +146,15 @@ class FiretabController extends Controller
             $this->redirect('login');
         }
 
-        $vehicleId  = (int) ($_POST['vehicle_id'] ?? 0);
-        $operatorId = (int) ($_POST['operator_id'] ?? 0);
+        try {
+            $input = VehicleLoginRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('firetab/login-vehicle');
+        }
+
+        $vehicleId  = $input['vehicle_id'];
+        $operatorId = $input['operator_id'];
 
         if ($vehicleId <= 0) {
             Flash::error('Bitte wählen Sie ein Fahrzeug aus.');
@@ -408,19 +420,29 @@ class FiretabController extends Controller
             $this->redirect('firetab/login-vehicle');
         }
 
-        $incidentNumber = trim($_POST['incident_number'] ?? '');
-        $location       = trim($_POST['location'] ?? '');
-        $keyword        = trim($_POST['keyword'] ?? '');
-        $date           = $_POST['date'] ?? '';
-        $time           = $_POST['time'] ?? '';
-        $leaderId       = !empty($_POST['leader_id']) ? (int) $_POST['leader_id'] : null;
-        $notes          = trim($_POST['notes'] ?? '');
-        $callerName     = trim($_POST['caller_name'] ?? '');
-        $callerContact  = trim($_POST['caller_contact'] ?? '');
-        $ownerName      = trim($_POST['owner_name'] ?? '');
-        $ownerContact   = trim($_POST['owner_contact'] ?? '');
-        $locationX      = !empty($_POST['location_x']) ? (float) $_POST['location_x'] : null;
-        $locationY      = !empty($_POST['location_y']) ? (float) $_POST['location_y'] : null;
+        try {
+            $input = CreateIncidentRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            $this->renderView('firetab/create', [
+                'leaders' => FederatedPersonnel::getLeaderOptions(),
+                'errors'  => array_values(array_unique($e->errors())),
+            ]);
+            return;
+        }
+
+        $incidentNumber = $input['incident_number'];
+        $location       = $input['location'];
+        $keyword        = $input['keyword'];
+        $date           = $input['date'];
+        $time           = $input['time'];
+        $leaderId       = $input['leader_id'];
+        $notes          = $input['notes'];
+        $callerName     = $input['caller_name'];
+        $callerContact  = $input['caller_contact'];
+        $ownerName      = $input['owner_name'];
+        $ownerContact   = $input['owner_contact'];
+        $locationX      = $input['location_x'];
+        $locationY      = $input['location_y'];
 
         $errors = [];
         if ($incidentNumber === '') $errors[] = 'Einsatznummer ist erforderlich.';
@@ -494,14 +516,21 @@ class FiretabController extends Controller
 
     /**
      * POST /firetab/actions: Dispatcher für die 12 Action-Typen.
-     * Wird vom Stub aufgerufen, ermittelt $_POST['action'] und delegiert.
+     * Wird vom Stub aufgerufen, ermittelt `action` aus dem Post und delegiert.
      */
     public function dispatchAction(): void
     {
         FiveMSupport::prepareCookiesAndHeaders();
 
-        $id = (int) ($_POST['incident_id'] ?? $_GET['id'] ?? 0);
-        $returnTab = $_POST['return_tab'] ?? $_GET['tab'] ?? 'stammdaten';
+        try {
+            $input = IncidentActionRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('index');
+        }
+
+        $id = (int) ($input['incident_id'] ?? $_GET['id'] ?? 0);
+        $returnTab = $input['return_tab'] ?? $_GET['tab'] ?? 'stammdaten';
 
         if ($id <= 0) {
             Flash::error('Ungültige Einsatz-ID');
@@ -516,7 +545,7 @@ class FiretabController extends Controller
         }
         $incident = (array) $incident;
 
-        $action = $_POST['action'] ?? '';
+        $action = $input['action'];
 
         $actionMap = [
             'add_vehicle'        => 'actionAddVehicle',
@@ -535,7 +564,7 @@ class FiretabController extends Controller
 
         if (isset($actionMap[$action])) {
             try {
-                $this->{$actionMap[$action]}($id, $incident);
+                $this->{$actionMap[$action]}($id, $incident, $input);
             } catch (PDOException $e) {
                 Flash::error('Fehler: ' . $e->getMessage());
             }
@@ -550,18 +579,19 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionAddVehicle(int $id, array $incident): void
+    private function actionAddVehicle(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen.');
             return;
         }
 
-        $vehicleId         = !empty($_POST['vehicle_id']) ? (int) $_POST['vehicle_id'] : null;
-        $vehicleName       = trim($_POST['vehicle_name'] ?? '');
-        $vehicleIdentifier = trim($_POST['vehicle_identifier'] ?? '');
-        $radioName         = trim($_POST['radio_name'] ?? '');
+        $vehicleId         = $input['vehicle_id'];
+        $vehicleName       = $input['vehicle_name'];
+        $vehicleIdentifier = $input['vehicle_identifier'];
+        $radioName         = $input['radio_name'];
         $fromOther         = ($vehicleId === null) ? 1 : 0;
 
         if ($vehicleId !== null) {
@@ -597,15 +627,16 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionRemoveVehicle(int $id, array $incident): void
+    private function actionRemoveVehicle(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen.');
             return;
         }
 
-        $rowId = (int) ($_POST['vehicle_row_id'] ?? 0);
+        $rowId = $input['vehicle_row_id'];
         if ($rowId <= 0) return;
 
         $veh = Capsule::table('intra_fire_incident_vehicles as v')
@@ -631,18 +662,19 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionAddSitrep(int $id, array $incident): void
+    private function actionAddSitrep(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen.');
             return;
         }
 
-        $rtDate             = $_POST['rt_date'] ?? '';
-        $rtTime             = $_POST['rt_time'] ?? '';
-        $text               = trim($_POST['text'] ?? '');
-        $vehicleAttachedId  = !empty($_POST['sitrep_attached_vehicle_id']) ? (int) $_POST['sitrep_attached_vehicle_id'] : null;
+        $rtDate             = $input['rt_date'];
+        $rtTime             = $input['rt_time'];
+        $text               = $input['text'];
+        $vehicleAttachedId  = $input['sitrep_attached_vehicle_id'];
 
         if (!$rtDate || !$rtTime || $text === '' || !$vehicleAttachedId) {
             Flash::error('Bitte Datum, Uhrzeit, Text und Fahrzeug vor Ort wählen.');
@@ -676,8 +708,9 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionFinalize(int $id, array $incident): void
+    private function actionFinalize(int $id, array $incident, array $input): void
     {
         $inc = Capsule::table('intra_fire_incidents')->where('id', $id)
             ->select('location', 'keyword', 'started_at', 'leader_id')
@@ -724,15 +757,16 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionSetStatus(int $id, array $incident): void
+    private function actionSetStatus(int $id, array $incident, array $input): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
             Flash::error('Keine Berechtigung.');
             return;
         }
 
-        $status = (int) ($_POST['status'] ?? 0);
+        $status = $input['status'];
         if (!in_array($status, [0, 1, 2, 3, 4], true)) return;
 
         Capsule::table('intra_fire_incidents')->where('id', $id)->update([
@@ -768,15 +802,16 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionUpdateNotes(int $id, array $incident): void
+    private function actionUpdateNotes(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen und kann nicht mehr bearbeitet werden.');
             return;
         }
 
-        $notes = trim($_POST['notes'] ?? '');
+        $notes = $input['notes'];
         Capsule::table('intra_fire_incidents')->where('id', $id)->update([
             'notes'      => $notes ?: null,
             'updated_by' => $_SESSION['userid'] ?? null,
@@ -789,24 +824,25 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionUpdateCore(int $id, array $incident): void
+    private function actionUpdateCore(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen und kann nicht mehr bearbeitet werden.');
             return;
         }
 
-        $loc           = trim($_POST['edit_location'] ?? '');
-        $keyw          = trim($_POST['edit_keyword'] ?? '');
-        $incno         = trim($_POST['edit_incident_number'] ?? '');
-        $date          = $_POST['edit_date'] ?? '';
-        $time          = $_POST['edit_time'] ?? '';
-        $leader        = !empty($_POST['edit_leader_id']) ? (int) $_POST['edit_leader_id'] : null;
-        $callerName    = trim($_POST['edit_caller_name'] ?? '');
-        $callerContact = trim($_POST['edit_caller_contact'] ?? '');
-        $ownerName     = trim($_POST['edit_owner_name'] ?? '');
-        $ownerContact  = trim($_POST['edit_owner_contact'] ?? '');
+        $loc           = $input['edit_location'];
+        $keyw          = $input['edit_keyword'];
+        $incno         = $input['edit_incident_number'];
+        $date          = $input['edit_date'];
+        $time          = $input['edit_time'];
+        $leader        = $input['edit_leader_id'];
+        $callerName    = $input['edit_caller_name'];
+        $callerContact = $input['edit_caller_contact'];
+        $ownerName     = $input['edit_owner_name'];
+        $ownerContact  = $input['edit_owner_contact'];
 
         if ($incno === '' || $loc === '' || $keyw === '' || $date === '' || $time === '' || $leader === null) {
             Flash::error('Bitte alle Pflichtfelder ausfüllen (Nummer, Ort, Stichwort, Beginn, Einsatzleiter).');
@@ -837,15 +873,16 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionAddAsu(int $id, array $incident): void
+    private function actionAddAsu(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen.');
             return;
         }
 
-        $asuDataJson = $_POST['asu_data'] ?? '';
+        $asuDataJson = $input['asu_data'];
         if (empty($asuDataJson)) {
             Flash::error('Keine ASU-Daten übermittelt.');
             return;
@@ -891,21 +928,22 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionUpdateAsu(int $id, array $incident): void
+    private function actionUpdateAsu(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen.');
             return;
         }
 
-        $asuId = (int) ($_POST['asu_id'] ?? 0);
+        $asuId = $input['asu_id'];
         if ($asuId <= 0) {
             Flash::error('Keine ASU-ID übermittelt.');
             return;
         }
 
-        $asuDataJson = $_POST['asu_data'] ?? '';
+        $asuDataJson = $input['asu_data'];
         if (empty($asuDataJson)) {
             Flash::error('Keine ASU-Daten übermittelt.');
             return;
@@ -948,15 +986,16 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionDeleteAsu(int $id, array $incident): void
+    private function actionDeleteAsu(int $id, array $incident, array $input): void
     {
         if ($incident['finalized']) {
             Flash::error('Einsatz ist bereits abgeschlossen.');
             return;
         }
 
-        $asuId = (int) ($_POST['asu_id'] ?? 0);
+        $asuId = $input['asu_id'];
         if ($asuId <= 0) return;
 
         $supervisor = Capsule::table('intra_fire_incident_asu')
@@ -978,8 +1017,9 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionArchive(int $id, array $incident): void
+    private function actionArchive(int $id, array $incident, array $input): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
             Flash::error('Keine Berechtigung zum Archivieren von Einsätzen.');
@@ -1005,8 +1045,9 @@ class FiretabController extends Controller
 
     /**
      * @param array<string, mixed> $incident
+     * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionUnarchive(int $id, array $incident): void
+    private function actionUnarchive(int $id, array $incident, array $input): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
             Flash::error('Keine Berechtigung zum Wiederherstellen von Einsätzen.');
@@ -1338,8 +1379,12 @@ class FiretabController extends Controller
         $this->requireAuth();
         $this->ensure('fireIncident.manageQm', redirectTo: 'firetab/admin/list');
 
-        $raw = $_POST['ids'] ?? [];
-        $ids = is_array($raw) ? array_values(array_unique(array_filter(array_map('intval', $raw), static fn (int $id): bool => $id > 0))) : [];
+        try {
+            $ids = BulkDeleteRequest::validate($_POST)['ids'];
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Kein Protokoll ausgewählt.');
+            $this->redirect('firetab/admin/list');
+        }
         $existing = $ids === [] ? [] : Capsule::table('intra_fire_incidents')->whereIn('id', $ids)->where('archived', 0)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
         if ($existing === []) {
             Flash::error('Kein Protokoll ausgewählt.');

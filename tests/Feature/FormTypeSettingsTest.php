@@ -186,4 +186,52 @@ final class FormTypeSettingsTest extends FeatureTestCase
 
         $this->assertFalse(Capsule::table('intra_antrag_felder')->where('antragstyp_id', $id)->exists());
     }
+
+    #[Test]
+    public function der_antragstyp_laesst_sich_auf_der_bearbeitungsseite_aendern(): void
+    {
+        $id = $this->typ();
+
+        $response = $this->post('/settings/forms/edit', [
+            'update_typ'   => '',
+            'name'         => 'Sonderurlaub',
+            'beschreibung' => 'Mit Begründung',
+            'sortierung'   => '4',
+        ], ['query' => ['id' => (string) $id]]);
+
+        $this->assertRedirect($response, '/settings/forms/edit?id=' . $id);
+        $typ = Capsule::table('intra_antrag_typen')->where('id', $id)->first();
+        $this->assertSame('Sonderurlaub', $typ->name);
+        $this->assertSame(4, (int) $typ->sortierung);
+        // Ohne Haken ist der Typ stillgelegt
+        $this->assertSame(0, (int) $typ->aktiv);
+    }
+
+    #[Test]
+    public function die_feldsortierung_laesst_sich_speichern(): void
+    {
+        $id   = $this->typ();
+        $feld = (int) Capsule::table('intra_antrag_felder')->insertGetId([
+            'antragstyp_id' => $id, 'feldname' => 'grund', 'label' => 'Grund', 'feldtyp' => 'text', 'sortierung' => 1,
+        ]);
+
+        $this->post('/settings/forms/edit', [
+            'update_felder_sortierung' => '1',
+            'feld_sortierung'          => [(string) $feld => '7', 'abc' => '2'],
+        ], ['query' => ['id' => (string) $id]]);
+
+        $this->assertSame(7, (int) Capsule::table('intra_antrag_felder')->where('id', $feld)->value('sortierung'));
+    }
+
+    #[Test]
+    public function eine_sortierung_ohne_tabelle_wird_abgewiesen(): void
+    {
+        $id = $this->typ(['sortierung' => 1]);
+
+        $response = $this->post('/settings/forms/sort', ['sortierung' => '9']);
+
+        $this->assertRedirect($response, '/settings/forms/list');
+        $this->assertSame('Ungültige Sortierung.', $_SESSION['flash']['text'] ?? null);
+        $this->assertSame(1, (int) Capsule::table('intra_antrag_typen')->where('id', $id)->value('sortierung'));
+    }
 }

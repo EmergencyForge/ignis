@@ -7,10 +7,14 @@ namespace Plugin\ManvBoard\Controllers;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use App\Support\ListQuery;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Plugin\ManvBoard\Models\MANVLage;
 use Plugin\ManvBoard\Models\MANVLog;
 use Plugin\ManvBoard\Models\MANVPatient;
 use Plugin\ManvBoard\Models\MANVRessource;
+use Plugin\ManvBoard\Requests\SaveLageRequest;
+use Plugin\ManvBoard\Requests\SavePatientRequest;
+use Plugin\ManvBoard\Requests\SaveRessourceRequest;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -85,17 +89,24 @@ class MciController extends Controller
         $this->requireAuth();
         $this->ensure('mci.create', redirectTo: 'index');
 
+        try {
+            $input = SaveLageRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mci/create');
+        }
+
         $data = [
-            'einsatznummer'        => trim((string) ($_POST['einsatznummer'] ?? '')),
-            'einsatzort'           => trim((string) ($_POST['einsatzort'] ?? '')),
-            'einsatzanlass'        => $_POST['einsatzanlass'] ?? null,
-            'lna_name'             => $_POST['lna_name'] ?? null,
-            'lna_mitarbeiter_id'   => !empty($_POST['lna_mitarbeiter_id']) ? (int) $_POST['lna_mitarbeiter_id'] : null,
-            'orgl_name'            => $_POST['orgl_name'] ?? null,
-            'orgl_mitarbeiter_id'  => !empty($_POST['orgl_mitarbeiter_id']) ? (int) $_POST['orgl_mitarbeiter_id'] : null,
-            'einsatzbeginn'        => $_POST['einsatzbeginn'] ?? date('Y-m-d H:i:s'),
+            'einsatznummer'        => $input['einsatznummer'],
+            'einsatzort'           => $input['einsatzort'],
+            'einsatzanlass'        => $input['einsatzanlass'],
+            'lna_name'             => $input['lna_name'],
+            'lna_mitarbeiter_id'   => $input['lna_mitarbeiter_id'],
+            'orgl_name'            => $input['orgl_name'],
+            'orgl_mitarbeiter_id'  => $input['orgl_mitarbeiter_id'],
+            'einsatzbeginn'        => $input['einsatzbeginn'] ?? date('Y-m-d H:i:s'),
             'erstellt_von'         => $_SESSION['userid'] ?? null,
-            'notizen'              => $_POST['notizen'] ?? null,
+            'notizen'              => $input['notizen'],
         ];
 
         if ($data['einsatznummer'] === '' || $data['einsatzort'] === '') {
@@ -162,7 +173,14 @@ class MciController extends Controller
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        try {
+            $input = SaveLageRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mci/edit?id=' . (int) ($_GET['id'] ?? 0));
+        }
+
+        $lageId = (int) ($_GET['id'] ?? $input['id'] ?? 0);
         if ($lageId <= 0) {
             $this->redirect('mci/index');
         }
@@ -175,18 +193,18 @@ class MciController extends Controller
         }
 
         $data = [
-            'einsatznummer'        => trim((string) ($_POST['einsatznummer'] ?? '')),
-            'einsatzort'           => trim((string) ($_POST['einsatzort'] ?? '')),
-            'einsatzanlass'        => $_POST['einsatzanlass'] ?? null,
-            'lna_name'             => $_POST['lna_name'] ?? null,
-            'lna_mitarbeiter_id'   => !empty($_POST['lna_mitarbeiter_id']) ? (int) $_POST['lna_mitarbeiter_id'] : null,
-            'orgl_name'            => $_POST['orgl_name'] ?? null,
-            'orgl_mitarbeiter_id'  => !empty($_POST['orgl_mitarbeiter_id']) ? (int) $_POST['orgl_mitarbeiter_id'] : null,
-            'einsatzbeginn'        => $_POST['einsatzbeginn'] ?? null,
-            'status'               => in_array($_POST['status'] ?? '', self::ALLOWED_STATUS, true)
-                ? $_POST['status']
+            'einsatznummer'        => $input['einsatznummer'],
+            'einsatzort'           => $input['einsatzort'],
+            'einsatzanlass'        => $input['einsatzanlass'],
+            'lna_name'             => $input['lna_name'],
+            'lna_mitarbeiter_id'   => $input['lna_mitarbeiter_id'],
+            'orgl_name'            => $input['orgl_name'],
+            'orgl_mitarbeiter_id'  => $input['orgl_mitarbeiter_id'],
+            'einsatzbeginn'        => $input['einsatzbeginn'],
+            'status'               => in_array($input['status'], self::ALLOWED_STATUS, true)
+                ? $input['status']
                 : 'aktiv',
-            'notizen'              => $_POST['notizen'] ?? null,
+            'notizen'              => $input['notizen'],
         ];
 
         if ($data['einsatznummer'] === '' || $data['einsatzort'] === '') {
@@ -359,6 +377,13 @@ class MciController extends Controller
             $this->redirect('mci/index');
         }
 
+        try {
+            $input = SavePatientRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mci/patient-create?lage_id=' . $lageId);
+        }
+
         $manvPatient = new MANVPatient();
         $manvLog     = new MANVLog();
 
@@ -367,8 +392,8 @@ class MciController extends Controller
         $transportmittelRufname = null;
         $fahrzeugLokalisation   = null;
 
-        if (!empty($_POST['transportmittel_id'])) {
-            $resourceId = (int) $_POST['transportmittel_id'];
+        if ($input['transportmittel_id'] !== null) {
+            $resourceId = $input['transportmittel_id'];
             $fahrzeug   = Capsule::table('intra_manv_ressourcen')
                 ->where('id', $resourceId)
                 ->select('bezeichnung', 'rufname', 'fahrzeugtyp', 'lokalisation')
@@ -401,20 +426,20 @@ class MciController extends Controller
         $data = [
             'manv_lage_id'                    => $lageId,
             'patienten_nummer'                => $manvPatient->generateNextPatientNumber($lageId),
-            'name'                            => $_POST['name'] ?? null,
-            'vorname'                         => $_POST['vorname'] ?? null,
-            'geburtsdatum'                    => !empty($_POST['geburtsdatum']) ? $_POST['geburtsdatum'] : null,
-            'geschlecht'                      => $_POST['geschlecht'] ?? 'unbekannt',
-            'sichtungskategorie'              => $_POST['sichtungskategorie'] ?? null,
+            'name'                            => $input['name'],
+            'vorname'                         => $input['vorname'],
+            'geburtsdatum'                    => $input['geburtsdatum'],
+            'geschlecht'                      => $input['geschlecht'],
+            'sichtungskategorie'              => $input['sichtungskategorie'],
             'transportmittel'                 => $transportmittel,
             'transportmittel_rufname'         => $transportmittelRufname,
             'fahrzeug_lokalisation'           => $fahrzeugLokalisation,
-            'transportziel'                   => $_POST['transportziel'] ?? null,
-            'verletzungen'                    => $_POST['verletzungen'] ?? null,
-            'massnahmen'                      => $_POST['massnahmen'] ?? null,
-            'notizen'                         => $_POST['notizen'] ?? null,
+            'transportziel'                   => $input['transportziel'],
+            'verletzungen'                    => $input['verletzungen'],
+            'massnahmen'                      => $input['massnahmen'],
+            'notizen'                         => $input['notizen'],
             'erstellt_von'                    => $_SESSION['userid'] ?? null,
-            'sichtungskategorie_geaendert_von' => !empty($_POST['sichtungskategorie']) ? ($_SESSION['userid'] ?? null) : null,
+            'sichtungskategorie_geaendert_von' => !empty($input['sichtungskategorie']) ? ($_SESSION['userid'] ?? null) : null,
         ];
 
         try {
@@ -513,13 +538,20 @@ class MciController extends Controller
             $this->redirect('mci/index');
         }
 
+        try {
+            $input = SavePatientRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mci/patient-view?id=' . $patientId);
+        }
+
         // Fahrzeugzuweisung auflösen + Doppel-Zuweisung prüfen
         $transportmittel        = null;
         $transportmittelRufname = null;
         $fahrzeugLokalisation   = null;
 
-        if (!empty($_POST['transportmittel_id'])) {
-            $resourceId = (int) $_POST['transportmittel_id'];
+        if ($input['transportmittel_id'] !== null) {
+            $resourceId = $input['transportmittel_id'];
             $fahrzeug   = Capsule::table('intra_manv_ressourcen')
                 ->where('id', $resourceId)
                 ->select('bezeichnung', 'rufname', 'fahrzeugtyp', 'lokalisation')
@@ -551,19 +583,19 @@ class MciController extends Controller
 
         // Sichtungskategorie separat behandeln (mit eigenem Log-Eintrag)
         if (
-            isset($_POST['sichtungskategorie'])
-            && $_POST['sichtungskategorie'] !== ($patient['sichtungskategorie'] ?? null)
+            $input['sichtungskategorie'] !== null
+            && $input['sichtungskategorie'] !== ($patient['sichtungskategorie'] ?? null)
         ) {
             $manvPatient->updateSichtung(
                 $patientId,
-                $_POST['sichtungskategorie'],
+                $input['sichtungskategorie'],
                 $_SESSION['userid'] ?? null
             );
             $manvLog->log(
                 (int) $patient['manv_lage_id'],
                 'sichtung_geaendert',
                 'Sichtungskategorie geändert von ' . ($patient['sichtungskategorie'] ?? 'ungesichtet')
-                . ' zu ' . $_POST['sichtungskategorie'],
+                . ' zu ' . $input['sichtungskategorie'],
                 $_SESSION['userid'] ?? null,
                 $_SESSION['username'] ?? null,
                 'patient',
@@ -572,16 +604,16 @@ class MciController extends Controller
         }
 
         $updateData = [
-            'name'                    => $_POST['name'] ?? null,
-            'vorname'                 => $_POST['vorname'] ?? null,
-            'geburtsdatum'            => !empty($_POST['geburtsdatum']) ? $_POST['geburtsdatum'] : null,
-            'geschlecht'              => $_POST['geschlecht'] ?? 'unbekannt',
+            'name'                    => $input['name'],
+            'vorname'                 => $input['vorname'],
+            'geburtsdatum'            => $input['geburtsdatum'],
+            'geschlecht'              => $input['geschlecht'],
             'transportmittel'         => $transportmittel,
             'transportmittel_rufname' => $transportmittelRufname,
             'fahrzeug_lokalisation'   => $fahrzeugLokalisation,
-            'transportziel'           => $_POST['transportziel'] ?? null,
-            'verletzungen'            => $_POST['verletzungen'] ?? null,
-            'notizen'                 => $_POST['notizen'] ?? null,
+            'transportziel'           => $input['transportziel'],
+            'verletzungen'            => $input['verletzungen'],
+            'notizen'                 => $input['notizen'],
             'geaendert_von'           => $_SESSION['userid'] ?? null,
         ];
 
@@ -665,10 +697,17 @@ class MciController extends Controller
             $this->redirect('mci/index');
         }
 
+        try {
+            $input = SaveRessourceRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mci/resources?lage_id=' . $lageId);
+        }
+
         $manvRessource = new MANVRessource();
         $manvLog       = new MANVLog();
 
-        $bezeichnung = trim((string) ($_POST['bezeichnung'] ?? ''));
+        $bezeichnung = trim((string) $input['bezeichnung']);
         if ($bezeichnung === '') {
             Flash::error('Bezeichnung ist Pflichtfeld.');
             $this->redirect('mci/resources?lage_id=' . $lageId);
@@ -691,14 +730,14 @@ class MciController extends Controller
 
         $data = [
             'manv_lage_id' => $lageId,
-            'typ'          => $_POST['typ'] ?? 'fahrzeug',
+            'typ'          => $input['typ'],
             'bezeichnung'  => $bezeichnung,
-            'rufname'      => $_POST['rufname'] ?? null,
-            'fahrzeugtyp'  => $_POST['fahrzeugtyp'] ?? null,
-            'lokalisation' => $_POST['lokalisation'] ?? null,
-            'status'       => $_POST['status'] ?? 'verfuegbar',
-            'besatzung'    => $_POST['besatzung'] ?? null,
-            'notizen'      => $_POST['notizen'] ?? null,
+            'rufname'      => $input['rufname'],
+            'fahrzeugtyp'  => $input['fahrzeugtyp'],
+            'lokalisation' => $input['lokalisation'],
+            'status'       => $input['status'],
+            'besatzung'    => $input['besatzung'],
+            'notizen'      => $input['notizen'],
         ];
 
         try {
@@ -728,19 +767,27 @@ class MciController extends Controller
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId     = (int) ($_GET['lage_id'] ?? 0);
-        $resourceId = (int) ($_POST['ressource_id'] ?? 0);
+        $lageId = (int) ($_GET['lage_id'] ?? 0);
+
+        try {
+            $input = SaveRessourceRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mci/resources?lage_id=' . $lageId);
+        }
+
+        $resourceId = $input['ressource_id'];
         if ($lageId <= 0 || $resourceId <= 0) {
             $this->redirect('mci/index');
         }
 
         $data = [
-            'typ'          => $_POST['typ'] ?? 'fahrzeug',
-            'bezeichnung'  => $_POST['bezeichnung'] ?? '',
-            'rufname'      => $_POST['rufname'] ?? null,
-            'fahrzeugtyp'  => $_POST['fahrzeugtyp'] ?? null,
-            'lokalisation' => $_POST['lokalisation'] ?? null,
-            'notizen'      => $_POST['notizen'] ?? null,
+            'typ'          => $input['typ'],
+            'bezeichnung'  => $input['bezeichnung'],
+            'rufname'      => $input['rufname'],
+            'fahrzeugtyp'  => $input['fahrzeugtyp'],
+            'lokalisation' => $input['lokalisation'],
+            'notizen'      => $input['notizen'],
         ];
 
         try {

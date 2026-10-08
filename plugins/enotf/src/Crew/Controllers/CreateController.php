@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Crew\Controllers;
 
 use App\Models\Vehicle;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Crew\Models\Edivi;
+use Plugin\Enotf\Crew\Requests\CreateProtocolRequest;
 
 /**
  * CreateController: Protokoll anlegen.
@@ -53,9 +55,15 @@ class CreateController extends CrewController
 
         date_default_timezone_set('Europe/Berlin');
 
-        $enr         = is_string($_POST['enr'] ?? null) ? trim($_POST['enr']) : '';
-        $protBy      = (int) ($_POST['prot_by'] ?? 0);
-        $forceCreate = (int) ($_POST['force_create'] ?? 0);
+        try {
+            $input = CreateProtocolRequest::validate($_POST);
+        } catch (ValidationException) {
+            $this->redirectAbsolute(EnotfUrl::page('create', ['error' => 'invalid_enr']));
+        }
+
+        $enr         = $input['enr'];
+        $protBy      = $input['prot_by'];
+        $forceCreate = $input['force_create'];
 
         // Ziffern und Unterstrich, höchstens 40 Zeichen, das Suffix aus
         // nextFreeEnr() passt dann noch in die Spalte

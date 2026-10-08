@@ -6,9 +6,11 @@ namespace Plugin\Enotf\Crew\Controllers;
 
 use App\Http\Middleware\PinLockscreenMiddleware;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Crew\Policies\CrewPolicy;
+use Plugin\Enotf\Crew\Requests\PinRequest;
 
 /**
  * LockscreenController: PIN-Lockscreen für eNOTF v2.
@@ -46,8 +48,16 @@ class LockscreenController extends CrewController
         SessionManager::setPinVerified(false);
 
         $error = false;
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
-            if (defined('ENOTF_PIN') && hash_equals(ENOTF_PIN, (string) $_POST['pin'])) {
+        $pin   = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $pin = PinRequest::validate($_POST)['pin'];
+            } catch (ValidationException) {
+                $error = true;
+            }
+        }
+        if ($pin !== null) {
+            if (defined('ENOTF_PIN') && hash_equals(ENOTF_PIN, $pin)) {
                 SessionManager::setPinVerified(true);
 
                 $redirect = SessionManager::pullPinReturnUrl() ?? EnotfUrl::page('overview');

@@ -6,10 +6,13 @@ namespace Plugin\Enotf\Crew\Controllers;
 
 use App\Federation\FederatedPersonnel;
 use App\Session\SessionManager;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\EnotfSession as CrewSessionService;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Crew\Policies\CrewPolicy;
+use Plugin\Enotf\Crew\Requests\CrewLoginRequest;
+use Plugin\Enotf\Crew\Requests\CrewLogoutRequest;
 
 /**
  * LoginController: Crew-Login, Session-Join und Logout für eNOTF v2.
@@ -109,15 +112,21 @@ class LoginController extends CrewController
         $charLocked = CrewPolicy::charLockEnabled() && !empty($_SESSION['char_name'] ?? '');
         $charName   = (string) ($_SESSION['char_name'] ?? '');
 
-        $mode    = $_POST['login_mode'] ?? 'new';
-        $vehicle = (string) ($_POST['protfzg'] ?? '');
+        try {
+            $input = CrewLoginRequest::validate($_POST);
+        } catch (ValidationException) {
+            $this->redirectAbsolute(EnotfUrl::page('login'));
+        }
+
+        $mode    = $input['login_mode'];
+        $vehicle = $input['protfzg'];
 
         $sessionService = new CrewSessionService();
 
         if ($mode === 'join') {
-            $joinPosition = $_POST['join_position'] ?? null;
-            $joinName     = $_POST['join_name'] ?? null;
-            $joinQuali    = $_POST['join_quali'] ?? null;
+            $joinPosition = $input['join_position'];
+            $joinName     = $input['join_name'];
+            $joinQuali    = $input['join_quali'];
 
             if ($charLocked && $joinName !== $charName) {
                 $this->redirectAbsolute(EnotfUrl::page('login', ['error' => 'char_mismatch']));
@@ -156,9 +165,9 @@ class LoginController extends CrewController
         // Mode 'new'
         if ($charLocked) {
             $submittedNames = [
-                'fahrer'     => $_POST['fahrername'] ?? '',
-                'beifahrer'  => $_POST['beifahrername'] ?? '',
-                'praktikant' => $_POST['praktikantname'] ?? '',
+                'fahrer'     => $input['fahrername'] ?? '',
+                'beifahrer'  => $input['beifahrername'] ?? '',
+                'praktikant' => $input['praktikantname'] ?? '',
             ];
             if (!in_array($charName, $submittedNames, true)) {
                 $this->redirectAbsolute(EnotfUrl::page('login', ['error' => 'char_mismatch']));
@@ -166,12 +175,12 @@ class LoginController extends CrewController
         }
 
         $crew = [
-            'fahrername'      => $_POST['fahrername'] ?? '',
-            'fahrerquali'     => $_POST['fahrerquali'] ?? null,
-            'beifahrername'   => $_POST['beifahrername'] ?? null,
-            'beifahrerquali'  => $_POST['beifahrerquali'] ?? null,
-            'praktikantname'  => $_POST['praktikantname'] ?? null,
-            'praktikantquali' => $_POST['praktikantquali'] ?? null,
+            'fahrername'      => $input['fahrername'] ?? '',
+            'fahrerquali'     => $input['fahrerquali'],
+            'beifahrername'   => $input['beifahrername'],
+            'beifahrerquali'  => $input['beifahrerquali'],
+            'praktikantname'  => $input['praktikantname'],
+            'praktikantquali' => $input['praktikantquali'],
         ];
 
         // Gültigen eigenen Member-Token wiederverwenden → nur Crew-Update
@@ -230,7 +239,12 @@ class LoginController extends CrewController
     {
         $this->bootPage();
 
-        $mode         = $_POST['mode'] ?? 'all';
+        try {
+            $mode = CrewLogoutRequest::validate($_POST)['mode'];
+        } catch (ValidationException) {
+            $this->redirectAbsolute(EnotfUrl::page('loggedout'));
+        }
+
         $vehicle      = $_SESSION['protfzg'] ?? null;
         $position     = $_SESSION['enotf_position'] ?? null;
         $sessionToken = $_SESSION['enotf_session_token'] ?? null;
