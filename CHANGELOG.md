@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.0.41-beta
+
+ignis bringt einen eigenen Discord-Bot mit. Eingerichtet wird er unter Einstellungen → System → Discord-Bot: Token aus dem Discord Developer Portal eintragen, Name und Profilbild festlegen, die Seite schickt beides direkt an Discord. Über „Zum Server hinzufügen“ holt ihr den Bot auf euren Server, eine Testnachricht an dich zeigt, ob alles passt. Das Token liegt verschlüsselt in der Datenbank. Den Schlüssel legt ignis beim ersten Mal unter storage/private/secret.key an, er gehört ins Backup; wer möchte, setzt ihn stattdessen als APP_KEY in der .env.
+
+Der Bot schickt Benachrichtigungen zusätzlich als Direktnachricht, voreingestellt neue Mails und Systemmeldungen; welche Arten, legt ihr auf derselben Seite fest. Erreicht wird jedes Konto mit einer Discord-ID am Konto oder am verknüpften Mitarbeiter, sofern es einen Server mit dem Bot teilt. Wer keine Direktnachrichten will, schaltet sie im Kontomenü oben rechts ab.
+
+Im Mitarbeiterprofil erstellt „Einladen“ mit einem Klick die Einladung, kopiert den Link und zeigt danach „Einladung ausstehend“ mit „Link kopieren“, auch nach dem Neuladen. Ein zweiter Klick liefert die offene Einladung statt einer neuen. Hat der Mitarbeiter eine Discord-ID und läuft der Bot, schickt „Per Discord einladen“ den Link direkt als Direktnachricht. Einladen geht jetzt auch bei offener Registrierung: das neue Konto wird dann gleich mit dem Mitarbeiter verknüpft.
+
+Auf der Modulseite tragen beide Kacheln ihre Abhängigkeit, etwa „Braucht eNOTF“ bei eNOTF v2 und „Gebraucht von eNOTF v2“ bei eNOTF. Schaltet ein Schalter einen anderen mit, steht in der Leiste unten, welchen und warum.
+
 ## 2026.0.40-beta
 
 Die Seite Einstellungen → System → Module zeigt die Module als Kacheln, je nach Bildschirmbreite bis zu drei nebeneinander, mit dem Schalter oben rechts. Vorher stand jedes Modul in einer eigenen Zeile über die ganze Breite und ließ viel Platz leer.
