@@ -51,6 +51,32 @@ final class ProfileController extends Controller
     }
 
     /**
+     * POST /profile/discord-dm: Benachrichtigungen per Discord-DM an oder
+     * aus (intra_users.discord_dm). Einladungen betrifft das nicht, die
+     * gehen nur an Personen ohne Konto.
+     */
+    public function discordDm(Request $request): Response
+    {
+        $back = $this->backTarget($request);
+
+        if (!CsrfProtection::validateToken((string) ($request->post['csrf_token'] ?? ''))) {
+            Flash::error('Die Anfrage war ungültig. Bitte versuche es noch einmal.');
+            return Response::redirect($back);
+        }
+
+        $enabled = ($request->post['discord_dm'] ?? '') === '1';
+        $userId  = SessionManager::userId();
+        if ($userId !== null) {
+            User::query()->whereKey($userId)->update(['discord_dm' => $enabled ? 1 : 0]);
+        }
+        Flash::success($enabled
+            ? 'Benachrichtigungen kommen jetzt auch per Discord-DM.'
+            : 'Keine Benachrichtigungen mehr per Discord-DM.');
+
+        return Response::redirect($back);
+    }
+
+    /**
      * Ziel nach dem Umschalten: der Referer, aber nur, wenn er zu dieser
      * Installation gehört. Ein fremder Host darf nicht bestimmen, wo der
      * Nutzer landet.

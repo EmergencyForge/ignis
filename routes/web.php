@@ -161,11 +161,12 @@ foreach (['/notifications', '/notifications/', '/notifications/index', '/notific
 // ----------------------------------------------------------------------------
 //  Eigenes Konto
 //
-//  Darstellungsmodus (dark|light|system), gepostet aus dem Benutzermenü der
-//  Navbar. Braucht nur ein Login, keine Permission.
+//  Darstellungsmodus (dark|light|system) und Discord-DMs an/aus, gepostet
+//  aus dem Benutzermenü der Navbar. Braucht nur ein Login, keine Permission.
 // ----------------------------------------------------------------------------
 
 $router->post('/profile/theme', [ProfileController::class, 'theme'], [new AuthMiddleware()]);
+$router->post('/profile/discord-dm', [ProfileController::class, 'discordDm'], [new AuthMiddleware()]);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul
@@ -418,6 +419,9 @@ $router->get('/settings/system/plugins',        [\App\Http\Controllers\Settings\
 $router->post('/settings/system/plugins',       [\App\Http\Controllers\Settings\PluginsController::class, 'index'],      $settingsAuth);
 $router->get('/settings/system/modules',        [\App\Http\Controllers\Settings\ModulesController::class, 'index'],      $settingsAuth);
 $router->post('/settings/system/modules',       [\App\Http\Controllers\Settings\ModulesController::class, 'save'],       $settingsAuth);
+$router->get('/settings/system/discord',        [\App\Http\Controllers\Settings\DiscordBotController::class, 'index'],   $settingsAuth);
+$router->post('/settings/system/discord',       [\App\Http\Controllers\Settings\DiscordBotController::class, 'save'],    $settingsAuth);
+$router->post('/settings/system/discord/test',  [\App\Http\Controllers\Settings\DiscordBotController::class, 'test'],    $settingsAuth);
 $router->get('/settings/system/logs',     [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 
 // Cron-Verwaltung

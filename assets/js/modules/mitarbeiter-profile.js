@@ -117,6 +117,42 @@
       if (!copy) return;
       copyInvite(copy.dataset.inviteCopy, copy, toast, 'Einladungslink kopiert');
     });
+
+    // „Per Discord“: dieselbe Einladung, der Bot schickt den Link als DM.
+    // Scheitert nur die DM, steht die Einladung trotzdem.
+    document.addEventListener('click', function (event) {
+      const btn = event.target.closest('[data-invite-discord]');
+      if (!btn || btn.disabled) return;
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird gesendet...';
+
+      fetch(inviteUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: btn.dataset.fullname, mitarbeiter_id: config.profileId, via: 'discord' })
+      })
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = original;
+        if (!data.success) {
+          toast(data.message || 'Fehler beim Senden', 'danger');
+          return;
+        }
+        if (document.getElementById('generateInviteBtn')) showPending(btn, data.inviteUrl);
+        if (data.discord && data.discord.sent) {
+          toast('Einladung per Discord-DM verschickt', 'success');
+        } else {
+          toast(((data.discord && data.discord.message) || 'Die DM ging nicht raus.') + ' Der Link lässt sich weiter kopieren.', 'warning');
+        }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = original;
+        toast('Fehler beim Senden der Einladung', 'danger');
+      });
+    });
   }
 
   // Zeigt eine Server-Fehlermeldung im Fehler-Slot der Paket-Dropzone

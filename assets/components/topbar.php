@@ -20,6 +20,7 @@ declare(strict_types=1);
  * lokale Variablen tragen das Präfix `top` (SidebarScopeTest).
  */
 
+use App\Discord\DiscordNotifier;
 use App\Helpers\Navigation;
 use App\Helpers\Theme;
 use App\Security\CsrfProtection;
@@ -49,6 +50,13 @@ $topRoleColors = [
     'dark'      => 'var(--text-3)',
 ];
 $topRoleColor = $topRoleColors[$_SESSION['role_color'] ?? 'secondary'] ?? 'var(--text-3)';
+
+// Discord-DMs: nur, wenn der Bot läuft und das Konto eine Discord-ID hat.
+try {
+    $topDiscordDm = $topLoggedIn ? DiscordNotifier::preference((int) $_SESSION['userid']) : null;
+} catch (\Throwable) {
+    $topDiscordDm = null;
+}
 
 $topTheme  = Theme::mode();
 $topThemes = [
@@ -195,6 +203,16 @@ foreach ($topGroups as $topGroup) {
                     <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-density="compact" aria-pressed="true">Kompakt</button>
                     <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-density="comfortable" aria-pressed="false">Komfortabel</button>
                 </div>
+                <?php if ($topDiscordDm !== null): ?>
+                    <div class="ignis-menu__heading">Discord</div>
+                    <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/discord-dm', ENT_QUOTES) ?>" class="ignis-menu__form">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken(), ENT_QUOTES) ?>">
+                        <button type="submit" name="discord_dm" value="<?= $topDiscordDm ? '0' : '1' ?>" class="ignis-menu__item<?= $topDiscordDm ? ' is-current' : '' ?>" aria-pressed="<?= $topDiscordDm ? 'true' : 'false' ?>" id="topDiscordDm">
+                            <i class="fa-brands fa-discord" aria-hidden="true"></i> Benachrichtigungen per DM
+                            <?php if ($topDiscordDm): ?><i class="fa-solid fa-check ignis-menu__check" aria-hidden="true"></i><?php endif; ?>
+                        </button>
+                    </form>
+                <?php endif; ?>
                 <div class="ignis-menu__sep"></div>
                 <a href="<?= htmlspecialchars($topBasePath . 'logout', ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Abmelden</a>
             </div>
