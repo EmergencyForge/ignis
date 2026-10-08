@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Jobs;
 
+use App\Console\Commands\QueueWorkCommand;
 use App\Cron\JobHandler\JobDispatchHandler;
 use App\Jobs\JobDispatcher;
 use App\Jobs\SendNotificationJob;
 use App\Models\Notification;
 use Illuminate\Queue\QueueManager;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Console\Tester\CommandTester;
 use Tests\FixtureFactory;
 use Tests\IntegrationTestCase;
 
@@ -63,6 +65,47 @@ final class JobDispatcherQueueTest extends IntegrationTestCase
             Notification::query()->where('user_id', $user->id)->where('title', 'Aus dem Cron')->exists(),
             'Der Worker hat den Cron-Job nicht ausgeführt.',
         );
+    }
+
+    /**
+     * Der Cron-Eintrag `queue.work` ruft den Worker ohne `--queue` auf. Er
+     * hatte dann nur `default` abgearbeitet, Jobs auf `notifications` (die
+     * Discord-Webhooks) blieben für immer liegen.
+     */
+    #[Test]
+    public function worker_ohne_queue_angabe_arbeitet_auch_notifications_ab(): void
+    {
+        $user = FixtureFactory::user();
+        $onNotifications = new SendNotificationJob($user->id, 'system', 'Von notifications');
+        $this->assertSame('notifications', $onNotifications->queue);
+        $onDefault = new SendNotificationJob($user->id, 'system', 'Von default');
+        $onDefault->queue = 'default';
+        app(JobDispatcher::class)->dispatch($onNotifications);
+        app(JobDispatcher::class)->dispatch($onDefault);
+
+        $tester = new CommandTester(new QueueWorkCommand(app(QueueManager::class)));
+        $this->assertSame(0, $tester->execute([]));
+
+        $this->assertStringContainsString('default,notifications', $tester->getDisplay());
+        foreach (['Von notifications', 'Von default'] as $title) {
+            $this->assertTrue(
+                Notification::query()->where('user_id', $user->id)->where('title', $title)->exists(),
+                "Der Worker hat „{$title}“ nicht abgearbeitet.",
+            );
+        }
+    }
+
+    #[Test]
+    public function worker_mit_queue_angabe_bleibt_bei_dieser_queue(): void
+    {
+        $user = FixtureFactory::user();
+        app(JobDispatcher::class)->dispatch(new SendNotificationJob($user->id, 'system', 'Bleibt liegen'));
+
+        $tester = new CommandTester(new QueueWorkCommand(app(QueueManager::class)));
+        $tester->execute(['--queue' => 'default']);
+
+        $this->assertFalse(Notification::query()->where('user_id', $user->id)->where('title', 'Bleibt liegen')->exists());
+        $this->assertNotNull(app(QueueManager::class)->connection()->pop('notifications'));
     }
 
     #[Test]

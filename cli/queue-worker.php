@@ -12,7 +12,8 @@ declare(strict_types=1);
  * Neue Installationen sollten direkt `cli/intra.php queue:work [options]`
  * verwenden, siehe `docs/dokumentation/cron-setup.md`.
  *
- * Original-CLI-Argumente werden durchgereicht:
+ * Ohne `--queue` arbeitet der Worker alle Queues des Kerns ab (default,
+ * notifications). Original-CLI-Argumente werden durchgereicht:
  *
  *     php cli/queue-worker.php --max-time=55 --queue=notifications
  *         →
