@@ -9,7 +9,8 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * TelemetryManager - Sammelt und sendet anonymisierte Statistiken
  *
  * DATENSCHUTZ-HINWEIS:
- * - Telemetrie ist standardmäßig DEAKTIVIERT (Opt-In)
+ * - Telemetrie ist ab Werk an (TELEMETRY_ENABLED aus der Migration), abschaltbar
+ *   unter Einstellungen › Wartung und Diagnose › Telemetrie
  * - Es werden KEINE persönlichen Daten übertragen
  * - Nur aggregierte, anonymisierte Statistiken
  * - Jede Installation erhält eine zufällige UUID

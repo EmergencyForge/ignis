@@ -4,8 +4,9 @@ Hier liegen die installierten ignis-Plugins, je ein Unterordner mit einer
 `manifest.php`. Der `PluginRegistry` entdeckt sie beim Boot, der
 `PluginRepository` (Tabelle `intra_plugins`) entscheidet, welche aktiv sind.
 
-Die Module **eNOTF (v1 und v2), fireTab, MANV-Board, Wissensdatenbank, Mail,
-Fahrtenbuch, Anträge und Kalender** werden als Plugins ausgeliefert.
+Die Module **eNOTF, fireTab, MANV-Board, Wissensdatenbank, Mail,
+Fahrtenbuch, Anträge und Kalender** werden als Plugins ausgeliefert. Ein- und
+ausschalten lassen sie sich unter **Einstellungen → System → Module**.
 Grundmodule im Core sind Personal, Benutzer, Dokumente und Fahrzeuge.
 
 Das Fahrtenbuch (`logbook`) hat zwei Abnehmer unter den Plugins: eNOTF und
@@ -60,7 +61,7 @@ jeweiligen Register gemergt. Drei Besonderheiten:
 - **Plugin-Routen können Kern-Routen nicht überschreiben**, sie werden nach
   den Kern-Routen registriert.
 
-Verwaltet werden Plugins unter **Einstellungen → System → Plugins**. Dort
+Verwaltet werden Plugins unter **Einstellungen → Wartung und Diagnose → Plugins**. Dort
 lässt sich ein Plugin-ZIP per Drag-and-Drop hochladen oder ein Eintrag aus dem
 Hub-Katalog installieren; beides läuft über eine Bestätigungsseite mit dem
 Hinweis zu Drittanbietern (Details in [PLUGINS.md](../PLUGINS.md#installieren)).

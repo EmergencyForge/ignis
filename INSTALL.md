@@ -406,7 +406,7 @@ Die FiveM-Ressource ef_bridge (vormals ignisTab) bringt eNOTF und fireTab als Ta
 
 ### Telemetrie
 
-ignis schickt ab Werk regelmäßig Nutzungsdaten an EmergencyForge: eine zufällige Installations-ID, die ignis-, PHP- und Datenbankversion, Server- und Systemname, die Art der Organisation, Webserver und Zeitzone, Zählerstände (zum Beispiel Nutzer, Mitarbeiter, Fahrzeuge, Protokolle, Artikel) und welche Plugins aktiv sind. Namen einzelner Personen oder Inhalte werden nicht übertragen. Unter **Einstellungen › Wartung und Diagnose › Telemetrie** siehst du die Daten und kannst die Übertragung abschalten.
+ignis schickt ab Werk regelmäßig Nutzungsdaten an EmergencyForge: eine zufällige Installations-ID, die ignis-, PHP- und Datenbankversion, Server- und Systemname, die Art der Organisation, Webserver und Zeitzone, Zählerstände (zum Beispiel Nutzer, Mitarbeiter, Fahrzeuge, Protokolle, Artikel) und ob es im eNOTF, bei Feuerwehr-Einsätzen, im MANV-Board, bei Dokumentvorlagen und in der Wissensdatenbank Einträge gibt. Namen einzelner Personen oder Inhalte werden nicht übertragen. Unter **Einstellungen › Wartung und Diagnose › Telemetrie** siehst du die Daten und kannst die Übertragung abschalten.
 
 
 ## Updates

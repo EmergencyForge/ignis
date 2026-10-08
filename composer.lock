@@ -880,11 +880,11 @@
         },
         {
             "name": "emergencyforge/health-check",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "764aaa28937fd3d5bb2f8ed7dbb7870ffef7dc99"
+                "reference": "de1e1b1bb6625b278362cc1e31c5d15d42c8f299"
             },
             "require": {
                 "php": ">=8.3"

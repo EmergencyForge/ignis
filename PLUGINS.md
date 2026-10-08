@@ -61,7 +61,7 @@ wird beim Entpacken entfernt.
 
 ## Installieren
 
-Unter Einstellungen → System → Plugins gibt es drei Wege, die alle auf
+Unter Einstellungen → Wartung und Diagnose → Plugins gibt es drei Wege, die alle auf
 derselben Bestätigungsseite enden:
 
 - **Hochladen**: Ein Plugin-ZIP auf die Dropzone ziehen oder auswählen. Das
