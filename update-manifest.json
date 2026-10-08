@@ -20,6 +20,22 @@
     "src/Models/LogbookEntry.php",
     "database/migrations/20250607000147_create_intra_fahrtenbuch_04042026.php",
     "templates/logbook",
-    "assets/components/logbook"
+    "assets/components/logbook",
+    "src/Http/Controllers/FormsController.php",
+    "src/Http/Controllers/Settings/AntragSettingsController.php",
+    "src/Http/Requests/Antraege",
+    "src/Http/Validation/AntragFieldValidator.php",
+    "src/Policies/FormsPolicy.php",
+    "src/Models/Form.php",
+    "src/Models/FormType.php",
+    "src/Models/FormField.php",
+    "src/Models/FormData.php",
+    "database/migrations/20250607000039_create_intra_antrag_typen_30092025.php",
+    "database/migrations/20250607000040_create_intra_antrag_felder_30092025.php",
+    "database/migrations/20250607000041_insert_intra_dynamic_antraege_30092025.php",
+    "database/migrations/20250607000042_create_intra_antraege_30092025.php",
+    "database/migrations/20250607000043_create_intra_antraege_daten_30092025.php",
+    "templates/forms",
+    "templates/settings/forms"
   ]
 }

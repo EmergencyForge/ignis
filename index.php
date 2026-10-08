@@ -14,6 +14,7 @@ if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'
 $dashboardPlugins = app(\App\Plugins\PluginLoader::class);
 $dashboardEnotf   = $dashboardPlugins->isActive('enotf');
 $dashboardFiretab = $dashboardPlugins->isActive('firetab');
+$dashboardForms   = $dashboardPlugins->isActive('forms');
 
 // Übersicht wie „ignis im Dienst“ aus der Spec zu ui 0.7.0: Kacheln, Einsätze,
 // Fahrzeuge und Hinweise, jeweils nur mit Recht und echten Daten.
@@ -53,9 +54,11 @@ ob_start();
                     <h1>Dashboard</h1>
                     <p class="twplus-page-header__description"><?= htmlspecialchars(Overview::dateLabel($dashboardNow)) ?></p>
                 </div>
+                <?php if ($dashboardForms): ?>
                 <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Antrag einreichen</a>
                 </div>
+                <?php endif; ?>
             </header>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
             <?php include __DIR__ . '/assets/components/index/kpis.php' ?>
@@ -73,6 +76,7 @@ ob_start();
                             <?php include __DIR__ . '/assets/components/index/documents.php' ?>
                         </div>
                     </section>
+                    <?php if ($dashboardForms): ?>
                     <section class="ignis-card ignis-card--table" data-ignis-reveal data-section="applications" aria-labelledby="dashboard-applications-title">
                         <div class="ignis-card__header">
                             <h2 class="ignis-card__title" id="dashboard-applications-title">Eigene Anträge</h2>
@@ -84,6 +88,7 @@ ob_start();
                             <?php include __DIR__ . '/assets/components/index/applications.php' ?>
                         </div>
                     </section>
+                    <?php endif; ?>
                     <?php if ($dashboardEnotf): ?>
                         <section class="ignis-card ignis-card--table" data-ignis-reveal data-section="enotf" aria-labelledby="dashboard-enotf-title">
                             <div class="ignis-card__header">

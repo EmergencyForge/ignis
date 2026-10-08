@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Auth\Gate;
-use App\Models\Form;
+use Plugin\Forms\Models\Form;
 use App\Plugins\PluginLoader;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -20,7 +20,7 @@ final class OpenTasks
         }
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         $tasks = [];
-        $canDecideForms = Gate::allows('forms.decide');
+        $canDecideForms = $plugins->isActive('forms') && Gate::allows('forms.decide');
         $canEditIncidents = $plugins->isActive('firetab') && \Plugin\Firetab\Policies\FireIncidentPolicy::viewList()
             && \Plugin\Firetab\Policies\FireIncidentPolicy::update();
         if (!$canDecideForms && !$canEditIncidents) {

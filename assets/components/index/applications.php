@@ -6,7 +6,7 @@
 
 $appQuery = \Illuminate\Database\Capsule\Manager::table('intra_antraege as a')
     ->join('intra_antrag_typen as at', 'a.antragstyp_id', '=', 'at.id');
-\App\Models\Form::whereOwn($appQuery, 'a.');
+\Plugin\Forms\Models\Form::whereOwn($appQuery, 'a.');
 $appresult = $appQuery
     ->orderByDesc('a.time_added')
     ->get([
@@ -22,10 +22,10 @@ $appresult = $appQuery
 
 // Status => [Text, Chip-Semantik]
 $appStatus = [
-    \App\Models\Form::STATUS_IN_PROGRESS => ['In Bearbeitung', 'info'],
-    \App\Models\Form::STATUS_REJECTED    => ['Abgelehnt', 'danger'],
-    \App\Models\Form::STATUS_DEFERRED    => ['Aufgeschoben', 'warn'],
-    \App\Models\Form::STATUS_ACCEPTED    => ['Angenommen', 'ok'],
+    \Plugin\Forms\Models\Form::STATUS_IN_PROGRESS => ['In Bearbeitung', 'info'],
+    \Plugin\Forms\Models\Form::STATUS_REJECTED    => ['Abgelehnt', 'danger'],
+    \Plugin\Forms\Models\Form::STATUS_DEFERRED    => ['Aufgeschoben', 'warn'],
+    \Plugin\Forms\Models\Form::STATUS_ACCEPTED    => ['Angenommen', 'ok'],
 ];
 ?>
 <table class="ignis-table" id="dashboardApplications">

@@ -37,6 +37,7 @@ class PluginLoader
         'firetab',
         'mail',
         'logbook',
+        'forms',
     ];
 
     /**
@@ -303,6 +304,10 @@ class PluginLoader
      * die Zielgruppe (Kern umgebaut), wird das Fragment eine eigene Gruppe
      * statt zu verschwinden.
      *
+     * `merge_after`: Beschriftung eines Eintrags der Zielgruppe, hinter dem
+     * die Einträge stehen sollen (z.B. 'Dashboard'). Ohne die Angabe oder
+     * wenn es den Eintrag nicht gibt, kommen sie ans Ende der Gruppe.
+     *
      * Fragmente im älteren Rail-Schema (`sections` mit `items`, oder ein
      * Einzellink mit `href`) werden weiterhin gelesen; eNOTF liefert so.
      * Ihre Einträge erben Icon und Permissions der Section bzw. des
@@ -336,7 +341,16 @@ class PluginLoader
                     foreach ($groups as &$group) {
                         if (is_array($group) && ($group['id'] ?? null) === $target) {
                             $existing = is_array($group['items'] ?? null) ? array_values($group['items']) : [];
-                            $group['items'] = array_merge($existing, $items);
+                            $after    = $entry['merge_after'] ?? null;
+                            $position = count($existing);
+                            foreach ($existing as $index => $item) {
+                                if (is_string($after) && is_array($item) && ($item['label'] ?? null) === $after) {
+                                    $position = $index + 1;
+                                    break;
+                                }
+                            }
+                            array_splice($existing, $position, 0, $items);
+                            $group['items'] = $existing;
                             $merged = true;
                             break;
                         }
@@ -345,7 +359,7 @@ class PluginLoader
                     if ($merged) {
                         continue;
                     }
-                    unset($entry['merge_into']);
+                    unset($entry['merge_into'], $entry['merge_after']);
                 }
 
                 if ($items === []) {

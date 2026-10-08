@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Plugin\Forms\Models;
+
+use App\Models\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * Eloquent-Model für `intra_antraege_daten`: Key-Value-Speicher der
+ * Formulardaten eines Antrags. Ein Record pro ausgefülltem Feld.
+ *
+ * @property int    $id
+ * @property int    $antrag_id
+ * @property string $feldname
+ * @property string|null $wert
+ * @property-read Form $antrag
+ */
+class FormData extends Model
+{
+    protected $table = 'intra_antraege_daten';
+
+    /** @var array<string, string> */
+    protected $casts = [
+        'id'        => 'integer',
+        'antrag_id' => 'integer',
+    ];
+
+    /**
+     * @return BelongsTo<Form, $this>
+     */
+    public function antrag(): BelongsTo
+    {
+        return $this->belongsTo(Form::class, 'antrag_id', 'id');
+    }
+}

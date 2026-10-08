@@ -82,6 +82,23 @@ class PluginLoaderTest extends TestCase
     }
 
     #[Test]
+    public function merge_after_places_items_behind_the_named_entry(): void
+    {
+        $dir = __DIR__ . '/fixtures/plugins/after';
+        $plugin = new Plugin(PluginManifest::fromArray(require $dir . '/manifest.php'), $dir);
+        $loader = $this->loaderWith([$plugin]);
+
+        $config = ['groups' => [['id' => 'core', 'label' => 'Core', 'items' => [
+            ['label' => 'Erster', 'href' => '/erster'],
+            ['label' => 'Zweiter', 'href' => '/zweiter'],
+        ]]]];
+        $merged = $loader->mergeNavigation($config);
+
+        $this->assertCount(1, $merged['groups']);
+        $this->assertSame(['Erster', 'Danach', 'Zweiter', 'Ende'], array_column($merged['groups'][0]['items'], 'label'));
+    }
+
+    #[Test]
     public function merge_into_falls_back_to_an_own_group_when_the_target_is_missing(): void
     {
         $loader = $this->loaderWith([$this->goodPlugin()]);

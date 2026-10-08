@@ -6,10 +6,10 @@ namespace Tests\Feature;
 
 use App\Models\AmbSkill;
 use App\Models\FdSkill;
-use App\Models\Form;
-use App\Models\FormData;
-use App\Models\FormField;
-use App\Models\FormType;
+use Plugin\Forms\Models\Form;
+use Plugin\Forms\Models\FormData;
+use Plugin\Forms\Models\FormField;
+use Plugin\Forms\Models\FormType;
 use App\Models\Personnel;
 use App\Models\Rank;
 use PHPUnit\Framework\Attributes\Test;
