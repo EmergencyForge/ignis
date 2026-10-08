@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.0.40-beta
+
+Die Seite Einstellungen → System → Module zeigt die Module als Kacheln, je nach Bildschirmbreite bis zu drei nebeneinander, mit dem Schalter oben rechts. Vorher stand jedes Modul in einer eigenen Zeile über die ganze Breite und ließ viel Platz leer.
+
 ## 2026.0.39-beta
 
 Anträge und Kalender sind jetzt Plugins und lassen sich einzeln abschalten. Fest dabei bleiben Personal, Benutzer, Dokumente und Fahrzeuge. Beide Module werden mitgeliefert und sind eingeschaltet; Einträge, Rechte und die Plätze in der Seitenleiste bleiben wie bisher. Ist der Kalender aus, verschwinden seine Hinweise in den Urlaubsanträgen, sind die Anträge aus, fehlen sie auf dem Dashboard und in den offenen Aufgaben. Genehmigte Urlaubsanträge erscheinen weiter als Abwesenheit im Kalender, solange beide an sind.
