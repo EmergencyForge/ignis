@@ -1074,7 +1074,7 @@ class FiretabController extends Controller
     // ── Statusmeldungen / ASU / Fahrtenbuch / Admin ──────
 
     /**
-     * GET /firetab/status-reports: Fahrzeug-Status-Meldungen (S0–S6).
+     * GET /firetab/status-reports: Fahrzeug-Status-Meldungen (S0 bis S6).
      * Zeigt Grid mit Statusbuttons, aktiver Einsatz und periodischem Polling.
      */
     public function statusmeldungen(): void
