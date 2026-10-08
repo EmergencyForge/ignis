@@ -16,18 +16,19 @@ Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis
 ### Dashboard
 - Kacheln für Einsätze heute, einsatzbereite Fahrzeuge und offene eNOTF-Protokolle
 - Kurven für Einsätze je Stunde und Tag, Fahrzeuge mit Status, Hinweise zu offenen Aufgaben
+- Eigene Dokumente, Anträge und Protokolle zeigen die fünf neuesten, „Alle anzeigen“ führt auf die ganze Liste
 - Ankündigungen aus dem Forum statt des Blogs
 - Einrichtungsliste für neue Installationen
 
 ### Suche und Listen
 - Strg K sucht über Mitarbeiter, Fahrzeuge, Dokumente, Mängel, Vorlagen und Mails, auch mit Tippfehlern
 - Benachrichtigungen sammelt die Glocke oben rechts
-- Alle Listen suchen, sortieren und blättern auf dem Server
+- Alle Listen suchen, sortieren und blättern auf dem Server, jetzt auch die eNOTF-Einstellungen
 - Filter als Knöpfe mit ihrem Wert und der Anzahl der Einträge
 - Fahrzeugliste mit Vorschau und Mehrfachauswahl, etwa für den FMS-Status
 
 ### Module und Plugins
-- Fahrtenbuch, Anträge, Kalender, Mail und eNOTF v2 sind Module zum Ein- und Ausschalten
+- Fahrtenbuch, Anträge, Kalender und Mail sind Module zum Ein- und Ausschalten
 - Fest dabei bleiben Personal, Benutzer, Dokumente und Fahrzeuge
 - Modulauswahl beim ersten Start, die Seite Einstellungen → System → Module zeigt Abhängigkeiten
 - Plugins per ZIP hochladen, vor jeder Installation eine Bestätigungsseite mit Herausgeber, Quelle, Prüfsumme und Berechtigungen
@@ -46,12 +47,15 @@ Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis
 - Lehrgänge als Feldoptionen an der Zertifikatsvorlage
 
 ### eNOTF
-- eNOTF v2 als eigenes Modul, mit denselben Daten wie v1
+- Das neue eNOTF ersetzt das alte ganz, unter derselben Adresse `/enotf/` und mit denselben Daten
+- Alte Protokoll-Links aus Benachrichtigungen, Discord und Lesezeichen führen auf die neue Seite
 - Neu: Allgemeinzustand vor dem Ereignis und Reanimation im Abschluss
+- Prüfliste, QM und Benachrichtigungen öffnen das Protokoll schreibgeschützt, ohne Fahrzeuganmeldung
+- Wer als Besatzung im Protokoll steht, öffnet es vom Dashboard aus schreibgeschützt
+- Klinikcode direkt aus dem Abschluss, auch nach der Freigabe
 - Die Prüfliste blättert, sucht und sortiert auf dem Server, der QM-Dialog speichert wieder
 - Ohne ignis-Konto bedienbar, solange „Nur mit ignis-Konto“ aus ist
 - Sperre mit PIN von 2 bis 60 Minuten einstellbar
-- Viele Reparaturen an v1: Messwert-Kacheln, Sperre freigegebener Protokolle, Freigabeseite, Teilen-Dialog
 
 ### Discord und Einladungen
 - Eigener Discord-Bot, Benachrichtigungen als Direktnachricht, je Konto abschaltbar
@@ -75,6 +79,7 @@ Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis
 - Neue INSTALL.md für Webspace, eigenen Server und Docker
 - Überarbeiteter Installationsassistent ohne Composer
 - Zentrale Anmeldung „Mit Sync anmelden“ für EmergencyForge-Instanzen
+- `/api/health` meldet auch, wenn `storage/` nicht beschreibbar ist
 
 ### Fehlerbehebungen
 - Rollen lassen sich wieder speichern, alte Adressen führen wieder ans Ziel
@@ -83,12 +88,17 @@ Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis
 - Kalender, Uhrzeiten im Posteingang und das Lexikon der Wissensdatenbank funktionieren wieder
 - Die Charakter-ID bleibt beim Bearbeiten des Profils erhalten
 - Der Updater meldet, wenn er die Version nicht schreiben kann
+- Die Klinik-Voranmeldung sagt, warum sie abgelehnt wurde
+- Zugangscodes für Krankenhäuser lassen sich wieder erzeugen
+- Fehlgeschlagene Jobs lassen sich im Fehlerprotokoll wieder neu starten und löschen
+- Fehlermeldungen in Formularen kommen auf Deutsch statt Englisch
 - Viele Darstellungsfehler am Handy
 
 ### Sicherheit
 - Löschen und Deaktivieren nur über ein Formular mit Rückfrage und Sicherheitstoken
 - Alle schreibenden Aktionen sind gegen untergeschobene Anfragen geschützt
-- eNOTF v1 gibt Patientendaten und Freitexte maskiert aus
+- Alle Formulare prüfen ihre Eingaben auf dem Server und weisen unbekannte oder falsche Werte ab
+- Im eNOTF sieht eine Crew nur die Protokolle ihres Fahrzeugs
 - Die Wissensdatenbank filtert Artikel beim Speichern und Anzeigen
 - Konten ohne Discord-ID sahen auf der Startseite Dokumente anderer, das ist behoben
 
@@ -99,6 +109,7 @@ Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis
 - `storage/private/secret.key`, den Schlüssel des Discord-Bots, ins Backup aufnehmen oder `APP_KEY` setzen
 - Hinter einem Reverse Proxy `X-Forwarded-Host` weitergeben oder `DISCORD_REDIRECT_URI` setzen
 - Plugins mit eigenem CSS auf die neuen Klassennamen umstellen
+- Das Modul „eNOTF v2“ verschwindet, sein Inhalt steckt jetzt in „eNOTF“
 
 ## 2026.0.42-beta
 
