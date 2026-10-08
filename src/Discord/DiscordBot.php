@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Discord;
 
+use App\Security\SecretBox;
 use App\Utils\HttpClient;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -34,14 +35,14 @@ final class DiscordBot
         'dm_types' => 'DISCORD_BOT_DM_TYPES',
     ];
 
-    /** @var array{enabled:bool, token:string, id:string, name:string, avatar:string, dm_types:list<string>}|null */
+    /** @var array{enabled:bool, token:string, token_lost:bool, id:string, name:string, avatar:string, dm_types:list<string>}|null */
     private static ?array $settings = null;
 
     /** @var (\Closure(string, string, array<string, mixed>|null): array{status:int, body:string}|null)|null */
     private static ?\Closure $transport = null;
 
     /**
-     * @return array{enabled:bool, token:string, id:string, name:string, avatar:string, dm_types:list<string>}
+     * @return array{enabled:bool, token:string, token_lost:bool, id:string, name:string, avatar:string, dm_types:list<string>}
      */
     public static function settings(): array
     {
@@ -56,13 +57,22 @@ final class DiscordBot
         }
         $value = static fn (string $field): string => trim((string) ($rows[self::KEYS[$field]] ?? ''));
 
+        // Das Token liegt verschlüsselt (SecretBox). Lässt es sich nicht
+        // öffnen (Schlüssel verloren), gilt der Bot als ohne Token.
+        try {
+            $token = SecretBox::decrypt($value('token'));
+        } catch (\Throwable) {
+            $token = null;
+        }
+
         return self::$settings = [
-            'enabled'  => in_array($value('enabled'), ['1', 'true', 'yes'], true),
-            'token'    => $value('token'),
-            'id'       => $value('id'),
-            'name'     => $value('name'),
-            'avatar'   => $value('avatar'),
-            'dm_types' => isset($rows[self::KEYS['dm_types']])
+            'enabled'    => in_array($value('enabled'), ['1', 'true', 'yes'], true),
+            'token'      => $token ?? '',
+            'token_lost' => $token === null,
+            'id'         => $value('id'),
+            'name'       => $value('name'),
+            'avatar'     => $value('avatar'),
+            'dm_types'   => isset($rows[self::KEYS['dm_types']])
                 ? array_values(array_filter(array_map('trim', explode(',', $value('dm_types'))), static fn (string $t): bool => $t !== ''))
                 : self::DEFAULT_DM_TYPES,
         ];
@@ -82,6 +92,7 @@ final class DiscordBot
             $stored = match (true) {
                 is_bool($value)  => $value ? 'true' : 'false',
                 is_array($value) => implode(',', $value),
+                $field === 'token' => SecretBox::encrypt($value),
                 default          => $value,
             };
             Capsule::table('intra_config')->where('config_key', self::KEYS[$field])->update([

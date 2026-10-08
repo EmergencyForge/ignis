@@ -128,6 +128,11 @@ final class DiscordBotTest extends FeatureTestCase
         $this->assertEqualsCanonicalizing(['system', 'dokument'], $settings['dm_types']);
         $this->assertContains(['PATCH', '/users/@me', ['username' => 'Leitstelle']], $this->calls);
 
+        // In der Datenbank liegt das Token verschlüsselt.
+        $stored = (string) Capsule::table('intra_config')->where('config_key', 'DISCORD_BOT_TOKEN')->value('config_value');
+        $this->assertStringStartsWith('enc:v1:', $stored);
+        $this->assertStringNotContainsString(self::TOKEN, $stored);
+
         // Das Token steht weder im Audit-Log noch auf der Seite.
         $audit = Capsule::table('intra_audit_log')->where('action', 'Discord-Bot geändert')->first();
         $this->assertNotNull($audit);
@@ -151,6 +156,30 @@ final class DiscordBotTest extends FeatureTestCase
         $this->assertSame('', $settings['token']);
         $this->assertFalse($settings['enabled']);
         $this->assertStringContainsString('lehnt das Token ab', json_encode($_SESSION, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+    }
+
+    #[Test]
+    public function ein_token_ohne_passenden_schluessel_gilt_als_verloren(): void
+    {
+        $this->activateBot();
+        $this->assertTrue(DiscordBot::active());
+
+        // Anderer Schlüssel, etwa nach verlorenem storage/: nichts geht raus.
+        $keyFile = sys_get_temp_dir() . '/discord-key-' . bin2hex(random_bytes(4)) . '.key';
+        \App\Security\SecretBox::$keyFile = $keyFile;
+        \App\Security\SecretBox::forget();
+        DiscordBot::forget();
+        try {
+            $this->assertTrue(DiscordBot::settings()['token_lost']);
+            $this->assertFalse(DiscordBot::active());
+
+            $this->loginAdmin();
+            $this->assertBodyContains('id="discordTokenLost"', $this->get('/settings/system/discord'));
+        } finally {
+            \App\Security\SecretBox::$keyFile = null;
+            \App\Security\SecretBox::forget();
+            @unlink($keyFile);
+        }
     }
 
     #[Test]

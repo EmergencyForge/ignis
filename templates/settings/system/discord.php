@@ -5,9 +5,10 @@
  * Oben der Bot, wie Discord ihn meldet, mit Testnachricht und Trennen.
  * Darunter ein Formular für Token, Schalter, Name, Profilbild und die
  * Benachrichtigungen, die auch per Direktnachricht gehen. Das Token steht
- * nie im Formular; ein leeres Feld behält das gespeicherte.
+ * nie im Formular; ein leeres Feld behält das gespeicherte. Lässt sich
+ * das verschlüsselte Token nicht mehr öffnen, steht oben ein Hinweis.
  *
- * @var array{enabled:bool, connected:bool, id:string, name:string, avatarUrl:?string, inviteUrl:?string, dmTypes:list<string>} $bot
+ * @var array{enabled:bool, connected:bool, tokenLost:bool, id:string, name:string, avatarUrl:?string, inviteUrl:?string, dmTypes:list<string>} $bot
  * @var array<string, string> $types Benachrichtigungstyp => Beschriftung
  * @var array{users:int, reachable:int, optedOut:int} $reach
  * @var bool $ownDiscordId
@@ -33,6 +34,16 @@ $SITE_TITLE = 'Discord-Bot';
                         </div>
                     <?php endif; ?>
                 </div>
+
+                <?php if ($bot['tokenLost']): ?>
+                    <div class="ignis-alert ignis-alert--warn mb-4" id="discordTokenLost" role="alert">
+                        <i class="fa-solid fa-key ignis-alert__icon" aria-hidden="true"></i>
+                        <div class="ignis-alert__body">
+                            <div class="ignis-alert__title">Das gespeicherte Token lässt sich nicht mehr lesen</div>
+                            <p class="m-0">Es liegt verschlüsselt in der Datenbank, der Schlüssel dazu (APP_KEY oder storage/private/secret.key) fehlt oder hat sich geändert. Bis du unten ein neues Token einträgst, schickt der Bot nichts.</p>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
                 <div class="ignis-card mb-4" id="discordBotStatus">
                     <div class="ignis-card__body flex flex-wrap items-center gap-4">

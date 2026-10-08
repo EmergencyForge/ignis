@@ -20,6 +20,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * eigenen Bots, welche Benachrichtigungen er per Direktnachricht zustellt,
  * und eine Testnachricht an sich selbst. Name und Bild gehen direkt an
  * Discord; gespeichert wird hier, was Discord zurückmeldet. Das Token
+ * liegt verschlüsselt in der Datenbank (App\Security\SecretBox) und
  * steht nie im Formular und nie im Audit-Log.
  */
 final class DiscordBotController extends Controller
@@ -41,6 +42,7 @@ final class DiscordBotController extends Controller
             'bot' => [
                 'enabled'   => $settings['enabled'],
                 'connected' => $settings['token'] !== '',
+                'tokenLost' => $settings['token_lost'],
                 'id'        => $settings['id'],
                 'name'      => $settings['name'],
                 'avatarUrl' => DiscordBot::avatarUrl($settings['id'], $settings['avatar']),
@@ -126,7 +128,12 @@ final class DiscordBotController extends Controller
             $this->redirect('settings/system/discord');
         }
 
-        DiscordBot::store($values + ['enabled' => $enabled, 'dm_types' => $dmTypes], $userId);
+        try {
+            DiscordBot::store($values + ['enabled' => $enabled, 'dm_types' => $dmTypes], $userId);
+        } catch (\RuntimeException $e) {
+            Flash::error('Das Token ließ sich nicht verschlüsselt speichern: ' . $e->getMessage());
+            $this->redirect('settings/system/discord');
+        }
         (new AuditLogger())->log($userId, 'Discord-Bot geändert', implode(', ', $changed), 'System');
         Flash::success('Der Discord-Bot ist gespeichert.');
         $this->redirect('settings/system/discord');
