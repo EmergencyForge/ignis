@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.0.42-beta
+
+Die Discord-Webhooks zu freigegebenen eNOTF- und fireTab-Protokollen und zu Voranmeldungen gehen wieder raus. Seit April blieben sie in der Warteschlange liegen, weil der Cronjob „queue.work“ nur die Standard-Warteschlange abgearbeitet hat. Jetzt nimmt er auch die Warteschlange der Benachrichtigungen mit.
+
+Damit nach dem Update nicht monatealte Meldungen auf einmal in euren Discord-Kanälen landen, verwirft die Aktualisierung alle liegengebliebenen Webhooks, die älter als eine Stunde sind.
+
 ## 2026.0.41-beta
 
 ignis bringt einen eigenen Discord-Bot mit. Eingerichtet wird er unter Einstellungen → System → Discord-Bot: Token aus dem Discord Developer Portal eintragen, Name und Profilbild festlegen, die Seite schickt beides direkt an Discord. Über „Zum Server hinzufügen“ holt ihr den Bot auf euren Server, eine Testnachricht an dich zeigt, ob alles passt. Das Token liegt verschlüsselt in der Datenbank. Den Schlüssel legt ignis beim ersten Mal unter storage/private/secret.key an, er gehört ins Backup; wer möchte, setzt ihn stattdessen als APP_KEY in der .env.
