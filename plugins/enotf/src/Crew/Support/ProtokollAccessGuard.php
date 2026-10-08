@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Crew\Support;
 
 use App\Auth\Permissions;
+use App\Personnel\AccountLink;
 use Plugin\Enotf\Crew\Policies\CrewPolicy;
 
 /**
@@ -26,6 +27,8 @@ use Plugin\Enotf\Crew\Policies\CrewPolicy;
  *     lesend über viewModule (admin/enotf.view/edivi.view), schreibend
  *     über admin/edivi.edit.
  *   - Klinikzugriff (Einmalcode) darf genau das Protokoll seiner ENR lesen.
+ *   - Wer mit verknüpftem Mitarbeiter als Personal im Protokoll steht, liest
+ *     es, auch ohne Crew-Session (Dashboard „Eigene eNOTF-Protokolle“).
  *
  * Der Guard beantwortet nur die Zugehörigkeitsfrage (403-Fall). Ob
  * überhaupt eine Anmeldung vorliegt (401-Fall), prüfen die Controller
@@ -33,6 +36,13 @@ use Plugin\Enotf\Crew\Policies\CrewPolicy;
  */
 final class ProtokollAccessGuard
 {
+    /** Felder, in denen Namen der Besatzung stehen */
+    private const PERSONAL_FELDER = [
+        'pfname',
+        'fzg_transp_perso', 'fzg_transp_perso_2', 'fzg_transp_perso_3',
+        'fzg_na_perso', 'fzg_na_perso_2', 'fzg_na_perso_3',
+    ];
+
     /**
      * Lesender Zugriff auf ein Protokoll?
      *
@@ -46,8 +56,34 @@ final class ProtokollAccessGuard
         if (self::klinikMatches($protokoll)) {
             return true;
         }
+        if (self::vehicleMatches($protokoll)) {
+            return true;
+        }
 
-        return self::vehicleMatches($protokoll);
+        return self::isOwn($protokoll);
+    }
+
+    /**
+     * Steht der Mitarbeiter des angemeldeten Kontos als Personal im
+     * Protokoll? Gleiche Felder und Teiltreffer wie die Dashboard-Liste,
+     * damit jeder Eintrag dort auch aufgeht.
+     *
+     * @param array<string,mixed> $protokoll
+     */
+    public static function isOwn(array $protokoll): bool
+    {
+        $name = trim((string) (AccountLink::current()->fullname ?? ''));
+        if ($name === '') {
+            return false;
+        }
+
+        foreach (self::PERSONAL_FELDER as $feld) {
+            if (mb_stripos((string) ($protokoll[$feld] ?? ''), $name) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

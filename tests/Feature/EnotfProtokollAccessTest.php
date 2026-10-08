@@ -67,6 +67,32 @@ final class EnotfProtokollAccessTest extends FeatureTestCase
     }
 
     #[Test]
+    public function wer_im_protokoll_steht_sieht_es_schreibgeschuetzt(): void
+    {
+        $person = FixtureFactory::personnel();
+        $user = FixtureFactory::user(['aktenid' => $person->id]);
+        Capsule::table('intra_edivi')->where('enr', $this->enr)->update(['fzg_transp_perso' => $person->fullname . ' (NotSan)']);
+        $this->actingAs($user->id, ['permissions' => [], 'cirs_username' => $user->username]);
+
+        $page = $this->get('/enotf/p/' . $this->enr);
+
+        $this->assertOk($page);
+        $this->assertBodyContains('Nur Ansicht', $page);
+        $this->assertBodyContains('window.__ev2Locked = true', $page);
+    }
+
+    #[Test]
+    public function ein_konto_ohne_bezug_sieht_das_protokoll_nicht(): void
+    {
+        $user = FixtureFactory::user(['aktenid' => FixtureFactory::personnel()->id]);
+        $this->actingAs($user->id, ['permissions' => [], 'cirs_username' => $user->username]);
+
+        $page = $this->get('/enotf/p/' . $this->enr);
+
+        $this->assertBodyContains('Protokoll nicht gefunden', $page);
+    }
+
+    #[Test]
     public function eine_fremde_crew_sieht_das_protokoll_nicht(): void
     {
         $this->crew('RTW-2');

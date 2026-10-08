@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Plugin\Enotf\Crew\Controllers;
 
 use EmergencyForge\Http\Request;
-use Plugin\Enotf\Crew\Policies\CrewPolicy;
 use Plugin\Enotf\Crew\Support\ProtokollAccessGuard;
 use Plugin\Enotf\Crew\Support\ProtokollService;
 
@@ -17,8 +16,9 @@ use Plugin\Enotf\Crew\Support\ProtokollService;
  * (templates/protokoll/{section}.php).
  *
  * Bearbeiten darf nur die Crew des Fahrzeugs. Panel-Nutzer mit Leserecht
- * (Prüfliste, Dashboard, Benachrichtigungen) sehen das Protokoll ohne
- * Fahrzeuganmeldung, aber schreibgeschützt wie ein freigegebenes.
+ * (Prüfliste, Benachrichtigungen) und Mitarbeiter, die im Protokoll als
+ * Personal stehen (Dashboard), sehen es ohne Fahrzeuganmeldung, aber
+ * schreibgeschützt wie ein freigegebenes.
  */
 class ProtokollController extends CrewController
 {
@@ -43,7 +43,9 @@ class ProtokollController extends CrewController
     public function show(Request $request, string $enr, ?string $section = null): void
     {
         $this->bootPage();
-        if (!CrewPolicy::viewModule()) {
+        // Ohne Konto geht es nur mit Crew-Sitzung. Wer angemeldet ist, darf
+        // lesen, was der Guard erlaubt (Leserecht oder eigenes Protokoll).
+        if (empty($_SESSION['userid'])) {
             $this->requireCrewSession();
         }
 
