@@ -67,8 +67,8 @@
   }
 }
 
-// Bausteine des Redesigns (Button-Stufen, Chip- und Alert-Aliase, Tabellen
-// ohne DataTables): eigene Datei, nach den Grundformen geladen, damit ihre
+// Bausteine des Redesigns (Button-Stufen, Chip- und Alert-Aliase,
+// Tabellen): eigene Datei, nach den Grundformen geladen, damit ihre
 // Regeln bei gleicher Spezifität gewinnen.
 @include meta.load-css('components');
 

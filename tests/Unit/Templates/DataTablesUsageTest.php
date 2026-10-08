@@ -42,10 +42,6 @@ final class DataTablesUsageTest extends TestCase
                     continue;
                 }
                 $rel = str_replace('\\', '/', substr($file->getPathname(), strlen($base) + 1));
-                // Die Konfiguration zeigt den Aufruf nur im Kommentar.
-                if (str_contains($rel, 'datatables-config.js')) {
-                    continue;
-                }
                 if (preg_match('~\.DataTable\(~', (string) file_get_contents($file->getPathname())) === 1) {
                     $found[] = $rel;
                 }
