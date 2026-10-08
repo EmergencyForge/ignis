@@ -41,6 +41,12 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
 $layout = 'admin';
 $bodyId = 'mitarbeiter';
+// Einladungen: im Modus „code“ Pflicht, im Modus „open“ verknüpfen sie das
+// neue Konto gleich mit dem Mitarbeiter. Bei geschlossener Registrierung
+// greifen sie nicht.
+$canInvite     = Permissions::check(['admin', 'users.create']);
+$inviteMode    = defined('REGISTRATION_MODE') ? (string) REGISTRATION_MODE : 'open';
+$inviteAllowed = $canInvite && in_array($inviteMode, ['code', 'open'], true);
 // Abzeichen im Kopf und in der Profilkarte (assets/components/profiles/_rank-badge.php)
 $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
 ?>
@@ -82,13 +88,20 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                             <?php if ($pendingInvite && !empty($pendingInvite['expires_at'])): ?>
                                 <span style="font-size: var(--fs-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
                             <?php endif; ?>
-                        <?php else: ?>
-                            <span class="ignis-chip ignis-chip--dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark mr-1"></i>Kein Konto</span>
-                            <?php if (Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
-                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="generateInviteBtn" style="font-size: var(--fs-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
-                                    <i class="fa-solid fa-paper-plane mr-1"></i>Einladen
+                            <?php if ($canInvite && $pendingInvite): ?>
+                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-invite-copy="<?= htmlspecialchars(\App\Models\RegistrationCode::inviteUrl((string) $pendingInvite['code']), ENT_QUOTES) ?>">
+                                    <i class="fa-solid fa-copy mr-1" aria-hidden="true"></i>Link kopieren
                                 </button>
-                                <span id="inviteResult" style="font-size: var(--fs-xs);"></span>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span class="ignis-chip ignis-chip--dark" style="opacity: 0.6;" id="accountStatusChip"><i class="fa-solid fa-circle-xmark mr-1"></i>Kein Konto</span>
+                            <?php if ($inviteAllowed): ?>
+                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="generateInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>" data-ignis-tooltip="Erstellt einen Einladungslink für diesen Mitarbeiter und kopiert ihn">
+                                    <i class="fa-solid fa-paper-plane mr-1" aria-hidden="true"></i>Einladen
+                                </button>
+                                <span id="inviteResult" style="font-size: var(--fs-xs);" role="status"></span>
+                            <?php elseif ($canInvite): ?>
+                                <span style="font-size: var(--fs-xs); opacity: 0.7;">Einladen geht erst, wenn die Registrierung nicht geschlossen ist (<a href="<?= BASE_PATH ?>settings/system/config#cfg-REGISTRATION_MODE">Registrierung</a>).</span>
                             <?php endif; ?>
                         <?php endif; ?>
                         <?php if ($panelakte && \App\Auth\Gate::allows('user.update') && (int) $panelakte['id'] !== (int) ($_SESSION['userid'] ?? 0)): ?>
@@ -119,7 +132,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                         <?php endif; ?>
                     </div>
 
-                    <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
+                    <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && $inviteAllowed): ?>
                         <div class="ignis-alert ignis-alert--ok alert-dismissible fade show mb-3" role="alert" id="newCreatedBanner">
                             <i class="fa-solid fa-circle-check mr-2"></i>
                             <strong>Mitarbeiter erfolgreich erstellt.</strong> Soll direkt ein Einladungslink für das Intranet generiert werden?
@@ -335,7 +348,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
         basePath:   '<?= BASE_PATH ?>',
         profileId:  <?= (int) $row['id'] ?>,
         canEdit:    <?= $canEdit ? 'true' : 'false' ?>,
-        canInvite:  <?= Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code' ? 'true' : 'false' ?>,
+        canInvite:  <?= $canInvite ? 'true' : 'false' ?>,
         currentData: <?= json_encode([
             'fullname'    => $row['fullname'],
             'titel_id'    => (string) ($row['titel_id'] ?? ''),

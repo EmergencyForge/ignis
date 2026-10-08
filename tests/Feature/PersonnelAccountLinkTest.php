@@ -204,6 +204,37 @@ final class PersonnelAccountLinkTest extends FeatureTestCase
         $this->assertSame(422, $refused->status);
     }
 
+    /** Ein Klick im Profil: Knopf ohne Konto, Link kopieren bei offener Einladung, kein Duplikat. */
+    #[Test]
+    public function einladung_mit_einem_klick_im_profil(): void
+    {
+        $this->loginAdmin();
+        $person = FixtureFactory::personnel(['fullname' => 'Olga Offen']);
+
+        // Ohne Konto und ohne Einladung: der Knopf (Registrierung im Test: open).
+        $this->assertBodyContains('id="generateInviteBtn"', $this->get('/personnel/profile', ['query' => ['id' => (string) $person->id]]));
+
+        $api = new \App\Http\Controllers\Api\PersonnelController();
+        $request = fn (): Request => new Request('POST', '/api/personnel/generate-invite', rawBody: json_encode(['label' => 'Olga Offen', 'mitarbeiter_id' => $person->id], JSON_THROW_ON_ERROR));
+        $first = json_decode($api->generateInvite($request())->body, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertTrue($first['success']);
+        $this->assertFalse($first['existing']);
+        $this->assertStringEndsWith('invite?code=' . $first['code'], $first['inviteUrl']);
+
+        // Ein zweiter Klick liefert dieselbe Einladung statt einer neuen.
+        $second = json_decode($api->generateInvite($request())->body, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertTrue($second['existing']);
+        $this->assertSame($first['code'], $second['code']);
+        $this->assertSame(1, RegistrationCode::query()->where('mitarbeiter_id', $person->id)->count());
+        $this->assertSame(1, Capsule::table('intra_audit_log')->where('action', 'Einladung erstellt')->where('details', 'Olga Offen')->count());
+
+        // Nach dem Neuladen: offene Einladung mit „Link kopieren“, kein Knopf mehr.
+        $profile = $this->get('/personnel/profile', ['query' => ['id' => (string) $person->id]]);
+        $this->assertBodyContains('Einladung ausstehend', $profile);
+        $this->assertBodyContains('data-invite-copy="' . htmlspecialchars(RegistrationCode::inviteUrl($first['code']), ENT_QUOTES) . '"', $profile);
+        $this->assertBodyNotContains('id="generateInviteBtn"', $profile);
+    }
+
     #[Test]
     public function neuer_mitarbeiter_ohne_discord_id_und_mit_passender_discord_id(): void
     {

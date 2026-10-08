@@ -124,4 +124,30 @@ class RegistrationCode extends Model
     {
         $query->where('is_used', 0);
     }
+
+    /**
+     * Absoluter Einladungslink zu einem Code: SYSTEM_URL, wenn eingetragen,
+     * sonst Schema und Host des aktuellen Requests.
+     */
+    public static function inviteUrl(string $code): string
+    {
+        return self::baseUrl() . (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'invite?code=' . rawurlencode($code);
+    }
+
+    /** Schema und Host der Instanz, ohne Pfad und ohne Schrägstrich am Ende. */
+    public static function baseUrl(): string
+    {
+        $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
+            ? rtrim((string) SYSTEM_URL, '/')
+            : '';
+        if ($sysUrl !== '' && !preg_match('#^https?://#i', $sysUrl)) {
+            $sysUrl = 'https://' . $sysUrl;
+        }
+        if ($sysUrl !== '') {
+            return $sysUrl;
+        }
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+
+        return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    }
 }

@@ -46,6 +46,11 @@ final class FabricaIdentity
                     if ($invitation === null) {
                         throw new DomainException('Als neuer Benutzer benötigst du einen gültigen, noch nicht verwendeten Einladungscode.');
                     }
+                } elseif ($code !== null && $code !== '') {
+                    // Offene Registrierung: eine mitgebrachte Einladung
+                    // verknüpft das Konto mit ihrem Mitarbeiter, eine
+                    // ungültige hält niemanden auf.
+                    $invitation = RegistrationCode::reserve($code);
                 }
 
                 // The identity and invitation commit with the account; failed callbacks leave no orphan.

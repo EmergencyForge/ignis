@@ -164,8 +164,20 @@ try {
 
             SessionManager::clearRegistrationCode();
         } else {
-            // Open registration
-            $user = DiscordRegistration::create($discordId, $username, (int) $defaultRole->id);
+            // Offene Registrierung. Bringt der Browser eine Einladung mit,
+            // wird sie eingelöst und das Konto mit dem Mitarbeiter der
+            // Einladung verknüpft; eine ungültige hält niemanden auf.
+            $code = SessionManager::getRegistrationCode();
+            $user = null;
+            if ($code) {
+                try {
+                    $user = DiscordRegistration::create($discordId, $username, (int) $defaultRole->id, false, $code);
+                } catch (\DomainException) {
+                    $user = null;
+                }
+            }
+            $user ??= DiscordRegistration::create($discordId, $username, (int) $defaultRole->id);
+            SessionManager::clearRegistrationCode();
         }
 
         SessionManager::loginAccount($user->toArray());
