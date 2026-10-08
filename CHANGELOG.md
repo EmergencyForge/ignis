@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.0.39-beta
+
+Anträge und Kalender sind jetzt Plugins und lassen sich einzeln abschalten. Fest dabei bleiben Personal, Benutzer, Dokumente und Fahrzeuge. Beide Module werden mitgeliefert und sind eingeschaltet; Einträge, Rechte und die Plätze in der Seitenleiste bleiben wie bisher. Ist der Kalender aus, verschwinden seine Hinweise in den Urlaubsanträgen, sind die Anträge aus, fehlen sie auf dem Dashboard und in den offenen Aufgaben. Genehmigte Urlaubsanträge erscheinen weiter als Abwesenheit im Kalender, solange beide an sind.
+
+Unter Einstellungen → System → Module steht jetzt, welche Module ihr benutzt: eNOTF, eNOTF v2, fireTab, MANV-Board und Fahrtenbuch für den Einsatz, Anträge, Kalender, Mail und Wissensdatenbank für die Verwaltung, jedes mit einem Schalter. Bei einer neuen Installation ist „Module auswählen“ der erste Schritt der Einrichtung auf dem Dashboard. Installationen, die schon Mitarbeiter haben, sehen den Schritt nicht.
+
+Wer ignis über die eingebaute Aktualisierung einspielt, bekommt die alten Dateien von Anträgen und Kalender aus dem Kern entfernt.
+
 ## 2026.0.38-beta
 
 Das Fahrtenbuch ist jetzt ein Plugin und lässt sich unter Einstellungen → System → Plugins abschalten. Es wird mitgeliefert und ist eingeschaltet, Einträge, Rechte und der Platz unter „Fahrzeuge“ in der Seitenleiste bleiben wie bisher. Ist es aus, verschwindet der Fahrtenbuch-Link im eNOTF und in fireTab, beide laufen ohne es weiter.
