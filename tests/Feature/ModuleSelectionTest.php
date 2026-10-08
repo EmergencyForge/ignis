@@ -49,8 +49,9 @@ final class ModuleSelectionTest extends FeatureTestCase
         $page = $this->get('/settings/system/modules');
 
         $this->assertOk($page);
-        $this->assertBodyContains('name="modules[]" value="calendar"', $page);
-        $this->assertBodyContains('name="modules[]" value="forms"', $page);
+        // Die Attribute stehen im Template je auf einer Zeile.
+        $this->assertMatchesRegularExpression('~name="modules\[\]"\s+value="calendar"~', $page->body);
+        $this->assertMatchesRegularExpression('~name="modules\[\]"\s+value="forms"~', $page->body);
         $this->assertBodyContains('id="modules-first-run"', $page);
         // Grundmodule stehen nicht zur Wahl.
         $this->assertBodyNotContains('value="personnel"', $page);
