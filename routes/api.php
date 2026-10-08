@@ -147,41 +147,7 @@ $router->post('/api/notifications/mark-all-read',
     [new AuthMiddleware()]
 );
 
-// ----------------------------------------------------------------------------
-//  Kalender: FullCalendar-EventSource
-//
-//  Liefert ein Array von FullCalendar-EventInput-Objekten fuer den Range
-//  [from, to]. Recurring-Events werden serverseitig durch RecurrenceExpander
-//  in Einzelvorkommen aufgeloest, sodass das Frontend keine Recurrence-
-//  Logik braucht.
-// ----------------------------------------------------------------------------
-
-$router->get('/api/calendar/events',
-    [\App\Http\Controllers\CalendarController::class, 'eventsJson'],
-    [new AuthMiddleware()]
-);
-
-// Detail eines einzelnen Events fuer Edit-Prefill
-$router->get('/api/calendar/event',
-    [\App\Http\Controllers\CalendarController::class, 'eventJson'],
-    [new AuthMiddleware()]
-);
-
-// iCal-Subscribe: generiert Token bei Bedarf, gibt absolute URL zurueck.
-$router->get('/api/calendar/subscribe-info',
-    [\App\Http\Controllers\CalendarController::class, 'subscribeInfo'],
-    [new AuthMiddleware()]
-);
-$router->post('/api/calendar/subscribe-regenerate',
-    [\App\Http\Controllers\CalendarController::class, 'subscribeRegenerate'],
-    [new AuthMiddleware()]
-);
-
-// iCal-Feed: Token in der URL ist die Auth (Cookie-Auth funktioniert
-// fuer externe Kalender-Apps nicht). Bewusst KEINE AuthMiddleware.
-$router->get('/api/calendar/ical/{token:[a-f0-9]{20,64}}',
-    [\App\Http\Controllers\CalendarController::class, 'icalFeed'],
-);
+// Kalender-API: Plugin `calendar` (plugins/calendar/routes.api.php).
 
 /*
  * BEISPIEL: Admin-API-Endpoint (Session + Permission)

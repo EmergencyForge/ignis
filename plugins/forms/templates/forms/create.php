@@ -42,7 +42,7 @@ $bodyId = 'antrag-create';
                 </div>
             </div>
 
-            <?php if (strcasecmp((string) $typ->name, 'Urlaubsantrag') === 0): ?>
+            <?php if (strcasecmp((string) $typ->name, 'Urlaubsantrag') === 0 && app(\App\Plugins\PluginLoader::class)->isActive('calendar')): ?>
                 <div class="ignis-alert ignis-alert--info mb-4 max-w-[44rem]">
                     <i class="fa-solid fa-circle-info ignis-alert__icon" aria-hidden="true"></i>
                     <div class="ignis-alert__body">Nach <strong>Genehmigung</strong> erscheint der Antrag automatisch als Abwesenheit im <a href="<?= BASE_PATH ?>calendar">Kalender</a> und ist für alle Kollegen sichtbar. Status-Änderungen (z.B. Ablehnung) werden sofort übernommen.</div>

@@ -84,19 +84,7 @@ return [
                 // Kein Eintrag „Posteingang“: die Benachrichtigungen zeigt die
                 // Glocke in der Topbar mit Zähler, ihr „Alle anzeigen“ führt
                 // auf /inbox. Ein zweiter Weg in der Sidebar war doppelt.
-                [
-                    'label'        => 'Kalender',
-                    'href'         => BASE_PATH . 'calendar',
-                    'icon'         => 'fa-solid fa-calendar-days',
-                    'permissions'  => ['admin', 'calendar.view'],
-                    'match'        => ['/calendar'],
-                    'quick_action' => [
-                        'type'        => 'drawer',
-                        'target'      => BASE_PATH . 'calendar/create',
-                        'label'       => 'Neuen Termin erstellen',
-                        'permissions' => ['admin', 'calendar.create'],
-                    ],
-                ],
+                // Kalender hängt das Plugin `calendar` hinter dem Dashboard ein.
             ],
         ],
 

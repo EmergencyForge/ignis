@@ -28,7 +28,6 @@ return [
     \App\Console\Commands\FederationSyncCommand::class,
     \App\Console\Commands\StorageCleanupCommand::class,
     \App\Console\Commands\UpdatesCheckCommand::class,
-    \App\Console\Commands\CalendarBackfillAbsencesCommand::class,
     \App\Console\Commands\ChangelogRefreshCommand::class,
     \App\Console\Commands\BootstrapAdminCommand::class,
 ];

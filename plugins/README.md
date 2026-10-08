@@ -5,8 +5,8 @@ Hier liegen die installierten ignis-Plugins, je ein Unterordner mit einer
 `PluginRepository` (Tabelle `intra_plugins`) entscheidet, welche aktiv sind.
 
 Die Module **eNOTF (v1 und v2), fireTab, MANV-Board, Wissensdatenbank, Mail,
-Fahrtenbuch und Anträge** werden als Plugins ausgeliefert. Grundmodule im
-Core sind Personal, Benutzer, Dokumente und Fahrzeuge.
+Fahrtenbuch, Anträge und Kalender** werden als Plugins ausgeliefert.
+Grundmodule im Core sind Personal, Benutzer, Dokumente und Fahrzeuge.
 
 Das Fahrtenbuch (`logbook`) hat zwei Abnehmer unter den Plugins: eNOTF und
 fireTab zeigen es für das angemeldete Fahrzeug an und schreiben über
@@ -20,6 +20,14 @@ zeigen Anträge nur, solange das Plugin aktiv ist.
 
 `merge_after` in einem `navigation.php`-Fragment setzt die Einträge hinter
 den Eintrag mit dieser Beschriftung, statt sie ans Ende der Gruppe zu hängen.
+
+Der Kalender (`calendar`) bringt FullCalendar und seine Skripte unter
+`assets/` mit; Templates binden sie über `asset('plugins/calendar/assets/...')`
+ein. Plugin-Skripte importieren keine UI-Module des Kerns relativ (der Pfad
+`../ui/` führt aus `/plugins/<id>/assets/` ins Leere), sondern nutzen die
+globalen Namen des UI-Pakets wie `window.Dialog`. Die Migration des
+iCal-Tokens ergänzt `intra_users` um eine Spalte; sie läuft wie alle
+Migrationen mitgelieferter Plugins auch, wenn das Plugin aus ist.
 
 ## Aufbau eines Plugins
 

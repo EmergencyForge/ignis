@@ -36,6 +36,27 @@
     "database/migrations/20250607000042_create_intra_antraege_30092025.php",
     "database/migrations/20250607000043_create_intra_antraege_daten_30092025.php",
     "templates/forms",
-    "templates/settings/forms"
+    "templates/settings/forms",
+    "src/Http/Controllers/CalendarController.php",
+    "src/Http/Requests/Calendar",
+    "src/Policies/CalendarPolicy.php",
+    "src/Models/CalendarEvent.php",
+    "src/Models/CalendarAttendee.php",
+    "src/Calendar",
+    "src/Console/Commands/CalendarBackfillAbsencesCommand.php",
+    "database/migrations/20260504000001_create_intra_calendar_events.php",
+    "database/migrations/20260504000002_create_intra_calendar_attendees.php",
+    "database/migrations/20260504000003_create_intra_calendar_event_roles.php",
+    "database/migrations/20260504000004_add_ical_token_to_intra_users.php",
+    "database/migrations/20260504000005_add_track_attendance_to_intra_calendar_events.php",
+    "templates/calendar",
+    "assets/js/pages/calendar.js",
+    "assets/js/pages/calendar-form.js",
+    "assets/css/pages/calendar.css",
+    "assets/_ext/fullcalendar",
+    "public/assets/js/pages/calendar.js",
+    "public/assets/js/pages/calendar-form.js",
+    "public/assets/css/pages/calendar.css",
+    "public/assets/_ext/fullcalendar"
   ]
 }

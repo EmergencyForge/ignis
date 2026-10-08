@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\CalendarEvent;
+use Plugin\Calendar\Models\CalendarEvent;
 use Plugin\Forms\Models\Form;
 use Plugin\Forms\Models\FormType;
 use App\Models\Personnel;
@@ -266,7 +266,7 @@ final class PersonnelAccountLinkTest extends FeatureTestCase
         $this->assertBodyNotContains((string) $antrag->uniqueid, $page);
         $this->assertBodyNotContains((string) $docId, $page);
         $this->assertFalse(\Plugin\Forms\Policies\FormsPolicy::view($antrag));
-        $this->assertStringNotContainsString('Dienstbesprechung Zentral', \App\Calendar\IcalExporter::export((int) $user->id));
+        $this->assertStringNotContainsString('Dienstbesprechung Zentral', \Plugin\Calendar\IcalExporter::export((int) $user->id));
         Mailbox::forget();
         $this->assertNull(Mailbox::current());
 
@@ -278,7 +278,7 @@ final class PersonnelAccountLinkTest extends FeatureTestCase
         $this->assertBodyNotContains('Kein Mitarbeiterprofil verknüpft', $page);
         AccountLink::forget();
         $this->assertTrue(\Plugin\Forms\Policies\FormsPolicy::view($antrag));
-        $this->assertStringContainsString('Dienstbesprechung Zentral', \App\Calendar\IcalExporter::export((int) $user->id));
+        $this->assertStringContainsString('Dienstbesprechung Zentral', \Plugin\Calendar\IcalExporter::export((int) $user->id));
         $this->assertOk($this->get('/calendar/view', ['query' => ['id' => (string) $event->id]]));
         $this->assertSame($mailbox->id, Mailbox::ownedBy((int) $user->id)?->id);
         $this->assertSame((int) $user->id, $mailbox->refresh()->user_id);

@@ -157,8 +157,10 @@ final class LegacyClassUsageTest extends TestCase
     public function testCalendarAndDefectsAreClean(): void
     {
         $base = dirname(__DIR__, 3);
-        foreach (['templates/calendar', 'templates/settings/vehicles/defects'] as $dir) {
-            foreach (glob($base . '/' . $dir . '/*.php') ?: [] as $file) {
+        foreach (['plugins/calendar/templates/calendar', 'templates/settings/vehicles/defects'] as $dir) {
+            $files = glob($base . '/' . $dir . '/*.php') ?: [];
+            $this->assertNotSame([], $files, $dir . ' ist leer oder verschoben.');
+            foreach ($files as $file) {
                 $this->assertSame([], self::legacyClasses((string) file_get_contents($file)), basename($file));
             }
         }
