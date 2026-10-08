@@ -20,6 +20,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  * wird beim ersten leeren Poll sofort beendet, damit Cron-getriggerte
  * Worker schnell zurückkehren (wichtig für HTTP-Trigger mit Timeout).
  *
+ * `--queue` nimmt mehrere Queues mit Komma, die vordere hat Vorrang. Ohne
+ * Angabe arbeitet der Worker alle Queues ab, die der Kern benutzt
+ * (QUEUES): der Cron-Eintrag `queue.work` nennt keine, und Jobs auf
+ * `notifications` (Discord-Webhooks) blieben sonst liegen.
+ *
  * Mit `--daemon` wird der klassische Poll-und-Warte-Loop aktiviert.
  * Nur sinnvoll für persistent laufende CLI-Worker (z.B. auf einem VPS
  * unter Supervisor oder systemd).
@@ -30,6 +35,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 final class QueueWorkCommand extends Command
 {
+    /** Die Queues der Jobs in App\Jobs, in dieser Reihenfolge abgearbeitet. */
+    public const QUEUES = ['default', 'notifications'];
+
     public function __construct(
         private readonly QueueManager $queueManager,
     ) {
@@ -39,7 +47,7 @@ final class QueueWorkCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('queue',    null, InputOption::VALUE_REQUIRED, 'Queue-Name',                          'default')
+            ->addOption('queue',    null, InputOption::VALUE_REQUIRED, 'Queue-Namen, mit Komma getrennt',     implode(',', self::QUEUES))
             ->addOption('max-time', null, InputOption::VALUE_REQUIRED, 'Max. Laufzeit in Sekunden',           '55')
             ->addOption('max-jobs', null, InputOption::VALUE_REQUIRED, 'Max. Jobs pro Worker-Lauf',           '50')
             ->addOption('sleep',    null, InputOption::VALUE_REQUIRED, 'Sleep zwischen leeren Polls (Daemon-Modus)', '3')
@@ -49,7 +57,9 @@ final class QueueWorkCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $queueName = (string) $input->getOption('queue');
+        $queues    = array_values(array_filter(array_map('trim', explode(',', (string) $input->getOption('queue'))), static fn (string $q): bool => $q !== ''));
+        $queues    = $queues !== [] ? $queues : self::QUEUES;
+        $queueName = implode(',', $queues);
         $maxTime   = max(1, (int) $input->getOption('max-time'));
         $maxJobs   = max(1, (int) $input->getOption('max-jobs'));
         $sleep     = max(1, (int) $input->getOption('sleep'));
@@ -81,7 +91,13 @@ final class QueueWorkCommand extends Command
             }
 
             /** @var \Illuminate\Contracts\Queue\Job|null $job */
-            $job = $connection->pop($queueName);
+            $job = null;
+            foreach ($queues as $queue) {
+                $job = $connection->pop($queue);
+                if ($job !== null) {
+                    break;
+                }
+            }
 
             if ($job === null) {
                 if (!$daemon) {
