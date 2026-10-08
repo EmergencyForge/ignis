@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Integrations\DiscordWebhook;
+use App\Integrations\DiscordWebhookException;
 use App\Logging\Logger;
 
 /**
@@ -43,18 +44,25 @@ final class SendDiscordWebhookJob extends Job
     {
         $webhook = app(DiscordWebhook::class);
 
-        $success = match ($this->type) {
-            'enotf_released'        => $webhook->notifyEnotfProtocolReleased($this->data),
-            'fire_released'         => $webhook->notifyFireProtocolReleased($this->data),
-            'enotf_preregistration' => $webhook->notifyEnotfPreregistration($this->data),
-            default                 => throw new \InvalidArgumentException("Unbekannter Webhook-Typ: {$this->type}"),
-        };
-
-        if (!$success) {
-            // DiscordWebhook gibt false zurück wenn der Webhook nicht
-            // konfiguriert ist oder der HTTP-Call fehlschlägt. Wir werfen
-            // eine Exception damit der Job in den Retry-Flow geht.
-            throw new \RuntimeException("DiscordWebhook lieferte false für Typ '{$this->type}'");
+        // Ohne eingetragene URL liefert DiscordWebhook false: dann ist
+        // nichts zu tun, kein Fehler. Netzfehler, Rate-Limit und Störungen
+        // bei Discord gehen in den Retry der Queue; eine Nachricht, die
+        // Discord ablehnt (4xx), würde es beim nächsten Versuch genauso.
+        try {
+            match ($this->type) {
+                'enotf_released'        => $webhook->notifyEnotfProtocolReleased($this->data),
+                'fire_released'         => $webhook->notifyFireProtocolReleased($this->data),
+                'enotf_preregistration' => $webhook->notifyEnotfPreregistration($this->data),
+                default                 => throw new \InvalidArgumentException("Unbekannter Webhook-Typ: {$this->type}"),
+            };
+        } catch (DiscordWebhookException $e) {
+            if ($e->retryable()) {
+                throw $e;
+            }
+            Logger::error('SendDiscordWebhookJob: Discord hat abgelehnt', [
+                'type'  => $this->type,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

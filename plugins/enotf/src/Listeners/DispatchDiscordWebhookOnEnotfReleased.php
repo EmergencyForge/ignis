@@ -26,7 +26,9 @@ final class DispatchDiscordWebhookOnEnotfReleased
     public function handle(EnotfProtocolReleased $event): void
     {
         $this->jobs->dispatch(
-            new SendDiscordWebhookJob('enotf_released', $event->protocolData)
+            // Nur was die Meldung zeigt: der Job liegt in der Datenbank,
+            // das ganze Protokoll mit Patientendaten gehört nicht dorthin.
+            new SendDiscordWebhookJob('enotf_released', array_intersect_key($event->protocolData, array_flip(['enr', 'last_edit'])))
         );
     }
 }

@@ -21,7 +21,8 @@ final class DispatchDiscordWebhookOnFireReleased
     public function handle(FireProtocolReleased $event): void
     {
         $this->jobs->dispatch(
-            new SendDiscordWebhookJob('fire_released', $event->incidentData)
+            // Nur was die Meldung zeigt, nicht der ganze Einsatz.
+            new SendDiscordWebhookJob('fire_released', array_intersect_key($event->incidentData, array_flip(['id', 'incident_number', 'location', 'keyword', 'started_at', 'leader_name'])))
         );
     }
 }
