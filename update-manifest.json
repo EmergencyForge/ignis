@@ -81,6 +81,8 @@
     "assets/js/modules/enotf-diagnose.js",
     "public/assets/js/modules/enotf-diagnose.js",
     "assets/js/dist/enotf-custom-dropdown.dev.js",
-    "public/assets/js/dist/enotf-custom-dropdown.dev.js"
+    "public/assets/js/dist/enotf-custom-dropdown.dev.js",
+    "assets/js/modules/datatables-config.js",
+    "public/assets/js/modules/datatables-config.js"
   ]
 }
