@@ -113,6 +113,5 @@ export default {
         // <textarea>. Sonst überschreibt es das Custom-Styling aus
         // assets/css/style.scss, divi.scss, ui.scss & co.
         require('@tailwindcss/forms')({ strategy: 'class' }),
-        require('@tailwindcss/typography'),
     ],
 };
