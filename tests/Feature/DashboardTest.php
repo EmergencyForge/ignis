@@ -215,7 +215,7 @@ final class DashboardTest extends FeatureTestCase
     #[Test]
     public function der_systemdaten_schritt_nennt_die_offenen_felder(): void
     {
-        $this->setConfig(['SYSTEM_URL' => 'CHANGE_ME', 'SERVER_NAME' => '']);
+        $this->setConfig(['SETUP_MODULES_DONE' => 'true', 'SYSTEM_URL' => 'CHANGE_ME', 'SERVER_NAME' => '']);
         $this->login();
 
         $page = $this->get('/index');
@@ -227,7 +227,7 @@ final class DashboardTest extends FeatureTestCase
     #[Test]
     public function mit_url_und_servername_ist_der_schritt_erledigt(): void
     {
-        $this->setConfig(['SYSTEM_URL' => 'intra.example.de', 'SERVER_NAME' => 'Rheinstadt RP']);
+        $this->setConfig(['SETUP_MODULES_DONE' => 'true', 'SYSTEM_URL' => 'intra.example.de', 'SERVER_NAME' => 'Rheinstadt RP']);
         $this->login();
 
         $page = $this->get('/index');

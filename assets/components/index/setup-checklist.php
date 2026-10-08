@@ -47,6 +47,7 @@ $checkPois        = _setupCount('intra_edivi_pois');
 $checkFahrzeuge   = _setupCount('intra_fahrzeuge');
 
 // Step completion flags (computed once, reused in HTML)
+$doneModules      = \App\Plugins\ModuleSelection::isDone();
 $doneConfig       = $setupConfigOpen === [];
 $doneDienstgrade  = $checkDienstgrade > 0;
 $doneQuali        = $checkQuali > 0;
@@ -56,14 +57,15 @@ $donePois         = $checkPois > 0;
 $doneFahrzeuge    = $checkFahrzeuge > 0;
 
 // Required steps (must all be done to hide checklist)
-$requiredSteps = 5;
-$completedRequired = (int)$doneConfig + (int)$doneDienstgrade + (int)$doneQuali + (int)$doneRollen + (int)$doneMitarbeiter;
+$requiredSteps = 6;
+$completedRequired = (int)$doneModules + (int)$doneConfig + (int)$doneDienstgrade + (int)$doneQuali + (int)$doneRollen + (int)$doneMitarbeiter;
 
 // Don't show if all required steps are done
 if ($completedRequired >= $requiredSteps) return;
 
 // Jede Prüfung ist ein Schritt; der erste offene bekommt seinen Link als Aktion.
 $setupSteps = [
+    [$doneModules, 'Module auswählen', 'settings/system/modules'],
     [$doneConfig, 'Systemdaten anpassen', 'settings/system/config?setup=1'],
     [$doneDienstgrade, 'Dienstgrade anlegen', 'settings/personnel/ranks/index'],
     [$doneQuali, 'Qualifikationen konfigurieren', 'settings/personnel/ambskills/index'],
@@ -81,7 +83,7 @@ $empty = [
     'icon'    => 'fa-flag-checkered',
     'heading' => 2,
     'title'   => 'ignis ist fast startklar',
-    'text'    => 'Mit Systemdaten, Dienstgraden, Qualifikationen, Rollen und dem ersten Mitarbeiter ist die Grundlage gelegt. Danach füllt sich das Dashboard von selbst.',
+    'text'    => 'Mit den Modulen, Systemdaten, Dienstgraden, Qualifikationen, Rollen und dem ersten Mitarbeiter ist die Grundlage gelegt. Danach füllt sich das Dashboard von selbst.',
     'steps'   => [],
 ];
 foreach ($setupSteps as [$setupDone, $setupLabel, $setupPath]) {
