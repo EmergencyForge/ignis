@@ -30,6 +30,9 @@ services:
       - ../WebPackages/packages/list-query:/var/www/html/vendor/emergencyforge/list-query
       # Persist storage data
       - intrarp-storage:/var/www/html/storage
+      # Sonst läge im Volume die version.json vom Bau des Images, und Plugins,
+      # die eine neuere ignis-Version verlangen, blieben aus.
+      - ./storage/version.json:/var/www/html/storage/version.json
       - intrarp-uploads:/var/www/html/uploads
     depends_on:
       db:

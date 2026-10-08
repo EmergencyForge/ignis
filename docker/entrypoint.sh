@@ -36,7 +36,9 @@ fi
 
 # version.json gehört zum Image. Wechselt die Version, ist auch der Cache
 # (Routen, Suchvokabular, Update-Prüfung) vom alten Stand und fliegt raus.
-if [ -f "$SHIPPED/version.json" ] && ! cmp -s "$SHIPPED/version.json" /var/www/html/storage/version.json; then
+# Im Entwicklungs-Setup ist sie aus dem Checkout eingehängt und bleibt.
+if [ -f "$SHIPPED/version.json" ] && ! mountpoint -q /var/www/html/storage/version.json \
+    && ! cmp -s "$SHIPPED/version.json" /var/www/html/storage/version.json; then
     cp "$SHIPPED/version.json" /var/www/html/storage/version.json
     chown www-data:www-data /var/www/html/storage/version.json
     find /var/www/html/storage/cache -mindepth 1 -delete
