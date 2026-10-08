@@ -54,7 +54,7 @@ $SITE_TITLE = 'Discord-Bot';
                             <div class="flex flex-wrap gap-2">
                                 <form method="post" action="<?= BASE_PATH ?>settings/system/discord/test">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="ignis-btn ignis-btn--secondary" id="discordTestBtn"<?= $ownDiscordId ? '' : ' disabled title="Dein Konto hat keine Discord-ID."' ?>><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Testnachricht an mich</button>
+                                    <button type="submit" class="ignis-btn ignis-btn--secondary" id="discordTestBtn"<?= $ownDiscordId ? '' : ' disabled data-ignis-tooltip="Dein Konto hat keine Discord-ID."' ?>><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Testnachricht an mich</button>
                                 </form>
                                 <form method="post" action="<?= BASE_PATH ?>settings/system/discord" id="discordDisconnectForm">
                                     <?= csrf_field() ?>
@@ -112,8 +112,21 @@ $SITE_TITLE = 'Discord-Bot';
                             </div>
                             <div>
                                 <label for="discord-avatar" class="ignis-field__label">Profilbild</label>
-                                <input type="file" id="discord-avatar" name="avatar" class="ignis-input" accept="image/png,image/jpeg,image/gif,image/webp"<?= $bot['connected'] ? '' : ' disabled' ?>>
-                                <p class="ignis-field__hint">PNG, JPG, GIF oder WebP, höchstens 2 MB. Leer lassen behält das jetzige Bild.</p>
+                                <?php if ($bot['connected']): ?>
+                                    <div class="ignis-file ignis-file--dropzone ignis-file--photo" id="discord-avatar-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars((string) $bot['avatarUrl'], ENT_QUOTES) ?>">
+                                        <input type="file" id="discord-avatar" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp" class="ignis-file__input">
+                                        <label for="discord-avatar" class="ignis-file__zone">
+                                            <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-image"></i></span>
+                                            <span class="ignis-file__title">Bild hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                                            <span class="ignis-file__hint">PNG, JPG, GIF oder WebP, höchstens 2 MB</span>
+                                        </label>
+                                        <div class="ignis-file__selected" hidden></div>
+                                        <p class="ignis-file__error" role="alert" hidden></p>
+                                    </div>
+                                    <p class="ignis-field__hint">Leer lassen behält das jetzige Bild.</p>
+                                <?php else: ?>
+                                    <p class="ignis-field__hint">Geht, sobald das Token gespeichert ist.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
