@@ -163,12 +163,19 @@ final class DiscordWebhookTest extends FeatureTestCase
             'diagnose'  => 'Vertraulich',
         ]));
 
-        $job = $queue->pop('notifications');
-        $this->assertNotNull($job, 'Der Listener hat keinen Job eingereiht.');
-        $payload = $job->getRawBody();
-        $this->assertStringContainsString('4711', $payload);
-        $this->assertStringNotContainsString('Mustermann', $payload);
-        $this->assertStringNotContainsString('Vertraulich', $payload);
+        // Andere Tests können Jobs hinterlassen haben; gesucht ist der zu 4711.
+        $payloads = [];
+        for ($i = 0; $i < 100; $i++) {
+            $job = $queue->pop('notifications');
+            if ($job === null) {
+                break;
+            }
+            $payloads[] = $job->getRawBody();
+        }
+        $ours = array_values(array_filter($payloads, static fn (string $payload): bool => str_contains($payload, '4711')));
+        $this->assertCount(1, $ours, 'Der Listener hat keinen Job eingereiht.');
+        $this->assertStringNotContainsString('Mustermann', $ours[0]);
+        $this->assertStringNotContainsString('Vertraulich', $ours[0]);
     }
 
     /** @param array<string, mixed> $embed */
