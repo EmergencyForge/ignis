@@ -53,6 +53,9 @@ final class ModuleSelectionTest extends FeatureTestCase
         $this->assertMatchesRegularExpression('~name="modules\[\]"\s+value="calendar"~', $page->body);
         $this->assertMatchesRegularExpression('~name="modules\[\]"\s+value="forms"~', $page->body);
         $this->assertBodyContains('id="modules-first-run"', $page);
+        // Die Abhängigkeit steht an beiden Kacheln.
+        $this->assertBodyContains('Braucht eNOTF</span>', $page);
+        $this->assertBodyContains('Gebraucht von eNOTF v2</span>', $page);
         // Grundmodule stehen nicht zur Wahl.
         $this->assertBodyNotContains('value="personnel"', $page);
     }
