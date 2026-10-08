@@ -24,6 +24,50 @@
     return function (msg) { console.warn('[profile]', msg); };
   }
 
+  // Kopiert den Einladungslink. Ohne Zwischenablage (kein HTTPS, keine
+  // Erlaubnis) steht der Link markiert in einem Feld daneben.
+  function copyInvite(url, anchor, toast, message) {
+    const showField = function () {
+      const result = document.getElementById('inviteResult') || anchor.parentElement;
+      const field = document.createElement('input');
+      field.className = 'ignis-input';
+      field.readOnly = true;
+      field.value = url;
+      field.setAttribute('aria-label', 'Einladungslink');
+      field.style.maxWidth = '28rem';
+      result.replaceChildren(field);
+      field.focus();
+      field.select();
+      toast('Link markiert, bitte selbst kopieren', 'info');
+    };
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      showField();
+      return;
+    }
+    navigator.clipboard.writeText(url).then(function () { toast(message, 'success'); }, showField);
+  }
+
+  // Nach dem Erstellen: Status auf „Einladung ausstehend“ mit
+  // „Link kopieren“, wie nach dem nächsten Laden der Seite.
+  function showPending(btn, url) {
+    const chip = document.getElementById('accountStatusChip');
+    if (chip) {
+      chip.className = 'ignis-chip ignis-chip--warn';
+      chip.style.opacity = '';
+      chip.innerHTML = '<i class="fa-solid fa-clock mr-1"></i>Einladung ausstehend';
+    }
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'ignis-btn ignis-btn--secondary ignis-btn--sm';
+    copy.dataset.inviteCopy = url;
+    copy.innerHTML = '<i class="fa-solid fa-copy mr-1" aria-hidden="true"></i>Link kopieren';
+    const inline = document.getElementById('generateInviteBtn');
+    if (inline) inline.replaceWith(copy);
+    const banner = document.getElementById('newCreatedBanner');
+    if (banner) banner.remove();
+    return inline ? copy : btn;
+  }
+
   function bindInviteButtons(config) {
     if (!config.canInvite) return;
 
@@ -32,6 +76,7 @@
 
     function handleClick(btn) {
       const fullname = btn.dataset.fullname;
+      const original = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird erstellt...';
 
@@ -42,26 +87,20 @@
       })
       .then(r => r.json())
       .then(data => {
-        if (data.success) {
-          btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-ok-text mr-1"></i>' +
-            '<code class="select-all">' + data.inviteUrl + '</code></span>';
-          const resultEl = document.getElementById('inviteResult');
-          if (resultEl) resultEl.innerHTML = '';
-          const banner = document.getElementById('newCreatedBanner');
-          if (banner) {
-            banner.className = 'alert alert-success mb-3';
-            banner.innerHTML = '<i class="fa-solid fa-check mr-2"></i><strong>Einladungslink erstellt!</strong> ' +
-              '<code class="select-all">' + data.inviteUrl + '</code>';
-          }
-        } else {
+        if (!data.success) {
           btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i>Einladen';
+          btn.innerHTML = original;
           toast(data.message || 'Fehler beim Erstellen', 'danger');
+          return;
         }
+        const anchor = showPending(btn, data.inviteUrl);
+        copyInvite(data.inviteUrl, anchor, toast, data.existing
+          ? 'Es gab schon eine offene Einladung, ihr Link ist kopiert'
+          : 'Einladungslink erstellt und kopiert');
       })
       .catch(() => {
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i>Einladen';
+        btn.innerHTML = original;
         toast('Fehler beim Erstellen des Einladungslinks', 'danger');
       });
     }
@@ -71,6 +110,13 @@
 
     const bannerBtn = document.getElementById('bannerInviteBtn');
     if (bannerBtn) bannerBtn.addEventListener('click', function () { handleClick(this); });
+
+    // „Link kopieren“ bei offener Einladung, vom Server oder nach dem Erstellen.
+    document.addEventListener('click', function (event) {
+      const copy = event.target.closest('[data-invite-copy]');
+      if (!copy) return;
+      copyInvite(copy.dataset.inviteCopy, copy, toast, 'Einladungslink kopiert');
+    });
   }
 
   // Zeigt eine Server-Fehlermeldung im Fehler-Slot der Paket-Dropzone

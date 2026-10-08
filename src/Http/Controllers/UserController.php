@@ -340,7 +340,7 @@ class UserController extends Controller
             'codes'            => $codes,
             'freePersonnel'    => self::unlinkedPersonnel(),
             'registrationMode' => defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open',
-            'systemUrl'        => $this->resolveSystemUrl(),
+            'systemUrl'        => RegistrationCode::baseUrl(),
         ]);
     }
 
@@ -373,7 +373,7 @@ class UserController extends Controller
         $rc->is_used    = false;
         $rc->save();
 
-        $inviteUrl = $this->resolveSystemUrl() . BASE_PATH . 'invite?code=' . $code;
+        $inviteUrl = RegistrationCode::inviteUrl($code);
         Flash::set('success', 'Einladungslink erstellt: ' . $inviteUrl);
 
         $this->redirect('users/registration-codes');
@@ -557,23 +557,4 @@ class UserController extends Controller
         return $target;
     }
 
-    /**
-     * Baut die Basis-URL für Invite-Links. Bevorzugt SYSTEM_URL aus der Config,
-     * fällt auf den aktuellen Request-Host zurück. Identisch zur Legacy-Logik
-     * aus benutzer/registration-codes.php.
-     */
-    private function resolveSystemUrl(): string
-    {
-        $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
-            ? rtrim(SYSTEM_URL, '/')
-            : '';
-        if ($sysUrl !== '' && !preg_match('#^https?://#i', $sysUrl)) {
-            $sysUrl = 'https://' . $sysUrl;
-        }
-        if ($sysUrl !== '') {
-            return $sysUrl;
-        }
-        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-        return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-    }
 }

@@ -265,6 +265,25 @@ final class FabricaLoginTest extends IntegrationTestCase
         self::assertSame($user->id, $code->fresh()->used_by);
     }
 
+    public function test_open_registration_redeems_an_invitation_and_links_the_employee(): void
+    {
+        $person = \Tests\FixtureFactory::personnel();
+        $code = RegistrationCode::query()->create(['code' => 'open-employee', 'mitarbeiter_id' => $person->id]);
+
+        $user = FabricaIdentity::resolve($_ENV['FABRICA_URL'], self::SUBJECT, 'Open member', 'open', $code->code);
+
+        self::assertSame((int) $person->id, \App\Personnel\AccountLink::personnelFor((int) $user->id)?->id);
+        self::assertSame($user->id, $code->fresh()->used_by);
+    }
+
+    public function test_open_registration_ignores_an_invalid_invitation(): void
+    {
+        $user = FabricaIdentity::resolve($_ENV['FABRICA_URL'], self::SUBJECT, 'Open member', 'open', 'gibt-es-nicht');
+
+        self::assertSame('Open member', $user->username);
+        self::assertNull(\App\Personnel\AccountLink::personnelFor((int) $user->id));
+    }
+
     public function test_invitation_without_an_employee_creates_an_unlinked_account(): void
     {
         $code = RegistrationCode::query()->create(['code' => 'sync-plain']);

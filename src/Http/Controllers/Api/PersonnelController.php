@@ -17,6 +17,7 @@ use App\Models\RegistrationCode;
 use App\Personnel\AccountLink;
 use App\Personnel\PersonalLogManager;
 use App\Support\FileUpload;
+use App\Utils\AuditLogger;
 use DateTime;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
@@ -99,7 +100,9 @@ final class PersonnelController
      * JSON: { "label": "...", "mitarbeiter_id": 12 }
      *
      * Mit `mitarbeiter_id` wird das Konto beim Einlösen mit diesem
-     * Mitarbeiter verknüpft (ADR-0002).
+     * Mitarbeiter verknüpft (ADR-0002). Hat der Mitarbeiter schon eine
+     * offene Einladung, kommt diese zurück (`existing: true`) statt einer
+     * zweiten, damit ein doppelter Klick keine Dubletten anlegt.
      */
     public function generateInvite(Request $request): Response
     {
@@ -115,6 +118,25 @@ final class PersonnelController
         }
 
         try {
+            if ($mitarbeiterId > 0) {
+                $open = RegistrationCode::query()
+                    ->where('mitarbeiter_id', $mitarbeiterId)
+                    ->where('is_used', 0)
+                    ->where(function ($query): void {
+                        $query->whereNull('expires_at')->orWhere('expires_at', '>', date('Y-m-d H:i:s'));
+                    })
+                    ->orderByDesc('created_at')
+                    ->first();
+                if ($open !== null) {
+                    return Response::json([
+                        'success'   => true,
+                        'existing'  => true,
+                        'inviteUrl' => RegistrationCode::inviteUrl($open->code),
+                        'code'      => $open->code,
+                    ]);
+                }
+            }
+
             $code = bin2hex(random_bytes(8));
             RegistrationCode::create([
                 'code'           => $code,
@@ -123,21 +145,19 @@ final class PersonnelController
                 'created_by'     => $_SESSION['userid'] ?? null,
             ]);
 
-            $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
-                ? rtrim((string) SYSTEM_URL, '/') : '';
-            if ($sysUrl && !preg_match('#^https?://#i', $sysUrl)) {
-                $sysUrl = 'https://' . $sysUrl;
-            }
-            $baseUrl = $sysUrl ?: (
-                (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-                . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+            (new AuditLogger())->log(
+                (int) ($_SESSION['userid'] ?? 0),
+                'Einladung erstellt',
+                $label,
+                'Benutzer',
+                1,
+                ['mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null],
             );
-            $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-            $inviteUrl = $baseUrl . $base . 'invite?code=' . $code;
 
             return Response::json([
                 'success'   => true,
-                'inviteUrl' => $inviteUrl,
+                'existing'  => false,
+                'inviteUrl' => RegistrationCode::inviteUrl($code),
                 'code'      => $code,
             ]);
         } catch (\Throwable $e) {
