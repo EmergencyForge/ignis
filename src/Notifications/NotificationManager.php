@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use App\Discord\DiscordNotifier;
 use App\Logging\Logger;
 use App\Models\Notification;
 use App\Models\User;
@@ -177,11 +178,22 @@ class NotificationManager
 
         try {
             Notification::query()->insert($rows);
-            return count($rows);
         } catch (\PDOException $e) {
             Logger::error('Failed to create notification: ' . $e->getMessage());
             return 0;
         }
+
+        // Zusätzlich per Discord-DM, wenn der Bot diesen Typ zustellt. Ein
+        // Fehler dort darf die Benachrichtigung selbst nicht kosten. Der
+        // gespeicherte Link, nicht link() des Handlers: der rechnet mit dem
+        // angemeldeten Nutzer, hier also dem Absender.
+        try {
+            DiscordNotifier::notification($type, $ids, $title, $message, $link, $this->type($type)->label());
+        } catch (\Throwable $e) {
+            Logger::warning('Discord-DM für Benachrichtigung nicht eingereiht: ' . $e->getMessage());
+        }
+
+        return count($rows);
     }
 
     /**

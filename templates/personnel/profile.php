@@ -47,6 +47,8 @@ $bodyId = 'mitarbeiter';
 $canInvite     = Permissions::check(['admin', 'users.create']);
 $inviteMode    = defined('REGISTRATION_MODE') ? (string) REGISTRATION_MODE : 'open';
 $inviteAllowed = $canInvite && in_array($inviteMode, ['code', 'open'], true);
+// Per Discord-DM, wenn der Bot läuft und der Mitarbeiter eine Discord-ID hat.
+$inviteDiscord = $inviteAllowed && \App\Discord\DiscordBot::active() && \App\Discord\DiscordBot::snowflake((string) ($row['discordtag'] ?? ''));
 // Abzeichen im Kopf und in der Profilkarte (assets/components/profiles/_rank-badge.php)
 $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
 ?>
@@ -93,12 +95,22 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                                     <i class="fa-solid fa-copy mr-1" aria-hidden="true"></i>Link kopieren
                                 </button>
                             <?php endif; ?>
+                            <?php if ($inviteDiscord && $pendingInvite): ?>
+                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-invite-discord data-fullname="<?= htmlspecialchars($row['fullname']) ?>" data-ignis-tooltip="Schickt den Einladungslink per Discord-DM">
+                                    <i class="fa-brands fa-discord mr-1" aria-hidden="true"></i>Per Discord senden
+                                </button>
+                            <?php endif; ?>
                         <?php else: ?>
                             <span class="ignis-chip ignis-chip--dark" style="opacity: 0.6;" id="accountStatusChip"><i class="fa-solid fa-circle-xmark mr-1"></i>Kein Konto</span>
                             <?php if ($inviteAllowed): ?>
                                 <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" id="generateInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>" data-ignis-tooltip="Erstellt einen Einladungslink für diesen Mitarbeiter und kopiert ihn">
                                     <i class="fa-solid fa-paper-plane mr-1" aria-hidden="true"></i>Einladen
                                 </button>
+                                <?php if ($inviteDiscord): ?>
+                                    <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-invite-discord data-fullname="<?= htmlspecialchars($row['fullname']) ?>" data-ignis-tooltip="Erstellt einen Einladungslink und schickt ihn per Discord-DM">
+                                        <i class="fa-brands fa-discord mr-1" aria-hidden="true"></i>Per Discord einladen
+                                    </button>
+                                <?php endif; ?>
                                 <span id="inviteResult" style="font-size: var(--fs-xs);" role="status"></span>
                             <?php elseif ($canInvite): ?>
                                 <span style="font-size: var(--fs-xs); opacity: 0.7;">Einladen geht erst, wenn die Registrierung nicht geschlossen ist (<a href="<?= BASE_PATH ?>settings/system/config#cfg-REGISTRATION_MODE">Registrierung</a>).</span>

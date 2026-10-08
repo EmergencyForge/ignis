@@ -107,6 +107,7 @@ final class SerializedJob
             $jobClass,
             \App\Jobs\Job::class,
             \App\Jobs\SendDiscordWebhookJob::class,
+            \App\Jobs\SendDiscordDmJob::class,
             \App\Jobs\SendNotificationJob::class,
             \DateTime::class,
             \DateTimeImmutable::class,

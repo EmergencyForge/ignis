@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Discord\DiscordBot;
+use App\Discord\DiscordBotException;
+use App\Discord\DiscordNotifier;
 use App\Exceptions\UploadException;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Personnel\UpdateProfileRequest;
@@ -97,73 +100,129 @@ final class PersonnelController
     /**
      * POST /api/personnel/generate-invite
      *
-     * JSON: { "label": "...", "mitarbeiter_id": 12 }
+     * JSON: { "label": "...", "mitarbeiter_id": 12, "via": "discord" }
      *
      * Mit `mitarbeiter_id` wird das Konto beim Einlösen mit diesem
      * Mitarbeiter verknüpft (ADR-0002). Hat der Mitarbeiter schon eine
      * offene Einladung, kommt diese zurück (`existing: true`) statt einer
      * zweiten, damit ein doppelter Klick keine Dubletten anlegt.
+     *
+     * Mit `via: discord` schickt der Discord-Bot den Link zusätzlich als
+     * Direktnachricht an die Discord-ID des Mitarbeiters; `discord` in der
+     * Antwort sagt, ob das geklappt hat. Ohne Bot oder Discord-ID entsteht
+     * gar keine Einladung.
      */
     public function generateInvite(Request $request): Response
     {
         $data  = $request->json();
         $label = isset($data['label']) ? trim((string) $data['label']) : '';
         $mitarbeiterId = (int) ($data['mitarbeiter_id'] ?? 0);
+        $viaDiscord = ($data['via'] ?? null) === 'discord';
 
         if ($label === '') {
             return Response::json(['success' => false, 'message' => 'Label is required'], 400);
         }
-        if ($mitarbeiterId > 0 && (!Personnel::query()->whereKey($mitarbeiterId)->exists() || AccountLink::userFor($mitarbeiterId) !== null)) {
+        $person = $mitarbeiterId > 0 ? Personnel::query()->find($mitarbeiterId) : null;
+        if ($mitarbeiterId > 0 && ($person === null || AccountLink::userFor($mitarbeiterId) !== null)) {
             return Response::json(['success' => false, 'message' => 'Dieser Mitarbeiter hat schon ein Konto oder existiert nicht.'], 422);
+        }
+        if ($viaDiscord && !DiscordBot::active()) {
+            return Response::json(['success' => false, 'message' => 'Der Discord-Bot ist nicht eingeschaltet.'], 422);
+        }
+        if ($viaDiscord && !DiscordBot::snowflake($person?->discordtag)) {
+            return Response::json(['success' => false, 'message' => 'Der Mitarbeiter hat keine Discord-ID.'], 422);
         }
 
         try {
-            if ($mitarbeiterId > 0) {
-                $open = RegistrationCode::query()
-                    ->where('mitarbeiter_id', $mitarbeiterId)
-                    ->where('is_used', 0)
-                    ->where(function ($query): void {
-                        $query->whereNull('expires_at')->orWhere('expires_at', '>', date('Y-m-d H:i:s'));
-                    })
-                    ->orderByDesc('created_at')
-                    ->first();
-                if ($open !== null) {
-                    return Response::json([
-                        'success'   => true,
-                        'existing'  => true,
-                        'inviteUrl' => RegistrationCode::inviteUrl($open->code),
-                        'code'      => $open->code,
-                    ]);
-                }
-            }
-
-            $code = bin2hex(random_bytes(8));
-            RegistrationCode::create([
-                'code'           => $code,
-                'label'          => $label,
-                'mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null,
-                'created_by'     => $_SESSION['userid'] ?? null,
-            ]);
-
-            (new AuditLogger())->log(
-                (int) ($_SESSION['userid'] ?? 0),
-                'Einladung erstellt',
-                $label,
-                'Benutzer',
-                1,
-                ['mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null],
-            );
-
-            return Response::json([
+            [$code, $existing] = $this->openInvite($label, $mitarbeiterId);
+            $result = [
                 'success'   => true,
-                'existing'  => false,
+                'existing'  => $existing,
                 'inviteUrl' => RegistrationCode::inviteUrl($code),
                 'code'      => $code,
-            ]);
+            ];
         } catch (\Throwable $e) {
             Logger::error('Personnel: generate-invite Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'message' => 'Server error'], 500);
         }
+
+        if ($viaDiscord && $person !== null) {
+            try {
+                DiscordBot::sendDirectMessage((string) $person->discordtag, self::inviteMessage((string) $person->fullname, $result['inviteUrl']));
+                (new AuditLogger())->log((int) ($_SESSION['userid'] ?? 0), 'Einladung per Discord gesendet', $label, 'Benutzer', 1, ['mitarbeiter_id' => $mitarbeiterId]);
+                $result['discord'] = ['sent' => true];
+            } catch (DiscordBotException $e) {
+                $result['discord'] = ['sent' => false, 'message' => $e->getMessage()];
+            }
+        }
+
+        return Response::json($result);
+    }
+
+    /**
+     * Die offene Einladung des Mitarbeiters, sonst eine neue.
+     *
+     * @return array{0: string, 1: bool} Code, schon vorhanden?
+     */
+    private function openInvite(string $label, int $mitarbeiterId): array
+    {
+        if ($mitarbeiterId > 0) {
+            $open = RegistrationCode::query()
+                ->where('mitarbeiter_id', $mitarbeiterId)
+                ->where('is_used', 0)
+                ->where(function ($query): void {
+                    $query->whereNull('expires_at')->orWhere('expires_at', '>', date('Y-m-d H:i:s'));
+                })
+                ->orderByDesc('created_at')
+                ->first();
+            if ($open !== null) {
+                return [(string) $open->code, true];
+            }
+        }
+
+        $code = bin2hex(random_bytes(8));
+        RegistrationCode::create([
+            'code'           => $code,
+            'label'          => $label,
+            'mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null,
+            'created_by'     => $_SESSION['userid'] ?? null,
+        ]);
+
+        (new AuditLogger())->log(
+            (int) ($_SESSION['userid'] ?? 0),
+            'Einladung erstellt',
+            $label,
+            'Benutzer',
+            1,
+            ['mitarbeiter_id' => $mitarbeiterId > 0 ? $mitarbeiterId : null],
+        );
+
+        return [$code, false];
+    }
+
+    /**
+     * Die Einladung als Discord-Nachricht: Embed mit Link und ein Knopf,
+     * der direkt zur Registrierung führt.
+     *
+     * @return array<string, mixed>
+     */
+    private static function inviteMessage(string $name, string $url): array
+    {
+        $system = defined('SYSTEM_NAME') ? (string) SYSTEM_NAME : 'ıgnıs';
+        $hello  = trim($name) !== '' ? 'Hallo ' . trim($name) . ', d' : 'D';
+
+        return [
+            'embeds' => [DiscordNotifier::embed(
+                'Einladung zu ' . $system,
+                $hello . 'u bist eingeladen, dir ein Konto anzulegen. Über den Link meldest du dich an, das Konto ist dann gleich mit deinem Personaleintrag verknüpft.',
+                $url,
+                'Einladung',
+            )],
+            'components' => [[
+                'type'       => 1,
+                'components' => [['type' => 2, 'style' => 5, 'label' => 'Konto anlegen', 'url' => $url]],
+            ]],
+        ];
     }
 
     /**
