@@ -344,6 +344,14 @@ return [
                     'permissions' => ['admin'],
                 ],
                 [
+                    'label'       => 'Module',
+                    'href'        => BASE_PATH . 'settings/system/modules',
+                    'icon'        => 'fa-solid fa-puzzle-piece',
+                    'description' => 'Welche Module wie eNOTF, Kalender oder Anträge ihr benutzt.',
+                    'permissions' => ['admin'],
+                    'match'       => ['/settings/system/modules'],
+                ],
+                [
                     'label'       => 'Wartung und Diagnose',
                     'href'        => BASE_PATH . 'settings/system/index',
                     'icon'        => 'fa-solid fa-screwdriver-wrench',
