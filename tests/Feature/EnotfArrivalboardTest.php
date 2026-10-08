@@ -86,8 +86,10 @@ final class EnotfArrivalboardTest extends FeatureTestCase
 
         $response = $this->voranmelden($abweichung);
 
-        // Abgewiesen heißt: kein Redirect, das Formular steht wieder da, kein Eintrag.
+        // Abgewiesen heißt: kein Redirect, das Formular steht wieder da mit
+        // Hinweis, kein Eintrag.
         $this->assertOk($response);
+        $this->assertBodyContains('Bitte füllen Sie alle Pflichtfelder korrekt aus.', $response);
         $this->assertSame($vorher, Capsule::table('intra_edivi_prereg')->count());
     }
 

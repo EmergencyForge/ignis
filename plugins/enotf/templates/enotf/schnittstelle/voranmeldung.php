@@ -443,6 +443,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             <div class="row h-full">
                 <div class="col" id="edivi__content">
                     <h2 class="text-center my-3">Klinik-Voranmeldung</h2>
+                    <?php if (isset($formError)): ?>
+                        <div class="ignis-alert ignis-alert--danger mb-3" role="alert"><?= e($formError) ?></div>
+                    <?php endif; ?>
                     <div class="row">
                         <div class="col">
                             <div class="row edivi__box p-2">
