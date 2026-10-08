@@ -1,5 +1,105 @@
 # Changelog
 
+## 2026.1.0
+
+Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis 2026.0.42 zusammen.
+
+### Neue Oberfläche
+- Kopfzeile mit Suche und Glocke, gruppierte Seitenleiste zum Einklappen, der Inhalt liegt als helle Fläche darauf
+- Look „Funke“: kühles Grau, runde Ecken, Farbe nur für Daten, Status und die Hauptaktion einer Seite
+- Hell, dunkel oder wie das System, je Konto wählbar, eine eigene Hauptfarbe färbt Knöpfe und Fokus
+- Formulare zum Anlegen öffnen sich im Seitenfenster, das sich auf volle Breite vergrößern lässt
+- Eigene Auswahl-, Datums-, Zeit- und Farbfelder statt der Steuerelemente des Browsers
+- Neue Anmeldeseite, neue Fehlerseiten, neue ignis-Marke
+- eNOTF-Protokollseiten und fireTab-App auf dem Tablet sehen bewusst aus wie vorher
+
+### Dashboard
+- Kacheln für Einsätze heute, einsatzbereite Fahrzeuge und offene eNOTF-Protokolle
+- Kurven für Einsätze je Stunde und Tag, Fahrzeuge mit Status, Hinweise zu offenen Aufgaben
+- Ankündigungen aus dem Forum statt des Blogs
+- Einrichtungsliste für neue Installationen
+
+### Suche und Listen
+- Strg K sucht über Mitarbeiter, Fahrzeuge, Dokumente, Mängel, Vorlagen und Mails, auch mit Tippfehlern
+- Benachrichtigungen sammelt die Glocke oben rechts
+- Alle Listen suchen, sortieren und blättern auf dem Server
+- Filter als Knöpfe mit ihrem Wert und der Anzahl der Einträge
+- Fahrzeugliste mit Vorschau und Mehrfachauswahl, etwa für den FMS-Status
+
+### Module und Plugins
+- Fahrtenbuch, Anträge, Kalender, Mail und eNOTF v2 sind Module zum Ein- und Ausschalten
+- Fest dabei bleiben Personal, Benutzer, Dokumente und Fahrzeuge
+- Modulauswahl beim ersten Start, die Seite Einstellungen → System → Module zeigt Abhängigkeiten
+- Plugins per ZIP hochladen, vor jeder Installation eine Bestätigungsseite mit Herausgeber, Quelle, Prüfsumme und Berechtigungen
+
+### Internes Mailsystem
+- Postfach für jeden Mitarbeiter mit Ordnern, Entwürfen, Anhängen, CC und BCC, nach außen geht nichts
+- Verteiler als feste Liste oder als Regel nach Rolle, Dienstgrad, Qualifikation oder Fachdienst
+- Gruppenpostfächer für Wachen, Abteilungen und Teams
+- Signaturen aus dem Mitarbeiterprofil, mit Platzhaltern und Dienstgradabzeichen
+
+### Dokumente und Editor
+- Neuer Editor für Dokumente, Vorlagen, Mails, Signaturen und die Wissensdatenbank
+- Gesperrte Abschnitte und Platzhalter für Mitarbeiter, Aussteller und Absender
+- „Noch offen“ zeigt vor dem Ausstellen leere Pflichtfelder und Platzhalter
+- Wissensdatenbank mit Bildern
+- Lehrgänge als Feldoptionen an der Zertifikatsvorlage
+
+### eNOTF
+- eNOTF v2 als eigenes Modul, mit denselben Daten wie v1
+- Neu: Allgemeinzustand vor dem Ereignis und Reanimation im Abschluss
+- Die Prüfliste blättert, sucht und sortiert auf dem Server, der QM-Dialog speichert wieder
+- Ohne ignis-Konto bedienbar, solange „Nur mit ignis-Konto“ aus ist
+- Sperre mit PIN von 2 bis 60 Minuten einstellbar
+- Viele Reparaturen an v1: Messwert-Kacheln, Sperre freigegebener Protokolle, Freigabeseite, Teilen-Dialog
+
+### Discord und Einladungen
+- Eigener Discord-Bot, Benachrichtigungen als Direktnachricht, je Konto abschaltbar
+- „Einladen“ im Mitarbeiterprofil mit einem Klick, auf Wunsch per Discord
+- Konto und Mitarbeiter fest verknüpft, aus Registrierungscodes wurden Einladungen
+- Discord-Webhooks zu Protokollen und Voranmeldungen kommen wieder an
+
+### Mitarbeiter und Fahrzeuge
+- Titel wie Dr. oder Prof. in Akte, Signaturen, Dokumenten und als Absender
+- Dienstgradabzeichen vor jedem Dienstgrad
+- Feste Stationierung am Fahrzeug, eigene Fahrzeugseite mit Aktivität aus dem Audit-Log
+- Einstellungen neu geordnet, mit Suchfeld und Hinweisen zu fehlenden Werten
+
+### Tablet
+- Die FiveM-Ressource heißt jetzt ef_bridge
+- Anmeldung ohne Discord-OAuth über einen Einmal-Token vom Spielserver
+- Die eNOTF-Abrechnung aus dem Spiel funktioniert wieder
+
+### Installation und Betrieb
+- Docker offiziell unterstützt, mit Image und docker-compose.prod.yml
+- Neue INSTALL.md für Webspace, eigenen Server und Docker
+- Überarbeiteter Installationsassistent ohne Composer
+- Zentrale Anmeldung „Mit Sync anmelden“ für EmergencyForge-Instanzen
+
+### Fehlerbehebungen
+- Rollen lassen sich wieder speichern, alte Adressen führen wieder ans Ziel
+- Cron-Jobs laufen im Docker-Image
+- Ein- oder ausgeschaltete Plugins wirken ohne Neustart des Containers
+- Kalender, Uhrzeiten im Posteingang und das Lexikon der Wissensdatenbank funktionieren wieder
+- Die Charakter-ID bleibt beim Bearbeiten des Profils erhalten
+- Der Updater meldet, wenn er die Version nicht schreiben kann
+- Viele Darstellungsfehler am Handy
+
+### Sicherheit
+- Löschen und Deaktivieren nur über ein Formular mit Rückfrage und Sicherheitstoken
+- Alle schreibenden Aktionen sind gegen untergeschobene Anfragen geschützt
+- eNOTF v1 gibt Patientendaten und Freitexte maskiert aus
+- Die Wissensdatenbank filtert Artikel beim Speichern und Anzeigen
+- Konten ohne Discord-ID sahen auf der Startseite Dokumente anderer, das ist behoben
+
+### Hinweise zum Update
+- ignis braucht PHP 8.3 oder 8.4
+- Das Webroot gehört auf `public/`, sonst leitet die `.htaccess` im Hauptordner weiter
+- Docker: `IMAGE_TAG` leer lassen für die neueste stabile Version oder eine feste Version eintragen
+- `storage/private/secret.key`, den Schlüssel des Discord-Bots, ins Backup aufnehmen oder `APP_KEY` setzen
+- Hinter einem Reverse Proxy `X-Forwarded-Host` weitergeben oder `DISCORD_REDIRECT_URI` setzen
+- Plugins mit eigenem CSS auf die neuen Klassennamen umstellen
+
 ## 2026.0.42-beta
 
 Die Discord-Webhooks zu freigegebenen eNOTF- und fireTab-Protokollen und zu Voranmeldungen gehen wieder raus. Seit April blieben sie in der Warteschlange liegen, weil der Cronjob „queue.work“ nur die Standard-Warteschlange abgearbeitet hat. Jetzt nimmt er auch die Warteschlange der Benachrichtigungen mit.
