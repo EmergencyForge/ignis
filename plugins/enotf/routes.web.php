@@ -236,6 +236,7 @@ $router->post('/settings/pois/create',     [PoiController::class, 'store'],   $e
 $router->post('/settings/pois/update',     [PoiController::class, 'update'],  $enotfSettingsAuth);
 $router->post('/settings/pois/delete',     [PoiController::class, 'destroy'], $enotfSettingsAuth);
 $router->get('/settings/pois/access-codes',     [PoiController::class, 'accessCodes'], $enotfSettingsAuth);
+$router->post('/settings/pois/access-codes',     [PoiController::class, 'accessCodeStore'], $enotfSettingsAuth);
 $router->get('/settings/pois/departments',     [PoiController::class, 'departmentsIndex'], $enotfSettingsAuth);
 $router->post('/settings/pois/departments-create',     [PoiController::class, 'departmentStore'],   $enotfSettingsAuth);
 $router->post('/settings/pois/departments-update',     [PoiController::class, 'departmentUpdate'],  $enotfSettingsAuth);

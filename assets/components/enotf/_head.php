@@ -22,8 +22,8 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/divi.css') ?>" />
-<!-- admin.min.css für gemeinsame Komponenten (Beladelisten, Hover-Cards,
-     DataTables-Styling etc.). Reihenfolge: nach divi (eNOTF-spezifische
+<!-- admin.min.css für gemeinsame Komponenten (Beladelisten, Hover-Cards
+     usw.). Reihenfolge: nach divi (eNOTF-spezifische
      Overrides via #edivi__container haben höhere Specificity), vor ui. -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/admin.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/ui.css') ?>" />
@@ -31,7 +31,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-v1.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
-<!-- Core-Bundle: jQuery + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts).
+<!-- Core-Bundle mit jQuery, synchron, weil Inline-Scripts auf window.$ angewiesen sind.
      vendor-enotf.js liefert das vollständige Bootstrap 5 (nur eNOTF). -->
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <script src="<?= asset('public/assets/dist/vendor-enotf.js') ?>"></script>
@@ -50,7 +50,6 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/alert.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
-<script type="module" src="<?= BASE_PATH ?>assets/js/modules/datatables-config.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-search.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>

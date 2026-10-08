@@ -130,7 +130,7 @@ final class ShellTest extends FeatureTestCase
     {
         $this->login();
 
-        $response = $this->get('/settings/pois/index');
+        $response = $this->get('/settings/enotf/index');
 
         $this->assertOk($response);
         $this->assertBodyContains('<!DOCTYPE html>', $response);

@@ -7,8 +7,15 @@ namespace Plugin\Enotf\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Support\ListQuery;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Query\Builder;
 use PDOException;
+use Plugin\Enotf\Requests\PoiAccessCodeRequest;
+use Plugin\Enotf\Requests\PoiDepartmentSaveRequest;
+use Plugin\Enotf\Requests\PoiSaveRequest;
+use Plugin\Enotf\Requests\RecordIdRequest;
 
 /**
  * PoiController: POIs (Points of Interest), Krankenhäuser, Fachrichtungen
@@ -16,6 +23,9 @@ use PDOException;
  */
 class PoiController extends Controller
 {
+    /** POI-Typen, die Fachrichtungen und einen Portal-Zugang haben. */
+    private const HOSPITAL_TYPES = ['Krankenhaus', 'Klinik'];
+
     protected function viewBasePath(): string
     {
         return dirname(__DIR__, 3) . '/templates';
@@ -23,6 +33,10 @@ class PoiController extends Controller
 
     // ── POIs ───────────────────────────────────────────────
 
+    /**
+     * Suche, Sortierung, Filter (aktiv, Typ) und Seiten laufen über
+     * ListQuery.
+     */
     public function index(): void
     {
         $this->requireAuth();
@@ -31,13 +45,44 @@ class PoiController extends Controller
             $this->redirect('index');
         }
 
-        $pois = Capsule::table('intra_edivi_pois')
-            ->orderBy('name')
-            ->get()
-            ->map(fn ($r) => (array) $r)
-            ->all();
+        $list = ListQuery::fromQuery($_GET, [
+            'name'     => 'name',
+            'strasse'  => 'strasse',
+            'hnr'      => 'hnr',
+            'ort'      => 'ort',
+            'ortsteil' => 'ortsteil',
+            'typ'      => 'typ',
+            'active'   => 'active',
+        ], 'name', 'asc', 25, ['active', 'typ'], ['id']);
 
-        $this->renderView('settings/pois/index', ['pois' => $pois]);
+        $build = function (bool $filterActive = true) use ($list): Builder {
+            $query = Capsule::table('intra_edivi_pois');
+            if ($list->q !== '') {
+                $query->where(function ($q) use ($list) {
+                    $q->where('name', 'LIKE', $list->like())
+                        ->orWhere('strasse', 'LIKE', $list->like())
+                        ->orWhere('ort', 'LIKE', $list->like())
+                        ->orWhere('ortsteil', 'LIKE', $list->like());
+                });
+            }
+            if ($list->filter('typ') !== '') {
+                $query->where('typ', $list->filter('typ'));
+            }
+            if ($filterActive && in_array($list->filter('active'), ['0', '1'], true)) {
+                $query->where('active', (int) $list->filter('active'));
+            }
+
+            return $query;
+        };
+
+        $byActive = ListQuery::countBy($build(false), 'active');
+
+        $this->renderView('settings/pois/index', [
+            'pois'          => $list->paginate($build())->map(static fn ($r) => (array) $r),
+            'list'          => $list,
+            'counts'        => ['' => array_sum($byActive)] + $byActive,
+            'hospitalTypes' => self::HOSPITAL_TYPES,
+        ]);
     }
 
     public function store(): void
@@ -45,29 +90,11 @@ class PoiController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $name     = $_POST['name'] ?? '';
-        $strasse  = $_POST['strasse'] ?? null;
-        $hnr      = $_POST['hnr'] ?? null;
-        $ort      = $_POST['ort'] ?? '';
-        $ortsteil = $_POST['ortsteil'] ?? null;
-        $typ      = $_POST['typ'] ?? null;
-        $active   = isset($_POST['active']) ? 1 : 0;
-
-        if ($name === '' || $ort === '') {
-            Flash::set('error', 'Name und Ort sind Pflichtfelder.');
-            $this->redirect('settings/pois/index');
-        }
+        $data = $this->validated(PoiSaveRequest::class, 'settings/pois/index');
+        unset($data['id']);
 
         try {
-            Capsule::table('intra_edivi_pois')->insert([
-                'name'     => $name,
-                'strasse'  => $strasse,
-                'hnr'      => $hnr,
-                'ort'      => $ort,
-                'ortsteil' => $ortsteil,
-                'typ'      => $typ,
-                'active'   => $active,
-            ]);
+            Capsule::table('intra_edivi_pois')->insert($data);
             Flash::set('success', 'POI erfolgreich erstellt.');
         } catch (PDOException $e) {
             Flash::set('error', 'Fehler beim Erstellen des POIs: ' . $e->getMessage());
@@ -81,30 +108,17 @@ class PoiController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $id       = (int) ($_POST['id'] ?? 0);
-        $name     = $_POST['name'] ?? '';
-        $strasse  = $_POST['strasse'] ?? null;
-        $hnr      = $_POST['hnr'] ?? null;
-        $ort      = $_POST['ort'] ?? '';
-        $ortsteil = $_POST['ortsteil'] ?? null;
-        $typ      = $_POST['typ'] ?? null;
-        $active   = isset($_POST['active']) ? 1 : 0;
+        $data = $this->validated(PoiSaveRequest::class, 'settings/pois/index');
+        $id   = $data['id'];
+        unset($data['id']);
 
-        if ($id <= 0 || $name === '' || $ort === '') {
+        if ($id <= 0) {
             Flash::set('error', 'Name und Ort sind Pflichtfelder.');
             $this->redirect('settings/pois/index');
         }
 
         try {
-            Capsule::table('intra_edivi_pois')->where('id', $id)->update([
-                'name'     => $name,
-                'strasse'  => $strasse,
-                'hnr'      => $hnr,
-                'ort'      => $ort,
-                'ortsteil' => $ortsteil,
-                'typ'      => $typ,
-                'active'   => $active,
-            ]);
+            Capsule::table('intra_edivi_pois')->where('id', $id)->update($data);
             Flash::set('success', 'POI erfolgreich aktualisiert.');
         } catch (PDOException $e) {
             Flash::set('error', 'Fehler beim Aktualisieren des POIs: ' . $e->getMessage());
@@ -120,7 +134,7 @@ class PoiController extends Controller
         // Legacy. Wir behalten das Verhalten als pois.manage bei.
         $this->ensureManage();
 
-        $id = (int) ($_POST['id'] ?? 0);
+        $id = $this->validated(RecordIdRequest::class, 'settings/pois/index')['id'];
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
             $this->redirect('settings/pois/index');
@@ -138,6 +152,12 @@ class PoiController extends Controller
 
     // ── Departments ────────────────────────────────────────
 
+    /**
+     * Ohne Seiten und ohne Suche: ein Krankenhaus hat nur eine Handvoll
+     * Fachrichtungen, und die Werte der Spalte Sortierung vergleicht man
+     * nur, wenn alle auf einer Seite stehen. Die Kopfzeile sortiert über
+     * ListQuery, die Kennung des POIs reist dabei als Filter mit.
+     */
     public function departmentsIndex(): void
     {
         $this->requireAuth();
@@ -146,8 +166,14 @@ class PoiController extends Controller
             $this->redirect('index');
         }
 
-        $poiId = $_GET['poi_id'] ?? null;
-        if (!$poiId) {
+        $list = ListQuery::fromQuery($_GET, [
+            'sort_order' => 'sort_order',
+            'name'       => 'name',
+            'created'    => 'created_at',
+        ], 'sort_order', 'asc', 25, ['poi_id']);
+
+        $poiId = (int) $list->filter('poi_id');
+        if ($poiId <= 0) {
             Flash::set('error', 'Kein POI ausgewählt.');
             $this->redirect('settings/pois/index');
         }
@@ -160,8 +186,8 @@ class PoiController extends Controller
 
         $departments = Capsule::table('intra_edivi_hospital_departments')
             ->where('poi_id', $poiId)
-            ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy($list->column(), $list->dir)
+            ->orderBy('name', $list->dir)
             ->get()
             ->map(fn ($r) => (array) $r)
             ->all();
@@ -170,6 +196,7 @@ class PoiController extends Controller
             'poi'         => (array) $poi,
             'poi_id'      => $poiId,
             'departments' => $departments,
+            'list'        => $list,
         ]);
     }
 
@@ -178,11 +205,10 @@ class PoiController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $poiId     = (int) ($_POST['poi_id'] ?? 0);
-        $name      = trim($_POST['name'] ?? '');
-        $sortOrder = (int) ($_POST['sort_order'] ?? 999);
+        $data  = $this->validatedDepartment(PoiDepartmentSaveRequest::class);
+        $poiId = $data['poi_id'];
 
-        if ($name === '' || $poiId <= 0) {
+        if ($poiId <= 0) {
             Flash::set('error', 'Fachrichtungsname ist erforderlich.');
             $this->redirect('settings/pois/departments?poi_id=' . $poiId);
         }
@@ -196,8 +222,8 @@ class PoiController extends Controller
         try {
             $deptId = Capsule::table('intra_edivi_hospital_departments')->insertGetId([
                 'poi_id'     => $poiId,
-                'name'       => $name,
-                'sort_order' => $sortOrder,
+                'name'       => $data['name'],
+                'sort_order' => $data['sort_order'],
             ]);
 
             Capsule::table('intra_edivi_hospital_availability')->insert([
@@ -218,12 +244,11 @@ class PoiController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $id        = (int) ($_POST['id'] ?? 0);
-        $poiId     = (int) ($_POST['poi_id'] ?? 0);
-        $name      = trim($_POST['name'] ?? '');
-        $sortOrder = (int) ($_POST['sort_order'] ?? 999);
+        $data  = $this->validatedDepartment(PoiDepartmentSaveRequest::class);
+        $id    = $data['id'];
+        $poiId = $data['poi_id'];
 
-        if ($name === '' || $id <= 0 || $poiId <= 0) {
+        if ($id <= 0 || $poiId <= 0) {
             Flash::set('error', 'Alle Felder sind erforderlich.');
             $this->redirect('settings/pois/departments?poi_id=' . $poiId);
         }
@@ -236,8 +261,8 @@ class PoiController extends Controller
 
         try {
             Capsule::table('intra_edivi_hospital_departments')->where('id', $id)->update([
-                'name'       => $name,
-                'sort_order' => $sortOrder,
+                'name'       => $data['name'],
+                'sort_order' => $data['sort_order'],
             ]);
             Flash::set('success', 'Fachrichtung erfolgreich aktualisiert.');
         } catch (PDOException $e) {
@@ -252,8 +277,9 @@ class PoiController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $id    = (int) ($_POST['id'] ?? 0);
-        $poiId = (int) ($_POST['poi_id'] ?? 0);
+        $data  = $this->validatedDepartment(RecordIdRequest::class);
+        $id    = $data['id'];
+        $poiId = $data['poi_id'];
 
         if ($id <= 0) {
             Flash::set('error', 'Ungültige Anfrage.');
@@ -275,7 +301,7 @@ class PoiController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $poiId = (int) ($_POST['poi_id'] ?? 0);
+        $poiId = $this->validatedDepartment(RecordIdRequest::class)['poi_id'];
         if ($poiId <= 0) {
             Flash::set('error', 'Kein POI ausgewählt.');
             $this->redirect('settings/pois/index');
@@ -300,55 +326,69 @@ class PoiController extends Controller
 
     // ── Access Codes ───────────────────────────────────────
 
+    /**
+     * Krankenhäuser und Kliniken mit ihrem Zugangscode. Suche, Sortierung
+     * und Seiten laufen über ListQuery.
+     */
     public function accessCodes(): void
     {
         $this->requireAuth();
         $this->ensureManage();
 
-        // Generate code via POST?
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_code'])) {
-            $poiId   = (int) ($_POST['poi_id'] ?? 0);
-            $newCode = trim($_POST['new_code'] ?? '');
+        $list = ListQuery::fromQuery($_GET, [
+            'name'  => 'p.name',
+            'ort'   => 'p.ort',
+            'depts' => 'dept_count',
+        ], 'name', 'asc', 25, [], ['p.id']);
 
-            if ($poiId && $newCode !== '') {
-                try {
-                    // Upsert: unique key auf poi_id, bestehender Code wird
-                    // überschrieben, updated_at dabei aufgefrischt.
-                    Capsule::table('intra_edivi_hospital_access_codes')->upsert(
-                        ['poi_id' => $poiId, 'code' => $newCode],
-                        ['poi_id'],
-                        ['code', 'updated_at' => Capsule::connection()->raw('CURRENT_TIMESTAMP')]
-                    );
-
-                    Flash::set('success', 'Zugangscode erfolgreich generiert: ' . htmlspecialchars($newCode));
-                } catch (PDOException $e) {
-                    Flash::set('error', 'Fehler beim Generieren des Zugangscodes: ' . $e->getMessage());
-                }
-            } else {
-                Flash::set('error', 'POI ID oder Code fehlt.');
-            }
+        $query = Capsule::table('intra_edivi_pois as p')
+            ->leftJoin('intra_edivi_hospital_access_codes as c', 'p.id', '=', 'c.poi_id')
+            ->whereIn('p.typ', self::HOSPITAL_TYPES)
+            ->select([
+                'p.id', 'p.name', 'p.ort', 'p.ortsteil', 'p.typ', 'p.active', 'c.code',
+                'c.created_at as code_created',
+                'c.updated_at as code_updated',
+                Capsule::connection()->raw('(SELECT COUNT(*) FROM intra_edivi_hospital_departments d WHERE d.poi_id = p.id) AS dept_count'),
+            ]);
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('p.name', 'LIKE', $list->like())
+                    ->orWhere('p.ort', 'LIKE', $list->like());
+            });
         }
 
-        $hospitals = Capsule::connection()->select("
-            SELECT
-                p.id,
-                p.name,
-                p.ort,
-                p.ortsteil,
-                p.typ,
-                p.active,
-                c.code,
-                c.created_at as code_created,
-                c.updated_at as code_updated,
-                (SELECT COUNT(*) FROM intra_edivi_hospital_departments WHERE poi_id = p.id) as dept_count
-            FROM intra_edivi_pois p
-            LEFT JOIN intra_edivi_hospital_access_codes c ON p.id = c.poi_id
-            WHERE p.typ IN ('Krankenhaus', 'Klinik')
-            ORDER BY p.name ASC
-        ");
-        $hospitals = array_map(fn ($r) => (array) $r, $hospitals);
+        $this->renderView('settings/pois/access-codes', [
+            'hospitals' => $list->paginate($query)->map(static fn ($r) => (array) $r),
+            'list'      => $list,
+        ]);
+    }
 
-        $this->renderView('settings/pois/access-codes', ['hospitals' => $hospitals]);
+    /**
+     * POST aus dem Dialog „Zugangscode generieren": legt den Code an oder
+     * ersetzt den bestehenden und führt zurück zur Liste.
+     */
+    public function accessCodeStore(): void
+    {
+        $this->requireAuth();
+        $this->ensureManage();
+
+        $data = $this->validated(PoiAccessCodeRequest::class, 'settings/pois/access-codes');
+
+        try {
+            // Upsert: unique key auf poi_id, bestehender Code wird
+            // überschrieben, updated_at dabei aufgefrischt.
+            Capsule::table('intra_edivi_hospital_access_codes')->upsert(
+                ['poi_id' => $data['poi_id'], 'code' => $data['new_code']],
+                ['poi_id'],
+                ['code', 'updated_at' => Capsule::connection()->raw('CURRENT_TIMESTAMP')]
+            );
+
+            Flash::set('success', 'Zugangscode erfolgreich generiert: ' . htmlspecialchars($data['new_code']));
+        } catch (PDOException $e) {
+            Flash::set('error', 'Fehler beim Generieren des Zugangscodes: ' . $e->getMessage());
+        }
+
+        $this->redirect('settings/pois/access-codes');
     }
 
     // ── Helpers ────────────────────────────────────────────
@@ -359,5 +399,34 @@ class PoiController extends Controller
             Flash::set('error', 'no-permissions');
             $this->redirect('settings/pois/index');
         }
+    }
+
+    /**
+     * @param  class-string<\App\Http\Requests\FormRequest> $request
+     * @return array<string,mixed>
+     */
+    private function validated(string $request, string $back): array
+    {
+        try {
+            return $request::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect($back);
+        }
+    }
+
+    /**
+     * Wie validated(), nur zurück zu den Fachrichtungen des POIs. Die
+     * Kennung kommt dafür ungeprüft aus dem Post; mehr als eine Zahl in
+     * der URL wird daraus nicht.
+     *
+     * @param  class-string<\App\Http\Requests\FormRequest> $request
+     * @return array<string,mixed>
+     */
+    private function validatedDepartment(string $request): array
+    {
+        $poiId = $_POST['poi_id'] ?? 0;
+
+        return $this->validated($request, 'settings/pois/departments?poi_id=' . (is_scalar($poiId) ? (int) $poiId : 0));
     }
 }
