@@ -91,6 +91,12 @@ $router->get('/enotf/protokoll', fn (\EmergencyForge\Http\Request $r) => $protok
 $router->get('/enotf/protokoll/{path:[\w./_-]*}', fn (\EmergencyForge\Http\Request $r, string $path = '') => $protokollRedirect($r->query['enr'] ?? null, $path));
 $router->get('/enotf/p/{enr:[\w._-]+}/{section:[\w-]+}/{rest:[\w/_-]+}', fn (\EmergencyForge\Http\Request $r, string $enr, string $section, string $rest) => $protokollRedirect($enr, $section . '/' . $rest));
 
+// Lesezeichen aus den Betas, als die Crew-Seiten unter /enotf-v2/ lagen
+$router->get('/enotf-v2[/{path:.*}]', function (\EmergencyForge\Http\Request $r, string $path = ''): \EmergencyForge\Http\Response {
+    $qs = $r->server['QUERY_STRING'] ?? '';
+    return \EmergencyForge\Http\Response::redirect(\Plugin\Enotf\Helpers\EnotfUrl::page($path) . ($qs !== '' ? '?' . $qs : ''), 301);
+});
+
 // QM-Fragmente für den QM-Dialog auf der Protokollseite (qm.js). Dieselben
 // Fragmente wie in der Prüfliste, der Controller prüft edivi.view.
 $crewQm = [CsrfMiddleware::class, new AuthMiddleware(), FiveMCspMiddleware::class];
