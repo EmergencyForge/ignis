@@ -7,9 +7,13 @@ namespace App\Http\Controllers;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Requests\FormRequest;
+use App\Http\Requests\IdRequest;
 use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
 use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
+use App\Http\Requests\Personnel\AddNoteRequest;
+use App\Http\Requests\Personnel\DeleteDocumentRequest;
+use App\Http\Requests\Personnel\UpdateFachdiensteRequest;
 use App\Models\AmbSkill;
 use App\Models\FdSkill;
 use App\Models\Personnel;
@@ -348,11 +352,20 @@ class PersonnelController extends Controller
     public function update(): void
     {
 
+        // Die Kennung für den Rücksprung muss vorher feststehen: ein
+        // zweites validate() nach dem Fehler würde die Eingabe für old()
+        // wieder aus der Sitzung räumen.
+        try {
+            $profileId = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
+            $profileId = 0;
+        }
+
         try {
             $data = UpdateMitarbeiterRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('personnel/profile?id=' . (int) ($_POST['id'] ?? 0));
+            $this->redirect('personnel/profile?id=' . $profileId);
         }
 
         /** @var Personnel|null $mitarbeiter */
@@ -431,8 +444,14 @@ class PersonnelController extends Controller
      */
     public function updateFachdienste(): void
     {
+        try {
+            $data = UpdateFachdiensteRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('personnel/list');
+        }
 
-        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? $data['id']);
         if ($id <= 0) {
             $this->redirect('personnel/list');
         }
@@ -443,9 +462,7 @@ class PersonnelController extends Controller
             $this->redirect('personnel/list');
         }
 
-        $fachdienste     = isset($_POST['fachdienste']) && is_array($_POST['fachdienste']) ? $_POST['fachdienste'] : [];
-        $fachdienste     = array_values(array_filter($fachdienste, 'is_string'));
-        $fachdiensteJson = json_encode($fachdienste);
+        $fachdiensteJson = json_encode($data['fachdienste']);
 
         if ($mitarbeiter->fachdienste !== $fachdiensteJson) {
             $mitarbeiter->fachdienste = $fachdiensteJson;
@@ -466,18 +483,24 @@ class PersonnelController extends Controller
      */
     public function addNote(): void
     {
+        try {
+            $data = AddNoteRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('personnel/list');
+        }
 
-        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? $data['id']);
         if ($id <= 0) {
             $this->redirect('personnel/list');
         }
 
-        $content = trim((string) ($_POST['content'] ?? ''));
+        $content = $data['content'];
         // noteType ist eine PersonalLogManager::TYPE_*-Konstante:
         //   0 = TYPE_NOTE (allgemeine Notiz), 1 = TYPE_POSITIVE, 2 = TYPE_NEGATIVE
         // Wir akzeptieren alle drei Werte explizit. `> 0` würde die allgemeine
         // Notiz (=0) fälschlich rausfiltern.
-        $type = isset($_POST['noteType']) ? (int) $_POST['noteType'] : -1;
+        $type = $data['noteType'];
         $allowedTypes = [
             PersonalLogManager::TYPE_NOTE,
             PersonalLogManager::TYPE_POSITIVE,
@@ -699,8 +722,9 @@ class PersonnelController extends Controller
     public function destroy(): void
     {
 
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
+        try {
+            $id = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             Flash::set('error', 'invalid-id');
             $this->redirect('personnel/list');
         }
@@ -728,8 +752,9 @@ class PersonnelController extends Controller
     public function deleteComment(): void
     {
 
-        $logId = (int) ($_POST['id'] ?? 0);
-        if ($logId <= 0) {
+        try {
+            $logId = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             Flash::set('error', 'invalid-id');
             $this->redirectBackOrIndex();
         }
@@ -834,8 +859,12 @@ class PersonnelController extends Controller
             $this->redirectBackOrIndex();
         }
 
-        $docid = (string) ($_POST['docid'] ?? '');
-        $pid   = (string) ($_POST['pid'] ?? '');
+        try {
+            ['docid' => $docid, 'pid' => $pid] = DeleteDocumentRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirectBackOrIndex();
+        }
 
         if ($docid === '') {
             Flash::set('error', 'Dokument-ID fehlt');

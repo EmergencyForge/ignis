@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IdRequest;
 use App\Http\Requests\Personnel\SaveFireSkillRequest;
 use App\Http\Requests\Personnel\SaveMedicSkillRequest;
 use App\Http\Requests\Personnel\SaveRankRequest;
@@ -292,8 +293,9 @@ class PersonalController extends Controller
         $this->requireAuth();
         $this->ensureAdmin($k['path'] . '/index.php');
 
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
+        try {
+            $id = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             Flash::set($k['flash'], 'invalid-id');
             $this->redirect($k['path'] . '/index');
         }

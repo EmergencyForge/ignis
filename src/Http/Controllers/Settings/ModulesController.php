@@ -7,7 +7,9 @@ namespace App\Http\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\SaveModulesRequest;
 use App\Plugins\ModuleSelection;
+use EmergencyForge\Http\Exceptions\ValidationException;
 
 /**
  * Einstellungen › System › Module: welche der mitgelieferten Module die
@@ -34,10 +36,12 @@ final class ModulesController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
-        $selected = array_values(array_filter(
-            (array) ($_POST['modules'] ?? []),
-            static fn (mixed $id): bool => is_string($id) && $id !== '',
-        ));
+        try {
+            $selected = SaveModulesRequest::validate($_POST)['modules'];
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/system/modules');
+        }
 
         $errors = ModuleSelection::fromDirectory()->apply($selected, (int) ($_SESSION['userid'] ?? 0));
         if ($errors !== []) {

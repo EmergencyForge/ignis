@@ -9,6 +9,9 @@ use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormRequest;
 use App\Http\Requests\Vehicles\CreateDefectRequest;
+use App\Http\Requests\Vehicles\LoadoutActionRequest;
+use App\Http\Requests\Vehicles\SaveVehicleRequest;
+use App\Http\Requests\Vehicles\VehicleSelectionRequest;
 use App\Models\Poi;
 use App\Models\Vehicle;
 use App\Support\Activity;
@@ -295,18 +298,15 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $name         = trim($_POST['name'] ?? '');
-        $kennzeichen  = trim($_POST['kennzeichen'] ?? '');
-        $vehType      = trim($_POST['veh_type'] ?? '');
-        $identifier   = trim($_POST['identifier'] ?? '');
-        $priority     = (int) ($_POST['priority'] ?? 0);
-        $rdType       = (int) ($_POST['rd_type'] ?? 0);
-        $active       = isset($_POST['active']) ? 1 : 0;
-        $allowedJobs  = trim($_POST['allowed_jobs'] ?? '') ?: null;
+        try {
+            $data = SaveVehicleRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/vehicles/vehicles/create');
+        }
+        unset($data['id']);
 
-        $data = $this->collectVehicleData($name, $kennzeichen, $vehType, $identifier, $priority, $rdType, $active, $allowedJobs);
-
-        if ($name === '' || $vehType === '' || $identifier === '') {
+        if ($data['name'] === '' || $data['veh_type'] === '' || $data['identifier'] === '') {
             // Zurück aufs Formular, mit der Eingabe (old()) und der Meldung.
             FormRequest::rememberInput($_POST);
             Flash::set('error', 'missing-fields');
@@ -318,7 +318,7 @@ class FahrzeugeController extends Controller
             Flash::set('vehicle', 'created');
             // Mit Kennung wie die anderen Aktionen, damit die Fahrzeugseite
             // den Eintrag in ihrer Aktivität findet (App\Support\Activity).
-            $this->audit('Fahrzeug erstellt [ID: ' . $newId . ']', 'Name: ' . $name . ' | Typ: ' . $vehType, $newId);
+            $this->audit('Fahrzeug erstellt [ID: ' . $newId . ']', 'Name: ' . $data['name'] . ' | Typ: ' . $data['veh_type'], $newId);
         } catch (PDOException $e) {
             error_log('PDO Insert Error: ' . $e->getMessage());
             Flash::set('error', 'exception');
@@ -332,19 +332,16 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $id           = (int) ($_POST['id'] ?? 0);
-        $name         = trim($_POST['name'] ?? '');
-        $kennzeichen  = trim($_POST['kennzeichen'] ?? '');
-        $vehType      = trim($_POST['veh_type'] ?? '');
-        $identifier   = trim($_POST['identifier'] ?? '');
-        $priority     = (int) ($_POST['priority'] ?? 0);
-        $rdType       = (int) ($_POST['rd_type'] ?? 0);
-        $active       = isset($_POST['active']) ? 1 : 0;
-        $allowedJobs  = trim($_POST['allowed_jobs'] ?? '') ?: null;
+        try {
+            $data = SaveVehicleRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/vehicles/vehicles/index');
+        }
+        $id = (int) $data['id'];
+        unset($data['id']);
 
-        $data = $this->collectVehicleData($name, $kennzeichen, $vehType, $identifier, $priority, $rdType, $active, $allowedJobs);
-
-        if ($id <= 0 || $name === '' || $vehType === '' || $identifier === '') {
+        if ($id <= 0 || $data['name'] === '' || $data['veh_type'] === '' || $data['identifier'] === '') {
             Flash::set('error', 'missing-fields');
             $this->redirect('settings/vehicles/vehicles/index');
         }
@@ -372,7 +369,7 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $ids = $this->postedIds();
+        $ids = $this->selection()['ids'];
         if ($ids === []) {
             Flash::set('vehicle', 'invalid-id');
             $this->redirect('settings/vehicles/vehicles/index');
@@ -412,14 +409,15 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
+        $selection = $this->selection();
         $statuses = ['active' => 1, 'inactive' => 0];
-        $status = (string) ($_POST['status'] ?? '');
+        $status = $selection['status'];
         if (!isset($statuses[$status])) {
             Flash::error('Unbekannter Status.');
             $this->redirect('settings/vehicles/vehicles/index');
         }
 
-        $ids = $this->postedIds();
+        $ids = $selection['ids'];
         $existing = Capsule::table('intra_fahrzeuge')->whereIn('id', $ids)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
         if ($existing === []) {
             Flash::error('Kein Fahrzeug ausgewählt.');
@@ -453,13 +451,14 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         $this->ensureManage();
 
-        $status = (string) ($_POST['emd_status'] ?? '');
+        $selection = $this->selection();
+        $status = $selection['emd_status'];
         if (!isset(Vehicle::STATUS_LABELS[$status])) {
             Flash::error('Unbekannter Status.');
             $this->redirect('settings/vehicles/vehicles/index');
         }
 
-        $ids = $this->postedIds();
+        $ids = $selection['ids'];
         $existing = Capsule::table('intra_fahrzeuge')->whereIn('id', $ids)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
         if ($existing === []) {
             Flash::error('Kein Fahrzeug ausgewählt.');
@@ -486,20 +485,18 @@ class FahrzeugeController extends Controller
     }
 
     /**
-     * Die Fahrzeug-Ids aus einem Post: `ids[]` von der Aktionsleiste oder
-     * ein einzelnes `id`, ohne Doppelte und Nullen.
+     * Der Post der Aktionsleiste, siehe VehicleSelectionRequest.
      *
-     * @return list<int>
+     * @return array<string,mixed>
      */
-    private function postedIds(): array
+    private function selection(): array
     {
-        $raw = $_POST['ids'] ?? [];
-        $ids = is_array($raw) ? array_map('intval', $raw) : [];
-        if ($ids === [] && (int) ($_POST['id'] ?? 0) > 0) {
-            $ids = [(int) $_POST['id']];
+        try {
+            return VehicleSelectionRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/vehicles/vehicles/index');
         }
-
-        return array_values(array_unique(array_filter($ids, static fn (int $id): bool => $id > 0)));
     }
 
     // ── Beladelisten ───────────────────────────────────────
@@ -530,70 +527,75 @@ class FahrzeugeController extends Controller
             return;
         }
 
-        $action = $_POST['action'] ?? '';
+        try {
+            $post = LoadoutActionRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            echo json_encode(['success' => false, 'message' => $e->firstError() ?? 'Ungültige Eingabe']);
+            return;
+        }
 
         try {
-            switch ($action) {
+            switch ($post['action']) {
                 case 'add_category':
                     Capsule::table('intra_fahrzeuge_beladung_categories')->insert([
-                        'title'    => $_POST['title'] ?? '',
-                        'type'     => (int) ($_POST['type'] ?? 0),
-                        'priority' => (int) ($_POST['priority'] ?? 0),
-                        'veh_type' => $_POST['veh_type'] ?: null,
+                        'title'    => $post['title'],
+                        'type'     => $post['type'],
+                        'priority' => $post['priority'],
+                        'veh_type' => $post['veh_type'],
                     ]);
                     echo json_encode(['success' => true, 'message' => 'Kategorie erfolgreich erstellt']);
                     break;
 
                 case 'edit_category':
                     Capsule::table('intra_fahrzeuge_beladung_categories')
-                        ->where('id', (int) ($_POST['id'] ?? 0))
+                        ->where('id', $post['id'])
                         ->update([
-                            'title'    => $_POST['title'] ?? '',
-                            'type'     => (int) ($_POST['type'] ?? 0),
-                            'priority' => (int) ($_POST['priority'] ?? 0),
-                            'veh_type' => $_POST['veh_type'] ?: null,
+                            'title'    => $post['title'],
+                            'type'     => $post['type'],
+                            'priority' => $post['priority'],
+                            'veh_type' => $post['veh_type'],
                         ]);
                     echo json_encode(['success' => true, 'message' => 'Kategorie erfolgreich aktualisiert']);
                     break;
 
                 case 'delete_category':
                     Capsule::table('intra_fahrzeuge_beladung_categories')
-                        ->where('id', (int) ($_POST['id'] ?? 0))
+                        ->where('id', $post['id'])
                         ->delete();
                     echo json_encode(['success' => true, 'message' => 'Kategorie erfolgreich gelöscht']);
                     break;
 
                 case 'add_tile':
                     Capsule::table('intra_fahrzeuge_beladung_tiles')->insert([
-                        'category' => (int) ($_POST['category'] ?? 0),
-                        'title'    => $_POST['title'] ?? '',
-                        'amount'   => (int) ($_POST['amount'] ?? 0),
+                        'category' => $post['category'],
+                        'title'    => $post['title'],
+                        'amount'   => $post['amount'],
                     ]);
                     echo json_encode(['success' => true, 'message' => 'Gegenstand erfolgreich erstellt']);
                     break;
 
                 case 'edit_tile':
                     Capsule::table('intra_fahrzeuge_beladung_tiles')
-                        ->where('id', (int) ($_POST['id'] ?? 0))
+                        ->where('id', $post['id'])
                         ->update([
-                            'category' => (int) ($_POST['category'] ?? 0),
-                            'title'    => $_POST['title'] ?? '',
-                            'amount'   => (int) ($_POST['amount'] ?? 0),
+                            'category' => $post['category'],
+                            'title'    => $post['title'],
+                            'amount'   => $post['amount'],
                         ]);
                     echo json_encode(['success' => true, 'message' => 'Gegenstand erfolgreich aktualisiert']);
                     break;
 
                 case 'delete_tile':
                     Capsule::table('intra_fahrzeuge_beladung_tiles')
-                        ->where('id', (int) ($_POST['id'] ?? 0))
+                        ->where('id', $post['id'])
                         ->delete();
                     echo json_encode(['success' => true, 'message' => 'Gegenstand erfolgreich gelöscht']);
                     break;
 
                 case 'update_amount':
                     // Inline-Edit: nur amount eines Tiles aktualisieren
-                    $tileId = (int) ($_POST['id'] ?? 0);
-                    $amount = max(0, (int) ($_POST['amount'] ?? 0));
+                    $tileId = $post['id'];
+                    $amount = max(0, $post['amount']);
                     if ($tileId <= 0) {
                         echo json_encode(['success' => false, 'message' => 'Ungültige Tile-ID']);
                         break;
@@ -608,8 +610,8 @@ class FahrzeugeController extends Controller
                     // Drag-Drop-Sort: erwartet `category` + `order` (CSV der Tile-IDs).
                     // Wir setzen sort_order=0..N-1 entsprechend der übermittelten Reihenfolge,
                     // optional kann der Tile in eine andere Kategorie wandern (Cross-Category).
-                    $categoryId = (int) ($_POST['category'] ?? 0);
-                    $orderRaw   = (string) ($_POST['order'] ?? '');
+                    $categoryId = $post['category'];
+                    $orderRaw   = $post['order'];
                     $tileIds    = array_values(array_filter(array_map('intval', explode(',', $orderRaw))));
                     if ($categoryId <= 0 || !$tileIds) {
                         echo json_encode(['success' => false, 'message' => 'Ungültige Reihenfolge']);
@@ -634,7 +636,6 @@ class FahrzeugeController extends Controller
         } catch (\Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Fehler: ' . $e->getMessage()]);
         }
-        exit;
     }
 
     // ── Defekte ────────────────────────────────────────────
@@ -718,9 +719,6 @@ class FahrzeugeController extends Controller
     // ── Helpers ────────────────────────────────────────────
 
     /**
-     * Sammelt alle Vehicle-Felder inkl. Tactical-Symbol-Daten in ein Array.
-     */
-    /**
      * Wachen zur Auswahl. Ohne POI-Tabelle (Installation vor der Migration)
      * bleibt die Liste leer und das Feld zeigt nur „keine Stationierung".
      *
@@ -749,42 +747,6 @@ class FahrzeugeController extends Controller
         }
 
         return $wachen;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function collectVehicleData(
-        string $name,
-        string $kennzeichen,
-        string $vehType,
-        string $identifier,
-        int $priority,
-        int $rdType,
-        int $active,
-        ?string $allowedJobs
-    ): array {
-        return [
-            'name'         => $name,
-            'kennzeichen'  => $kennzeichen,
-            'veh_type'     => $vehType,
-            'identifier'   => $identifier,
-            'priority'     => $priority,
-            'rd_type'      => $rdType,
-            'allowed_jobs' => $allowedJobs,
-            'active'       => $active,
-            // 0 heisst "keine Wache gewaehlt". Als NULL ablegen, damit der
-            // LEFT JOIN sauber leer bleibt statt auf eine id 0 zu zeigen.
-            'stationierung_poi_id' => ((int) ($_POST['stationierung_poi_id'] ?? 0)) ?: null,
-            'grundzeichen' => trim($_POST['grundzeichen'] ?? '') ?: null,
-            'organisation' => trim($_POST['organisation'] ?? '') ?: null,
-            'fachaufgabe'  => trim($_POST['fachaufgabe'] ?? '') ?: null,
-            'einheit'      => trim($_POST['einheit'] ?? '') ?: null,
-            'symbol'       => trim($_POST['symbol'] ?? '') ?: null,
-            'typ'          => trim($_POST['typ'] ?? '') ?: null,
-            'text'         => trim($_POST['text'] ?? '') ?: null,
-            'tz_name'      => trim($_POST['tz_name'] ?? '') ?: null,
-        ];
     }
 
     private function ensureView(string $redirect): void

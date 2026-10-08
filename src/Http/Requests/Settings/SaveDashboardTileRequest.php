@@ -63,14 +63,19 @@ class SaveDashboardTileRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'notBlank' => 'Titel und Ziel dürfen nicht leer sein.',
-            'length'   => 'Ein Eintrag ist länger als {{maxValue}} Zeichen.',
-            'intVal'   => 'Kategorie und Priorität müssen Zahlen sein.',
-            'positive' => 'Es muss eine Kategorie gewählt sein.',
-            'between'  => 'Die Priorität muss zwischen {{minValue}} und {{maxValue}} liegen.',
+            'category' => 'Es muss eine Kategorie gewählt sein.',
+            'title'    => 'Der Titel darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'url'      => 'Als Ziel sind nur ein Pfad dieser Installation, http, https und mailto erlaubt, mit höchstens 255 Zeichen.',
+            // Die Schema-Prüfung hinter call() meldet sich unter ihrem
+            // Regelnamen, nicht unter `url`.
             'in'       => 'Als Ziel sind nur ein Pfad dieser Installation, http, https und mailto erlaubt.',
-            'regex'    => 'Der Symbolname darf nur Buchstaben, Ziffern und Bindestriche enthalten.',
+            'icon'     => 'Der Symbolname darf nur Buchstaben, Ziffern und Bindestriche enthalten.',
+            'priority' => 'Die Priorität muss eine Zahl zwischen 0 und 9999 sein.',
+            'id'       => 'Ungültige ID.',
+            'keySet'   => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

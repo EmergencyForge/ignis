@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IdRequest;
 use App\Http\Requests\Settings\SaveDashboardCategoryRequest;
 use App\Http\Requests\Settings\SaveDashboardTileRequest;
 use App\Utils\AuditLogger;
@@ -161,8 +162,9 @@ class DashboardController extends Controller
         $b = self::BEREICHE[$bereich];
         $this->ensureManage(self::SEITE . '.php');
 
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
+        try {
+            $id = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             Flash::set($b['flash'], 'invalid-id');
             $this->redirect(self::SEITE);
         }

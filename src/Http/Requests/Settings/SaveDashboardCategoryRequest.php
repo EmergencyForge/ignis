@@ -28,11 +28,13 @@ class SaveDashboardCategoryRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'notBlank' => 'Der Titel darf nicht leer sein.',
-            'length'   => 'Der Titel ist länger als {{maxValue}} Zeichen.',
-            'intVal'   => 'Die Priorität muss eine Zahl sein.',
-            'between'  => 'Die Priorität muss zwischen {{minValue}} und {{maxValue}} liegen.',
+            'title'    => 'Der Titel darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'priority' => 'Die Priorität muss eine Zahl zwischen 0 und 9999 sein.',
+            'id'       => 'Ungültige ID.',
+            'keySet'   => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

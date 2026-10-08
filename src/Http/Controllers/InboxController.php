@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Helpers\Flash;
+use App\Http\Requests\Inbox\MarkInboxReadRequest;
 use App\Notifications\NotificationManager;
 use App\Session\SessionManager;
 use App\Support\ListQuery;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
 
 /**
@@ -107,16 +109,23 @@ final class InboxController extends Controller
         $this->requireAuth();
         $userId = (int) SessionManager::userId();
 
-        $id = (int) ($_POST['id'] ?? 0);
-        $changed = $this->notifications->markRead($userId, $id > 0 ? $id : null);
+        try {
+            $data = MarkInboxReadRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('inbox');
+        }
 
-        if ($id > 0) {
+        $id = $data['id'];
+        $changed = $this->notifications->markRead($userId, $id);
+
+        if ($id !== null) {
             Flash::success($changed > 0 ? 'Als gelesen markiert.' : 'War schon gelesen.');
         } else {
             Flash::success($changed === 0 ? 'Nichts Ungelesenes.' : ($changed === 1 ? 'Eine Benachrichtigung als gelesen markiert.' : $changed . ' Benachrichtigungen als gelesen markiert.'));
         }
 
-        $back = (string) ($_POST['return'] ?? '');
+        $back = $data['return'];
         $this->redirect($back !== '' && preg_match('~^[a-z][a-z0-9/_-]*(\?[^\s]*)?$~i', $back) === 1 ? $back : 'inbox');
     }
 }

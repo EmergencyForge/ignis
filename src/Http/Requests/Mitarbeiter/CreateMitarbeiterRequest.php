@@ -49,13 +49,20 @@ class CreateMitarbeiterRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'notBlank' => 'Pflichtfeld darf nicht leer sein.',
-            'regex'    => 'Ungültiges Format.',
-            'intVal'   => 'Muss eine Zahl sein.',
-            'positive' => 'Muss positiv sein.',
-            'in'       => 'Ungültiger Wert.',
-            'length'   => 'Maximal {{maxValue}} Zeichen.',
+            'fullname'    => 'Der Name darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'titel_id'    => 'Ungültiger Titel.',
+            'gebdatum'    => 'Das Geburtsdatum muss im Format JJJJ-MM-TT vorliegen.',
+            'dienstgrad'  => 'Bitte einen Dienstgrad wählen.',
+            'geschlecht'  => 'Ungültiges Geschlecht.',
+            'discordtag'  => 'Die Discord-ID besteht aus 17 bis 20 Ziffern.',
+            'telefonnr'   => 'Die Telefonnummer darf höchstens 50 Zeichen haben.',
+            'dienstnr'    => 'Die Dienstnummer darf nur Buchstaben, Ziffern und Bindestriche enthalten und braucht mindestens eine Ziffer.',
+            'einstdatum'  => 'Das Einstellungsdatum muss im Format JJJJ-MM-TT vorliegen.',
+            'charakterid' => 'Ungültige Charakter-ID.',
+            'keySet'      => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

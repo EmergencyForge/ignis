@@ -74,6 +74,19 @@ final class ModuleSelectionTest extends FeatureTestCase
     }
 
     #[Test]
+    public function module_als_text_aendern_nichts(): void
+    {
+        $this->setDone(false);
+        $this->login();
+
+        $response = $this->post('/settings/system/modules', ['modules' => 'forms']);
+
+        $this->assertRedirect($response, '/settings/system/modules');
+        $this->assertSame('Die Module müssen als Liste kommen.', $_SESSION['flash']['text'] ?? null);
+        $this->assertFalse(ModuleSelection::isDone());
+    }
+
+    #[Test]
     public function ohne_adminrecht_kein_zugang(): void
     {
         $this->login(['personnel.view']);

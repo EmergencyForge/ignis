@@ -7,9 +7,11 @@ namespace App\Http\Controllers\Settings;
 use App\Helpers\Flash;
 use App\Auth\Gate;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\FailedJobActionRequest;
 use App\Jobs\FailedJobsReader;
 use App\Logging\LogReader;
 use App\Logging\Logger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 
 /**
  * LogsController: Admin-Lookup für Error-IDs.
@@ -98,9 +100,17 @@ class LogsController extends Controller
             return;
         }
 
+        try {
+            $data = FailedJobActionRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => $e->firstError() ?? 'Ungültige Eingabe']);
+            return;
+        }
+
         $reader = $this->failedJobsReader();
-        $action = (string) ($_POST['action'] ?? '');
-        $id     = (int)    ($_POST['id']     ?? 0);
+        $action = $data['action'];
+        $id     = $data['id'];
 
         try {
             switch ($action) {

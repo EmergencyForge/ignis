@@ -133,6 +133,20 @@ final class PersonnelCatalogueTest extends FeatureTestCase
         $this->post('/settings/personnel/specialties/create', ['sgnr' => 'abc', 'sgname' => 'Krumm']);
 
         $this->assertSame($vorher, Capsule::table('intra_mitarbeiter_fdquali')->count());
+        $this->assertSame('Die Nummer muss eine Zahl zwischen 0 und 9999 sein.', $_SESSION['flash']['text'] ?? null);
+    }
+
+    /** @param array<string,string> $felder */
+    #[Test]
+    #[DataProvider('kataloge')]
+    public function loeschen_mit_kaputter_id_meldet_ungueltige_id(string $pfad, string $tabelle, array $felder, string $namensspalte): void
+    {
+        unset($_SESSION['flash']);
+
+        $this->assertRedirect($this->post($pfad . '/delete', ['id' => 'abc']), $pfad);
+
+        $this->assertSame('danger', $_SESSION['flash']['type'] ?? null);
+        $this->assertStringStartsWith('Ungültige', (string) ($_SESSION['flash']['text'] ?? ''));
     }
 
     #[Test]

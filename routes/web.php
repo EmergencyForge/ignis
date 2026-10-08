@@ -429,7 +429,8 @@ $router->post('/settings/system/modules',       [\App\Http\Controllers\Settings\
 $router->get('/settings/system/discord',        [\App\Http\Controllers\Settings\DiscordBotController::class, 'index'],   $settingsAuth);
 $router->post('/settings/system/discord',       [\App\Http\Controllers\Settings\DiscordBotController::class, 'save'],    $settingsAuth);
 $router->post('/settings/system/discord/test',  [\App\Http\Controllers\Settings\DiscordBotController::class, 'test'],    $settingsAuth);
-$router->get('/settings/system/logs',     [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
+// POST: Wiederholen und Löschen fehlgeschlagener Jobs (logs-app.js)
+$router->match(['GET', 'POST'], '/settings/system/logs', [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 
 // Cron-Verwaltung
 $router->get('/settings/system/cron',          [\App\Http\Controllers\Settings\CronController::class, 'index'],   $settingsAuth);

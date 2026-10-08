@@ -8,8 +8,11 @@ use App\Auth\Gate;
 use App\Cron\JobHandler\ConsoleHandler;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IdRequest;
+use App\Http\Requests\Settings\CreateCronJobRequest;
 use App\Models\CronJob;
 use EmergencyForge\Cron\CronScheduler;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -87,11 +90,7 @@ final class CronController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
-        $jobId = (int) ($_POST['id'] ?? 0);
-        if ($jobId <= 0) {
-            Flash::set('error', 'no-job');
-            $this->redirect('settings/system/cron');
-        }
+        $jobId = $this->postedJobId();
 
         CronJob::query()
             ->where('id', $jobId)
@@ -109,8 +108,9 @@ final class CronController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
-        $jobId = (int) ($_POST['id'] ?? 0);
-        if ($jobId <= 0) {
+        try {
+            $jobId = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             $this->jsonError('Kein Job angegeben', 400);
         }
 
@@ -133,11 +133,7 @@ final class CronController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
-        $jobId = (int) ($_POST['id'] ?? 0);
-        if ($jobId <= 0) {
-            Flash::set('error', 'no-job');
-            $this->redirect('settings/system/cron');
-        }
+        $jobId = $this->postedJobId();
 
         $deleted = CronJob::query()
             ->where('id', $jobId)
@@ -157,13 +153,20 @@ final class CronController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
-        $identifier  = trim((string) ($_POST['identifier'] ?? ''));
-        $name        = trim((string) ($_POST['name'] ?? ''));
-        $description = trim((string) ($_POST['description'] ?? ''));
-        $handlerType = (string) ($_POST['handler_type'] ?? 'webhook');
-        $handler     = trim((string) ($_POST['handler'] ?? ''));
-        $schedule    = trim((string) ($_POST['schedule'] ?? ''));
-        $configJson  = trim((string) ($_POST['config'] ?? ''));
+        try {
+            $data = CreateCronJobRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/system/cron');
+        }
+
+        $identifier  = $data['identifier'];
+        $name        = $data['name'];
+        $description = $data['description'];
+        $handlerType = $data['handler_type'];
+        $handler     = $data['handler'];
+        $schedule    = $data['schedule'];
+        $configJson  = $data['config'];
 
         if ($identifier === '' || $name === '' || $handler === '' || $schedule === '') {
             Flash::set('error', 'fields-missing');
@@ -214,6 +217,16 @@ final class CronController extends Controller
         }
 
         $this->redirect('settings/system/cron');
+    }
+
+    private function postedJobId(): int
+    {
+        try {
+            return IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
+            Flash::set('error', 'no-job');
+            $this->redirect('settings/system/cron');
+        }
     }
 
     private function ensureAdmin(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Auth\Gate;
+use App\Http\Requests\Vehicles\CreateDefectRequest;
 use App\Logging\Logger;
 use App\Models\Vehicle;
 use App\Models\VehicleDefect;
@@ -51,7 +52,7 @@ final class VehicleDefectsController
     public function handle(Request $request): Response
     {
         $action = $request->post['action'] ?? $request->query['action'] ?? '';
-        $auth   = $this->resolveAuth($action);
+        $auth   = $this->resolveAuth($action, $request->post);
         if ($auth instanceof Response) {
             return $auth;
         }
@@ -79,9 +80,10 @@ final class VehicleDefectsController
      * Auth-Resolution pro Action. Gibt entweder eine Response (abbruch) oder
      * ein Tupel [$userId, $username, $isEnotfUser] zurück.
      *
+     * @param  array<string,mixed> $post
      * @return Response|array{0: int, 1: string, 2: bool}
      */
-    private function resolveAuth(string $action): Response|array
+    private function resolveAuth(string $action, array $post): Response|array
     {
         $isEnotfUser = !isset($_SESSION['userid']) && isset($_SESSION['fahrername']);
 
@@ -89,7 +91,10 @@ final class VehicleDefectsController
             if ($action !== 'create') {
                 return Response::json(['error' => 'Nicht authentifiziert'], 401);
             }
-            $reporterName = trim($_POST['reported_by_name'] ?? '') ?: (string) ($_SESSION['fahrername'] ?? '');
+            // Der Name entscheidet über das Konto, bevor create() prüft;
+            // deshalb läuft der Post hier schon durch dieselbe Regelmenge.
+            // Ein ungültiger Post endet damit wie dort in einer 422.
+            $reporterName = CreateDefectRequest::validate($post)['reported_by_name'] ?: (string) ($_SESSION['fahrername'] ?? '');
             $userId = (int) (Capsule::table('intra_users as u')
                 ->join('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
                 ->where('m.fullname', $reporterName)

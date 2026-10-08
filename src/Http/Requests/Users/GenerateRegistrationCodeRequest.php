@@ -36,10 +36,14 @@ class GenerateRegistrationCodeRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `regex`.
         return [
-            'length' => 'Bezeichnung darf maximal {{maxValue}} Zeichen lang sein.',
-            'regex'  => 'Ungültiges Datumsformat.',
-            'digit'  => 'Ungültiger Mitarbeiter.',
+            'label'          => 'Bezeichnung darf höchstens 255 Zeichen haben.',
+            'expires_at'     => 'Ungültiges Datumsformat.',
+            'mitarbeiter_id' => 'Ungültiger Mitarbeiter.',
+            'action'         => 'Unbekannte Aktion.',
+            'keySet'         => 'Das Formular enthält unbekannte Felder.',
         ];
     }
 

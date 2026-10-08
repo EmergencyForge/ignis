@@ -45,13 +45,24 @@ class UpdateMitarbeiterRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'notBlank' => 'Pflichtfeld darf nicht leer sein.',
-            'regex'    => 'Ungültiges Format.',
-            'intVal'   => 'Muss eine Zahl sein.',
-            'positive' => 'Muss positiv sein.',
-            'in'       => 'Ungültiger Wert.',
-            'length'   => 'Maximal {{maxValue}} Zeichen.',
+            'id'          => 'Ungültige ID.',
+            'fullname'    => 'Der Name darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'gebdatum'    => 'Das Geburtsdatum muss im Format JJJJ-MM-TT vorliegen.',
+            'dienstgrad'  => 'Bitte einen Dienstgrad wählen.',
+            'discordtag'  => 'Die Discord-ID besteht aus 17 bis 20 Ziffern.',
+            'telefonnr'   => 'Die Telefonnummer darf höchstens 50 Zeichen haben.',
+            'dienstnr'    => 'Die Dienstnummer darf nur Buchstaben, Ziffern und Bindestriche enthalten und braucht mindestens eine Ziffer.',
+            'qualird'     => 'Ungültige RD-Qualifikation.',
+            'qualifw2'    => 'Ungültige FW-Qualifikation.',
+            'geschlecht'  => 'Ungültiges Geschlecht.',
+            'zusatzqual'  => 'Die Zusatzqualifikation darf höchstens 255 Zeichen haben.',
+            'pfp'         => 'Der Pfad zum Profilbild darf höchstens 500 Zeichen haben.',
+            'charakterid' => 'Ungültige Charakter-ID.',
+            'new'         => 'Unbekannte Aktion.',
+            'keySet'      => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

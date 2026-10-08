@@ -43,11 +43,17 @@ class SaveRankRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'notBlank' => 'Bezeichnung, männliche und weibliche Form dürfen nicht leer sein.',
-            'length'   => 'Ein Eintrag ist länger als {{maxValue}} Zeichen.',
-            'intVal'   => 'Die Priorität muss eine Zahl sein.',
-            'between'  => 'Die Priorität muss zwischen {{minValue}} und {{maxValue}} liegen.',
+            'name'     => 'Die Bezeichnung darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'name_m'   => 'Die männliche Form darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'name_w'   => 'Die weibliche Form darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'priority' => 'Die Priorität muss eine Zahl zwischen 0 und 9999 sein.',
+            'badge'    => 'Das Abzeichen darf höchstens 255 Zeichen haben.',
+            'archive'  => 'Ungültiger Wert für „Archiv".',
+            'id'       => 'Ungültige ID.',
+            'keySet'   => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

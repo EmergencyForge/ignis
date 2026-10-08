@@ -124,5 +124,14 @@ final class DashboardSettingsTest extends FeatureTestCase
         $this->post(self::SEITE . '/categories/create', ['title' => '   ']);
 
         $this->assertSame($vorher, Capsule::table('intra_dashboard_categories')->count());
+        $this->assertSame('Der Titel darf nicht leer sein und höchstens 255 Zeichen haben.', $_SESSION['flash']['text'] ?? null);
+    }
+
+    #[Test]
+    public function loeschen_mit_kaputter_id(): void
+    {
+        $this->post(self::SEITE . '/categories/delete', ['id' => 'abc']);
+
+        $this->assertSame('Ungültige Kategorie-ID.', $_SESSION['flash']['text'] ?? null);
     }
 }

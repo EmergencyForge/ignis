@@ -172,6 +172,19 @@ final class InboxTest extends FeatureTestCase
     }
 
     #[Test]
+    public function eine_kaputte_id_setzt_nichts_auf_gelesen(): void
+    {
+        $me = $this->login();
+        $this->manager()->notify('dokument', [$me], ['title' => 'Dokument A']);
+
+        $response = $this->post('/inbox/read', ['id' => 'abc', 'csrf_token' => CsrfProtection::getToken()]);
+
+        $this->assertRedirect($response, '/inbox');
+        $this->assertSame('Ungültige ID.', $_SESSION['flash']['text'] ?? null);
+        $this->assertSame(1, $this->manager()->count($me));
+    }
+
+    #[Test]
     public function typ_ohne_recht_erscheint_nicht(): void
     {
         $me = $this->login(['calendar.view']);

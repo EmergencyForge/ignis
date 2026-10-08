@@ -28,14 +28,15 @@ class UpdateRoleRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'positive'  => 'Ungültige Rollen-ID.',
-            'notBlank'  => 'Bezeichnung darf nicht leer sein.',
-            'length'    => 'Bezeichnung muss zwischen {{minValue}} und {{maxValue}} Zeichen lang sein.',
-            'intVal'    => 'Priorität muss eine Zahl sein.',
-            'between'   => 'Priorität muss zwischen {{minValue}} und {{maxValue}} liegen.',
-            'in'        => 'Ungültige Badge-Farbe.',
-            'arrayType' => 'Permissions müssen als Liste übergeben werden.',
+            'id'          => 'Ungültige Rollen-ID.',
+            'name'        => 'Bezeichnung darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'priority'    => 'Priorität muss eine Zahl zwischen 0 und 9999 sein.',
+            'color'       => 'Ungültige Badge-Farbe.',
+            'permissions' => 'Permissions müssen als Liste übergeben werden.',
+            'keySet'      => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

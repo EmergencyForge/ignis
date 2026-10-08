@@ -10,9 +10,11 @@ use App\Discord\DiscordBotException;
 use App\Discord\DiscordNotifier;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\SaveDiscordBotRequest;
 use App\Notifications\NotificationManager;
 use App\Utils\AuditLogger;
 use DomainException;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -65,10 +67,17 @@ final class DiscordBotController extends Controller
         $this->requireAuth();
         $this->ensureAdmin();
 
+        try {
+            $data = SaveDiscordBotRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/system/discord');
+        }
+
         $userId  = (int) ($_SESSION['userid'] ?? 0);
         $current = DiscordBot::settings();
 
-        if (($_POST['action'] ?? '') === 'disconnect') {
+        if ($data['action'] === 'disconnect') {
             DiscordBot::store(['enabled' => false, 'token' => '', 'id' => '', 'name' => '', 'avatar' => ''], $userId);
             (new AuditLogger())->log($userId, 'Discord-Bot getrennt', null, 'System');
             Flash::success('Das Token ist gelöscht, der Bot schickt keine Nachrichten mehr.');
@@ -78,7 +87,7 @@ final class DiscordBotController extends Controller
         $values  = [];
         $changed = [];
         try {
-            $token = trim((string) ($_POST['token'] ?? ''));
+            $token = $data['token'];
             if ($token !== '') {
                 $values  = ['token' => $token] + DiscordBot::me($token);
                 $changed[] = 'Token';
@@ -86,7 +95,7 @@ final class DiscordBotController extends Controller
             $activeToken = $values['token'] ?? $current['token'];
 
             $profile = [];
-            $name = trim((string) ($_POST['name'] ?? ''));
+            $name = $data['name'];
             if ($name !== '' && $name !== ($values['name'] ?? $current['name'])) {
                 if (mb_strlen($name) < 2 || mb_strlen($name) > 32) {
                     throw new DomainException('Der Name braucht 2 bis 32 Zeichen.');
@@ -106,7 +115,7 @@ final class DiscordBotController extends Controller
                 $values = array_merge($values, DiscordBot::updateProfile($activeToken, $profile));
             }
 
-            $enabled = isset($_POST['enabled']);
+            $enabled = $data['enabled'];
             if ($enabled && $activeToken === '') {
                 throw new DomainException('Ohne Token kann der Bot nicht eingeschaltet werden.');
             }
@@ -114,7 +123,7 @@ final class DiscordBotController extends Controller
                 $changed[] = $enabled ? 'eingeschaltet' : 'ausgeschaltet';
             }
 
-            $dmTypes = array_values(array_intersect(array_keys($this->typeLabels()), array_map('strval', (array) ($_POST['dm_types'] ?? []))));
+            $dmTypes = array_values(array_intersect(array_keys($this->typeLabels()), $data['dm_types']));
             if ($dmTypes != $current['dm_types']) {
                 $changed[] = 'Direktnachrichten';
             }

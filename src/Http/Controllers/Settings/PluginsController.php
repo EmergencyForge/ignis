@@ -9,6 +9,7 @@ use App\Config\ConfigManager;
 use App\Exceptions\UploadException;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\PluginActionRequest;
 use App\Plugins\CatalogClient;
 use App\Plugins\CatalogInstaller;
 use App\Plugins\PluginLoader;
@@ -16,6 +17,7 @@ use App\Plugins\PluginRepository;
 use App\Security\CsrfProtection;
 use App\Support\FileUpload;
 use App\Utils\AuditLogger;
+use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Plugins\Plugin;
 use EmergencyForge\Plugins\PluginManifest;
@@ -73,18 +75,25 @@ final class PluginsController extends Controller
                 $message     = 'Sitzung abgelaufen. Bitte Seite neu laden und erneut versuchen.';
                 $messageType = 'danger';
             } else {
-                $action = (string) ($_POST['plugin_action'] ?? 'toggle');
-                $pluginId = (string) ($_POST['plugin_id'] ?? '');
-                [$message, $messageType] = match ($action) {
-                    'upload' => $this->handleUpload($request, $installer),
-                    'upload_commit' => $this->handleUploadCommit($installer, $repository),
-                    'upload_discard' => $this->handleUploadDiscard($installer),
-                    'install' => $this->handleInstall($pluginId, $registry, $repository),
-                    'catalog_install', 'catalog_stage' => $this->handleCatalogStage($pluginId, false, $catalogClient, $installer, $repository),
-                    'catalog_update' => $this->handleCatalogStage($pluginId, true, $catalogClient, $installer, $repository),
-                    'remove' => $this->handleRemove($pluginId, $registry, $repository, $installer),
-                    default => $this->handleToggle($pluginId, $registry, $repository),
-                };
+                try {
+                    $post = PluginActionRequest::validate($_POST);
+                } catch (ValidationException $e) {
+                    $post = null;
+                    [$message, $messageType] = [$e->firstError() ?? 'Ungültige Eingabe.', 'danger'];
+                }
+                if ($post !== null) {
+                    $pluginId = $post['plugin_id'];
+                    [$message, $messageType] = match ($post['plugin_action']) {
+                        'upload' => $this->handleUpload($request, $installer),
+                        'upload_commit' => $this->handleUploadCommit($post, $installer, $repository),
+                        'upload_discard' => $this->handleUploadDiscard($post['upload_token'], $installer),
+                        'install' => $this->handleInstall($pluginId, $post['accept_risk'], $registry, $repository),
+                        'catalog_install', 'catalog_stage' => $this->handleCatalogStage($pluginId, false, $post, $catalogClient, $installer, $repository),
+                        'catalog_update' => $this->handleCatalogStage($pluginId, true, $post, $catalogClient, $installer, $repository),
+                        'remove' => $this->handleRemove($pluginId, $registry, $repository, $installer),
+                        default => $this->handleToggle($pluginId, $registry, $repository),
+                    };
+                }
             }
         } elseif (isset($_GET['confirm'])) {
             $confirm = $this->confirmation((string) $_GET['confirm'], $registry, $catalogClient, $installer);
@@ -321,16 +330,19 @@ final class PluginsController extends Controller
         $this->redirect('settings/system/plugins?confirm=upload&token=' . rawurlencode($pending['token']));
     }
 
-    /** @return array{0:string,1:string} */
-    private function handleUploadCommit(CatalogInstaller $installer, PluginRepository $repository): array
+    /**
+     * @param array<string,mixed> $post aus PluginActionRequest
+     * @return array{0:string,1:string}
+     */
+    private function handleUploadCommit(array $post, CatalogInstaller $installer, PluginRepository $repository): array
     {
-        $token = (string) ($_POST['upload_token'] ?? '');
+        $token = (string) $post['upload_token'];
         if (!$this->ownsUpload($token)) return ['Der Upload ist nicht mehr vorhanden. Bitte die Datei erneut hochladen.', 'warn'];
-        if (!$this->riskAccepted()) {
+        if (!$post['accept_risk']) {
             return ['Bitte bestätige den Hinweis zu Plugins von Drittanbietern, bevor du installierst.', 'warn'];
         }
-        $update = ($_POST['expect_update'] ?? '0') === '1';
-        $installNow = ($_POST['install_now'] ?? '') === '1';
+        $update = (bool) $post['expect_update'];
+        $installNow = (bool) $post['install_now'];
 
         try {
             $pending = $installer->pendingUpload($token);
@@ -359,9 +371,8 @@ final class PluginsController extends Controller
     }
 
     /** @return array{0:string,1:string} */
-    private function handleUploadDiscard(CatalogInstaller $installer): array
+    private function handleUploadDiscard(string $token, CatalogInstaller $installer): array
     {
-        $token = (string) ($_POST['upload_token'] ?? '');
         if ($this->ownsUpload($token)) {
             try {
                 $pending = $installer->pendingUpload($token);
@@ -396,11 +407,6 @@ final class PluginsController extends Controller
         }
     }
 
-    private function riskAccepted(): bool
-    {
-        return ($_POST['accept_risk'] ?? '') === '1';
-    }
-
     /**
      * Kleinere Grenze aus upload_max_filesize und post_max_size in Bytes,
      * damit die Dropzone nicht mehr verspricht, als PHP annimmt.
@@ -425,10 +431,14 @@ final class PluginsController extends Controller
 
     // ── Katalog ───────────────────────────────────────────────────────
 
-    /** @return array{0:string,1:string} */
+    /**
+     * @param array<string,mixed> $post aus PluginActionRequest
+     * @return array{0:string,1:string}
+     */
     private function handleCatalogStage(
         string $pluginId,
         bool $update,
+        array $post,
         CatalogClient $catalog,
         CatalogInstaller $installer,
         PluginRepository $repository,
@@ -436,10 +446,10 @@ final class PluginsController extends Controller
         $entry = $catalog->find($pluginId);
         if ($entry === null) return ['Plugin wurde im aktuellen Katalog nicht gefunden.', 'danger'];
         if (!($entry['installable'] ?? false)) return ['Installation ist gesperrt: Download oder SHA256-Pin fehlt.', 'warn'];
-        if (CatalogClient::isThirdParty($entry) && !$this->riskAccepted()) {
+        if (CatalogClient::isThirdParty($entry) && !$post['accept_risk']) {
             return ['Bitte bestätige den Hinweis zu Plugins von Drittanbietern, bevor du installierst.', 'warn'];
         }
-        $installNow = !$update && ($_POST['install_now'] ?? '') === '1';
+        $installNow = !$update && $post['install_now'];
 
         try {
             $plugin = $installer->stage($entry, $update);
@@ -535,7 +545,7 @@ final class PluginsController extends Controller
      *
      * @return array{0: string, 1: string}
      */
-    private function handleInstall(string $pluginId, PluginRegistry $registry, PluginRepository $repository): array
+    private function handleInstall(string $pluginId, bool $riskAccepted, PluginRegistry $registry, PluginRepository $repository): array
     {
         $plugin = $registry->get($pluginId);
         if ($plugin === null) {
@@ -544,7 +554,7 @@ final class PluginsController extends Controller
         if (PluginLoader::isInstalled($plugin)) {
             return ["„{$plugin->manifest->name}\u{201c} ist bereits installiert.", 'warn'];
         }
-        if (!$this->riskAccepted()) {
+        if (!$riskAccepted) {
             return ['Bitte bestätige den Hinweis zu Plugins von Drittanbietern, bevor du installierst.', 'warn'];
         }
         return $this->installPlugin($plugin, $repository, 'manual');

@@ -28,11 +28,14 @@ class SaveSpecialtyRequest extends FormRequest
 
     protected static function messages(): array
     {
+        // Unter v::keySet() greifen nur Schlüssel nach Feldname (und
+        // `keySet`), nicht nach Regelname wie `notBlank`.
         return [
-            'notBlank' => 'Die Bezeichnung darf nicht leer sein.',
-            'length'   => 'Die Bezeichnung ist länger als {{maxValue}} Zeichen.',
-            'intVal'   => 'Die Nummer muss eine Zahl sein.',
-            'between'  => 'Die Nummer muss zwischen {{minValue}} und {{maxValue}} liegen.',
+            'sgnr'     => 'Die Nummer muss eine Zahl zwischen 0 und 9999 sein.',
+            'sgname'   => 'Die Bezeichnung darf nicht leer sein und höchstens 255 Zeichen haben.',
+            'disabled' => 'Ungültiger Wert für „deaktiviert".',
+            'id'       => 'Ungültige ID.',
+            'keySet'   => 'Das Formular ist unvollständig oder enthält unbekannte Felder.',
         ];
     }
 

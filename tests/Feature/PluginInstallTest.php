@@ -270,6 +270,20 @@ final class PluginInstallTest extends FeatureTestCase
     }
 
     #[Test]
+    public function ein_unbekanntes_feld_installiert_nichts(): void
+    {
+        $this->actingAsAdmin();
+        $target = PluginLoader::pluginsDir() . '/' . $this->pluginId;
+        mkdir($target, 0775, true);
+        file_put_contents($target . '/manifest.php', "<?php return ['id' => '{$this->pluginId}', 'name' => 'Bereit', 'version' => '1.0.0'];");
+
+        $response = $this->post('/settings/system/plugins', ['plugin_action' => 'install', 'plugin_id' => $this->pluginId, 'accept_risk' => '1', 'force' => '1']);
+
+        $this->assertBodyContains('Das Formular enthält unbekannte Felder.', $response);
+        $this->assertFileDoesNotExist($target . '/.installed');
+    }
+
+    #[Test]
     public function katalog_plugins_von_drittanbietern_brauchen_das_haekchen(): void
     {
         $this->actingAsAdmin();

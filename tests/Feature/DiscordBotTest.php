@@ -145,6 +145,31 @@ final class DiscordBotTest extends FeatureTestCase
     }
 
     #[Test]
+    public function trennen_loescht_das_token(): void
+    {
+        $this->loginAdmin();
+        $this->activateBot();
+
+        $this->assertRedirect($this->post('/settings/system/discord', ['action' => 'disconnect']), '/settings/system/discord');
+
+        $settings = DiscordBot::settings();
+        $this->assertSame('', $settings['token']);
+        $this->assertFalse($settings['enabled']);
+    }
+
+    #[Test]
+    public function direktnachrichten_als_text_aendern_nichts(): void
+    {
+        $this->loginAdmin();
+        $this->activateBot();
+
+        $this->post('/settings/system/discord', ['enabled' => '1', 'dm_types' => 'dokument']);
+
+        $this->assertSame('Die Direktnachrichten müssen als Liste kommen.', $_SESSION['flash']['text'] ?? null);
+        $this->assertSame(['system'], DiscordBot::settings()['dm_types']);
+    }
+
+    #[Test]
     public function ein_abgelehntes_token_wird_nicht_gespeichert(): void
     {
         $this->loginAdmin();

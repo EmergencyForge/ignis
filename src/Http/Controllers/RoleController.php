@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Helpers\Flash;
+use App\Http\Requests\IdRequest;
 use App\Http\Requests\Roles\CreateRoleRequest;
 use App\Http\Requests\Roles\UpdateRoleRequest;
 use App\Models\Role;
@@ -150,9 +151,9 @@ class RoleController extends Controller
         $this->ensure('role.delete', redirectTo: 'users/roles/index');
         $this->requireMethod('POST');
 
-        $id = (int) ($_POST['id'] ?? 0);
-
-        if ($id <= 0) {
+        try {
+            $id = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             Flash::set('role', 'invalid-id');
             $this->redirect('users/roles/index');
         }

@@ -6,7 +6,13 @@ namespace App\Http\Controllers;
 
 use App\Auth\Gate;
 use App\Helpers\Flash;
+use App\Http\Requests\IdRequest;
+use App\Http\Requests\Users\DeleteRegistrationCodeRequest;
 use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
+use App\Http\Requests\Users\LinkPersonnelRequest;
+use App\Http\Requests\Users\RegistrationCodeActionRequest;
+use App\Http\Requests\Users\SetUserActiveRequest;
+use App\Http\Requests\Users\UpdateUserRequest;
 use App\Models\Personnel;
 use App\Models\RegistrationCode;
 use App\Models\Role;
@@ -171,16 +177,23 @@ class UserController extends Controller
         $this->requireAuth();
         $this->ensure('user.update', redirectTo: 'users/list');
 
-        $targetId      = (int) ($_POST['id'] ?? 0);
-        $mitarbeiterId = (int) ($_POST['mitarbeiter_id'] ?? 0);
-        $action        = (string) ($_POST['action'] ?? '');
-        $back          = ($_POST['back'] ?? '') === 'profile' && $mitarbeiterId > 0
+        try {
+            $data = LinkPersonnelRequest::validate($_POST);
+        } catch (ValidationException) {
+            Flash::set('error', 'invalid-request');
+            $this->redirect('users/list');
+        }
+
+        $targetId      = $data['id'];
+        $mitarbeiterId = $data['mitarbeiter_id'];
+        $action        = $data['action'];
+        $back          = $data['back'] === 'profile' && $mitarbeiterId > 0
             ? 'personnel/profile?id=' . $mitarbeiterId
             : 'users/edit?id=' . $targetId;
 
         /** @var User|null $target */
         $target = User::with('userRole')->find($targetId);
-        if ($target === null || !in_array($action, ['link', 'unlink'], true)) {
+        if ($target === null) {
             Flash::set('error', 'invalid-request');
             $this->redirect('users/list');
         }
@@ -235,9 +248,16 @@ class UserController extends Controller
         $this->requireAuth();
         $this->ensure('user.update', redirectTo: 'users/list');
 
-        $target = $this->loadUserForEditing();
+        try {
+            $data = UpdateUserRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('users/list');
+        }
 
-        $newRoleId = (int) ($_POST['role'] ?? 0);
+        $target = $this->loadUserForEditing($data['id']);
+
+        $newRoleId = $data['role'];
         if ($newRoleId > 0) {
             $target->role = $newRoleId;
             $target->save();
@@ -320,7 +340,12 @@ class UserController extends Controller
         $this->ensure('user.createRegistrationCode', redirectTo: 'index');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $action = $_POST['action'] ?? '';
+            try {
+                $action = RegistrationCodeActionRequest::validate($_POST)['action'];
+            } catch (ValidationException) {
+                // Ohne bekannte Aktion zeigt auch ein POST nur die Seite.
+                $action = '';
+            }
             if ($action === 'generate') {
                 $this->generateRegistrationCode();
                 return;
@@ -381,7 +406,13 @@ class UserController extends Controller
 
     private function deleteRegistrationCode(): void
     {
-        $codeId = (int) ($_POST['code_id'] ?? 0);
+        try {
+            $codeId = DeleteRegistrationCodeRequest::validate($_POST)['code_id'];
+        } catch (ValidationException) {
+            // Keine gültige Kennung trifft keine Zeile; die Meldung unten
+            // passt dann genauso.
+            $codeId = 0;
+        }
 
         $deleted = RegistrationCode::query()
             ->where('id', $codeId)
@@ -410,9 +441,10 @@ class UserController extends Controller
         $this->requireAuth();
 
         $currentUserId = (int) $_SESSION['userid'];
-        $targetId      = (int) ($_POST['id'] ?? 0);
 
-        if ($targetId <= 0) {
+        try {
+            $targetId = IdRequest::validate($_POST)['id'];
+        } catch (ValidationException) {
             Flash::set('error', 'invalid-request');
             $this->redirect('users/list');
         }
@@ -460,10 +492,10 @@ class UserController extends Controller
         $this->requireAuth();
 
         $currentUserId = (int) $_SESSION['userid'];
-        $targetId      = (int) ($_POST['id'] ?? 0);
-        $action        = (string) ($_POST['action'] ?? '');
 
-        if ($targetId <= 0 || !in_array($action, ['deactivate', 'reactivate'], true)) {
+        try {
+            ['id' => $targetId, 'action' => $action] = SetUserActiveRequest::validate($_POST);
+        } catch (ValidationException) {
             Flash::set('error', 'invalid-request');
             $this->redirect('users/list');
         }
@@ -527,11 +559,12 @@ class UserController extends Controller
      * Lädt den per ?id=X übergebenen User samt Rolle und führt die UX-Checks
      * (Existenz, Self-Edit) sowie die Authorization-Prüfung durch, jeweils
      * mit spezifischen Flash-Messages für gute UX. Wird sowohl von edit()
-     * als auch update() benutzt.
+     * als auch update() benutzt; update() reicht die Kennung aus dem Post
+     * nach, falls die Adresse keine trägt.
      */
-    private function loadUserForEditing(): User
+    private function loadUserForEditing(int $postedId = 0): User
     {
-        $targetId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $targetId = (int) ($_GET['id'] ?? $postedId);
         if ($targetId <= 0) {
             Flash::set('error', 'invalid-request');
             $this->redirect('users/list');
