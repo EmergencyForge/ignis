@@ -71,15 +71,15 @@
 
         var body = document.createElement('div');
         body.innerHTML =
-            '<div class="edivi__box">' +
+            '<div class="edivi__box" data-share-form>' +
             '  <label class="ev2-edivi-dialog__label" for="ev2-share-vehicle">Zielfahrzeug</label>' +
             '  <select class="ignis-input" id="ev2-share-vehicle" data-share-vehicle>' +
             '    <option value="">Fahrzeuge werden geladen...</option>' +
             '  </select>' +
             '</div>' +
-            '<div class="edivi__box edivi__log-comment">' +
-            '  <i class="fa-solid fa-info-circle"></i> ' +
-            '  Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.' +
+            '<div class="edivi__box edivi__log-comment" data-share-info>' +
+            '  <i class="fa-solid fa-circle-info"></i>' +
+            '  <span>Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.</span>' +
             '</div>' +
             '<div class="ev2-edivi-dialog__error" data-share-error hidden></div>';
 
@@ -101,10 +101,19 @@
         }
 
         function renderVehicles(vehicles) {
+            // Leere Auswahl wäre eine Sackgasse: statt Select ein Hinweis
+            if (!vehicles.length) {
+                body.querySelector('[data-share-form]').style.display = 'none';
+                if (confirmBtn) confirmBtn.hidden = true;
+                body.querySelector('[data-share-info] span').textContent =
+                    'Es gibt kein anderes aktives Rettungsdienst-Fahrzeug, an das du das Protokoll schicken kannst.';
+                return;
+            }
             vehicleSelect.innerHTML = '';
             var placeholder = document.createElement('option');
             placeholder.value = '';
-            placeholder.textContent = vehicles.length ? 'Fahrzeug auswählen...' : 'Keine Fahrzeuge gefunden';
+            placeholder.textContent = 'Fahrzeug auswählen...';
+            placeholder.disabled = placeholder.hidden = placeholder.selected = true;
             vehicleSelect.appendChild(placeholder);
             vehicles.forEach(function (vehicle) {
                 var option = document.createElement('option');
@@ -210,8 +219,8 @@
         var body = document.createElement('div');
         body.innerHTML =
             '<div class="edivi__box edivi__log-comment">' +
-            '  <i class="fa-solid fa-share-nodes"></i> ' +
-            '  <strong>' + esc(requestData.source_vehicle) + '</strong> möchte folgendes Protokoll mit dir teilen.' +
+            '  <i class="fa-solid fa-share-nodes"></i>' +
+            '  <span><strong>' + esc(requestData.source_vehicle) + '</strong> möchte folgendes Protokoll mit dir teilen.</span>' +
             '</div>' +
             '<div class="edivi__box ev2-edivi-dialog__facts">' +
             '  <dl>' +

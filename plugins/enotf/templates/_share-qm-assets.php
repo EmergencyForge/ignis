@@ -49,22 +49,32 @@
         padding: 1rem;
     }
 
+    /* share.js blendet Boxen über hidden aus, das display unten darf das
+       nicht überstimmen */
+    .ev2-edivi-dialog [hidden] {
+        display: none !important;
+    }
+
+    /* Hinweiszeile: Icon links, Text bricht daneben um statt darunter */
     .ev2-edivi-dialog .edivi__box.edivi__log-comment {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
         background: var(--enotf-surface, #333);
         color: var(--enotf-text, #a2a2a2);
         padding: 12px;
         margin: 0;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
         margin-bottom: 10px !important;
     }
 
     .ev2-edivi-dialog .edivi__box.edivi__log-comment i {
-        padding: 6px 9px;
-        border-radius: 2px;
-        background: var(--enotf-text, #a2a2a2);
-        color: var(--enotf-surface, #333);
-        opacity: 0.6;
+        padding: 0;
+        background: none;
+        color: var(--enotf-text, #a2a2a2);
         font-size: 1rem !important;
+        line-height: 1.2;
     }
 
     /* Feldbeschriftung über Select und Eingabe, Ton wie die Labels in den

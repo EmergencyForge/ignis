@@ -200,6 +200,14 @@ date_default_timezone_set('Europe/Berlin');
            alten Breite: wird das Fenster schmaler (etwa durch die
            Scrollleiste), bricht der Inhalt unter die Navigation um */
         #edivi__content { min-width: 0; }
+        /* Protokollart-Dialog: Kacheln wie auf der Anlegen-Seite */
+        .ev2-protart { display: flex; flex-direction: column; gap: 12px; }
+        .ev2-protart__option {
+            display: flex; align-items: center; width: 100%;
+            border-top: 3px solid #dc3545; padding: 16px 20px; text-align: left; hyphens: manual;
+        }
+        .ev2-protart__kuerzel { color: #dc3545; font-weight: bold; font-size: 1.3rem; margin-right: 12px; }
+        .ev2-protart__aktuell { margin-left: auto; color: var(--enotf-text, #a2a2a2); font-size: .8rem; }
     </style>
     <?php
     // Ev2Select/Ev2Suggest im v1-Look: geteilter Block (auch _v1head.php);
@@ -381,21 +389,35 @@ date_default_timezone_set('Europe/Berlin');
             var protokollUrl = <?= json_encode(EnotfUrl::protokoll((string) $__enr)) ?>;
 
             var modifyBtn = document.querySelector('[data-ev2-protart]');
+            var aktuelleArt = <?= (int) ($__protokoll['prot_by'] ?? 0) ?>;
             if (modifyBtn) {
                 modifyBtn.addEventListener('click', function () {
                     if (!window.Dialog) return;
+                    // Gleiche Kacheln wie beim Anlegen (create.php). Ohne
+                    // Abbrechen-Knopf: X oder die aktuelle Art schließen nur.
+                    var body = document.createElement('div');
+                    body.className = 'ev2-protart';
+                    [[0, 'NF', 'Notfallprotokoll'], [1, 'NA', 'Notarztprotokoll']].forEach(function (art) {
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'edivi__nidabutton ev2-protart__option';
+                        btn.dataset.protBy = String(art[0]);
+                        btn.innerHTML = '<span class="ev2-protart__kuerzel">' + art[1] + '</span>' + art[2]
+                            + (art[0] === aktuelleArt ? '<small class="ev2-protart__aktuell">aktuell</small>' : '');
+                        body.appendChild(btn);
+                    });
                     var d = new window.Dialog({
                         size: 'sm',
                         title: 'Protokollart ändern',
-                        body: '<p class="ignis-dialog__text">Welche Protokollart soll verwendet werden?</p>',
-                        actions: [
-                            { label: 'Abbrechen', variant: 'ghost', close: false, onClick: function (dlg) { dlg.close(null); } },
-                            { label: 'NF: Notfallprotokoll', variant: 'primary', close: false, onClick: function (dlg) { dlg.close(0); } },
-                            { label: 'NA: Notarztprotokoll', variant: 'primary', close: false, onClick: function (dlg) { dlg.close(1); } }
-                        ]
+                        body: body,
+                        onOpen: function (dlg) { dlg.element.classList.add('ev2-edivi-dialog'); }
+                    });
+                    body.addEventListener('click', function (ev) {
+                        var btn = ev.target.closest('[data-prot-by]');
+                        if (btn) d.close(parseInt(btn.dataset.protBy, 10));
                     });
                     d.open().then(function (protBy) {
-                        if (protBy !== 0 && protBy !== 1) return;
+                        if ((protBy !== 0 && protBy !== 1) || protBy === aktuelleArt) return;
                         fetch(saveUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

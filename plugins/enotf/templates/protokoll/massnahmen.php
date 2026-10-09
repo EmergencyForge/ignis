@@ -197,7 +197,9 @@ if ($fokus === 'medimaske') {
 // KEIN Schritt offen, nur die Subnav-Spalten (v1: Themen-Index zeigt die
 // Navigation, erst der Klick öffnet die Frage; atemwege hat einen
 // einzelnen verlinkten Schritt und folgt derselben Regel)
-$schrittanzahl = ['atemwege' => 1, 'atmung' => 2, 'weitere' => 3, 'zugang' => 14];
+// zugang: je Art ein Schritt nur mit der Ortsliste plus ein Blatt je Ort
+// (PVK 1 + 9, intraossär 1 + 5)
+$schrittanzahl = ['atemwege' => 1, 'atmung' => 2, 'weitere' => 3, 'zugang' => 16];
 $initialStep = -1;
 if ($fokus !== null && isset($schrittanzahl[$fokus])) {
     $qRaw = $_GET['q'] ?? null;
@@ -457,7 +459,8 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
 <?php elseif ($fokus === 'zugang'): ?>
 
     <!-- ── ZUGANG: v1-Flow zugang/1 → 1_1/1_2 → Lokations-Blätter als
-         Wizard-Schritte (alle 14 Blätter im DOM, wizard.js schaltet um).
+         Wizard-Schritte (beide Ortslisten und alle 14 Blätter im DOM,
+         wizard.js schaltet um).
          Speicherformat identisch zu v1. ── -->
     <div class="row" style="margin-left: 0" data-ev2-steps>
         <?= $themenSpalte('zugang') ?>
@@ -471,16 +474,18 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
         </div>
         <div class="col-2 d-flex flex-column edivi__interactbutton-more px-3">
             <?php
+            // Die Art öffnet erst ihre Ortsliste (v1: zugang/1_1, 1_2), das
+            // Blatt eines Orts erst der Klick darauf
             $stepOffset = 0;
             foreach ($zugangNav as $artKey => $artInfo):
-                $covers = implode(',', range($stepOffset, $stepOffset + count($artInfo['orte']) - 1));
+                $covers = implode(',', range($stepOffset, $stepOffset + count($artInfo['orte'])));
             ?>
                 <a href="<?= $e($fokusUrl('zugang')) ?>&q=<?= $stepOffset + 1 ?>"
                    data-wiz-goto="<?= $stepOffset ?>" data-wiz-covers="<?= $e($covers) ?>">
                     <span><?= $e($artInfo['label']) ?></span>
                 </a>
             <?php
-                $stepOffset += count($artInfo['orte']);
+                $stepOffset += count($artInfo['orte']) + 1;
             endforeach;
             ?>
         </div>
@@ -488,21 +493,25 @@ $zugangSpalte = static function (string $art, string $ort, string $seite, array 
         <?php
         $stepIndex = 0;
         foreach ($zugangNav as $artKey => $artInfo):
-            $artStart = $stepIndex;
             $orte     = $artInfo['orte'];
             $orteInfo = $artKey === 'pvk' ? ZugangCatalog::ORTE_PVK : ZugangCatalog::ORTE_IO;
-            foreach ($orte as $ortIdx => [$ortWert, $ortLabel]):
+            // Ortsliste der Art (v1: vierte Spalte in 1_1_x/1_2_x)
+            $ortNav = '<div class="col-2 d-flex flex-column edivi__interactbutton-more px-3">';
+            foreach ($orte as $navIdx => [$navWert, $navLabel]) {
+                $ortNav .= '<a href="' . $e($fokusUrl('zugang')) . '&q=' . ($stepIndex + $navIdx + 2) . '"'
+                    . ' data-wiz-goto="' . ($stepIndex + $navIdx + 1) . '"><span>' . $e($navLabel) . '</span></a>';
+            }
+            $ortNav .= '</div>';
         ?>
             <div class="ev2-stepwrap<?= $stepIndex === $initialStep ? '' : ' is-hidden' ?>" data-wiz-step data-wiz-fields="c_zugang">
-                <!-- Lokations-Nav des Blatts (v1: vierte Spalte in 1_1_x/1_2_x) -->
-                <div class="col-2 d-flex flex-column edivi__interactbutton-more px-3">
-                    <?php foreach ($orte as $navIdx => [$navWert, $navLabel]): ?>
-                        <a href="<?= $e($fokusUrl('zugang')) ?>&q=<?= $artStart + $navIdx + 1 ?>"
-                           data-wiz-goto="<?= $artStart + $navIdx ?>">
-                            <span><?= $e($navLabel) ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
+                <?= $ortNav ?>
+            </div>
+            <?php
+            $stepIndex++;
+            foreach ($orte as [$ortWert, $ortLabel]):
+            ?>
+            <div class="ev2-stepwrap<?= $stepIndex === $initialStep ? '' : ' is-hidden' ?>" data-wiz-step data-wiz-fields="c_zugang">
+                <?= $ortNav ?>
                 <?php foreach (($orteInfo[$ortWert]['seiten'] ?? ['']) as $seite): ?>
                     <?= $zugangSpalte($artKey, $ortWert, $seite, $artInfo['groessen']) ?>
                 <?php endforeach; ?>
