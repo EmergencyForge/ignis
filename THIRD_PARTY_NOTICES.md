@@ -30,3 +30,11 @@ The rich text editor (knowledge base, mail, documents) comes from the shared `em
 - Tiptap 3.31.4, © Tiptap GmbH: `@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extension-table`, `@tiptap/extension-text-align`, `@tiptap/extension-placeholder`, `@tiptap/extension-link`, `@tiptap/extension-bubble-menu` and `@tiptap/suggestion`. Source: <https://github.com/ueberdosis/tiptap>.
 - `@floating-ui/dom` 1.8.0, © Floating UI contributors. Source: <https://github.com/floating-ui/floating-ui>.
 - `ueberdosis/tiptap-php` 2.2.0, © überdosis, renders the editor JSON to HTML on the server. Source: <https://github.com/ueberdosis/tiptap-php>.
+
+## Situation map tiles
+
+The fireTab situation map (Lagekarte) offers the map styles Satellit, Hybrid, Straßen and Gelände next to the atlas map. Their tiles in `assets/img/map/satellite`, `hybrid`, `roadmap` and `terrain` (mirrored to `public/assets/img/map`) are adapted from the GTA V map tiles of gtadb.org (<https://map.gtadb.org>, source <https://github.com/rolux/gtadb.org>), licensed under CC BY 4.0 (<https://creativecommons.org/licenses/by/4.0/>), copyright gtadb.org and contributors.
+
+Changes: the level 5 tiles were resampled into the frame of the atlas map (`App\Helpers\MapCoordinates`), cut into Leaflet tiles of zoom 0 to 5 and saved as JPEG; areas without a source tile are filled with the sea colour. `tools/build_map_tiles.py` reproduces this. While one of these styles is shown, the map credits gtadb.org and the license in its corner.
+
+The imagery depicts the world of Grand Theft Auto V by Rockstar Games.

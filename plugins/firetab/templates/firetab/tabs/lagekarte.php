@@ -221,6 +221,49 @@ try {
         background: rgba(255, 255, 255, 0.2);
     }
 
+    .map-style-switch {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        max-width: calc(100% - 90px);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 6px;
+        border-radius: 8px;
+    }
+
+    .map-style-switch button {
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 4px;
+        padding: 6px 10px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .map-style-switch button:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .map-style-switch button[aria-pressed="true"] {
+        background: rgba(255, 255, 255, 0.85);
+        color: #111;
+    }
+
+    #lagekarte-map .leaflet-control-attribution {
+        background: rgba(0, 0, 0, 0.6);
+        color: #ddd;
+    }
+
+    #lagekarte-map .leaflet-control-attribution a {
+        color: #fff;
+    }
+
     .map-controls .zoom-level {
         text-align: center;
         color: white;
@@ -481,6 +524,7 @@ try {
 
         <!-- Map Container -->
         <div class="map-wrapper">
+            <div class="map-style-switch" role="group" aria-label="Kartentyp" id="mapStyleSwitch"></div>
             <div class="map-controls">
                 <button id="zoomIn" title="Hineinzoomen"><i class="fa-solid fa-plus"></i></button>
                 <div class="zoom-level" id="zoomLevel">1x</div>
@@ -1035,6 +1079,22 @@ try {
     const MAP_MAX_ZOOM = 6;
     const MAP_UNITS = 256; // 8192 / 2^5
 
+    // Kartentypen. Alle liegen im Rahmen der Atlas-Karte (8192 px, siehe
+    // App\Helpers\MapCoordinates), Marker und Zonen passen auf jeden.
+    // Die gtadb-Kacheln sind dafür umgerechnet und stehen unter CC BY 4.0,
+    // deshalb die Namensnennung. sea füllt den Rand außerhalb der Kacheln.
+    const MAP_TILE_BASE = '<?= BASE_PATH ?>assets/img/map/';
+    const GTADB_CREDIT = 'Karte: <a href="https://gtadb.org" target="_blank" rel="noopener">gtadb.org</a>, '
+        + '<a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener">CC BY 4.0</a>, angepasst';
+    const MAP_STYLES = {
+        atlas:     { label: 'Atlas',     url: MAP_TILE_BASE + 'tiles/{z}/{x}/{y}.png',     sea: '#0fa8d2', credit: '' },
+        satellite: { label: 'Satellit',  url: MAP_TILE_BASE + 'satellite/{z}/{x}/{y}.jpg', sea: '#0c284d', credit: GTADB_CREDIT },
+        hybrid:    { label: 'Hybrid',    url: MAP_TILE_BASE + 'hybrid/{z}/{x}/{y}.jpg',    sea: '#0a1e36', credit: GTADB_CREDIT },
+        roadmap:   { label: 'Straßen',   url: MAP_TILE_BASE + 'roadmap/{z}/{x}/{y}.jpg',   sea: '#1862ad', credit: GTADB_CREDIT },
+        terrain:   { label: 'Gelände',   url: MAP_TILE_BASE + 'terrain/{z}/{x}/{y}.jpg',   sea: '#4cb0d0', credit: GTADB_CREDIT },
+    };
+    const MAP_STYLE_KEY = 'lagekarte_style';
+
     // ========================================================================
     // State
     // ========================================================================
@@ -1166,21 +1226,13 @@ try {
             maxZoom: MAP_MAX_ZOOM,
             zoomSnap: 1,
             zoomDelta: 1,
-            attributionControl: false,
+            attributionControl: false, // eigene, ohne Leaflet-Hinweis, siehe initMapStyles()
             zoomControl: false, // We use custom zoom controls
             maxBounds: mapBounds.pad(0.1),
             maxBoundsViscosity: 0.8
         });
 
-        // Add tile layer (maxNativeZoom = tiles available up to 5, Leaflet upscales beyond)
-        L.tileLayer('<?= BASE_PATH ?>assets/img/map/tiles/{z}/{x}/{y}.png', {
-            minZoom: 0,
-            maxNativeZoom: MAP_NATIVE_ZOOM,
-            maxZoom: MAP_MAX_ZOOM,
-            tileSize: 256,
-            noWrap: true,
-            bounds: mapBounds
-        }).addTo(map);
+        initMapStyles();
 
         // Store the zoom level that fits the entire map (= "1x")
         fitZoom = map.getBoundsZoom(mapBounds, false);
@@ -1296,6 +1348,50 @@ try {
     // ========================================================================
     // Zoom Controls
     // ========================================================================
+    let activeStyleLayer = null;
+
+    function savedMapStyle() {
+        try {
+            const style = localStorage.getItem(MAP_STYLE_KEY);
+            if (style && MAP_STYLES[style]) return style;
+        } catch (e) { /* ignore */ }
+        return 'atlas';
+    }
+
+    function setMapStyle(style) {
+        const def = MAP_STYLES[style] || MAP_STYLES.atlas;
+        if (activeStyleLayer) map.removeLayer(activeStyleLayer);
+        activeStyleLayer = L.tileLayer(def.url, {
+            minZoom: 0,
+            maxNativeZoom: MAP_NATIVE_ZOOM, // Kacheln bis Stufe 5, darüber vergrößert Leaflet
+            maxZoom: MAP_MAX_ZOOM,
+            tileSize: 256,
+            noWrap: true,
+            bounds: mapBounds,
+            attribution: def.credit
+        }).addTo(map);
+        activeStyleLayer.bringToBack();
+        document.getElementById('lagekarte-map').style.background = def.sea;
+        document.querySelectorAll('#mapStyleSwitch button').forEach(btn => {
+            btn.setAttribute('aria-pressed', btn.dataset.style === style ? 'true' : 'false');
+        });
+        try { localStorage.setItem(MAP_STYLE_KEY, style); } catch (e) { /* ignore */ }
+    }
+
+    function initMapStyles() {
+        L.control.attribution({ prefix: false, position: 'bottomright' }).addTo(map);
+        const bar = document.getElementById('mapStyleSwitch');
+        Object.entries(MAP_STYLES).forEach(([style, def]) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.dataset.style = style;
+            btn.textContent = def.label;
+            btn.addEventListener('click', () => setMapStyle(style));
+            bar.appendChild(btn);
+        });
+        setMapStyle(savedMapStyle());
+    }
+
     function initZoomControls() {
         document.getElementById('zoomIn').addEventListener('click', () => map.zoomIn());
         document.getElementById('zoomOut').addEventListener('click', () => map.zoomOut());
