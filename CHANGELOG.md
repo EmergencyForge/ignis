@@ -5,7 +5,7 @@
 ### fireTab
 - Die Lagekarte wechselt zwischen Atlas, Satellit, Hybrid, Straßen und Gelände, der Browser merkt sich die Wahl
 - Die vier neuen Karten stammen von gtadb.org (CC BY 4.0) und liegen genau auf der Atlas-Karte, Marker und Zonen passen auf jede
-- Das Update wird durch die Kartenkacheln rund 44 MB größer
+- Das Update wird durch die Kartenkacheln rund 29 MB größer
 
 ### eNOTF
 - „Art ändern“ zeigt Notfall- und Notarztprotokoll als Kacheln wie beim Anlegen, die aktuelle Art ist markiert. Schließen über X oder die aktuelle Art
