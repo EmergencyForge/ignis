@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026.1.1
+
+### fireTab
+- Die Lagekarte wechselt zwischen Atlas, Satellit, Hybrid, Straßen und Gelände, der Browser merkt sich die Wahl
+- Die vier neuen Karten stammen von gtadb.org (CC BY 4.0) und liegen genau auf der Atlas-Karte, Marker und Zonen passen auf jede
+- Das Update wird durch die Kartenkacheln rund 44 MB größer
+
+### eNOTF
+- „Art ändern“ zeigt Notfall- und Notarztprotokoll als Kacheln wie beim Anlegen, die aktuelle Art ist markiert. Schließen über X oder die aktuelle Art
+- Teilen: Gibt es kein anderes aktives Rettungsdienst-Fahrzeug, steht dort ein Hinweis statt einer leeren Auswahl
+- Teilen: Der Platzhalter steht nicht mehr in der Fahrzeugliste, „Teilen“ ist sichtbar gesperrt, bis ein Fahrzeug gewählt ist
+- Maßnahmen, Zugang: PVK und intraossär öffnen erst die Liste der Orte statt gleich Handrücken oder Tibia proximal
+
+### Behoben
+- Gesperrte Knöpfe in Dialogen sahen in eNOTF und fireTab aus wie klickbare
+
 ## 2026.1.0
 
 Die erste stabile Version seit 1.2.0. Sie fasst alles aus den Betas 2026.0.1 bis 2026.0.42 zusammen.
