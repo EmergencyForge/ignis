@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { resolve, extname, basename, sep } from 'node:path';
 import { cpSync, existsSync, statSync } from 'node:fs';
 import tailwindcss from '@tailwindcss/vite';
+import { Features } from 'lightningcss';
 
 /**
  * Vite-Build-Konfiguration für ignis.
@@ -221,6 +222,12 @@ export default defineConfig(({ mode }) => {
         // damit der Browser die Fonts immer relativ zur CSS-Datei sucht, unabhängig
         // davon, ob die App unter `/`, einer Subdomain oder einem Subdirectory läuft.
         base: './',
+        // FiveM-NUI (Tablets mit eNOTF und fireTab) läuft auf Chromium 103.
+        // Für Vites Standardziel schreibt lightningcss Breakpoints als
+        // `@media (width>=768px)`, das kennt Chromium erst ab 104 und
+        // überspringt jede solche Regel. Media Queries deshalb immer in
+        // min-/max-width, alles andere bleibt beim Standardziel.
+        css: { lightningcss: { include: Features.MediaQueries } },
         // Der styles-Pass läuft als letzter (siehe package.json) und
         // spiegelt danach die statischen Dateien nach public/assets.
         plugins: [emergencyForgeUi({ prefix: 'ignis', dir: uiSrc }), tailwindcss(), ...(stylesPass ? [dropStyleStubs(), publishStaticAssets()] : [])],
