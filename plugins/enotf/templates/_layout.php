@@ -967,15 +967,16 @@ $__initials = static function (string $name): string {
                         <span data-autosave-status-text><?= $__istGesperrt ? 'Gesperrt' : 'Bereit' ?></span>
                     </span>
                     <span class="ev2-topbar__sep"></span>
-                    <!-- Druckansicht: v1-Print-Seite in neuem Tab (v1-Parität
-                         „Protokoll"-Aktion), für alle, auch bei Gesperrt -->
+                    <!-- Druckansicht im selben Tab, der Pfeil dort führt zurück
+                         ins Protokoll. Im Tablet gibt es keinen zweiten Tab.
+                         Für alle, auch bei Gesperrt -->
                     <?php
                     $__printUrl = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
                         ? \Plugin\Enotf\Helpers\EnotfUrl::print((string) $__enr)
                         : BASE_PATH . 'enotf/print?enr=' . rawurlencode((string) $__enr);
                     ?>
                     <a class="ignis-btn ignis-btn--sm ignis-btn--ghost ev2-topbar__print"
-                       href="<?= $__e($__printUrl) ?>" target="_blank" rel="noopener"
+                       href="<?= $__e($__printUrl) ?>"
                        data-ignis-tooltip="Protokoll-Druckansicht öffnen">
                         <i class="fa-solid fa-print"></i><span class="ev2-topbar__printlabel"> Drucken</span>
                     </a>

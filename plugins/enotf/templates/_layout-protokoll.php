@@ -264,7 +264,7 @@ date_default_timezone_set('Europe/Berlin');
                     </button>
                 <?php endif; ?>
 
-                <a href="<?= $__e(EnotfUrl::print((string) $__enr)) ?>" id="print" class="edivi__iconlink" target="_blank" rel="noopener">
+                <a href="<?= $__e(EnotfUrl::print((string) $__enr)) ?>" id="print" class="edivi__iconlink">
                     <i class="fa-solid fa-file-waveform"></i><br>
                     <small>Protokoll</small>
                 </a>

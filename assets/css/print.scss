@@ -34,6 +34,64 @@ table {
   border-collapse: collapse;
 }
 
+// ── Reboot-Teil ────────────────────────────────────────
+// Das Layout rechnet mit den Grundwerten aus Bootstraps Reboot. Ohne sie
+// tragen Überschriften und Absätze die großen Browser-Ränder, Felder die
+// Systemschrift, und Seite 1 läuft über das A4-Blatt hinaus.
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: inline-block;
+}
+
+input,
+button,
+select,
+textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+strong {
+  font-weight: bolder;
+}
+
+tbody,
+td,
+tfoot,
+th,
+thead,
+tr {
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+}
+
+th {
+  text-align: inherit;
+}
+
+canvas {
+  vertical-align: middle;
+}
+
 // ── Grid ───────────────────────────────────────────────
 .container-fluid {
   width: 100%;
