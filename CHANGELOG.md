@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.1.2-beta
+
+### Tablet in FiveM
+- Im Tablet greifen die Breakpoints wieder, das eNOTF-Seitenmenü steht links neben dem Inhalt statt über volle Breite darüber. FiveM zeigt Seiten mit Chromium 103, und das hat die neue Schreibweise der Media Queries im CSS übersprungen
+- Läuft ignis als DUI auf dem Tablet-Modell, nimmt es Tastatureingaben von ef_bridge an. Dafür braucht es ef_bridge mit DUI-Tablet, das ist noch nicht veröffentlicht
+
 ## 2026.1.1
 
 ### fireTab
