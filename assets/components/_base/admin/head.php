@@ -54,6 +54,7 @@ echo \App\Helpers\Theme::accentStyleTag(); ?>
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-search.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/user-hover-card.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <?php foreach ($__pluginAssets['js'] as $__pluginJs): ?>
 <script defer src="<?= htmlspecialchars(asset($__pluginJs), ENT_QUOTES) ?>"></script>

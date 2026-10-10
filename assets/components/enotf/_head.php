@@ -38,6 +38,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- App scripts: defer to unblock rendering -->
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/form.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/tabs.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/accordion.js"></script>

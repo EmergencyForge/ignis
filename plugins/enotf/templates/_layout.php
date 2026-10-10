@@ -95,6 +95,7 @@ $__initials = static function (string $name): string {
     <script type="module" src="<?= asset('plugins/enotf/assets/ev2-select.js') ?>"></script>
     <?php if ($__enr !== null): ?>
     <script type="module" src="<?= asset('plugins/enotf/assets/autosave.js') ?>"></script>
+    <script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
     <?php endif; ?>
 
     <!-- Favicon (v1-Parität) -->

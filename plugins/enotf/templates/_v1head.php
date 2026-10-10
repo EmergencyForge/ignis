@@ -47,6 +47,7 @@ $__v1Title = $__v1Title ?? 'eNOTF';
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
 <script type="module" src="<?= asset('plugins/enotf/assets/ev2-select.js') ?>"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
 <!-- Favicon (v1-Parität) -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />

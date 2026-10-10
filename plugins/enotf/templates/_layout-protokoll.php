@@ -162,6 +162,7 @@ date_default_timezone_set('Europe/Berlin');
 
     <!-- Crew-Session-Live-Sync (10s-Poll gegen die v2-Session-API) -->
     <script defer src="<?= asset('plugins/enotf/assets/session-sync.js') ?>"></script>
+    <script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
 
     <!-- Favicon (v1-Parität) -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
