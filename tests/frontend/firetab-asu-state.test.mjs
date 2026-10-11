@@ -46,6 +46,10 @@ test('retreat pressure is twice the air used on the way in', () => {
     assert.equal(s.lowest.bar, 188);
     assert.equal(s.rate, 5.5);
     assert.equal(s.restMin, 7);
+    assert.equal(s.restSource, 'druck');
+    assert.equal(s.restByClock, 13);
+    assert.equal(s.askMin, 3);
+    assert.equal(s.askKind, '2/3');
     assert.equal(s.tone, 'go');
     assert.equal(s.nextAsk.type, 'hinweis_23');
     assert.equal(s.nextAsk.at, min(20));
@@ -59,7 +63,8 @@ test('without a measured rate the configured consumption is used', () => {
     ];
     const none = derive(trupp(), events, min(9));
     assert.equal(none.rate, null);
-    assert.equal(none.restMin, null);
+    assert.equal(none.restMin, 21, 'ohne Verbrauch zählt die Uhr');
+    assert.equal(none.restSource, 'uhr');
 
     const s = derive(trupp(), events, min(9), { consumption: 8 });
     assert.equal(s.rateSource, 'angenommen');
@@ -106,6 +111,11 @@ test('retreat and outside stop the clock and the alarms', () => {
     assert.equal(back.tone, 'back');
     assert.equal(back.nextAction, 'draussen');
 
+    // 2/3 wäre bei Minute 20 fällig, auf dem Rückweg zählt das nicht mehr
+    const later = derive(trupp(), running([ev('hinweis_13', min(10)), ev('rueckzug', min(18))]), min(21));
+    assert.equal(later.askDue, false);
+    assert.equal(later.tone, 'back');
+
     const out = derive(trupp(), running([ev('rueckzug', min(18)), ev('draussen', min(25))]), min(40));
     assert.equal(out.tone, 'done');
     assert.equal(out.elapsedMs, 25 * 60000);
@@ -128,4 +138,22 @@ test('running past the expected time is flagged', () => {
     const s = derive(trupp(), events, min(31));
     assert.equal(s.overtime, true);
     assert.equal(s.tone, 'due');
+});
+
+test('rest and ask columns are always numbers', () => {
+    const idle = derive(trupp(), [], min(0));
+    assert.equal(idle.restMin, 30);
+    assert.equal(idle.askMin, 10);
+    assert.equal(idle.askKind, 'erst');
+
+    const due = derive(trupp(), running(), min(17, 24));
+    assert.equal(due.askMin, 0);
+
+    const later = derive(trupp(), running([ev('hinweis_13', min(10)), ev('hinweis_23', min(20))]), min(24));
+    assert.equal(later.askKind, 'seit');
+    assert.equal(later.askMin, 4);
+
+    const below = derive(trupp(), running([ev('hinweis_13', min(10)), ev('druck', min(19), { member_id: 2, bar: 138 })]), min(19, 30));
+    assert.equal(below.restMin, 0);
+    assert.equal(below.restSource, 'druck');
 });

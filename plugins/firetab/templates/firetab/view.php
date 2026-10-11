@@ -103,6 +103,8 @@ function fmt_elapsed(int|string $seconds): string
         <!-- Main Content -->
         <div class="einsatz-main flex-1 overflow-y-auto">
             <div class="container mx-auto my-4">
+                <?php // Atemschutz bringt eine eigene Kopfzeile mit Einsatznummer, der Platz gehört den Trupps ?>
+                <?php if ($activeTab !== 'atemschutz'): ?>
                 <div class="mb-4 flex items-center justify-between">
                     <h1>Einsatzprotokoll</h1>
                     <div class="flex items-center gap-2">
@@ -135,6 +137,7 @@ function fmt_elapsed(int|string $seconds): string
                     </div>
                 </div>
                 <div class="mb-2 text-gray-400">Einsatznummer: <?= htmlspecialchars($incident['incident_number'] ?? '-') ?></div>
+                <?php endif; ?>
                 <?php Flash::render(); ?>
 
                 <!-- Tab Content -->

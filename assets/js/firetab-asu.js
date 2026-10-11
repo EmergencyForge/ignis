@@ -27,19 +27,22 @@
     var expectedDefault = Math.max(5, Math.min(120, Math.round(cfg.startBar / cfg.consumption)));
     var POLL_MS = 3000;
     var QUEUE_KEY = 'firetab-asu-queue-' + cfg.incident;
+    var SORT_KEY = 'firetab-asu-sort';
 
     var state = { trupps: [], events: [], finalized: root.dataset.finalized === '1' };
     var offset = 0;           // Serverzeit minus Browserzeit
     var lastSync = null;
     var syncError = null;
-    var queue = loadQueue();  // [{body}] noch nicht bestätigte Ereignisse
+    var queue = loadStore(QUEUE_KEY, []);
+    var sort = loadStore(SORT_KEY, { key: null, dir: 1 });
+    var drawerTrupp = null;   // id des Trupps im Seitenfenster
 
     var els = {
         rows: root.querySelector('[data-asu-rows]'),
         clock: root.querySelector('[data-asu-clock]'),
         sync: root.querySelector('[data-asu-sync]'),
-        summary: root.querySelector('[data-asu-summary]'),
         mayday: root.querySelector('[data-asu-mayday]'),
+        counts: root.querySelector('[data-asu-counts]'),
     };
 
     // ── Hilfen ───────────────────────────────────────────────────────
@@ -72,17 +75,21 @@
         return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     }
 
+    function two(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+    function dec(n) { return n.toFixed(1).replace('.', ','); }
+
     function toast(msg, type) {
         if (typeof window.showToast === 'function') window.showToast(msg, type || 'info');
         else if (typeof window.showAlert === 'function') window.showAlert(msg, { type: type || 'info' });
     }
 
-    function loadQueue() {
-        try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') || []; } catch (e) { return []; }
+    function loadStore(key, fallback) {
+        try { var v = JSON.parse(localStorage.getItem(key) || 'null'); return v === null ? fallback : v; } catch (e) { return fallback; }
     }
 
-    function saveQueue() {
-        try { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); } catch (e) { /* privat oder voll */ }
+    function saveStore(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* privat oder voll */ }
     }
 
     function post(path, body) {
@@ -136,11 +143,9 @@
                 return flush();
             })
             .catch(function (e) { syncError = e.message; })
-            .then(function () { render(); });
+            .then(function () { render(); renderDrawer(); });
     }
 
-    // Wartende Meldungen der Reihe nach senden. Bestätigte fliegen raus,
-    // abgelehnte (4xx) auch, mit Hinweis; bei Netzfehlern bleibt der Rest liegen.
     // Immer nur ein Sendevorgang, sonst schicken zwei Läufe dieselbe Meldung
     // und kürzen die Schlange doppelt.
     var flushing = null;
@@ -154,7 +159,7 @@
 
     function drop(item) {
         queue = queue.filter(function (q) { return q.body.client_uuid !== item.body.client_uuid; });
-        saveQueue();
+        saveStore(QUEUE_KEY, queue);
     }
 
     function sendNext() {
@@ -182,8 +187,9 @@
             client_uuid: uuid(),
         }, extra || {});
         queue.push({ body: body, at: now() });
-        saveQueue();
+        saveStore(QUEUE_KEY, queue);
         render();
+        renderDrawer();
         flush().then(function () { return load(); });
     }
 
@@ -206,98 +212,120 @@
         return window.AsuState.derive(trupp, eventsOf(trupp.id), now(), { consumption: cfg.consumption });
     }
 
-    // ── Zeichnen ─────────────────────────────────────────────────────
+    function truppById(id) {
+        return state.trupps.filter(function (t) { return t.id === id; })[0] || null;
+    }
+
+    function crew(trupp, sep) {
+        return trupp.members.map(function (m) { return m.name; }).join(sep || ' · ') || 'keine Namen';
+    }
+
+    // ── Texte ────────────────────────────────────────────────────────
 
     var STEP = {
-        anschliessen: ['fa-play', 'Start'],
-        ziel: ['fa-flag-checkered', 'Ziel'],
-        rueckzug: ['fa-person-walking-arrow-loop-left', 'Rückzug'],
-        draussen: ['fa-door-open', 'Draußen'],
+        anschliessen: { icon: 'fa-play', label: 'Start', title: 'Trupp anschließen',
+            help: 'Tippen, sobald der Trupp das Gerät anschließt. Ab dann läuft die Uhr, als Druck gilt der Fülldruck.' },
+        ziel: { icon: 'fa-forward-step', label: 'Ziel', title: 'Ziel erreicht',
+            help: 'Wenn der Trupp „Einsatzziel erreicht“ meldet. Druck je Person eintragen, daraus entsteht der Rückzugsdruck.' },
+        rueckzug: { icon: 'fa-person-walking-arrow-loop-left', label: 'Rückzug', title: 'Rückzug angetreten',
+            help: 'Wenn der Trupp den Rückweg antritt.' },
+        draussen: { icon: 'fa-door-open', label: 'Draußen', title: 'Trupp ist draußen',
+            help: 'Wenn der Trupp draußen ist. Die Uhr stoppt, die Zeile rutscht nach unten.' },
     };
 
-    var PHASE_TEXT = {
-        bereit: 'bereit',
-        vorgehen: 'Vorgehen',
-        ziel: 'am Ziel',
-        rueckzug: 'Rückweg',
-        draussen: 'draußen',
+    var TONE_COLOR = {
+        go: '#2e7d32', idle: '#5f6368', ready: '#5f6368', due: '#c45f0a',
+        alarm: '#b91c1c', mayday: '#dc2626', back: '#1d4ed8', done: '#26282d',
     };
 
-    function crew(trupp) {
-        return trupp.members.map(function (m) { return m.name; }).join(' · ') || 'keine Namen';
+    function phaseText(trupp, s) {
+        if (s.mayday) return 'MAYDAY seit ' + mmss(now() - s.mayday.at);
+        if (s.belowRetreat) return 'unter Rückzugsdruck ' + s.retreatBar + ' bar';
+        if (s.retreatOverdue) return 'Rückzug laut Prognose fällig';
+        if (s.askDue) return (s.nextAsk.type === 'hinweis_13' ? '1/3' : '2/3') + '-Abfrage fällig';
+        if (s.overtime) return 'über der erwarteten Zeit';
+        return {
+            bereit: trupp.role === 'sicherheit' ? 'Sicherheitstrupp bereit' : 'nicht angeschlossen',
+            vorgehen: 'Vorgehen',
+            ziel: 'am Ziel seit ' + hhmm(s.zielAt),
+            rueckzug: 'Rückweg seit ' + hhmm(s.rueckzugAt),
+            draussen: 'draußen',
+        }[s.phase];
+    }
+
+    // ── Liste ────────────────────────────────────────────────────────
+
+    function metric(value, unit, label, cls) {
+        return '<div class="asu-metric' + (cls ? ' ' + cls : '') + '"><div class="asu-metric__top"><span class="asu-metric__v">' + value + '</span>'
+            + '<span class="asu-metric__u">' + unit + '</span></div><span class="asu-metric__l">' + label + '</span></div>';
     }
 
     function rowHtml(trupp, s) {
         if (s.tone === 'done') {
-            return '<div class="asu-row" data-tone="done" data-trupp="' + trupp.id + '">'
-                + '<span class="asu-stripe"></span>'
-                + '<div class="asu-done"><b>' + esc(trupp.name) + '</b><span>' + esc(crew(trupp)) + '</span>'
-                + '<span>' + hhmm(s.startAt) + ' bis ' + hhmm(s.endAt) + ' · ' + Math.round(s.elapsedMs / 60000) + ' min</span>'
+            return '<div class="asu-done" data-trupp="' + trupp.id + '"><b>' + esc(trupp.name) + '</b><span>' + esc(crew(trupp)) + '</span>'
+                + '<span>' + hhmm(s.startAt) + ' bis ' + hhmm(s.endAt) + ', ' + Math.round(s.elapsedMs / 60000) + ' min</span>'
                 + (s.lowest ? '<span>zuletzt ' + s.lowest.bar + ' bar</span>' : '')
-                + '<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-asu-panel="' + trupp.id + '">Ablauf</button></div>'
-                + '</div>';
+                + '<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-asu-panel="' + trupp.id + '">Ablauf</button></div>';
         }
 
         var locked = state.finalized;
         var step = s.nextAction ? STEP[s.nextAction] : null;
-        var stepBtn = '<button type="button" class="asu-step" data-asu-step="' + trupp.id + '"' + (step && !locked ? '' : ' disabled') + '>' + (step ? '<i class="fa-solid ' + step[0] + '"></i><small>' + esc(step[1]) + '</small>' : '') + '</button>';
+        var stepLabel = step ? (s.nextAction === 'anschliessen' && trupp.role === 'sicherheit' ? 'Einsetzen' : step.label) : '';
+        var stepBtn = '<button type="button" class="asu-step" data-asu-step="' + trupp.id + '"' + (step && !locked ? '' : ' disabled')
+            + (step ? ' data-ignis-tooltip="' + esc(step.help) + '"' : '') + '>'
+            + (step ? '<i class="fa-solid ' + step.icon + '"></i><small>' + esc(stepLabel) + '</small>' : '') + '</button>';
 
-        var mins = Math.floor(s.elapsedMs / 60000);
-        var einsatz = s.startAt
-            ? '<div class="asu-big"><span class="v' + (s.overtime ? ' is-over' : '') + '">' + mins + '</span><span class="u"><span>min</span><span>Einsatz</span></span></div>'
-            : '<div class="asu-big"><span class="v">0</span><span class="u"><span>min</span><span>' + (trupp.role === 'sicherheit' ? 'bereit' : 'nicht drin') + '</span></span></div>';
+        var einsatz = metric(two(Math.floor(s.elapsedMs / 60000)), 'min', 'Einsatz', s.overtime ? 'is-over' : '');
+        var restIcon = s.restSource === 'druck' ? '<i class="fa-solid fa-gauge-high"></i>' : '<i class="fa-regular fa-clock"></i>';
+        var rest = s.phase === 'rueckzug'
+            ? metric('00', 'min', '<i class="fa-solid fa-person-walking-arrow-loop-left"></i>Rückweg', 'is-blank')
+            : metric(two(s.restMin), 'min', restIcon + 'Rest');
 
-        var rest;
-        if (!s.startAt) {
-            rest = '<div class="asu-big"><span class="v">' + trupp.expected_minutes + '</span><span class="u"><span>min</span><span>erwartet</span></span></div>';
-        } else if (s.phase === 'rueckzug') {
-            rest = '<div class="asu-big"><span class="v is-word">Rückweg</span><span class="u"><span>seit</span><span>' + hhmm(s.rueckzugAt) + '</span></span></div>';
-        } else if (s.belowRetreat) {
-            rest = '<div class="asu-big"><span class="v">0</span><span class="u"><span>min</span><span>Rückzug!</span></span></div>';
-        } else if (s.restMin !== null) {
-            rest = '<div class="asu-big"><span class="v">' + s.restMin + '</span><span class="u"><span>min bis</span><span>Rückzug</span></span></div>';
-        } else {
-            rest = '<div class="asu-big"><span class="v is-word">offen</span><span class="u"><span>Ziel</span><span>fehlt</span></span></div>';
-        }
+        var bar = s.lowest && s.lowest.bar !== null ? s.lowest.bar : cfg.startBar;
+        var pct = Math.max(0, Math.min(100, Math.round((bar / cfg.startBar) * 100)));
+        var mark = s.retreatBar !== null ? '<span class="rz" style="left:calc(' + Math.min(100, (s.retreatBar / cfg.startBar) * 100) + '% - 1px)"></span>' : '';
+        // Der Prozenttext liegt zweimal übereinander: weiß auf dem leeren Teil, in
+        // Zeilenfarbe auf der weißen Füllung, die ihn an ihrer Kante abschneidet.
+        var press = '<div class="asu-press"><div class="asu-metric__top"><span class="asu-metric__v">' + bar + '</span><span class="asu-metric__u">bar</span></div>'
+            + '<div class="asu-press__bar"><i class="fa-solid fa-gauge-high"></i><div class="asu-gauge"><em>' + pct + '%</em>'
+            + '<b style="width:' + pct + '%"><em style="color:' + TONE_COLOR[s.tone] + '">' + pct + '%</em></b>' + mark + '</div></div></div>';
 
-        var press = '';
-        if (s.lowest && s.lowest.bar !== null) {
-            var pct = Math.max(0, Math.min(100, (s.lowest.bar / cfg.startBar) * 100));
-            var mark = s.retreatBar !== null ? '<span class="rz" style="left:' + Math.max(0, Math.min(100, (s.retreatBar / cfg.startBar) * 100)) + '%"></span>' : '';
-            press = '<div class="asu-press"><div class="top"><span class="v">' + s.lowest.bar + '</span><span class="u">bar · ' + esc(s.lowest.name) + '</span></div>'
-                + '<div class="asu-meter"><i style="width:calc(' + pct + '% - 2px)"></i>' + mark + '</div></div>';
-        } else {
-            press = '<div class="asu-press"><div class="top"><span class="v">' + cfg.startBar + '</span><span class="u">bar Fülldruck</span></div></div>';
-        }
-
-        var phaseText = PHASE_TEXT[s.phase];
-        if (s.phase === 'ziel') phaseText = 'am Ziel seit ' + hhmm(s.zielAt);
-        if (s.mayday) phaseText = 'MAYDAY seit ' + mmss(now() - s.mayday.at);
-        else if (s.belowRetreat) phaseText = 'unter Rückzugsdruck ' + s.retreatBar + ' bar';
-        else if (s.retreatOverdue) phaseText = 'Rückzug laut Prognose fällig';
-        else if (s.overtime) phaseText = 'über der erwarteten Einsatzzeit';
-        var where = '<div class="asu-where">' + esc(trupp.task || (trupp.role === 'sicherheit' ? 'Sicherheitstrupp' : 'kein Auftrag eingetragen'))
-            + '<small>' + esc(phaseText) + '</small></div>';
+        var where = '<div class="asu-where"><b>' + esc(trupp.task || (trupp.role === 'sicherheit' ? 'Sicherheitstrupp' : '')) + '</b>'
+            + '<small>' + esc(phaseText(trupp, s)) + '</small></div>';
 
         var ask;
         if (!s.startAt) {
-            ask = '<button type="button" class="asu-ask" disabled><span class="u"><span>nach dem</span><span>Anschließen</span></span></button>';
-        } else if (!s.nextAsk) {
-            var silent = s.lastReportAt !== null ? Math.max(0, Math.floor((now() - s.lastReportAt) / 60000)) : 0;
-            ask = '<button type="button" class="asu-ask" data-asu-ask="' + trupp.id + '"' + (locked ? ' disabled' : '') + '><i class="fa-solid fa-walkie-talkie"></i><span class="v">' + silent + '</span><span class="u"><span>min seit</span><span>Meldung</span></span></button>';
-        } else if (s.askDue) {
-            ask = '<button type="button" class="asu-ask asu-blink" data-asu-ask="' + trupp.id + '"' + (locked ? ' disabled' : '') + '><i class="fa-solid fa-walkie-talkie"></i><span class="v is-word">jetzt</span><span class="u"><span>' + (s.nextAsk.type === 'hinweis_13' ? '1/3' : '2/3') + '</span><span>fällig</span></span></button>';
+            ask = metric('00', 'min', '<i class="fa-solid fa-walkie-talkie"></i>nach Start', 'is-blank');
+        } else if (s.mayday) {
+            ask = metric(two(Math.floor((now() - s.mayday.at) / 60000)), 'min', '<i class="fa-solid fa-triangle-exclamation"></i>MAYDAY seit');
+        } else if (s.phase === 'rueckzug') {
+            ask = metric(two(Math.floor((now() - s.rueckzugAt) / 60000)), 'min', '<i class="fa-solid fa-person-walking-arrow-loop-left"></i>Rückweg seit');
+        } else if (s.askKind === 'seit') {
+            ask = metric(two(s.askMin), 'min', '<i class="fa-solid fa-walkie-talkie"></i>seit Meldung');
         } else {
-            ask = '<button type="button" class="asu-ask" data-asu-ask="' + trupp.id + '"' + (locked ? ' disabled' : '') + '><i class="fa-solid fa-walkie-talkie"></i><span class="v">' + Math.ceil((s.nextAsk.at - now()) / 60000) + '</span><span class="u"><span>min bis</span><span>' + (s.nextAsk.type === 'hinweis_13' ? '1/3' : '2/3') + '</span></span></button>';
+            ask = metric(two(s.askMin), 'min', '<i class="fa-solid fa-walkie-talkie"></i>Druck abfragen');
         }
+        var askBtn = '<button type="button" class="asu-ask' + (s.askDue ? ' is-due' : '') + '" data-asu-ask="' + trupp.id + '"'
+            + (s.underAir && !locked ? '' : ' disabled') + ' data-ignis-tooltip="Abfrage: Druck je Person eintragen, fällige Hinweise bestätigen">' + ask + '</button>';
 
-        return '<div class="asu-row" data-tone="' + s.tone + '" data-trupp="' + trupp.id + '">'
-            + '<span class="asu-stripe"></span>'
-            + '<div class="asu-name"><b>' + esc(trupp.name) + '</b><span>' + esc(crew(trupp)) + '</span></div>'
-            + stepBtn + einsatz + rest + press + where + ask
-            + '<button type="button" class="asu-more" data-asu-panel="' + trupp.id + '" data-ignis-tooltip="Einzelheiten" aria-label="Einzelheiten zu ' + esc(trupp.name) + '"><i class="fa-solid fa-gear"></i></button>'
+        return '<div class="asu-line" data-trupp="' + trupp.id + '">'
+            + '<div class="asu-row" data-tone="' + s.tone + '">'
+            + '<button type="button" class="asu-name" data-asu-panel="' + trupp.id + '"><b>' + esc(trupp.name) + '</b>'
+            + trupp.members.map(function (m) { return '<span>' + esc(m.name) + '</span>'; }).join('') + '</button>'
+            + stepBtn + einsatz + rest + press + where + askBtn
+            + (s.askDue ? '<span class="asu-flag"></span>' : '')
+            + '</div>'
+            + '<button type="button" class="asu-gear" data-tone="' + s.tone + '" data-asu-panel="' + trupp.id + '" aria-label="Aktionen für ' + esc(trupp.name) + '" data-ignis-tooltip="Aktionen und Einzelheiten"><i class="fa-solid fa-gear"></i></button>'
             + '</div>';
     }
+
+    var SORTERS = {
+        name: function (a, b) { return a.trupp.name.localeCompare(b.trupp.name, 'de', { numeric: true }); },
+        einsatz: function (a, b) { return a.s.elapsedMs - b.s.elapsedMs; },
+        rest: function (a, b) { return a.s.restMin - b.s.restMin; },
+        druck: function (a, b) { return (a.s.lowest ? a.s.lowest.bar : cfg.startBar) - (b.s.lowest ? b.s.lowest.bar : cfg.startBar); },
+        abfrage: function (a, b) { return a.s.askMin - b.s.askMin; },
+    };
 
     function render() {
         var t = now();
@@ -306,27 +334,42 @@
         var derived = state.trupps.map(function (tr) { return { trupp: tr, s: derive(tr) }; });
         var active = derived.filter(function (d) { return d.s.tone !== 'done'; });
         var done = derived.filter(function (d) { return d.s.tone === 'done'; });
-        var underAir = derived.filter(function (d) { return d.s.underAir; }).length;
+        if (sort.key && SORTERS[sort.key]) {
+            active.sort(function (a, b) { return SORTERS[sort.key](a, b) * sort.dir; });
+        }
 
         if (!derived.length) {
-            els.rows.innerHTML = '<div class="asu-empty">Noch kein Trupp. Mit „Schnellstart Angriffstrupp“ legst du einen Trupp an und schließt ihn gleich an, mit „Sicherheitstrupp bereitstellen“ den Sicherheitstrupp.</div>';
+            els.rows.innerHTML = '<div class="asu-empty">Noch kein Trupp. Mit dem grünen Pfeil rechts oben legst du einen Angriffstrupp an und schließt ihn gleich an, mit „Registrieren“ einen Trupp mit Namen, auch einen Sicherheitstrupp. Das Fragezeichen oben erklärt die Bedienung.</div>';
         } else {
             els.rows.innerHTML = active.concat(done).map(function (d) { return rowHtml(d.trupp, d.s); }).join('');
         }
 
-        els.summary.textContent = state.finalized
-            ? 'Einsatz abgeschlossen, nur Ansicht'
-            : underAir + (underAir === 1 ? ' Trupp' : ' Trupps') + ' unter Atemschutz';
+        var alarm = derived.filter(function (d) { return d.s.tone === 'alarm' || d.s.tone === 'mayday'; }).length;
+        var warn = derived.filter(function (d) { return d.s.tone === 'due'; }).length;
+        var air = derived.filter(function (d) { return d.s.underAir; }).length;
+        [['alarm', alarm, 'is-alarm'], ['warn', warn, 'is-warn'], ['air', air, null]].forEach(function (c) {
+            var el = els.counts.querySelector('[data-count="' + c[0] + '"]');
+            el.querySelector('b').textContent = c[1];
+            if (c[2]) el.classList.toggle(c[2], c[1] > 0);
+        });
 
         var mayday = derived.filter(function (d) { return d.s.mayday; })[0];
         els.mayday.classList.toggle('is-active', !!mayday);
         els.mayday.classList.toggle('asu-blink', !!mayday);
         els.mayday.textContent = mayday ? 'MAYDAY ' + mayday.trupp.name + ' · ' + mmss(t - mayday.s.mayday.at) : 'MAYDAY';
         els.mayday.disabled = state.finalized && !mayday;
-
         root.querySelectorAll('[data-asu-new]').forEach(function (b) { b.disabled = state.finalized; });
 
-        if (queue.length) {
+        root.querySelectorAll('[data-asu-sort]').forEach(function (b) {
+            var on = sort.key === b.dataset.asuSort;
+            b.querySelector('.asu-sort').innerHTML = on ? '<i class="fa-solid fa-arrow-' + (sort.dir > 0 ? 'down' : 'up') + '-short-wide"></i>' : '';
+            if (on) b.setAttribute('aria-sort', sort.dir > 0 ? 'ascending' : 'descending'); else b.removeAttribute('aria-sort');
+        });
+
+        if (state.finalized) {
+            els.sync.className = 'asu-sync';
+            els.sync.textContent = 'Einsatz abgeschlossen, nur Ansicht';
+        } else if (queue.length) {
             els.sync.className = 'asu-sync is-warn';
             els.sync.textContent = queue.length + (queue.length === 1 ? ' Meldung wartet' : ' Meldungen warten');
         } else if (syncError) {
@@ -338,8 +381,180 @@
         }
     }
 
-    function truppById(id) {
-        return state.trupps.filter(function (t) { return t.id === id; })[0] || null;
+    // ── Seitenfenster je Trupp ───────────────────────────────────────
+
+    var EVENT_TEXT = {
+        angeschlossen: function (e) { return 'angeschlossen' + (e.bar != null ? ', ' + e.bar + ' bar' : ''); },
+        druck: function (e, t) {
+            var m = t.members.filter(function (x) { return x.id === e.member_id; })[0];
+            return 'Druck ' + (m ? m.name : 'unbekannt') + ': ' + e.bar + ' bar';
+        },
+        ziel: function (e) { return 'Ziel erreicht' + (e.bar != null ? ', ' + e.bar + ' bar' : ''); },
+        hinweis_13: function () { return '1/3-Hinweis gegeben'; },
+        hinweis_23: function () { return '2/3-Hinweis gegeben'; },
+        rueckzug: function () { return 'Rückzug angetreten'; },
+        draussen: function () { return 'draußen'; },
+        mayday: function () { return 'MAYDAY'; },
+        mayday_ende: function () { return 'Mayday beendet'; },
+    };
+
+    function tile(action, icon, label, sub, opts) {
+        opts = opts || {};
+        return '<button type="button" class="asu-tile' + (opts.danger ? ' is-danger' : '') + '" data-asu-act="' + action + '"' + (opts.disabled ? ' disabled' : '') + '>'
+            + '<i class="fa-solid ' + icon + '"></i>' + esc(label) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</button>';
+    }
+
+    function drawerHtml(trupp, s) {
+        var locked = state.finalized;
+        var events = eventsOf(trupp.id).slice().sort(function (a, b) { return a.at - b.at || a.id - b.id; });
+        var hasLive = events.some(function (e) { return !e.voided; });
+        var step = s.nextAction ? STEP[s.nextAction] : null;
+        var third = s.nextAsk ? (s.nextAsk.type === 'hinweis_13' ? '1/3' : '2/3') : null;
+
+        var next = step && !locked
+            ? '<section class="asu-next"><h4>Nächster Schritt</h4><button type="button" data-asu-act="step"><i class="fa-solid ' + step.icon + '"></i>'
+                + esc(s.nextAction === 'anschliessen' && trupp.role === 'sicherheit' ? 'Sicherheitstrupp einsetzen' : step.title) + '</button><p>' + esc(step.help) + '</p></section>'
+            : '';
+
+        var tiles = '<section><h4>Aktionen</h4><div class="asu-tiles">'
+            + tile('druck', 'fa-gauge-high', 'Druck melden', 'Abfrage je Person', { disabled: locked || !s.underAir })
+            + tile('hinweis', 'fa-walkie-talkie', third ? third + '-Hinweis' : 'Hinweise erledigt', third ? (s.askDue ? 'jetzt fällig' : 'fällig ' + hhmm(s.nextAsk.at)) : '', { disabled: locked || !s.underAir || !third })
+            + tile('ziel', 'fa-forward-step', 'Ziel erreicht', s.zielAt ? 'gemeldet ' + hhmm(s.zielAt) : '', { disabled: locked || s.phase !== 'vorgehen' })
+            + tile('rueckzug', 'fa-person-walking-arrow-loop-left', 'Rückzug', s.rueckzugAt ? 'seit ' + hhmm(s.rueckzugAt) : '', { disabled: locked || (s.phase !== 'vorgehen' && s.phase !== 'ziel') })
+            + tile('draussen', 'fa-door-open', 'Draußen', '', { disabled: locked || !s.underAir })
+            + tile('ort', 'fa-location-dot', 'Ort / Auftrag', trupp.task || '', { disabled: locked })
+            + tile('bearbeiten', 'fa-pen', 'Trupp bearbeiten', 'Namen, Art, Zeit', { disabled: locked })
+            + (s.mayday
+                ? tile('mayday-status', 'fa-triangle-exclamation', 'Mayday ansehen', 'seit ' + mmss(now() - s.mayday.at), { danger: true })
+                : tile('mayday', 'fa-triangle-exclamation', 'MAYDAY', '', { danger: true, disabled: locked || s.phase === 'draussen' }))
+            + (!hasLive ? tile('loeschen', 'fa-trash', 'Trupp löschen', 'nur ohne Einträge', { disabled: locked }) : '')
+            + '</div></section>';
+
+        var people = '<section><h4>Personen</h4><div class="asu-people">' + s.members.map(function (m) {
+            var readings = events.filter(function (e) { return !e.voided && e.type === 'druck' && e.member_id === m.id; });
+            var history = (s.startBar !== null ? [s.startBar] : []).concat(readings.map(function (e) { return e.bar; }));
+            return '<div class="asu-person-card"><b>' + esc(m.name) + ' <span>' + ({ tf: 'Truppführer', tm1: 'Truppmann', tm2: 'Truppmann 2' }[m.position] || '') + '</span></b>'
+                + '<div class="v">' + (m.bar != null ? m.bar + ' <small>bar</small>' : '<small>kein Druck</small>') + '</div>'
+                + '<span>' + (m.at ? 'zuletzt ' + hhmm(m.at) : 'noch nicht angeschlossen') + (m.rate ? ', ' + dec(m.rate) + ' bar/min' : '')
+                + (history.length > 1 ? ', Verlauf ' + history.join(' > ') : '') + '</span></div>';
+        }).join('') + '</div></section>';
+
+        var calc = [];
+        if (s.retreatBar !== null) {
+            calc.push('Rückzug spätestens bei <b>' + s.retreatBar + ' bar</b>. Der Hinweg von ' + s.startBar + ' auf ' + s.zielBar
+                + ' bar hat ' + (s.startBar - s.zielBar) + ' bar gekostet, für den Rückweg wird das Doppelte eingeplant (FwDV 7).');
+        } else if (s.startAt) {
+            calc.push('Noch kein Rückzugsdruck. Er entsteht mit „Ziel erreicht“ und dem Druck am Ziel.');
+        }
+        if (s.startAt) {
+            var clockText = 'nach der Uhr ' + s.restByClock + ' min (erwartet ' + trupp.expected_minutes + ' min, ' + Math.floor(s.elapsedMs / 60000) + ' min vorbei)';
+            if (s.belowRetreat) {
+                calc.push('Rest <b>0 min</b>: ' + esc(s.lowest.name) + ' hat ' + s.lowest.bar + ' bar und liegt damit unter dem Rückzugsdruck. Der Trupp muss zurück.');
+            } else if (s.restSource === 'druck') {
+                calc.push('Rest <b>' + s.restMin + ' min</b> nach dem Druck: ' + esc(s.lowest.name) + ' hat ' + s.lowest.bar + ' bar und verbraucht '
+                    + dec(s.rate) + ' bar/min (' + s.rateSource + '). Zum Vergleich ' + clockText + '.');
+            } else {
+                calc.push('Rest <b>' + s.restMin + ' min</b> ' + clockText + '.'
+                    + (s.restByPressure !== null ? ' Nach dem Druck wären es ' + s.restByPressure + ' min.' : ''));
+            }
+            calc.push('Abfragen: ' + s.asks.map(function (a) {
+                var name = a.type === 'hinweis_13' ? '1/3' : '2/3';
+                return a.ack ? name + ' um ' + hhmm(a.ackAt) + ' gegeben' : name + ' fällig ' + hhmm(a.at);
+            }).join(', ') + '.');
+        } else {
+            calc.push('Erwartete Einsatzzeit ' + trupp.expected_minutes + ' min (' + cfg.startBar + ' bar bei ' + cfg.consumption + ' bar/min). Die Abfragen kommen nach '
+                + Math.round(trupp.expected_minutes / 3) + ' und ' + Math.round(trupp.expected_minutes * 2 / 3) + ' min.');
+        }
+
+        var log = '<section><h4>Ablauf</h4><div class="asu-log">' + (events.length ? events.map(function (e) {
+            var text = (EVENT_TEXT[e.type] || function () { return e.type; })(e, trupp);
+            var undo = !locked && !e.voided && !e.pending ? '<button type="button" data-asu-void="' + e.id + '">zurücknehmen</button>' : '<small>' + (e.pending ? 'wartet' : (e.voided ? 'zurückgenommen' : '')) + '</small>';
+            return '<div class="' + (e.voided ? 'is-void' : '') + '"><time>' + hhmm(e.at) + '</time><span>' + esc(text)
+                + (e.device ? ' <small>' + esc(e.device) + '</small>' : '') + '</span>' + undo + '</div>';
+        }).join('') : '<div><span></span><span>Noch keine Einträge</span><span></span></div>') + '</div></section>';
+
+        return '<div class="asu-drawer__head" style="background:' + (TONE_COLOR[s.tone] || '#2c2f36') + '">'
+            + '<h3>' + esc(trupp.name) + '</h3><button type="button" class="asu-drawer__close" data-asu-close aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button>'
+            + '<p>' + esc(crew(trupp)) + ' · ' + esc(phaseText(trupp, s)) + '</p></div>'
+            + '<div class="asu-drawer__body">' + next + tiles + people
+            + '<section><h4>Rechnung</h4><div class="asu-calc">' + calc.map(function (c) { return '<div>' + c + '</div>'; }).join('') + '</div></section>'
+            + log + '</div>';
+    }
+
+    var drawerEl = null;
+    var drawerBg = null;
+
+    function openDrawer(truppId) {
+        drawerTrupp = truppId;
+        if (!drawerEl) {
+            drawerBg = document.createElement('div');
+            drawerBg.className = 'asu-drawer-bg';
+            drawerEl = document.createElement('aside');
+            drawerEl.className = 'asu-drawer';
+            drawerEl.setAttribute('role', 'dialog');
+            drawerEl.setAttribute('aria-modal', 'true');
+            drawerBg.addEventListener('click', closeDrawer);
+            drawerEl.addEventListener('click', onDrawerClick);
+            root.appendChild(drawerBg);
+            root.appendChild(drawerEl);
+        }
+        drawerBg.hidden = false;
+        drawerEl.hidden = false;
+        renderDrawer();
+    }
+
+    function closeDrawer() {
+        drawerTrupp = null;
+        if (drawerEl) { drawerEl.hidden = true; drawerBg.hidden = true; }
+    }
+
+    function renderDrawer() {
+        if (drawerTrupp === null || !drawerEl) return;
+        var trupp = truppById(drawerTrupp);
+        if (!trupp) { closeDrawer(); return; }
+        var body = drawerEl.querySelector('.asu-drawer__body');
+        var scroll = body ? body.scrollTop : 0;
+        drawerEl.innerHTML = drawerHtml(trupp, derive(trupp));
+        drawerEl.querySelector('.asu-drawer__body').scrollTop = scroll;
+    }
+
+    function onDrawerClick(e) {
+        var trupp = truppById(drawerTrupp);
+        if (e.target.closest('[data-asu-close]')) { closeDrawer(); return; }
+        if (!trupp) return;
+        var v = e.target.closest('[data-asu-void]');
+        if (v) { voidEvent(parseInt(v.dataset.asuVoid, 10), trupp); return; }
+        var b = e.target.closest('[data-asu-act]');
+        if (!b || b.disabled) return;
+        switch (b.dataset.asuAct) {
+            case 'step': step(trupp); break;
+            case 'druck': openPressure(trupp, 'abfrage'); break;
+            case 'hinweis': openPressure(trupp, 'abfrage', true); break;
+            case 'ziel': openPressure(trupp, 'ziel'); break;
+            case 'rueckzug': send(trupp, 'rueckzug'); break;
+            case 'draussen': send(trupp, 'draussen'); break;
+            case 'ort': openTask(trupp); break;
+            case 'bearbeiten': openTrupp(trupp, false); break;
+            case 'mayday': openMayday(trupp); break;
+            case 'mayday-status': openMaydayStatus(trupp); break;
+            case 'loeschen':
+                post('trupp/delete', { incident_id: cfg.incident, trupp_id: trupp.id })
+                    .then(function () { closeDrawer(); return load(); }, function (err) { toast(err.message, 'error'); });
+                break;
+        }
+    }
+
+    function voidEvent(eventId, trupp) {
+        var ev = eventsOf(trupp.id).filter(function (x) { return x.id === eventId; })[0];
+        var text = ev ? (EVENT_TEXT[ev.type] || function () { return ev.type; })(ev, trupp) : 'Eintrag';
+        var ask = typeof window.showConfirm === 'function'
+            ? window.showConfirm('„' + text + '“ um ' + (ev ? hhmm(ev.at) : '') + ' zurücknehmen? Der Eintrag bleibt durchgestrichen im Ablauf.', { confirmText: 'Zurücknehmen', title: 'Eintrag zurücknehmen' })
+            : Promise.resolve(true);
+        ask.then(function (ok) {
+            if (!ok) return;
+            post('event/void', { incident_id: cfg.incident, event_id: eventId })
+                .then(function () { return load(); }, function (err) { toast(err.message, 'error'); });
+        });
     }
 
     // ── Dialoge ──────────────────────────────────────────────────────
@@ -350,8 +565,7 @@
         return d;
     }
 
-    // Druckeingabe je Person mit Zahlenblock. Liefert über done(values)
-    // { memberId: bar } für alle ausgefüllten Felder.
+    // Druckeingabe je Person mit Zahlenblock, values() liefert { memberId: bar }
     function pressureBody(trupp, s, intro) {
         var body = document.createElement('div');
         body.className = 'asu-dlg';
@@ -410,26 +624,39 @@
         return Object.keys(values).some(function (k) { return values[k] < 0 || values[k] > 400; });
     }
 
-    function openAsk(trupp) {
+    function openPressure(trupp, mode, ackDefault) {
         var s = derive(trupp);
         var third = s.nextAsk ? (s.nextAsk.type === 'hinweis_13' ? '1/3' : '2/3') : null;
-        var intro = third && s.askDue
-            ? '<label class="asu-check"><input type="checkbox" data-ack checked> ' + third + '-Hinweis an den Trupp gegeben</label>'
-            : (third ? '<label class="asu-check"><input type="checkbox" data-ack> ' + third + '-Hinweis schon jetzt gegeben (fällig ' + hhmm(s.nextAsk.at) + ')</label>' : '');
+        var intro;
+        if (mode === 'ziel') {
+            intro = '<p class="asu-hint">Den Druck eintragen, den der Trupp am Ziel meldet. Daraus entsteht der Rückzugsdruck: doppelt so viel Luft wie für den Hinweg.</p>'
+                + '<label>Ort / Auftrag<input class="ignis-input" data-task maxlength="255" value="' + esc(trupp.task || '') + '"></label>';
+        } else {
+            intro = '<p class="asu-hint">Den Druck eintragen, den die Personen über Funk melden. Leere Felder bleiben unverändert.</p>'
+                + (third ? '<label class="asu-check"><input type="checkbox" data-ack' + (s.askDue || ackDefault ? ' checked' : '') + '> '
+                    + third + '-Hinweis an den Trupp gegeben' + (s.askDue ? '' : ' (fällig ' + hhmm(s.nextAsk.at) + ')') + '</label>' : '');
+        }
         var body = pressureBody(trupp, s, intro);
         dialog({
-            title: 'Abfrage ' + trupp.name,
+            title: (mode === 'ziel' ? 'Ziel erreicht: ' : 'Druck abfragen: ') + trupp.name,
             body: body,
             size: 'lg',
             actions: [
                 { label: 'Abbrechen', variant: 'ghost', onClick: function (d) { d.close(null); } },
                 {
-                    label: 'Speichern', variant: 'primary', primary: true, onClick: function (d) {
+                    label: mode === 'ziel' ? 'Ziel erreicht' : 'Speichern', variant: 'primary', primary: true, onClick: function (d) {
                         var values = body.values();
                         if (badPressure(values)) { toast('Der Druck muss zwischen 0 und 400 bar liegen.', 'error'); return; }
-                        var ack = body.querySelector('[data-ack]');
-                        sendPressures(trupp, values);
-                        if (ack && ack.checked) send(trupp, s.nextAsk.type);
+                        if (mode === 'ziel') {
+                            var task = body.querySelector('[data-task]').value.trim();
+                            if (task !== (trupp.task || '')) saveTrupp(Object.assign({}, trupp, { task: task }), false);
+                            sendPressures(trupp, values);
+                            send(trupp, 'ziel', minOf(values) !== null ? { bar: minOf(values) } : {});
+                        } else {
+                            var ack = body.querySelector('[data-ack]');
+                            sendPressures(trupp, values);
+                            if (ack && ack.checked) send(trupp, s.nextAsk.type);
+                        }
                         d.close(true);
                     },
                 },
@@ -437,28 +664,20 @@
         });
     }
 
-    function openGoal(trupp) {
-        var s = derive(trupp);
-        var intro = '<p>Druck am Einsatzziel eintragen. Daraus ergibt sich der Rückzugsdruck: doppelt so viel Luft wie für den Hinweg.</p>'
-            + '<label>Ort / Auftrag<input class="ignis-input" data-task maxlength="255" value="' + esc(trupp.task || '') + '"></label>';
-        var body = pressureBody(trupp, s, intro);
+    function openTask(trupp) {
+        var body = document.createElement('div');
+        body.className = 'asu-dlg';
+        body.innerHTML = '<label>Ort / Auftrag<input class="ignis-input" data-task maxlength="255" value="' + esc(trupp.task || '') + '" placeholder="zum Beispiel Keller links, 1. OG"></label>';
         dialog({
-            title: trupp.name + ' am Ziel',
+            title: 'Ort / Auftrag: ' + trupp.name,
             body: body,
-            size: 'lg',
+            size: 'md',
             actions: [
                 { label: 'Abbrechen', variant: 'ghost', onClick: function (d) { d.close(null); } },
                 {
-                    label: 'Ziel erreicht', variant: 'primary', primary: true, onClick: function (d) {
-                        var values = body.values();
-                        if (badPressure(values)) { toast('Der Druck muss zwischen 0 und 400 bar liegen.', 'error'); return; }
-                        var task = body.querySelector('[data-task]').value.trim();
-                        if (task !== (trupp.task || '')) {
-                            saveTrupp(Object.assign({}, trupp, { task: task }), false);
-                        }
-                        sendPressures(trupp, values);
-                        send(trupp, 'ziel', minOf(values) !== null ? { bar: minOf(values) } : {});
-                        d.close(true);
+                    label: 'Speichern', variant: 'primary', primary: true, onClick: function (d) {
+                        saveTrupp(Object.assign({}, trupp, { task: body.querySelector('[data-task]').value.trim() }), false)
+                            .then(function (ok) { if (ok) d.close(true); });
                     },
                 },
             ],
@@ -468,7 +687,7 @@
     function step(trupp) {
         var s = derive(trupp);
         if (s.nextAction === 'anschliessen') send(trupp, 'angeschlossen', { bar: cfg.startBar });
-        else if (s.nextAction === 'ziel') openGoal(trupp);
+        else if (s.nextAction === 'ziel') openPressure(trupp, 'ziel');
         else if (s.nextAction === 'rueckzug') send(trupp, 'rueckzug');
         else if (s.nextAction === 'draussen') send(trupp, 'draussen');
     }
@@ -488,34 +707,34 @@
         var body = document.createElement('div');
         body.className = 'asu-dlg';
         body.innerHTML = '<div class="asu-dlg__grid">'
-            + '<label>Name oder Funkrufname<input class="ignis-input" data-f="name" maxlength="50" value="' + esc(trupp.name || nextName(role)) + '"></label>'
-            + '<div><span style="font-size:.85rem">Art</span><div class="asu-seg" data-f="role">'
+            + '<div class="asu-dlg__full"><span style="font-size:.85rem">Art</span><div class="asu-seg">'
             + '<button type="button" data-role="angriff" aria-pressed="' + (role === 'angriff') + '">Angriffstrupp</button>'
             + '<button type="button" data-role="sicherheit" aria-pressed="' + (role === 'sicherheit') + '">Sicherheitstrupp</button></div></div>'
+            + '<label>Name oder Funkrufname<input class="ignis-input" data-f="name" maxlength="50" value="' + esc(trupp.name || nextName(role)) + '"></label>'
+            + '<label>Erwartete Einsatzzeit (min)<input class="ignis-input" data-f="expected" inputmode="numeric" maxlength="3" value="' + (trupp.expected_minutes || expectedDefault) + '"></label>'
             + '<label>Truppführer<input class="ignis-input" data-f="tf" maxlength="100" value="' + esc(byPos.tf || '') + '"></label>'
             + '<label>Truppmann<input class="ignis-input" data-f="tm1" maxlength="100" value="' + esc(byPos.tm1 || '') + '"></label>'
             + '<label>Truppmann 2 (optional)<input class="ignis-input" data-f="tm2" maxlength="100" value="' + esc(byPos.tm2 || '') + '"></label>'
-            + '<label>Erwartete Einsatzzeit (min)<input class="ignis-input" data-f="expected" inputmode="numeric" maxlength="3" value="' + (trupp.expected_minutes || expectedDefault) + '"></label>'
-            + '<label class="asu-dlg__full">Ort / Auftrag<input class="ignis-input" data-f="task" maxlength="255" value="' + esc(trupp.task || '') + '"></label>'
-            + '</div>';
+            + '<label>Ort / Auftrag<input class="ignis-input" data-f="task" maxlength="255" value="' + esc(trupp.task || '') + '"></label>'
+            + '</div>'
+            + (isNew && !start ? '<p class="asu-hint">Der Trupp erscheint grau in der Liste. Mit dem Pfeil in seiner Zeile schließt du ihn an, sobald er losgeht.</p>' : '');
         body.addEventListener('click', function (e) {
             var b = e.target.closest('[data-role]');
             if (!b) return;
             role = b.dataset.role;
             body.querySelectorAll('[data-role]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
-            var nameInput = body.querySelector('[data-f="name"]');
-            if (isNew) nameInput.value = nextName(role);
+            if (isNew) body.querySelector('[data-f="name"]').value = nextName(role);
         });
         function field(f) { return body.querySelector('[data-f="' + f + '"]').value.trim(); }
 
         dialog({
-            title: isNew ? (start ? 'Angriffstrupp anlegen und anschließen' : 'Trupp anlegen') : trupp.name + ' bearbeiten',
+            title: isNew ? (start ? 'Angriffstrupp anlegen und anschließen' : 'Trupp registrieren') : trupp.name + ' bearbeiten',
             body: body,
             size: 'lg',
             actions: [
                 { label: 'Abbrechen', variant: 'ghost', onClick: function (d) { d.close(null); } },
                 {
-                    label: isNew ? (start ? 'Anlegen und anschließen' : 'Anlegen') : 'Speichern', variant: 'primary', primary: true,
+                    label: isNew ? (start ? 'Anlegen und anschließen' : 'Registrieren') : 'Speichern', variant: 'primary', primary: true,
                     onClick: function (d) {
                         var payload = {
                             id: trupp.id,
@@ -559,75 +778,6 @@
             toast(e.message, 'error');
             return false;
         });
-    }
-
-    var EVENT_TEXT = {
-        angeschlossen: function (e) { return 'angeschlossen' + (e.bar != null ? ', ' + e.bar + ' bar' : ''); },
-        druck: function (e, t) {
-            var m = t.members.filter(function (x) { return x.id === e.member_id; })[0];
-            return 'Druck ' + (m ? m.name : 'unbekannt') + ': ' + e.bar + ' bar';
-        },
-        ziel: function (e) { return 'Ziel erreicht' + (e.bar != null ? ', ' + e.bar + ' bar' : ''); },
-        hinweis_13: function () { return '1/3-Hinweis gegeben'; },
-        hinweis_23: function () { return '2/3-Hinweis gegeben'; },
-        rueckzug: function () { return 'Rückzug angetreten'; },
-        draussen: function () { return 'draußen'; },
-        mayday: function () { return 'MAYDAY'; },
-        mayday_ende: function () { return 'Mayday beendet'; },
-    };
-
-    function openPanel(trupp) {
-        var s = derive(trupp);
-        var events = eventsOf(trupp.id).slice().sort(function (a, b) { return a.at - b.at || a.id - b.id; });
-        var lastLive = events.filter(function (e) { return !e.voided && !e.pending; }).pop();
-        var body = document.createElement('div');
-        body.className = 'asu-dlg';
-        var people = s.members.map(function (m) {
-            return '<div><b>' + esc(m.name) + '</b> <span style="color:var(--secondary-text)">'
-                + (m.bar != null ? m.bar + ' bar um ' + hhmm(m.at) : 'noch kein Druck')
-                + (m.rate ? ', ' + m.rate.toFixed(1).replace('.', ',') + ' bar/min' : '') + '</span></div>';
-        }).join('');
-        var facts = [];
-        if (s.retreatBar !== null) facts.push('Rückzug spätestens bei ' + s.retreatBar + ' bar');
-        if (s.rate) facts.push('Verbrauch ' + s.rate.toFixed(1).replace('.', ',') + ' bar/min (' + s.rateSource + ')');
-        if (s.retreatAt) facts.push('Rückzug voraussichtlich ' + hhmm(s.retreatAt));
-        facts.push('erwartete Einsatzzeit ' + trupp.expected_minutes + ' min');
-
-        body.innerHTML = '<div class="asu-dlg__grid"><div>' + people + '</div><div style="color:var(--secondary-text)">' + facts.map(esc).join('<br>') + '</div></div>'
-            + '<div><b>Ablauf</b><div class="asu-timeline">' + (events.length ? events.map(function (e) {
-                var text = (EVENT_TEXT[e.type] || function () { return e.type; })(e, trupp);
-                return '<div class="' + (e.voided ? 'is-void' : '') + '"><time>' + hhmm(e.at) + '</time><span>' + esc(text) + (e.pending ? ' (wartet)' : '') + '</span><span style="color:var(--secondary-text)">' + esc(e.device || '') + '</span></div>';
-            }).join('') : '<div><span></span><span>Noch keine Einträge</span><span></span></div>') + '</div></div>';
-
-        var actions = [{ label: 'Schließen', variant: 'ghost', onClick: function (d) { d.close(null); } }];
-        if (!state.finalized) {
-            if (lastLive) {
-                actions.push({
-                    label: 'Letzten Eintrag zurücknehmen', variant: 'secondary', onClick: function (d) {
-                        post('event/void', { incident_id: cfg.incident, event_id: lastLive.id })
-                            .then(function () { d.close(true); return load(); }, function (e) { toast(e.message, 'error'); });
-                    },
-                });
-            }
-            if (!events.length) {
-                actions.push({
-                    label: 'Trupp löschen', variant: 'ghost-danger', onClick: function (d) {
-                        post('trupp/delete', { incident_id: cfg.incident, trupp_id: trupp.id })
-                            .then(function () { d.close(true); return load(); }, function (e) { toast(e.message, 'error'); });
-                    },
-                });
-            }
-            actions.push({ label: 'Bearbeiten', variant: 'secondary', onClick: function (d) { d.close(null); openTrupp(trupp, false); } });
-            if (s.phase !== 'draussen') {
-                actions.push({
-                    label: s.mayday ? 'Mayday ansehen' : 'MAYDAY', variant: 'danger', onClick: function (d) {
-                        d.close(null);
-                        if (s.mayday) openMaydayStatus(trupp); else openMayday(trupp);
-                    },
-                });
-            }
-        }
-        dialog({ title: trupp.name + ' · ' + crew(trupp), body: body, size: 'lg', actions: actions });
     }
 
     // MAYDAY oben: Auswahl der Trupps unter Atemschutz, ist es nur einer, ist er vorgewählt
@@ -696,13 +846,13 @@
             .filter(function (d) { return d.trupp.role === 'sicherheit' && d.s.phase === 'bereit'; })[0];
         var body = document.createElement('div');
         body.className = 'asu-dlg';
-        body.innerHTML = '<div class="asu-mayday-box"><b>MAYDAY ' + esc(trupp.name) + ' seit ' + mmss(now() - s.mayday.at) + '</b>'
+        body.innerHTML = '<div class="asu-mayday-box"><b>MAYDAY ' + esc(trupp.name) + ' seit ' + hhmm(s.mayday.at) + '</b>'
             + '<div>Hilfe sucht: ' + esc(s.mayday.member || 'ganzer Trupp') + '</div>'
             + '<div>Standort: ' + esc(s.mayday.standort || 'nicht angegeben') + '</div>'
             + '<div>Lage: ' + esc(s.mayday.lage || 'nicht angegeben') + '</div>'
             + (s.lowest ? '<div>Letzter Druck: ' + s.members.map(function (m) { return esc(m.name) + ' ' + (m.bar != null ? m.bar + ' bar' : 'unbekannt'); }).join(', ') + '</div>' : '')
             + '</div>'
-            + (safety ? '<p>Bereit: ' + esc(safety.trupp.name) + ' (' + esc(crew(safety.trupp)) + ')</p>' : '<p>Kein Sicherheitstrupp bereit. Bitte einen bereitstellen.</p>');
+            + (safety ? '<p>Bereit: ' + esc(safety.trupp.name) + ' (' + esc(crew(safety.trupp)) + ')</p>' : '<p>Kein Sicherheitstrupp bereit. Bitte einen registrieren.</p>');
         var actions = [{ label: 'Schließen', variant: 'ghost', onClick: function (d) { d.close(null); } }];
         if (!state.finalized) {
             actions.push({ label: 'Mayday beendet', variant: 'secondary', onClick: function (d) { send(trupp, 'mayday_ende'); d.close(true); } });
@@ -721,18 +871,75 @@
         dialog({ title: 'MAYDAY', body: body, size: 'md', actions: actions });
     }
 
+    function openHelp() {
+        var legend = [
+            ['go', 'Grün: unter Atemschutz, alles in Ordnung'],
+            ['due', 'Orange: Abfrage fällig oder über der erwarteten Zeit'],
+            ['alarm', 'Rot: unter Rückzugsdruck oder Rückzug laut Prognose fällig'],
+            ['mayday', 'Hellrot mit weißem Rahmen: MAYDAY'],
+            ['back', 'Blau: Rückweg'],
+            ['idle', 'Grau: noch nicht angeschlossen, auch der bereite Sicherheitstrupp'],
+        ].map(function (l) { return '<div><i style="background:' + TONE_COLOR[l[0]] + '"></i><span>' + esc(l[1]) + '</span></div>'; }).join('');
+        var body = document.createElement('div');
+        body.className = 'asu-help-text';
+        body.innerHTML = '<section><h5>Ablauf je Trupp</h5><ol>'
+            + '<li><b>Registrieren</b> legt einen Trupp mit Namen an, der grüne Pfeil rechts oben einen Angriffstrupp, der gleich angeschlossen wird.</li>'
+            + '<li><b>Start</b> (Pfeil in der Zeile), sobald der Trupp anschließt. Die Uhr läuft, als Druck gilt der Fülldruck.</li>'
+            + '<li><b>Ziel</b>, wenn der Trupp „Einsatzziel erreicht“ meldet. Den gemeldeten Druck eintragen, daraus entsteht der Rückzugsdruck.</li>'
+            + '<li><b>Rückzug</b>, wenn der Trupp den Rückweg antritt, <b>Draußen</b>, wenn er raus ist.</li></ol></section>'
+            + '<section><h5>Spalten</h5><ul>'
+            + '<li><b>Einsatz:</b> Minuten seit dem Anschließen.</li>'
+            + '<li><b>Rest:</b> Minuten bis zum Rückzug. Uhr-Symbol: aus der erwarteten Einsatzzeit. Druck-Symbol: aus dem Druck, sobald es einen Rückzugsdruck gibt. Es gilt der kleinere Wert.</li>'
+            + '<li><b>Druck:</b> niedrigster gemeldeter Druck im Trupp, darunter der Anteil am Fülldruck. Der gelbe Strich ist der Rückzugsdruck: doppelt so viel Luft wie für den Hinweg (FwDV 7).</li>'
+            + '<li><b>Aktion:</b> Minuten bis zur nächsten Druckabfrage nach 1/3 und 2/3 der erwarteten Zeit. Antippen öffnet die Abfrage.</li></ul></section>'
+            + '<section><h5>Farben</h5><div class="asu-legend">' + legend + '</div></section>'
+            + '<section><h5>Zahnrad</h5><p class="asu-hint">Alle Aktionen eines Trupps, der Druck jeder Person, die Rechnung zum Rückzug und der Ablauf. Fehleingaben lassen sich dort einzeln zurücknehmen.</p></section>';
+        dialog({ title: 'So funktioniert die Überwachung', body: body, size: 'lg', actions: [{ label: 'Verstanden', variant: 'primary', primary: true, onClick: function (d) { d.close(true); } }] });
+    }
+
+    // ── Burger: die fireTab-Leiste klappt nur bei Bedarf aus ─────────
+
+    var burger = root.querySelector('[data-asu-menu]');
+    var menuBg = document.createElement('div');
+    menuBg.className = 'asu-menu-bg';
+    menuBg.hidden = true;
+    document.body.appendChild(menuBg);
+
+    function toggleMenu(open) {
+        document.body.classList.toggle('asu-menu-open', open);
+        menuBg.hidden = !open;
+        burger.setAttribute('aria-expanded', String(open));
+    }
+
+    menuBg.addEventListener('click', function () { toggleMenu(false); });
+
     // ── Ereignisse der Seite ─────────────────────────────────────────
 
     root.addEventListener('click', function (e) {
         var b;
+        if (drawerEl && drawerEl.contains(e.target)) return;
+        if (e.target.closest('[data-asu-menu]')) { toggleMenu(!document.body.classList.contains('asu-menu-open')); return; }
         if ((b = e.target.closest('[data-asu-step]'))) { var t1 = truppById(parseInt(b.dataset.asuStep, 10)); if (t1) step(t1); return; }
-        if ((b = e.target.closest('[data-asu-ask]'))) { var t2 = truppById(parseInt(b.dataset.asuAsk, 10)); if (t2) openAsk(t2); return; }
-        if ((b = e.target.closest('[data-asu-panel]'))) { var t3 = truppById(parseInt(b.dataset.asuPanel, 10)); if (t3) openPanel(t3); return; }
-        if ((b = e.target.closest('[data-asu-new]'))) {
-            openTrupp({ role: b.dataset.asuNew }, b.dataset.asuStart === '1');
+        if ((b = e.target.closest('[data-asu-ask]'))) { var t2 = truppById(parseInt(b.dataset.asuAsk, 10)); if (t2) openPressure(t2, 'abfrage'); return; }
+        if ((b = e.target.closest('[data-asu-panel]'))) { openDrawer(parseInt(b.dataset.asuPanel, 10)); return; }
+        if ((b = e.target.closest('[data-asu-new]'))) { openTrupp({ role: b.dataset.asuNew }, b.dataset.asuStart === '1'); return; }
+        if ((b = e.target.closest('[data-asu-sort]'))) {
+            var key = b.dataset.asuSort;
+            if (sort.key !== key) sort = { key: key, dir: 1 };
+            else if (sort.dir === 1) sort = { key: key, dir: -1 };
+            else sort = { key: null, dir: 1 };
+            saveStore(SORT_KEY, sort);
+            render();
             return;
         }
+        if (e.target.closest('[data-asu-help]')) { openHelp(); return; }
         if (e.target.closest('[data-asu-mayday]')) openMaydayPicker();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        if (drawerTrupp !== null) closeDrawer();
+        else if (!menuBg.hidden) toggleMenu(false);
     });
 
     load();

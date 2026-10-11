@@ -117,7 +117,8 @@
         }
         var nextAsk = null;
         asks.forEach(function (a) { if (!a.ack && nextAsk === null) nextAsk = a; });
-        var askDue = underAir && nextAsk !== null && now >= nextAsk.at;
+        // Auf dem Rückweg ist der Trupp schon unterwegs nach draußen, die Hinweise erübrigen sich
+        var askDue = (phase === 'vorgehen' || phase === 'ziel') && nextAsk !== null && now >= nextAsk.at;
 
         // Mayday gilt bis zum nächsten „mayday_ende“; die Angaben der
         // Notfallmeldung liegen als JSON in der Notiz.
@@ -152,6 +153,34 @@
         else if (phase === 'rueckzug') tone = 'back';
         else tone = 'go';
 
+        // Rest bis zum Rückzug, immer als Zahl: nach der Uhr (erwartete minus
+        // verstrichene Zeit) und, sobald es einen Rückzugsdruck gibt, nach
+        // dem Druck. Es gilt der kleinere Wert.
+        var restByClock = Math.max(0, Math.round((expectedMs - elapsedMs) / 60000));
+        var restByPressure = retreatAt !== null ? Math.max(0, Math.round((retreatAt - now) / 60000)) : null;
+        if (belowRetreat) restByPressure = 0;
+        var restMin = restByClock;
+        var restSource = 'uhr';
+        if (restByPressure !== null && restByPressure <= restByClock) {
+            restMin = restByPressure;
+            restSource = 'druck';
+        }
+
+        // Abfrage-Spalte, ebenfalls immer eine Zahl: Minuten bis zum nächsten
+        // Hinweis (0 = fällig), nach beiden Hinweisen Minuten seit der letzten Meldung.
+        var askMin;
+        var askKind;
+        if (!start) {
+            askMin = Math.round(expectedMs / 3 / 60000);
+            askKind = 'erst';
+        } else if (nextAsk) {
+            askMin = Math.max(0, Math.ceil((nextAsk.at - now) / 60000));
+            askKind = nextAsk.type === 'hinweis_13' ? '1/3' : '2/3';
+        } else {
+            askMin = lastReportAt !== null ? Math.max(0, Math.floor((now - lastReportAt) / 60000)) : 0;
+            askKind = 'seit';
+        }
+
         var nextAction = {
             bereit: 'anschliessen',
             vorgehen: 'ziel',
@@ -179,7 +208,12 @@
             rate: rate,
             rateSource: rateSource,
             retreatAt: retreatAt,
-            restMin: retreatAt !== null ? Math.max(0, Math.round((retreatAt - now) / 60000)) : null,
+            restMin: restMin,
+            restSource: restSource,
+            restByClock: restByClock,
+            restByPressure: restByPressure,
+            askMin: askMin,
+            askKind: askKind,
             belowRetreat: belowRetreat,
             retreatOverdue: retreatOverdue,
             asks: asks,
