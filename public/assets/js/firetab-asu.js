@@ -239,15 +239,24 @@
     };
 
     function phaseText(trupp, s) {
-        if (s.mayday) return 'MAYDAY seit ' + mmss(now() - s.mayday.at);
-        if (s.belowRetreat) return 'unter Rückzugsdruck ' + s.retreatBar + ' bar';
+        if (s.mayday) {
+            // Die Zeit steht in der Aktion-Spalte, hier nur die Angaben der Notfallmeldung
+            var where = [s.mayday.standort, s.mayday.lage].filter(Boolean).join(', ');
+            return 'MAYDAY' + (s.mayday.member ? ' ' + s.mayday.member : '') + (where ? ': ' + where : ', ohne Angaben');
+        }
+        if (s.belowRetreat) {
+            // Liegt der Rückzugsdruck über dem Fülldruck, sagt die Zahl nichts mehr, wohl aber der Hinweg
+            return s.retreatBar >= s.startBar
+                ? 'Rückzug fällig, Hinweg kostete ' + (s.startBar - s.zielBar) + ' von ' + s.startBar + ' bar'
+                : 'Rückzug fällig, spätestens bei ' + s.retreatBar + ' bar';
+        }
         if (s.retreatOverdue) return 'Rückzug laut Prognose fällig';
         if (s.askDue) return (s.nextAsk.type === 'hinweis_13' ? '1/3' : '2/3') + '-Abfrage fällig';
         if (s.overtime) return 'über der erwarteten Zeit';
         return {
             bereit: trupp.role === 'sicherheit' ? 'Sicherheitstrupp bereit' : 'nicht angeschlossen',
             vorgehen: 'Vorgehen',
-            ziel: 'am Ziel seit ' + hhmm(s.zielAt),
+            ziel: 'am Ziel seit ' + hhmm(s.zielAt) + (s.retreatBar !== null ? ', Rückzug bei ' + s.retreatBar + ' bar' : ''),
             rueckzug: 'Rückweg seit ' + hhmm(s.rueckzugAt),
             draussen: 'draußen',
         }[s.phase];
@@ -305,15 +314,18 @@
         } else {
             ask = metric(two(s.askMin), 'min', '<i class="fa-solid fa-walkie-talkie"></i>Druck abfragen');
         }
-        var askBtn = '<button type="button" class="asu-ask' + (s.askDue ? ' is-due' : '') + '" data-asu-ask="' + trupp.id + '"'
-            + (s.underAir && !locked ? '' : ' disabled') + ' data-ignis-tooltip="Abfrage: Druck je Person eintragen, fällige Hinweise bestätigen">' + ask + '</button>';
+        // Bei MAYDAY öffnet die Zelle die Notfallmeldung, die Abfrage tritt so lange zurück
+        var askDue = s.askDue && !s.mayday;
+        var askBtn = '<button type="button" class="asu-ask' + (askDue ? ' is-due' : '') + '" data-asu-ask="' + trupp.id + '"'
+            + (s.mayday || (s.underAir && !locked) ? '' : ' disabled') + ' data-ignis-tooltip="'
+            + (s.mayday ? 'Notfallmeldung ansehen' : 'Abfrage: Druck je Person eintragen, fällige Hinweise bestätigen') + '">' + ask + '</button>';
 
         return '<div class="asu-line" data-trupp="' + trupp.id + '">'
             + '<div class="asu-row" data-tone="' + s.tone + '">'
             + '<button type="button" class="asu-name" data-asu-panel="' + trupp.id + '"><b>' + esc(trupp.name) + '</b>'
             + trupp.members.map(function (m) { return '<span>' + esc(m.name) + '</span>'; }).join('') + '</button>'
             + stepBtn + einsatz + rest + press + where + askBtn
-            + (s.askDue ? '<span class="asu-flag"></span>' : '')
+            + (askDue ? '<span class="asu-flag"></span>' : '')
             + '</div>'
             + '<button type="button" class="asu-gear" data-tone="' + s.tone + '" data-asu-panel="' + trupp.id + '" aria-label="Aktionen für ' + esc(trupp.name) + '" data-ignis-tooltip="Aktionen und Einzelheiten"><i class="fa-solid fa-gear"></i></button>'
             + '</div>';
@@ -442,19 +454,20 @@
         var calc = [];
         if (s.retreatBar !== null) {
             calc.push('Rückzug spätestens bei <b>' + s.retreatBar + ' bar</b>. Der Hinweg von ' + s.startBar + ' auf ' + s.zielBar
-                + ' bar hat ' + (s.startBar - s.zielBar) + ' bar gekostet, für den Rückweg wird das Doppelte eingeplant (FwDV 7).');
+                + ' bar hat ' + (s.startBar - s.zielBar) + ' bar gekostet, für den Rückweg wird das Doppelte eingeplant (FwDV 7).'
+                + (s.retreatBar >= s.startBar ? ' Das ist mehr als der Fülldruck: Der Trupp hätte schon vor dem Ziel umkehren müssen.' : ''));
         } else if (s.startAt) {
             calc.push('Noch kein Rückzugsdruck. Er entsteht mit „Ziel erreicht“ und dem Druck am Ziel.');
         }
         if (s.startAt) {
-            var clockText = 'nach der Uhr ' + s.restByClock + ' min (erwartet ' + trupp.expected_minutes + ' min, ' + Math.floor(s.elapsedMs / 60000) + ' min vorbei)';
+            var clockInfo = 'erwartet ' + trupp.expected_minutes + ' min, ' + Math.floor(s.elapsedMs / 60000) + ' min vorbei';
             if (s.belowRetreat) {
                 calc.push('Rest <b>0 min</b>: ' + esc(s.lowest.name) + ' hat ' + s.lowest.bar + ' bar und liegt damit unter dem Rückzugsdruck. Der Trupp muss zurück.');
             } else if (s.restSource === 'druck') {
                 calc.push('Rest <b>' + s.restMin + ' min</b> nach dem Druck: ' + esc(s.lowest.name) + ' hat ' + s.lowest.bar + ' bar und verbraucht '
-                    + dec(s.rate) + ' bar/min (' + s.rateSource + '). Zum Vergleich ' + clockText + '.');
+                    + dec(s.rate) + ' bar/min (' + s.rateSource + '). Nach der Uhr wären es ' + s.restByClock + ' min (' + clockInfo + ').');
             } else {
-                calc.push('Rest <b>' + s.restMin + ' min</b> ' + clockText + '.'
+                calc.push('Rest <b>' + s.restMin + ' min</b> nach der Uhr (' + clockInfo + ').'
                     + (s.restByPressure !== null ? ' Nach dem Druck wären es ' + s.restByPressure + ' min.' : ''));
             }
             calc.push('Abfragen: ' + s.asks.map(function (a) {
@@ -875,7 +888,7 @@
         var legend = [
             ['go', 'Grün: unter Atemschutz, alles in Ordnung'],
             ['due', 'Orange: Abfrage fällig oder über der erwarteten Zeit'],
-            ['alarm', 'Rot: unter Rückzugsdruck oder Rückzug laut Prognose fällig'],
+            ['alarm', 'Rot: Rückzug fällig, weil der Druck unter dem Rückzugsdruck liegt oder die Prognose es sagt'],
             ['mayday', 'Hellrot mit weißem Rahmen: MAYDAY'],
             ['back', 'Blau: Rückweg'],
             ['idle', 'Grau: noch nicht angeschlossen, auch der bereite Sicherheitstrupp'],
@@ -890,37 +903,25 @@
             + '<section><h5>Spalten</h5><ul>'
             + '<li><b>Einsatz:</b> Minuten seit dem Anschließen.</li>'
             + '<li><b>Rest:</b> Minuten bis zum Rückzug. Uhr-Symbol: aus der erwarteten Einsatzzeit. Druck-Symbol: aus dem Druck, sobald es einen Rückzugsdruck gibt. Es gilt der kleinere Wert.</li>'
-            + '<li><b>Druck:</b> niedrigster gemeldeter Druck im Trupp, darunter der Anteil am Fülldruck. Die weiße Marke unter der Leiste ist der Rückzugsdruck: doppelt so viel Luft wie für den Hinweg (FwDV 7).</li>'
+            + '<li><b>Druck:</b> niedrigster gemeldeter Druck im Trupp, darunter der Anteil am Fülldruck. Die weiße Marke unter der Leiste ist der Rückzugsdruck. Bei diesem Druck muss der Trupp spätestens umkehren, er hat dann noch doppelt so viel Luft, wie der Hinweg gekostet hat (FwDV 7). Beispiel: 300 bar beim Anschließen, 230 bar am Ziel, also 70 bar für den Hinweg und Rückzug spätestens bei 140 bar.</li>'
             + '<li><b>Aktion:</b> Minuten bis zur nächsten Druckabfrage nach 1/3 und 2/3 der erwarteten Zeit. Antippen öffnet die Abfrage.</li></ul></section>'
             + '<section><h5>Farben</h5><div class="asu-legend">' + legend + '</div></section>'
             + '<section><h5>Zahnrad</h5><p class="asu-hint">Alle Aktionen eines Trupps, der Druck jeder Person, die Rechnung zum Rückzug und der Ablauf. Fehleingaben lassen sich dort einzeln zurücknehmen.</p></section>';
         dialog({ title: 'So funktioniert die Überwachung', body: body, size: 'lg', actions: [{ label: 'Verstanden', variant: 'primary', primary: true, onClick: function (d) { d.close(true); } }] });
     }
 
-    // ── Burger: die fireTab-Leiste klappt nur bei Bedarf aus ─────────
-
-    var burger = root.querySelector('[data-asu-menu]');
-    var menuBg = document.createElement('div');
-    menuBg.className = 'asu-menu-bg';
-    menuBg.hidden = true;
-    document.body.appendChild(menuBg);
-
-    function toggleMenu(open) {
-        document.body.classList.toggle('asu-menu-open', open);
-        menuBg.hidden = !open;
-        burger.setAttribute('aria-expanded', String(open));
-    }
-
-    menuBg.addEventListener('click', function () { toggleMenu(false); });
-
     // ── Ereignisse der Seite ─────────────────────────────────────────
 
     root.addEventListener('click', function (e) {
         var b;
         if (drawerEl && drawerEl.contains(e.target)) return;
-        if (e.target.closest('[data-asu-menu]')) { toggleMenu(!document.body.classList.contains('asu-menu-open')); return; }
         if ((b = e.target.closest('[data-asu-step]'))) { var t1 = truppById(parseInt(b.dataset.asuStep, 10)); if (t1) step(t1); return; }
-        if ((b = e.target.closest('[data-asu-ask]'))) { var t2 = truppById(parseInt(b.dataset.asuAsk, 10)); if (t2) openPressure(t2, 'abfrage'); return; }
+        if ((b = e.target.closest('[data-asu-ask]'))) {
+            var t2 = truppById(parseInt(b.dataset.asuAsk, 10));
+            if (t2 && derive(t2).mayday) openMaydayStatus(t2);
+            else if (t2) openPressure(t2, 'abfrage');
+            return;
+        }
         if ((b = e.target.closest('[data-asu-panel]'))) { openDrawer(parseInt(b.dataset.asuPanel, 10)); return; }
         if ((b = e.target.closest('[data-asu-new]'))) { openTrupp({ role: b.dataset.asuNew }, b.dataset.asuStart === '1'); return; }
         if ((b = e.target.closest('[data-asu-sort]'))) {
@@ -937,9 +938,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key !== 'Escape') return;
-        if (drawerTrupp !== null) closeDrawer();
-        else if (!menuBg.hidden) toggleMenu(false);
+        if (e.key === 'Escape' && drawerTrupp !== null) closeDrawer();
     });
 
     load();

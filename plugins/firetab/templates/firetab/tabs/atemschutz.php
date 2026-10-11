@@ -36,10 +36,9 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
         color: var(--asu-text);
     }
 
-    /* Die fireTab-Leiste liegt in diesem Reiter hinter dem Burger, die Trupps bekommen die ganze Breite */
-    .einsatz-sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 1950; transform: translateX(-100%); transition: transform .2s ease; }
-    body.asu-menu-open .einsatz-sidebar { transform: none; box-shadow: 18px 0 40px rgba(0,0,0,.5); }
-    .asu-menu-bg { position: fixed; inset: 0; z-index: 1949; background: rgba(0,0,0,.45); }
+    /* Der Burger sitzt hier in der eigenen Kopfzeile, der allgemeine oben links entfällt samt Platz dafür */
+    .einsatz-burger { display: none; }
+    .einsatz-sidebar ~ .flex-1 { padding-left: 0; }
     .einsatz-main > .container { max-width: none; margin: 0; padding: 10px; }
     .asu-burger { width: 42px; height: 42px; flex: none; border: 0; border-radius: 6px; background: #23262b; color: #fff; font-size: 1.2rem; cursor: pointer; }
     .asu-burger:hover { background: #2c3038; }
@@ -170,6 +169,8 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
         background: #16181c; border-left: 1px solid #2c2f36; display: grid; grid-template-rows: auto 1fr; color: #f4f5f7;
         box-shadow: -18px 0 40px rgba(0,0,0,.45);
     }
+    /* display: grid oben würde das hidden-Attribut schlagen, das Fenster bliebe nach dem Schließen stehen */
+    .asu-drawer[hidden], .asu-drawer-bg[hidden] { display: none; }
     .asu-drawer__head { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 14px 18px; color: #fff; }
     .asu-drawer__head h3 { margin: 0; font-size: 1.5rem; font-weight: 700; }
     .asu-drawer__head p { margin: 0; font-size: .9rem; grid-column: 1; }
@@ -244,7 +245,7 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
      data-vehicle="<?= htmlspecialchars((string) ($_SESSION['einsatz_vehicle_name'] ?? ''), ENT_QUOTES) ?>">
     <div class="asu-top">
         <div class="asu-top__left">
-            <button type="button" class="asu-burger" data-asu-menu aria-label="Menü" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+            <button type="button" class="asu-burger" data-einsatz-menu aria-label="Menü" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
             Einsatz <?= htmlspecialchars((string) ($incident['incident_number'] ?? ''), ENT_QUOTES) ?>
         </div>
         <button type="button" class="asu-mayday" data-asu-mayday>MAYDAY</button>

@@ -1706,16 +1706,67 @@ select.form-select option {
   letter-spacing: 0.04em;
 }
 
+// Die fireTab-Leiste liegt auf allen Seiten hinter dem Burger oben links und
+// klappt als Overlay aus, die Seite behält die volle Breite.
 .einsatz-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1950;
   width: var(--sidebar-width);
-  min-height: 100vh;
   background: var(--bg-2);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+
+body.einsatz-menu-open .einsatz-sidebar {
+  transform: none;
+  box-shadow: var(--shadow-pop);
+}
+
+.einsatz-menu-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1949;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.einsatz-menu-bg[hidden] {
+  display: none;
+}
+
+.einsatz-burger {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1940;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  color: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.einsatz-burger:hover {
+  background: var(--surface-3);
+}
+
+// Unter 1400px ist der Rand neben dem Container zu schmal für den Burger
+@media (max-width: 1399.98px) {
+  .einsatz-sidebar ~ .flex-1 {
+    padding-left: 56px;
+  }
 }
 
 .einsatz-sidebar::-webkit-scrollbar {
@@ -2077,15 +2128,6 @@ select.form-select option {
     padding: 0.75rem 0.85rem;
   }
 
-  .einsatz-sidebar {
-    position: fixed;
-    z-index: 1050;
-    width: 260px;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    box-shadow: var(--shadow-pop);
-  }
 
 
   [data-tooltip]:hover::after {
