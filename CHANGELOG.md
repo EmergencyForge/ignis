@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026.1.3-beta
+
+### Atemschutzüberwachung im fireTab
+- Neu als Reiter „Atemschutz“ im Einsatz: eine Zeile je Trupp mit Einsatzzeit, Rest bis zum Rückzug, niedrigstem Druck, Ort und nächster Abfrage. Die Farbe der Zeile zeigt den Zustand, gelb bei fälliger Abfrage, rot unter dem Rückzugsdruck, blau für den bereiten Sicherheitstrupp
+- Rückzugsdruck nach FwDV 7: doppelt so viel Luft wie für den Hinweg, maßgeblich ist die Person mit dem niedrigsten Druck. Die Abfragen nach 1/3 und 2/3 der erwarteten Einsatzzeit werden angezeigt und mit Uhrzeit festgehalten
+- Druck je Person über einen Zahlenblock, Schnellstart für Angriffstrupp und Sicherheitstrupp, Ablauf und Korrekturen je Trupp im Seitenfenster
+- MAYDAY oben mit Auswahl des betroffenen Trupps, dazu in jedem Trupp. Die Notfallmeldung schlägt den bereiten Sicherheitstrupp vor und setzt ihn mit einem Tipp ein
+- Alle Tablets eines Einsatzes sehen denselben Stand. Ohne Verbindung warten Meldungen auf dem Tablet und gehen raus, sobald das Netz zurück ist
+- Neue Einstellungen unter fireTab: Normalverbrauch des Pressluftatmers (Vorgabe 10 bar/min) und Fülldruck (Vorgabe 300 bar), passend zum PA-Skript des Servers
+- Der Einsatzbericht listet die Registrierung je Trupp. Alte Protokolle bleiben dort lesbar, der bisherige Menüpunkt „AS-Überwachung“ entfällt
+
+### eNOTF
+- Vor der PIN-Sperre wird gespeichert, was gerade eingetippt ist, etwa der Anamnesetext. Nach der PIN geht es zurück auf dieselbe Seite
+- Wer lange in einem Feld schreibt, wird beim nächsten Klick nicht mehr gesperrt
+- Stellt ein gemeldeter Defekt das Fahrzeug außer Dienst, endet die Anmeldung darauf mit einem Hinweis, statt „Fahrzeug nicht gefunden“ zu zeigen
+- Die Druckansicht passt wieder auf die Seite und öffnet im selben Tab
+
+### Behoben
+- Auswahllisten in fireTab, eNOTF und MANV-Board zeigten an jeder Option einen Haken
+
 ## 2026.1.2-beta
 
 ### Tablet in FiveM
