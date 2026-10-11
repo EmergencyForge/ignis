@@ -2,6 +2,7 @@
 /**
  * View: eNOTF Fahrzeuginfo
  *
+ * @var string                         $currentVehicleId
  * @var array<string,mixed>|null       $vehicle
  * @var array<int,array<string,mixed>> $vehicles
  * @var array<int,array<string,mixed>> $categories

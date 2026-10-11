@@ -12,6 +12,7 @@
  *     Login-Link.
  *
  * @var bool  $hasCrewSession
+ * @var bool  $ausserDienst  Anmeldung endete, weil das Fahrzeug außer Dienst ist
  * @var array<string, mixed> $crew  {vehicle, vehicle_label, members[]}
  */
 
@@ -106,7 +107,11 @@ $pinEnabled = CrewPolicy::pinEnabled() ? 'true' : 'false';
                     <?php else: ?>
                         <div class="row">
                             <div class="col">
-                                Sie sind nicht angemeldet!
+                                <?php if (!empty($ausserDienst)): ?>
+                                    Das Fahrzeug ist außer Dienst, etwa wegen eines gemeldeten Defekts. Bitte melden Sie sich auf einem anderen Fahrzeug an.
+                                <?php else: ?>
+                                    Sie sind nicht angemeldet!
+                                <?php endif; ?>
                             </div>
                             <div class="col-3">
                                 <a href="<?= $e(EnotfUrl::page('login')) ?>">anmelden</a>

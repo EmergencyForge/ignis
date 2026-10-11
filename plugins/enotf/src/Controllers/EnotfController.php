@@ -6,7 +6,9 @@ namespace Plugin\Enotf\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\FiveMSupport;
+use App\Session\SessionManager;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\EnotfSession;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Policies\EnotfPolicy;
 
@@ -49,6 +51,16 @@ class EnotfController extends Controller
             ->first();
         $vehicle = $vehicleRow ? (array) $vehicleRow : null;
 
+        // Das eigene Fahrzeug ist außer Dienst, meist nach einem Defekt, der es
+        // nicht einsatzklar lässt (DefectReporter setzt active = 0). Auf einem
+        // solchen Fahrzeug kann niemand weiterarbeiten: alle Anmeldungen darauf
+        // enden, die Crew meldet sich auf einem anderen Fahrzeug an.
+        if (!$vehicle && Capsule::table('intra_fahrzeuge')->where('identifier', $currentVehicleId)->exists()) {
+            (new EnotfSession())->deactivateAllForVehicle((string) $currentVehicleId);
+            SessionManager::logoutEnotfCrew();
+            $this->redirectAbsolute(EnotfUrl::page('loggedout') . '?grund=ausser-dienst');
+        }
+
         $vehicles = [];
         $categories = [];
 
@@ -75,6 +87,7 @@ class EnotfController extends Controller
         }
 
         $this->renderView('enotf/fahrzeuginfo', [
+            'currentVehicleId' => (string) $currentVehicleId,
             'vehicle'    => $vehicle,
             'vehicles'   => $vehicles,
             'categories' => $categories,

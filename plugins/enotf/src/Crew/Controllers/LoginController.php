@@ -225,6 +225,7 @@ class LoginController extends CrewController
         $this->renderView('loggedout', [
             'hasCrewSession' => CrewPolicy::hasCrewSession(),
             'crew'           => $this->crewContext(),
+            'ausserDienst'   => ($_GET['grund'] ?? '') === 'ausser-dienst',
         ]);
     }
 
