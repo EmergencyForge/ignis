@@ -36,37 +36,63 @@
     <?php endif; ?>
 </div>
 
-<!-- ASU-Protokolle -->
+<!-- Atemschutzüberwachung: Registrierung nach FwDV 7, 7.4, darunter alte Protokolle -->
+<?php
+$asuTime = static function (?array $e, bool $withBar = false): string {
+    if ($e === null) {
+        return '';
+    }
+    $t = (new DateTime('@' . $e['ts']))->setTimezone(new DateTimeZone('Europe/Berlin'))->format('H:i');
+    return $withBar && $e['bar'] !== null ? $t . ' · ' . $e['bar'] . ' bar' : $t;
+};
+$asuTrupps = $asuTrupps ?? [];
+?>
 <div class="intra__tile mb-3 p-3">
     <div class="mb-3 flex items-center justify-between">
-        <h4 class="mb-0">Atemschutzüberwachung (ASU)</h4>
-        <?php if (!$incident['finalized']): ?>
-            <a href="<?= BASE_PATH ?>firetab/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>" class="ignis-btn ignis-btn--danger ignis-btn--sm">
-                ASU starten
-            </a>
-        <?php endif; ?>
+        <h4 class="mb-0">Atemschutzüberwachung</h4>
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=atemschutz" class="ignis-btn ignis-btn--danger ignis-btn--sm">
+            <i class="fa-solid fa-mask-ventilator"></i> Überwachung öffnen
+        </a>
     </div>
 
-    <?php if (empty($asuProtocols)): ?>
+    <?php if (empty($asuTrupps) && empty($asuProtocols)): ?>
         <div class="ignis-alert">
             <i class="fa-solid fa-info-circle mr-2"></i>
-            Keine ASU-Protokolle vorhanden
+            Noch kein Trupp unter Atemschutz eingetragen
         </div>
-    <?php else: ?>
+    <?php endif; ?>
+
+    <?php if (!empty($asuTrupps)): ?>
+        <div class="overflow-x-auto">
+            <table class="ignis-table" id="table-asu-registration">
+                <thead><tr><th>Trupp</th><th>Personen</th><th>Angeschlossen</th><th>1/3</th><th>2/3</th><th>Ziel</th><th>Rückzug</th><th>Draußen</th><th>Minuten</th></tr></thead>
+                <tbody>
+                    <?php foreach ($asuTrupps as $t): $f = $t['first']; ?>
+                        <tr>
+                            <td><strong><?= htmlspecialchars($t['name']) ?></strong><?= $t['role'] === 'sicherheit' ? ' <small class="text-gray-400">Sicherheitstrupp</small>' : '' ?><?= isset($f['mayday']) ? ' <span class="ignis-chip ignis-chip--danger">Mayday ' . $asuTime($f['mayday']) . '</span>' : '' ?></td>
+                            <td><?= htmlspecialchars(implode(', ', $t['members'])) ?></td>
+                            <td><?= $asuTime($f['angeschlossen'] ?? null, true) ?></td>
+                            <td><?= $asuTime($f['hinweis_13'] ?? null) ?></td>
+                            <td><?= $asuTime($f['hinweis_23'] ?? null) ?></td>
+                            <td><?= $asuTime($f['ziel'] ?? null, true) ?></td>
+                            <td><?= $asuTime($f['rueckzug'] ?? null) ?></td>
+                            <td><?= $asuTime($f['draussen'] ?? null) ?></td>
+                            <td><?= $t['minutes'] !== null ? (int) $t['minutes'] : '' ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($asuProtocols)): ?>
+        <h5 class="mb-2 mt-4">Ältere Protokolle</h5>
         <div class="flex flex-wrap gap-2">
             <?php foreach ($asuProtocols as $asu): ?>
-                <?php
-                    $protocolData = json_decode($asu['data'], true) ?? [];
-                    $continueUrl  = $incident['finalized']
-                        ? ''
-                        : BASE_PATH . 'firetab/asu?incident_id=' . $id
-                            . '&incident_number=' . urlencode($incident['incident_number'])
-                            . '&location=' . urlencode($incident['location'])
-                            . '&asu_id=' . (int)$asu['id'];
-                ?>
+                <?php $protocolData = json_decode($asu['data'], true) ?? []; ?>
                 <div>
                     <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm"
-                            onclick="openASURecord(<?= (int)$asu['id'] ?>, <?= json_encode($asu['supervisor']) ?>, <?= json_encode($continueUrl) ?>)">
+                            onclick="openASURecord(<?= (int)$asu['id'] ?>, <?= json_encode($asu['supervisor']) ?>)">
                         <i class="fa-solid fa-shield"></i>
                         <?= htmlspecialchars($asu['supervisor']) ?>
                         <br>
@@ -247,11 +273,9 @@
 </div>
 
 <script>
-    // Pro ASU-Row haben wir ein <template id="asuTemplate<id>"> mit dem
-    // Body-Inhalt. openASURecord baut daraus einen ignis-Dialog mit
-    // optionalem "Protokoll fortfuehren"-Action wenn der Incident
-    // noch nicht finalized ist (continueUrl leerstring → keine Action).
-    function openASURecord(asuId, supervisor, continueUrl) {
+    // Pro altem ASU-Protokoll ein <template id="asuTemplate<id>"> mit dem
+    // Inhalt; openASURecord zeigt es nur noch zum Lesen.
+    function openASURecord(asuId, supervisor) {
         var tpl = document.getElementById('asuTemplate' + asuId);
         if (!tpl) return;
         var wrapper = document.createElement('div');
@@ -262,13 +286,6 @@
             variant: 'ghost',
             close:   true,
         }];
-        if (continueUrl) {
-            actions.unshift({
-                labelHtml: '<i class="fa-solid fa-edit mr-1"></i>Protokoll fortführen',
-                variant:   'primary',
-                onClick:   function () { window.location.href = continueUrl; },
-            });
-        }
 
         new Dialog({
             title:   'ASU-Protokoll: ' + supervisor,

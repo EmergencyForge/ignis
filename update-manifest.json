@@ -83,6 +83,10 @@
     "assets/js/dist/enotf-custom-dropdown.dev.js",
     "public/assets/js/dist/enotf-custom-dropdown.dev.js",
     "assets/js/modules/datatables-config.js",
-    "public/assets/js/modules/datatables-config.js"
+    "public/assets/js/modules/datatables-config.js",
+    "assets/js/asu.js",
+    "public/assets/js/asu.js",
+    "plugins/firetab/templates/firetab/asu.php",
+    "plugins/firetab/templates/firetab/tabs/asu_trupps.php"
   ]
 }

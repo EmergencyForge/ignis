@@ -10,8 +10,7 @@ use Respect\Validation\Validator as v;
 
 /**
  * Alle Aktionen am Einsatz über POST /firetab/actions: die Formulare der
- * Register, der QM-Status, Abschluss, Archiv und die ASU-Protokolle aus
- * asu.js.
+ * Register, der QM-Status, Abschluss und Archiv.
  *
  * Alle Formulare teilen sich die Adresse und unterscheiden sich nur in
  * `action`, deshalb kennt diese Klasse die Felder aller Aktionen. Was eine
@@ -30,7 +29,6 @@ final class IncidentActionRequest extends FormRequest
         'status', 'notes',
         'edit_location', 'edit_keyword', 'edit_incident_number', 'edit_date', 'edit_time',
         'edit_leader_id', 'edit_caller_name', 'edit_caller_contact', 'edit_owner_name', 'edit_owner_contact',
-        'asu_id', 'asu_data',
     ];
 
     protected static function rules(): Validatable
@@ -84,9 +82,6 @@ final class IncidentActionRequest extends FormRequest
             'edit_caller_contact'  => $text('edit_caller_contact'),
             'edit_owner_name'      => $text('edit_owner_name'),
             'edit_owner_contact'   => $text('edit_owner_contact'),
-
-            'asu_id'   => (int) ($input['asu_id'] ?? 0),
-            'asu_data' => (string) ($input['asu_data'] ?? ''),
         ];
     }
 }

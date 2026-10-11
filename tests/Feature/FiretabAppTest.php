@@ -121,11 +121,13 @@ final class FiretabAppTest extends FeatureTestCase
         $this->assertBodyContains('<table class="ignis-table" id="table-map-zones">', $karte);
         $this->assertBodyNotContains('table-striped', $karte);
 
-        $asu = $this->get('/firetab/asu', ['query' => ['id' => (string) $id]]);
+        $asu = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'atemschutz']]);
         $this->assertOk($asu);
-        $this->assertBodyContains('<div class="ignis-btn-group">', $asu);
-        $this->assertBodyContains('<div class="ignis-progress asu-progress relative mt-2">', $asu);
-        $this->assertBodyNotContains('btn-group-sm', $asu);
+        $this->assertBodyContains('<div id="asu-board"', $asu);
+        $this->assertBodyContains('data-incident="' . $id . '"', $asu);
+        $this->assertBodyContains('data-asu-mayday', $asu);
+
+        $this->assertRedirect($this->get('/firetab/asu', ['query' => ['incident_id' => (string) $id]]), '/firetab/view?id=' . $id . '&tab=atemschutz');
     }
 
     /**

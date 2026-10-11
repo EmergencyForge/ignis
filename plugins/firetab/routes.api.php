@@ -16,6 +16,7 @@ use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 use EmergencyForge\Http\Middleware\JsonExceptionMiddleware;
+use Plugin\Firetab\Controllers\Api\FireAsuController;
 use Plugin\Firetab\Controllers\Api\FireController;
 use Plugin\Firetab\Controllers\Api\FireLagekarteController;
 use Plugin\Firetab\Controllers\Api\FireStatusPollController;
@@ -34,3 +35,12 @@ $router->match(['GET', 'POST'], '/api/fire/status',     [FireController::class, 
 $router->match(['GET', 'POST', 'DELETE'], '/api/fire/bulk-delete-empty',     [FireController::class, 'bulkDeleteEmpty'], $fireQmAuth);
 
 $router->match(['GET', 'POST'], '/api/fire/lagekarte',     [FireLagekarteController::class, 'handle'], $fireAuth);
+
+// Atemschutzüberwachung im Einsatz: Tablets ohne ignis-Konto sind erlaubt,
+// solange FIRE_INCIDENT_REQUIRE_USER_AUTH aus ist; Fahrzeugzuordnung prüft der Controller.
+$fireTabAuth = [JsonExceptionMiddleware::class, new AuthMiddleware('FIRE_INCIDENT_REQUIRE_USER_AUTH')];
+$router->get('/api/fire/asu/state',          [FireAsuController::class, 'state'],       $fireTabAuth);
+$router->post('/api/fire/asu/trupp',         [FireAsuController::class, 'saveTrupp'],   $fireTabAuth);
+$router->post('/api/fire/asu/trupp/delete',  [FireAsuController::class, 'deleteTrupp'], $fireTabAuth);
+$router->post('/api/fire/asu/event',         [FireAsuController::class, 'event'],       $fireTabAuth);
+$router->post('/api/fire/asu/event/void',    [FireAsuController::class, 'voidEvent'],   $fireTabAuth);

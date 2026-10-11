@@ -359,7 +359,7 @@ class FiretabController extends Controller
             ->orderBy('created_at')
             ->get()->map(fn ($r) => (array) $r)->all();
 
-        $validTabs = ['stammdaten', 'bericht', 'fahrzeuge', 'lagemeldungen', 'lagekarte', 'abschluss', 'log'];
+        $validTabs = ['stammdaten', 'bericht', 'fahrzeuge', 'lagemeldungen', 'atemschutz', 'lagekarte', 'abschluss', 'log'];
         if (!in_array($activeTab, $validTabs, true)) {
             $activeTab = 'stammdaten';
         }
@@ -372,7 +372,43 @@ class FiretabController extends Controller
             'attachedVehicles' => $attachedVehicles,
             'sitreps'          => $sitreps,
             'asuProtocols'     => $asuProtocols,
+            'asuTrupps'        => $this->asuRegistration($id),
         ]);
+    }
+
+    /**
+     * Registrierung der Atemschutztrupps für den Einsatzbericht (FwDV 7, 7.4):
+     * je Trupp die ersten gültigen Zeitpunkte und Drücke aus den Ereignissen.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function asuRegistration(int $incidentId): array
+    {
+        $trupps = Capsule::table('intra_fire_asu_trupps')->where('incident_id', $incidentId)->orderBy('id')
+            ->get(['id', 'name', 'role', 'task'])->map(fn ($t) => (array) $t)->all();
+        if ($trupps === []) {
+            return [];
+        }
+        $members = Capsule::table('intra_fire_asu_members')->whereIn('trupp_id', array_column($trupps, 'id'))
+            ->orderByRaw("FIELD(position, 'tf', 'tm1', 'tm2')")->get(['trupp_id', 'name'])->groupBy('trupp_id');
+        $events = Capsule::table('intra_fire_asu_events')->where('incident_id', $incidentId)->whereNull('voided_at')
+            ->orderBy('created_at')->orderBy('id')
+            ->selectRaw('trupp_id, type, bar, UNIX_TIMESTAMP(created_at) AS ts')->get()->groupBy('trupp_id');
+
+        foreach ($trupps as &$t) {
+            $t['members'] = ($members[$t['id']] ?? collect())->pluck('name')->all();
+            $first = [];
+            foreach ($events[$t['id']] ?? [] as $e) {
+                $first[$e->type] ??= ['ts' => (int) $e->ts, 'bar' => $e->bar !== null ? (int) $e->bar : null];
+            }
+            $t['first'] = $first;
+            $t['minutes'] = isset($first['angeschlossen'], $first['draussen'])
+                ? (int) round(($first['draussen']['ts'] - $first['angeschlossen']['ts']) / 60)
+                : null;
+        }
+        unset($t);
+
+        return $trupps;
     }
 
     /**
@@ -555,9 +591,6 @@ class FiretabController extends Controller
             'set_status'         => 'actionSetStatus',
             'update_notes'       => 'actionUpdateNotes',
             'update_core'        => 'actionUpdateCore',
-            'add_asu'            => 'actionAddAsu',
-            'update_asu'         => 'actionUpdateAsu',
-            'delete_asu'         => 'actionDeleteAsu',
             'archive_incident'   => 'actionArchive',
             'unarchive_incident' => 'actionUnarchive',
         ];
@@ -875,150 +908,6 @@ class FiretabController extends Controller
      * @param array<string, mixed> $incident
      * @param array<string, mixed> $input    aus IncidentActionRequest
      */
-    private function actionAddAsu(int $id, array $incident, array $input): void
-    {
-        if ($incident['finalized']) {
-            Flash::error('Einsatz ist bereits abgeschlossen.');
-            return;
-        }
-
-        $asuDataJson = $input['asu_data'];
-        if (empty($asuDataJson)) {
-            Flash::error('Keine ASU-Daten übermittelt.');
-            return;
-        }
-
-        $asuData = json_decode($asuDataJson, true);
-        if (!$asuData) {
-            Flash::error('Ungültige ASU-Daten.');
-            return;
-        }
-
-        if (empty($asuData['supervisor']) || empty($asuData['missionNumber']) || empty($asuData['missionLocation']) || empty($asuData['missionDate'])) {
-            Flash::error('Pflichtfelder fehlen (Überwacher, Einsatznummer, Ort, Datum).');
-            return;
-        }
-
-        // Parse DD.MM.YYYY → YYYY-MM-DD
-        $dateParts = explode('.', $asuData['missionDate']);
-        $missionDate = (count($dateParts) === 3)
-            ? $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0]
-            : $asuData['missionDate'];
-
-        try {
-            Capsule::table('intra_fire_incident_asu')->insert([
-                'incident_id'      => $id,
-                'supervisor'       => $asuData['supervisor'],
-                'mission_location' => $asuData['missionLocation'],
-                'mission_date'     => $missionDate,
-                'timestamp'        => Capsule::connection()->raw('NOW()'),
-                'data'             => $asuDataJson,
-            ]);
-
-            $this->logAction($id, 'asu_added', 'ASU-Protokoll hinzugefügt (Überwacher: ' . $asuData['supervisor'] . ')');
-            Flash::success('ASU-Protokoll erfolgreich gespeichert.');
-        } catch (PDOException $e) {
-            if ($e->getCode() == '23000') {
-                Flash::error('Ein ASU-Protokoll für diesen Überwacher existiert bereits.');
-            } else {
-                Flash::error('Fehler beim Speichern: ' . $e->getMessage());
-            }
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $incident
-     * @param array<string, mixed> $input    aus IncidentActionRequest
-     */
-    private function actionUpdateAsu(int $id, array $incident, array $input): void
-    {
-        if ($incident['finalized']) {
-            Flash::error('Einsatz ist bereits abgeschlossen.');
-            return;
-        }
-
-        $asuId = $input['asu_id'];
-        if ($asuId <= 0) {
-            Flash::error('Keine ASU-ID übermittelt.');
-            return;
-        }
-
-        $asuDataJson = $input['asu_data'];
-        if (empty($asuDataJson)) {
-            Flash::error('Keine ASU-Daten übermittelt.');
-            return;
-        }
-
-        $asuData = json_decode($asuDataJson, true);
-        if (!$asuData) {
-            Flash::error('Ungültige ASU-Daten.');
-            return;
-        }
-
-        if (empty($asuData['supervisor']) || empty($asuData['missionNumber']) || empty($asuData['missionLocation']) || empty($asuData['missionDate'])) {
-            Flash::error('Pflichtfelder fehlen (Überwacher, Einsatznummer, Ort, Datum).');
-            return;
-        }
-
-        $dateParts = explode('.', $asuData['missionDate']);
-        $missionDate = (count($dateParts) === 3)
-            ? $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0]
-            : $asuData['missionDate'];
-
-        try {
-            Capsule::table('intra_fire_incident_asu')
-                ->where('id', $asuId)
-                ->where('incident_id', $id)
-                ->update([
-                    'supervisor'       => $asuData['supervisor'],
-                    'mission_location' => $asuData['missionLocation'],
-                    'mission_date'     => $missionDate,
-                    'timestamp'        => Capsule::connection()->raw('NOW()'),
-                    'data'             => $asuDataJson,
-                ]);
-
-            $this->logAction($id, 'asu_updated', 'ASU-Protokoll aktualisiert (Überwacher: ' . $asuData['supervisor'] . ')');
-            Flash::success('ASU-Protokoll erfolgreich aktualisiert.');
-        } catch (PDOException $e) {
-            Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $incident
-     * @param array<string, mixed> $input    aus IncidentActionRequest
-     */
-    private function actionDeleteAsu(int $id, array $incident, array $input): void
-    {
-        if ($incident['finalized']) {
-            Flash::error('Einsatz ist bereits abgeschlossen.');
-            return;
-        }
-
-        $asuId = $input['asu_id'];
-        if ($asuId <= 0) return;
-
-        $supervisor = Capsule::table('intra_fire_incident_asu')
-            ->where('id', $asuId)
-            ->where('incident_id', $id)
-            ->value('supervisor');
-
-        Capsule::table('intra_fire_incident_asu')
-            ->where('id', $asuId)
-            ->where('incident_id', $id)
-            ->delete();
-
-        if ($supervisor) {
-            $this->logAction($id, 'asu_deleted', "ASU-Protokoll gelöscht (Überwacher: $supervisor)");
-        }
-
-        Flash::success('ASU-Protokoll gelöscht.');
-    }
-
-    /**
-     * @param array<string, mixed> $incident
-     * @param array<string, mixed> $input    aus IncidentActionRequest
-     */
     private function actionArchive(int $id, array $incident, array $input): void
     {
         if (!Gate::allows('fireIncident.manageQm')) {
@@ -1148,50 +1037,17 @@ class FiretabController extends Controller
     }
 
     /**
-     * GET /firetab/asu: Atemschutzüberwachung (ASU-Protokoll-Formular).
-     * Kann mit ?incident_id=X&incident_number=Y&location=Z&asu_id=A aufgerufen werden.
+     * GET /firetab/asu: alte Adresse der Atemschutzüberwachung. Sie lebt jetzt
+     * als Reiter im Einsatz; ohne Einsatz geht es zur Einsatzliste.
      */
     public function asuForm(): void
     {
-        FiveMSupport::prepareCookiesAndHeaders();
-
-        if (!Gate::allows('fireIncident.accessModule')) {
-            \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login');
+        $incidentId = (int) ($_GET['incident_id'] ?? 0);
+        if ($incidentId > 0) {
+            $this->redirect('firetab/view?id=' . $incidentId . '&tab=atemschutz');
         }
-
-        if (!Gate::allows('fireIncident.hasFireTabSession')) {
-            Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('firetab/login-vehicle');
-        }
-
-        $prefillNumber    = $_GET['incident_number'] ?? '';
-        $prefillLocation  = $_GET['location'] ?? '';
-        $prefillIncidentId = $_GET['incident_id'] ?? null;
-        $asuId            = $_GET['asu_id'] ?? null;
-
-        $existingProtocol = null;
-        if ($asuId) {
-            $row = Capsule::table('intra_fire_incident_asu')->where('id', $asuId)->first();
-            if ($row) {
-                $existingProtocol = (array) $row;
-                $protocolData = json_decode($existingProtocol['data'], true) ?? [];
-                if (!$prefillNumber && !empty($protocolData['missionNumber'])) {
-                    $prefillNumber = $protocolData['missionNumber'];
-                }
-                if (!$prefillLocation && !empty($protocolData['missionLocation'])) {
-                    $prefillLocation = $protocolData['missionLocation'];
-                }
-            }
-        }
-
-        $this->renderView('firetab/asu', [
-            'prefillNumber'     => $prefillNumber,
-            'prefillLocation'   => $prefillLocation,
-            'prefillIncidentId' => $prefillIncidentId,
-            'asuId'             => $asuId,
-            'existingProtocol'  => $existingProtocol,
-        ]);
+        Flash::info('Die Atemschutzüberwachung findest du jetzt im Einsatz unter „Atemschutz“.');
+        $this->redirect('firetab/list');
     }
 
     /**

@@ -167,27 +167,6 @@ final class FiretabActionsTest extends FeatureTestCase
     }
 
     #[Test]
-    public function asu_protokoll_anlegen_aendern_loeschen(): void
-    {
-        $this->loginVehicle();
-        $id   = $this->incident();
-        $daten = ['supervisor' => 'Paul Prüfer', 'missionNumber' => 'F-1', 'missionLocation' => 'Musterstraße 1', 'missionDate' => '09.10.2026'];
-
-        // asu.js schickt weder CSRF-Feld noch return_tab
-        $this->post('/firetab/actions', ['action' => 'add_asu', 'incident_id' => (string) $id, 'asu_data' => json_encode($daten)]);
-        $asu = Capsule::table('intra_fire_incident_asu')->where('incident_id', $id)->first();
-        $this->assertNotNull($asu);
-        $this->assertSame('2026-10-09', $asu->mission_date);
-
-        $daten['missionLocation'] = 'Hinterhof';
-        $this->post('/firetab/actions', ['action' => 'update_asu', 'incident_id' => (string) $id, 'asu_id' => (string) $asu->id, 'asu_data' => json_encode($daten)]);
-        $this->assertSame('Hinterhof', Capsule::table('intra_fire_incident_asu')->where('id', $asu->id)->value('mission_location'));
-
-        $this->post('/firetab/actions', ['action' => 'delete_asu', 'incident_id' => (string) $id, 'asu_id' => (string) $asu->id, 'return_tab' => 'asu']);
-        $this->assertFalse(Capsule::table('intra_fire_incident_asu')->where('id', $asu->id)->exists());
-    }
-
-    #[Test]
     public function archivieren_und_wiederherstellen(): void
     {
         $id = $this->incident();

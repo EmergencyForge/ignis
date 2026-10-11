@@ -85,6 +85,9 @@ function fmt_elapsed(int|string $seconds): string
         <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=lagemeldungen" class="sidebar-link <?= $activeTab === 'lagemeldungen' ? 'active' : '' ?>">
             <i class="fa-solid fa-broadcast-tower"></i><span>Lagemeldungen</span>
         </a>
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=atemschutz" class="sidebar-link <?= $activeTab === 'atemschutz' ? 'active' : '' ?>">
+            <i class="fa-solid fa-mask-ventilator"></i><span>Atemschutz</span>
+        </a>
         <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=lagekarte" class="sidebar-link <?= $activeTab === 'lagekarte' ? 'active' : '' ?>">
             <i class="fa-solid fa-map-marked-alt"></i><span>Lagekarte</span>
         </a>
