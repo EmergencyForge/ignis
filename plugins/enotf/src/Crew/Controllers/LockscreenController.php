@@ -40,9 +40,14 @@ class LockscreenController extends CrewController
         // Dev-only Test-Bypass für Admins: ?test setzt das Flag, ?test=off cleaned.
         $testMode = PinLockscreenMiddleware::applyTestFlag($request);
 
+        // pin_activity.js schickt die Seite mit, auf der gesperrt wurde
+        $return = $request->query['return'] ?? null;
+        if (is_string($return) && EnotfUrl::pinReturn($return) === $return) {
+            SessionManager::setPinReturnUrl($return);
+        }
+
         if (!$testMode && CrewPolicy::pinExempt()) {
-            $redirect = SessionManager::pullPinReturnUrl() ?? EnotfUrl::page('overview');
-            $this->redirectAbsolute($redirect);
+            $this->redirectAbsolute(EnotfUrl::pinReturn(SessionManager::pullPinReturnUrl()));
         }
 
         SessionManager::setPinVerified(false);
@@ -60,8 +65,7 @@ class LockscreenController extends CrewController
             if (defined('ENOTF_PIN') && hash_equals(ENOTF_PIN, $pin)) {
                 SessionManager::setPinVerified(true);
 
-                $redirect = SessionManager::pullPinReturnUrl() ?? EnotfUrl::page('overview');
-                $this->redirectAbsolute($redirect);
+                $this->redirectAbsolute(EnotfUrl::pinReturn(SessionManager::pullPinReturnUrl()));
             }
             $error = true;
         }

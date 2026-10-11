@@ -550,6 +550,20 @@ class SessionManager
     }
 
     /**
+     * Verlängert die PIN-Frist nur, solange sie noch läuft. Für Anfragen
+     * ohne PIN-Middleware (Autosave): Tippen zählt als Aktivität, eine
+     * abgelaufene Sperre hebt es aber nicht auf.
+     */
+    public static function touchPinIfValid(): void
+    {
+        self::start();
+        $last = $_SESSION['pin_last_activity'] ?? null;
+        if (($_SESSION['pin_verified'] ?? false) === true && $last !== null && time() - (int) $last <= self::pinTimeout()) {
+            $_SESSION['pin_last_activity'] = time();
+        }
+    }
+
+    /**
      * Speichert die URL, auf die nach erfolgreicher PIN-Eingabe
      * zurückgeleitet wird.
      */

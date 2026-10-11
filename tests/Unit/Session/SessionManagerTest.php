@@ -274,6 +274,24 @@ final class SessionManagerTest extends TestCase
     }
 
     #[Test]
+    public function autosave_verlaengert_nur_eine_noch_laufende_pin_frist(): void
+    {
+        SessionManager::setPinVerified(true);
+        $_SESSION['pin_last_activity'] = time() - 60;
+        SessionManager::touchPinIfValid();
+        $this->assertGreaterThanOrEqual(time() - 1, $_SESSION['pin_last_activity']);
+
+        $abgelaufen = time() - SessionManager::pinTimeout() - 5;
+        $_SESSION['pin_last_activity'] = $abgelaufen;
+        SessionManager::touchPinIfValid();
+        $this->assertSame($abgelaufen, $_SESSION['pin_last_activity'], 'eine abgelaufene Sperre hebt Tippen nicht auf');
+
+        SessionManager::setPinVerified(false);
+        SessionManager::touchPinIfValid();
+        $this->assertArrayNotHasKey('pin_last_activity', $_SESSION);
+    }
+
+    #[Test]
     public function pin_return_url_set_und_pull_atomar(): void
     {
         SessionManager::setPinReturnUrl('/dashboard');

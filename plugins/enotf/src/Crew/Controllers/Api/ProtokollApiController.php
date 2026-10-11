@@ -6,6 +6,7 @@ namespace Plugin\Enotf\Crew\Controllers\Api;
 
 use App\Auth\Permissions;
 use App\Logging\Logger;
+use App\Session\SessionManager;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -48,6 +49,9 @@ final class ProtokollApiController
         if (!CrewPolicy::hasCrewSession() && !Permissions::check(['admin', 'edivi.edit'])) {
             return Response::json(['ok' => false, 'error' => 'Nicht angemeldet'], 401);
         }
+        // Wer lange in einem Feld tippt, wechselt keine Seite. Ohne diese
+        // Zeile sperrt die PIN beim nächsten Klick mitten in der Arbeit.
+        SessionManager::touchPinIfValid();
 
         $input  = $request->json();
         $enr    = isset($input['enr']) && is_string($input['enr']) ? trim($input['enr']) : '';

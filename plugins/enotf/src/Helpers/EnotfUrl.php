@@ -39,6 +39,25 @@ class EnotfUrl
         return $url;
     }
 
+    /**
+     * Ziel nach der PIN-Eingabe. Das Ziel kommt auch aus dem Query-String,
+     * deshalb nur Pfade im eNOTF dieser Installation (kein fremder Host,
+     * kein ../ hinaus, nicht der Sperrbildschirm selbst), sonst die Übersicht.
+     */
+    public static function pinReturn(?string $url): string
+    {
+        $prefix = self::basePath() . 'enotf/';
+        if ($url === null
+            || !str_starts_with($url, $prefix)
+            || str_starts_with($url, $prefix . 'lockscreen')
+            || preg_match('/\.\.|%2e|[\\\\\x00-\x20\x7f]/i', $url)
+        ) {
+            return self::page('overview');
+        }
+
+        return $url;
+    }
+
     public static function print(string $enr): string
     {
         return self::basePath() . 'enotf/print/index?enr=' . rawurlencode($enr);

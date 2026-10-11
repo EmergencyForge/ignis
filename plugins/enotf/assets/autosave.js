@@ -20,6 +20,9 @@
  *   - Läuft bereits ein Request, sammelt der nächste Batch weiter und
  *     wird nach der Antwort geflusht (kein paralleles Schreiben).
  *   - 403 (Protokoll freigegeben) sperrt den Client und meldet es.
+ *   - Getippter Text liegt bis zum bestätigten Save als Entwurf im
+ *     localStorage, pagehide schickt Offenes per keepalive hinterher und
+ *     flushAll() (pin_activity.js vor der PIN-Sperre) sendet alles sofort.
  *   - Feldfehler markieren das Element mit .ev2-field-error und zeigen
  *     die erste Meldung im Topbar-Status ([data-autosave-status]).
  *
@@ -71,6 +74,39 @@ function init() {
     // Save noch läuft, als "unverändert" verworfen und der alte Wert
     // bliebe in der DB stehen.
     const dirty = new Set();
+    // Batch des laufenden Requests, damit pagehide ihn erneut schicken kann
+    let inFlightFields = null;
+
+    // Getippter Text, der noch nicht bestätigt gespeichert ist, liegt
+    // zusätzlich im localStorage (je ENR). Geht die Seite weg, bevor der
+    // Save durch ist (Sperre, Neuladen im Spiel), speichert der nächste
+    // Aufruf des Protokolls ihn nach.
+    const DRAFT_FIELDS = 'textarea, input:not([type]), input[type="text"]:not([data-date-input]):not([data-time-input])';
+    const draftKey = 'enotf-draft:' + enr;
+    let drafts = readDrafts();
+
+    function readDrafts() {
+        try {
+            const data = JSON.parse(localStorage.getItem(draftKey) || '{}');
+            return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function writeDrafts() {
+        try {
+            if (Object.keys(drafts).length > 0) localStorage.setItem(draftKey, JSON.stringify(drafts));
+            else localStorage.removeItem(draftKey);
+        } catch (e) { /* ohne localStorage bleibt der normale Save */ }
+    }
+
+    function dropDraft(field, value) {
+        if (Object.hasOwn(drafts, field) && drafts[field] === value) {
+            delete drafts[field];
+            writeDrafts();
+        }
+    }
 
     function setStatus(state, text) {
         if (statusEl) {
@@ -121,6 +157,8 @@ function init() {
     function markLocked(message) {
         locked = true;
         pending = Object.create(null);
+        drafts = {};
+        writeDrafts();
         setStatus('error', message || 'Gesperrt');
     }
 
@@ -231,6 +269,7 @@ function init() {
 
         pending = Object.create(null);
         inFlight = true;
+        inFlightFields = fields;
         setStatus('saving', 'Speichert…');
 
         fetch(saveUrl, {
@@ -243,6 +282,7 @@ function init() {
                 .then((data) => ({ status: response.status, data: data })))
             .then(({ status, data }) => {
                 inFlight = false;
+                inFlightFields = null;
 
                 if (status === 403) {
                     markLocked('Protokoll freigegeben, Bearbeitung gesperrt');
@@ -264,9 +304,14 @@ function init() {
                         // Nur als bestätigt markieren, wenn nicht schon
                         // wieder eine neuere Änderung wartet
                         if (!(field in pending)) dirty.delete(field);
+                        dropDraft(field, String(fields[field] ?? ''));
                     });
                     if (data.updated.length > 0) schedulePlausibilityRefresh();
                 }
+                // Abgelehnte Werte nicht bei jedem Aufruf erneut schicken
+                errorFields.forEach((field) => {
+                    if (field in fields) dropDraft(field, String(fields[field] ?? ''));
+                });
 
                 if (errorFields.length > 0) {
                     markFieldErrors(errors);
@@ -283,6 +328,7 @@ function init() {
             })
             .catch(() => {
                 inFlight = false;
+                inFlightFields = null;
                 // Batch nicht verlieren: zurücklegen und beim nächsten
                 // change/flush erneut versuchen
                 Object.keys(fields).forEach((field) => {
@@ -300,19 +346,46 @@ function init() {
         timer = setTimeout(flush, DEBOUNCE_MS);
     }
 
+    function queueIfChanged(field, value) {
+        // Unverändert gegenüber dem bestätigten Stand → kein Send. Felder
+        // mit offener Änderung (dirty) müssen trotzdem gequeued werden,
+        // sonst gewinnt der noch laufende Save des alten Werts.
+        if (baseline.get(field) === value && !dirty.has(field)) {
+            dropDraft(field, value);
+            return;
+        }
+        queue(field, value);
+    }
+
     function onFieldEvent(event) {
         const el = event.target;
         if (!(el instanceof HTMLElement)) return;
         if (!el.matches('input, select, textarea')) return;
         if (!isSavable(el)) return;
 
-        const value = fieldValue(el);
-        // Unverändert gegenüber dem bestätigten Stand → kein Send. Felder
-        // mit offener Änderung (dirty) müssen trotzdem gequeued werden,
-        // sonst gewinnt der noch laufende Save des alten Werts.
-        if (baseline.get(baselineKey(el)) === value && !dirty.has(el.name)) return;
+        queueIfChanged(baselineKey(el), fieldValue(el));
+    }
 
-        queue(el.name, value);
+    // Eingaben, deren change noch aussteht (Fokus noch im Feld), und
+    // Entwürfe in die Queue holen
+    function collectOpen() {
+        Object.keys(drafts).forEach((field) => queueIfChanged(field, String(drafts[field])));
+        const active = document.activeElement;
+        if (active && root.contains(active)) onFieldEvent({ target: active });
+    }
+
+    // Vor der Sperre: alles Offene sofort senden. Erfüllt sich, sobald kein
+    // Request mehr läuft, egal ob gespeichert oder gescheitert.
+    function flushAll() {
+        collectOpen();
+        if (timer) clearTimeout(timer);
+        flush();
+        return new Promise((resolve) => {
+            (function wait() {
+                if (inFlight) setTimeout(wait, 100);
+                else resolve();
+            })();
+        });
     }
 
     captureBaseline();
@@ -324,12 +397,45 @@ function init() {
             onFieldEvent(event);
         }
     });
+    root.addEventListener('input', (event) => {
+        const el = event.target;
+        if (locked || !(el instanceof HTMLElement) || !el.matches(DRAFT_FIELDS) || !isSavable(el)) return;
+        drafts[el.name] = el.value;
+        writeDrafts();
+    });
 
-    if (locked) setStatus(null, 'Gesperrt');
+    // Seite geht weg (Link, Sperre durch den Server, Neuladen): Offenes per
+    // keepalive hinterherschicken, ein normaler fetch bricht beim Entladen ab
+    window.addEventListener('pagehide', () => {
+        if (locked) return;
+        collectOpen();
+        const fields = Object.assign({}, inFlightFields, pending);
+        if (Object.keys(fields).length === 0) return;
+        fetch(saveUrl, {
+            method: 'POST',
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ enr: enr, fields: fields }),
+        }).catch(() => {});
+    });
+
+    if (locked) {
+        setStatus(null, 'Gesperrt');
+        drafts = {};
+        writeDrafts();
+    } else {
+        // Entwürfe vom letzten Aufruf zurück ins Feld und speichern
+        Object.keys(drafts).forEach((field) => {
+            const el = root.querySelector('[name="' + CSS.escape(field) + '"]');
+            if (el && el.matches(DRAFT_FIELDS) && isSavable(el)) el.value = String(drafts[field]);
+        });
+        if (Object.keys(drafts).length > 0) flushAll();
+    }
 
     window.EnotfV2Autosave = {
         queue: queue,
         flushNow: () => { if (timer) clearTimeout(timer); flush(); },
+        flushAll: flushAll,
         isLocked: () => locked,
         refreshPlausibility: refreshPlausibility,
         hasPending: () => Object.keys(pending).length > 0 || inFlight,

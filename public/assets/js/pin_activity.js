@@ -27,14 +27,24 @@
     activityTimer = setTimeout(updateInterval);
   }
 
-  function checkTimeout() {
-    const now = Date.now();
-    const timeSinceActivity = now - lastActivity;
+  let locking = false;
 
-    if (timeSinceActivity >= timeout) {
-      console.log("🔒 User inactive, redirecting to lockscreen");
-      window.location.href = lockscreenUrl();
-    }
+  function checkTimeout() {
+    if (locking || Date.now() - lastActivity < timeout) return;
+    locking = true;
+
+    // Offene Eingaben erst speichern, höchstens 3 s warten, damit die
+    // Sperre auch bei hängendem Server kommt. Die aktuelle Seite geht
+    // mit, nach der PIN geht es genau hierher zurück.
+    const autosave = window.EnotfV2Autosave;
+    const saved = Promise.resolve()
+      .then(() => autosave && autosave.flushAll && autosave.flushAll())
+      .catch(() => {});
+    const maxWait = new Promise((resolve) => setTimeout(resolve, 3000));
+    Promise.race([saved, maxWait]).then(() => {
+      const here = window.location.pathname + window.location.search;
+      window.location.href = lockscreenUrl() + "?return=" + encodeURIComponent(here);
+    });
   }
 
   const events = [

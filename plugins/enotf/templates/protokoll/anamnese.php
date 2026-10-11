@@ -260,12 +260,14 @@ $textbloecke = [
 <?php elseif ($fokus === 'anamnese'): ?>
 
     <!-- ── ANAMNESE-FREITEXT (v1 anamnese/1.php): Textfeld + OK +
-         Textblock-Buttons. Speichern über den v2-Batch-Autosave. ── -->
+         Textblock-Buttons. Speichern über den v2-Batch-Autosave, auch
+         ohne OK beim Verlassen des Felds: sonst ginge der Text verloren,
+         wenn vorher die PIN-Sperre kommt. ── -->
     <!-- chromelos (kein Topbar-Offset): Textfeld füllt die Seite wie v1 1.php -->
     <div class="d-flex flex-column" style="min-height: calc(100vh - 40px);">
         <div class="row" style="margin-left: 0; flex-grow: 1;">
             <div class="col-10 edivi__box py-1 px-3" style="margin: 10px">
-                <textarea name="anmerkungen" id="anmerkungen" class="w-100 ignis-input" style="resize: none; height: 100%; min-height: 55vh; border-radius: 0;" rows="12" data-autosave-ignore <?= $istGesperrt ? 'readonly' : '' ?>><?= $e($wert('anmerkungen')) ?></textarea>
+                <textarea name="anmerkungen" id="anmerkungen" class="w-100 ignis-input" style="resize: none; height: 100%; min-height: 55vh; border-radius: 0;" rows="12" <?= $istGesperrt ? 'readonly' : '' ?>><?= $e($wert('anmerkungen')) ?></textarea>
             </div>
             <?php if (!$istGesperrt): ?>
                 <div class="col">

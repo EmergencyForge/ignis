@@ -45,6 +45,7 @@
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Crew\Policies\CrewPolicy;
 use Plugin\Enotf\Crew\Support\ConditionsService;
 
 $__title         = $__title         ?? 'eNOTF';
@@ -118,6 +119,10 @@ $__kannQm         = Permissions::check(['admin', 'edivi.edit']);
 $__protokollId    = (int) ($__protokoll['id'] ?? 0);
 $__patnameAnzeige = (string) ($__protokoll['patname'] ?? '') !== '' ? (string) $__protokoll['patname'] : 'Unbekannt';
 
+// Wen die PinLockscreenMiddleware durchwinkt (Admins, edivi.view,
+// Klinikzugang), den sperrt auch der Client nicht
+$__pinAktiv = CrewPolicy::pinEnabled() && !CrewPolicy::pinExempt() && !CrewPolicy::hasKlinikAccess();
+
 date_default_timezone_set('Europe/Berlin');
 ?>
 <!DOCTYPE html>
@@ -163,6 +168,9 @@ date_default_timezone_set('Europe/Berlin');
     <!-- Crew-Session-Live-Sync (10s-Poll gegen die v2-Session-API) -->
     <script defer src="<?= asset('plugins/enotf/assets/session-sync.js') ?>"></script>
     <script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
+    <!-- PIN-Sperre nach Inaktivität wie auf den übrigen eNOTF-Seiten: sichert
+         vorher den Autosave und kommt nach der PIN auf diese Seite zurück -->
+    <script defer src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
 
     <!-- Favicon (v1-Parität) -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
@@ -218,7 +226,7 @@ date_default_timezone_set('Europe/Berlin');
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="<?= $__e($__bodyPage) ?>" data-base-path="<?= BASE_PATH ?>" data-session-token="<?= $__e($_SESSION['enotf_session_token'] ?? '') ?>">
+<body data-bs-theme="dark" data-page="<?= $__e($__bodyPage) ?>" data-base-path="<?= BASE_PATH ?>" data-session-token="<?= $__e($_SESSION['enotf_session_token'] ?? '') ?>" data-pin-enabled="<?= $__pinAktiv ? 'true' : 'false' ?>" data-pin-timeout="<?= \App\Session\SessionManager::pinTimeout() ?>">
     <div data-enotf-autosave
          data-enr="<?= $__e($__enr) ?>"
          data-save-url="<?= $__e(EnotfUrl::api('save-fields')) ?>"
