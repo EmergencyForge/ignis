@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.1.4-beta
+
+### Atemschutzüberwachung im fireTab
+- Die Zeilenliste ist neu gestaltet: große Minutenzahlen mit gedrehter Einheit, beim Druck eine Leiste mit dem Anteil am Fülldruck. Eine weiße Marke unter der Leiste zeigt den Rückzugsdruck
+- Neue Farben: grün unter Atemschutz, orange bei fälliger Abfrage oder über der erwarteten Zeit, rot unter dem Rückzugsdruck, blau auf dem Rückweg, grau vor dem Anschließen
+- „Rest“ ist immer eine Zahl, die Minuten bis zum Rückzug. Vor dem Ziel rechnet die Uhr, danach zusätzlich der Druck, es gilt der kleinere Wert. Ein Symbol zeigt, woher die Zahl kommt
+- „Aktion“ zählt bis zur nächsten Druckabfrage herunter und öffnet sie per Tipp. Sind beide Abfragen erledigt, steht dort die Zeit seit der letzten Meldung, auf dem Rückweg die Zeit seit dem Rückzug
+- Werte, die es noch nicht gibt, stehen als „--“ da, etwa die Einsatzzeit des bereiten Sicherheitstrupps
+- Ein Tipp auf den Spaltenkopf sortiert die Trupps, erledigte bleiben unten
+- Das Zahnrad öffnet ein Seitenfenster mit dem nächsten Schritt, Kacheln für alle Aktionen, dem Druckverlauf je Person und der Rückzugsrechnung in Worten. Im Ablauf lässt sich jeder Eintrag einzeln zurücknehmen
+- Das Fragezeichen oben erklärt die Bedienung
+- Im Reiter „Atemschutz“ klappt die fireTab-Leiste über einen Menüknopf oben links aus, die Trupps haben die volle Breite
+- Auf dem Rückweg kommen keine Hinweise nach 1/3 und 2/3 mehr
+
 ## 2026.1.3-beta
 
 ### Atemschutzüberwachung im fireTab
