@@ -143,11 +143,12 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     .asu-where b { font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .asu-where small { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; margin-top: 4px; opacity: .9; }
 
-    .asu-ask { border: 0; border-radius: 4px; background: none; color: #fff; cursor: pointer; padding: 2px 6px; justify-self: end; }
-    .asu-ask:hover { background: rgba(0,0,0,.18); }
-    .asu-ask:disabled { cursor: default; background: none; }
+    .asu-ask { border: 2px solid rgba(255,255,255,.7); border-radius: 8px; background: rgba(0,0,0,.18); color: #fff; cursor: pointer; padding: 4px 10px; margin-right: 10px; justify-self: end; width: 160px; display: grid; justify-items: end; }
+    .asu-ask:hover { background: rgba(0,0,0,.34); border-color: #fff; }
+    /* Ohne mögliche Abfrage kein Rahmen, sonst sähe die Zelle klickbar aus */
+    .asu-ask:disabled { cursor: default; background: none; border-color: transparent; }
     .asu-ask.is-due .asu-metric__v { animation: none; }
-    .asu-flag { position: absolute; bottom: 0; right: 74px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 12px solid #fff; }
+    .asu-flag { position: absolute; bottom: 0; right: 76px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 12px solid #fff; }
 
     .asu-done { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; min-height: 42px; padding: 0 12px; background: #1d1f23; color: var(--asu-muted); font-size: .9rem; }
     .asu-done b { color: #fff; }
