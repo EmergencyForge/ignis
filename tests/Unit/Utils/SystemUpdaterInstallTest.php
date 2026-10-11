@@ -40,7 +40,7 @@ final class SystemUpdaterInstallTest extends TestCase
         foreach ([
             'index.php' => 'alt',
             'src/Old.php' => 'alt',
-            'assets/img/logo.png' => 'eigenes Logo',
+            'public/assets/img/logo.png' => 'eigenes Logo',
             'vendor/autoload.php' => 'alt',
             '.env' => 'geheim',
             'legacy-module/x.php' => 'alt',
@@ -63,8 +63,8 @@ final class SystemUpdaterInstallTest extends TestCase
             'composer.json' => '{}',
             'index.php' => 'neu',
             'src/New.php' => 'neu',
-            'assets/img/logo.png' => 'Standardlogo',
-            'assets/img/neu.png' => 'neu',
+            'public/assets/img/logo.png' => 'Standardlogo',
+            'public/assets/img/neu.png' => 'neu',
             'vendor/autoload.php' => 'neu',
             'storage/fremd.txt' => 'darf nicht rein',
             '.env' => 'darf nicht rein',
@@ -85,8 +85,8 @@ final class SystemUpdaterInstallTest extends TestCase
         self::assertSame('neu', $this->read('index.php'));
         self::assertSame('neu', $this->read('src/New.php'));
         self::assertSame('alt', $this->read('src/Old.php'));
-        self::assertSame('eigenes Logo', $this->read('assets/img/logo.png'));
-        self::assertSame('neu', $this->read('assets/img/neu.png'));
+        self::assertSame('eigenes Logo', $this->read('public/assets/img/logo.png'));
+        self::assertSame('neu', $this->read('public/assets/img/neu.png'));
         self::assertSame('neu', $this->read('vendor/autoload.php'));
         self::assertSame('geheim', $this->read('.env'));
         self::assertFileExists($this->root . '/update-manifest.json');
@@ -104,13 +104,13 @@ final class SystemUpdaterInstallTest extends TestCase
         $backup = $result['backup_dir'];
         self::assertStringStartsWith($this->root . '/storage/backups/updates/backup_', $backup);
         self::assertSame('alt', file_get_contents($backup . '/index.php'));
-        self::assertSame('eigenes Logo', file_get_contents($backup . '/assets/img/logo.png'));
+        self::assertSame('eigenes Logo', file_get_contents($backup . '/public/assets/img/logo.png'));
         self::assertSame('alt', file_get_contents($backup . '/vendor/autoload.php'));
         self::assertStringContainsString('"v2026.0.8"', (string) file_get_contents($backup . '/storage/version.json'));
         $manifest = json_decode((string) file_get_contents($backup . '/_update-backup.json'), true);
         self::assertIsArray($manifest);
         self::assertSame(3, $manifest['backed_up_files']);
-        self::assertEqualsCanonicalizing(['composer.json', 'src/New.php', 'assets/img/neu.png', 'update-manifest.json'], $manifest['created_files']);
+        self::assertEqualsCanonicalizing(['composer.json', 'src/New.php', 'public/assets/img/neu.png', 'update-manifest.json'], $manifest['created_files']);
 
         self::assertFileDoesNotExist($this->root . '/storage/cache/update-check.json');
         self::assertFileDoesNotExist($this->root . '/storage/composer_pending.json');

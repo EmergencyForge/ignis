@@ -274,7 +274,9 @@ class SystemUpdater
                 ? ['storage', 'system/updates']
                 : ['vendor', 'storage', 'system/updates'];
             $excludeFiles = ['.env', '.git', '.gitignore'];
-            $preserveDirs = ['assets/img'];
+            // Ausgeliefert wird aus public/assets/img; dort tauschen Betreiber
+            // Logo und Abzeichen aus. assets/img liest DomPDF von der Platte.
+            $preserveDirs = ['assets/img', 'public/assets/img'];
 
             // Step 3: Back up every existing file that the release can
             // overwrite. The former hard-coded src/assets/api list missed
