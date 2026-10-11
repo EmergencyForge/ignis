@@ -311,8 +311,10 @@ if (!function_exists('systemLogoUrl')) {
      *
      * Mitgelieferte Logos werden zur Wortmarke: sie trägt ihr Orange fest,
      * Lockup und Bildmarke füllen mit currentColor und wären als <img>
-     * schwarz. Relative Pfade bekommen BASE_PATH, sonst zeigen sie unter
-     * einem Unterpfad wie /intra/ ins Leere; http(s):// und // bleiben.
+     * schwarz. Relative Pfade laufen über asset(): BASE_PATH davor, sonst
+     * zeigen sie unter einem Unterpfad wie /intra/ ins Leere, und ?v= mit
+     * dem Dateidatum, damit eine gleichnamig ersetzte Datei nicht aus dem
+     * Browser-Cache kommt. http(s):// und // bleiben.
      */
     function systemLogoUrl(?string $logo = null): string
     {
@@ -321,7 +323,7 @@ if (!function_exists('systemLogoUrl')) {
         if (systemLogoIsDefault($logo)) {
             $logo = $base . '/assets/img/ignis-wordmark.svg';
         } elseif (!preg_match('~^(https?:)?//~i', $logo)) {
-            $logo = $base . '/' . ltrim($logo, '/');
+            $logo = asset($logo);
         }
 
         return htmlspecialchars($logo, ENT_QUOTES);

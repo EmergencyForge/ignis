@@ -502,8 +502,10 @@ $SITE_TITLE = 'System-Konfiguration';
                             input.disabled = false;
                             wrap.style.opacity = '1';
                             if (data.success) {
-                                wrap.dataset.ignisFileCurrent = data.url + '?t=' + Date.now();
+                                wrap.dataset.ignisFileCurrent = data.url;
                                 document.getElementById('logo_preview').src = data.url;
+                                // Sonst schreibt "Speichern" den alten Pfad zurück.
+                                document.getElementById('SYSTEM_LOGO').value = data.path;
                                 if (removeBtn) removeBtn.hidden = false;
                                 showToast('Logo aktualisiert', 'success');
                             } else {
@@ -538,6 +540,7 @@ $SITE_TITLE = 'System-Konfiguration';
                             if (data.success) {
                                 wrap.dataset.ignisFileCurrent = '';
                                 document.getElementById('logo_preview').src = data.url;
+                                document.getElementById('SYSTEM_LOGO').value = data.path;
                                 removeBtn.hidden = true;
                                 showToast('Logo zurückgesetzt', 'success');
                             } else {

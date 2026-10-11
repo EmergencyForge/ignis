@@ -328,6 +328,7 @@ final class SystemController
             'success' => true,
             'message' => $newValue === '' ? 'Logo zurückgesetzt' : 'Logo aktualisiert',
             'url'     => systemLogoUrl($newValue),
+            'path'    => $newValue,
         ]);
     }
 

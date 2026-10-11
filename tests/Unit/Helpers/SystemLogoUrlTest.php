@@ -49,6 +49,16 @@ final class SystemLogoUrlTest extends TestCase
         $this->assertFalse(systemLogoIsDefault('/uploads/logo.png'));
     }
 
+    /** Betreiber ersetzen das mitgelieferte Logo oft unter demselben Namen. */
+    #[Test]
+    public function vorhandene_dateien_bekommen_das_dateidatum_gegen_den_cache(): void
+    {
+        $url = $this->base() . '/assets/img/schrift_fw_weiss.png?v=';
+
+        $this->assertStringStartsWith($url, systemLogoUrl('/assets/img/schrift_fw_weiss.png'));
+        $this->assertStringStartsWith($url, systemLogoUrl('public/assets/img/schrift_fw_weiss.png'));
+    }
+
     /**
      * Api\SystemController::uploadLogo() legt SYSTEM_LOGO ohne BASE_PATH ab
      * (`/storage/branding/<datei>`), genau wie jeder andere relative Pfad.

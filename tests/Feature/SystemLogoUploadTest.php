@@ -86,6 +86,10 @@ final class SystemLogoUploadTest extends FeatureTestCase
         // haengt systemLogoUrl() sie ein zweites Mal an.
         $this->assertSame(systemLogoUrl($stored), $body['url']);
         $this->assertStringNotContainsString('//storage', $body['url']);
+
+        // Das Textfeld der Config-Form übernimmt diesen Wert, sonst schreibt
+        // "Speichern" danach den alten Pfad zurück.
+        $this->assertSame($stored, $body['path']);
     }
 
     #[Test]
@@ -165,6 +169,7 @@ final class SystemLogoUploadTest extends FeatureTestCase
         $this->assertTrue(systemLogoIsDefault($this->currentSystemLogo()));
         $this->assertFileDoesNotExist($uploaded);
         $this->assertSame(systemLogoUrl(''), $body['url']);
+        $this->assertSame('', $body['path']);
     }
 
     #[Test]
