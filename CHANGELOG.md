@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026.1.5-beta
+
+### fireTab
+- Das Menü liegt auf allen fireTab-Seiten hinter dem Knopf oben links und klappt über dem Inhalt aus. Ein Klick daneben oder Escape schließt es
+
+### Atemschutzüberwachung
+- Bei MAYDAY zeigt die Spalte „Aktion“ die Minuten seit dem Notruf und öffnet per Tipp die Notfallmeldung. Unter dem Ort stehen die Angaben aus der Meldung, die fällige Druckabfrage blinkt so lange nicht
+- Statt „unter Rückzugsdruck“ steht in der Zeile zum Beispiel „Rückzug fällig, spätestens bei 160 bar“. Hat der Hinweg mehr als die halbe Flasche gekostet, nennt die Zeile diesen Verbrauch
+- Am Ziel zeigt die Zeile gleich, bei welchem Druck der Rückzug fällig wird. Die Hilfe erklärt den Rückzugsdruck mit einem Rechenbeispiel
+
+### Behoben
+- Das Seitenfenster eines Trupps blieb nach dem Schließen stehen und reagierte nicht mehr
+
 ## 2026.1.4-beta
 
 ### Atemschutzüberwachung im fireTab
