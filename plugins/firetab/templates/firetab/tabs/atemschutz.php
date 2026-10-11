@@ -116,11 +116,11 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     .asu-name b { display: block; font-size: 1.45rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .asu-name span { display: block; font-size: 1.05rem; text-transform: uppercase; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .asu-step { width: 60px; height: 64px; border: 0; border-radius: 4px; background: none; color: #fff; cursor: pointer; display: grid; place-items: center; align-content: center; gap: 2px; padding: 0; }
+    .asu-step { width: 60px; height: 64px; border: 2px solid rgba(255,255,255,.7); border-radius: 8px; background: rgba(0,0,0,.18); color: #fff; cursor: pointer; display: grid; place-items: center; align-content: center; gap: 2px; padding: 0; }
     .asu-step i { font-size: 2.3rem; }
     .asu-step small { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
-    .asu-step:hover { background: rgba(0,0,0,.18); }
-    .asu-step:disabled { opacity: .3; cursor: default; background: none; }
+    .asu-step:hover { background: rgba(0,0,0,.34); border-color: #fff; }
+    .asu-step:disabled { opacity: .3; cursor: default; background: rgba(0,0,0,.18); border-color: rgba(255,255,255,.7); }
 
     /* Große Zahl, gedrehte Einheit, Beschriftung darunter */
     .asu-metric { display: grid; justify-items: end; width: max-content; }
@@ -128,16 +128,16 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     .asu-metric__v { font-family: var(--asu-mono); font-size: 3.3rem; font-weight: 700; line-height: .9; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
     .asu-metric__u { writing-mode: vertical-rl; font-size: 1.15rem; font-weight: 700; line-height: 1; }
     .asu-metric__l { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; white-space: nowrap; }
-    .asu-metric.is-blank .asu-metric__v, .asu-metric.is-blank .asu-metric__u { visibility: hidden; }
     .asu-metric.is-over .asu-metric__v { color: #fecaca; }
 
-    .asu-press { display: grid; gap: 4px; width: max-content; justify-items: end; }
+    .asu-press { display: grid; gap: 4px; width: max-content; justify-items: end; padding-bottom: 8px; }
     .asu-press__bar { display: flex; align-items: center; gap: 6px; }
     .asu-press__bar > i { font-size: .95rem; }
     .asu-gauge { position: relative; width: 150px; height: 24px; border: 2px solid #fff; background: transparent; }
     .asu-gauge b { position: absolute; top: 0; bottom: 0; left: 0; background: #fff; overflow: hidden; }
     .asu-gauge em { position: absolute; top: 0; bottom: 0; left: 0; width: 146px; display: grid; place-items: center; font: 700 1rem/1 var(--asu-mono); font-style: normal; }
-    .asu-gauge .rz { position: absolute; top: -6px; bottom: -6px; width: 3px; background: #fbbf24; }
+    /* Rückzugsdruck als Marke unter der Leiste, damit sie die Prozentzahl nicht kreuzt */
+    .asu-gauge .rz { position: absolute; top: calc(100% + 3px); width: 0; height: 0; margin-left: -6px; border: 6px solid transparent; border-top: 0; border-bottom: 7px solid #fff; }
 
     .asu-where { font-size: 1.1rem; line-height: 1.3; min-width: 0; align-self: start; padding-top: 4px; }
     .asu-where b { font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }

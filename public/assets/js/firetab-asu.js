@@ -275,18 +275,18 @@
             + (step ? ' data-ignis-tooltip="' + esc(step.help) + '"' : '') + '>'
             + (step ? '<i class="fa-solid ' + step.icon + '"></i><small>' + esc(stepLabel) + '</small>' : '') + '</button>';
 
-        var einsatz = metric(two(Math.floor(s.elapsedMs / 60000)), 'min', 'Einsatz', s.overtime ? 'is-over' : '');
+        var einsatz = metric(s.startAt ? two(Math.floor(s.elapsedMs / 60000)) : '--', 'min', 'Einsatz', s.overtime ? 'is-over' : '');
         var restIcon = s.restSource === 'druck' ? '<i class="fa-solid fa-gauge-high"></i>' : '<i class="fa-regular fa-clock"></i>';
         var rest = s.phase === 'rueckzug'
-            ? metric('00', 'min', '<i class="fa-solid fa-person-walking-arrow-loop-left"></i>Rückweg', 'is-blank')
+            ? metric('--', 'min', '<i class="fa-solid fa-person-walking-arrow-loop-left"></i>Rückweg')
             : metric(two(s.restMin), 'min', restIcon + 'Rest');
 
         var bar = s.lowest && s.lowest.bar !== null ? s.lowest.bar : cfg.startBar;
         var pct = Math.max(0, Math.min(100, Math.round((bar / cfg.startBar) * 100)));
-        var mark = s.retreatBar !== null ? '<span class="rz" style="left:calc(' + Math.min(100, (s.retreatBar / cfg.startBar) * 100) + '% - 1px)"></span>' : '';
+        var mark = s.retreatBar !== null ? '<span class="rz" style="left:' + Math.min(100, (s.retreatBar / cfg.startBar) * 100) + '%"></span>' : '';
         // Der Prozenttext liegt zweimal übereinander: weiß auf dem leeren Teil, in
         // Zeilenfarbe auf der weißen Füllung, die ihn an ihrer Kante abschneidet.
-        var press = '<div class="asu-press"><div class="asu-metric__top"><span class="asu-metric__v">' + bar + '</span><span class="asu-metric__u">bar</span></div>'
+        var press = '<div class="asu-press"' + (s.retreatBar !== null ? ' data-ignis-tooltip="Die Marke unter der Leiste ist der Rückzugsdruck: ' + s.retreatBar + ' bar"' : '') + '><div class="asu-metric__top"><span class="asu-metric__v">' + bar + '</span><span class="asu-metric__u">bar</span></div>'
             + '<div class="asu-press__bar"><i class="fa-solid fa-gauge-high"></i><div class="asu-gauge"><em>' + pct + '%</em>'
             + '<b style="width:' + pct + '%"><em style="color:' + TONE_COLOR[s.tone] + '">' + pct + '%</em></b>' + mark + '</div></div></div>';
 
@@ -295,7 +295,7 @@
 
         var ask;
         if (!s.startAt) {
-            ask = metric('00', 'min', '<i class="fa-solid fa-walkie-talkie"></i>nach Start', 'is-blank');
+            ask = metric('--', 'min', '<i class="fa-solid fa-walkie-talkie"></i>nach Start');
         } else if (s.mayday) {
             ask = metric(two(Math.floor((now() - s.mayday.at) / 60000)), 'min', '<i class="fa-solid fa-triangle-exclamation"></i>MAYDAY seit');
         } else if (s.phase === 'rueckzug') {
@@ -890,7 +890,7 @@
             + '<section><h5>Spalten</h5><ul>'
             + '<li><b>Einsatz:</b> Minuten seit dem Anschließen.</li>'
             + '<li><b>Rest:</b> Minuten bis zum Rückzug. Uhr-Symbol: aus der erwarteten Einsatzzeit. Druck-Symbol: aus dem Druck, sobald es einen Rückzugsdruck gibt. Es gilt der kleinere Wert.</li>'
-            + '<li><b>Druck:</b> niedrigster gemeldeter Druck im Trupp, darunter der Anteil am Fülldruck. Der gelbe Strich ist der Rückzugsdruck: doppelt so viel Luft wie für den Hinweg (FwDV 7).</li>'
+            + '<li><b>Druck:</b> niedrigster gemeldeter Druck im Trupp, darunter der Anteil am Fülldruck. Die weiße Marke unter der Leiste ist der Rückzugsdruck: doppelt so viel Luft wie für den Hinweg (FwDV 7).</li>'
             + '<li><b>Aktion:</b> Minuten bis zur nächsten Druckabfrage nach 1/3 und 2/3 der erwarteten Zeit. Antippen öffnet die Abfrage.</li></ul></section>'
             + '<section><h5>Farben</h5><div class="asu-legend">' + legend + '</div></section>'
             + '<section><h5>Zahnrad</h5><p class="asu-hint">Alle Aktionen eines Trupps, der Druck jeder Person, die Rechnung zum Rückzug und der Ablauf. Fehleingaben lassen sich dort einzeln zurücknehmen.</p></section>';
