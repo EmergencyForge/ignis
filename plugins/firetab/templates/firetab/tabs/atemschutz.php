@@ -83,7 +83,7 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     /* Spaltenköpfe sortieren per Klick */
     .asu-head, .asu-row {
         display: grid;
-        grid-template-columns: minmax(150px, 220px) 64px 128px 128px 176px minmax(110px, 1fr) 176px;
+        grid-template-columns: minmax(150px, 220px) 84px 128px 128px 176px minmax(110px, 1fr) 204px;
         align-items: center;
         column-gap: 12px;
     }
@@ -116,8 +116,8 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     .asu-name b { display: block; font-size: 1.45rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .asu-name span { display: block; font-size: 1.05rem; text-transform: uppercase; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .asu-step { width: 60px; height: 64px; border: 2px solid rgba(255,255,255,.7); border-radius: 8px; background: rgba(0,0,0,.18); color: #fff; cursor: pointer; display: grid; place-items: center; align-content: center; gap: 2px; padding: 0; }
-    .asu-step i { font-size: 2.3rem; }
+    .asu-step { width: 80px; height: 74px; border: 2px solid rgba(255,255,255,.7); border-radius: 8px; background: rgba(0,0,0,.18); color: #fff; cursor: pointer; display: grid; place-items: center; align-content: center; gap: 4px; padding: 8px 6px; }
+    .asu-step i { font-size: 2rem; }
     .asu-step small { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
     .asu-step:hover { background: rgba(0,0,0,.34); border-color: #fff; }
     .asu-step:disabled { opacity: .3; cursor: default; background: rgba(0,0,0,.18); border-color: rgba(255,255,255,.7); }
@@ -143,12 +143,12 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     .asu-where b { font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .asu-where small { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; margin-top: 4px; opacity: .9; }
 
-    .asu-ask { border: 2px solid rgba(255,255,255,.7); border-radius: 8px; background: rgba(0,0,0,.18); color: #fff; cursor: pointer; padding: 4px 10px; margin-right: 10px; justify-self: end; width: 160px; display: grid; justify-items: end; }
+    .asu-ask { border: 2px solid rgba(255,255,255,.7); border-radius: 8px; background: rgba(0,0,0,.18); color: #fff; cursor: pointer; padding: 6px 16px; margin-right: 10px; justify-self: end; width: 188px; display: grid; justify-items: end; }
     .asu-ask:hover { background: rgba(0,0,0,.34); border-color: #fff; }
     /* Ohne mögliche Abfrage kein Rahmen, sonst sähe die Zelle klickbar aus */
     .asu-ask:disabled { cursor: default; background: none; border-color: transparent; }
     .asu-ask.is-due .asu-metric__v { animation: none; }
-    .asu-flag { position: absolute; bottom: 0; right: 76px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 12px solid #fff; }
+    .asu-flag { position: absolute; bottom: 0; right: 90px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 12px solid #fff; }
 
     .asu-done { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; min-height: 42px; padding: 0 12px; background: #1d1f23; color: var(--asu-muted); font-size: .9rem; }
     .asu-done b { color: #fff; }
