@@ -170,6 +170,7 @@
             // auch wenn der Kontext gerade gar keine Werte liefert.
             variableDisplay: 'values',
             templateMode: false,
+            gender: mount.getAttribute('data-efe-gender') || null,
             onBlocked: createBlockedNotifier(),
             onUpdate: function () {
                 dirty = true; setStatus('Ungespeicherte Änderungen', 'changed');

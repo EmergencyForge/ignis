@@ -21,6 +21,7 @@
 
     var FIELD_LABEL_ID = 'template-field-label-input';
     var FIELD_REQUIRED_ID = 'template-field-required-input';
+    var FIELD_OPTIONS_ID = 'template-field-options';
     var SECTION_TITLE_ID = 'template-section-title-input';
     var SECTION_HINT_ID = 'template-section-hint-input';
     var SECTION_REPEATABLE_ID = 'template-section-repeatable-input';
@@ -130,16 +131,58 @@
         return null;
     }
 
+    /** Eine Zeile der Auswahlliste: allgemeine, männliche, weibliche Form. */
+    function optionRowHtml(option) {
+        option = option || {};
+        var input = function (key, placeholder) {
+            return '<input type="text" class="ignis-input flex-1 min-w-0" maxlength="100" data-option-form="' + key +
+                '" placeholder="' + placeholder + '" aria-label="' + placeholder + '" value="' +
+                escapeHtml(option[key]) + '">';
+        };
+        return '<div class="flex items-center gap-2 mb-2" data-field-option>' +
+            input('label', 'Allgemein') + input('male', 'Männlich') + input('female', 'Weiblich') +
+            '<button type="button" class="ignis-btn ignis-btn--ghost-danger ignis-btn--icon ignis-btn--sm" ' +
+            'data-field-option-remove aria-label="Option entfernen" data-ignis-tooltip="Option entfernen">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+            '</div>';
+    }
+
+    /**
+     * Die Auswahlliste aus dem Dialog. Zeilen ohne allgemeine Form fallen
+     * weg, die braucht jede Option als Rückfall.
+     */
+    function readOptions(dialog) {
+        var options = [];
+        dialog.element.querySelectorAll('[data-field-option]').forEach(function (row) {
+            var form = function (key) {
+                return row.querySelector('[data-option-form="' + key + '"]').value.trim();
+            };
+            if (!form('label')) {
+                return;
+            }
+            var option = { label: form('label') };
+            if (form('male')) {
+                option.male = form('male');
+            }
+            if (form('female')) {
+                option.female = form('female');
+            }
+            options.push(option);
+        });
+        return options;
+    }
+
     /**
      * Dialog für ein Feld.
      *
      * `options.isEdit` unterscheidet Anlegen von Bearbeiten (nur beim
-     * Bearbeiten gibt es "Feld entfernen"); `label` und `required` sind die
-     * Vorbelegung. Beim Anlegen kommt die Beschriftung aus dem markierten
-     * Text.
+     * Bearbeiten gibt es "Feld entfernen"); `label`, `required` und
+     * `choices` (die Auswahlliste) sind die Vorbelegung. Beim Anlegen kommt
+     * die Beschriftung aus dem markierten Text.
      *
-     * Liefert `{ label, required }` zum Übernehmen, den String `'remove'`
-     * zum Entfernen, sonst null (abgebrochen).
+     * Liefert `{ label, required, choices }` zum Übernehmen, den String
+     * `'remove'` zum Entfernen, sonst null (abgebrochen). `choices` ist null,
+     * wenn das Feld Freitext bleibt.
      */
     function openFieldDialog(options) {
         var isEdit = Boolean(options.isEdit);
@@ -155,6 +198,14 @@
             (options.required ? ' checked' : '') + '>' +
             '<span>Pflichtfeld: ohne Eintrag lässt sich das Dokument nicht ausstellen</span>' +
             '</label>' +
+            '</div>' +
+            '<div class="ignis-field">' +
+            '<div class="ignis-field__label">Auswahl</div>' +
+            '<p class="ignis-field__hint mb-2">Mit Optionen wählt der Aussteller aus der Liste, statt frei zu schreiben. ' +
+            'Die männliche oder weibliche Form setzt ignis passend zum Mitarbeiter ein, ist sie leer, gilt die allgemeine.</p>' +
+            '<div id="' + FIELD_OPTIONS_ID + '">' + (options.choices || []).map(optionRowHtml).join('') + '</div>' +
+            '<button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-field-option-add>' +
+            '<i class="fa-solid fa-plus" aria-hidden="true"></i> Option hinzufügen</button>' +
             '</div>';
 
         var actions = [{ label: 'Abbrechen', variant: 'ghost', close: true }];
@@ -165,9 +216,11 @@
             label: isEdit ? 'Übernehmen' : 'Einfügen',
             variant: 'primary',
             onClick: function (d) {
+                var choices = readOptions(d);
                 d.close({
                     label: inputIn(d, FIELD_LABEL_ID).value.trim(),
                     required: inputIn(d, FIELD_REQUIRED_ID).checked,
+                    choices: choices.length ? choices : null,
                 });
             },
         });
@@ -176,6 +229,22 @@
             title: isEdit ? 'Feld bearbeiten' : 'Feld einfügen',
             body: body,
             actions: actions,
+            // Drei Formen je Option nebeneinander brauchen die Breite.
+            size: 'lg',
+            onOpen: function (d) {
+                d.element.addEventListener('click', function (event) {
+                    if (event.target.closest('[data-field-option-add]')) {
+                        var list = inputIn(d, FIELD_OPTIONS_ID);
+                        list.insertAdjacentHTML('beforeend', optionRowHtml());
+                        list.lastElementChild.querySelector('input').focus();
+                        return;
+                    }
+                    var remove = event.target.closest('[data-field-option-remove]');
+                    if (remove) {
+                        remove.closest('[data-field-option]').remove();
+                    }
+                });
+            },
         }).open();
     }
 
@@ -252,6 +321,7 @@
                 isEdit: true,
                 label: node.attrs.label || '',
                 required: Boolean(node.attrs.required),
+                choices: node.attrs.options,
             }).then(function (result) {
                 if (result === 'remove') {
                     editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
@@ -266,6 +336,7 @@
                     .command(function (props) {
                         props.tr.setNodeAttribute(pos, 'label', result.label);
                         props.tr.setNodeAttribute(pos, 'required', result.required);
+                        props.tr.setNodeAttribute(pos, 'options', result.choices);
                         return true;
                     })
                     .run();
@@ -297,6 +368,7 @@
                             fieldId: generateFieldId(),
                             label: result.label,
                             required: result.required,
+                            options: result.choices,
                             value: '',
                         },
                     })

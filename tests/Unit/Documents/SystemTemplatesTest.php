@@ -151,4 +151,69 @@ final class SystemTemplatesTest extends TestCase
             default  => $this->fail('Unbekannte Erwartung: ' . $art),
         };
     }
+
+    /** @return iterable<string,array{string,list<array<string,string>>}> */
+    public static function auswahlProvider(): iterable
+    {
+        yield 'Lehrgangszertifikat' => ['Lehrgangszertifikat', SystemTemplates::LEHRGAENGE];
+        yield 'Lehrgangszertifikat Fachdienste' => ['Lehrgangszertifikat Fachdienste', SystemTemplates::FACHDIENSTE];
+    }
+
+    /**
+     * Der Lehrgang ist eine Auswahl wie im alten System, und gespeichert
+     * wird die weibliche Form genauso wie die allgemeine.
+     *
+     * @param list<array<string,string>> $liste
+     */
+    #[Test]
+    #[DataProvider('auswahlProvider')]
+    public function der_lehrgang_kommt_aus_der_liste(string $name, array $liste): void
+    {
+        $vorlage = $this->doc($name);
+        $feld    = $this->qualifikationsfeld($vorlage);
+        $this->assertSame($liste, $feld['attrs']['options'] ?? null);
+
+        $wert    = $liste[0]['female'] ?? $liste[0]['label'];
+        $eingabe = $this->mitWert($vorlage, $wert);
+        $result  = (new SectionGuard())->restoreLockedSections($vorlage, $eingabe);
+        $this->assertSame($wert, $this->qualifikationsfeld($result->document)['attrs']['value']);
+
+        $result = (new SectionGuard())->restoreLockedSections($vorlage, $this->mitWert($vorlage, 'Ehrenkommandant'));
+        $this->assertSame('', $this->qualifikationsfeld($result->document)['attrs']['value']);
+    }
+
+    /**
+     * @param  array<string,mixed> $node
+     * @return array<string,mixed>
+     */
+    private function qualifikationsfeld(array $node): array
+    {
+        if (($node['type'] ?? null) === 'docField' && ($node['attrs']['fieldId'] ?? null) === 'qualifikation') {
+            return $node;
+        }
+        foreach ($node['content'] ?? [] as $child) {
+            $found = is_array($child) ? $this->qualifikationsfeld($child) : [];
+            if ($found !== []) {
+                return $found;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * @param  array<string,mixed> $node
+     * @return array<string,mixed>
+     */
+    private function mitWert(array $node, string $wert): array
+    {
+        if (($node['type'] ?? null) === 'docField' && ($node['attrs']['fieldId'] ?? null) === 'qualifikation') {
+            $node['attrs']['value'] = $wert;
+        }
+        foreach ($node['content'] ?? [] as $i => $child) {
+            $node['content'][$i] = is_array($child) ? $this->mitWert($child, $wert) : $child;
+        }
+
+        return $node;
+    }
 }

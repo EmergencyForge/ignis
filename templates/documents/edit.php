@@ -51,6 +51,13 @@ $reasonsJson = htmlspecialchars(
     ENT_QUOTES,
 );
 
+// Auswahlfelder tragen die Form zum Geschlecht ein (0 männlich, 1 weiblich).
+$gender = match ($document->mitarbeiter?->geschlecht) {
+    0       => 'male',
+    1       => 'female',
+    default => '',
+};
+
 $layout     = 'admin';
 $bodyId     = 'documents';
 $SITE_TITLE = $document->title;
@@ -133,6 +140,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                              data-efe-variables="<?= $labelsJson ?>"
                              data-efe-resolved="<?= $resolvedJson ?>"
                              data-efe-missing-reasons="<?= $reasonsJson ?>"
+                             data-efe-gender="<?= $gender ?>"
                              data-efe-readonly="<?= $readOnly ? '1' : '0' ?>"></div>
                     </div>
                 </div>

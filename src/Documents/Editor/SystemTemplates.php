@@ -26,6 +26,26 @@ namespace App\Documents\Editor;
 final class SystemTemplates
 {
     /**
+     * Auswahl der Lehrgangszertifikate, wie sie das alte System mitbrachte.
+     * `male` und `female` setzt der Editor nach dem Geschlecht ein.
+     */
+    public const LEHRGAENGE = [
+        ['label' => 'Brandmeister/-in', 'male' => 'Brandmeister', 'female' => 'Brandmeisterin'],
+        ['label' => 'Gruppenführer/-in', 'male' => 'Gruppenführer', 'female' => 'Gruppenführerin'],
+        ['label' => 'Zugführer/-in', 'male' => 'Zugführer', 'female' => 'Zugführerin'],
+        ['label' => 'Sonderfahrzeug-Maschinist/-in', 'male' => 'Sonderfahrzeug-Maschinist', 'female' => 'Sonderfahrzeug-Maschinistin'],
+    ];
+
+    public const FACHDIENSTE = [
+        ['label' => 'Leitstellen-Disponent/-in', 'male' => 'Leitstellen-Disponent', 'female' => 'Leitstellen-Disponentin'],
+        ['label' => 'Helfergrundmodul (SEG)'],
+        ['label' => 'SEG-Sanitäter/-in', 'male' => 'SEG-Sanitäter', 'female' => 'SEG-Sanitäterin'],
+        ['label' => 'Gruppenführer/-in-BevS', 'male' => 'Gruppenführer-BevS', 'female' => 'Gruppenführerin-BevS'],
+        ['label' => 'HEMS-TC'],
+        ['label' => 'Luftrettungspilot/-in', 'male' => 'Luftrettungspilot', 'female' => 'Luftrettungspilotin'],
+    ];
+
+    /**
      * Name auf Kategorie und Abschnitte.
      *
      * @return array<string,array{category: string, sections: list<array<string,mixed>>}>
@@ -115,16 +135,24 @@ final class SystemTemplates
         return ['type' => 'docVariable', 'attrs' => ['name' => $name]];
     }
 
-    /** @return array<string,mixed> */
-    private function f(string $id, string $label, bool $required = true, int $maxLength = 120): array
+    /**
+     * @param  list<array<string,string>>  $options  Auswahl statt Freitext
+     * @return array<string,mixed>
+     */
+    private function f(string $id, string $label, bool $required = true, int $maxLength = 120, array $options = []): array
     {
-        return ['type' => 'docField', 'attrs' => [
+        $attrs = [
             'fieldId'   => $id,
             'label'     => $label,
             'required'  => $required,
             'maxLength' => $maxLength,
             'value'     => '',
-        ]];
+        ];
+        if ($options !== []) {
+            $attrs['options'] = $options;
+        }
+
+        return ['type' => 'docField', 'attrs' => $attrs];
     }
 
     private function uuid(): string
@@ -296,7 +324,7 @@ final class SystemTemplates
                         $this->p([$this->v('mitarbeiter.name')], 'center'),
                         $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
                         $this->p([$this->t('den Lehrgang '), $this->v('mitarbeiter.zum_zur')], 'center'),
-                        $this->p([$this->f('qualifikation', 'Lehrgang')], 'center'),
+                        $this->p([$this->f('qualifikation', 'Lehrgang', options: self::LEHRGAENGE)], 'center'),
                         $this->p([
                             $this->t('am '), $this->f('pruefungsdatum', 'Abschlussdatum', true, 20),
                             $this->t(' erfolgreich absolviert hat.'),
@@ -315,7 +343,7 @@ final class SystemTemplates
                         $this->p([$this->v('mitarbeiter.name')], 'center'),
                         $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
                         $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
-                        $this->p([$this->f('qualifikation', 'Fachdienst-Qualifikation')], 'center'),
+                        $this->p([$this->f('qualifikation', 'Fachdienst-Qualifikation', options: self::FACHDIENSTE)], 'center'),
                         $this->p([
                             $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', true, 20),
                             $this->t(' erfolgreich absolviert hat.'),
