@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "65d84bf2d7db846a3f2d14cbf2f65569791c16f1"
+                "reference": "ff8d508bf1282224211c7291e8a0aabcfad4de2a"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -814,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "6754387cdfab3bfdac444d23963cded28477811b"
+                "reference": "471af58e0ad5cb1d9204ab581a15cf6373ccae9d"
             },
             "require": {
                 "php": ">=8.3",
@@ -849,7 +849,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/fuzzy-search",
-                "reference": "4427f102cd2ffc856e50b9b584f401e1d1bdd277"
+                "reference": "330bf4f3324f9434dae6f312515594ea236253bc"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -884,7 +884,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "de1e1b1bb6625b278362cc1e31c5d15d42c8f299"
+                "reference": "87ec849a50adaa31bfa82b395e7bb3153901ff9f"
             },
             "require": {
                 "php": ">=8.3"
@@ -918,7 +918,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "3fa7c5bd8647206af09b1a0e7fa8c0a925675793"
+                "reference": "29ae75015ff793ce3e26f0b34c5b047d1cf2d7e8"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/list-query",
-                "reference": "0bfbf9477d9d507ddbe536e2d388d63b536b4eae"
+                "reference": "1bd7ec50aefe929cc8147713f842ce3bc41cb435"
             },
             "require": {
                 "php": ">=8.3"
@@ -988,7 +988,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
+                "reference": "da83a55d7c9dad2e9b96f47b0f415cb90e0d16de"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1023,7 +1023,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "86d39abe912783f75a01293284400eb680c7721c"
+                "reference": "4281db9279cfbe006fbbb1566a613d9554e82efa"
             },
             "require": {
                 "ext-tokenizer": "*",
@@ -6311,11 +6311,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.16",
+            "version": "2.3.1",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
-                "reference": "46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db",
+                "reference": "6155239b488e95d26d1ebd95c6b4bb294d7f09db",
                 "shasum": ""
             },
             "require": {
@@ -6371,7 +6371,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-25T09:31:51+00:00"
+            "time": "2026-10-08T21:09:11+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -7819,5 +7819,5 @@
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
