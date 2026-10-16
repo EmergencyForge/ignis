@@ -1,0 +1,40 @@
+{
+    "topic_list": {
+        "per_page": 30,
+        "topics": [
+            {
+                "id": 1,
+                "title": "Ignis v2026.1.0 - Changelog vom 08. Oktober 2026",
+                "slug": "ignis-v2026-1-0-changelog-vom-08-oktober-2026",
+                "created_at": "2026-10-08T21:20:59.635Z",
+                "pinned": false,
+                "visible": true,
+                "excerpt": "Nach über 40 Beta-Versionen, unzähligen Änderungen und einer längeren Entwicklungsphase ist es endlich so weit: ignis 2026.1.0 ist da!",
+                "tags": [
+                    "ignis"
+                ]
+            },
+            {
+                "id": 2,
+                "title": "Geschlossene Beta für Lex | Tester gesucht",
+                "slug": "geschlossene-beta-fuer-lex-tester-gesucht",
+                "created_at": "2026-09-10T14:40:00.000Z",
+                "pinned": false,
+                "visible": true,
+                "excerpt": "Wir öffnen eine geschlossene Beta für Lex und suchen Leute, die eine frühe Entwicklungsversion ausprobieren.",
+                "tags": [
+                    "lex"
+                ]
+            },
+            {
+                "id": 3,
+                "title": "Der EmergencyForge Discord ist zurück",
+                "slug": "der-emergencyforge-discord-ist-zurueck",
+                "created_at": "2026-09-10T14:36:44.440Z",
+                "pinned": false,
+                "visible": true,
+                "tags": []
+            }
+        ]
+    }
+}

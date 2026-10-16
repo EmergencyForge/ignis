@@ -27,7 +27,7 @@ final class ChangelogFetchProblemTest extends IntegrationTestCase
     {
         Capsule::table('intra_cron_jobs')->updateOrInsert(
             ['identifier' => 'changelog.refresh'],
-            ['name' => 'Forum-Ankündigungen aktualisieren', 'handler_type' => 'console',
+            ['name' => 'Ankündigungen aktualisieren', 'handler_type' => 'console',
              'handler' => 'changelog:refresh', 'schedule' => '*/30 * * * *',
              'active' => $active ? 1 : 0, 'last_status' => $lastStatus],
         );
@@ -49,7 +49,7 @@ final class ChangelogFetchProblemTest extends IntegrationTestCase
     public function testStoredFetchErrorIsReported(): void
     {
         $this->job(true, 'success');
-        Capsule::table('intra_changelog_meta')->insert(['key_name' => 'last_error', 'value' => 'Forum nicht erreichbar']);
-        self::assertStringContainsString('Forum nicht erreichbar', $this->client()->fetchProblem()['text'] ?? '');
+        Capsule::table('intra_changelog_meta')->insert(['key_name' => 'last_error', 'value' => 'emergencyforge.de nicht erreichbar']);
+        self::assertStringContainsString('emergencyforge.de nicht erreichbar', $this->client()->fetchProblem()['text'] ?? '');
     }
 }

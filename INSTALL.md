@@ -370,7 +370,7 @@ Unter **Einstellungen › System-Konfiguration › Adresse und Anmeldung** legst
 
 ### Cronjob einrichten
 
-ignis hat Hintergrundaufgaben, zum Beispiel Discord-Webhooks und Benachrichtigungen aus der Warteschlange, die Ankündigungen aus dem Forum, die Prüfung auf Updates und das Aufräumen alter Dateien. Ohne weitere Einrichtung laufen sie nebenbei mit, wenn jemand eine Seite aufruft. Auf einer wenig besuchten Instanz passiert dann aber lange nichts. Besser ist einer dieser Wege:
+ignis hat Hintergrundaufgaben, zum Beispiel Discord-Webhooks und Benachrichtigungen aus der Warteschlange, die Ankündigungen von emergencyforge.de, die Prüfung auf Updates und das Aufräumen alter Dateien. Ohne weitere Einrichtung laufen sie nebenbei mit, wenn jemand eine Seite aufruft. Auf einer wenig besuchten Instanz passiert dann aber lange nichts. Besser ist einer dieser Wege:
 
 **Cronjob auf dem Server** (Weg B):
 
