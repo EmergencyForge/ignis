@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Admin-Dashboard-Widget: Ankündigungen aus dem Forum (Discourse-Kategorie
- * Ankündigungen). Liest ausschliesslich aus dem lokalen Cache
- * (intra_changelog_cache), den der Console-Command `changelog:refresh`
- * alle 30 Minuten befüllt. Das Forum wird hier nie direkt angefragt.
+ * Admin-Dashboard-Widget: Ankündigungen von emergencyforge.de. Liest
+ * ausschliesslich aus dem lokalen Cache (intra_changelog_cache), den der
+ * Console-Command `changelog:refresh` alle 30 Minuten befüllt. Die Website
+ * wird hier nie direkt angefragt.
  *
  * Sichtbar nur fuer Admins.
  */
@@ -22,7 +22,7 @@ try {
     $client   = app(ChangelogClient::class);
     $items    = $client->get(5);
     $problem  = $items === [] ? $client->fetchProblem() : null;
-    $forumUrl = $client->getForumUrl() . ChangelogClient::CATEGORY_PATH;
+    $allUrl   = $client->getForumUrl() . ChangelogClient::OVERVIEW_PATH;
 } catch (\Throwable $e) {
     \App\Logging\Logger::warning('Announcements widget: ' . $e->getMessage());
     return;
@@ -34,8 +34,8 @@ $annE = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES
     <div class="ignis-card__header">
         <h2 class="ignis-card__title" id="dashboard-announcements-title">Ankündigungen</h2>
         <div class="ignis-card__actions">
-            <a href="<?= $annE($forumUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" target="_blank" rel="noopener">
-                Alle im Forum <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            <a href="<?= $annE($allUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" target="_blank" rel="noopener">
+                Alle im Blog <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
             </a>
         </div>
     </div>

@@ -10,8 +10,11 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Abbildung der Discourse-Kategorie "Ankündigungen" auf die Cache-Zeilen.
- * Die Fixture folgt dem Format von forum.emergencyforge.de (Stand 2026-09):
- * `excerpt` gibt es nur bei angepinnten Themen, sonst fehlt es oder ist null.
+ * category-ankuendigungen.json folgt dem Format von forum.emergencyforge.de
+ * (Stand 2026-09): `excerpt` gibt es nur bei angepinnten Themen, sonst fehlt
+ * es oder ist null. website-ankuendigungen.json ist die Antwort von
+ * emergencyforge.de (lib/announcements.ts im Website-Repo) mit den drei aus
+ * dem Forum übernommenen Ankündigungen.
  */
 final class ChangelogClientTest extends TestCase
 {
@@ -71,8 +74,22 @@ final class ChangelogClientTest extends TestCase
         self::assertSame('https://forum.example.test', $client('https://forum.example.test/')->getForumUrl());
         self::assertSame('HTTP://localhost:4200', $client('HTTP://localhost:4200')->getForumUrl());
         foreach (['javascript:alert(1)', 'file:///etc/passwd', '//evil.test', 'https://', '', null] as $bad) {
-            self::assertSame('https://forum.emergencyforge.de', $client($bad)->getForumUrl(), var_export($bad, true));
+            self::assertSame('https://emergencyforge.de', $client($bad)->getForumUrl(), var_export($bad, true));
         }
+    }
+
+    public function testReadsTheWebsiteFeed(): void
+    {
+        $payload = json_decode((string) file_get_contents(__DIR__ . '/../../fixtures/discourse/website-ankuendigungen.json'), true);
+        $rows = ChangelogClient::mapTopics($payload, 'https://emergencyforge.de', 10);
+        self::assertNotNull($rows);
+        self::assertSame(['1', '2', '3'], array_column($rows, 'id'));
+        // Gleicher Slug wie im Forum: alte und neue Links landen beim selben Beitrag.
+        self::assertSame('https://emergencyforge.de/t/geschlossene-beta-fuer-lex-tester-gesucht/2', $rows[1]['url']);
+        self::assertSame('Wir öffnen eine geschlossene Beta für Lex und suchen Leute, die eine frühe Entwicklungsversion ausprobieren.', $rows[1]['preview']);
+        self::assertSame(['lex'], $rows[1]['tags']);
+        self::assertNull($rows[2]['preview'], 'Beitrag ohne Zusammenfassung');
+        self::assertSame([false, false, false], array_column($rows, 'pinned'));
     }
 
     public function testRespectsLimit(): void
@@ -104,16 +121,16 @@ final class ChangelogClientTest extends TestCase
 
     public function testFailedFetchIsShownWithItsReason(): void
     {
-        // Forum-Fehler zählen beim Command als Erfolg, damit der Cron nicht
+        // Fehler der Website zählen beim Command als Erfolg, damit der Cron nicht
         // rot wird. Der Grund steht deshalb in intra_changelog_meta.
-        $problem = ChangelogClient::describeProblem(['active' => 1, 'last_status' => 'success'], 'Forum nicht erreichbar');
-        self::assertStringContainsString('Forum nicht erreichbar', $problem['text'] ?? '');
+        $problem = ChangelogClient::describeProblem(['active' => 1, 'last_status' => 'success'], 'emergencyforge.de nicht erreichbar');
+        self::assertStringContainsString('emergencyforge.de nicht erreichbar', $problem['text'] ?? '');
         self::assertStringNotContainsString('30 Minuten', $problem['text'] ?? '');
     }
 
     public function testFailedCronRunIsReported(): void
     {
-        // So sah es im Docker-Image aus: der Job kam nie bis zum Forum.
+        // So sah es im Docker-Image aus: der Job kam nie bis zur Quelle.
         $problem = ChangelogClient::describeProblem(['active' => 1, 'last_status' => 'failed'], '');
         self::assertSame('Ankündigungen konnten nicht geladen werden', $problem['title'] ?? null);
     }

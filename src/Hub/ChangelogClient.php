@@ -9,28 +9,33 @@ use App\Logging\Logger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * ChangelogClient: Ankündigungen aus dem Forum (Discourse-Kategorie
- * "Ankündigungen" auf forum.emergencyforge.de) fürs Admin-Dashboard.
+ * ChangelogClient: Ankündigungen von emergencyforge.de fürs Admin-Dashboard.
+ * Das Forum ist abgeschaltet, die Website liefert ihre Blog-Beiträge unter
+ * dem alten Pfad der Discourse-Kategorie "Ankündigungen" im selben Format
+ * (/c/ankuendigungen/5.json, Links als /t/{slug}/{id}). forum.emergencyforge.de
+ * leitet dorthin weiter, ältere Installationen bekommen also weiter Ankündigungen.
  * Der Name stammt aus der Zeit der Hub-Changelog-API; Tabelle
- * intra_changelog_cache und Befehl changelog:refresh sind geblieben.
+ * intra_changelog_cache und Befehl changelog:refresh sind geblieben, der
+ * Konfigurationsschlüssel FORUM_URL aus der Forumszeit ebenso.
  *
  * Trennung der Belange:
  *   - get(): liest aus dem lokalen Cache (intra_changelog_cache). Synchron,
  *     schnell, nie blockierend. Wenn Cache leer ist → leeres Array; das
  *     Dashboard-Widget zeigt dann seinen Leerzustand.
- *   - refresh(): kontaktiert das Forum. Wird ausschliesslich vom Console-
+ *   - refresh(): kontaktiert emergencyforge.de. Wird ausschliesslich vom Console-
  *     Command (Cron, alle 30 Min.) aufgerufen, NIE im Web-Request-Pfad.
  *     Sendet If-None-Match/If-Modified-Since (gespeichert in
  *     intra_changelog_meta), respektiert 304/429/5xx als "alter Cache bleibt
  *     stehen".
  *
- * Diese Strikt-Trennung sorgt dafuer, dass ein down-Forum das Admin-Dashboard
+ * Diese Strikt-Trennung sorgt dafuer, dass eine nicht erreichbare Website das Admin-Dashboard
  * NIE bremst oder Fehler wirft.
  */
 final class ChangelogClient
 {
-    private const DEFAULT_FORUM_URL = 'https://forum.emergencyforge.de';
+    private const DEFAULT_URL       = 'https://emergencyforge.de';
     public const CATEGORY_PATH      = '/c/ankuendigungen/5';
+    public const OVERVIEW_PATH      = '/blog';
     private const TIMEOUT_SECONDS   = 5;
     private const HARD_CAP          = 25;
     private const CRON_IDENTIFIER   = 'changelog.refresh';
@@ -41,7 +46,7 @@ final class ChangelogClient
 
     /**
      * Liest die letzten X Ankündigungen aus dem lokalen Cache. Angepinnte
-     * zuerst (wie im Forum), danach absteigend nach published_at.
+     * zuerst (aus der Forumszeit), danach absteigend nach published_at.
      *
      * @return list<array{
      *     id:string, title:string, preview:?string, url:string,
@@ -86,7 +91,7 @@ final class ChangelogClient
     }
 
     /**
-     * Holt die Themen der Kategorie aus dem Forum und persistiert sie im
+     * Holt die Ankündigungen von emergencyforge.de und persistiert sie im
      * Cache. Bei 304/429/5xx/Timeout bleibt der existierende Cache unberuehrt.
      *
      * @return array{success:bool, status:int, message:string, count:int}
@@ -114,9 +119,9 @@ final class ChangelogClient
             'timeout' => self::TIMEOUT_SECONDS,
         ]);
 
-        // Forum konnte nicht erreicht werden (Timeout / DNS / TLS). Alter Cache bleibt.
+        // Website konnte nicht erreicht werden (Timeout / DNS / TLS). Alter Cache bleibt.
         if ($result === null) {
-            return $this->failed(0, 'Forum nicht erreichbar');
+            return $this->failed(0, 'emergencyforge.de nicht erreichbar');
         }
 
         $status = $result['status'];
@@ -130,7 +135,7 @@ final class ChangelogClient
 
         // 429/5xx: alter Cache bleibt, der naechste Refresh versucht es erneut.
         if ($status === 429 || $status >= 500) {
-            return $this->failed($status, "Forum-Fehler ($status)");
+            return $this->failed($status, "Serverfehler ($status)");
         }
 
         // Sonstige nicht-200-Statuscodes (z.B. 403, 404 wegen falscher Kategorie)
@@ -200,7 +205,7 @@ final class ChangelogClient
         if ($job === null || !(bool) ($job['active'] ?? false)) {
             return [
                 'title' => 'Automatischer Abruf ist aus',
-                'text'  => 'Der Cron-Job „Forum-Ankündigungen aktualisieren“ ist pausiert oder fehlt. Bis er wieder läuft, lädt nur der Befehl unten neue Ankündigungen.',
+                'text'  => 'Der Cron-Job „Ankündigungen aktualisieren“ ist pausiert oder fehlt. Bis er wieder läuft, lädt nur der Befehl unten neue Ankündigungen.',
             ];
         }
         if ($lastError !== '') {
@@ -236,17 +241,17 @@ final class ChangelogClient
         $scheme = $parts['scheme'] ?? '';
         $host   = $parts['host'] ?? '';
         if (!preg_match('~^https?$~i', $scheme) || $host === '') {
-            $url = self::DEFAULT_FORUM_URL;
+            $url = self::DEFAULT_URL;
         }
         return rtrim($url, '/');
     }
 
     /**
-     * Discourse-Kategorie-JSON → Cache-Zeilen. Gleiche Filterregel wie
-     * emergencyforge.de (src/lib/discourse.ts): unsichtbare Themen und das
-     * Beschreibungsthema "Über die Kategorie …" fallen weg. Angepinnte
-     * bleiben (anders als auf der Website). `excerpt` liefert Discourse nur
-     * bei angepinnten Themen, als HTML mit Entities.
+     * Discourse-Kategorie-JSON → Cache-Zeilen. Unsichtbare Themen und das
+     * Beschreibungsthema "Über die Kategorie …" fallen weg; die Website liefert
+     * beides nicht, ein eigenes Discourse unter FORUM_URL schon. `excerpt` ist
+     * HTML mit Entities: bei der Website die Zusammenfassung des Beitrags, bei
+     * Discourse nur bei angepinnten Themen.
      *
      * @return list<array{id:string, title:string, url:string, published_at:string,
      *     preview:?string, tags:list<string>, pinned:bool}>|null null = keine topic_list

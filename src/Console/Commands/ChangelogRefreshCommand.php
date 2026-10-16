@@ -12,10 +12,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Holt die Ankündigungen aus dem Forum (Discourse-Kategorie Ankündigungen)
- * und legt sie im lokalen intra_changelog_cache ab. Das Admin-Dashboard liest
- * danach ausschliesslich aus dem Cache. Dieser Command ist die einzige Stelle,
- * an der wir das Forum kontaktieren. Der Name changelog:refresh ist historisch
+ * Holt die Ankündigungen von emergencyforge.de (im Format der früheren
+ * Discourse-Kategorie Ankündigungen) und legt sie im lokalen
+ * intra_changelog_cache ab. Das Admin-Dashboard liest danach ausschliesslich
+ * aus dem Cache. Dieser Command ist die einzige Stelle, an der wir die
+ * Website kontaktieren. Der Name changelog:refresh ist historisch
  * und bleibt, damit bestehende Cron-Einträge weiterlaufen.
  *
  * Cron-Frequenz: alle 30 Minuten (Seed-Migration 20260505000002).
@@ -25,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'changelog:refresh',
-    description: 'Aktualisiert die Forum-Ankündigungen fürs Dashboard',
+    description: 'Aktualisiert die Ankündigungen fürs Dashboard',
 )]
 final class ChangelogRefreshCommand extends Command
 {
@@ -53,7 +54,7 @@ final class ChangelogRefreshCommand extends Command
             $limit = 10;
         }
 
-        $output->writeln(sprintf('<info>Refresh Forum-Ankündigungen (limit=%d) …</info>', $limit));
+        $output->writeln(sprintf('<info>Refresh Ankündigungen (limit=%d) …</info>', $limit));
         $result = $this->client->refresh($limit);
 
         $status = (int) $result['status'];
@@ -71,12 +72,12 @@ final class ChangelogRefreshCommand extends Command
             return Command::SUCCESS;
         }
 
-        // Transiente Forum-Probleme sind KEIN Cron-Fehler. Stale-Cache bleibt
+        // Transiente Probleme der Website sind KEIN Cron-Fehler. Stale-Cache bleibt
         // gemaess Spec stehen, beim naechsten Tick wird erneut probiert. Dafuer
         // den Cron-Job nicht roten Toast werfen lassen.
         //   - 0   = Verbindung/Timeout
         //   - 429 = Rate-Limit
-        //   - 5xx = Forum-Server-Fehler
+        //   - 5xx = Serverfehler der Website
         if ($status === 0 || $status === 429 || $status >= 500) {
             return Command::SUCCESS;
         }
