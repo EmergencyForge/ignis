@@ -1,4 +1,5 @@
 import '@emergencyforge/ui/preferences.js';
+import { register } from '@emergencyforge/ui/hotkeys.js';
 import './page-transition.js';
 /**
  * ignis UI, App-Hülle: Sidebar ein- und ausklappen, Navigations-Drawer
@@ -12,8 +13,8 @@ import './page-transition.js';
  * <html>, damit nichts springt; dieses Modul pflegt ihn nur.
  *
  *   [                 Sidebar ein-/ausklappen (außerhalb von Eingabefeldern)
- *   Ctrl+K            springt ins Suchfeld der Topbar (Palette: palette.js)
  *   Esc               schließt offene Menüs und den Navigations-Drawer
+ * Strg K öffnet die Suchpalette (palette.js), ? zeigt alle Kürzel (hotkeys.js).
  *
  * Glocke (details[data-ignis-inbox]): das Popover wird beim ersten Öffnen
  * von GET /inbox/popover geladen (InboxController::popover, ohne Hülle)
@@ -178,25 +179,15 @@ function init() {
     document.querySelectorAll('details[data-ignis-inbox]').forEach(initInbox);
 
     document.addEventListener('keydown', (e) => {
-        const inField = e.target.matches('input, textarea, select, [contenteditable]');
         if (e.key === 'Escape') {
             document.querySelector('details[data-ignis-menu][open] > summary')?.focus();
             closeMenus();
             closeNav();
-            return;
-        }
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-            // Ins Suchfeld; die Palette (palette.js) öffnet beim Tippen.
-            const search = document.querySelector('[data-ignis-global-search]');
-            if (search) { e.preventDefault(); window.ignis?.palette?.open ? window.ignis.palette.open() : search.focus(); }
-            return;
-        }
-        if (inField) return;
-        if (e.key === '[') {
-            e.preventDefault();
-            toggleSidebar();
         }
     });
+    // Strg K meldet die Suchpalette selbst an (palette.js). Kürzel stehen in
+    // hotkeys.js, damit sie in der Übersicht unter ? erscheinen.
+    if (document.querySelector('.ignis-sidebar')) register('[', () => toggleSidebar(), { label: 'Seitenleiste ein- und ausklappen', group: 'Allgemein' });
 
     // Beim Wechsel auf breite Bildschirme den Drawer-Zustand wegräumen.
     window.matchMedia(MOBILE_QUERY).addEventListener('change', (q) => { if (!q.matches) closeNav(); });

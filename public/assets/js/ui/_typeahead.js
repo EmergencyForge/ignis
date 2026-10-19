@@ -1,0 +1,1 @@
+var e=``,t=0;function n(n,r,i){let a=Date.now();e=a-t>600?r:e+r,t=a;let o=[...e].every(t=>t===e[0])?e[0]:e,s=n.indexOf(i);return[...n.slice(s+1),...n.slice(0,s+1)].find(e=>e.textContent.trim().toLowerCase().startsWith(o.toLowerCase()))??null}export{n as t};

@@ -85,6 +85,9 @@ const uiPackageModules = [
     'accordion', 'alert', 'breadcrumb', 'chip', 'colorpicker', 'combobox', 'datepicker',
     'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'error-stage', 'file',
     'form', 'login-stage', 'multi-select', 'preferences', 'snackbar', 'spark', 'tabs', 'timepicker', 'tooltip', 'workbench',
+    // ui 0.10.0
+    'calendar', 'carousel', 'cell-edit', 'columns', 'counter', 'datefield', 'daterange', 'filter-chips', 'hotkeys',
+    'hovercard', 'menu', 'otp', 'questionnaire', 'range', 'relative-time', 'resizable', 'ring', 'tour',
 ];
 const uiProductFiles = {
     dialog:   'assets/js/ui/dialog-compat.js',
