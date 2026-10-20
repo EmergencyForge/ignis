@@ -25,11 +25,12 @@
     <link rel="stylesheet" href="../assets/fonts/geist/css/all.min.css">
     <link rel="stylesheet" href="../assets/fonts/geist-mono/css/all.min.css">
     <link rel="stylesheet" href="../assets/dist/ui.css">
+    <link rel="stylesheet" href="tablet.css">
     <link rel="stylesheet" href="enotf-funke.css">
     <link rel="icon" type="image/svg+xml" href="../assets/favicon/favicon.svg">
 </head>
 
-<body data-ui-skin="core" class="nf-body">
+<body data-ui-skin="core" class="nf-body ignis-tablet">
     <div id="app" class="nf-app" aria-live="off">
         <noscript>
             <p class="nf-noscript">Der Prototyp braucht JavaScript.</p>

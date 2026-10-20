@@ -220,7 +220,7 @@ const FILL_WORD = { unfilled: 'Pflichtangaben offen', partfilled: 'teilweise aus
 // Protokollart: NF neutral, NA rot, später KT grün.
 const ART_TONE = { NA: 'danger', KT: 'ok' };
 const artTone = (art) => (ART_TONE[art] ? ` data-tone="${ART_TONE[art]}"` : '');
-const fillAttr = (f) => (f ? ` data-fill="${f}"` : '');
+const fillAttr = (f) => (f ? ` data-state="${f}"` : '');
 
 const MEDICAL = /^(erst|anam|diag|mass)\.|^absch\.rea|^pat\.geschlecht/;
 const STAR = new Set(['pat.geschlecht', 'einsatz.datum', 'einsatz.zeit', 'einsatz.versorgung', 'einsatz.einsatzart',
@@ -236,7 +236,7 @@ function starred(p, path) {
     if (path.startsWith('absch.reaD.') && p.absch.rea !== 'Reanimation durchgeführt') return false;
     return true;
 }
-const missChip = (txt = 'Pflichtangabe fehlt') => `<i class="fa-solid fa-circle-exclamation nf-miss" role="img" aria-label="${esc(txt)}" data-ignis-tooltip="${esc(txt)}"></i>`;
+const missChip = (txt = 'Pflichtangabe fehlt') => `<i class="fa-solid fa-circle-exclamation ignis-tablet-miss" role="img" aria-label="${esc(txt)}" data-ignis-tooltip="${esc(txt)}"></i>`;
 
 /* ══ Themenbäume der Abschnitte ═════════════════════════════════ */
 
@@ -321,11 +321,11 @@ function topicsOf(sec, p) {
 const dis = (p) => (ro(p) ? ' disabled' : '');
 
 function optButton({ act, path, val, label, pressed, normal, score, multi, num, extraAttr = '' }) {
-    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${multi ? ' nf-opt--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
+    return `<button type="button" class="ignis-tablet-option${normal ? ' ignis-tablet-option--normal' : ''}${multi ? ' ignis-tablet-option--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
         data-act="${act}" data-path="${esc(path)}" data-val="${esc(val)}" ${extraAttr}>
-        <span class="nf-opt__mark" aria-hidden="true"></span>
-        <span class="nf-opt__label">${hy(label)}</span>
-        ${score !== undefined ? `<span class="nf-opt__score ignis-mono">${score}</span>` : ''}
+        <span class="ignis-tablet-option__mark" aria-hidden="true"></span>
+        <span class="ignis-tablet-option__label">${hy(label)}</span>
+        ${score !== undefined ? `<span class="ignis-tablet-option__score ignis-mono">${score}</span>` : ''}
         ${normal ? '<span class="ignis-sr-only">(Normalbefund)</span>' : ''}
     </button>`;
 }
@@ -334,8 +334,8 @@ function fieldGroup(p, f) {
     if (f.type === 'time') {
         const v = get(p, f.path) || '';
         const req = starred(p, f.path);
-        return `<div class="nf-group">
-            <div class="nf-group__head"><span class="nf-group__label">${esc(f.label)}</span>${req && !v ? missChip() : ''}</div>
+        return `<div class="ignis-tablet-group">
+            <div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">${esc(f.label)}</span>${req && !v ? missChip() : ''}</div>
             <div class="nf-inline">
                 <input class="ignis-input nf-input-time ignis-mono" type="text" inputmode="numeric" placeholder="HH:MM" maxlength="5" data-mask="time" data-bind="p:${esc(f.path)}" value="${esc(v)}"${dis(p)}>
                 <button type="button" class="ignis-btn ignis-btn--secondary" data-act="now" data-path="${esc(f.path)}"${dis(p)}>${fa('fa-clock')}jetzt</button>
@@ -343,16 +343,16 @@ function fieldGroup(p, f) {
         </div>`;
     }
     if (f.type === 'bools') {
-        return `<div class="nf-group">
-            <div class="nf-group__head"><span class="nf-group__label">${esc(f.label)}</span></div>
-            <div class="nf-opts">${f.items.map((it) => optButton({ act: 'bool', path: `${f.base}.${it.key}`, val: '1', label: it.label, pressed: !!get(p, `${f.base}.${it.key}`), multi: true })).join('')}</div>
+        return `<div class="ignis-tablet-group">
+            <div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">${esc(f.label)}</span></div>
+            <div class="ignis-tablet-options">${f.items.map((it) => optButton({ act: 'bool', path: `${f.base}.${it.key}`, val: '1', label: it.label, pressed: !!get(p, `${f.base}.${it.key}`), multi: true })).join('')}</div>
         </div>`;
     }
     const val = get(p, f.path);
     const req = starred(p, f.path);
     const missing = req && !isSet(val);
     const opts = f.options.map(C.parseOpt);
-    const cols = f.cols === 1 ? ' nf-opts--list' : f.cols === 2 ? ' nf-opts--two' : '';
+    const cols = f.cols === 1 ? ' ignis-tablet-options--list' : f.cols === 2 ? ' nf-opts--two' : '';
     const button = (o) => optButton({
         act: f.type === 'multi' ? 'multi' : 'pick', path: f.path, val: o.label, label: o.label, normal: o.normal, multi: f.type === 'multi',
         pressed: f.type === 'multi' ? (Array.isArray(val) && val.includes(o.label)) : val === o.label,
@@ -361,11 +361,11 @@ function fieldGroup(p, f) {
     // Skalen (NRS, O2): Zahlen als eine schmale Reihe, Wörter wie „keine“ darunter.
     const body = f.cols === 'nrs'
         ? `<div class="nf-scale"${opts.some((o) => /^\d/.test(o.label) && o.label.length > 3) ? ' style="--nf-scale-min:84px"' : ''}>${opts.filter((o) => /^\d/.test(o.label)).map(button).join('')}</div>
-           <div class="nf-opts">${opts.filter((o) => !/^\d/.test(o.label)).map(button).join('')}</div>`
-        : `<div class="nf-opts${cols}">${opts.map(button).join('')}</div>`;
-    return `<div class="nf-group" role="group" aria-label="${esc(f.label)}">
-        <div class="nf-group__head">
-            <span class="nf-group__label">${esc(f.label)}</span>
+           <div class="ignis-tablet-options">${opts.filter((o) => !/^\d/.test(o.label)).map(button).join('')}</div>`
+        : `<div class="ignis-tablet-options${cols}">${opts.map(button).join('')}</div>`;
+    return `<div class="ignis-tablet-group" role="group" aria-label="${esc(f.label)}">
+        <div class="ignis-tablet-group__head">
+            <span class="ignis-tablet-group__label">${esc(f.label)}</span>
             ${missing ? missChip() : ''}
         </div>
         ${body}
@@ -379,7 +379,7 @@ function kv(label, value, { req = false, mono = false, empty = '—' } = {}) {
 }
 
 function tile({ title, icon, link, rows, fill, wide }) {
-    return `<a class="ignis-bezel nf-tile${wide ? ' nf-tile--wide' : ''}" href="${link}"${fillAttr(fill)}>
+    return `<a class="ignis-bezel nf-tile ignis-tablet-stripe${wide ? ' nf-tile--wide' : ''}" href="${link}"${fillAttr(fill)}>
         <div class="ignis-bezel__head">
             <span class="ignis-glyph ignis-glyph--sm">${fa(icon)}</span>
             <h3 class="ignis-bezel__title">${esc(title)}</h3>
@@ -400,14 +400,14 @@ function emptyBlock({ icon, title, text, actions = '', sm = true, pattern = fals
 }
 
 function bar(left, right = '') {
-    return `<div class="nf-bar">${left}<span class="nf-bar__spacer"></span>${right}</div>`;
+    return `<div class="ignis-tablet-bar">${left}<span class="ignis-tablet-bar__spacer"></span>${right}</div>`;
 }
 
 /* ══ Kopfzeile, Leiste, Hinweise ═══════════════════════════════ */
 
 function clockHTML() {
     const d = new Date();
-    return `<span class="nf-clock" id="nf-clock" data-ignis-tooltip="Uhrzeit"><span class="nf-clock__time ignis-mono">${C.fmtTime(d)}</span><span class="nf-clock__date">${C.fmtDate(d)}</span></span>`;
+    return `<span class="ignis-tablet-clock" id="ignis-tablet-clock" data-ignis-tooltip="Uhrzeit"><span class="ignis-tablet-clock__time ignis-mono">${C.fmtTime(d)}</span><span class="ignis-tablet-clock__date">${C.fmtDate(d)}</span></span>`;
 }
 
 function crewButton() {
@@ -444,7 +444,7 @@ const SAVE_META = {
 function autosaveHTML() {
     const m = SAVE_META[ui.autosave];
     const tip = ui.autosave === 'saved' && ui.savedAt ? `Autosave: gespeichert um ${C.fmtTime(ui.savedAt)} Uhr` : m.tip;
-    return `<button type="button" class="nf-sync__btn" id="nf-autosave" data-act="autosave" data-state="${ui.autosave}" data-ignis-tooltip="${esc(tip)}" aria-label="${esc(tip)}">
+    return `<button type="button" class="ignis-tablet-sync__btn" id="nf-autosave" data-act="autosave" data-state="${ui.autosave}" data-ignis-tooltip="${esc(tip)}" aria-label="${esc(tip)}">
         ${fa('fa-floppy-disk')}<span class="ignis-dot" ${m.tone ? `data-tone="${m.tone}"` : ''}></span></button>`;
 }
 function paintAutosave() {
@@ -461,8 +461,8 @@ function syncCluster(p) {
         requested: { tone: 'info', tip: 'Patientendaten angefordert, warte auf Leitstelle' },
         synced: { tone: 'ok', tip: 'Patientendaten mit der Leitstelle synchronisiert' },
     }[ps];
-    const btn = (act, icon, tone, tip, extra = '') => `<button type="button" class="nf-sync__btn" data-act="${act}" ${extra} data-ignis-tooltip="${esc(tip)}" aria-label="${esc(tip)}">${fa(icon)}<span class="ignis-dot" ${tone ? `data-tone="${tone}"` : ''}></span></button>`;
-    return `<div class="nf-sync" role="group" aria-label="Verbindungsstatus">
+    const btn = (act, icon, tone, tip, extra = '') => `<button type="button" class="ignis-tablet-sync__btn" data-act="${act}" ${extra} data-ignis-tooltip="${esc(tip)}" aria-label="${esc(tip)}">${fa(icon)}<span class="ignis-dot" ${tone ? `data-tone="${tone}"` : ''}></span></button>`;
+    return `<div class="ignis-tablet-sync" role="group" aria-label="Verbindungsstatus">
         ${btn('conn-lst', 'fa-tower-broadcast', lst ? 'ok' : 'danger', lst ? 'Verbindung zur Leitstelle aktiv' : 'Keine Verbindung zur Leitstelle')}
         ${btn('conn-session', 'fa-network-wired', ses ? 'ok' : 'danger', ses ? 'Session aktiv' : 'Session-Verbindung unterbrochen')}
         ${btn('patsync', 'fa-up-down', pmeta.tone, pmeta.tip, `data-state="${ps}"`)}
@@ -475,10 +475,10 @@ function protoTopbar(p) {
     const age = ageOf(p.pat.gebdat);
     const g = { männlich: 'm', weiblich: 'w', divers: 'd', unbekannt: '?' }[p.pat.geschlecht] || '';
     const pre = C.isTransport(p) && p.ziel.einrichtung;
-    const tb = (act, icon, label, extra = '') => `<button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="${act}" data-ignis-tooltip="${esc(label)}" aria-label="${esc(label)}" ${extra}>${fa(icon)}<span class="nf-tbtn__label">${esc(label)}</span></button>`;
-    return `<header class="nf-top nf-top--proto">
-        <div class="nf-top__group nf-top__ctx">
-            <a class="ignis-btn ignis-btn--secondary nf-tbtn nf-tbtn--home" href="#/overview" data-ignis-tooltip="Übersicht" aria-label="Übersicht">${fa('fa-table-list')}<span class="nf-tbtn__label">Übersicht</span></a>
+    const tb = (act, icon, label, extra = '') => `<button type="button" class="ignis-btn ignis-btn--ghost ignis-tablet-top__btn" data-act="${act}" data-ignis-tooltip="${esc(label)}" aria-label="${esc(label)}" ${extra}>${fa(icon)}<span class="ignis-tablet-top__label">${esc(label)}</span></button>`;
+    return `<header class="ignis-tablet-top nf-top--proto">
+        <div class="ignis-tablet-top__group nf-top__ctx">
+            <a class="ignis-btn ignis-btn--secondary ignis-tablet-top__btn nf-tbtn--home" href="#/overview" data-ignis-tooltip="Übersicht" aria-label="Übersicht">${fa('fa-table-list')}<span class="ignis-tablet-top__label">Übersicht</span></a>
             <span class="nf-ctx">
                 <span class="nf-ctx__line">
                     <span class="nf-ctx__enr ignis-mono">#${esc(p.enr)}</span>
@@ -486,27 +486,27 @@ function protoTopbar(p) {
                 </span>
                 <span class="nf-ctx__veh" data-ignis-tooltip="Angemeldetes Fahrzeug">${fa('fa-truck-medical')}${esc(p.vehicle)}</span>
             </span>
-            <span class="nf-top__sep" aria-hidden="true"></span>
-            <a class="nf-pat" href="${href('p', p.enr, 'rett')}" data-ignis-tooltip="Patientendaten">
+            <span class="ignis-tablet-top__sep" aria-hidden="true"></span>
+            <a class="ignis-tablet-context" href="${href('p', p.enr, 'rett')}" data-ignis-tooltip="Patientendaten">
                 ${fa('fa-user')}
-                <span class="nf-pat__text">
-                    <span class="nf-pat__name">${name ? esc(name) : '<span class="nf-dim">Kein Patient</span>'}</span>
-                    <span class="nf-pat__meta">${age || g ? esc([age, g].filter(Boolean).join(' · ')) : 'Alter, Geschlecht offen'}</span>
+                <span class="ignis-tablet-context__text">
+                    <span class="ignis-tablet-context__title">${name ? esc(name) : '<span class="nf-dim">Kein Patient</span>'}</span>
+                    <span class="ignis-tablet-context__meta">${age || g ? esc([age, g].filter(Boolean).join(' · ')) : 'Alter, Geschlecht offen'}</span>
                 </span>
             </a>
         </div>
-        <div class="nf-top__group nf-top__tools">
+        <div class="ignis-tablet-top__group nf-top__tools">
             ${pre ? tb('anmeldung', 'fa-house-medical', 'Anmeldung') : ''}
             ${tb('art', 'fa-sync', 'Art ändern', ro(p) ? 'disabled' : '')}
             ${tb('share', 'fa-share-nodes', 'Teilen')}
             ${tb('print', 'fa-file-waveform', 'Protokoll')}
             ${tb('availability', 'fa-hospital', 'Verfügbarkeit')}
         </div>
-        <div class="nf-top__group nf-top__right">
+        <div class="ignis-tablet-top__group nf-top__right">
             <div class="nf-crew-wrap">${crewButton()}</div>
-            <span class="nf-top__sep" aria-hidden="true"></span>
+            <span class="ignis-tablet-top__sep" aria-hidden="true"></span>
             ${syncCluster(p)}
-            <span class="nf-top__sep" aria-hidden="true"></span>
+            <span class="ignis-tablet-top__sep" aria-hidden="true"></span>
             ${clockHTML()}
             <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-tbtn--icon" data-act="lock" data-ignis-tooltip="Sperren" aria-label="Sperren">${fa('fa-lock')}</button>
             <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-tbtn--icon nf-tbtn--proto" data-act="proto" data-ignis-tooltip="Prototyp-Einstellungen" aria-label="Prototyp-Einstellungen">${fa('fa-flask')}</button>
@@ -516,16 +516,16 @@ function protoTopbar(p) {
 
 function plainTopbar(title, tools = '') {
     const s = S.session;
-    return `<header class="nf-top">
-        <div class="nf-top__group nf-top__ctx">
+    return `<header class="ignis-tablet-top">
+        <div class="ignis-tablet-top__group nf-top__ctx">
             <span class="nf-brand"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-truck-medical')}</span>eNOTF</span>
-            <span class="nf-top__sep" aria-hidden="true"></span>
-            <span class="nf-top__title">${esc(title)}</span>
+            <span class="ignis-tablet-top__sep" aria-hidden="true"></span>
+            <span class="ignis-tablet-top__title">${esc(title)}</span>
             ${s ? `<span class="ignis-chip nf-veh" data-ignis-tooltip="Angemeldetes Fahrzeug">${fa('fa-truck-medical')}${esc(s.vehicle)}</span>` : ''}
         </div>
-        <div class="nf-top__group nf-top__tools">${tools}</div>
-        <div class="nf-top__group nf-top__right">
-            ${s ? `<div class="nf-crew-wrap">${crewButton()}</div><span class="nf-top__sep" aria-hidden="true"></span>` : ''}
+        <div class="ignis-tablet-top__group nf-top__tools">${tools}</div>
+        <div class="ignis-tablet-top__group nf-top__right">
+            ${s ? `<div class="nf-crew-wrap">${crewButton()}</div><span class="ignis-tablet-top__sep" aria-hidden="true"></span>` : ''}
             ${clockHTML()}
             ${s ? `<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-tbtn--icon" data-act="lock" data-ignis-tooltip="Sperren" aria-label="Sperren">${fa('fa-lock')}</button>` : ''}
             <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-tbtn--icon" data-act="proto" data-ignis-tooltip="Prototyp-Einstellungen" aria-label="Prototyp-Einstellungen">${fa('fa-flask')}</button>
@@ -534,14 +534,14 @@ function plainTopbar(title, tools = '') {
 }
 
 function rail(p, active) {
-    return `<nav class="nf-rail" aria-label="Protokoll-Abschnitte">
+    return `<nav class="ignis-tablet-rail" aria-label="Protokoll-Abschnitte">
         ${C.SECTIONS.map((s, i) => {
             const fill = secFill(p, s.key);
             const meta = s.key === 'verlauf' ? `${p.verlauf.length} Zeitpunkte` : '';
-            return `<a class="nf-rail__item" href="${href('p', p.enr, s.key)}" ${active === s.key ? 'aria-current="page"' : ''}${fillAttr(fill)} data-ignis-tooltip="${esc(s.label)}" data-placement="right">
-                <span class="nf-rail__num ignis-mono" aria-hidden="true">${i + 1}</span>
-                <i class="fa-solid ${s.icon} nf-rail__icon" aria-hidden="true"></i>
-                <span class="nf-rail__text"><span class="nf-rail__label">${esc(s.label)}</span>${meta ? `<span class="nf-rail__meta">${esc(meta)}</span>` : ''}</span>
+            return `<a class="ignis-tablet-rail__item" href="${href('p', p.enr, s.key)}" ${active === s.key ? 'aria-current="page"' : ''}${fillAttr(fill)} data-ignis-tooltip="${esc(s.label)}" data-placement="right">
+                <span class="ignis-tablet-rail__num ignis-mono" aria-hidden="true">${i + 1}</span>
+                <i class="fa-solid ${s.icon} ignis-tablet-rail__icon" aria-hidden="true"></i>
+                <span class="ignis-tablet-rail__text"><span class="ignis-tablet-rail__label">${esc(s.label)}</span>${meta ? `<span class="ignis-tablet-rail__meta">${esc(meta)}</span>` : ''}</span>
                 ${fill ? `<span class="ignis-sr-only">${FILL_WORD[fill]}</span>` : ''}
             </a>`;
         }).join('')}
@@ -551,11 +551,11 @@ function rail(p, active) {
 function notice(p) {
     if (p.released) {
         const d = new Date(p.released.at);
-        return `<div class="ignis-alert ignis-alert--info nf-notice" role="status">${fa('fa-lock', 'ignis-alert__icon')}
+        return `<div class="ignis-alert ignis-alert--info ignis-tablet-frame__notice" role="status">${fa('fa-lock', 'ignis-alert__icon')}
             <div class="ignis-alert__body">Das Protokoll wurde durch ${esc(p.released.by)} am ${C.fmtDate(d)} ${C.fmtTime(d)} Uhr freigegeben. Es kann nicht mehr bearbeitet werden.</div></div>`;
     }
     if (S.readonly) {
-        return `<div class="ignis-alert ignis-alert--warn nf-notice" role="status">${fa('fa-eye', 'ignis-alert__icon')}
+        return `<div class="ignis-alert ignis-alert--warn ignis-tablet-frame__notice" role="status">${fa('fa-eye', 'ignis-alert__icon')}
             <div class="ignis-alert__body">Nur Ansicht. Bearbeiten kann nur die Crew des eingetragenen Fahrzeugs.</div></div>`;
     }
     return '';
@@ -565,31 +565,31 @@ function notice(p) {
 function updateChrome() {
     const p = P();
     if (!p) return;
-    const top = app.querySelector('.nf-top');
-    const r = app.querySelector('.nf-rail');
+    const top = app.querySelector('.ignis-tablet-top');
+    const r = app.querySelector('.ignis-tablet-rail');
     if (top) top.outerHTML = protoTopbar(p);
     if (r) r.outerHTML = rail(p, ui.route[2] || 'rett');
     app.querySelectorAll('[data-live-state]').forEach((el) => {
         const [s, t] = el.dataset.liveState.split(':');
         const f = t ? topicFill(p, s, t) : secFill(p, s);
-        if (f) el.dataset.fill = f; else delete el.dataset.fill;
+        if (f) el.dataset.state = f; else delete el.dataset.state;
     });
 }
 
 /* ══ Abschnittsgerüst: Themen-Spalte → Unterthemen → Antworten ═══ */
 
 function navItem({ link, label, icon, fill, current }) {
-    return `<a class="nf-nav${icon ? '' : ' nf-nav--noicon'}" href="${link}" ${current ? 'aria-current="true"' : ''}${fillAttr(fill)}>
-        ${icon ? `<i class="fa-solid ${icon} nf-nav__icon" aria-hidden="true"></i>` : ''}
-        <span class="nf-nav__text"><span class="nf-nav__label">${hy(label)}</span></span>
+    return `<a class="ignis-tablet-nav${icon ? '' : ' ignis-tablet-nav--noicon'}" href="${link}" ${current ? 'aria-current="true"' : ''}${fillAttr(fill)}>
+        ${icon ? `<i class="fa-solid ${icon} ignis-tablet-nav__icon" aria-hidden="true"></i>` : ''}
+        <span class="ignis-tablet-nav__text"><span class="ignis-tablet-nav__label">${hy(label)}</span></span>
         ${fill ? `<span class="ignis-sr-only">${FILL_WORD[fill]}</span>` : ''}
     </a>`;
 }
 
 function topicColumn(p, sec, topics, topicKey) {
-    return `<aside class="nf-col nf-col--topics" aria-label="Themen" data-scroll="topics">
+    return `<aside class="ignis-tablet-col nf-col--topics" aria-label="Themen" data-scroll="topics">
         ${navItem({ link: href('p', p.enr, sec), label: 'Übersicht', icon: 'fa-table-cells-large', current: !topicKey })}
-        <div class="nf-col__sep"></div>
+        <div class="ignis-tablet-col__sep"></div>
         ${topics.map((t) => {
             return navItem({ link: href('p', p.enr, sec, t.key), label: t.label, icon: t.icon, fill: fillOf(p, topicState(p, sec, t.key), pathsOf(t)), current: t.key === topicKey });
         }).join('')}
@@ -599,7 +599,7 @@ function topicColumn(p, sec, topics, topicKey) {
 function subColumn(p, sec, topic, subKey) {
     const quick = topic.quick ? quickTile(p, topic) : '';
     if (!topic.subs || (topic.subs.length < 2 && !(sec === 'diag'))) return '';
-    return `<aside class="nf-col nf-col--subs" aria-label="Unterthemen" data-scroll="subs">
+    return `<aside class="ignis-tablet-col ignis-tablet-col--subs" aria-label="Unterthemen" data-scroll="subs">
         ${quick}
         ${topic.subs.map((s) => {
             const fill = sec === 'diag' ? '' : fillOf(p, subState(p, sec, topic.key, s.key), pathsOf(s));
@@ -611,18 +611,18 @@ function subColumn(p, sec, topic, subKey) {
 function quickTile(p, topic) {
     const keys = Object.keys(topic.quick.set);
     const applied = keys.every((k) => JSON.stringify(get(p, k)) === JSON.stringify(topic.quick.set[k]));
-    return `<button type="button" class="nf-quick" data-act="quick" data-topic="${esc(topic.key)}" aria-pressed="${applied ? 'true' : 'false'}"${dis(p)}>
-        <span class="nf-quick__label">${esc(topic.quick.label)}</span>
+    return `<button type="button" class="ignis-tablet-quick" data-act="quick" data-topic="${esc(topic.key)}" aria-pressed="${applied ? 'true' : 'false'}"${dis(p)}>
+        <span class="ignis-tablet-quick__label">${esc(topic.quick.label)}</span>
     </button>`;
 }
 
 function renderSectionShell(p, sec, topicKey, subKey) {
     const topics = topicsOf(sec, p);
     if (!topicKey) {
-        return `<div class="nf-sec">${topicColumn(p, sec, topics, null)}<section class="nf-pane" data-scroll="pane">${sectionOverview(p, sec)}</section></div>`;
+        return `<div class="ignis-tablet-section">${topicColumn(p, sec, topics, null)}<section class="ignis-tablet-pane" data-scroll="pane">${sectionOverview(p, sec)}</section></div>`;
     }
     const topic = topics.find((t) => t.key === topicKey);
-    if (!topic) return `<div class="nf-sec">${topicColumn(p, sec, topics, null)}<section class="nf-pane">${emptyBlock({ icon: 'fa-circle-question', title: 'Thema nicht gefunden' })}</section></div>`;
+    if (!topic) return `<div class="ignis-tablet-section">${topicColumn(p, sec, topics, null)}<section class="ignis-tablet-pane">${emptyBlock({ icon: 'fa-circle-question', title: 'Thema nicht gefunden' })}</section></div>`;
     const subs = topic.subs || [];
     const sub = subs.find((s) => s.key === subKey) || subs[0];
     const subCol = subColumn(p, sec, topic, sub?.key);
@@ -631,11 +631,11 @@ function renderSectionShell(p, sec, topicKey, subKey) {
     if (topic.custom) pane = customPane(p, topic.custom, topic, null);
     else if (sub?.custom) pane = customPane(p, sub.custom, topic, sub);
     else pane = paneFields(p, topic, sub);
-    return `<div class="nf-sec${subCol ? ' nf-sec--subs' : ''}">${topicColumn(p, sec, topics, topicKey)}${subCol}<section class="nf-pane" data-scroll="pane">${pane}</section></div>`;
+    return `<div class="ignis-tablet-section${subCol ? ' ignis-tablet-section--subs' : ''}">${topicColumn(p, sec, topics, topicKey)}${subCol}<section class="ignis-tablet-pane" data-scroll="pane">${pane}</section></div>`;
 }
 
 function paneHead(title, extra = '') {
-    return `<div class="nf-pane__head"><h2 class="nf-pane__title">${esc(title)}</h2>${extra}</div>`;
+    return `<div class="ignis-tablet-pane__head"><h2 class="ignis-tablet-pane__title">${esc(title)}</h2>${extra}</div>`;
 }
 
 function paneFields(p, topic, sub) {
@@ -671,7 +671,7 @@ function vitalText(key, v) {
 // Messwerte: nur die Farbe zeigt die Abweichung, keine Bewertung in Worten daneben.
 function vitalVal(key, v, text = vitalText(key, v)) {
     const g = C.gradeVital(key, num(v));
-    return `<span class="nf-vval"${g ? ` data-grade="${g}"` : ''}>${esc(text)}</span>`;
+    return `<span class="ignis-tablet-reading"${g ? ` data-grade="${g}"` : ''}>${esc(text)}</span>`;
 }
 
 function gcsSum(e) {
@@ -698,7 +698,7 @@ function sectionOverview(p, sec) {
             ${tile({ title: 'Neurologie', icon: 'fa-brain', link: L('neuro'), fill: topicFill(p, 'erst', 'neuro'), rows: kv('Bewusstseinslage', e.bwl, { req: req('erst.bwl') }) + kv('Extremitätenbewegung', e.extr, { req: req('erst.extr') }) + kv('GCS', g ? `${g.sum} (A${g.parts[0]} V${g.parts[1]} M${g.parts[2]})` : '') + kv('Pupillenweite li / re', isSet(e.pupL) || isSet(e.pupR) ? `${e.pupL || '—'} / ${e.pupR || '—'}` : '', { req: req('erst.pupL') }) + kv('Lichtreaktion li / re', isSet(e.lichtL) || isSet(e.lichtR) ? `${e.lichtL || '—'} / ${e.lichtR || '—'}` : '', { req: req('erst.lichtL') }) })}
             ${tile({ title: 'Verletzungen', icon: 'fa-person', link: L('erweitern', 'verletzungen'), fill: fillOf(p, { state: 'none' }, ['erst.verl']), rows: C.REGIONS.map((r) => {
                 const v = e.verl?.[r.key];
-                return `<div class="nf-kv"><span class="nf-kv__k">${esc(r.label)}</span><span class="nf-kv__v">${v?.sev ? `<span class="nf-sev"><span class="nf-sev__dot" style="background:${C.SEVERITY_FILL[v.sev]}"></span>${esc(v.sev)}${v.wund ? ` · ${esc(v.wund)}` : ''}</span>` : '<span class="nf-dim">—</span>'}</span></div>`;
+                return `<div class="nf-kv"><span class="nf-kv__k">${esc(r.label)}</span><span class="nf-kv__v">${v?.sev ? `<span class="ignis-tablet-severity" data-severity="${C.SEVERITY_KEY[v.sev]}"><span class="ignis-tablet-severity__dot"></span>${esc(v.sev)}${v.wund ? ` · ${esc(v.wund)}` : ''}</span>` : '<span class="nf-dim">—</span>'}</span></div>`;
             }).join('') })}
             ${tile({ title: 'Schmerzen', icon: 'fa-face-frown', link: L('erweitern', 'schmerzen'), fill: fillOf(p, { state: 'none' }, ['erst.nrs', 'erst.toleranz']), rows: kv('Intensität', isSet(e.nrs) ? (/^\d+$/.test(e.nrs) ? `NRS ${e.nrs}` : e.nrs) : '') + kv('Toleranz', e.toleranz) })}
             ${tile({ title: 'Psyche', icon: 'fa-head-side-virus', link: L('psych'), fill: topicFill(p, 'erst', 'psych'), rows: kv('Psychischer Zustand', e.psych, { req: req('erst.psych') }) })}
@@ -743,7 +743,7 @@ function sectionOverview(p, sec) {
     }
     if (sec === 'absch') {
         const a = p.absch;
-        return `${paneHead('Abschluss · Übersicht', `<div class="nf-pane__actions">
+        return `${paneHead('Abschluss · Übersicht', `<div class="ignis-tablet-pane__actions">
                 <button type="button" class="ignis-btn ignis-btn--secondary" data-act="send-lst"${dis(p)}>${fa('fa-tower-broadcast')}An Leitstelle senden</button>
                 <button type="button" class="ignis-btn ignis-btn--secondary" data-act="klinikcode">${fa('fa-key')}Klinikcode</button>
             </div>`)}
@@ -796,7 +796,7 @@ function rettOverview(p) {
         const a = p[key];
         const line = C.addressLine(a);
         const pre = key === 'von' ? 'Von' : 'Ziel';
-        return `<div class="ignis-bezel nf-box" data-live-state="rett:${key}"${fillAttr(topicFill(p, 'rett', key))}>
+        return `<div class="ignis-bezel nf-box ignis-tablet-stripe" data-live-state="rett:${key}"${fillAttr(topicFill(p, 'rett', key))}>
             <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa(icon)}</span><h3 class="ignis-bezel__title">${esc(title)}</h3>
                 <div class="ignis-bezel__actions"><a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="${href('p', p.enr, 'rett', key)}">${fa('fa-pen')}Adresse</a></div></div>
             <a class="ignis-bezel__well nf-addr-well" href="${href('p', p.enr, 'rett', key)}">
@@ -809,7 +809,7 @@ function rettOverview(p) {
     const vs = [['', '---'], ...C.VERSORGUNG.map((v) => [v.code, v.label])];
     return `<div class="nf-rett" data-scroll="pane">
         <div class="nf-rett__grid">
-            <div class="ignis-bezel nf-box" data-live-state="rett:pat"${fillAttr(topicFill(p, 'rett', 'pat'))}>
+            <div class="ignis-bezel nf-box ignis-tablet-stripe" data-live-state="rett:pat"${fillAttr(topicFill(p, 'rett', 'pat'))}>
                 <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-user')}</span><h3 class="ignis-bezel__title">Patientendaten</h3></div>
                 <div class="ignis-bezel__well nf-form">
                     <div class="nf-form__row">${input(p, 'pat.vorname', { label: 'Vorname', ph: 'Max' })}${input(p, 'pat.nachname', { label: 'Nachname', ph: 'Mustermann' })}</div>
@@ -820,7 +820,7 @@ function rettOverview(p) {
                     </div>
                 </div>
             </div>
-            <div class="ignis-bezel nf-box" data-live-state="rett:einsatz"${fillAttr(topicFill(p, 'rett', 'einsatz'))}>
+            <div class="ignis-bezel nf-box ignis-tablet-stripe" data-live-state="rett:einsatz"${fillAttr(topicFill(p, 'rett', 'einsatz'))}>
                 <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clipboard-list')}</span><h3 class="ignis-bezel__title">Einsatzdaten</h3></div>
                 <div class="ignis-bezel__well nf-form">
                     <div class="nf-form__row nf-form__row--3">
@@ -837,9 +837,9 @@ function rettOverview(p) {
             ${addrBox('von', 'Transport von / Einsatzort', 'fa-location-dot', vonReq)}
             ${addrBox('ziel', 'Transportziel', 'fa-hospital', zielReq)}
         </div>
-        <div class="ignis-bezel nf-box" data-live-state="rett:zeiten"${fillAttr(topicFill(p, 'rett', 'zeiten'))}>
+        <div class="ignis-bezel nf-box ignis-tablet-stripe" data-live-state="rett:zeiten"${fillAttr(topicFill(p, 'rett', 'zeiten'))}>
             <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clock')}</span><h3 class="ignis-bezel__title">Zeiten</h3></div>
-            <div class="ignis-bezel__well nf-times">${C.ZEITEN.map((z) => timeCell(p, z)).join('')}</div>
+            <div class="ignis-bezel__well ignis-tablet-times">${C.ZEITEN.map((z) => timeCell(p, z)).join('')}</div>
         </div>
     </div>`;
 }
@@ -852,11 +852,11 @@ function timeCell(p, z) {
     const v = p.zeiten[z.key];
     const req = ZEIT_REQ[z.key]?.(p) || false;
     const empty = !v?.t;
-    return `<button type="button" class="nf-time${empty ? ' is-empty' : ''}${empty && req ? ' is-missing' : ''}" data-act="time" data-key="${z.key}" aria-label="${esc(z.label)}: ${empty ? 'leer, antippen setzt jetzt' : esc(v.t + ' ' + v.d)}">
-        <span class="nf-time__label">${esc(z.label)}</span>
-        <span class="nf-time__date">${empty ? '&nbsp;' : esc(v.d)}</span>
-        <span class="nf-time__value ignis-mono">${empty ? '--:--' : esc(v.t)}</span>
-        ${empty && z.mark ? `<span class="nf-time__mark">${req ? missChip(`${z.label} fehlt`) : '<span class="ignis-dot"></span>leer'}</span>` : `<span class="nf-time__mark nf-time__mark--ghost">${empty ? 'jetzt' : '&nbsp;'}</span>`}
+    return `<button type="button" class="ignis-tablet-time${empty ? ' is-empty' : ''}${empty && req ? ' is-missing' : ''}" data-act="time" data-key="${z.key}" aria-label="${esc(z.label)}: ${empty ? 'leer, antippen setzt jetzt' : esc(v.t + ' ' + v.d)}">
+        <span class="ignis-tablet-time__label">${esc(z.label)}</span>
+        <span class="ignis-tablet-time__date">${empty ? '&nbsp;' : esc(v.d)}</span>
+        <span class="ignis-tablet-time__value ignis-mono">${empty ? '--:--' : esc(v.t)}</span>
+        ${empty && z.mark ? `<span class="ignis-tablet-time__mark">${req ? missChip(`${z.label} fehlt`) : '<span class="ignis-dot"></span>leer'}</span>` : `<span class="ignis-tablet-time__mark nf-time__mark--ghost">${empty ? 'jetzt' : '&nbsp;'}</span>`}
     </button>`;
 }
 
@@ -869,8 +869,8 @@ function addressView(p, key) {
         <input class="ignis-input" data-bind="d:a.${path}" value="${esc(a[path] || '')}" placeholder="${esc(ph)}" ${extra}${dis(p)}></label>`;
     const srLabel = key === 'von' ? 'SR Anfahrt (von)' : 'SR Transport (ziel)';
     const sr = a.sr || '-';
-    return `<div class="nf-view">
-        <div class="nf-view__body" data-scroll="pane">
+    return `<div class="ignis-tablet-view">
+        <div class="ignis-tablet-view__body" data-scroll="pane">
             ${paneHead(key === 'von' ? 'Transport von / Einsatzort' : 'Transportziel')}
             <div class="ignis-bezel nf-box nf-box--narrow">
                 <div class="ignis-bezel__well nf-form">
@@ -910,11 +910,11 @@ function poiHits(hits) {
 
 function pupillenPane(p) {
     const col = (path, title, opts) => `<div class="nf-pcol"><div class="nf-pcol__title">${esc(title)} ${starred(p, path) && !isSet(get(p, path)) ? missChip() : ''}</div>
-        <div class="nf-opts nf-opts--list">${opts.map(C.parseOpt).map((o) => optButton({ act: 'pick', path, val: o.label, label: o.label, normal: o.normal, pressed: get(p, path) === o.label })).join('')}</div></div>`;
+        <div class="ignis-tablet-options ignis-tablet-options--list">${opts.map(C.parseOpt).map((o) => optButton({ act: 'pick', path, val: o.label, label: o.label, normal: o.normal, pressed: get(p, path) === o.label })).join('')}</div></div>`;
     return `${paneHead('Neurologie · Pupillen')}
-        <div class="nf-group"><div class="nf-group__head"><span class="nf-group__label">Pupillenweite</span></div>
+        <div class="ignis-tablet-group"><div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">Pupillenweite</span></div>
             <div class="nf-pcols">${col('erst.pupL', 'links', C.OPT.pupille)}${col('erst.pupR', 'rechts', C.OPT.pupille)}</div></div>
-        <div class="nf-group"><div class="nf-group__head"><span class="nf-group__label">Lichtreaktion</span></div>
+        <div class="ignis-tablet-group"><div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">Lichtreaktion</span></div>
             <div class="nf-pcols">${col('erst.lichtL', 'links', C.OPT.licht)}${col('erst.lichtR', 'rechts', C.OPT.licht)}</div></div>`;
 }
 
@@ -929,7 +929,7 @@ function gcsPane(p) {
         </div>`)}
         <div class="nf-gcs">${C.GCS.map((c) => `<div class="nf-pcol">
             <div class="nf-pcol__title">${esc(c.label)} <span class="nf-dim ignis-mono">${p.erst[c.key] ? c.options.find((o) => o[0] === p.erst[c.key])[1] : '–'}</span></div>
-            <div class="nf-opts nf-opts--list">${c.options.map(([lab, sc], i) => optButton({ act: 'pick', path: `erst.${c.key}`, val: lab, label: lab, score: sc, normal: i === 0, pressed: p.erst[c.key] === lab })).join('')}</div>
+            <div class="ignis-tablet-options ignis-tablet-options--list">${c.options.map(([lab, sc], i) => optButton({ act: 'pick', path: `erst.${c.key}`, val: lab, label: lab, score: sc, normal: i === 0, pressed: p.erst[c.key] === lab })).join('')}</div>
         </div>`).join('')}</div>`;
 }
 
@@ -946,43 +946,43 @@ const BODY = {
 };
 function zone(p, key, shapes, label) {
     const v = p.erst.verl?.[key];
-    const fill = v?.sev ? C.SEVERITY_FILL[v.sev] : '';
+    const sev = v?.sev ? C.SEVERITY_KEY[v.sev] : '';
     const sel = ui.bodySel === key;
-    return `<g class="nf-zone${sel ? ' is-selected' : ''}${fill ? ' is-set' : ''}" data-act="zone" data-key="${key}" role="button" tabindex="0" aria-pressed="${sel ? 'true' : 'false'}" aria-label="${esc(label)}: ${esc(v?.sev || 'nicht erhoben')}" ${fill ? `style="--zone:${fill}"` : ''}>${shapes}</g>`;
+    return `<g class="ignis-tablet-zone${sel ? ' is-selected' : ''}" data-act="zone" data-key="${key}" role="button" tabindex="0" aria-pressed="${sel ? 'true' : 'false'}" aria-label="${esc(label)}: ${esc(v?.sev || 'nicht erhoben')}" ${sev ? `data-severity="${sev}"` : ''}>${shapes}</g>`;
 }
 function bodyMapPane(p) {
     const lab = Object.fromEntries(C.REGIONS.map((r) => [r.key, r.label]));
     const v = p.erst.verl?.[ui.bodySel] || {};
-    const front = `<svg class="nf-bm__svg" viewBox="0 0 160 360" role="group" aria-label="Körper Vorderseite">
-        <g class="nf-bm__base">${BODY.neck}</g>
+    const front = `<svg class="ignis-tablet-bodymap__svg" viewBox="0 0 160 360" role="group" aria-label="Körper Vorderseite">
+        <g class="ignis-tablet-bodymap__base">${BODY.neck}</g>
         ${zone(p, 'schaedel', BODY.head, lab.schaedel)}${zone(p, 'thorax', BODY.thorax, lab.thorax)}${zone(p, 'abdomen', BODY.abdomen, lab.abdomen)}
         ${zone(p, 'oex', BODY.armL + BODY.armR, lab.oex)}${zone(p, 'uex', BODY.legL + BODY.legR, lab.uex)}
     </svg>`;
-    const back = `<svg class="nf-bm__svg" viewBox="0 0 160 360" role="group" aria-label="Körper Rückseite">
-        <g class="nf-bm__base">${BODY.head}${BODY.neck}${BODY.thorax}${BODY.abdomen}${BODY.armL}${BODY.armR}${BODY.legL}${BODY.legR}</g>
+    const back = `<svg class="ignis-tablet-bodymap__svg" viewBox="0 0 160 360" role="group" aria-label="Körper Rückseite">
+        <g class="ignis-tablet-bodymap__base">${BODY.head}${BODY.neck}${BODY.thorax}${BODY.abdomen}${BODY.armL}${BODY.armR}${BODY.legL}${BODY.legR}</g>
         ${zone(p, 'ws', BODY.spine, lab.ws)}
     </svg>`;
-    const sevBtn = (s) => `<button type="button" class="nf-opt" aria-pressed="${v.sev === s}" data-act="sev" data-val="${s}"${dis(p)}><span class="nf-sev__dot" style="background:${C.SEVERITY_FILL[s]}"></span><span class="nf-opt__label">${s}</span></button>`;
+    const sevBtn = (s) => `<button type="button" class="ignis-tablet-option" aria-pressed="${v.sev === s}" data-act="sev" data-val="${s}"${dis(p)}><span class="ignis-tablet-severity" data-severity="${C.SEVERITY_KEY[s]}"><span class="ignis-tablet-severity__dot"></span></span><span class="ignis-tablet-option__label">${s}</span></button>`;
     return `${paneHead('Erweitern · Verletzungen')}
-    <div class="nf-bm">
-        <div class="nf-bm__maps">
-            <figure class="nf-bm__fig">${front}<figcaption>Vorderseite</figcaption></figure>
-            <figure class="nf-bm__fig">${back}<figcaption>Rückseite</figcaption></figure>
+    <div class="ignis-tablet-bodymap">
+        <div class="ignis-tablet-bodymap__maps">
+            <figure class="ignis-tablet-bodymap__figure">${front}<figcaption>Vorderseite</figcaption></figure>
+            <figure class="ignis-tablet-bodymap__figure">${back}<figcaption>Rückseite</figcaption></figure>
         </div>
-        <div class="nf-bm__panel">
+        <div class="ignis-tablet-bodymap__panel">
             <div class="ignis-bezel nf-box">
                 <div class="ignis-bezel__head"><h3 class="ignis-bezel__title">${esc(lab[ui.bodySel])}</h3></div>
                 <div class="ignis-bezel__well nf-form">
                     <div><div class="ignis-micro">SCHWEREGRAD</div><div class="nf-sevs" role="group" aria-label="Schweregrad">${C.SEVERITY.map(sevBtn).join('')}</div></div>
-                    ${v.sev && v.sev !== 'Keine' ? `<div><div class="ignis-micro">WUNDART</div><div class="nf-sevs" role="group" aria-label="Wundart">${C.WUNDART.map((w) => `<button type="button" class="nf-opt" aria-pressed="${v.wund === w}" data-act="wund" data-val="${w}"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">${w}</span></button>`).join('')}</div></div>` : ''}
+                    ${v.sev && v.sev !== 'Keine' ? `<div><div class="ignis-micro">WUNDART</div><div class="nf-sevs" role="group" aria-label="Wundart">${C.WUNDART.map((w) => `<button type="button" class="ignis-tablet-option" aria-pressed="${v.wund === w}" data-act="wund" data-val="${w}"${dis(p)}><span class="ignis-tablet-option__mark"></span><span class="ignis-tablet-option__label">${w}</span></button>`).join('')}</div></div>` : ''}
                 </div>
             </div>
-            <div class="nf-bm__list" role="list">
+            <div class="ignis-tablet-bodymap__list" role="list">
                 ${C.REGIONS.map((r) => {
                     const rv = p.erst.verl?.[r.key];
-                    return `<button type="button" class="nf-bm__row" role="listitem" data-act="zone" data-key="${r.key}" aria-pressed="${ui.bodySel === r.key}">
-                        <span class="nf-sev__dot" style="background:${rv?.sev ? C.SEVERITY_FILL[rv.sev] : 'transparent'}"></span>
-                        <span class="nf-bm__name">${esc(r.label)}</span><span class="nf-bm__val">${rv?.sev ? esc(rv.sev + (rv.wund ? ' · ' + rv.wund : '')) : '—'}</span></button>`;
+                    return `<button type="button" class="ignis-tablet-bodymap__row" role="listitem" data-act="zone" data-key="${r.key}" aria-pressed="${ui.bodySel === r.key}">
+                        <span class="ignis-tablet-severity"${rv?.sev ? ` data-severity="${C.SEVERITY_KEY[rv.sev]}"` : ''}><span class="ignis-tablet-severity__dot"></span></span>
+                        <span class="nf-bm__name">${esc(r.label)}</span><span class="ignis-tablet-bodymap__value">${rv?.sev ? esc(rv.sev + (rv.wund ? ' · ' + rv.wund : '')) : '—'}</span></button>`;
                 }).join('')}
             </div>
         </div>
@@ -1010,11 +1010,11 @@ function vbox(p, kp, key, { inner = false } = {}) {
     const req = kp.mode === 'erst' && v.req && !C.isFehl(p);
     const active = (kp.active || 'spo2') === key && kp.active !== null;
     const display = val === 'ng' ? 'nicht gemessen' : val === 'nm' ? 'nicht messbar' : val;
-    return `<button type="button" class="nf-vbox${inner ? ' nf-vbox--inner' : ''}${active ? ' is-active' : ''}${req && !isSet(val) ? ' is-missing' : ''}${val === 'ng' || val === 'nm' ? ' is-word' : ''}"
+    return `<button type="button" class="ignis-tablet-value${inner ? ' ignis-tablet-value--inner' : ''}${active ? ' is-active' : ''}${req && !isSet(val) ? ' is-missing' : ''}${val === 'ng' || val === 'nm' ? ' is-word' : ''}"
         data-act="kp-focus" data-key="${key}" aria-pressed="${active}" ${g ? `data-grade="${g}"` : ''} aria-label="${esc(v.long)} ${esc(display || 'leer')} ${esc(v.unit)}">
-        <span class="nf-vbox__head"><span class="nf-vbox__label">${esc(v.label)}</span>${inner ? '' : `<span class="nf-vbox__unit">${esc(v.unit)}</span>`}</span>
-        <span class="nf-vbox__value ignis-mono">${display ? esc(display) : `<span class="nf-vbox__ph">${esc(v.ph)}</span>`}</span>
-        <span class="nf-vbox__foot">${req && !isSet(val) ? missChip(`${v.long} fehlt`) : '<span class="nf-dim">&nbsp;</span>'}<span class="nf-vbox__norm">Norm ${esc(v.norm.replace(` ${v.unit}`, ''))}</span></span>
+        <span class="ignis-tablet-value__head"><span class="ignis-tablet-value__label">${esc(v.label)}</span>${inner ? '' : `<span class="ignis-tablet-value__unit">${esc(v.unit)}</span>`}</span>
+        <span class="ignis-tablet-value__value ignis-mono">${display ? esc(display) : `<span class="ignis-tablet-value__placeholder">${esc(v.ph)}</span>`}</span>
+        <span class="ignis-tablet-value__foot">${req && !isSet(val) ? missChip(`${v.long} fehlt`) : '<span class="nf-dim">&nbsp;</span>'}<span class="ignis-tablet-value__norm">Norm ${esc(v.norm.replace(` ${v.unit}`, ''))}</span></span>
     </button>`;
 }
 
@@ -1033,25 +1033,25 @@ function strip(kp) {
     const val = num(kp.values[key]);
     const pos = val === null ? null : Math.max(0, Math.min(1, (val - lo) / (hi - lo)));
     const g = val === null ? null : C.gradeVital(key, val);
-    return `<div class="nf-strip" aria-hidden="true">
-        <span class="nf-strip__title">${esc(v.label)}</span>
-        <span class="nf-strip__hi ignis-mono">${hi}</span>
-        <div class="nf-strip__track">
-            <div class="nf-strip__bar">${segs.reverse().map((s) => `<span class="nf-strip__seg" data-grade="${s.g}" style="flex:${s.n}"></span>`).join('')}</div>
-            ${pos !== null ? `<span class="nf-strip__ind" data-grade="${g}" style="bottom:${(pos * 100).toFixed(1)}%"><span class="nf-strip__val ignis-mono">${esc(kp.values[key])}</span></span>` : ''}
+    return `<div class="ignis-tablet-range" aria-hidden="true">
+        <span class="ignis-tablet-range__title">${esc(v.label)}</span>
+        <span class="ignis-tablet-range__hi ignis-mono">${hi}</span>
+        <div class="ignis-tablet-range__track">
+            <div class="ignis-tablet-range__bar">${segs.reverse().map((s) => `<span class="ignis-tablet-range__seg" data-grade="${s.g}" style="flex:${s.n}"></span>`).join('')}</div>
+            ${pos !== null ? `<span class="ignis-tablet-range__indicator" data-grade="${g}" style="bottom:${(pos * 100).toFixed(1)}%"><span class="ignis-tablet-range__value ignis-mono">${esc(kp.values[key])}</span></span>` : ''}
         </div>
-        <span class="nf-strip__lo ignis-mono">${lo}</span>
+        <span class="ignis-tablet-range__lo ignis-mono">${lo}</span>
     </div>`;
 }
 
 function keypad() {
-    const k = (val, label, cls = '') => `<button type="button" class="nf-key${cls}" data-act="kp" data-k="${val}">${label}</button>`;
-    return `<div class="nf-pad" role="group" aria-label="Tastenfeld">
+    const k = (val, label, cls = '') => `<button type="button" class="ignis-tablet-key${cls}" data-act="kp" data-k="${val}">${label}</button>`;
+    return `<div class="ignis-tablet-pad" role="group" aria-label="Tastenfeld">
         ${['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((d) => k(d, d)).join('')}
-        ${k(',', ',')}${k('0', '0')}${k('back', `${fa('fa-delete-left')}<span class="ignis-sr-only">Rücktaste</span>`, ' nf-key--fn')}
-        ${k('clear', 'Löschen', ' nf-key--wide nf-key--fn')}
-        ${k('ng', 'nicht gemessen', ' nf-key--wide nf-key--word')}
-        ${k('nm', 'nicht messbar', ' nf-key--wide nf-key--word')}
+        ${k(',', ',')}${k('0', '0')}${k('back', `${fa('fa-delete-left')}<span class="ignis-sr-only">Rücktaste</span>`, ' ignis-tablet-key--fn')}
+        ${k('clear', 'Löschen', ' ignis-tablet-key--wide ignis-tablet-key--fn')}
+        ${k('ng', 'nicht gemessen', ' ignis-tablet-key--wide ignis-tablet-key--word')}
+        ${k('nm', 'nicht messbar', ' ignis-tablet-key--wide ignis-tablet-key--word')}
     </div>`;
 }
 
@@ -1063,16 +1063,16 @@ function keypadView(p, { mode, topics }) {
             <label class="ignis-field nf-field nf-field--inline"><span class="ignis-field__label">Datum</span><input class="ignis-input ignis-mono nf-input-date" data-bind="k:date" data-mask="date" maxlength="10" inputmode="numeric" value="${esc(kp.date)}"></label>
             <label class="ignis-field nf-field nf-field--inline"><span class="ignis-field__label">Uhrzeit</span><input class="ignis-input ignis-mono nf-input-time" data-bind="k:time" data-mask="time" maxlength="5" inputmode="numeric" value="${esc(kp.time)}"></label>
         </div>`);
-    const body = `<div class="nf-view">
-        <div class="nf-view__body nf-kp-body">
+    const body = `<div class="ignis-tablet-view">
+        <div class="ignis-tablet-view__body nf-kp-body">
             ${head}
             <div class="nf-kp">
                 <div class="nf-kp__grid">
                     ${vbox(p, kp, 'spo2')}${vbox(p, kp, 'af')}${vbox(p, kp, 'etco2')}
                     ${vbox(p, kp, 'hf')}
-                    <div class="nf-vbox-rr${['rrs', 'rrd'].includes(kp.active) ? ' is-active' : ''}">
-                        <span class="nf-vbox-rr__title">NIBP / RR <span class="nf-vbox__unit">mmHg</span></span>
-                        <div class="nf-vbox-rr__pair">${vbox(p, kp, 'rrs', { inner: true })}<span class="nf-vbox-rr__slash" aria-hidden="true">/</span>${vbox(p, kp, 'rrd', { inner: true })}</div>
+                    <div class="ignis-tablet-value-pair${['rrs', 'rrd'].includes(kp.active) ? ' is-active' : ''}">
+                        <span class="ignis-tablet-value-pair__title">NIBP / RR <span class="ignis-tablet-value__unit">mmHg</span></span>
+                        <div class="ignis-tablet-value-pair__pair">${vbox(p, kp, 'rrs', { inner: true })}<span class="ignis-tablet-value-pair__slash" aria-hidden="true">/</span>${vbox(p, kp, 'rrd', { inner: true })}</div>
                     </div>
                     ${vbox(p, kp, 'bz')}${vbox(p, kp, 'temp')}
                 </div>
@@ -1083,7 +1083,7 @@ function keypadView(p, { mode, topics }) {
         ${bar(`<button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--lg" data-act="kp-cancel">${fa('fa-xmark')}Abbrechen</button>`,
             `<button type="button" class="ignis-btn ignis-btn--primary ignis-btn--lg" data-act="kp-save"${dis(p)}>${fa('fa-floppy-disk')}Speichern</button>`)}
     </div>`;
-    if (mode === 'erst') return `<div class="nf-sec">${topics}<section class="nf-pane nf-pane--flush">${body}</section></div>`;
+    if (mode === 'erst') return `<div class="ignis-tablet-section">${topics}<section class="ignis-tablet-pane ignis-tablet-pane--flush">${body}</section></div>`;
     return body;
 }
 
@@ -1112,7 +1112,7 @@ function kpPress(k) {
     else if (k === 'clear') v = '';
     else if (k === 'ng' || k === 'nm') v = k;
     if (!ok) {
-        const el = app.querySelector(`.nf-vbox[data-key="${key}"]`);
+        const el = app.querySelector(`.ignis-tablet-value[data-key="${key}"]`);
         if (el) { el.classList.remove('is-deny'); void el.offsetWidth; el.classList.add('is-deny'); }
         return;
     }
@@ -1128,7 +1128,7 @@ function lineCount(t) {
 function freitextPane(p) {
     const t = p.anam.text || '';
     const many = lineCount(t) > 22;
-    return `${paneHead('Anamnese · Freitext', `<span class="nf-pane__sub ignis-mono" id="nf-lines">${lineCount(t)} / 22 Zeilen</span>`)}
+    return `${paneHead('Anamnese · Freitext', `<span class="ignis-tablet-pane__sub ignis-mono" id="nf-lines">${lineCount(t)} / 22 Zeilen</span>`)}
     <div class="nf-free">
         <div class="nf-free__main">
             <textarea class="ignis-textarea nf-free__text" id="nf-freitext" data-bind="p:anam.text" data-live="lines" rows="14" placeholder="Anamnese, Situation bei Eintreffen, Angaben von Angehörigen …"${dis(p)}>${esc(t)}</textarea>
@@ -1164,13 +1164,13 @@ function symptomPane(p) {
                 <label class="ignis-field nf-field"><span class="ignis-field__label">Datum</span>
                     <input class="ignis-input ignis-mono" data-bind="p:anam.symDatum" data-mask="date" maxlength="10" inputmode="numeric" placeholder="TT.MM.JJJJ" value="${esc(a.symDatum || '')}"${dis(p)}></label>
                 <div class="ignis-field nf-field"><span class="ignis-field__label">&nbsp;</span>
-                    <button type="button" class="nf-opt nf-opt--multi" aria-pressed="${!!a.symGeschaetzt}" data-act="bool" data-path="anam.symGeschaetzt"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">geschätzt</span></button></div>
+                    <button type="button" class="ignis-tablet-option ignis-tablet-option--multi" aria-pressed="${!!a.symGeschaetzt}" data-act="bool" data-path="anam.symGeschaetzt"${dis(p)}><span class="ignis-tablet-option__mark"></span><span class="ignis-tablet-option__label">geschätzt</span></button></div>
             </div>
             <div class="nf-form__row">
                 <label class="ignis-field nf-field"><span class="ignis-field__label">Zeit</span>
                     <input class="ignis-input ignis-mono" data-bind="p:anam.symZeit" data-live="symzeit" data-mask="time" maxlength="5" inputmode="numeric" placeholder="HH:MM" value="${esc(a.symNicht ? '' : a.symZeit || '')}"${a.symNicht ? ' disabled' : dis(p)}></label>
                 <div class="ignis-field nf-field"><span class="ignis-field__label">&nbsp;</span>
-                    <button type="button" class="nf-opt nf-opt--multi" aria-pressed="${!!a.symNicht}" data-act="symnicht"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">nicht feststellbar</span></button></div>
+                    <button type="button" class="ignis-tablet-option ignis-tablet-option--multi" aria-pressed="${!!a.symNicht}" data-act="symnicht"${dis(p)}><span class="ignis-tablet-option__mark"></span><span class="ignis-tablet-option__label">nicht feststellbar</span></button></div>
             </div>
             <div class="nf-inline nf-inline--end"><button type="button" class="ignis-btn ignis-btn--primary ignis-btn--lg" data-act="sym-save"${dis(p)}>${fa('fa-floppy-disk')}Speichern</button></div>
         </div>
@@ -1193,8 +1193,8 @@ function diagResults(p, topic) {
     const q = ui.diagQ.trim().toLowerCase();
     const hits = C.allDiagnoses().filter((d) => d.label.toLowerCase().includes(q)).slice(0, 20);
     if (!hits.length) return emptyBlock({ icon: 'fa-magnifying-glass', title: 'Keine Diagnose gefunden.', text: `Kein Treffer für „${ui.diagQ}“.` });
-    return `<div class="nf-group"><div class="nf-group__head"><span class="nf-group__label">${hits.length === 20 ? 'Die ersten 20 Treffer' : `${hits.length} Treffer`}</span></div>
-        <div class="nf-opts nf-opts--two">${hits.map((h) => diagOption(p, topic, h.label)).join('')}</div></div>`;
+    return `<div class="ignis-tablet-group"><div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">${hits.length === 20 ? 'Die ersten 20 Treffer' : `${hits.length} Treffer`}</span></div>
+        <div class="ignis-tablet-options nf-opts--two">${hits.map((h) => diagOption(p, topic, h.label)).join('')}</div></div>`;
 }
 function diagPane(p, topic, sub) {
     const cat = C.DIAG_CATS.find((c) => c.key === sub?.key) || C.DIAG_CATS[0];
@@ -1202,20 +1202,20 @@ function diagPane(p, topic, sub) {
     if (cat.trauma) {
         list = C.TRAUMA_REGIONS.map((r) => `<div class="nf-trauma">
             <span class="nf-trauma__region">${esc(r)}</span>
-            <div class="nf-opts ${r === 'spezielle' ? 'nf-opts--two' : 'nf-opts--row'}">${C.traumaOptions(r).map((label) => {
+            <div class="ignis-tablet-options ${r === 'spezielle' ? 'nf-opts--two' : 'ignis-tablet-options--row'}">${C.traumaOptions(r).map((label) => {
                 const short = label.split(' – ')[1];
                 const single = topic.mode === 'single';
                 const pressed = single ? p.diag.fuehrend === label : p.diag.weitere.includes(label);
                 return optButton({ act: 'diag', path: topic.key, val: label, label: short, pressed, multi: !single, extraAttr: !single && p.diag.fuehrend === label ? 'disabled' : '' });
             }).join('')}</div></div>`).join('');
     } else {
-        list = `<div class="nf-opts nf-opts--two">${cat.items.map((d) => diagOption(p, topic, d)).join('')}</div>`;
+        list = `<div class="ignis-tablet-options nf-opts--two">${cat.items.map((d) => diagOption(p, topic, d)).join('')}</div>`;
     }
     return `${paneHead(`${topic.label} · ${cat.label}`)}
         ${diagSelected(p, topic)}
         <label class="ignis-input-group nf-search"><i class="fa-solid fa-magnifying-glass ignis-input-group__icon" aria-hidden="true"></i>
             <input class="ignis-input" type="search" id="nf-diag-q" placeholder="Suchen…" value="${esc(ui.diagQ)}" data-live="diagq" autocomplete="off" aria-label="Diagnose suchen"></label>
-        <div id="nf-diag-results">${ui.diagQ.trim() ? diagResults(p, topic) : `<div class="nf-group">${list}</div>`}</div>`;
+        <div id="nf-diag-results">${ui.diagQ.trim() ? diagResults(p, topic) : `<div class="ignis-tablet-group">${list}</div>`}</div>`;
 }
 function diagTextPane(p) {
     return `${paneHead('Diagnose Text')}
@@ -1256,8 +1256,8 @@ const legendSwatch = (s, i) => `<svg class="nf-swatch nf-s${i + 1}" width="22" h
 function verlaufOverview(p) {
     const entries = [...p.verlauf].sort((a, b) => new Date(a.at) - new Date(b.at));
     const values = entries.reduce((n, e) => n + Object.values(e.values).filter(isSet).length, 0);
-    const head = `<div class="nf-pane__head"><h2 class="nf-pane__title">Verlauf</h2>
-        <div class="nf-pane__actions">
+    const head = `<div class="ignis-tablet-pane__head"><h2 class="ignis-tablet-pane__title">Verlauf</h2>
+        <div class="ignis-tablet-pane__actions">
             <a class="ignis-btn ignis-btn--secondary" href="${href('p', p.enr, 'verlauf', 'liste')}">${fa('fa-pen')}Verlauf bearbeiten</a>
             ${ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary" href="${href('p', p.enr, 'verlauf', 'neu')}">${fa('fa-plus')}Werte hinzufügen</a>`}
         </div></div>
@@ -1266,7 +1266,7 @@ function verlaufOverview(p) {
             <span class="ignis-chip"><i class="fa-solid fa-clock" data-tone="info"></i>${entries.length} Zeitpunkte dokumentiert</span>
         </div>`;
     if (!entries.length) {
-        return `<div class="nf-pane nf-pane--solo" data-scroll="pane">${head}
+        return `<div class="ignis-tablet-pane ignis-tablet-pane--solo" data-scroll="pane">${head}
             <div class="ignis-bezel"><div class="ignis-bezel__well">${emptyBlock({ icon: 'fa-chart-line', title: 'Noch keine Vitalparameter dokumentiert', sm: false, actions: ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary" href="${href('p', p.enr, 'verlauf', 'neu')}">${fa('fa-plus')}Werte hinzufügen</a>` })}</div></div></div>`;
     }
     const legend = SERIES.map((s, i) => {
@@ -1278,7 +1278,7 @@ function verlaufOverview(p) {
         return `<tbody><tr class="nf-tgroup"><th colspan="3" scope="rowgroup">${esc(fmtDT(e.at))} Uhr (${keys.length} Parameter)</th></tr>
             ${keys.map((k) => `<tr><td>${esc(C.VITAL[k].long)}</td><td class="ignis-table__num ignis-mono">${vitalVal(k, e.values[k], e.values[k] === 'ng' ? 'nicht gemessen' : e.values[k] === 'nm' ? 'nicht messbar' : e.values[k])}</td><td class="nf-dim">${esc(C.VITAL[k].unit)}</td></tr>`).join('')}</tbody>`;
     }).join('');
-    return `<div class="nf-pane nf-pane--solo" data-scroll="pane">${head}
+    return `<div class="ignis-tablet-pane ignis-tablet-pane--solo" data-scroll="pane">${head}
         <div class="ignis-bezel nf-box">
             <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-chart-line')}</span><h3 class="ignis-bezel__title">Alle Vitalparameter</h3></div>
             <div class="nf-legend" role="group" aria-label="Reihen ein- und ausblenden">${legend}</div>
@@ -1369,9 +1369,9 @@ function verlaufList(p) {
                 ${ro(p) ? '' : `<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-vchip__del" data-act="vdel" data-id="${e.id}" data-key="${k}" aria-label="${esc(C.VITAL[k].label)} löschen">${fa('fa-trash-can')}</button>`}</span>`).join('')}</div>
         </div>`;
     }).join('');
-    return `<div class="nf-view"><div class="nf-view__body" data-scroll="pane">
-        <div class="nf-pane__head"><h2 class="nf-pane__title">Verlauf bearbeiten</h2>
-            <div class="nf-pane__actions"><a class="ignis-btn ignis-btn--secondary" href="${href('p', p.enr, 'verlauf')}">${fa('fa-arrow-left')}Zurück zur Übersicht</a>
+    return `<div class="ignis-tablet-view"><div class="ignis-tablet-view__body" data-scroll="pane">
+        <div class="ignis-tablet-pane__head"><h2 class="ignis-tablet-pane__title">Verlauf bearbeiten</h2>
+            <div class="ignis-tablet-pane__actions"><a class="ignis-btn ignis-btn--secondary" href="${href('p', p.enr, 'verlauf')}">${fa('fa-arrow-left')}Zurück zur Übersicht</a>
             ${ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary" href="${href('p', p.enr, 'verlauf', 'neu')}">${fa('fa-plus')}Neue Werte hinzufügen</a>`}</div></div>
         <div class="ignis-bezel"><div class="ignis-bezel__well ignis-bezel__well--list">${items || emptyBlock({ icon: 'fa-chart-line', title: 'Noch keine Vitalparameter dokumentiert' })}</div></div>
     </div></div>`;
@@ -1381,7 +1381,7 @@ function verlaufList(p) {
 
 const zugLabel = (z) => `${z.type === 'pvk' ? 'PVK' : 'i.o.'} ${z.size} ${z.site}${z.side ? ' ' + z.side : ''}`;
 const sizeMeta = (type, key) => (type === 'pvk' ? C.PVK_SIZES : C.IO_SIZES).find((s) => s.key === key);
-const gaugeDot = (s) => `<span class="nf-gauge${s.ring ? ' nf-gauge--ring' : ''}" style="--gauge:${s.color}" aria-hidden="true"></span>`;
+const gaugeDot = (s) => `<span class="ignis-tablet-swatch${s.ring ? ' ignis-tablet-swatch--ring' : ''}" style="--swatch:${s.color}" aria-hidden="true"></span>`;
 
 function zugangPane(p) {
     const m = p.mass;
@@ -1402,7 +1402,7 @@ function zugangPane(p) {
     const selZ = sel && find(sel.site, sel.side);
     return `${paneHead('Maßnahmen · Zugang')}
     <div class="nf-inline nf-mb">
-        <button type="button" class="nf-opt nf-opt--multi nf-opt--auto" aria-pressed="${!!m.zugangNone}" data-act="zug-none"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">Kein Zugang</span></button>
+        <button type="button" class="ignis-tablet-option ignis-tablet-option--multi nf-opt--auto" aria-pressed="${!!m.zugangNone}" data-act="zug-none"${dis(p)}><span class="ignis-tablet-option__mark"></span><span class="ignis-tablet-option__label">Kein Zugang</span></button>
         <div class="ignis-segmented ignis-segmented--switch nf-seg" role="group" aria-label="Zugangsart">
             <button type="button" aria-pressed="${type === 'pvk'}" data-act="zug-type" data-val="pvk">PVK</button>
             <button type="button" aria-pressed="${type === 'io'}" data-act="zug-type" data-val="io">intraossär</button>
@@ -1433,7 +1433,7 @@ function medsPane(p) {
     const m = p.mass;
     return `${paneHead('Maßnahmen · Medikamente')}
     <div class="nf-inline nf-mb">
-        <button type="button" class="nf-opt nf-opt--multi nf-opt--auto" aria-pressed="${!!m.medsNone}" data-act="meds-none"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">Keine Medikamente</span></button>
+        <button type="button" class="ignis-tablet-option ignis-tablet-option--multi nf-opt--auto" aria-pressed="${!!m.medsNone}" data-act="meds-none"${dis(p)}><span class="ignis-tablet-option__mark"></span><span class="ignis-tablet-option__label">Keine Medikamente</span></button>
         ${ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary ignis-btn--lg" href="${href('p', p.enr, 'mass', 'meds', 'maske')}">${fa('fa-plus')}Medikament erfassen</a>`}
     </div>
     <div class="ignis-bezel">
@@ -1454,9 +1454,9 @@ function medRow(x, { selectable = false, selected = false } = {}) {
 function medMask(p) {
     if (!ui.med || ui.med.enr !== p.enr) ui.med = { enr: p.enr, id: null, wirkstoff: '', t: C.fmtTimeS(new Date()), appl: '', dosis: '', einheit: '' };
     const d = ui.med;
-    const seg = (act, list, cur) => `<div class="nf-opts nf-opts--chips">${list.map((x) => `<button type="button" class="nf-opt nf-opt--chip" aria-pressed="${cur === x}" data-act="${act}" data-val="${esc(x)}"><span class="nf-opt__label">${esc(x)}</span></button>`).join('')}</div>`;
-    return `<div class="nf-view">
-        <div class="nf-view__body" data-scroll="pane">
+    const seg = (act, list, cur) => `<div class="ignis-tablet-options ignis-tablet-options--chips">${list.map((x) => `<button type="button" class="ignis-tablet-option ignis-tablet-option--chip" aria-pressed="${cur === x}" data-act="${act}" data-val="${esc(x)}"><span class="ignis-tablet-option__label">${esc(x)}</span></button>`).join('')}</div>`;
+    return `<div class="ignis-tablet-view">
+        <div class="ignis-tablet-view__body" data-scroll="pane">
             ${paneHead(d.id ? 'Medikament bearbeiten' : 'Medikament erfassen')}
             <div class="nf-medmask">
                 <div class="ignis-bezel nf-box">
@@ -1466,8 +1466,8 @@ function medMask(p) {
                 </div>
                 <div class="ignis-bezel nf-box">
                     <div class="ignis-bezel__well nf-form">
-                        <div class="nf-group nf-group--flat"><div class="nf-group__head"><span class="nf-group__label">Wirkstoff</span></div>
-                            <div class="nf-opts nf-opts--two">${C.MEDIKAMENTE.map((x) => `<button type="button" class="nf-opt" aria-pressed="${d.wirkstoff === x.label}" data-act="med-wirk" data-val="${esc(x.label)}"><span class="nf-opt__mark"></span><span class="nf-opt__label">${esc(x.label)}</span></button>`).join('')}</div></div>
+                        <div class="ignis-tablet-group nf-group--flat"><div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">Wirkstoff</span></div>
+                            <div class="ignis-tablet-options nf-opts--two">${C.MEDIKAMENTE.map((x) => `<button type="button" class="ignis-tablet-option" aria-pressed="${d.wirkstoff === x.label}" data-act="med-wirk" data-val="${esc(x.label)}"><span class="ignis-tablet-option__mark"></span><span class="ignis-tablet-option__label">${esc(x.label)}</span></button>`).join('')}</div></div>
                         <div class="nf-form__row">
                             <label class="ignis-field nf-field"><span class="ignis-field__label">Zeit</span>
                                 <span class="nf-inline"><input class="ignis-input ignis-mono nf-input-times" data-bind="m:t" data-mask="times" maxlength="8" inputmode="numeric" placeholder="HH:MM:SS" value="${esc(d.t)}">
@@ -1475,8 +1475,8 @@ function medMask(p) {
                             <label class="ignis-field nf-field"><span class="ignis-field__label">Dosierung</span>
                                 <input class="ignis-input ignis-mono" id="nf-dosis" data-bind="m:dosis" data-live="dosis" inputmode="decimal" placeholder="z. B. 500 mg" value="${esc(d.dosis)}"></label>
                         </div>
-                        <div class="nf-group nf-group--flat"><div class="nf-group__head"><span class="nf-group__label">Applikationsart</span></div>${seg('med-appl', C.APPLIKATION, d.appl)}</div>
-                        <div class="nf-group nf-group--flat"><div class="nf-group__head"><span class="nf-group__label">Einheit</span></div><div id="nf-units">${seg('med-unit', C.EINHEITEN, d.einheit)}</div></div>
+                        <div class="ignis-tablet-group nf-group--flat"><div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">Applikationsart</span></div>${seg('med-appl', C.APPLIKATION, d.appl)}</div>
+                        <div class="ignis-tablet-group nf-group--flat"><div class="ignis-tablet-group__head"><span class="ignis-tablet-group__label">Einheit</span></div><div id="nf-units">${seg('med-unit', C.EINHEITEN, d.einheit)}</div></div>
                     </div>
                 </div>
             </div>
@@ -1551,9 +1551,9 @@ function plausi(p) {
 }
 
 function freigabeView(p) {
-    return `<div class="nf-view">
-        <div class="nf-view__body" data-scroll="pane">
-            ${paneHead('Freigabe', `<span class="nf-pane__sub">Protokoll <span class="ignis-mono">#${esc(p.enr)}</span></span>`)}
+    return `<div class="ignis-tablet-view">
+        <div class="ignis-tablet-view__body" data-scroll="pane">
+            ${paneHead('Freigabe', `<span class="ignis-tablet-pane__sub">Protokoll <span class="ignis-mono">#${esc(p.enr)}</span></span>`)}
             ${plausi(p)}
             ${summaryBlocks(p)}
         </div>
@@ -1568,17 +1568,17 @@ function protocolView(p, sec, topic, sub) {
     let main;
     let full = false;
     if (sec === 'rett') {
-        if (topic === 'von' || topic === 'ziel') { main = addressView(p, topic); full = true; } else main = `<div class="nf-pane nf-pane--solo">${paneHead('Rett. Daten')}${rettOverview(p)}</div>`;
+        if (topic === 'von' || topic === 'ziel') { main = addressView(p, topic); full = true; } else main = `<div class="ignis-tablet-pane ignis-tablet-pane--solo">${paneHead('Rett. Daten')}${rettOverview(p)}</div>`;
     } else if (sec === 'verlauf') {
         if (topic === 'liste') main = verlaufList(p);
         else if (topic === 'neu') { main = keypadView(p, { mode: 'verlauf' }); full = true; } else main = verlaufOverview(p);
     } else if (sec === 'mass' && topic === 'meds' && sub === 'maske') { main = medMask(p); full = true; } else if (sec === 'absch' && topic === 'freigabe') { main = freigabeView(p); full = true; } else main = renderSectionShell(p, sec, topic, sub);
-    return `<div class="nf-shell${ro(p) ? ' is-ro' : ''}">
+    return `<div class="ignis-tablet-frame${ro(p) ? ' is-ro' : ''}">
         ${protoTopbar(p)}
         ${notice(p)}
-        <div class="nf-body-grid">
+        <div class="ignis-tablet-frame__body">
             ${rail(p, sec)}
-            <main class="nf-main${full ? ' nf-main--full' : ''}" id="nf-main">${main}</main>
+            <main class="ignis-tablet-frame__main${full ? ' nf-main--full' : ''}" id="ignis-tablet-frame__main">${main}</main>
         </div>
     </div>`;
 }
@@ -1596,7 +1596,7 @@ function overviewView() {
         const miss = missingOf(p).length;
         const total = reqActive(p).length;
         const fill = miss === 0 ? 'filled' : miss === total ? 'unfilled' : 'partfilled';
-        return `<div class="ignis-bezel__item nf-prow" data-fill="${fill}">
+        return `<div class="ignis-bezel__item nf-prow ignis-tablet-stripe" data-state="${fill}">
             <a class="ignis-entry nf-prow__main" href="${href('p', p.enr, 'rett')}">
                 <span class="ignis-glyph ignis-glyph--md nf-letter">${String.fromCharCode(65 + i)}</span>
                 <span class="ignis-entry__title"><span class="ignis-mono">#${esc(p.enr)}</span><span class="ignis-sr-only">${FILL_WORD[fill]}</span>
@@ -1616,12 +1616,12 @@ function overviewView() {
     const links = S.quicklinksEmpty
         ? emptyBlock({ icon: 'fa-link', title: 'Keine Links verfügbar.', pattern: true })
         : `<div class="nf-links">${C.QUICKLINKS.map((l) => `<button type="button" class="nf-link" data-act="qlink" data-val="${esc(l.label)}"><span class="ignis-glyph ignis-glyph--sm">${fa(l.icon)}</span><span class="nf-link__text"><span class="nf-link__label">${hy(l.label)}</span><span class="nf-link__note">${esc(l.note)}</span></span></button>`).join('')}</div>`;
-    const tools = `<button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="vinfo" data-ignis-tooltip="Fahrzeuginfo" aria-label="Fahrzeuginfo">${fa('fa-circle-info')}<span class="nf-tbtn__label">Fahrzeuginfo</span></button>
-        <button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="logbook" data-ignis-tooltip="Fahrtenbuch" aria-label="Fahrtenbuch">${fa('fa-book')}<span class="nf-tbtn__label">Fahrtenbuch</span></button>
-        <button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="logout" data-ignis-tooltip="Abmelden" aria-label="Abmelden">${fa('fa-right-from-bracket')}<span class="nf-tbtn__label">Abmelden</span></button>`;
-    return `<div class="nf-shell">
+    const tools = `<button type="button" class="ignis-btn ignis-btn--ghost ignis-tablet-top__btn" data-act="vinfo" data-ignis-tooltip="Fahrzeuginfo" aria-label="Fahrzeuginfo">${fa('fa-circle-info')}<span class="ignis-tablet-top__label">Fahrzeuginfo</span></button>
+        <button type="button" class="ignis-btn ignis-btn--ghost ignis-tablet-top__btn" data-act="logbook" data-ignis-tooltip="Fahrtenbuch" aria-label="Fahrtenbuch">${fa('fa-book')}<span class="ignis-tablet-top__label">Fahrtenbuch</span></button>
+        <button type="button" class="ignis-btn ignis-btn--ghost ignis-tablet-top__btn" data-act="logout" data-ignis-tooltip="Abmelden" aria-label="Abmelden">${fa('fa-right-from-bracket')}<span class="ignis-tablet-top__label">Abmelden</span></button>`;
+    return `<div class="ignis-tablet-frame">
         ${plainTopbar('Übersicht', tools)}
-        <main class="nf-main nf-main--page" id="nf-main" data-scroll="page">
+        <main class="ignis-tablet-frame__page" id="ignis-tablet-frame__main" data-scroll="page">
             <div class="nf-overview">
                 <section class="ignis-bezel">
                     <div class="ignis-bezel__head">
@@ -1653,9 +1653,9 @@ function createView() {
             <span class="nf-type__check">${fa('fa-circle-check')}</span>
         </button>`;
     };
-    return `<div class="nf-shell">
-        ${plainTopbar('Neuer Einsatz', `<a class="ignis-btn ignis-btn--ghost nf-tbtn" href="#/overview" aria-label="Übersicht">${fa('fa-table-list')}<span class="nf-tbtn__label">Übersicht</span></a>`)}
-        <main class="nf-main nf-main--page" id="nf-main">
+    return `<div class="ignis-tablet-frame">
+        ${plainTopbar('Neuer Einsatz', `<a class="ignis-btn ignis-btn--ghost ignis-tablet-top__btn" href="#/overview" aria-label="Übersicht">${fa('fa-table-list')}<span class="ignis-tablet-top__label">Übersicht</span></a>`)}
+        <main class="ignis-tablet-frame__page" id="ignis-tablet-frame__main">
             <section class="ignis-bezel nf-create">
                 <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-plus')}</span><h1 class="ignis-bezel__title">Neuen Einsatz erstellen</h1></div>
                 <div class="ignis-bezel__well nf-form">
@@ -1701,9 +1701,9 @@ function loginView() {
                 ${err === 'quali' ? '<span class="ignis-field__error">Bitte Qualifikation wählen.</span>' : ''}</label>
         </div>`;
     };
-    return `<div class="nf-shell">
+    return `<div class="ignis-tablet-frame">
         ${plainTopbar('Anmeldung')}
-        <main class="nf-main nf-main--page nf-login" id="nf-main">
+        <main class="ignis-tablet-frame__page nf-login" id="ignis-tablet-frame__main">
             <section class="ignis-bezel nf-login__card">
                 <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-users')}</span><h1 class="ignis-bezel__title">Besatzung anmelden</h1>
                     <div class="ignis-bezel__actions"><button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-act="theme">${fa(document.documentElement.dataset.theme === 'light' ? 'fa-moon' : 'fa-sun')}${document.documentElement.dataset.theme === 'light' ? 'Dunkel' : 'Hell'}</button></div></div>
@@ -1731,7 +1731,7 @@ function loginView() {
 }
 
 function lockView() {
-    const k = (v, label, cls = '') => `<button type="button" class="nf-key nf-key--pin${cls}" data-act="pin" data-k="${v}">${label}</button>`;
+    const k = (v, label, cls = '') => `<button type="button" class="ignis-tablet-key nf-key--pin${cls}" data-act="pin" data-k="${v}">${label}</button>`;
     return `<div class="nf-lock">
         <div class="nf-lock__card${ui.pinErr ? ' is-wrong' : ''}">
             <span class="ignis-glyph ignis-glyph--lg">${fa('fa-lock')}</span>
@@ -1741,7 +1741,7 @@ function lockView() {
             <p class="nf-lock__err" role="alert">${ui.pinErr ? `${fa('fa-circle-exclamation')} Falsche PIN` : '&nbsp;'}</p>
             <div class="nf-pinpad">
                 ${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => k(d, d)).join('')}
-                ${k('back', `${fa('fa-delete-left')}<span class="ignis-sr-only">Rücktaste</span>`, ' nf-key--fn')}${k('0', '0')}${k('ok', `${fa('fa-check')}<span class="ignis-sr-only">Bestätigen</span>`, ' nf-key--fn')}
+                ${k('back', `${fa('fa-delete-left')}<span class="ignis-sr-only">Rücktaste</span>`, ' ignis-tablet-key--fn')}${k('0', '0')}${k('ok', `${fa('fa-check')}<span class="ignis-sr-only">Bestätigen</span>`, ' ignis-tablet-key--fn')}
             </div>
             <p class="nf-hint">Demo-PIN: <span class="ignis-kbd">1</span> <span class="ignis-kbd">2</span> <span class="ignis-kbd">3</span> <span class="ignis-kbd">4</span></p>
         </div>
@@ -2548,7 +2548,7 @@ let resizeT = null;
 window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(drawChart, 120); });
 
 setInterval(() => {
-    const c = document.getElementById('nf-clock');
+    const c = document.getElementById('ignis-tablet-clock');
     if (c) c.outerHTML = clockHTML();
 }, 15000);
 

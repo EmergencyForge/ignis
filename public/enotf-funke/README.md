@@ -22,14 +22,27 @@ FiveM-Tablet (Chromium 103) läuft.
 | Datei | Inhalt |
 |---|---|
 | `index.php` | HTML-Gerüst, bindet die gebauten Funke-Assets ein |
-| `enotf-funke.css` | Tablet-Schicht, Präfix `nf-` |
+| `tablet.css` | Tablet-Bausteine aus WebPackages (`tablet-tokens()` und `tablet('ignis')`), erzeugt, nicht von Hand ändern |
+| `enotf-funke.css` | eNOTF-eigene Teile und Abweichungen von den Bausteinen, Präfix `nf-` |
 | `enotf-funke.js` | Hash-Routing, Zustand, Ansichten, Interaktion (ES-Modul ohne Build) |
 | `catalogs.js` | Optionslisten, Schwellen der Vitalwerte, Pflichtangaben, Beispielprotokolle |
 
 Eingebunden werden die vorhandenen Dateien von ignis über relative Pfade:
 `../assets/dist/ui.css`, `../assets/dist/vendor.css` (Font Awesome 7),
-die Geist-Schriften sowie `preferences.js`, `dialog.js`, `snackbar.js` und
-`tooltip.js` aus `../assets/js/ui/`.
+die Geist-Schriften sowie `preferences.js`, `dialog.js`, `snackbar.js`,
+`tooltip.js` und `dropdown.js` aus `../assets/js/ui/`. Stand ist ui 1.0
+(Zweig `claude/ui-1-0`).
+
+`tablet.css` baut ignis selbst noch nicht, weil nur eNOTF-Seiten die
+Bausteine brauchen. Bis zur Übernahme kommt die Datei aus WebPackages,
+`packages/ui/scss/_tablet.scss`, kompiliert mit Sass:
+
+```scss
+@use 'tablet' as t;
+body[data-ui-skin="core"] { @include t.tablet-tokens; @include t.tablet('ignis'); }
+```
+
+Der body trägt dazu die Klasse `ignis-tablet`.
 
 ## Bestehende Dateien
 
@@ -52,26 +65,25 @@ sie sind.
 - Die Pflichtangaben folgen den ★-Regeln des eNOTF für die dort genannten
   Felder, inklusive Ausnahmen: „Fehleinsatz - kein Patient“ macht Patienten-
   und Befundangaben optional, die Transport-Versorgungen fordern zusätzlich
-  Ziel Adresse, E.-ab (7) und KH an (8). Leiste, Zähler und
-  Plausibilitätsprüfung rechnen daraus. Die Server-Prüfung
+  Ziel Adresse, E.-ab (7) und KH an (8). Ampel und Plausibilitätsprüfung
+  rechnen daraus. Die Server-Prüfung
   (`ConditionsService`) ist damit nicht ersetzt.
 
-## Später ins Paket
+## Übernahme
 
-Die Tablet-Schicht liest nur Funke-Rollen (`--surface-*`, `--well`,
-`--border-*`, `--ok`/`--warn`/`--danger` mit `-soft`/`-line`/`-text`,
-`--accent-*`, Radius- und Bewegungsrollen). Sie lässt sich deshalb als
-eigener Skin in WebPackages abbilden, etwa als `ef.tablet($p)` neben
-`base()` und `look()`:
+Die Tablet-Bausteine liegen seit ui 1.0 im Paket (`tablet-tokens`,
+`tablet($p)`), der Prototyp nutzt sie mit den Klassen `ignis-tablet-*`.
+In `enotf-funke.css` bleibt, was nur eNOTF braucht (Übersichtskacheln,
+Formulare, Diagnose, Zugang, Medikamente, Verlaufsdiagramm, Anmeldung,
+Sperre) und wenige Abweichungen, etwa breitere Antwortkacheln.
 
-1. Die `nf-`-Bausteine, die es im Paket noch nicht gibt (Antwort-Kachel mit
-   Normalbefund, Abschnittsleiste mit Füllstand, Tastenfeld mit Wertkästen und
-   Bereichsleiste, Körperkarte, Zeitenleiste), wandern als `PREFIX-`-Klassen
-   nach `packages/ui/scss/`, auf dieselben Rollen.
-2. Der Skin setzt die Touch-Maße (`--control-height: 44px`, Tasten 56 px,
-   Mindestschrift 12 px) und schaltet die Rollen nicht um, nur Größen.
-3. eNOTF bindet `ui.css` mit dem Skin ein und ersetzt die eigenen
-   `ev2-`-Regeln in `templates/_layout.php` schrittweise.
+Für die Übernahme ins Plugin:
+
+1. eNOTF-Seiten binden `tablet-tokens` hinter `look-tokens` und
+   `tablet('ignis')` hinter `look('ignis')` ein, der body bekommt
+   `ignis-tablet`.
+2. Die `nf-`-Regeln wandern in die eNOTF-Styles des Plugins und ersetzen
+   die `ev2-`-Regeln in `templates/_layout.php` schrittweise.
 
 Die Kategorienpalette des Verlaufsdiagramms (`--nf-s1` bis `--nf-s8`) ist
 validiert und hat feste Reihenfolge. Im Paket gehört sie zu den

@@ -1,0 +1,1277 @@
+/* Erzeugt aus WebPackages e9420f0 (packages/ui/scss/_tablet.scss): tablet-tokens() und tablet('ignis').
+   Nicht von Hand ändern; ignis bindet die Bausteine bei der Übernahme selbst ein. */
+body[data-ui-skin=core] {
+  --tablet-target: 44px;
+  --tablet-tile: 56px;
+  --tablet-key: 56px;
+  --tablet-top-h: 60px;
+  --tablet-rail-w: 216px;
+  --tablet-topics-w: 200px;
+  --tablet-subs-w: 196px;
+  --tablet-times: 9;
+  --tablet-severity-none: var(--tertiary-text);
+  --tablet-severity-mild: var(--ok);
+  --tablet-severity-moderate: var(--warn);
+  --tablet-severity-severe: var(--danger);
+}
+body[data-ui-skin=core].ignis-tablet, body[data-ui-skin=core].ignis-tablet[data-density] {
+  --control-height: var(--tablet-target);
+}
+body[data-ui-skin=core].ignis-tablet {
+  margin: 0;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+body[data-ui-skin=core].ignis-tablet .ignis-btn--sm, body[data-ui-skin=core].ignis-tablet .ignis-menu__item {
+  min-height: var(--tablet-target);
+}
+body[data-ui-skin=core].ignis-tablet .ignis-btn--icon, body[data-ui-skin=core].ignis-tablet .ignis-btn--icon.ignis-btn--sm, body[data-ui-skin=core].ignis-tablet .ignis-dialog__close {
+  width: var(--tablet-target);
+  height: var(--tablet-target);
+  min-height: var(--tablet-target);
+}
+body[data-ui-skin=core].ignis-tablet .ignis-segmented--switch, body[data-ui-skin=core].ignis-tablet .ignis-segmented--sm, body[data-ui-skin=core].ignis-tablet .ignis-search {
+  height: var(--tablet-target);
+}
+body[data-ui-skin=core].ignis-tablet .ignis-table td {
+  box-sizing: border-box;
+  height: var(--tablet-target);
+}
+body[data-ui-skin=core] .ignis-tablet-frame {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+}
+body[data-ui-skin=core] .ignis-tablet-frame__notice {
+  flex: none;
+  margin: 8px 12px 0;
+}
+body[data-ui-skin=core] .ignis-tablet-frame__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--tablet-rail-w) minmax(0, 1fr);
+}
+body[data-ui-skin=core] .ignis-tablet-frame__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+body[data-ui-skin=core] .ignis-tablet-frame__page {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+}
+body[data-ui-skin=core] .ignis-tablet-frame.is-readonly :is(.ignis-tablet-option, .ignis-tablet-time, .ignis-tablet-key, .ignis-tablet-value) {
+  cursor: not-allowed;
+}
+body[data-ui-skin=core] .ignis-tablet-top {
+  box-sizing: border-box;
+  position: relative;
+  z-index: var(--z-sticky);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: var(--tablet-top-h);
+  padding: 0 10px 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 0 var(--hairline);
+}
+body[data-ui-skin=core] .ignis-tablet-top__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+body[data-ui-skin=core] .ignis-tablet-top__group--grow {
+  flex: 1 1 auto;
+  gap: 8px;
+}
+body[data-ui-skin=core] .ignis-tablet-top__group--end {
+  flex: none;
+  margin-left: auto;
+}
+body[data-ui-skin=core] .ignis-tablet-top__sep {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  margin: 0 4px;
+  background: var(--border-subtle);
+}
+body[data-ui-skin=core] .ignis-tablet-top__title {
+  color: var(--secondary-text);
+  font-size: 15px;
+  white-space: nowrap;
+}
+body[data-ui-skin=core] .ignis-tablet-top__btn {
+  min-height: var(--tablet-target);
+}
+body[data-ui-skin=core] .ignis-tablet-top__btn i {
+  color: var(--secondary-text);
+}
+body[data-ui-skin=core] .ignis-tablet-context {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+  min-height: var(--tablet-target);
+  padding: 0 10px;
+  border-radius: var(--radius-2);
+  color: var(--content-text);
+  text-decoration: none;
+}
+body[data-ui-skin=core] a.ignis-tablet-context:hover {
+  background: var(--fill-2);
+}
+body[data-ui-skin=core] .ignis-tablet-context:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 1px;
+}
+body[data-ui-skin=core] .ignis-tablet-context > i {
+  color: var(--tertiary-text);
+}
+body[data-ui-skin=core] .ignis-tablet-context__text {
+  display: grid;
+  min-width: 0;
+  line-height: 18px;
+}
+body[data-ui-skin=core] .ignis-tablet-context__title {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+body[data-ui-skin=core] .ignis-tablet-context__meta {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--tertiary-text);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+body[data-ui-skin=core] .ignis-tablet-sync {
+  display: flex;
+  align-items: center;
+}
+body[data-ui-skin=core] .ignis-tablet-sync__btn {
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--tablet-target);
+  height: var(--tablet-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--secondary-text);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+body[data-ui-skin=core] .ignis-tablet-sync__btn:hover {
+  background: var(--fill-2);
+  color: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-sync__btn:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: -2px;
+}
+body[data-ui-skin=core] .ignis-tablet-sync__btn > .ignis-dot {
+  position: absolute;
+  top: 10px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+body[data-ui-skin=core] .ignis-tablet-clock {
+  display: grid;
+  justify-items: end;
+  padding: 0 8px;
+  line-height: 1.15;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-clock__time {
+  color: var(--content-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+body[data-ui-skin=core] .ignis-tablet-clock__date {
+  color: var(--tertiary-text);
+  font-size: 12px;
+}
+body[data-ui-skin=core] .ignis-tablet-rail {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 8px;
+  background: var(--surface);
+  border-right: 1px solid var(--border-subtle);
+}
+body[data-ui-skin=core] .ignis-tablet-rail__item {
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  grid-template-columns: 14px 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tablet-tile);
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-item);
+  color: var(--secondary-text);
+  text-decoration: none;
+}
+body[data-ui-skin=core] .ignis-tablet-rail__item:hover {
+  background: var(--fill-2);
+  color: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-rail__item[aria-current]:not([aria-current=false]) {
+  background: var(--surface-4);
+  color: var(--content-text);
+  box-shadow: inset 0 1px 0 var(--hi), inset 0 0 0 1px var(--border-ui);
+}
+body[data-ui-skin=core] .ignis-tablet-rail__item:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 1px;
+}
+body[data-ui-skin=core] .ignis-tablet-rail__num {
+  color: var(--tertiary-text);
+  font-size: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-rail__icon {
+  color: var(--tertiary-text);
+  font-size: 16px;
+  text-align: center;
+}
+body[data-ui-skin=core] .ignis-tablet-rail__item[aria-current]:not([aria-current=false]) .ignis-tablet-rail__icon {
+  color: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-rail__text {
+  display: grid;
+  min-width: 0;
+}
+body[data-ui-skin=core] .ignis-tablet-rail__label {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+body[data-ui-skin=core] .ignis-tablet-rail__meta {
+  color: var(--tertiary-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav, .ignis-tablet-stripe)[data-state] {
+  position: relative;
+}
+body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav, .ignis-tablet-stripe)[data-state]::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 3px;
+  height: 20px;
+  background: var(--stripe);
+  pointer-events: none;
+}
+body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav, .ignis-tablet-stripe)[data-state=unfilled] {
+  --stripe: var(--danger);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav, .ignis-tablet-stripe)[data-state=partfilled] {
+  --stripe: var(--warn);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav, .ignis-tablet-stripe)[data-state=filled] {
+  --stripe: var(--ok);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav)[data-state=filled]::before {
+  top: calc(50% - 10px);
+}
+body[data-ui-skin=core] .ignis-tablet-stripe[data-state]::before {
+  top: 18px;
+}
+body[data-ui-skin=core] .ignis-tablet-stripe[data-state=filled]::before {
+  top: 28px;
+}
+body[data-ui-skin=core] .ignis-tablet-miss {
+  flex: none;
+  color: var(--danger);
+  font-size: 16px;
+}
+body[data-ui-skin=core] .ignis-tablet-section {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--tablet-topics-w) minmax(0, 1fr);
+}
+body[data-ui-skin=core] .ignis-tablet-section--subs {
+  grid-template-columns: var(--tablet-topics-w) var(--tablet-subs-w) minmax(0, 1fr);
+}
+body[data-ui-skin=core] .ignis-tablet-col {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 8px;
+  border-right: 1px solid var(--border-subtle);
+}
+body[data-ui-skin=core] .ignis-tablet-col--subs {
+  background: var(--fill-1);
+}
+body[data-ui-skin=core] .ignis-tablet-col__sep {
+  flex: none;
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--border-subtle);
+}
+body[data-ui-skin=core] .ignis-tablet-nav {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-radius: var(--radius-2);
+  color: var(--secondary-text);
+  text-decoration: none;
+}
+body[data-ui-skin=core] .ignis-tablet-nav--noicon {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+body[data-ui-skin=core] .ignis-tablet-nav:hover {
+  background: var(--fill-2);
+  color: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-nav[aria-current]:not([aria-current=false]) {
+  background: var(--surface-4);
+  color: var(--content-text);
+  box-shadow: inset 0 1px 0 var(--hi), inset 0 0 0 1px var(--border-ui);
+}
+body[data-ui-skin=core] .ignis-tablet-nav:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 1px;
+}
+body[data-ui-skin=core] .ignis-tablet-nav__icon {
+  color: var(--tertiary-text);
+  font-size: 15px;
+  text-align: center;
+}
+body[data-ui-skin=core] .ignis-tablet-nav[aria-current]:not([aria-current=false]) .ignis-tablet-nav__icon {
+  color: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-nav__text {
+  display: grid;
+  min-width: 0;
+}
+body[data-ui-skin=core] .ignis-tablet-nav__label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+body[data-ui-skin=core] .ignis-tablet-nav__meta {
+  color: var(--tertiary-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+body[data-ui-skin=core] .ignis-tablet-pane {
+  box-sizing: border-box;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px 28px;
+}
+body[data-ui-skin=core] .ignis-tablet-pane--flush {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+body[data-ui-skin=core] .ignis-tablet-pane--solo {
+  flex: 1;
+}
+body[data-ui-skin=core] .ignis-tablet-pane__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  min-height: 44px;
+  margin-bottom: 14px;
+}
+body[data-ui-skin=core] .ignis-tablet-pane__title {
+  margin: 0;
+  color: var(--content-text);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+body[data-ui-skin=core] .ignis-tablet-pane__sub {
+  color: var(--tertiary-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+body[data-ui-skin=core] .ignis-tablet-pane__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+body[data-ui-skin=core] .ignis-tablet-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+body[data-ui-skin=core] .ignis-tablet-view__body {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+}
+body[data-ui-skin=core] .ignis-tablet-bar {
+  box-sizing: border-box;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+}
+body[data-ui-skin=core] .ignis-tablet-bar__spacer {
+  flex: 1;
+}
+body[data-ui-skin=core] .ignis-tablet-bar .ignis-btn {
+  min-height: var(--tablet-target);
+}
+body[data-ui-skin=core] .ignis-tablet-group {
+  margin: 0 0 22px;
+}
+body[data-ui-skin=core] .ignis-tablet-group__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  margin-bottom: 10px;
+}
+body[data-ui-skin=core] .ignis-tablet-group__label {
+  color: var(--secondary-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+}
+body[data-ui-skin=core] .ignis-tablet-group__hint {
+  color: var(--tertiary-text);
+  font-size: 12px;
+}
+body[data-ui-skin=core] .ignis-tablet-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 8px;
+}
+body[data-ui-skin=core] .ignis-tablet-options--list {
+  grid-template-columns: minmax(0, 1fr);
+}
+body[data-ui-skin=core] .ignis-tablet-options--wide {
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+}
+body[data-ui-skin=core] .ignis-tablet-options--narrow {
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+}
+body[data-ui-skin=core] .ignis-tablet-options--row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+body[data-ui-skin=core] .ignis-tablet-options--chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+body[data-ui-skin=core] .ignis-tablet-option {
+  box-sizing: border-box;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 0 var(--hi);
+  color: var(--content-text);
+  font: inherit;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: var(--tablet-tile);
+  padding: 10px 14px;
+  border-radius: var(--radius-item);
+  font-size: 15px;
+  line-height: 20px;
+  text-align: left;
+}
+body[data-ui-skin=core] .ignis-tablet-option:hover {
+  background: var(--surface-3);
+  border-color: var(--border-control);
+}
+body[data-ui-skin=core] .ignis-tablet-option:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+body[data-ui-skin=core] .ignis-tablet-option[aria-pressed=true] {
+  background: var(--surface-4);
+  border-color: var(--border-strong);
+  box-shadow: inset 0 1px 0 var(--hi), inset 0 0 0 1px var(--border-strong);
+  font-weight: 500;
+}
+body[data-ui-skin=core] .ignis-tablet-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+body[data-ui-skin=core] .ignis-tablet-option--chip {
+  justify-content: center;
+  min-width: 64px;
+  min-height: 48px;
+  padding: 6px 16px;
+}
+body[data-ui-skin=core] .ignis-tablet-options--row .ignis-tablet-option {
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+body[data-ui-skin=core] .ignis-tablet-option__mark {
+  box-sizing: border-box;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+}
+body[data-ui-skin=core] .ignis-tablet-option--multi .ignis-tablet-option__mark {
+  border-radius: var(--radius-1);
+}
+body[data-ui-skin=core] .ignis-tablet-option[aria-pressed=true] .ignis-tablet-option__mark {
+  background: var(--content-text);
+  border-color: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-option[aria-pressed=true] .ignis-tablet-option__mark::after {
+  content: "";
+  width: 5px;
+  height: 10px;
+  margin-top: -2px;
+  border: solid var(--surface-4);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+body[data-ui-skin=core] .ignis-tablet-option__label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+body[data-ui-skin=core] .ignis-tablet-option__score {
+  flex: none;
+  margin-left: auto;
+  color: var(--tertiary-text);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-option--normal .ignis-tablet-option__label {
+  color: var(--ok-text);
+}
+body[data-ui-skin=core] .ignis-tablet-option--normal[aria-pressed=true] .ignis-tablet-option__mark {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+body[data-ui-skin=core] .ignis-tablet-option--normal[aria-pressed=true] .ignis-tablet-option__mark::after {
+  border-color: var(--on-ok);
+}
+body[data-ui-skin=core] .ignis-tablet-quick {
+  box-sizing: border-box;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 0 var(--hi);
+  color: var(--content-text);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 12px;
+  border-color: var(--border-control);
+  border-radius: var(--radius-item);
+  color: var(--ok-text);
+  text-align: left;
+}
+body[data-ui-skin=core] .ignis-tablet-quick:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--border-control);
+}
+body[data-ui-skin=core] .ignis-tablet-quick:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+body[data-ui-skin=core] .ignis-tablet-quick[aria-pressed=true] {
+  background: var(--surface-4);
+  border-color: var(--border-strong);
+  box-shadow: inset 0 1px 0 var(--hi), inset 0 0 0 1px var(--border-strong);
+}
+body[data-ui-skin=core] .ignis-tablet-quick:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+body[data-ui-skin=core] .ignis-tablet-quick__label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+body[data-ui-skin=core] :is(.ignis-tablet-grade, .ignis-tablet-value, .ignis-tablet-range__seg, .ignis-tablet-reading)[data-grade=ok] {
+  --grade: var(--ok);
+  --grade-soft: var(--ok-soft);
+  --grade-line: var(--ok-line);
+  --grade-text: var(--ok-text);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-grade, .ignis-tablet-value, .ignis-tablet-range__seg, .ignis-tablet-reading):is([data-grade=semi], [data-grade=warn]) {
+  --grade: var(--warn);
+  --grade-soft: var(--warn-soft);
+  --grade-line: var(--warn-line);
+  --grade-text: var(--warn-text);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-grade, .ignis-tablet-value, .ignis-tablet-range__seg, .ignis-tablet-reading)[data-grade=danger] {
+  --grade: var(--danger);
+  --grade-soft: var(--danger-soft);
+  --grade-line: var(--danger-line);
+  --grade-text: var(--danger-text);
+}
+body[data-ui-skin=core] .ignis-tablet-grade {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 8px;
+  border: 1px solid var(--grade-line, var(--border-subtle));
+  border-radius: 999px;
+  background: var(--grade-soft, transparent);
+  color: var(--grade-text, var(--secondary-text));
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+}
+body[data-ui-skin=core] .ignis-tablet-grade i {
+  font-size: 12px;
+}
+body[data-ui-skin=core] .ignis-tablet-reading[data-grade] {
+  color: var(--grade-text);
+}
+body[data-ui-skin=core] .ignis-tablet-grade[data-grade=semi] {
+  background: transparent;
+}
+body[data-ui-skin=core] .ignis-tablet-grade:is([data-grade=warn], [data-grade=danger]) {
+  border-color: var(--grade);
+  font-weight: 600;
+}
+body[data-ui-skin=core] .ignis-tablet-keypad {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 232px;
+  gap: 16px;
+  align-items: stretch;
+}
+body[data-ui-skin=core] .ignis-tablet-keypad__values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+body[data-ui-skin=core] .ignis-tablet-keypad__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 6px;
+  padding: 8px;
+}
+body[data-ui-skin=core] .ignis-tablet-value {
+  box-sizing: border-box;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 0 var(--hi);
+  color: var(--content-text);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  min-height: 116px;
+  padding: 10px 12px;
+  border-radius: var(--radius-item);
+  text-align: left;
+}
+body[data-ui-skin=core] .ignis-tablet-value--inner {
+  min-height: 100px;
+}
+body[data-ui-skin=core] .ignis-tablet-value:hover {
+  border-color: var(--border-control);
+}
+body[data-ui-skin=core] .ignis-tablet-value:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+body[data-ui-skin=core] .ignis-tablet-value.is-missing {
+  border-color: var(--danger-line);
+  background: var(--danger-soft);
+}
+body[data-ui-skin=core] .ignis-tablet-value.is-active {
+  border-color: var(--accent-focus);
+  box-shadow: inset 0 1px 0 var(--hi), 0 0 0 3px var(--accent-glow);
+}
+body[data-ui-skin=core] .ignis-tablet-value__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--secondary-text);
+  font-size: 13px;
+  line-height: 18px;
+}
+body[data-ui-skin=core] .ignis-tablet-value__label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+body[data-ui-skin=core] .ignis-tablet-value__unit {
+  color: var(--tertiary-text);
+  font-size: 12px;
+}
+body[data-ui-skin=core] .ignis-tablet-value__value {
+  overflow: hidden;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 38px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-value__placeholder {
+  color: var(--disabled-text);
+  font-weight: 500;
+}
+body[data-ui-skin=core] .ignis-tablet-value[data-grade] .ignis-tablet-value__value {
+  color: var(--grade-text);
+}
+body[data-ui-skin=core] .ignis-tablet-value.is-word .ignis-tablet-value__value {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  color: var(--secondary-text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 18px;
+  white-space: normal;
+}
+body[data-ui-skin=core] .ignis-tablet-value__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 6px;
+  margin-top: auto;
+  color: var(--tertiary-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+body[data-ui-skin=core] .ignis-tablet-value__foot .ignis-tablet-grade {
+  white-space: normal;
+}
+body[data-ui-skin=core] .ignis-tablet-value__norm {
+  white-space: nowrap;
+}
+body[data-ui-skin=core] .ignis-tablet-value-pair {
+  box-sizing: border-box;
+  grid-column: span 2;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-item);
+  background: var(--well);
+  box-shadow: var(--well-ring);
+}
+body[data-ui-skin=core] .ignis-tablet-value-pair__title {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+  color: var(--secondary-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+body[data-ui-skin=core] .ignis-tablet-value-pair__pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+body[data-ui-skin=core] .ignis-tablet-value-pair__slash {
+  color: var(--tertiary-text);
+  font-size: 26px;
+}
+body[data-ui-skin=core] .ignis-tablet-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+body[data-ui-skin=core] .ignis-tablet-key {
+  border: 1px solid transparent;
+  --face: var(--surface-3);
+  background: linear-gradient(var(--surface-3), var(--surface-3)) padding-box, linear-gradient(180deg, var(--edge-top), var(--edge-bottom)) border-box;
+  box-shadow: inset 0 1px 0 var(--hi);
+  box-sizing: border-box;
+  min-height: var(--tablet-key);
+  padding: 0;
+  border-radius: var(--radius-item);
+  color: var(--content-text);
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+body[data-ui-skin=core] .ignis-tablet-key:hover {
+  --face: var(--surface-4);
+  background: linear-gradient(var(--surface-4), var(--surface-4)) padding-box, linear-gradient(180deg, var(--edge-top), var(--edge-bottom)) border-box;
+}
+body[data-ui-skin=core] .ignis-tablet-key:active {
+  background: var(--fill-4);
+}
+body[data-ui-skin=core] .ignis-tablet-key:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+body[data-ui-skin=core] .ignis-tablet-key--fn {
+  color: var(--secondary-text);
+  font-size: 18px;
+}
+body[data-ui-skin=core] .ignis-tablet-key--word {
+  color: var(--secondary-text);
+}
+body[data-ui-skin=core] .ignis-tablet-key--wide {
+  grid-column: 1/-1;
+  min-height: 48px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+}
+body[data-ui-skin=core] .ignis-tablet-range {
+  display: grid;
+  grid-template-rows: auto auto minmax(200px, 1fr) auto;
+  justify-items: center;
+  gap: 6px;
+  padding: 4px 0 8px;
+}
+body[data-ui-skin=core] .ignis-tablet-range__title {
+  color: var(--secondary-text);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+body[data-ui-skin=core] .ignis-tablet-range__hi, body[data-ui-skin=core] .ignis-tablet-range__lo {
+  color: var(--tertiary-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-range__track {
+  position: relative;
+  display: flex;
+  width: 14px;
+}
+body[data-ui-skin=core] .ignis-tablet-range__bar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+body[data-ui-skin=core] .ignis-tablet-range__seg {
+  display: block;
+  flex: var(--span, 1) 1 0px;
+  width: 100%;
+  background: var(--grade, var(--fill-3));
+}
+body[data-ui-skin=core] .ignis-tablet-range__seg[data-grade=semi] {
+  opacity: 0.45;
+}
+body[data-ui-skin=core] .ignis-tablet-range__indicator {
+  position: absolute;
+  bottom: calc(var(--value, 0) * 100%);
+  left: -7px;
+  right: -7px;
+  height: 0;
+  border-top: 3px solid var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-range__value {
+  position: absolute;
+  top: -12px;
+  right: calc(100% + 4px);
+  padding: 0 4px;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-1);
+  background: var(--overlay);
+  color: var(--content-text);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-times {
+  display: grid;
+  grid-template-columns: repeat(var(--tablet-times), minmax(0, 1fr));
+  gap: 8px;
+}
+body[data-ui-skin=core] .ignis-tablet-time {
+  box-sizing: border-box;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 0 var(--hi);
+  color: var(--content-text);
+  font: inherit;
+  cursor: pointer;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 104px;
+  padding: 8px 4px;
+  border-radius: var(--radius-item);
+  text-align: center;
+}
+body[data-ui-skin=core] .ignis-tablet-time:hover {
+  background: var(--surface-3);
+  border-color: var(--border-control);
+}
+body[data-ui-skin=core] .ignis-tablet-time:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+body[data-ui-skin=core] .ignis-tablet-time__label {
+  color: var(--secondary-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+body[data-ui-skin=core] .ignis-tablet-time__date {
+  color: var(--tertiary-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+body[data-ui-skin=core] .ignis-tablet-time__value {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 28px;
+  font-variant-numeric: tabular-nums;
+}
+body[data-ui-skin=core] .ignis-tablet-time.is-empty .ignis-tablet-time__value {
+  color: var(--disabled-text);
+}
+body[data-ui-skin=core] .ignis-tablet-time.is-missing {
+  border-color: var(--danger-line);
+  background: var(--danger-soft);
+}
+body[data-ui-skin=core] .ignis-tablet-time__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--tertiary-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+body[data-ui-skin=core] .ignis-tablet-time.is-missing .ignis-tablet-time__mark {
+  color: var(--danger-text);
+  font-weight: 600;
+}
+body[data-ui-skin=core] .ignis-tablet-time__mark .ignis-dot {
+  width: 6px;
+  height: 6px;
+  box-shadow: none;
+}
+body[data-ui-skin=core] .ignis-tablet-time__mark .ignis-tablet-miss {
+  font-size: 18px;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 16px;
+  align-items: start;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__maps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__figure {
+  margin: 0;
+  padding: 12px 8px 8px;
+  border-radius: var(--radius-3);
+  background: var(--well);
+  box-shadow: var(--well-ring);
+  text-align: center;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__figure figcaption {
+  margin-top: 6px;
+  color: var(--tertiary-text);
+  font-size: 12px;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  margin: 0 auto;
+  overflow: visible;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__base > * {
+  fill: var(--fill-3);
+  stroke: var(--border-control);
+  stroke-width: 1;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__list {
+  display: grid;
+  gap: 6px;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__row {
+  box-sizing: border-box;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 0 var(--hi);
+  color: var(--content-text);
+  font: inherit;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tablet-target);
+  padding: 6px 12px;
+  border-radius: var(--radius-2);
+  font-size: 14px;
+  text-align: left;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__row:hover {
+  background: var(--surface-3);
+  border-color: var(--border-control);
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__row:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__row[aria-pressed=true] {
+  background: var(--surface-4);
+  border-color: var(--border-strong);
+  box-shadow: inset 0 1px 0 var(--hi), inset 0 0 0 1px var(--border-strong);
+}
+body[data-ui-skin=core] .ignis-tablet-bodymap__value {
+  color: var(--tertiary-text);
+  font-size: 13px;
+}
+body[data-ui-skin=core] :is(.ignis-tablet-zone, .ignis-tablet-severity)[data-severity=none] {
+  --severity: var(--tablet-severity-none);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-zone, .ignis-tablet-severity)[data-severity=mild] {
+  --severity: var(--tablet-severity-mild);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-zone, .ignis-tablet-severity)[data-severity=moderate] {
+  --severity: var(--tablet-severity-moderate);
+}
+body[data-ui-skin=core] :is(.ignis-tablet-zone, .ignis-tablet-severity)[data-severity=severe] {
+  --severity: var(--tablet-severity-severe);
+}
+body[data-ui-skin=core] .ignis-tablet-zone {
+  cursor: pointer;
+  outline: none;
+}
+body[data-ui-skin=core] .ignis-tablet-zone > * {
+  fill: var(--fill-2);
+  stroke: var(--border-ui);
+  stroke-width: 1.2;
+}
+body[data-ui-skin=core] .ignis-tablet-zone[data-severity] > * {
+  fill: var(--severity);
+  fill-opacity: 0.62;
+  stroke: var(--severity);
+}
+body[data-ui-skin=core] .ignis-tablet-zone:hover > * {
+  stroke: var(--content-text);
+}
+body[data-ui-skin=core] .ignis-tablet-zone.is-selected > * {
+  stroke: var(--content-text);
+  stroke-width: 2.2;
+  stroke-dasharray: 5 4;
+}
+body[data-ui-skin=core] .ignis-tablet-zone:focus-visible > * {
+  stroke: var(--accent-focus);
+  stroke-width: 3;
+}
+body[data-ui-skin=core] .ignis-tablet-severity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body[data-ui-skin=core] .ignis-tablet-severity__dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--severity, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+body[data-ui-skin=core] .ignis-tablet-swatch {
+  flex: none;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--swatch, var(--fill-3));
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+body[data-ui-skin=core] .ignis-tablet-swatch--ring {
+  box-shadow: 0 0 0 2px var(--surface-2), 0 0 0 4px var(--swatch, var(--fill-3));
+}
+@media (prefers-reduced-motion: no-preference) {
+  body[data-ui-skin=core] :is(.ignis-tablet-rail__item, .ignis-tablet-nav, .ignis-tablet-option, .ignis-tablet-quick, .ignis-tablet-value, .ignis-tablet-key, .ignis-tablet-time, .ignis-tablet-bodymap__row) {
+    transition: background-color var(--dur-hover) var(--motion-ease), border-color var(--dur-hover) var(--motion-ease), box-shadow var(--dur-hover) var(--motion-ease);
+  }
+  body[data-ui-skin=core] .ignis-tablet-key:active {
+    transform: scale(0.97);
+  }
+  body[data-ui-skin=core] .ignis-tablet-value.is-deny {
+    animation: ignis-tablet-shake 0.3s var(--motion-ease) 1;
+  }
+}
+@keyframes ignis-tablet-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+@media (max-width: 1279px) {
+  body[data-ui-skin=core] {
+    --tablet-topics-w: 184px;
+    --tablet-subs-w: 172px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-keypad {
+    grid-template-columns: minmax(0, 1fr) 64px 204px;
+    gap: 12px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-bodymap {
+    grid-template-columns: minmax(0, 1fr) 224px;
+    gap: 12px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-bodymap__svg {
+    max-height: 340px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-nav__label {
+    font-size: 13px;
+  }
+}
+@media (max-width: 1199px) {
+  body[data-ui-skin=core] {
+    --tablet-rail-w: 100px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-rail {
+    padding: 8px 6px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-rail__item {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 4px;
+    min-height: 66px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  body[data-ui-skin=core] .ignis-tablet-rail__num, body[data-ui-skin=core] .ignis-tablet-rail__meta {
+    display: none;
+  }
+  body[data-ui-skin=core] .ignis-tablet-rail__label {
+    font-size: 12px;
+    line-height: 15px;
+    white-space: normal;
+  }
+  body[data-ui-skin=core] .ignis-tablet-rail__icon {
+    font-size: 18px;
+  }
+  body[data-ui-skin=core] .ignis-tablet-top {
+    gap: 4px;
+    padding: 0 6px 0 8px;
+  }
+}
+@media (max-width: 1100px) {
+  body[data-ui-skin=core] .ignis-tablet-top__label {
+    display: none;
+  }
+  body[data-ui-skin=core] .ignis-tablet-top__btn {
+    width: var(--tablet-target);
+    padding: 0;
+  }
+  body[data-ui-skin=core] .ignis-tablet-clock {
+    padding: 0 4px;
+  }
+}
+@media (max-width: 999px) {
+  body[data-ui-skin=core] {
+    --tablet-times: 5;
+  }
+}

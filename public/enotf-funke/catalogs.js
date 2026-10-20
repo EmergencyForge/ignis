@@ -152,7 +152,8 @@ export const SEVERITY = ['Keine', 'Leicht', 'Mittel', 'Schwer'];
 export const WUNDART = ['Offen', 'Geschlossen'];
 
 /** Domänenfarben der Körperkarte (medizinische Bedeutung, daher Literale). */
-export const SEVERITY_FILL = { Keine: '#9ca3af', Leicht: '#22c55e', Mittel: '#eab308', Schwer: '#ef4444' };
+// Schweregrad der Körperkarte auf die Stufen von tablet() (data-severity).
+export const SEVERITY_KEY = { Keine: 'none', Leicht: 'mild', Mittel: 'moderate', Schwer: 'severe' };
 
 /**
  * Themen des Erstbefunds: Themen-Spalte → Unterthemen-Spalte → Antworten.
@@ -229,13 +230,13 @@ export const VITAL = Object.fromEntries(VITALS.map((v) => [v.key, v]));
 export function gradeVital(key, v) {
     if (v === null || v === undefined || Number.isNaN(v)) return null;
     switch (key) {
-        case 'spo2': return v < 87 ? 'danger' : v < 92 ? 'warning' : v < 97 ? 'semi' : 'ok';
-        case 'af': return (v < 5 || v > 25) ? 'danger' : (v <= 6 || v >= 21) ? 'warning' : (v <= 8 || v >= 16) ? 'semi' : 'ok';
+        case 'spo2': return v < 87 ? 'danger' : v < 92 ? 'warn' : v < 97 ? 'semi' : 'ok';
+        case 'af': return (v < 5 || v > 25) ? 'danger' : (v <= 6 || v >= 21) ? 'warn' : (v <= 8 || v >= 16) ? 'semi' : 'ok';
         case 'etco2': return (v < 6 || v > 55) ? 'danger' : (v < 36 || v > 45) ? 'semi' : 'ok';
-        case 'hf': return (v < 41 || v > 160) ? 'danger' : (v <= 50 || v > 130) ? 'warning' : (v <= 60 || v > 100) ? 'semi' : 'ok';
-        case 'rrs': return (v < 80 || v > 199) ? 'danger' : (v < 90 || v >= 170) ? 'warning' : (v <= 100 || v >= 150) ? 'semi' : 'ok';
-        case 'rrd': return (v <= 40 || v >= 121) ? 'danger' : (v <= 50 || v >= 111) ? 'warning' : (v <= 60 || v >= 101) ? 'semi' : 'ok';
-        case 'bz': return (v < 40 || v > 250) ? 'danger' : (v <= 50 || v >= 180) ? 'warning' : (v <= 80 || v >= 150) ? 'semi' : 'ok';
+        case 'hf': return (v < 41 || v > 160) ? 'danger' : (v <= 50 || v > 130) ? 'warn' : (v <= 60 || v > 100) ? 'semi' : 'ok';
+        case 'rrs': return (v < 80 || v > 199) ? 'danger' : (v < 90 || v >= 170) ? 'warn' : (v <= 100 || v >= 150) ? 'semi' : 'ok';
+        case 'rrd': return (v <= 40 || v >= 121) ? 'danger' : (v <= 50 || v >= 111) ? 'warn' : (v <= 60 || v >= 101) ? 'semi' : 'ok';
+        case 'bz': return (v < 40 || v > 250) ? 'danger' : (v <= 50 || v >= 180) ? 'warn' : (v <= 80 || v >= 150) ? 'semi' : 'ok';
         case 'temp': return (v <= 34 || v > 40) ? 'danger' : (v < 36.1 || v > 38) ? 'semi' : 'ok';
         default: return null;
     }
@@ -244,7 +245,7 @@ export function gradeVital(key, v) {
 export const GRADE_META = {
     ok: { tone: 'ok', icon: 'fa-circle-check', word: 'Normbereich' },
     semi: { tone: 'warn', icon: 'fa-circle-half-stroke', word: 'leicht abweichend' },
-    warning: { tone: 'warn', icon: 'fa-triangle-exclamation', word: 'abweichend' },
+    warn: { tone: 'warn', icon: 'fa-triangle-exclamation', word: 'abweichend' },
     danger: { tone: 'danger', icon: 'fa-circle-exclamation', word: 'kritisch' },
 };
 
