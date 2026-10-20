@@ -24,6 +24,14 @@ const app = document.getElementById('app');
 /* ══ Hilfen ═════════════════════════════════════════════════════ */
 
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// Trennstellen für lange Wörter in schmalen Kacheln. hyphens: auto greift im
+// Tablet-Browser nicht, ohne diese Stellen bräche das Wort an beliebiger Stelle.
+const SHY = Object.fromEntries(['Rassel|geräusche', 'Sinus|rhythmus', 'Kammer|flimmern', 'Schritt|macher|rhythmus', 'Links|schenkel|block', 'Rechts|schenkel|block',
+    'Massen|veranstaltung', 'Bildungs|einrichtung', 'ein|richtung', 'Geburts|haus', 'Entlastungs|punktion', 'Immobili|sation', 'Endo|tracheal|tubus', 'Zwangs|unter|bringung',
+    'Patienten|zugang', 'Patienten|übergabe', 'Abwehr|bewegungen', 'Beuge|synergismen', 'Streck|synergismen', 'unver|ständliche', 'Auf|forderung', 'Extremitäten|bewegung',
+    'Bewusstseins|lage', 'Schmerz|reiz', 'un|eingeschränkt', 'Notarzt|zubringer', 'Reanimations|situation', 'Transport|führer', 'Fahrzeug|führer', 'Protokol|lant']
+    .map((w) => [w.replaceAll('|', ''), w.replaceAll('|', '&shy;')]));
+const hy = (v) => esc(v).replace(/[A-Za-zÄÖÜäöüß]{9,}/g, (w) => SHY[w] ?? w);
 const get = (o, path) => path.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);
 function set(o, path, v) {
     const ks = path.split('.');
@@ -291,11 +299,11 @@ function topicsOf(sec, p) {
 
 const dis = (p) => (ro(p) ? ' disabled' : '');
 
-function optButton({ act, path, val, label, pressed, normal, score, multi, extraAttr = '' }) {
-    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${multi ? ' nf-opt--multi' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
+function optButton({ act, path, val, label, pressed, normal, score, multi, num, extraAttr = '' }) {
+    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${multi ? ' nf-opt--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
         data-act="${act}" data-path="${esc(path)}" data-val="${esc(val)}" ${extraAttr}>
         <span class="nf-opt__mark" aria-hidden="true"></span>
-        <span class="nf-opt__label">${esc(label)}</span>
+        <span class="nf-opt__label">${hy(label)}</span>
         ${score !== undefined ? `<span class="nf-opt__score ignis-mono">${score}</span>` : ''}
         ${normal ? `<i class="fa-solid fa-circle-check nf-opt__n" data-tone="ok" aria-hidden="true"></i><span class="ignis-sr-only">(Normalbefund)</span>` : ''}
     </button>`;
@@ -323,20 +331,23 @@ function fieldGroup(p, f) {
     const req = starred(p, f.path);
     const missing = req && !isSet(val);
     const opts = f.options.map(C.parseOpt);
-    const cols = f.cols === 1 ? ' nf-opts--list' : f.cols === 2 ? ' nf-opts--two' : f.cols === 'nrs' ? ' nf-opts--nrs' : '';
+    const cols = f.cols === 1 ? ' nf-opts--list' : f.cols === 2 ? ' nf-opts--two' : '';
+    const button = (o) => optButton({
+        act: f.type === 'multi' ? 'multi' : 'pick', path: f.path, val: o.label, label: o.label, normal: o.normal, multi: f.type === 'multi',
+        pressed: f.type === 'multi' ? (Array.isArray(val) && val.includes(o.label)) : val === o.label,
+        extraAttr: o.excl ? 'data-excl="1"' : '', num: f.cols === 'nrs' && /^\d/.test(o.label),
+    });
+    // Skalen (NRS, O2): Zahlen als eine schmale Reihe, Wörter wie „keine“ darunter.
+    const body = f.cols === 'nrs'
+        ? `<div class="nf-scale"${opts.some((o) => /^\d/.test(o.label) && o.label.length > 3) ? ' style="--nf-scale-min:84px"' : ''}>${opts.filter((o) => /^\d/.test(o.label)).map(button).join('')}</div>
+           <div class="nf-opts">${opts.filter((o) => !/^\d/.test(o.label)).map(button).join('')}</div>`
+        : `<div class="nf-opts${cols}">${opts.map(button).join('')}</div>`;
     return `<div class="nf-group" role="group" aria-label="${esc(f.label)}">
         <div class="nf-group__head">
             <span class="nf-group__label">${esc(f.label)} ${star(req)}</span>
-            ${f.type === 'multi' ? '<span class="nf-group__hint">Mehrfachauswahl</span>' : ''}
             ${missing ? missChip() : ''}
         </div>
-        <div class="nf-opts${cols}">
-            ${opts.map((o) => optButton({
-                act: f.type === 'multi' ? 'multi' : 'pick', path: f.path, val: o.label, label: o.label, normal: o.normal, multi: f.type === 'multi',
-                pressed: f.type === 'multi' ? (Array.isArray(val) && val.includes(o.label)) : val === o.label,
-                extraAttr: o.excl ? 'data-excl="1"' : '',
-            })).join('')}
-        </div>
+        ${body}
     </div>`;
 }
 
@@ -558,7 +569,7 @@ function updateChrome() {
 function navItem({ link, label, icon, st, current, meta }) {
     return `<a class="nf-nav${icon ? '' : ' nf-nav--noicon'}" href="${link}" ${current ? 'aria-current="true"' : ''}>
         ${icon ? `<i class="fa-solid ${icon} nf-nav__icon" aria-hidden="true"></i>` : ''}
-        <span class="nf-nav__text"><span class="nf-nav__label">${esc(label)}</span>${meta ? `<span class="nf-nav__meta">${esc(meta)}</span>` : ''}</span>
+        <span class="nf-nav__text"><span class="nf-nav__label">${hy(label)}</span>${meta ? `<span class="nf-nav__meta">${esc(meta)}</span>` : ''}</span>
         ${st ? `<span class="nf-nav__state">${stateIcon(st, label)}</span>` : ''}
     </a>`;
 }
@@ -589,11 +600,9 @@ function subColumn(p, sec, topic, subKey) {
 function quickTile(p, topic) {
     const keys = Object.keys(topic.quick.set);
     const applied = keys.every((k) => JSON.stringify(get(p, k)) === JSON.stringify(topic.quick.set[k]));
-    const summary = Object.values(topic.quick.set).map((v) => (typeof v === 'object' ? v.sev : v));
-    const uniq = [...new Set(summary)].slice(0, 4).join(', ');
     return `<button type="button" class="nf-quick" data-act="quick" data-topic="${esc(topic.key)}" aria-pressed="${applied ? 'true' : 'false'}"${dis(p)}>
         <span class="ignis-glyph ignis-glyph--sm" data-tone="ok">${fa('fa-circle-check')}</span>
-        <span class="nf-quick__text"><span class="nf-quick__label">${esc(topic.quick.label)}</span><span class="nf-quick__sub">unauffällig · ${esc(uniq)}</span></span>
+        <span class="nf-quick__text"><span class="nf-quick__label">${esc(topic.quick.label)}</span></span>
     </button>`;
 }
 
@@ -685,7 +694,7 @@ function sectionOverview(p, sec) {
             }).join('') })}
             ${tile({ title: 'Schmerzen', icon: 'fa-face-frown', link: L('erweitern', 'schmerzen'), rows: kv('Intensität', isSet(e.nrs) ? (/^\d+$/.test(e.nrs) ? `NRS ${e.nrs}` : e.nrs) : '') + kv('Toleranz', e.toleranz) })}
             ${tile({ title: 'Psyche', icon: 'fa-head-side-virus', link: L('psych'), st: topicState(p, 'erst', 'psych'), rows: kv('Psychischer Zustand', e.psych, { req: req('erst.psych') }) })}
-            ${tile({ title: 'Vitalparameter', icon: 'fa-gauge', link: L('messwerte'), st: topicState(p, 'erst', 'messwerte'), rows: `<div class="nf-kv-grid">${vit}</div>` })}
+            ${tile({ title: 'Vitalparameter', icon: 'fa-gauge', link: L('messwerte'), st: topicState(p, 'erst', 'messwerte'), wide: true, rows: `<div class="nf-kv-grid">${vit}</div>` })}
         </div>`;
     }
     if (sec === 'anam') {
@@ -825,8 +834,7 @@ function rettOverview(p) {
         </div>
         <div class="ignis-bezel nf-box">
             <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clock')}</span><h3 class="ignis-bezel__title">Zeiten</h3>
-                <span class="nf-tile__state" data-live-state="rett:zeiten">${stateIcon(topicState(p, 'rett', 'zeiten'))}</span>
-                <span class="ignis-bezel__note">leere Zeit antippen = jetzt</span></div>
+                <span class="nf-tile__state" data-live-state="rett:zeiten">${stateIcon(topicState(p, 'rett', 'zeiten'))}</span></div>
             <div class="ignis-bezel__well nf-times">${C.ZEITEN.map((z) => timeCell(p, z)).join('')}</div>
         </div>
     </div>`;
@@ -859,7 +867,7 @@ function addressView(p, key) {
     const sr = a.sr || '-';
     return `<div class="nf-view">
         <div class="nf-view__body" data-scroll="pane">
-            ${paneHead(key === 'von' ? 'Transport von / Einsatzort' : 'Transportziel', `<span class="nf-pane__sub">Rett. Daten · Adresse</span>`)}
+            ${paneHead(key === 'von' ? 'Transport von / Einsatzort' : 'Transportziel')}
             <div class="ignis-bezel nf-box nf-box--narrow">
                 <div class="ignis-bezel__well nf-form">
                     <div class="nf-poi">
@@ -962,7 +970,7 @@ function bodyMapPane(p) {
                 <div class="ignis-bezel__head"><h3 class="ignis-bezel__title">${esc(lab[ui.bodySel])}</h3></div>
                 <div class="ignis-bezel__well nf-form">
                     <div><div class="ignis-micro">SCHWEREGRAD</div><div class="nf-sevs" role="group" aria-label="Schweregrad">${C.SEVERITY.map(sevBtn).join('')}</div></div>
-                    ${v.sev && v.sev !== 'Keine' ? `<div><div class="ignis-micro">WUNDART</div><div class="nf-sevs" role="group" aria-label="Wundart">${C.WUNDART.map((w) => `<button type="button" class="nf-opt" aria-pressed="${v.wund === w}" data-act="wund" data-val="${w}"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">${w}</span></button>`).join('')}</div></div>` : '<p class="nf-hint">Wundart nur bei Leicht, Mittel oder Schwer.</p>'}
+                    ${v.sev && v.sev !== 'Keine' ? `<div><div class="ignis-micro">WUNDART</div><div class="nf-sevs" role="group" aria-label="Wundart">${C.WUNDART.map((w) => `<button type="button" class="nf-opt" aria-pressed="${v.wund === w}" data-act="wund" data-val="${w}"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">${w}</span></button>`).join('')}</div></div>` : ''}
                 </div>
             </div>
             <div class="nf-bm__list" role="list">
@@ -1046,7 +1054,7 @@ function keypad() {
 function keypadView(p, { mode, topics }) {
     const kp = kpInit(p, mode);
     const head = mode === 'erst'
-        ? paneHead('Erstbefund · Messwerte', '<span class="nf-pane__sub">Feld antippen, dann Wert eingeben</span>')
+        ? paneHead('Erstbefund · Messwerte')
         : paneHead('Verlauf · Werte hinzufügen', `<div class="nf-inline">
             <label class="ignis-field nf-field nf-field--inline"><span class="ignis-field__label">Datum</span><input class="ignis-input ignis-mono nf-input-date" data-bind="k:date" data-mask="date" maxlength="10" inputmode="numeric" value="${esc(kp.date)}"></label>
             <label class="ignis-field nf-field nf-field--inline"><span class="ignis-field__label">Uhrzeit</span><input class="ignis-input ignis-mono nf-input-time" data-bind="k:time" data-mask="time" maxlength="5" inputmode="numeric" value="${esc(kp.time)}"></label>
@@ -1063,9 +1071,6 @@ function keypadView(p, { mode, topics }) {
                         <div class="nf-vbox-rr__pair">${vbox(p, kp, 'rrs', { inner: true })}<span class="nf-vbox-rr__slash" aria-hidden="true">/</span>${vbox(p, kp, 'rrd', { inner: true })}</div>
                     </div>
                     ${vbox(p, kp, 'bz')}${vbox(p, kp, 'temp')}
-                    <div class="nf-kp__legend">
-                        ${['ok', 'semi', 'warning', 'danger'].map((g) => `<span class="nf-grade" data-grade="${g}" data-tone="${C.GRADE_META[g].tone}">${fa(C.GRADE_META[g].icon)}<span>${C.GRADE_META[g].word}</span></span>`).join('')}
-                    </div>
                 </div>
                 ${strip(kp)}
                 ${keypad()}
@@ -1152,7 +1157,6 @@ function symptomPane(p) {
                 <div class="ignis-field nf-field"><span class="ignis-field__label">&nbsp;</span>
                     <button type="button" class="nf-opt nf-opt--multi" aria-pressed="${!!a.symNicht}" data-act="symnicht"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">nicht feststellbar</span></button></div>
             </div>
-            <p class="nf-hint">Zeit und „nicht feststellbar“ schließen sich aus.</p>
             <div class="nf-inline nf-inline--end"><button type="button" class="ignis-btn ignis-btn--primary ignis-btn--lg" data-act="sym-save"${dis(p)}>${fa('fa-floppy-disk')}Speichern</button></div>
         </div>
     </div>`;
@@ -1248,7 +1252,7 @@ function verlaufOverview(p) {
         </div>`;
     if (!entries.length) {
         return `<div class="nf-pane nf-pane--solo" data-scroll="pane">${head}
-            <div class="ignis-bezel"><div class="ignis-bezel__well">${emptyBlock({ icon: 'fa-chart-line', title: 'Noch keine Vitalparameter dokumentiert', text: 'Werte werden mit Zeitpunkt erfasst und hier als Verlauf gezeigt.', sm: false, actions: ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary" href="${href('p', p.enr, 'verlauf', 'neu')}">${fa('fa-plus')}Werte hinzufügen</a>` })}</div></div></div>`;
+            <div class="ignis-bezel"><div class="ignis-bezel__well">${emptyBlock({ icon: 'fa-chart-line', title: 'Noch keine Vitalparameter dokumentiert', sm: false, actions: ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary" href="${href('p', p.enr, 'verlauf', 'neu')}">${fa('fa-plus')}Werte hinzufügen</a>` })}</div></div></div>`;
     }
     const legend = SERIES.map((s, i) => {
         const has = entries.some((e) => num(e.values[s.key]) !== null);
@@ -1261,7 +1265,7 @@ function verlaufOverview(p) {
     }).join('');
     return `<div class="nf-pane nf-pane--solo" data-scroll="pane">${head}
         <div class="ignis-bezel nf-box">
-            <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-chart-line')}</span><h3 class="ignis-bezel__title">Alle Vitalparameter</h3><span class="ignis-bezel__note">Reihe antippen blendet sie aus</span></div>
+            <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-chart-line')}</span><h3 class="ignis-bezel__title">Alle Vitalparameter</h3></div>
             <div class="nf-legend" role="group" aria-label="Reihen ein- und ausblenden">${legend}</div>
             <div class="ignis-bezel__well ignis-bezel__well--flush"><div class="nf-chart" id="nf-chart" data-enr="${esc(p.enr)}"></div></div>
         </div>
@@ -1311,7 +1315,7 @@ function drawChart() {
         svg += `<g class="nf-series nf-s${s.i + 1}"><path class="nf-series__line" d="${d}"/>${pts.map((pt) => symbol(s.sym, pt[0], Y(pt[1]))).join('')}</g>`;
     });
     svg += `<rect class="nf-chart__hit" x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}"/></svg>`;
-    if (!vis.length) svg = `<div class="nf-chart__none">${emptyBlock({ icon: 'fa-eye-slash', title: 'Alle Reihen ausgeblendet', text: 'Eine Reihe in der Legende antippen, um sie wieder zu zeigen.' })}</div>`;
+    if (!vis.length) svg = `<div class="nf-chart__none">${emptyBlock({ icon: 'fa-eye-slash', title: 'Alle Reihen ausgeblendet' })}</div>`;
     box.innerHTML = svg + '<div class="ignis-tooltip ignis-tooltip--chart nf-chart__tip" id="nf-tip" role="status"></div>';
     const hit = box.querySelector('.nf-chart__hit');
     if (!hit) return;
@@ -1405,7 +1409,7 @@ function zugangPane(p) {
                     <div class="nf-sizes">${sizes.map((s) => `<button type="button" class="nf-size" aria-pressed="${selZ?.size === s.key}" data-act="zsize" data-val="${esc(s.key)}"${dis(p)}>${gaugeDot(s)}<span class="ignis-mono">${esc(s.key)}</span></button>`).join('')}</div>
                     ${selZ ? `<button type="button" class="ignis-btn ignis-btn--danger-soft ignis-btn--block" data-act="zdel"${dis(p)}>${fa('fa-trash-can')}Zugang entfernen</button>` : ''}
                 </div></div>`
-            : `<div class="ignis-bezel"><div class="ignis-bezel__well">${emptyBlock({ icon: 'fa-hand-pointer', title: 'Ort wählen', text: 'Feld links oder rechts antippen, dann die Größe wählen. Je Ort eine Größe.' })}</div></div>`}
+            : `<div class="ignis-bezel"><div class="ignis-bezel__well">${emptyBlock({ icon: 'fa-hand-pointer', title: 'Ort wählen' })}</div></div>`}
             ${m.zugaenge.length ? `<div class="nf-zlist"><div class="ignis-micro">Dokumentiert (${m.zugaenge.length})</div>${m.zugaenge.map((z) => `<div class="nf-zlist__item">${gaugeDot(sizeMeta(z.type, z.size))}<span>${esc(zugLabel(z))}</span></div>`).join('')}</div>` : ''}
         </div>
     </div>`;
@@ -1440,7 +1444,7 @@ function medMask(p) {
     const seg = (act, list, cur) => `<div class="nf-opts nf-opts--chips">${list.map((x) => `<button type="button" class="nf-opt nf-opt--chip" aria-pressed="${cur === x}" data-act="${act}" data-val="${esc(x)}"><span class="nf-opt__label">${esc(x)}</span></button>`).join('')}</div>`;
     return `<div class="nf-view">
         <div class="nf-view__body" data-scroll="pane">
-            ${paneHead(d.id ? 'Medikament bearbeiten' : 'Medikament erfassen', '<span class="nf-pane__sub">Maßnahmen · Medikamente</span>')}
+            ${paneHead(d.id ? 'Medikament bearbeiten' : 'Medikament erfassen')}
             <div class="nf-medmask">
                 <div class="ignis-bezel nf-box">
                     <div class="ignis-bezel__head"><h3 class="ignis-bezel__title">Eingetragen</h3><span class="ignis-count">${p.mass.meds.length}</span>
@@ -1459,7 +1463,7 @@ function medMask(p) {
                                 <input class="ignis-input ignis-mono" id="nf-dosis" data-bind="m:dosis" data-live="dosis" inputmode="decimal" placeholder="z. B. 500 mg" value="${esc(d.dosis)}"></label>
                         </div>
                         <div class="nf-group nf-group--flat"><div class="nf-group__head"><span class="nf-group__label">Applikationsart</span></div>${seg('med-appl', C.APPLIKATION, d.appl)}</div>
-                        <div class="nf-group nf-group--flat"><div class="nf-group__head"><span class="nf-group__label">Einheit</span><span class="nf-group__hint">wird aus Wirkstoff und Dosierung erkannt</span></div><div id="nf-units">${seg('med-unit', C.EINHEITEN, d.einheit)}</div></div>
+                        <div class="nf-group nf-group--flat"><div class="nf-group__head"><span class="nf-group__label">Einheit</span></div><div id="nf-units">${seg('med-unit', C.EINHEITEN, d.einheit)}</div></div>
                     </div>
                 </div>
             </div>
@@ -1510,17 +1514,17 @@ function protokollPane(p) {
 function summaryBlocks(p) {
     const a = p.absch;
     const name = [p.pat.vorname, p.pat.nachname].filter(Boolean).join(' ');
-    const row = (k, v, empty) => `<div class="nf-kv"><span class="nf-kv__k">${esc(k)}</span><span class="nf-kv__v">${isSet(v) ? esc(v) : `<span class="nf-empty-val">${fa('fa-circle-minus')}${esc(empty)}</span>`}</span></div>`;
+    const row = (k, v) => `<div class="nf-kv"><span class="nf-kv__k">${esc(k)}</span><span class="nf-kv__v">${isSet(v) ? esc(v) : '<span class="nf-dim">—</span>'}</span></div>`;
     const block = (title, icon, rows) => `<div class="ignis-bezel nf-box"><div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa(icon)}</span><h3 class="ignis-bezel__title">${esc(title)}</h3></div><div class="ignis-bezel__well">${rows}</div></div>`;
     const von = [p.von.einrichtung, C.addressLine(p.von)].filter(Boolean).join(', ');
     const nach = [p.ziel.einrichtung, C.addressLine(p.ziel)].filter(Boolean).join(', ');
     return `<div class="nf-sum">
-        ${block('Patient', 'fa-user', row('Name', name, 'Kein Name hinterlegt') + row('Geburtsdatum', p.pat.gebdat, 'Kein Datum hinterlegt') + row('Geschlecht', p.pat.geschlecht, 'Kein Geschlecht hinterlegt'))}
-        ${block('Transport von/nach', 'fa-route', row('von', von, 'Kein Ort hinterlegt') + row('nach', nach, 'Kein Zielort hinterlegt'))}
-        ${block('Besatzung', 'fa-users', row('Transportmittel', a.fzgTransp, 'Kein Transportmittel hinterlegt') + row('Transportführer', a.tf, 'Kein Transportführer hinterlegt') + row('Fahrzeugführer', a.ff, 'Kein Fahrzeugführer hinterlegt') + row('Notarztzubringer', a.fzgNA, 'Kein Notarztzubringer hinterlegt') + row('Notarzt', a.na, 'Kein Notarzt hinterlegt') + row('Protokoll durch', a.protDurch, 'Keine Protokollart festgelegt'))}
-        ${block('Sonstige Fahrzeuge', 'fa-car-side', row('Weitere', a.weitere, 'Keine weiteren Rettungsmittel hinterlegt'))}
+        ${block('Patient', 'fa-user', row('Name', name) + row('Geburtsdatum', p.pat.gebdat) + row('Geschlecht', p.pat.geschlecht))}
+        ${block('Transport von/nach', 'fa-route', row('von', von) + row('nach', nach))}
+        ${block('Besatzung', 'fa-users', row('Transportmittel', a.fzgTransp) + row('Transportführer', a.tf) + row('Fahrzeugführer', a.ff) + row('Notarztzubringer', a.fzgNA) + row('Notarzt', a.na) + row('Protokoll durch', a.protDurch))}
+        ${block('Sonstige Fahrzeuge', 'fa-car-side', row('Weitere', a.weitere))}
         ${block('Einsatzdaten', 'fa-clipboard-list', `<div class="nf-kv nf-kv--one">Einsatz-Nr.: <span class="ignis-mono">#${esc(p.enr)}</span></div><div class="nf-kv nf-kv--one">Beginn: <span class="ignis-mono">${esc([p.einsatz.datum, p.einsatz.zeit].filter(Boolean).join(' ') || '—')}</span></div><div class="nf-kv nf-kv--one">Protokollart: ${esc(C.PROT_TYPES[p.art].code + ' ' + C.PROT_TYPES[p.art].label)}</div>`)}
-        ${block('Protokollant und freigebende Person', 'fa-signature', row('Protokollant', a.protokollant, 'Kein Protokollant hinterlegt') + row('Freigabe durch', S.session?.fahrer?.name, 'Keine Person angemeldet'))}
+        ${block('Protokollant und Freigabe', 'fa-signature', row('Protokollant', a.protokollant) + row('Freigabe durch', S.session?.fahrer?.name))}
     </div>`;
 }
 
@@ -1536,7 +1540,7 @@ function plausi(p) {
 function freigabeView(p) {
     return `<div class="nf-view">
         <div class="nf-view__body" data-scroll="pane">
-            ${paneHead('Freigabe', `<span class="nf-pane__sub">Protokoll <span class="ignis-mono">#${esc(p.enr)}</span> prüfen und abschließen</span>`)}
+            ${paneHead('Freigabe', `<span class="nf-pane__sub">Protokoll <span class="ignis-mono">#${esc(p.enr)}</span></span>`)}
             ${plausi(p)}
             ${summaryBlocks(p)}
         </div>
@@ -1596,7 +1600,7 @@ function overviewView() {
         </div>`;
     }).join('');
     const links = S.quicklinksEmpty
-        ? emptyBlock({ icon: 'fa-link', title: 'Keine Links verfügbar.', text: 'Die Wache hat noch keine Schnellzugriffe hinterlegt.', pattern: true })
+        ? emptyBlock({ icon: 'fa-link', title: 'Keine Links verfügbar.', pattern: true })
         : `<div class="nf-links">${C.QUICKLINKS.map((l) => `<button type="button" class="nf-link" data-act="qlink" data-val="${esc(l.label)}"><span class="ignis-glyph ignis-glyph--md">${fa(l.icon)}</span><span class="nf-link__text"><span class="nf-link__label">${esc(l.label)}</span><span class="nf-link__note">${esc(l.note)}</span></span></button>`).join('')}</div>`;
     const tools = `<button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="vinfo" data-ignis-tooltip="Fahrzeuginfo" aria-label="Fahrzeuginfo">${fa('fa-circle-info')}<span class="nf-tbtn__label">Fahrzeuginfo</span></button>
         <button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="logbook" data-ignis-tooltip="Fahrtenbuch" aria-label="Fahrtenbuch">${fa('fa-book')}<span class="nf-tbtn__label">Fahrtenbuch</span></button>
@@ -1613,7 +1617,7 @@ function overviewView() {
                             <a class="ignis-btn ignis-btn--primary" href="#/create">${fa('fa-plus')}Neuen Einsatz erstellen</a>
                         </div>
                     </div>
-                    <div class="ignis-bezel__well ignis-bezel__well--list">${rows || emptyBlock({ icon: 'fa-clipboard-list', title: 'Keine offenen Protokolle', text: 'Für dieses Fahrzeug liegt kein Protokoll vor.', actions: `<a class="ignis-btn ignis-btn--primary" href="#/create">${fa('fa-plus')}Neuen Einsatz erstellen</a>` })}</div>
+                    <div class="ignis-bezel__well ignis-bezel__well--list">${rows || emptyBlock({ icon: 'fa-clipboard-list', title: 'Keine offenen Protokolle', actions: `<a class="ignis-btn ignis-btn--primary" href="#/create">${fa('fa-plus')}Neuen Einsatz erstellen</a>` })}</div>
                     ${list.length ? `<div class="ignis-bezel__foot"><span>${fa('fa-truck-medical')} ${esc(s.vehicle)}</span><button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm nf-ml-auto" data-act="pdel-all">${fa('fa-trash-can')}alle löschen</button></div>` : ''}
                 </section>
                 <aside class="ignis-bezel">
