@@ -26,13 +26,7 @@ final class EnotfVehicleOutOfServiceTest extends FeatureTestCase
         SessionManager::setPinVerified(true);
 
         $this->vehicle = FixtureFactory::fahrzeug(['rd_type' => 2]);
-        Capsule::table('intra_enotf_sessions')->insert([
-            'vehicle_identifier' => $this->vehicle['identifier'],
-            'fahrername'         => 'Erika Muster',
-            'fahrerquali'        => 'NotSan',
-            'active'             => 1,
-        ]);
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']], $this->vehicle['identifier']);
+        FixtureFactory::crewLogin($this->vehicle['identifier'], ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']]);
     }
 
     #[Test]

@@ -46,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
 
         // Sperrzeit nur aus der Auswahl, sonst bleibt der alte Wert.
         if ($key === 'ENOTF_PIN_TIMEOUT' && !in_array((int) $value, SessionManager::PIN_TIMEOUT_CHOICES, true)) continue;
+        // Ablauf der Crew-Anmeldung: ganze Stunden von 1 bis 168 (eine Woche).
+        if ($key === 'ENOTF_SESSION_IDLE_HOURS' && (!ctype_digit((string) $value) || (int) $value < 1 || (int) $value > 168)) continue;
 
         // Der Farbwähler liefert Hex in Großbuchstaben, gespeichert ist oft Kleinschreibung.
         if ($config['config_type'] === 'color' && strcasecmp((string) $oldValue, $value) === 0) continue;

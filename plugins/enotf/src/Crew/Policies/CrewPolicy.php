@@ -27,8 +27,9 @@ use App\Session\SessionManager;
  *    Lockscreen /enotf/lockscreen als Ziel, die PIN-Session ist
  *    dieselbe wie in v1).
  *
- * 3. **Crew-Login**: `$_SESSION['fahrername']` + `$_SESSION['protfzg']`,
- *    gesetzt via SessionManager::loginEnotfCrew().
+ * 3. **Crew-Login**: `$_SESSION['enotf_session_token']` + `$_SESSION['protfzg']`,
+ *    gesetzt via SessionManager::loginEnotfCrew(), gegen die DB geprüft vom
+ *    CrewSessionGuard (CrewSessionCheckMiddleware auf den Routen).
  *
  * Die Logik ist eine eigenständige Kopie statt einer Ableitung von
  * Plugin\Enotf\Policies\EnotfPolicy, v2 soll auth-seitig nicht brechen,
@@ -143,9 +144,10 @@ class CrewPolicy
      */
     public static function hasCrewSession(mixed $context = null): bool
     {
-        return isset($_SESSION['fahrername'], $_SESSION['protfzg'])
-            && !empty($_SESSION['fahrername'])
-            && !empty($_SESSION['protfzg']);
+        // Token und Fahrzeug, nicht der Fahrername: meldet sich der Fahrer
+        // ab, bleibt der Beifahrer angemeldet. Ob die Anmeldung in der DB
+        // noch gilt, prüft vorher der CrewSessionGuard.
+        return !empty($_SESSION['enotf_session_token']) && !empty($_SESSION['protfzg']);
     }
 
     /**

@@ -10,6 +10,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
+use Tests\FixtureFactory;
 
 /**
  * eNOTF: Vitalwerte im Verlauf löschen nur per POST mit CSRF-Token und nur
@@ -48,7 +49,7 @@ final class EnotfVitalDeleteTest extends FeatureTestCase
 
     private function crew(string $fahrzeug): void
     {
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']], $fahrzeug);
+        FixtureFactory::crewLogin($fahrzeug, ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']]);
     }
 
     /** @param array<string, string> $server */

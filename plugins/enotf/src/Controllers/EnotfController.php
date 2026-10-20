@@ -56,7 +56,7 @@ class EnotfController extends Controller
         // solchen Fahrzeug kann niemand weiterarbeiten: alle Anmeldungen darauf
         // enden, die Crew meldet sich auf einem anderen Fahrzeug an.
         if (!$vehicle && Capsule::table('intra_fahrzeuge')->where('identifier', $currentVehicleId)->exists()) {
-            (new EnotfSession())->deactivateAllForVehicle((string) $currentVehicleId);
+            (new EnotfSession())->deactivateAllForVehicle((string) $currentVehicleId, EnotfSession::ENDED_OUT_OF_SERVICE);
             SessionManager::logoutEnotfCrew();
             $this->redirectAbsolute(EnotfUrl::page('loggedout') . '?grund=ausser-dienst');
         }

@@ -13,6 +13,7 @@
  *
  * @var bool  $hasCrewSession
  * @var bool  $ausserDienst  Anmeldung endete, weil das Fahrzeug außer Dienst ist
+ * @var string|null $endedText Warum die Anmeldung endete (CrewSessionGuard::message)
  * @var array<string, mixed> $crew  {vehicle, vehicle_label, members[]}
  */
 
@@ -109,6 +110,8 @@ $pinEnabled = CrewPolicy::pinEnabled() ? 'true' : 'false';
                             <div class="col">
                                 <?php if (!empty($ausserDienst)): ?>
                                     Das Fahrzeug ist außer Dienst, etwa wegen eines gemeldeten Defekts. Bitte melden Sie sich auf einem anderen Fahrzeug an.
+                                <?php elseif (!empty($endedText)): ?>
+                                    <?= $e($endedText) ?>
                                 <?php else: ?>
                                     Sie sind nicht angemeldet!
                                 <?php endif; ?>

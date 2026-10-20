@@ -13,6 +13,7 @@ use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Crew\Policies\CrewPolicy;
 use Plugin\Enotf\Crew\Requests\CrewLoginRequest;
 use Plugin\Enotf\Crew\Requests\CrewLogoutRequest;
+use Plugin\Enotf\Crew\Support\CrewSessionGuard;
 
 /**
  * LoginController: Crew-Login, Session-Join und Logout für eNOTF v2.
@@ -37,8 +38,6 @@ class LoginController extends CrewController
 
         $charLocked       = CrewPolicy::charLockEnabled() && !empty($_SESSION['char_name'] ?? '');
         $charName         = (string) ($_SESSION['char_name'] ?? '');
-        $jobFilterEnabled = CrewPolicy::jobFilterEnabled();
-        $charJob          = $_SESSION['char_job'] ?? null;
 
         // Personal-Liste: lokal + Federation (Namen mit [Instanz]-Suffix)
         $fullnames = [];
@@ -60,20 +59,7 @@ class LoginController extends CrewController
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        // Fahrzeuge: aktiv, RD-Typ NA/Transport, optional Job-Filter
-        $vehiclesQuery = Capsule::table('intra_fahrzeuge')
-            ->where('active', 1)
-            ->whereIn('rd_type', [1, 2])
-            ->orderBy('priority');
-
-        if ($jobFilterEnabled && !empty($charJob)) {
-            $vehiclesQuery->where(function ($q) use ($charJob) {
-                $q->whereNull('allowed_jobs')
-                  ->orWhere('allowed_jobs', '')
-                  ->orWhereRaw('FIND_IN_SET(?, allowed_jobs) > 0', [$charJob]);
-            });
-        }
-        $vehicles = $vehiclesQuery->get()->map(fn ($r) => (array) $r)->all();
+        $vehicles = $this->selectableVehicles()->orderBy('priority')->get()->map(fn ($r) => (array) $r)->all();
 
         // Prefill aus bestehender Crew-Session (?prefill=1)
         $prefill = [];
@@ -119,7 +105,13 @@ class LoginController extends CrewController
         }
 
         $mode    = $input['login_mode'];
-        $vehicle = $input['protfzg'];
+        $vehicle = (string) $input['protfzg'];
+
+        // Dieselbe Auswahl wie im Formular: aktiv, RD-Fahrzeug, Job-Filter.
+        // Ein selbst gebauter POST kommt sonst auf jedes Fahrzeug.
+        if (!$this->selectableVehicles()->where('identifier', $vehicle)->exists()) {
+            $this->redirectAbsolute(EnotfUrl::page('login', ['error' => 'vehicle']));
+        }
 
         $sessionService = new CrewSessionService();
 
@@ -135,6 +127,8 @@ class LoginController extends CrewController
             if ($joinPosition && $joinName) {
                 $existingSession = $sessionService->findActiveByVehicle($vehicle);
                 if ($existingSession) {
+                    $this->leaveOtherVehicle($sessionService, $vehicle);
+
                     $result = $sessionService->joinSession(
                         (int) $existingSession['id'],
                         (string) $joinPosition,
@@ -156,9 +150,13 @@ class LoginController extends CrewController
                         );
                         $this->redirectAbsolute(EnotfUrl::page('overview'));
                     }
+
+                    // Position inzwischen besetzt: nicht still eine neue
+                    // Besatzung anlegen, das würde die bestehende abmelden
+                    $this->redirectAbsolute(EnotfUrl::page('login', ['error' => 'position_taken']));
                 }
             }
-            // Join nicht möglich → Fallback auf normale Anmeldung
+            // Keine Session mehr zum Beitreten → normale Anmeldung
             $mode = 'new';
         }
 
@@ -182,6 +180,10 @@ class LoginController extends CrewController
             'praktikantname'  => $input['praktikantname'],
             'praktikantquali' => $input['praktikantquali'],
         ];
+
+        // Wechsel auf ein anderes Fahrzeug: die Position auf dem alten
+        // Fahrzeug freigeben, sonst bleibt dort eine verwaiste Session aktiv
+        $this->leaveOtherVehicle($sessionService, $vehicle);
 
         // Gültigen eigenen Member-Token wiederverwenden → nur Crew-Update
         $existingToken     = $_SESSION['enotf_session_token'] ?? null;
@@ -226,6 +228,7 @@ class LoginController extends CrewController
             'hasCrewSession' => CrewPolicy::hasCrewSession(),
             'crew'           => $this->crewContext(),
             'ausserDienst'   => ($_GET['grund'] ?? '') === 'ausser-dienst',
+            'endedText'      => CrewSessionGuard::message((string) ($_GET['grund'] ?? '')),
         ]);
     }
 
@@ -262,6 +265,44 @@ class LoginController extends CrewController
 
         // Redirect-after-POST auf die Anzeige-Seite (kein Re-Submit bei F5)
         $this->redirectAbsolute(EnotfUrl::page('loggedout'));
+    }
+
+    /**
+     * Fahrzeuge, auf denen sich eine Crew anmelden darf: aktiv, RD-Typ
+     * NA/Transport, mit Job-Filter nur die für den Job des Charakters.
+     */
+    private function selectableVehicles(): \Illuminate\Database\Query\Builder
+    {
+        $query = Capsule::table('intra_fahrzeuge')
+            ->where('active', 1)
+            ->whereIn('rd_type', [1, 2]);
+
+        $charJob = $_SESSION['char_job'] ?? null;
+        if (CrewPolicy::jobFilterEnabled() && !empty($charJob)) {
+            $query->where(function ($q) use ($charJob) {
+                $q->whereNull('allowed_jobs')
+                  ->orWhere('allowed_jobs', '')
+                  ->orWhereRaw('FIND_IN_SET(?, allowed_jobs) > 0', [$charJob]);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Ist dieser Browser auf einem anderen Fahrzeug angemeldet, gibt er
+     * dort seine Position frei (wie „Nur mich abmelden“).
+     */
+    private function leaveOtherVehicle(CrewSessionService $sessionService, string $vehicle): void
+    {
+        $token = (string) ($_SESSION['enotf_session_token'] ?? '');
+        $own   = $sessionService->findByToken($token);
+        if ($own === null || (string) $own['vehicle_identifier'] === $vehicle) {
+            return;
+        }
+
+        $sessionService->removeMember($token, (string) $own['member_position']);
+        SessionManager::logoutEnotfCrew();
     }
 
     /**

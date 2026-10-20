@@ -11,6 +11,8 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Crew\Models\Edivi;
 use Plugin\Enotf\Crew\Models\EnotfSession;
 use Plugin\Enotf\Crew\Policies\CrewPolicy;
+use Plugin\Enotf\Crew\Support\CrewSessionGuard;
+use Plugin\Enotf\EnotfSession as EnotfSessionService;
 
 /**
  * Crew-Session-API für eNOTF v2.
@@ -55,6 +57,8 @@ final class SessionApiController
         if ($vehicleIdentifier === '') {
             return Response::json(['success' => false, 'error' => 'Fahrzeug-Kennung fehlt'], 400);
         }
+
+        (new EnotfSessionService())->expireIdle($vehicleIdentifier);
 
         $session = EnotfSession::active()
             ->where('vehicle_identifier', $vehicleIdentifier)
@@ -112,8 +116,8 @@ final class SessionApiController
         if (strtoupper($request->method) !== 'POST') {
             return Response::json(['error' => 'Method not allowed'], 405);
         }
-        if (empty($_SESSION['fahrername']) || empty($_SESSION['protfzg'])) {
-            return Response::json(['error' => 'Not authenticated'], 401);
+        if (!CrewPolicy::hasCrewSession()) {
+            return Response::json(['error' => 'Not authenticated', 'code' => 'not_logged_in'], 401);
         }
 
         $enr = (string) ($request->post['enr'] ?? '');
@@ -184,10 +188,7 @@ final class SessionApiController
             return Response::json(['success' => false, 'error' => 'Nicht autorisiert'], 403);
         }
 
-        Capsule::table('intra_enotf_sessions')
-            ->where('vehicle_identifier', $vehicle)
-            ->where('active', 1)
-            ->update(['active' => 0]);
+        (new EnotfSessionService())->deactivateAllForVehicle($vehicle, EnotfSessionService::ENDED_DELETED);
 
         return Response::json(['success' => true]);
     }
@@ -196,14 +197,17 @@ final class SessionApiController
      * GET /api/enotf/session-status   Header: X-Enotf-Session-Token
      *
      * 10s-Poll des Clients (session-sync.js): liefert Crew + eigene
-     * Position zur Session des Tokens. Deaktivierte oder unbekannte
-     * Sessions melden { active: false }. Der Client leitet dann auf die
-     * Abmelde-Seite um. Das Token selbst ist die Berechtigung (wie v1);
-     * ohne Token gibt es 400.
+     * Position. Maßgeblich ist das Token DIESER Browser-Session; der
+     * Header muss dazu passen, ein fremdes oder kopiertes Token allein
+     * reicht nicht. Beendete, abgelaufene oder fremde Anmeldungen melden
+     * { active: false, grund: "…" }, die Crew-Keys der PHP-Session sind
+     * dann schon weg und der Client leitet auf die Abmelde-Seite mit Grund.
+     *
+     * Der Poll zieht die Besatzung selbst in die PHP-Session nach und
+     * verlängert die Anmeldung nicht (CrewSessionGuard ohne touch).
      *
      * Das Token kommt AUSSCHLIESSLICH aus dem Header. Als Query-
      * Parameter würde es in Access-Logs, Proxy-Logs und Referern landen.
-     * Einziger Konsument ist session-sync.js, das den Header setzt.
      */
     public function sessionStatus(Request $request): Response
     {
@@ -212,24 +216,21 @@ final class SessionApiController
             return Response::json(['success' => false, 'error' => 'Token fehlt'], 400);
         }
 
-        $result = Capsule::table('intra_enotf_session_members as m')
-            ->join('intra_enotf_sessions as s', 's.id', '=', 'm.session_id')
-            ->where('m.session_token', $sessionToken)
-            ->select('s.*', 'm.position as my_position')
-            ->first();
+        $own = (string) ($_SESSION['enotf_session_token'] ?? '');
+        if ($own === '' || !hash_equals($own, $sessionToken)) {
+            return Response::json(['success' => true, 'active' => false, 'grund' => 'beendet']);
+        }
 
-        $result = $result !== null ? (array) $result : null;
-
-        if ($result === null || (int) $result['active'] === 0) {
-            return Response::json(['success' => true, 'active' => false]);
+        $grund = CrewSessionGuard::check(touch: false);
+        if ($grund !== null) {
+            return Response::json(['success' => true, 'active' => false, 'grund' => $grund]);
         }
 
         return Response::json([
             'success'     => true,
             'active'      => true,
-            'crew'        => $this->extractCrew($result),
-            'my_position' => $result['my_position'],
-            'updated_at'  => $result['updated_at'],
+            'crew'        => $this->extractCrew($_SESSION),
+            'my_position' => (string) ($_SESSION['enotf_position'] ?? ''),
         ]);
     }
 
@@ -237,8 +238,9 @@ final class SessionApiController
      * POST /api/enotf/session-update   Body (Form): token=<token>
      *
      * Zieht die aktuelle Crew aus der DB-Session in die PHP-Browser-
-     * Session, der Client ruft das auf, wenn der session-status-Poll
-     * eine Crew-Änderung gemeldet hat (v1-Semantik, Api\EnotfController).
+     * Session. Der Abgleich macht das inzwischen selbst, der Endpoint
+     * bleibt für den v1-Client (enotf-session-sync.js). Wie beim Status
+     * zählt nur das Token dieser Browser-Session.
      */
     public function sessionUpdate(Request $request): Response
     {
@@ -251,27 +253,10 @@ final class SessionApiController
             return Response::json(['success' => false, 'error' => 'Token fehlt'], 400);
         }
 
-        $session = Capsule::table('intra_enotf_session_members as m')
-            ->join('intra_enotf_sessions as s', 's.id', '=', 'm.session_id')
-            ->where('m.session_token', $sessionToken)
-            ->where('s.active', 1)
-            ->select('s.*')
-            ->first();
-
-        if ($session === null) {
-            return Response::json(['success' => false, 'error' => 'Session nicht gefunden oder inaktiv'], 404);
+        $own = (string) ($_SESSION['enotf_session_token'] ?? '');
+        if ($own === '' || !hash_equals($own, $sessionToken) || CrewSessionGuard::check(touch: false) !== null) {
+            return Response::json(['success' => false, 'code' => 'session_ended', 'error' => 'Session nicht gefunden oder inaktiv'], 404);
         }
-
-        $session = (array) $session;
-
-        \App\Session\SessionManager::updateEnotfCrew([
-            'fahrername'      => $session['fahrername'],
-            'fahrerquali'     => $session['fahrerquali'],
-            'beifahrername'   => $session['beifahrername'],
-            'beifahrerquali'  => $session['beifahrerquali'],
-            'praktikantname'  => $session['praktikantname'],
-            'praktikantquali' => $session['praktikantquali'],
-        ]);
 
         return Response::json(['success' => true]);
     }
@@ -338,12 +323,12 @@ final class SessionApiController
     private function extractCrew(array $session): array
     {
         return [
-            'fahrername'      => $session['fahrername'],
-            'fahrerquali'     => $session['fahrerquali'],
-            'beifahrername'   => $session['beifahrername'],
-            'beifahrerquali'  => $session['beifahrerquali'],
-            'praktikantname'  => $session['praktikantname'],
-            'praktikantquali' => $session['praktikantquali'],
+            'fahrername'      => $session['fahrername'] ?? null,
+            'fahrerquali'     => $session['fahrerquali'] ?? null,
+            'beifahrername'   => $session['beifahrername'] ?? null,
+            'beifahrerquali'  => $session['beifahrerquali'] ?? null,
+            'praktikantname'  => $session['praktikantname'] ?? null,
+            'praktikantquali' => $session['praktikantquali'] ?? null,
         ];
     }
 }

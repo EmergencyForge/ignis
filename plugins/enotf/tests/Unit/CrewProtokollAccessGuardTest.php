@@ -36,8 +36,9 @@ class CrewProtokollAccessGuardTest extends TestCase
 
     private function crewSession(string $vehicle): void
     {
-        $_SESSION['fahrername'] = 'Max Mustermann';
-        $_SESSION['protfzg']    = $vehicle;
+        $_SESSION['enotf_session_token'] = 'tok';
+        $_SESSION['fahrername']          = 'Max Mustermann';
+        $_SESSION['protfzg']             = $vehicle;
     }
 
     // ── Keine Session ────────────────────────────────────────────────
@@ -83,8 +84,9 @@ class CrewProtokollAccessGuardTest extends TestCase
     {
         // hasCrewSession verlangt non-empty protfzg, aber selbst wenn beide
         // Seiten leer wären, darf '' === '' keinen Zugriff geben.
-        $_SESSION['fahrername'] = 'Max';
-        $_SESSION['protfzg']    = '';
+        $_SESSION['enotf_session_token'] = 'tok';
+        $_SESSION['fahrername']          = 'Max';
+        $_SESSION['protfzg']             = '';
 
         $p = $this->protokoll(['fzg_transp' => '', 'fzg_na' => '']);
         $this->assertFalse(ProtokollAccessGuard::canRead($p));

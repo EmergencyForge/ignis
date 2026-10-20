@@ -35,55 +35,60 @@ use Plugin\Enotf\Crew\Controllers\Api\SessionApiController;
 use Plugin\Enotf\Crew\Controllers\Api\ShareApiController;
 use Plugin\Enotf\Crew\Controllers\Api\SyncApiController;
 use Plugin\Enotf\Crew\Controllers\Api\VitalsApiController;
+use Plugin\Enotf\Crew\Http\CrewSessionCheckMiddleware;
 use Plugin\Enotf\Http\CrewSessionMiddleware;
 
 $enotfApiAuth = [JsonExceptionMiddleware::class, new AuthMiddleware()];
 
 // Konto nur, wenn ENOTF_REQUIRE_USER_AUTH es verlangt, wie bei den Webseiten.
 $enotfLoginAuth = [JsonExceptionMiddleware::class, new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')];
-$enotfCrewAuth  = [...$enotfLoginAuth, CrewSessionMiddleware::class];
+// Crew-Endpoints: gilt die Anmeldung in der DB noch? Sonst 401 session_ended.
+$enotfCrewApi   = [...$enotfLoginAuth, new CrewSessionCheckMiddleware(CrewSessionCheckMiddleware::MODE_API)];
+// Login-Seite: nur aufräumen, sie läuft auch ohne Anmeldung
+$enotfEntryApi  = [...$enotfLoginAuth, new CrewSessionCheckMiddleware(CrewSessionCheckMiddleware::MODE_ENTRY)];
+$enotfCrewAuth  = [...$enotfCrewApi, CrewSessionMiddleware::class];
 
 // ── Protokoll ──
-$router->post('/api/enotf/save-fields', [ProtokollApiController::class, 'saveFields'], $enotfLoginAuth);
-$router->get('/api/enotf/protokoll/{enr:[\w._-]+}', [ProtokollApiController::class, 'show'], $enotfLoginAuth);
+$router->post('/api/enotf/save-fields', [ProtokollApiController::class, 'saveFields'], $enotfCrewApi);
+$router->get('/api/enotf/protokoll/{enr:[\w._-]+}', [ProtokollApiController::class, 'show'], $enotfCrewApi);
 // Soft-Delete durch die Crew (403 bei Leitstellen-Protokollen)
-$router->post('/api/enotf/delete-protocol', [ProtokollApiController::class, 'deleteProtocol'], $enotfLoginAuth);
+$router->post('/api/enotf/delete-protocol', [ProtokollApiController::class, 'deleteProtocol'], $enotfCrewApi);
 
-$router->get('/api/enotf/poi/search', [PoiApiController::class, 'poiSearch'], $enotfLoginAuth);
-$router->post('/api/enotf/poi/save-address', [PoiApiController::class, 'saveAddress'], $enotfLoginAuth);
+$router->get('/api/enotf/poi/search', [PoiApiController::class, 'poiSearch'], $enotfCrewApi);
+$router->post('/api/enotf/poi/save-address', [PoiApiController::class, 'saveAddress'], $enotfCrewApi);
 
 // Vitalwerte: mehrere Parameter je Zeitpunkt, delete ist ein Soft-Delete
-$router->get('/api/enotf/vitals/{enr:[\w._-]+}', [VitalsApiController::class, 'index'], $enotfLoginAuth);
-$router->post('/api/enotf/vitals', [VitalsApiController::class, 'add'], $enotfLoginAuth);
-$router->post('/api/enotf/vitals/delete', [VitalsApiController::class, 'delete'], $enotfLoginAuth);
+$router->get('/api/enotf/vitals/{enr:[\w._-]+}', [VitalsApiController::class, 'index'], $enotfCrewApi);
+$router->post('/api/enotf/vitals', [VitalsApiController::class, 'add'], $enotfCrewApi);
+$router->post('/api/enotf/vitals/delete', [VitalsApiController::class, 'delete'], $enotfCrewApi);
 
 // Medikation im JSON-Feld intra_edivi.medis, gesperrt nach der Freigabe
-$router->get('/api/enotf/medis/{enr:[\w._-]+}', [MedisApiController::class, 'index'], $enotfLoginAuth);
-$router->post('/api/enotf/medis', [MedisApiController::class, 'add'], $enotfLoginAuth);
-$router->post('/api/enotf/medis/delete', [MedisApiController::class, 'delete'], $enotfLoginAuth);
+$router->get('/api/enotf/medis/{enr:[\w._-]+}', [MedisApiController::class, 'index'], $enotfCrewApi);
+$router->post('/api/enotf/medis', [MedisApiController::class, 'add'], $enotfCrewApi);
+$router->post('/api/enotf/medis/delete', [MedisApiController::class, 'delete'], $enotfCrewApi);
 
-$router->get('/api/enotf/plausibility/{enr:[\w._-]+}', [PlausibilityApiController::class, 'show'], $enotfLoginAuth);
+$router->get('/api/enotf/plausibility/{enr:[\w._-]+}', [PlausibilityApiController::class, 'show'], $enotfCrewApi);
 
 // ── Crew-Sitzung ──
 // Die Login-Seite fragt beim Fahrzeugwechsel, ob schon eine Crew angemeldet ist.
-$router->get('/api/enotf/check-vehicle-session', [SessionApiController::class, 'checkVehicleSession'], $enotfLoginAuth);
-$router->post('/api/enotf/check-conflict', [SessionApiController::class, 'checkConflict'], $enotfLoginAuth);
-$router->post('/api/enotf/delete-vehicle-session', [SessionApiController::class, 'deleteVehicleSession'], $enotfLoginAuth);
+$router->get('/api/enotf/check-vehicle-session', [SessionApiController::class, 'checkVehicleSession'], $enotfEntryApi);
+$router->post('/api/enotf/check-conflict', [SessionApiController::class, 'checkConflict'], $enotfCrewApi);
+$router->post('/api/enotf/delete-vehicle-session', [SessionApiController::class, 'deleteVehicleSession'], $enotfEntryApi);
 // 10-Sekunden-Abgleich der Crew (session-sync.js)
 $router->get('/api/enotf/session-status', [SessionApiController::class, 'sessionStatus'], $enotfLoginAuth);
-$router->post('/api/enotf/session-update', [SessionApiController::class, 'sessionUpdate'], $enotfLoginAuth);
+$router->post('/api/enotf/session-update', [SessionApiController::class, 'sessionUpdate'], $enotfCrewApi);
 
 // Topbar: Leitstellen-Icon und Patientendaten zum Senden markieren
-$router->get('/api/enotf/sync-status', [SyncApiController::class, 'syncStatus'], $enotfLoginAuth);
-$router->post('/api/enotf/patient-sync', [SyncApiController::class, 'patientSync'], $enotfLoginAuth);
+$router->get('/api/enotf/sync-status', [SyncApiController::class, 'syncStatus'], $enotfCrewApi);
+$router->post('/api/enotf/patient-sync', [SyncApiController::class, 'patientSync'], $enotfCrewApi);
 
 // ── Teilen zwischen Fahrzeugen ──
-$router->get('/api/enotf/share/get-available-vehicles', [ShareApiController::class, 'getAvailableVehicles'], $enotfLoginAuth);
-$router->get('/api/enotf/share/check-requests',         [ShareApiController::class, 'checkRequests'],        $enotfLoginAuth);
-$router->get('/api/enotf/share/get-own-protocols',      [ShareApiController::class, 'getOwnProtocols'],      $enotfLoginAuth);
-$router->post('/api/enotf/share/send-request',          [ShareApiController::class, 'sendRequest'],          $enotfLoginAuth);
-$router->post('/api/enotf/share/accept-request',        [ShareApiController::class, 'acceptRequest'],        $enotfLoginAuth);
-$router->post('/api/enotf/share/reject-request',        [ShareApiController::class, 'rejectRequest'],        $enotfLoginAuth);
+$router->get('/api/enotf/share/get-available-vehicles', [ShareApiController::class, 'getAvailableVehicles'], $enotfCrewApi);
+$router->get('/api/enotf/share/check-requests',         [ShareApiController::class, 'checkRequests'],        $enotfCrewApi);
+$router->get('/api/enotf/share/get-own-protocols',      [ShareApiController::class, 'getOwnProtocols'],      $enotfCrewApi);
+$router->post('/api/enotf/share/send-request',          [ShareApiController::class, 'sendRequest'],          $enotfCrewApi);
+$router->post('/api/enotf/share/accept-request',        [ShareApiController::class, 'acceptRequest'],        $enotfCrewApi);
+$router->post('/api/enotf/share/reject-request',        [ShareApiController::class, 'rejectRequest'],        $enotfCrewApi);
 
 // ── Ankunftstafel, Prüfliste, Abrechnung ──
 // Pollt die öffentliche Ankunftstafel (/enotf/schnittstelle), ohne Anmeldung

@@ -35,7 +35,7 @@ final class EnotfProtokollAccessTest extends FeatureTestCase
 
     private function crew(string $fahrzeug): void
     {
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']], $fahrzeug);
+        FixtureFactory::crewLogin($fahrzeug, ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']]);
     }
 
     #[Test]

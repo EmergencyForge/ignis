@@ -24,7 +24,7 @@ final class EnotfDefectReportTest extends FeatureTestCase
 
         $vehicle = FixtureFactory::fahrzeug();
         $this->vehicleId = $vehicle['id'];
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']], $vehicle['identifier']);
+        FixtureFactory::crewLogin($vehicle['identifier'], ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']]);
     }
 
     #[Test]

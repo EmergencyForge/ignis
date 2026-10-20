@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.1.6-beta
+
+### eNOTF
+- Ob eine Besatzung angemeldet ist, prüft der Server bei jeder Anfrage. Nach „alle abmelden“, einer neuen Besatzung oder einem Defekt kann kein Tablet des Fahrzeugs mehr speichern, auch nicht in den Sekunden bis zum nächsten Abgleich
+- Endet eine Anmeldung, nennt die Abmelde-Seite den Grund, etwa „neue Besatzung“, „außer Dienst“ oder „abgelaufen“. Die Seite springt nicht mehr zwischen Übersicht und Abmelden hin und her
+- Meldet sich der Fahrer ab, bleibt der Beifahrer auf seinem Tablet angemeldet
+- Eine Anmeldung endet nach 12 Stunden ohne Nutzung. Die Zeit steht in den Einstellungen unter eNOTF, der 10-Sekunden-Abgleich zählt nicht als Nutzung
+- Wer auf ein anderes Fahrzeug wechselt, gibt seine Position auf dem alten frei
+- Anmelden geht nur auf Fahrzeugen aus der Liste, eine besetzte Position lässt sich beim Beitreten nicht übernehmen
+
 ## 2026.1.5-beta
 
 ### fireTab

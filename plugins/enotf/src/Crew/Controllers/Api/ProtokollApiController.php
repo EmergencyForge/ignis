@@ -155,8 +155,8 @@ final class ProtokollApiController
      */
     public function deleteProtocol(Request $request): Response
     {
-        if (empty($_SESSION['protfzg']) || empty($_SESSION['fahrername'])) {
-            return Response::json(['success' => false, 'message' => 'Nicht autorisiert'], 401);
+        if (!CrewPolicy::hasCrewSession()) {
+            return Response::json(['success' => false, 'code' => 'not_logged_in', 'message' => 'Nicht autorisiert'], 401);
         }
         if (strtoupper($request->method) !== 'POST') {
             return Response::json(['success' => false, 'message' => 'Methode nicht erlaubt'], 405);
@@ -192,10 +192,10 @@ final class ProtokollApiController
                 ], 403);
             }
 
-            $freigeber = $_SESSION['fahrername'];
-            if (!empty($_SESSION['beifahrername'])) {
-                $freigeber .= ', ' . $_SESSION['beifahrername'];
-            }
+            $freigeber = implode(', ', array_filter([
+                (string) ($_SESSION['fahrername'] ?? ''),
+                (string) ($_SESSION['beifahrername'] ?? ''),
+            ], static fn (string $name): bool => $name !== ''));
 
             Edivi::where('enr', $enr)->update([
                 'hidden_user'    => 1,

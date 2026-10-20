@@ -34,9 +34,8 @@ final class EnotfEscapingTest extends FeatureTestCase
             'permissions'   => ['full_admin'],
             'cirs_username' => $user->username,
             'username'      => $user->username,
-            'fahrername'    => 'Erika Muster',
-            'protfzg'       => $this->fahrzeug,
         ]);
+        FixtureFactory::crewLogin($this->fahrzeug);
 
         $this->protokollId = (int) Capsule::table('intra_edivi')->insertGetId([
             'enr'              => self::ENR,

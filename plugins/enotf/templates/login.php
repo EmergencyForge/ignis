@@ -36,6 +36,13 @@ if ($charLocked && $hasPrefill) {
     elseif (($prefill['praktikantname'] ?? '') === $charName) $charLockOwnPosition = 'praktikant';
 }
 
+$loginErrorText = match ($loginError) {
+    'char_mismatch'  => 'Charakter-Sperre aktiv: Dein Charaktername muss Teil der Besatzung sein.',
+    'vehicle'        => 'Auf diesem Fahrzeug ist keine Anmeldung möglich. Wähle ein Fahrzeug aus der Liste.',
+    'position_taken' => 'Die Position ist inzwischen besetzt. Wähle eine andere oder melde eine neue Besatzung an.',
+    default          => null,
+};
+
 // Char-Lock: Quali des eigenen Charakters aus der Personalliste vorwählen
 $charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
 ?>
@@ -93,11 +100,11 @@ $charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
                             <h5 class="fw-bold">Anmeldung</h5>
                         </div>
                     </div>
-                    <?php if ($loginError === 'char_mismatch'): ?>
+                    <?php if ($loginErrorText !== null): ?>
                         <div class="row mb-2">
-                            <div class="col" style="color:#d91425;">
-                                <i class="fa-solid fa-user-lock" style="margin-right:6px;"></i>
-                                Charakter-Sperre aktiv: Dein Charaktername muss Teil der Besatzung sein.
+                            <div class="col" style="color:#d91425;" role="alert">
+                                <i class="fa-solid <?= $loginError === 'char_mismatch' ? 'fa-user-lock' : 'fa-circle-exclamation' ?>" style="margin-right:6px;"></i>
+                                <?= $e($loginErrorText) ?>
                             </div>
                         </div>
                     <?php endif; ?>

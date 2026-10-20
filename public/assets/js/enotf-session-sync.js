@@ -61,10 +61,12 @@
         consecutiveErrors = 0;
 
         if (data.active === false) {
-          // Session wurde explizit deaktiviert → Redirect
+          // Anmeldung beendet → Abmelde-Seite mit Grund (der Server hat
+          // die Crew-Keys der PHP-Session schon abgeräumt)
           updateSessionIcon("disconnected");
           clearInterval(pollTimer);
-          window.location.href = basePath + LOGGEDOUT_PATH;
+          window.location.href = basePath + LOGGEDOUT_PATH +
+            (data.grund ? "?grund=" + encodeURIComponent(data.grund) : "");
           return;
         }
 

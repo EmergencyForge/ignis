@@ -13,7 +13,8 @@ declare(strict_types=1);
  *   • Public:  keine Auth (nur CSP/iframe-Support)
  *   • Entry:   optionale User-Auth, KEIN PIN-Lockscreen (sonst
  *              Redirect-Loop auf den Lockscreen selbst)
- *   • Crew:    User-Auth + PIN-Lockscreen + CSP (volle Pipeline)
+ *   • Crew:    User-Auth + Crew-Session-Check + PIN-Lockscreen + CSP
+ *              (volle Pipeline)
  *
  * Die Crew-Seiten des Protokolls hängen zusätzlich an der CsrfMiddleware
  * des Plugins: der SessionManager setzt auf allen /enotf/-Pfaden
@@ -38,11 +39,15 @@ use Plugin\Enotf\Crew\Controllers\LockscreenController;
 use Plugin\Enotf\Crew\Controllers\LoginController;
 use Plugin\Enotf\Crew\Controllers\OverviewController;
 use Plugin\Enotf\Crew\Controllers\ProtokollController;
+use Plugin\Enotf\Crew\Http\CrewSessionCheckMiddleware;
 use Plugin\Enotf\Crew\Http\CsrfMiddleware;
 
+// Jede Crew-Anfrage prüft zuerst, ob die Anmeldung in der DB noch gilt
+// (CrewSessionCheckMiddleware). Crew-Seiten leiten bei beendeter
+// Anmeldung auf die Abmelde-Seite mit Grund, Einstiegsseiten räumen nur auf.
 $enotfPublic     = [FiveMCspMiddleware::class];
-$enotfEntry      = [new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'), FiveMCspMiddleware::class];
-$enotfCrew       = [new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'), PinLockscreenMiddleware::class, FiveMCspMiddleware::class];
+$enotfEntry      = [new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'), new CrewSessionCheckMiddleware(CrewSessionCheckMiddleware::MODE_ENTRY), FiveMCspMiddleware::class];
+$enotfCrew       = [new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'), new CrewSessionCheckMiddleware(), PinLockscreenMiddleware::class, FiveMCspMiddleware::class];
 $crewEntry       = [CsrfMiddleware::class, ...$enotfEntry];
 $crewPages       = [CsrfMiddleware::class, ...$enotfCrew];
 

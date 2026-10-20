@@ -10,6 +10,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
+use Tests\FixtureFactory;
 
 /**
  * Eine Crew ohne ignis-Konto speichert im eNOTF, solange
@@ -53,7 +54,7 @@ final class EnotfCrewSaveTest extends FeatureTestCase
     #[Test]
     public function crew_without_account_saves_new_fields(): void
     {
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']], 'RTW-1');
+        FixtureFactory::crewLogin('RTW-1', ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']]);
 
         $this->assertStatus(200, $this->save(['rea_status' => '2', 'az_vor_ereignis' => '3']));
 
@@ -65,7 +66,7 @@ final class EnotfCrewSaveTest extends FeatureTestCase
     #[Test]
     public function crew_of_another_vehicle_is_rejected(): void
     {
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']], 'RTW-2');
+        FixtureFactory::crewLogin('RTW-2', ['fahrer' => ['name' => 'X', 'quali' => 'NotSan']]);
 
         $this->assertStatus(403, $this->save(['rea_status' => '2']));
         $this->assertNull($this->stored('rea_status'));

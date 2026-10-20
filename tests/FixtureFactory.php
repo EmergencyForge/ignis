@@ -153,4 +153,48 @@ final class FixtureFactory
             'priority'   => $priority,
         ];
     }
+
+    /**
+     * Meldet eine Crew auf einem Fahrzeug an wie der Login: Session- und
+     * Member-Zeile in der DB, Token und Besatzung in der PHP-Session. Der
+     * CrewSessionGuard prüft jede Anfrage gegen diese Zeilen, ein bloß in
+     * $_SESSION gesetztes Token gilt nicht.
+     *
+     * @param array{fahrer?: array{name?: string, quali?: string}, beifahrer?: array{name?: string, quali?: string}, praktikant?: array{name?: string, quali?: string}} $crew
+     * @return array{session_id:int, token:string}
+     */
+    public static function crewLogin(string $vehicle, array $crew = ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']], string $position = 'fahrer'): array
+    {
+        $sessionId = (int) \Illuminate\Database\Capsule\Manager::table('intra_enotf_sessions')->insertGetId([
+            'vehicle_identifier' => $vehicle,
+            'fahrername'         => $crew['fahrer']['name'] ?? null,
+            'fahrerquali'        => $crew['fahrer']['quali'] ?? null,
+            'beifahrername'      => $crew['beifahrer']['name'] ?? null,
+            'beifahrerquali'     => $crew['beifahrer']['quali'] ?? null,
+            'praktikantname'     => $crew['praktikant']['name'] ?? null,
+            'praktikantquali'    => $crew['praktikant']['quali'] ?? null,
+            'active'             => 1,
+        ]);
+
+        return ['session_id' => $sessionId, 'token' => self::crewJoin($sessionId, $vehicle, $crew, $position)];
+    }
+
+    /**
+     * Ein weiteres Gerät derselben Crew-Session (eigener Member-Token).
+     * Die PHP-Session des Tests gehört danach diesem Gerät.
+     *
+     * @param array{fahrer?: array{name?: string, quali?: string}, beifahrer?: array{name?: string, quali?: string}, praktikant?: array{name?: string, quali?: string}} $crew
+     */
+    public static function crewJoin(int $sessionId, string $vehicle, array $crew, string $position): string
+    {
+        $token = bin2hex(random_bytes(32));
+        \Illuminate\Database\Capsule\Manager::table('intra_enotf_session_members')->insert([
+            'session_id'    => $sessionId,
+            'session_token' => $token,
+            'position'      => $position,
+        ]);
+        \App\Session\SessionManager::loginEnotfCrew($position, $token, $crew, $vehicle);
+
+        return $token;
+    }
 }

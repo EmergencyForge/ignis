@@ -25,12 +25,33 @@ class EnotfPolicyTest extends TestCase
     }
 
     #[Test]
-    public function has_crew_session_returns_true_when_fahrername_and_protfzg_set(): void
+    public function has_crew_session_returns_true_when_token_and_protfzg_set(): void
+    {
+        $_SESSION['enotf_session_token'] = 'tok';
+        $_SESSION['protfzg']             = 'RTW-1';
+
+        $this->assertTrue(EnotfPolicy::hasCrewSession());
+    }
+
+    #[Test]
+    public function has_crew_session_does_not_need_the_driver(): void
+    {
+        // Der Fahrer hat sich abgemeldet, der Beifahrer arbeitet weiter
+        $_SESSION['enotf_session_token'] = 'tok';
+        $_SESSION['fahrername']          = null;
+        $_SESSION['beifahrername']       = 'Bernd Bei';
+        $_SESSION['protfzg']             = 'RTW-1';
+
+        $this->assertTrue(EnotfPolicy::hasCrewSession());
+    }
+
+    #[Test]
+    public function has_crew_session_needs_the_token(): void
     {
         $_SESSION['fahrername'] = 'Max Mustermann';
         $_SESSION['protfzg']    = 'RTW-1';
 
-        $this->assertTrue(EnotfPolicy::hasCrewSession());
+        $this->assertFalse(EnotfPolicy::hasCrewSession());
     }
 
     #[Test]

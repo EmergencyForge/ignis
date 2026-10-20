@@ -21,7 +21,7 @@ use App\Session\SessionManager;
  *    werden. Admins/edivi.view-User sind exempt. Sperrzeit aus ENOTF_PIN_TIMEOUT
  *    (SessionManager::pinTimeout()).
  *
- * 3. **Crew-Login** (`fahrername` + `protfzg` in Session): Voraussetzung für
+ * 3. **Crew-Login** (`enotf_session_token` + `protfzg` in Session): Voraussetzung für
  *    overview/protokoll/etc. Wird via login.php gesetzt, via loggedout.php
  *    gelöscht.
  *
@@ -119,9 +119,10 @@ class EnotfPolicy
      */
     public static function hasCrewSession(mixed $context = null): bool
     {
-        return isset($_SESSION['fahrername'], $_SESSION['protfzg'])
-            && !empty($_SESSION['fahrername'])
-            && !empty($_SESSION['protfzg']);
+        // Token und Fahrzeug, nicht der Fahrername: meldet sich der Fahrer
+        // ab, bleibt der Beifahrer angemeldet. Ob die Anmeldung in der DB
+        // noch gilt, prüft vorher der CrewSessionGuard.
+        return !empty($_SESSION['enotf_session_token']) && !empty($_SESSION['protfzg']);
     }
 
     /**

@@ -9,6 +9,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
+use Tests\FixtureFactory;
 
 /**
  * Maßnahmen › Zugang: die Art öffnet erst ihre Ortsliste, die Größen eines
@@ -31,7 +32,7 @@ final class EnotfZugangStepsTest extends FeatureTestCase
             'hidden'           => 0,
             'freigegeben'      => 0,
         ]);
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']], 'RTW-1');
+        FixtureFactory::crewLogin('RTW-1', ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']]);
     }
 
     /** @return array<string, array{string, string|null}> */

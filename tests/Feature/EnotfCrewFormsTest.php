@@ -94,7 +94,7 @@ final class EnotfCrewFormsTest extends FeatureTestCase
     #[Test]
     public function alle_loeschen_blendet_die_offenen_protokolle_aus(): void
     {
-        SessionManager::loginEnotfCrew('fahrer', 'tok', ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']], $this->fahrzeug);
+        FixtureFactory::crewLogin($this->fahrzeug, ['fahrer' => ['name' => 'Erika Muster', 'quali' => 'NotSan']]);
         $offen = (int) Capsule::table('intra_edivi')->insertGetId(['enr' => 'T-' . uniqid(), 'fzg_transp' => $this->fahrzeug, 'freigegeben' => 0, 'hidden' => 0, 'hidden_user' => 0]);
 
         // Ohne delete_all passiert nichts
