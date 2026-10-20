@@ -321,12 +321,12 @@ function topicsOf(sec, p) {
 const dis = (p) => (ro(p) ? ' disabled' : '');
 
 function optButton({ act, path, val, label, pressed, normal, score, multi, num, extraAttr = '' }) {
-    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${score !== undefined ? ' nf-opt--scored' : ''}${multi ? ' nf-opt--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
+    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${multi ? ' nf-opt--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
         data-act="${act}" data-path="${esc(path)}" data-val="${esc(val)}" ${extraAttr}>
         <span class="nf-opt__mark" aria-hidden="true"></span>
         <span class="nf-opt__label">${hy(label)}</span>
         ${score !== undefined ? `<span class="nf-opt__score ignis-mono">${score}</span>` : ''}
-        ${normal ? `<i class="fa-solid fa-check nf-opt__bg" aria-hidden="true"></i><span class="ignis-sr-only">(Normalbefund)</span>` : ''}
+        ${normal ? '<span class="ignis-sr-only">(Normalbefund)</span>' : ''}
     </button>`;
 }
 
@@ -612,8 +612,7 @@ function quickTile(p, topic) {
     const keys = Object.keys(topic.quick.set);
     const applied = keys.every((k) => JSON.stringify(get(p, k)) === JSON.stringify(topic.quick.set[k]));
     return `<button type="button" class="nf-quick" data-act="quick" data-topic="${esc(topic.key)}" aria-pressed="${applied ? 'true' : 'false'}"${dis(p)}>
-        <span class="nf-quick__icon" aria-hidden="true">${fa(applied ? 'fa-check' : 'fa-wand-magic-sparkles')}</span>
-        <span class="nf-quick__text"><span class="nf-quick__label">${esc(topic.quick.label)}</span><span class="nf-quick__act">${applied ? 'gesetzt' : 'übernehmen'}</span></span>
+        <span class="nf-quick__label">${esc(topic.quick.label)}</span>
     </button>`;
 }
 

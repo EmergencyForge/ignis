@@ -446,22 +446,9 @@ body.nf-body .nf-sync__btn .ignis-dot {
 }
 .nf-opt--multi .nf-opt__mark { border-radius: var(--radius-1); }
 .nf-opt__label { min-width: 0; overflow-wrap: break-word; }
-.nf-opt--normal { overflow: hidden; }
-/* Normalbefund: großer, blasser Haken im Hintergrund der Karte */
-.nf-opt__bg {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%) rotate(-8deg);
-    font-size: 44px;
-    line-height: 1;
-    color: var(--ok);
-    opacity: .14;
-    pointer-events: none;
-}
-.nf-opt--normal[aria-pressed="true"] .nf-opt__bg { opacity: .22; }
-.nf-opt--scored .nf-opt__bg { right: 34px; }
-.nf-opt__score { position: relative; }
+/* Normalbefund (unauffällig) wie in v1: grüne Schrift */
+.nf-opt--normal .nf-opt__label { color: var(--ok-text); }
+
 .nf-opt__score { margin-left: auto; flex: none; color: var(--tertiary-text); font-size: 13px; }
 .nf-opt[aria-pressed="true"] { font-weight: 500; }
 .nf-opt[aria-pressed="true"] .nf-opt__mark { background: var(--content-text); border-color: var(--content-text); }
@@ -486,30 +473,23 @@ body.nf-body .nf-sync__btn .ignis-dot {
 .nf-quick {
     display: flex;
     align-items: center;
-    gap: 10px;
     width: 100%;
     flex: none;
-    min-height: 56px;
+    min-height: 52px;
     margin-bottom: 6px;
-    padding: 8px 10px 8px 8px;
+    padding: 8px 12px;
     border: 1px solid var(--border-control);
     border-radius: var(--radius-item);
     background: var(--surface-3);
-    box-shadow: inset 0 1px 0 var(--hi), 0 1px 2px rgb(0 0 0 / .25);
-    color: var(--content-text);
+    box-shadow: inset 0 1px 0 var(--hi);
+    color: var(--ok-text);
     font: inherit;
     text-align: left;
     cursor: pointer;
 }
-.nf-quick:hover { background: var(--surface-4); border-color: var(--border-strong); }
-.nf-quick:active { transform: translateY(1px); }
-.nf-quick__icon { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-2); background: var(--ok-soft); color: var(--ok-text); font-size: 15px; }
-.nf-quick__text { display: grid; gap: 2px; min-width: 0; }
+.nf-quick:hover { background: var(--surface-4); }
 .nf-quick__label { font-size: 14px; font-weight: 600; line-height: 18px; }
-.nf-quick__act { font-size: 12px; line-height: 16px; color: var(--tertiary-text); }
 .nf-quick[aria-pressed="true"] { background: var(--ok-soft); border-color: var(--ok-line); }
-.nf-quick[aria-pressed="true"] .nf-quick__icon { background: var(--ok); color: var(--on-ok); }
-.nf-quick[aria-pressed="true"] .nf-quick__act { color: var(--ok-text); }
 
 /* ── Übersichtskacheln ────────────────────────────────────────── */
 .nf-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; align-items: start; }
