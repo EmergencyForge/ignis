@@ -15,6 +15,7 @@
 import { Dialog } from '../assets/js/ui/dialog.js';
 import { snack } from '../assets/js/ui/snackbar.js';
 import { hideFloater } from '../assets/js/ui/tooltip.js';
+import { initAll as initDropdowns } from '../assets/js/ui/dropdown.js';
 import * as C from './catalogs.js';
 
 const KEY = 'enotf-funke:state';
@@ -186,19 +187,40 @@ function subState(p, s, t, st) {
     return stateOf(p, (r) => r.s === s && r.t === t && r.st === st);
 }
 
-const STATE = {
-    unfilled: { tone: 'danger', icon: 'fa-circle-exclamation', word: 'offen' },
-    partfilled: { tone: 'warn', icon: 'fa-circle-half-stroke', word: 'teilweise' },
-    filled: { tone: 'ok', icon: 'fa-circle-check', word: 'vollständig' },
-    none: { tone: '', icon: 'fa-circle', word: 'optional' },
+// Ampel wie in v1/v2: ein farbiger Strich am Menüpunkt. Rot = nichts, gelb = teilweise,
+// grün = alle Pflichtangaben. Themen ohne Pflichtangaben werden grün, sobald etwas eingetragen ist.
+const CUSTOM_PATHS = {
+    pupillen: ['erst.pupL', 'erst.pupR', 'erst.lichtL', 'erst.lichtR'], gcs: ['erst.gcsA', 'erst.gcsV', 'erst.gcsM'],
+    bodymap: ['erst.verl'], keypad: ['erst.vitals'], freitext: ['anam.text'], symptom: ['anam.symDatum', 'anam.symZeit', 'anam.symNicht'],
+    diagtext: ['diag.text'], zugang: ['mass.zugaenge'], meds: ['mass.meds', 'mass.medsNone'],
+    transport: ['absch.fzgTransp', 'absch.tf', 'absch.ff', 'absch.prakt', 'absch.fzgNA', 'absch.na', 'absch.naff', 'absch.naprakt', 'absch.weitere'],
+    protokoll: ['absch.protokollant', 'absch.protDurch'],
 };
-function stateIcon(st, label) {
-    const m = STATE[st.state];
-    const text = st.state === 'unfilled' || st.state === 'partfilled' ? `${st.open} offen` : m.word;
-    const cls = st.state === 'none' ? 'fa-regular fa-circle' : `fa-solid ${m.icon}`;
-    return `<i class="${cls} nf-state" ${m.tone ? `data-tone="${m.tone}"` : ''} role="img" aria-label="${esc((label ? label + ': ' : '') + text)}"></i>`;
+function pathsOf(node) {
+    if (!node) return [];
+    if (node.custom === 'diag') return [];
+    if (node.custom) return CUSTOM_PATHS[node.custom] || [];
+    if (node.subs && node.subs[0]?.custom === 'diag') return [node.mode === 'single' ? 'diag.fuehrend' : 'diag.weitere'];
+    return (node.subs || [node]).flatMap((x) => (x.custom ? CUSTOM_PATHS[x.custom] || [] : (x.fields || []).map((f) => f.base || f.path)));
 }
-const metaText = (st) => (st.state === 'unfilled' || st.state === 'partfilled' ? `${st.open} offen` : STATE[st.state].word);
+const hasValue = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.values(v).some(hasValue) : v === true || (isSet(v) && v !== false));
+const hasContent = (p, paths) => paths.some((path) => hasValue(get(p, path)));
+function fillOf(p, st, paths) {
+    if (st.state !== 'none') return st.state;
+    return hasContent(p, paths) ? 'filled' : '';
+}
+function secFill(p, s) {
+    if (s === 'verlauf') return p.verlauf.length ? 'filled' : '';
+    return fillOf(p, secState(p, s), topicsOf(s, p).flatMap(pathsOf));
+}
+function topicFill(p, s, t) {
+    return fillOf(p, topicState(p, s, t), pathsOf(topicsOf(s, p).find((x) => x.key === t)));
+}
+const FILL_WORD = { unfilled: 'Pflichtangaben offen', partfilled: 'teilweise ausgefüllt', filled: 'vollständig' };
+// Protokollart: NF neutral, NA rot, später KT grün.
+const ART_TONE = { NA: 'danger', KT: 'ok' };
+const artTone = (art) => (ART_TONE[art] ? ` data-tone="${ART_TONE[art]}"` : '');
+const fillAttr = (f) => (f ? ` data-fill="${f}"` : '');
 
 const MEDICAL = /^(erst|anam|diag|mass)\.|^absch\.rea|^pat\.geschlecht/;
 const STAR = new Set(['pat.geschlecht', 'einsatz.datum', 'einsatz.zeit', 'einsatz.versorgung', 'einsatz.einsatzart',
@@ -214,7 +236,7 @@ function starred(p, path) {
     if (path.startsWith('absch.reaD.') && p.absch.rea !== 'Reanimation durchgeführt') return false;
     return true;
 }
-const missChip = (txt = 'fehlt') => `<span class="ignis-chip" data-tone="danger"><span class="ignis-dot"></span>${esc(txt)}</span>`;
+const missChip = (txt = 'Pflichtangabe fehlt') => `<i class="fa-solid fa-circle-exclamation nf-miss" role="img" aria-label="${esc(txt)}" data-ignis-tooltip="${esc(txt)}"></i>`;
 
 /* ══ Themenbäume der Abschnitte ═════════════════════════════════ */
 
@@ -299,12 +321,12 @@ function topicsOf(sec, p) {
 const dis = (p) => (ro(p) ? ' disabled' : '');
 
 function optButton({ act, path, val, label, pressed, normal, score, multi, num, extraAttr = '' }) {
-    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${multi ? ' nf-opt--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
+    return `<button type="button" class="nf-opt${normal ? ' nf-opt--normal' : ''}${score !== undefined ? ' nf-opt--scored' : ''}${multi ? ' nf-opt--multi' : ''}${num ? ' nf-opt--num' : ''}" aria-pressed="${pressed ? 'true' : 'false'}"
         data-act="${act}" data-path="${esc(path)}" data-val="${esc(val)}" ${extraAttr}>
         <span class="nf-opt__mark" aria-hidden="true"></span>
         <span class="nf-opt__label">${hy(label)}</span>
         ${score !== undefined ? `<span class="nf-opt__score ignis-mono">${score}</span>` : ''}
-        ${normal ? `<i class="fa-solid fa-circle-check nf-opt__n" data-tone="ok" aria-hidden="true"></i><span class="ignis-sr-only">(Normalbefund)</span>` : ''}
+        ${normal ? `<i class="fa-solid fa-check nf-opt__bg" aria-hidden="true"></i><span class="ignis-sr-only">(Normalbefund)</span>` : ''}
     </button>`;
 }
 
@@ -356,12 +378,11 @@ function kv(label, value, { req = false, mono = false, empty = '—' } = {}) {
         <span class="nf-kv__v${mono ? ' ignis-mono' : ''}">${has ? esc(Array.isArray(value) ? value.join(', ') : value) : (req ? missChip() : `<span class="nf-dim">${esc(empty)}</span>`)}</span></div>`;
 }
 
-function tile({ title, icon, link, rows, st, wide }) {
-    return `<a class="ignis-bezel nf-tile${wide ? ' nf-tile--wide' : ''}" href="${link}">
+function tile({ title, icon, link, rows, fill, wide }) {
+    return `<a class="ignis-bezel nf-tile${wide ? ' nf-tile--wide' : ''}" href="${link}"${fillAttr(fill)}>
         <div class="ignis-bezel__head">
             <span class="ignis-glyph ignis-glyph--sm">${fa(icon)}</span>
             <h3 class="ignis-bezel__title">${esc(title)}</h3>
-            ${st ? `<span class="nf-tile__state">${stateIcon(st, title)}<span>${esc(metaText(st))}</span></span>` : ''}
             <i class="fa-solid fa-chevron-right nf-tile__go" aria-hidden="true"></i>
         </div>
         <div class="ignis-bezel__well nf-tile__well">${rows}</div>
@@ -461,7 +482,7 @@ function protoTopbar(p) {
             <span class="nf-ctx">
                 <span class="nf-ctx__line">
                     <span class="nf-ctx__enr ignis-mono">#${esc(p.enr)}</span>
-                    <span class="ignis-chip nf-tag" ${p.art === 'NA' ? 'data-tone="info"' : ''} data-ignis-tooltip="${esc(C.PROT_TYPES[p.art].label)}">${esc(p.art)}</span>
+                    <span class="ignis-chip nf-tag"${artTone(p.art)} data-ignis-tooltip="${esc(C.PROT_TYPES[p.art].label)}">${esc(p.art)}</span>
                 </span>
                 <span class="nf-ctx__veh" data-ignis-tooltip="Angemeldetes Fahrzeug">${fa('fa-truck-medical')}${esc(p.vehicle)}</span>
             </span>
@@ -513,24 +534,15 @@ function plainTopbar(title, tools = '') {
 }
 
 function rail(p, active) {
-    const req = reqActive(p);
-    const done = req.filter((r) => r.ok(p)).length;
-    const total = req.length;
-    const tone = done === total ? 'ok' : done === 0 ? 'danger' : 'warn';
     return `<nav class="nf-rail" aria-label="Protokoll-Abschnitte">
-        <div class="nf-rail__head" data-ignis-tooltip="Gesamtfortschritt Pflichtangaben">
-            <span class="nf-rail__count"><b class="ignis-mono">${done}</b> von <b class="ignis-mono">${total}</b> <span class="nf-rail__countword">Pflichtangaben</span></span>
-            <span class="nf-rail__short ignis-mono">${done}/${total}</span>
-            <div class="ignis-progress ignis-progress--sm" data-tone="${tone}" style="--value:${total ? (done / total).toFixed(3) : 1}" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}" aria-label="Pflichtangaben"><div class="ignis-progress__bar"></div></div>
-        </div>
         ${C.SECTIONS.map((s, i) => {
-            const st = secState(p, s.key);
-            const meta = s.key === 'verlauf' ? `${p.verlauf.length} Zeitpunkte` : metaText(st);
-            return `<a class="nf-rail__item" href="${href('p', p.enr, s.key)}" ${active === s.key ? 'aria-current="page"' : ''} data-ignis-tooltip="${esc(s.label)}" data-placement="right">
+            const fill = secFill(p, s.key);
+            const meta = s.key === 'verlauf' ? `${p.verlauf.length} Zeitpunkte` : '';
+            return `<a class="nf-rail__item" href="${href('p', p.enr, s.key)}" ${active === s.key ? 'aria-current="page"' : ''}${fillAttr(fill)} data-ignis-tooltip="${esc(s.label)}" data-placement="right">
                 <span class="nf-rail__num ignis-mono" aria-hidden="true">${i + 1}</span>
                 <i class="fa-solid ${s.icon} nf-rail__icon" aria-hidden="true"></i>
-                <span class="nf-rail__text"><span class="nf-rail__label">${esc(s.label)}</span><span class="nf-rail__meta">${esc(meta)}</span></span>
-                <span class="nf-rail__state">${stateIcon(st, s.label)}</span>
+                <span class="nf-rail__text"><span class="nf-rail__label">${esc(s.label)}</span>${meta ? `<span class="nf-rail__meta">${esc(meta)}</span>` : ''}</span>
+                ${fill ? `<span class="ignis-sr-only">${FILL_WORD[fill]}</span>` : ''}
             </a>`;
         }).join('')}
     </nav>`;
@@ -559,17 +571,18 @@ function updateChrome() {
     if (r) r.outerHTML = rail(p, ui.route[2] || 'rett');
     app.querySelectorAll('[data-live-state]').forEach((el) => {
         const [s, t] = el.dataset.liveState.split(':');
-        el.innerHTML = stateIcon(t ? topicState(p, s, t) : secState(p, s));
+        const f = t ? topicFill(p, s, t) : secFill(p, s);
+        if (f) el.dataset.fill = f; else delete el.dataset.fill;
     });
 }
 
 /* ══ Abschnittsgerüst: Themen-Spalte → Unterthemen → Antworten ═══ */
 
-function navItem({ link, label, icon, st, current, meta }) {
-    return `<a class="nf-nav${icon ? '' : ' nf-nav--noicon'}" href="${link}" ${current ? 'aria-current="true"' : ''}>
+function navItem({ link, label, icon, fill, current }) {
+    return `<a class="nf-nav${icon ? '' : ' nf-nav--noicon'}" href="${link}" ${current ? 'aria-current="true"' : ''}${fillAttr(fill)}>
         ${icon ? `<i class="fa-solid ${icon} nf-nav__icon" aria-hidden="true"></i>` : ''}
-        <span class="nf-nav__text"><span class="nf-nav__label">${hy(label)}</span>${meta ? `<span class="nf-nav__meta">${esc(meta)}</span>` : ''}</span>
-        ${st ? `<span class="nf-nav__state">${stateIcon(st, label)}</span>` : ''}
+        <span class="nf-nav__text"><span class="nf-nav__label">${hy(label)}</span></span>
+        ${fill ? `<span class="ignis-sr-only">${FILL_WORD[fill]}</span>` : ''}
     </a>`;
 }
 
@@ -578,8 +591,7 @@ function topicColumn(p, sec, topics, topicKey) {
         ${navItem({ link: href('p', p.enr, sec), label: 'Übersicht', icon: 'fa-table-cells-large', current: !topicKey })}
         <div class="nf-col__sep"></div>
         ${topics.map((t) => {
-            const st = topicState(p, sec, t.key);
-            return navItem({ link: href('p', p.enr, sec, t.key), label: t.label, icon: t.icon, st, current: t.key === topicKey, meta: metaText(st) });
+            return navItem({ link: href('p', p.enr, sec, t.key), label: t.label, icon: t.icon, fill: fillOf(p, topicState(p, sec, t.key), pathsOf(t)), current: t.key === topicKey });
         }).join('')}
     </aside>`;
 }
@@ -590,8 +602,8 @@ function subColumn(p, sec, topic, subKey) {
     return `<aside class="nf-col nf-col--subs" aria-label="Unterthemen" data-scroll="subs">
         ${quick}
         ${topic.subs.map((s) => {
-            const st = sec === 'diag' ? null : subState(p, sec, topic.key, s.key);
-            return navItem({ link: href('p', p.enr, sec, topic.key, s.key), label: s.label, icon: s.icon, st, current: s.key === subKey });
+            const fill = sec === 'diag' ? '' : fillOf(p, subState(p, sec, topic.key, s.key), pathsOf(s));
+            return navItem({ link: href('p', p.enr, sec, topic.key, s.key), label: s.label, icon: s.icon, fill, current: s.key === subKey });
         }).join('')}
     </aside>`;
 }
@@ -600,8 +612,8 @@ function quickTile(p, topic) {
     const keys = Object.keys(topic.quick.set);
     const applied = keys.every((k) => JSON.stringify(get(p, k)) === JSON.stringify(topic.quick.set[k]));
     return `<button type="button" class="nf-quick" data-act="quick" data-topic="${esc(topic.key)}" aria-pressed="${applied ? 'true' : 'false'}"${dis(p)}>
-        <span class="ignis-glyph ignis-glyph--sm" data-tone="ok">${fa('fa-circle-check')}</span>
-        <span class="nf-quick__text"><span class="nf-quick__label">${esc(topic.quick.label)}</span></span>
+        <span class="nf-quick__icon" aria-hidden="true">${fa(applied ? 'fa-check' : 'fa-wand-magic-sparkles')}</span>
+        <span class="nf-quick__text"><span class="nf-quick__label">${esc(topic.quick.label)}</span><span class="nf-quick__act">${applied ? 'gesetzt' : 'übernehmen'}</span></span>
     </button>`;
 }
 
@@ -658,11 +670,10 @@ function vitalText(key, v) {
     if (!isSet(v)) return '';
     return `${v} ${C.VITAL[key].unit}`;
 }
-function gradeChip(key, v, { short = false } = {}) {
+// Messwerte: nur die Farbe zeigt die Abweichung, keine Bewertung in Worten daneben.
+function vitalVal(key, v, text = vitalText(key, v)) {
     const g = C.gradeVital(key, num(v));
-    if (!g) return '';
-    const m = C.GRADE_META[g];
-    return `<span class="nf-grade${short ? ' nf-grade--short' : ''}" data-grade="${g}" data-tone="${m.tone}" ${short ? `title="${esc(m.word)}"` : ''}>${fa(m.icon)}<span${short ? ' class="ignis-sr-only"' : ''}>${esc(m.word)}</span></span>`;
+    return `<span class="nf-vval"${g ? ` data-grade="${g}"` : ''}>${esc(text)}</span>`;
 }
 
 function gcsSum(e) {
@@ -679,42 +690,42 @@ function sectionOverview(p, sec) {
         const vit = C.VITALS.map((v) => {
             const val = e.vitals?.[v.key];
             const r = v.req && !C.isFehl(p);
-            return `<div class="nf-kv"><span class="nf-kv__k">${esc(v.label)}</span><span class="nf-kv__v ignis-mono">${isSet(val) ? `${esc(vitalText(v.key, val))} ${gradeChip(v.key, val, { short: true })}` : (r ? missChip() : '<span class="nf-dim">—</span>')}</span></div>`;
+            return `<div class="nf-kv"><span class="nf-kv__k">${esc(v.label)}</span><span class="nf-kv__v ignis-mono">${isSet(val) ? vitalVal(v.key, val) : (r ? missChip() : '<span class="nf-dim">—</span>')}</span></div>`;
         }).join('');
-        return `${paneHead('Erstbefund · Übersicht', `<span class="nf-pane__state" data-live-state="erst">${stateIcon(secState(p, 'erst'))}</span>`)}
+        return `${paneHead('Erstbefund · Übersicht')}
         <div class="nf-tiles">
-            ${tile({ title: 'Atemwege', icon: 'fa-wind', link: L('atemwege'), st: topicState(p, 'erst', 'atemwege'), rows: kv('Atemwegszustand', e.awz, { req: req('erst.awz') }) + kv('Zyanose', e.zyanose, { req: req('erst.zyanose') }) })}
-            ${tile({ title: 'Atmung', icon: 'fa-lungs', link: L('atmung'), st: topicState(p, 'erst', 'atmung'), rows: kv('Beurteilung Atmung', e.atmung, { req: req('erst.atmung') }) + kv('Auskultation', e.ausk, { req: req('erst.ausk') }) })}
-            ${tile({ title: 'Kreislauf', icon: 'fa-heart-pulse', link: L('kreislauf'), st: topicState(p, 'erst', 'kreislauf'), rows: kv('Patientenzustand', e.pz, { req: req('erst.pz') }) + kv('Rekap. Zeit', e.rekap) + kv('EKG-Befund', e.ekg, { req: req('erst.ekg') }) + kv('Pulsqualität', e.puls, { req: req('erst.puls') }) + kv('Radialispuls', e.radialis, { req: req('erst.radialis') }) + kv('starke Blutung', e.blutung) })}
-            ${tile({ title: 'Neurologie', icon: 'fa-brain', link: L('neuro'), st: topicState(p, 'erst', 'neuro'), rows: kv('Bewusstseinslage', e.bwl, { req: req('erst.bwl') }) + kv('Extremitätenbewegung', e.extr, { req: req('erst.extr') }) + kv('GCS', g ? `${g.sum} (A${g.parts[0]} V${g.parts[1]} M${g.parts[2]})` : '') + kv('Pupillenweite li / re', isSet(e.pupL) || isSet(e.pupR) ? `${e.pupL || '—'} / ${e.pupR || '—'}` : '', { req: req('erst.pupL') }) + kv('Lichtreaktion li / re', isSet(e.lichtL) || isSet(e.lichtR) ? `${e.lichtL || '—'} / ${e.lichtR || '—'}` : '', { req: req('erst.lichtL') }) })}
-            ${tile({ title: 'Verletzungen', icon: 'fa-person', link: L('erweitern', 'verletzungen'), rows: C.REGIONS.map((r) => {
+            ${tile({ title: 'Atemwege', icon: 'fa-wind', link: L('atemwege'), fill: topicFill(p, 'erst', 'atemwege'), rows: kv('Atemwegszustand', e.awz, { req: req('erst.awz') }) + kv('Zyanose', e.zyanose, { req: req('erst.zyanose') }) })}
+            ${tile({ title: 'Atmung', icon: 'fa-lungs', link: L('atmung'), fill: topicFill(p, 'erst', 'atmung'), rows: kv('Beurteilung Atmung', e.atmung, { req: req('erst.atmung') }) + kv('Auskultation', e.ausk, { req: req('erst.ausk') }) })}
+            ${tile({ title: 'Kreislauf', icon: 'fa-heart-pulse', link: L('kreislauf'), fill: topicFill(p, 'erst', 'kreislauf'), rows: kv('Patientenzustand', e.pz, { req: req('erst.pz') }) + kv('Rekap. Zeit', e.rekap) + kv('EKG-Befund', e.ekg, { req: req('erst.ekg') }) + kv('Pulsqualität', e.puls, { req: req('erst.puls') }) + kv('Radialispuls', e.radialis, { req: req('erst.radialis') }) + kv('starke Blutung', e.blutung) })}
+            ${tile({ title: 'Neurologie', icon: 'fa-brain', link: L('neuro'), fill: topicFill(p, 'erst', 'neuro'), rows: kv('Bewusstseinslage', e.bwl, { req: req('erst.bwl') }) + kv('Extremitätenbewegung', e.extr, { req: req('erst.extr') }) + kv('GCS', g ? `${g.sum} (A${g.parts[0]} V${g.parts[1]} M${g.parts[2]})` : '') + kv('Pupillenweite li / re', isSet(e.pupL) || isSet(e.pupR) ? `${e.pupL || '—'} / ${e.pupR || '—'}` : '', { req: req('erst.pupL') }) + kv('Lichtreaktion li / re', isSet(e.lichtL) || isSet(e.lichtR) ? `${e.lichtL || '—'} / ${e.lichtR || '—'}` : '', { req: req('erst.lichtL') }) })}
+            ${tile({ title: 'Verletzungen', icon: 'fa-person', link: L('erweitern', 'verletzungen'), fill: fillOf(p, { state: 'none' }, ['erst.verl']), rows: C.REGIONS.map((r) => {
                 const v = e.verl?.[r.key];
                 return `<div class="nf-kv"><span class="nf-kv__k">${esc(r.label)}</span><span class="nf-kv__v">${v?.sev ? `<span class="nf-sev"><span class="nf-sev__dot" style="background:${C.SEVERITY_FILL[v.sev]}"></span>${esc(v.sev)}${v.wund ? ` · ${esc(v.wund)}` : ''}</span>` : '<span class="nf-dim">—</span>'}</span></div>`;
             }).join('') })}
-            ${tile({ title: 'Schmerzen', icon: 'fa-face-frown', link: L('erweitern', 'schmerzen'), rows: kv('Intensität', isSet(e.nrs) ? (/^\d+$/.test(e.nrs) ? `NRS ${e.nrs}` : e.nrs) : '') + kv('Toleranz', e.toleranz) })}
-            ${tile({ title: 'Psyche', icon: 'fa-head-side-virus', link: L('psych'), st: topicState(p, 'erst', 'psych'), rows: kv('Psychischer Zustand', e.psych, { req: req('erst.psych') }) })}
-            ${tile({ title: 'Vitalparameter', icon: 'fa-gauge', link: L('messwerte'), st: topicState(p, 'erst', 'messwerte'), wide: true, rows: `<div class="nf-kv-grid">${vit}</div>` })}
+            ${tile({ title: 'Schmerzen', icon: 'fa-face-frown', link: L('erweitern', 'schmerzen'), fill: fillOf(p, { state: 'none' }, ['erst.nrs', 'erst.toleranz']), rows: kv('Intensität', isSet(e.nrs) ? (/^\d+$/.test(e.nrs) ? `NRS ${e.nrs}` : e.nrs) : '') + kv('Toleranz', e.toleranz) })}
+            ${tile({ title: 'Psyche', icon: 'fa-head-side-virus', link: L('psych'), fill: topicFill(p, 'erst', 'psych'), rows: kv('Psychischer Zustand', e.psych, { req: req('erst.psych') }) })}
+            ${tile({ title: 'Vitalparameter', icon: 'fa-gauge', link: L('messwerte'), fill: topicFill(p, 'erst', 'messwerte'), wide: true, rows: `<div class="nf-kv-grid">${vit}</div>` })}
         </div>`;
     }
     if (sec === 'anam') {
         const a = p.anam;
         const lines = (a.text || '').split('\n').filter(Boolean);
         const sym = a.symNicht ? 'nicht feststellbar' : [a.symDatum, a.symZeit].filter(Boolean).join(' ') + (a.symGeschaetzt && a.symDatum ? ' (geschätzt)' : '');
-        return `${paneHead('Anamnese · Übersicht', `<span class="nf-pane__state" data-live-state="anam">${stateIcon(secState(p, 'anam'))}</span>`)}
+        return `${paneHead('Anamnese · Übersicht')}
         <div class="nf-tiles">
-            ${tile({ title: 'Anamnese', icon: 'fa-comment-medical', link: L('anamnese'), wide: true, rows: lines.length ? `<p class="nf-prose">${lines.slice(0, 5).map(esc).join('<br>')}${lines.length > 5 ? ' …' : ''}</p>` : '<span class="nf-dim">Kein Freitext</span>' })}
-            ${tile({ title: 'Symptome', icon: 'fa-clock', link: L('symptome'), st: topicState(p, 'anam', 'symptome'), rows: kv('Symptombeginn', sym.trim()) + kv('NACA initial', a.nacaI, { req: req('anam.nacaI') }) + kv('NACA bei Übergabe', a.nacaU) })}
-            ${tile({ title: 'AZ vor Ereignis', icon: 'fa-person', link: L('az'), rows: kv('AZ', a.az) })}
-            ${tile({ title: 'Einsatzort', icon: 'fa-location-dot', link: L('ort'), st: topicState(p, 'anam', 'ort'), rows: kv('Einsatzort', a.ort, { req: req('anam.ort') }) })}
+            ${tile({ title: 'Anamnese', icon: 'fa-comment-medical', link: L('anamnese'), fill: topicFill(p, 'anam', 'anamnese'), wide: true, rows: lines.length ? `<p class="nf-prose">${lines.slice(0, 5).map(esc).join('<br>')}${lines.length > 5 ? ' …' : ''}</p>` : '<span class="nf-dim">Kein Freitext</span>' })}
+            ${tile({ title: 'Symptome', icon: 'fa-clock', link: L('symptome'), fill: topicFill(p, 'anam', 'symptome'), rows: kv('Symptombeginn', sym.trim()) + kv('NACA initial', a.nacaI, { req: req('anam.nacaI') }) + kv('NACA bei Übergabe', a.nacaU) })}
+            ${tile({ title: 'AZ vor Ereignis', icon: 'fa-person', link: L('az'), fill: topicFill(p, 'anam', 'az'), rows: kv('AZ', a.az) })}
+            ${tile({ title: 'Einsatzort', icon: 'fa-location-dot', link: L('ort'), fill: topicFill(p, 'anam', 'ort'), rows: kv('Einsatzort', a.ort, { req: req('anam.ort') }) })}
         </div>`;
     }
     if (sec === 'diag') {
         const d = p.diag;
-        return `${paneHead('Diagnose · Übersicht', `<span class="nf-pane__state" data-live-state="diag">${stateIcon(secState(p, 'diag'))}</span>`)}
+        return `${paneHead('Diagnose · Übersicht')}
         <div class="nf-tiles">
-            ${tile({ title: 'Diagnose (führend)', icon: 'fa-file-medical', link: L('fuehrend'), st: topicState(p, 'diag', 'fuehrend'), rows: kv('Führende Diagnose', d.fuehrend, { req: req('diag.fuehrend') }) })}
-            ${tile({ title: 'Diagnose (weitere)', icon: 'fa-layer-group', link: L('weitere'), rows: d.weitere.length ? `<div class="nf-chips">${d.weitere.map((x) => `<span class="ignis-chip">${esc(x)}</span>`).join('')}</div>` : '<span class="nf-dim">Keine weiteren Diagnosen</span>' })}
-            ${tile({ title: 'Diagnose Text', icon: 'fa-pen', link: L('text'), wide: true, rows: d.text ? `<p class="nf-prose">${esc(d.text)}</p>` : '<span class="nf-dim">Kein Freitext</span>' })}
+            ${tile({ title: 'Diagnose (führend)', icon: 'fa-file-medical', link: L('fuehrend'), fill: topicFill(p, 'diag', 'fuehrend'), rows: kv('Führende Diagnose', d.fuehrend, { req: req('diag.fuehrend') }) })}
+            ${tile({ title: 'Diagnose (weitere)', icon: 'fa-layer-group', link: L('weitere'), fill: topicFill(p, 'diag', 'weitere'), rows: d.weitere.length ? `<div class="nf-chips">${d.weitere.map((x) => `<span class="ignis-chip">${esc(x)}</span>`).join('')}</div>` : '<span class="nf-dim">Keine weiteren Diagnosen</span>' })}
+            ${tile({ title: 'Diagnose Text', icon: 'fa-pen', link: L('text'), fill: topicFill(p, 'diag', 'text'), wide: true, rows: d.text ? `<p class="nf-prose">${esc(d.text)}</p>` : '<span class="nf-dim">Kein Freitext</span>' })}
         </div>`;
     }
     if (sec === 'mass') {
@@ -723,13 +734,13 @@ function sectionOverview(p, sec) {
         const zug = m.zugangNone ? 'Kein Zugang' : m.zugaenge.map(zugLabel);
         const meds = m.medsNone ? 'Keine Medikamente' : m.meds.map((x) => `${x.t.slice(0, 5)} ${x.wirkstoff} ${x.dosis} ${x.einheit} ${x.appl}`);
         const weit = [...C.WEITERE_TOGGLES.filter((t) => m.weitere?.[t.key]).map((t) => t.label)];
-        return `${paneHead('Maßnahmen · Übersicht', `<span class="nf-pane__state" data-live-state="mass">${stateIcon(secState(p, 'mass'))}</span>`)}
+        return `${paneHead('Maßnahmen · Übersicht')}
         <div class="nf-tiles">
-            ${tile({ title: 'Atemwege', icon: 'fa-wind', link: L('aw'), st: topicState(p, 'mass', 'aw'), rows: kv('Maßnahmen', aw) + kv('Atemwegssicherung', m.awsich, { req: req('mass.awsich') }) })}
-            ${tile({ title: 'Atmung', icon: 'fa-lungs', link: L('atmung'), st: topicState(p, 'mass', 'atmung'), rows: kv('Beatmung', m.beatmung, { req: req('mass.beatmung') }) + kv('O2-Gabe', m.o2, { req: req('mass.o2') }) })}
-            ${tile({ title: 'Zugang', icon: 'fa-syringe', link: L('zugang'), st: topicState(p, 'mass', 'zugang'), rows: kv('Zugänge', zug, { req: !C.isFehl(p) }) })}
-            ${tile({ title: 'Medikamente', icon: 'fa-pills', link: L('meds'), st: topicState(p, 'mass', 'meds'), rows: Array.isArray(meds) && meds.length ? meds.map((x) => `<div class="nf-kv nf-kv--one ignis-mono">${esc(x)}</div>`).join('') : kv('Medikamente', meds, { req: !C.isFehl(p) }) })}
-            ${tile({ title: 'Weitere', icon: 'fa-kit-medical', link: L('weitere'), rows: kv('Allgemein', weit) + kv('Lagerung', m.lagerung) + kv('Rettungstechnik', m.rettung) + kv('spezielle Maßnahmen', m.spezial) })}
+            ${tile({ title: 'Atemwege', icon: 'fa-wind', link: L('aw'), fill: topicFill(p, 'mass', 'aw'), rows: kv('Maßnahmen', aw) + kv('Atemwegssicherung', m.awsich, { req: req('mass.awsich') }) })}
+            ${tile({ title: 'Atmung', icon: 'fa-lungs', link: L('atmung'), fill: topicFill(p, 'mass', 'atmung'), rows: kv('Beatmung', m.beatmung, { req: req('mass.beatmung') }) + kv('O2-Gabe', m.o2, { req: req('mass.o2') }) })}
+            ${tile({ title: 'Zugang', icon: 'fa-syringe', link: L('zugang'), fill: topicFill(p, 'mass', 'zugang'), rows: kv('Zugänge', zug, { req: !C.isFehl(p) }) })}
+            ${tile({ title: 'Medikamente', icon: 'fa-pills', link: L('meds'), fill: topicFill(p, 'mass', 'meds'), rows: Array.isArray(meds) && meds.length ? meds.map((x) => `<div class="nf-kv nf-kv--one ignis-mono">${esc(x)}</div>`).join('') : kv('Medikamente', meds, { req: !C.isFehl(p) }) })}
+            ${tile({ title: 'Weitere', icon: 'fa-kit-medical', link: L('weitere'), fill: topicFill(p, 'mass', 'weitere'), rows: kv('Allgemein', weit) + kv('Lagerung', m.lagerung) + kv('Rettungstechnik', m.rettung) + kv('spezielle Maßnahmen', m.spezial) })}
         </div>`;
     }
     if (sec === 'absch') {
@@ -740,12 +751,12 @@ function sectionOverview(p, sec) {
             </div>`)}
         ${a.lstSent ? `<div class="ignis-statusline nf-mb"><span class="ignis-chip"><i class="fa-solid fa-circle-check" data-tone="ok"></i>An Leitstelle gesendet ${esc(a.lstSent)} Uhr</span></div>` : ''}
         <div class="nf-tiles">
-            ${tile({ title: 'Transportdaten', icon: 'fa-truck-medical', link: L('transport'), rows: kv('Fzg. Transp.', a.fzgTransp) + kv('Transportführer', a.tf) + kv('Fahrzeugführer', a.ff) + kv('Fzg. NA', a.fzgNA) + kv('Notarzt', a.na) })}
-            ${tile({ title: 'Protokolldaten', icon: 'fa-pen-to-square', link: L('protokoll'), st: topicState(p, 'absch', 'protokoll'), rows: kv('Protokollant', a.protokollant, { req: true }) + kv('Protokoll durch', a.protDurch, { req: true }) })}
-            ${tile({ title: 'Besonderheiten', icon: 'fa-list-check', link: L('besond'), st: topicState(p, 'absch', 'besond'), rows: kv('Einsatzverlauf', a.besond, { req: true }) })}
-            ${p.art !== 'NA' ? tile({ title: 'Nachforderung NA', icon: 'fa-user-doctor', link: L('nachf'), st: topicState(p, 'absch', 'nachf'), rows: kv('Nachforderung NA', a.nachfNA, { req: true }) }) : ''}
-            ${tile({ title: 'Reanimation', icon: 'fa-heart-pulse', link: L('rea'), st: topicState(p, 'absch', 'rea'), rows: kv('Reanimationssituation', a.rea, { req: req('absch.rea') }) + (a.rea === 'Reanimation durchgeführt' ? kv('ROSC', a.reaD?.rosc, { req: true }) + kv('Krankenhausaufnahme', a.reaD?.aufnahme, { req: true }) : '') })}
-            ${tile({ title: 'Übergabe', icon: 'fa-hospital-user', link: L('uebergabe'), rows: kv('Ort', a.uebOrt) + kv('An', a.uebAn) })}
+            ${tile({ title: 'Transportdaten', icon: 'fa-truck-medical', link: L('transport'), fill: topicFill(p, 'absch', 'transport'), rows: kv('Fzg. Transp.', a.fzgTransp) + kv('Transportführer', a.tf) + kv('Fahrzeugführer', a.ff) + kv('Fzg. NA', a.fzgNA) + kv('Notarzt', a.na) })}
+            ${tile({ title: 'Protokolldaten', icon: 'fa-pen-to-square', link: L('protokoll'), fill: topicFill(p, 'absch', 'protokoll'), rows: kv('Protokollant', a.protokollant, { req: true }) + kv('Protokoll durch', a.protDurch, { req: true }) })}
+            ${tile({ title: 'Besonderheiten', icon: 'fa-list-check', link: L('besond'), fill: topicFill(p, 'absch', 'besond'), rows: kv('Einsatzverlauf', a.besond, { req: true }) })}
+            ${p.art !== 'NA' ? tile({ title: 'Nachforderung NA', icon: 'fa-user-doctor', link: L('nachf'), fill: topicFill(p, 'absch', 'nachf'), rows: kv('Nachforderung NA', a.nachfNA, { req: true }) }) : ''}
+            ${tile({ title: 'Reanimation', icon: 'fa-heart-pulse', link: L('rea'), fill: topicFill(p, 'absch', 'rea'), rows: kv('Reanimationssituation', a.rea, { req: req('absch.rea') }) + (a.rea === 'Reanimation durchgeführt' ? kv('ROSC', a.reaD?.rosc, { req: true }) + kv('Krankenhausaufnahme', a.reaD?.aufnahme, { req: true }) : '') })}
+            ${tile({ title: 'Übergabe', icon: 'fa-hospital-user', link: L('uebergabe'), fill: topicFill(p, 'absch', 'uebergabe'), rows: kv('Ort', a.uebOrt) + kv('An', a.uebAn) })}
         </div>
         <div class="nf-fab-space"></div>
         <a class="ignis-btn ignis-btn--primary ignis-btn--lg nf-fab" href="${href('p', p.enr, 'absch', 'freigabe')}">${fa('fa-flag-checkered')}Abschließen</a>`;
@@ -771,7 +782,7 @@ function select(p, path, options, { label, req } = {}) {
     const miss = r && !isSet(v);
     return `<label class="ignis-field nf-field">
         <span class="ignis-field__label">${esc(label)}</span>
-        <select class="ignis-input${miss ? ' nf-input--missing' : ''}" data-bind="p:${esc(path)}"${dis(p)}>
+        <select data-custom-dropdown="true" class="ignis-input${miss ? ' nf-input--missing' : ''}" data-bind="p:${esc(path)}"${dis(p)}>
             ${options.map((o) => {
                 const [val, lab] = Array.isArray(o) ? o : [o, o];
                 return `<option value="${esc(val)}" ${val === v ? 'selected' : ''}>${esc(lab)}</option>`;
@@ -787,9 +798,8 @@ function rettOverview(p) {
         const a = p[key];
         const line = C.addressLine(a);
         const pre = key === 'von' ? 'Von' : 'Ziel';
-        return `<div class="ignis-bezel nf-box">
+        return `<div class="ignis-bezel nf-box" data-live-state="rett:${key}"${fillAttr(topicFill(p, 'rett', key))}>
             <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa(icon)}</span><h3 class="ignis-bezel__title">${esc(title)}</h3>
-                <span class="nf-tile__state" data-live-state="rett:${key}">${stateIcon(topicState(p, 'rett', key))}</span>
                 <div class="ignis-bezel__actions"><a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="${href('p', p.enr, 'rett', key)}">${fa('fa-pen')}Adresse</a></div></div>
             <a class="ignis-bezel__well nf-addr-well" href="${href('p', p.enr, 'rett', key)}">
                 ${kv(`${pre} Einrichtung`, a.einrichtung)}
@@ -801,9 +811,8 @@ function rettOverview(p) {
     const vs = [['', '---'], ...C.VERSORGUNG.map((v) => [v.code, v.label])];
     return `<div class="nf-rett" data-scroll="pane">
         <div class="nf-rett__grid">
-            <div class="ignis-bezel nf-box">
-                <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-user')}</span><h3 class="ignis-bezel__title">Patientendaten</h3>
-                    <span class="nf-tile__state" data-live-state="rett:pat">${stateIcon(topicState(p, 'rett', 'pat'))}</span></div>
+            <div class="ignis-bezel nf-box" data-live-state="rett:pat"${fillAttr(topicFill(p, 'rett', 'pat'))}>
+                <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-user')}</span><h3 class="ignis-bezel__title">Patientendaten</h3></div>
                 <div class="ignis-bezel__well nf-form">
                     <div class="nf-form__row">${input(p, 'pat.vorname', { label: 'Vorname', ph: 'Max' })}${input(p, 'pat.nachname', { label: 'Nachname', ph: 'Mustermann' })}</div>
                     <div class="nf-form__row nf-form__row--3">
@@ -813,9 +822,8 @@ function rettOverview(p) {
                     </div>
                 </div>
             </div>
-            <div class="ignis-bezel nf-box">
-                <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clipboard-list')}</span><h3 class="ignis-bezel__title">Einsatzdaten</h3>
-                    <span class="nf-tile__state" data-live-state="rett:einsatz">${stateIcon(topicState(p, 'rett', 'einsatz'))}</span></div>
+            <div class="ignis-bezel nf-box" data-live-state="rett:einsatz"${fillAttr(topicFill(p, 'rett', 'einsatz'))}>
+                <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clipboard-list')}</span><h3 class="ignis-bezel__title">Einsatzdaten</h3></div>
                 <div class="ignis-bezel__well nf-form">
                     <div class="nf-form__row nf-form__row--3">
                         ${input(p, 'enr', { label: 'Einsatznummer', readonly: true, mono: true, req: false })}
@@ -831,9 +839,8 @@ function rettOverview(p) {
             ${addrBox('von', 'Transport von / Einsatzort', 'fa-location-dot', vonReq)}
             ${addrBox('ziel', 'Transportziel', 'fa-hospital', zielReq)}
         </div>
-        <div class="ignis-bezel nf-box">
-            <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clock')}</span><h3 class="ignis-bezel__title">Zeiten</h3>
-                <span class="nf-tile__state" data-live-state="rett:zeiten">${stateIcon(topicState(p, 'rett', 'zeiten'))}</span></div>
+        <div class="ignis-bezel nf-box" data-live-state="rett:zeiten"${fillAttr(topicFill(p, 'rett', 'zeiten'))}>
+            <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-clock')}</span><h3 class="ignis-bezel__title">Zeiten</h3></div>
             <div class="ignis-bezel__well nf-times">${C.ZEITEN.map((z) => timeCell(p, z)).join('')}</div>
         </div>
     </div>`;
@@ -851,7 +858,7 @@ function timeCell(p, z) {
         <span class="nf-time__label">${esc(z.label)}</span>
         <span class="nf-time__date">${empty ? '&nbsp;' : esc(v.d)}</span>
         <span class="nf-time__value ignis-mono">${empty ? '--:--' : esc(v.t)}</span>
-        ${empty && z.mark ? `<span class="nf-time__mark">${req ? '<span class="ignis-dot" data-tone="danger"></span>fehlt' : '<span class="ignis-dot"></span>leer'}</span>` : `<span class="nf-time__mark nf-time__mark--ghost">${empty ? 'jetzt' : '&nbsp;'}</span>`}
+        ${empty && z.mark ? `<span class="nf-time__mark">${req ? missChip(`${z.label} fehlt`) : '<span class="ignis-dot"></span>leer'}</span>` : `<span class="nf-time__mark nf-time__mark--ghost">${empty ? 'jetzt' : '&nbsp;'}</span>`}
     </button>`;
 }
 
@@ -1009,7 +1016,7 @@ function vbox(p, kp, key, { inner = false } = {}) {
         data-act="kp-focus" data-key="${key}" aria-pressed="${active}" ${g ? `data-grade="${g}"` : ''} aria-label="${esc(v.long)} ${esc(display || 'leer')} ${esc(v.unit)}">
         <span class="nf-vbox__head"><span class="nf-vbox__label">${esc(v.label)}</span>${inner ? '' : `<span class="nf-vbox__unit">${esc(v.unit)}</span>`}</span>
         <span class="nf-vbox__value ignis-mono">${display ? esc(display) : `<span class="nf-vbox__ph">${esc(v.ph)}</span>`}</span>
-        <span class="nf-vbox__foot">${g ? gradeChip(key, val) : req && !isSet(val) ? missChip('Pflicht') : '<span class="nf-dim">—</span>'}<span class="nf-vbox__norm">Norm ${esc(v.norm.replace(` ${v.unit}`, ''))}</span></span>
+        <span class="nf-vbox__foot">${req && !isSet(val) ? missChip(`${v.long} fehlt`) : '<span class="nf-dim">&nbsp;</span>'}<span class="nf-vbox__norm">Norm ${esc(v.norm.replace(` ${v.unit}`, ''))}</span></span>
     </button>`;
 }
 
@@ -1131,12 +1138,23 @@ function freitextPane(p) {
             <div class="nf-inline nf-inline--end"><button type="button" class="ignis-btn ignis-btn--primary ignis-btn--lg" data-act="anam-ok"${dis(p)}>${fa('fa-check')}OK</button></div>
         </div>
         <div class="nf-free__blocks">
-            ${C.TEXTBLOCKS.map((b, bi) => `<div class="nf-block">
-                <div class="ignis-micro">${esc(b.label)}</div>
-                <div class="nf-block__btns">${b.items.map((it, ii) => `<button type="button" class="ignis-btn ignis-btn--secondary" data-act="textblock" data-b="${bi}" data-i="${ii}"${dis(p)}>${fa('fa-plus')}${esc(it)}</button>`).join('')}</div>
-            </div>`).join('')}
+            <div class="nf-tb" role="group" aria-label="Textbausteine">${C.TEXTBLOCKS.map((b, bi) => `<button type="button" class="nf-tb__btn" data-act="textblock" data-b="${bi}" aria-expanded="${ui.tbOpen === bi}"${dis(p)}><span>${esc(b.label)}</span>${fa('fa-chevron-right', 'nf-tb__go')}</button>`).join('')}</div>
+            ${C.TEXTBLOCKS.map((b, bi) => `<div class="nf-tb nf-tb--sub" data-tb-sub="${bi}" role="group" aria-label="${esc(b.label)}" ${ui.tbOpen === bi ? '' : 'hidden'}>${b.sub.map((x, xi) => `<button type="button" class="nf-tb__btn" data-act="textsub" data-b="${bi}" data-i="${xi}"${dis(p)}>${esc(x.label)}</button>`).join('')}</div>`).join('')}
         </div>
     </div>`;
+}
+
+/** Fügt Text an der Cursorposition der Anamnese ein. newline: 0 ohne, 1 davor, 2 davor und danach. */
+function insertAtCursor(text, newline) {
+    const ta = document.getElementById('nf-freitext');
+    if (!ta) return;
+    const pos = ta.selectionStart ?? ta.value.length;
+    const before = ta.value.slice(0, pos);
+    const ins = (newline >= 1 && before.length && !before.endsWith('\n') ? '\n' : '') + text + (newline >= 2 ? '\n' : '');
+    ta.value = before + ins + ta.value.slice(ta.selectionEnd ?? pos);
+    ta.selectionStart = ta.selectionEnd = pos + ins.length;
+    ta.focus();
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 function symptomPane(p) {
@@ -1260,7 +1278,7 @@ function verlaufOverview(p) {
     const table = [...entries].reverse().map((e) => {
         const keys = C.VITALS.map((v) => v.key).filter((k) => isSet(e.values[k]));
         return `<tbody><tr class="nf-tgroup"><th colspan="3" scope="rowgroup">${esc(fmtDT(e.at))} Uhr (${keys.length} Parameter)</th></tr>
-            ${keys.map((k) => `<tr><td>${esc(C.VITAL[k].long)}</td><td class="ignis-table__num ignis-mono">${esc(e.values[k] === 'ng' ? 'nicht gemessen' : e.values[k] === 'nm' ? 'nicht messbar' : e.values[k])} ${gradeChip(k, e.values[k], { short: true })}</td><td class="nf-dim">${esc(C.VITAL[k].unit)}</td></tr>`).join('')}</tbody>`;
+            ${keys.map((k) => `<tr><td>${esc(C.VITAL[k].long)}</td><td class="ignis-table__num ignis-mono">${vitalVal(k, e.values[k], e.values[k] === 'ng' ? 'nicht gemessen' : e.values[k] === 'nm' ? 'nicht messbar' : e.values[k])}</td><td class="nf-dim">${esc(C.VITAL[k].unit)}</td></tr>`).join('')}</tbody>`;
     }).join('');
     return `<div class="nf-pane nf-pane--solo" data-scroll="pane">${head}
         <div class="ignis-bezel nf-box">
@@ -1349,7 +1367,7 @@ function verlaufList(p) {
         const keys = C.VITALS.map((v) => v.key).filter((k) => isSet(e.values[k]));
         return `<div class="ignis-bezel__item nf-vlist__item">
             <div class="nf-vlist__time"><span class="ignis-mono">${esc(C.fmtTime(new Date(e.at)))}</span><span class="nf-dim">${esc(C.fmtDate(new Date(e.at)))} · ${keys.length} Parameter</span></div>
-            <div class="nf-vlist__vals">${keys.map((k) => `<span class="nf-vchip"><span class="nf-vchip__k">${esc(C.VITAL[k].label)}</span><span class="ignis-mono">${esc(vitalText(k, e.values[k]))}</span>${gradeChip(k, e.values[k], { short: true })}
+            <div class="nf-vlist__vals">${keys.map((k) => `<span class="nf-vchip"><span class="nf-vchip__k">${esc(C.VITAL[k].label)}</span><span class="ignis-mono">${vitalVal(k, e.values[k])}</span>
                 ${ro(p) ? '' : `<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-vchip__del" data-act="vdel" data-id="${e.id}" data-key="${k}" aria-label="${esc(C.VITAL[k].label)} löschen">${fa('fa-trash-can')}</button>`}</span>`).join('')}</div>
         </div>`;
     }).join('');
@@ -1384,8 +1402,7 @@ function zugangPane(p) {
         </button>`;
     };
     const selZ = sel && find(sel.site, sel.side);
-    const st = topicState(p, 'mass', 'zugang');
-    return `${paneHead('Maßnahmen · Zugang', `<span class="nf-pane__state">${stateIcon(st, 'Zugang')}</span>`)}
+    return `${paneHead('Maßnahmen · Zugang')}
     <div class="nf-inline nf-mb">
         <button type="button" class="nf-opt nf-opt--multi nf-opt--auto" aria-pressed="${!!m.zugangNone}" data-act="zug-none"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">Kein Zugang</span></button>
         <div class="ignis-segmented ignis-segmented--switch nf-seg" role="group" aria-label="Zugangsart">
@@ -1416,8 +1433,7 @@ function zugangPane(p) {
 
 function medsPane(p) {
     const m = p.mass;
-    const st = topicState(p, 'mass', 'meds');
-    return `${paneHead('Maßnahmen · Medikamente', `<span class="nf-pane__state">${stateIcon(st, 'Medikamente')}</span>`)}
+    return `${paneHead('Maßnahmen · Medikamente')}
     <div class="nf-inline nf-mb">
         <button type="button" class="nf-opt nf-opt--multi nf-opt--auto" aria-pressed="${!!m.medsNone}" data-act="meds-none"${dis(p)}><span class="nf-opt__mark"></span><span class="nf-opt__label">Keine Medikamente</span></button>
         ${ro(p) ? '' : `<a class="ignis-btn ignis-btn--primary ignis-btn--lg" href="${href('p', p.enr, 'mass', 'meds', 'maske')}">${fa('fa-plus')}Medikament erfassen</a>`}
@@ -1554,7 +1570,7 @@ function protocolView(p, sec, topic, sub) {
     let main;
     let full = false;
     if (sec === 'rett') {
-        if (topic === 'von' || topic === 'ziel') { main = addressView(p, topic); full = true; } else main = `<div class="nf-pane nf-pane--solo">${paneHead('Rett. Daten', `<span class="nf-pane__state" data-live-state="rett">${stateIcon(secState(p, 'rett'))}</span>`)}${rettOverview(p)}</div>`;
+        if (topic === 'von' || topic === 'ziel') { main = addressView(p, topic); full = true; } else main = `<div class="nf-pane nf-pane--solo">${paneHead('Rett. Daten')}${rettOverview(p)}</div>`;
     } else if (sec === 'verlauf') {
         if (topic === 'liste') main = verlaufList(p);
         else if (topic === 'neu') { main = keypadView(p, { mode: 'verlauf' }); full = true; } else main = verlaufOverview(p);
@@ -1573,18 +1589,20 @@ function protocolView(p, sec, topic, sub) {
 
 function overviewView() {
     const s = S.session;
-    const list = S.order.map((e) => S.protocols[e]).filter((p) => p && p.vehicle === s.vehicle);
+    // Freigegebene Protokolle sind abgeschlossen und stehen nicht mehr in der Liste.
+    const list = S.order.map((e) => S.protocols[e]).filter((p) => p && p.vehicle === s.vehicle && !p.released);
     const rows = list.map((p, i) => {
         const d = new Date(p.createdAt);
         const name = [p.pat.vorname, p.pat.nachname].filter(Boolean).join(' ');
         const ziel = p.ziel.einrichtung || C.addressLine(p.ziel);
         const miss = missingOf(p).length;
         const total = reqActive(p).length;
-        return `<div class="ignis-bezel__item nf-prow">
+        const fill = miss === 0 ? 'filled' : miss === total ? 'unfilled' : 'partfilled';
+        return `<div class="ignis-bezel__item nf-prow" data-fill="${fill}">
             <a class="ignis-entry nf-prow__main" href="${href('p', p.enr, 'rett')}">
                 <span class="ignis-glyph ignis-glyph--md nf-letter">${String.fromCharCode(65 + i)}</span>
-                <span class="ignis-entry__title"><span class="ignis-mono">#${esc(p.enr)}</span>
-                    <span class="ignis-chip nf-tag" ${p.art === 'NA' ? 'data-tone="info"' : ''}>${esc(p.art)}</span>
+                <span class="ignis-entry__title"><span class="ignis-mono">#${esc(p.enr)}</span><span class="ignis-sr-only">${FILL_WORD[fill]}</span>
+                    <span class="ignis-chip nf-tag"${artTone(p.art)}>${esc(p.art)}</span>
                     <span class="nf-prow__when">${esc(C.fmtDate(d))} · ${esc(C.fmtTime(d))} Uhr</span></span>
                 <span class="ignis-entry__meta">
                     <span>Patient: ${name ? esc(name) : '<span class="nf-dim">unbekannt</span>'}${p.pat.gebdat ? ` * ${esc(p.pat.gebdat)}` : ''}</span>
@@ -1593,7 +1611,6 @@ function overviewView() {
             </a>
             <div class="nf-prow__side">
                 ${p.createdBy === 'leitstelle' ? `<span class="ignis-chip" data-tone="info" data-ignis-tooltip="Von der Leitstelle angelegt">${fa('fa-bell')}Leitstelle</span>` : ''}
-                ${p.released ? `<span class="ignis-chip" data-tone="ok">${fa('fa-lock')}freigegeben</span>` : `<span class="ignis-chip" ${miss ? 'data-tone="warn"' : 'data-tone="ok"'}>${fa(miss ? 'fa-circle-half-stroke' : 'fa-circle-check')}${total - miss}/${total}</span>`}
                 <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon nf-del" data-act="pdel" data-enr="${esc(p.enr)}" aria-label="Protokoll #${esc(p.enr)} löschen" data-ignis-tooltip="Löschen">${fa('fa-trash-can')}</button>
             </div>
         </div>`;
@@ -1682,7 +1699,7 @@ function loginView() {
                 <input class="ignis-input" data-bind="l:${role}.name" value="${esc(m.name)}" placeholder="Vorname Nachname" autocomplete="off" ${err === 'name' ? 'aria-invalid="true"' : ''}>
                 ${err === 'name' ? '<span class="ignis-field__error">Bitte Namen eintragen.</span>' : ''}</label>
             <label class="ignis-field nf-field ${err === 'quali' ? 'is-invalid' : ''}"><span class="ignis-field__label">Qualifikation</span>
-                <select class="ignis-input" data-bind="l:${role}.quali">${C.QUALIS.map((q) => `<option ${q === m.quali ? 'selected' : ''}>${esc(q)}</option>`).join('')}</select>
+                <select data-custom-dropdown="true" class="ignis-input" data-bind="l:${role}.quali">${C.QUALIS.map((q) => `<option ${q === m.quali ? 'selected' : ''}>${esc(q)}</option>`).join('')}</select>
                 ${err === 'quali' ? '<span class="ignis-field__error">Bitte Qualifikation wählen.</span>' : ''}</label>
         </div>`;
     };
@@ -1694,7 +1711,7 @@ function loginView() {
                     <div class="ignis-bezel__actions"><button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-act="theme">${fa(document.documentElement.dataset.theme === 'light' ? 'fa-moon' : 'fa-sun')}${document.documentElement.dataset.theme === 'light' ? 'Dunkel' : 'Hell'}</button></div></div>
                 <div class="ignis-bezel__well nf-form">
                     <label class="ignis-field nf-field ${L.errs.vehicle ? 'is-invalid' : ''}"><span class="ignis-field__label">Fahrzeug</span>
-                        <select class="ignis-input" data-bind="l:vehicle" ${L.errs.vehicle ? 'aria-invalid="true"' : ''}><option value="">Fahrzeug wählen</option>${C.VEHICLES.map((v) => `<option value="${esc(v.id)}" ${v.id === L.vehicle ? 'selected' : ''}>${esc(v.id)} · ${esc(v.wache)}</option>`).join('')}</select>
+                        <select data-custom-dropdown="true" class="ignis-input" data-bind="l:vehicle" ${L.errs.vehicle ? 'aria-invalid="true"' : ''}><option value="">Fahrzeug wählen</option>${C.VEHICLES.map((v) => `<option value="${esc(v.id)}" ${v.id === L.vehicle ? 'selected' : ''}>${esc(v.id)} · ${esc(v.wache)}</option>`).join('')}</select>
                         ${L.errs.vehicle ? '<span class="ignis-field__error">Bitte ein Fahrzeug wählen.</span>' : ''}</label>
                     ${existing ? `<div class="ignis-alert ignis-alert--info nf-existing">${fa('fa-users', 'ignis-alert__icon')}
                         <div class="ignis-alert__body"><div class="ignis-alert__title">Es ist bereits eine Besatzung auf diesem Fahrzeug angemeldet</div>
@@ -1762,6 +1779,9 @@ function render() {
     } else html = overviewView();
 
     app.innerHTML = html;
+    initDropdowns(app);
+    // Das Dropdown versteckt das Select; die Pflicht-Markierung gehört an den sichtbaren Knopf.
+    app.querySelectorAll('select.nf-input--missing').forEach((el) => el.closest('.ignis-dropdown')?.classList.add('nf-dd--missing'));
 
     if (sameRoute) {
         app.querySelectorAll('[data-scroll]').forEach((el) => {
@@ -1952,16 +1972,21 @@ const ACT = {
         commit();
     },
 
+    // Wie v1/v2: Der Hauptbaustein schreibt seine Überschrift an die Cursorposition und öffnet
+    // das Untermenü, ein erneuter Klick schließt es. Unterbausteine fügen ganze Sätze ein.
     textblock(el) {
         if (guardRO()) return;
-        const p = P();
-        const b = C.TEXTBLOCKS[+el.dataset.b];
-        const item = b.items[+el.dataset.i];
-        const lines = (p.anam.text || '').split('\n').filter((l, i, a) => l !== '' || i < a.length - 1);
-        const idx = lines.findIndex((l) => l.startsWith(b.head));
-        if (idx >= 0) { if (!lines[idx].includes(item)) lines[idx] += `, ${item}`; } else lines.push(`${b.head} ${item}`);
-        p.anam.text = lines.join('\n');
-        commit();
+        const bi = +el.dataset.b;
+        if (ui.tbOpen === bi) { ui.tbOpen = null; } else {
+            insertAtCursor(C.TEXTBLOCKS[bi].text, 2);
+            ui.tbOpen = bi;
+        }
+        app.querySelectorAll('[data-tb-sub]').forEach((x) => { x.hidden = +x.dataset.tbSub !== ui.tbOpen; });
+        app.querySelectorAll('.nf-tb__btn[data-act="textblock"]').forEach((x) => x.setAttribute('aria-expanded', String(+x.dataset.b === ui.tbOpen)));
+    },
+    textsub(el) {
+        if (guardRO()) return;
+        insertAtCursor(C.TEXTBLOCKS[+el.dataset.b].sub[+el.dataset.i].text, 0);
     },
     'anam-ok'() { persist(); flashAutosave(); snack.success('Anamnese gespeichert.'); },
     symnicht() {
@@ -2192,7 +2217,7 @@ const ACT = {
         const p = P();
         new Dialog({
             title: 'Protokoll teilen', size: 'sm',
-            body: `<div class="nf-form">${dialogField('Zielfahrzeug', `<select class="ignis-input" id="nf-share">${C.VEHICLES.filter((v) => v.id !== p.vehicle).map((v) => `<option>${esc(v.id)}</option>`).join('')}</select>`)}
+            body: `<div class="nf-form">${dialogField('Zielfahrzeug', `<select data-custom-dropdown="true" class="ignis-input" id="nf-share">${C.VEHICLES.filter((v) => v.id !== p.vehicle).map((v) => `<option>${esc(v.id)}</option>`).join('')}</select>`)}
                 <div class="ignis-alert ignis-alert--info">${fa('fa-circle-info', 'ignis-alert__icon')}<div class="ignis-alert__body">Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.</div></div></div>`,
             actions: [
                 { label: 'Abbrechen', variant: 'ghost', onClick: (d) => d.close() },

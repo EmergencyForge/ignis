@@ -250,11 +250,26 @@ export const GRADE_META = {
 
 /* ── Anamnese ──────────────────────────────────────────────────── */
 
+// Anamnese-Textbausteine wie in v1/v2: Überschrift plus Unterbausteine mit ganzen Sätzen.
 export const TEXTBLOCKS = [
-    { label: 'Vorerkrankungen', head: 'VORERKRANKUNGEN:', items: ['keine bekannt', 'nicht ermittelbar'] },
-    { label: 'Medikation', head: 'MEDIKATION:', items: ['keine Vormedikation', 'nicht ermittelbar'] },
-    { label: 'Allergien', head: 'ALLERGIEN:', items: ['keine Allergien'] },
-    { label: 'Drogen / Abusus', head: 'DROGEN / ABUSUS:', items: ['Nikotin', 'Alkohol', 'Opiate', 'Benzodiazepine', 'Foetor alcoholicus'] },
+    { label: 'Vorerkrankungen', text: 'VORERKRANKUNGEN:', sub: [
+        { label: 'keine bekannt', text: 'Beim Pat. sind keine Vorerkrankungen bekannt.' },
+        { label: 'nicht ermittelbar', text: 'Es konnten keine Vorerkrankungen ermittelt werden.' },
+    ] },
+    { label: 'Medikation', text: 'MEDIKATION:', sub: [
+        { label: 'keine Vormedikation', text: 'Beim Pat. ist keine Vormedikation bekannt.' },
+        { label: 'nicht ermittelbar', text: 'Es konnte keine Vormedikation ermittelt werden.' },
+    ] },
+    { label: 'Allergien', text: 'ALLERGIEN:', sub: [
+        { label: 'keine Allergien', text: 'Beim Pat. sind keine Allergien bekannt.' },
+    ] },
+    { label: 'Drogen / Abusus', text: 'DROGEN / ABUSUS:', sub: [
+        { label: 'Nikotin', text: 'Bekannter Nikotinabusus' },
+        { label: 'Alkohol', text: 'Bekannter Alkoholabusus' },
+        { label: 'Opiate', text: 'Bekannter Opiatabusus' },
+        { label: 'Benzodiazepine', text: 'Bekannter Benzodiazepinabusus' },
+        { label: 'Foetor alcoholicus', text: 'Beim Pat. ist Alkoholgeruch wahrnehmbar.' },
+    ] },
 ];
 
 export const NACA = [

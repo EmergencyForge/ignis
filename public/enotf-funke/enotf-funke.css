@@ -446,9 +446,23 @@ body.nf-body .nf-sync__btn .ignis-dot {
 }
 .nf-opt--multi .nf-opt__mark { border-radius: var(--radius-1); }
 .nf-opt__label { min-width: 0; overflow-wrap: break-word; }
-.nf-opt__n { margin-left: auto; flex: none; font-size: 14px; opacity: .85; }
+.nf-opt--normal { overflow: hidden; }
+/* Normalbefund: großer, blasser Haken im Hintergrund der Karte */
+.nf-opt__bg {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-8deg);
+    font-size: 44px;
+    line-height: 1;
+    color: var(--ok);
+    opacity: .14;
+    pointer-events: none;
+}
+.nf-opt--normal[aria-pressed="true"] .nf-opt__bg { opacity: .22; }
+.nf-opt--scored .nf-opt__bg { right: 34px; }
+.nf-opt__score { position: relative; }
 .nf-opt__score { margin-left: auto; flex: none; color: var(--tertiary-text); font-size: 13px; }
-.nf-opt__score + .nf-opt__n { margin-left: 4px; }
 .nf-opt[aria-pressed="true"] { font-weight: 500; }
 .nf-opt[aria-pressed="true"] .nf-opt__mark { background: var(--content-text); border-color: var(--content-text); }
 .nf-opt[aria-pressed="true"] .nf-opt__mark::after {
@@ -466,30 +480,36 @@ body.nf-body .nf-sync__btn .ignis-dot {
     box-shadow: inset 0 0 0 1px var(--ok-line);
 }
 .nf-opt--normal[aria-pressed="true"] .nf-opt__mark { background: var(--ok); border-color: var(--ok); }
-.nf-opt[aria-pressed="true"] .nf-opt__n { display: none; }
 .nf-opt--normal[aria-pressed="true"] .nf-opt__mark::after { border-color: var(--on-ok); }
 .nf-opt--chip[aria-pressed="true"] .nf-opt__label { font-weight: 600; }
 
 .nf-quick {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
     flex: none;
-    min-height: 60px;
+    min-height: 56px;
     margin-bottom: 6px;
-    padding: 10px 12px;
-    border: 1px dashed var(--ok-line);
+    padding: 8px 10px 8px 8px;
+    border: 1px solid var(--border-control);
     border-radius: var(--radius-item);
-    background: var(--ok-soft);
+    background: var(--surface-3);
+    box-shadow: inset 0 1px 0 var(--hi), 0 1px 2px rgb(0 0 0 / .25);
     color: var(--content-text);
     font: inherit;
     text-align: left;
     cursor: pointer;
 }
-.nf-quick[aria-pressed="true"] { border-style: solid; }
-.nf-quick__text { display: grid; min-width: 0; }
+.nf-quick:hover { background: var(--surface-4); border-color: var(--border-strong); }
+.nf-quick:active { transform: translateY(1px); }
+.nf-quick__icon { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-2); background: var(--ok-soft); color: var(--ok-text); font-size: 15px; }
+.nf-quick__text { display: grid; gap: 2px; min-width: 0; }
 .nf-quick__label { font-size: 14px; font-weight: 600; line-height: 18px; }
+.nf-quick__act { font-size: 12px; line-height: 16px; color: var(--tertiary-text); }
+.nf-quick[aria-pressed="true"] { background: var(--ok-soft); border-color: var(--ok-line); }
+.nf-quick[aria-pressed="true"] .nf-quick__icon { background: var(--ok); color: var(--on-ok); }
+.nf-quick[aria-pressed="true"] .nf-quick__act { color: var(--ok-text); }
 
 /* ── Übersichtskacheln ────────────────────────────────────────── */
 .nf-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; align-items: start; }
@@ -553,7 +573,8 @@ body.nf-body .nf-tile__well { display: grid; padding: 6px 14px; }
 .nf-field { min-width: 0; gap: 0; }
 .nf-field .ignis-field__label { font-size: 13px; }
 .nf-field--inline { display: inline-flex; }
-.nf-input--missing { border-color: var(--danger) !important; }
+.nf-input--missing,
+.nf-dd--missing .ignis-dropdown__trigger { border-color: var(--danger) !important; }
 body.nf-body .nf-input-time { width: 96px; }
 body.nf-body .nf-input-times { width: 120px; }
 body.nf-body .nf-input-date { width: 136px; }
@@ -777,11 +798,36 @@ body.nf-body .nf-seg-block :is(a, button) { gap: 6px; }
 .nf-key--word { color: var(--secondary-text); }
 
 /* ── Anamnese ─────────────────────────────────────────────────── */
-.nf-free { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+.nf-free { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 16px; align-items: start; }
 .nf-free__main { display: grid; gap: 12px; }
 body.nf-body .nf-free__text { min-height: 300px; font-size: 15px; line-height: 22px; resize: vertical; }
-.nf-block { margin-bottom: 16px; }
-.nf-block__btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.nf-free__blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: start; }
+.nf-tb { display: grid; gap: 6px; }
+.nf-tb[hidden] { display: none; }
+.nf-tb__btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 56px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-item);
+    background: var(--fill-1);
+    color: var(--content-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    text-align: left;
+    cursor: pointer;
+}
+.nf-tb__btn:hover { background: var(--fill-2); }
+.nf-tb__btn:focus-visible { outline: 2px solid var(--accent-focus); outline-offset: 1px; }
+.nf-tb__btn[aria-expanded="true"] { background: var(--surface-4); box-shadow: inset 0 1px 0 var(--hi), inset 0 0 0 1px var(--border-ui); }
+.nf-tb__btn:disabled { opacity: .5; cursor: default; }
+.nf-tb__go { flex: none; font-size: 12px; color: var(--tertiary-text); }
+.nf-tb__btn[aria-expanded="true"] .nf-tb__go { color: var(--content-text); }
 
 /* ── Diagnose ─────────────────────────────────────────────────── */
 .nf-diag-sel {
@@ -1030,7 +1076,7 @@ body.nf-body .ignis-empty.nf-empty-pattern > .nf-empty-pattern__dots { position:
     .nf-bm { grid-template-columns: minmax(0, 1fr) 224px; gap: 12px; }
     .nf-bm__svg { max-height: 340px; }
     .nf-kp { grid-template-columns: minmax(0, 1fr) 64px 204px; gap: 12px; }
-    .nf-free { grid-template-columns: minmax(0, 1fr) 236px; }
+    .nf-free { grid-template-columns: minmax(0, 1fr) 360px; }
     .nf-zug { grid-template-columns: minmax(0, 1fr) 236px; }
     .nf-medmask { grid-template-columns: 280px minmax(0, 1fr); }
     .nf-trauma { grid-template-columns: 112px minmax(0, 1fr); }
@@ -1071,3 +1117,45 @@ body.nf-body .ignis-empty.nf-empty-pattern > .nf-empty-pattern__dots { position:
     .nf-rett__grid { grid-template-columns: minmax(0, 1fr); }
     .nf-veh { display: none; }
 }
+
+/* ── Ampel (wie v1/v2): Strich am linken Rand ────────────────── */
+.nf-rail__item[data-fill],
+.nf-nav[data-fill],
+.nf-tile[data-fill],
+.nf-box[data-fill],
+.nf-prow[data-fill] { position: relative; }
+.nf-rail__item[data-fill]::before,
+.nf-nav[data-fill]::before,
+.nf-tile[data-fill]::before,
+.nf-box[data-fill]::before,
+.nf-prow[data-fill]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 3px;
+    height: 20px;
+    border-radius: 0 2px 2px 0;
+    pointer-events: none;
+}
+[data-fill="unfilled"]::before { background: var(--danger); }
+[data-fill="partfilled"]::before { background: var(--warn); }
+[data-fill="filled"]::before { background: var(--ok); }
+/* Vollständig sitzt tiefer, wie in v1: so unterscheidet sich die Ampel auch ohne Farbe. */
+.nf-rail__item[data-fill="filled"]::before,
+.nf-nav[data-fill="filled"]::before,
+.nf-prow[data-fill="filled"]::before { top: calc(50% - 10px); }
+.nf-tile[data-fill]::before,
+.nf-box[data-fill]::before { top: 18px; }
+.nf-tile[data-fill="filled"]::before,
+.nf-box[data-fill="filled"]::before { top: 28px; }
+
+/* Fehlende Pflichtangabe */
+.nf-miss { flex: none; font-size: 16px; color: var(--danger); }
+.nf-time__mark .nf-miss { font-size: 18px; }
+
+/* Messwerte: Farbe statt Bewertung */
+.nf-vval[data-grade="ok"] { color: var(--ok-text); }
+.nf-vval[data-grade="semi"],
+.nf-vval[data-grade="warning"] { color: var(--warn-text); }
+.nf-vval[data-grade="danger"] { color: var(--danger-text); }
