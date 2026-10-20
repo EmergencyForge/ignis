@@ -1,1 +1,1 @@
-function e(){document.querySelectorAll(`[data-ignis-history-back]`).forEach(e=>{e.hidden=!(window.navigation?navigation.canGoBack:history.length>1),e.addEventListener(`click`,()=>history.back())})}document.readyState===`loading`?document.addEventListener(`DOMContentLoaded`,e):e();
+import{t as e}from"./_core.js";e(`error-stage`,{selector:`[data-ignis-history-back]`,mount(e){e.hidden=!(window.navigation?navigation.canGoBack:history.length>1),e.addEventListener(`click`,()=>history.back())}});
