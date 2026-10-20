@@ -448,6 +448,8 @@ body.nf-body .nf-sync__btn .ignis-dot {
 .nf-opt__label { min-width: 0; overflow-wrap: break-word; }
 /* Normalbefund (unauffällig) wie in v1: grüne Schrift */
 .nf-opt--normal .nf-opt__label { color: var(--ok-text); }
+.nf-opt.nf-opt--normal[aria-pressed="true"] .nf-opt__mark { background: var(--ok); border-color: var(--ok); }
+.nf-opt.nf-opt--normal[aria-pressed="true"] .nf-opt__mark::after { border-color: var(--on-ok); }
 
 .nf-opt__score { margin-left: auto; flex: none; color: var(--tertiary-text); font-size: 13px; }
 .nf-opt[aria-pressed="true"] { font-weight: 500; }
