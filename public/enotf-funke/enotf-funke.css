@@ -461,13 +461,6 @@ body.nf-body .nf-sync__btn .ignis-dot {
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
-.nf-opt--normal[aria-pressed="true"] {
-    background: var(--ok-soft);
-    border-color: var(--ok-line);
-    box-shadow: inset 0 0 0 1px var(--ok-line);
-}
-.nf-opt--normal[aria-pressed="true"] .nf-opt__mark { background: var(--ok); border-color: var(--ok); }
-.nf-opt--normal[aria-pressed="true"] .nf-opt__mark::after { border-color: var(--on-ok); }
 .nf-opt--chip[aria-pressed="true"] .nf-opt__label { font-weight: 600; }
 
 .nf-quick {
@@ -489,7 +482,7 @@ body.nf-body .nf-sync__btn .ignis-dot {
 }
 .nf-quick:hover { background: var(--surface-4); }
 .nf-quick__label { font-size: 14px; font-weight: 600; line-height: 18px; }
-.nf-quick[aria-pressed="true"] { background: var(--ok-soft); border-color: var(--ok-line); }
+.nf-quick[aria-pressed="true"] { background: var(--surface-4); border-color: var(--border-strong); }
 
 /* ── Übersichtskacheln ────────────────────────────────────────── */
 .nf-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; align-items: start; }

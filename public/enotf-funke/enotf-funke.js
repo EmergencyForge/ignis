@@ -630,7 +630,7 @@ function renderSectionShell(p, sec, topicKey, subKey) {
     if (topic.custom === 'keypad') return keypadView(p, { mode: 'erst', topics: topicColumn(p, sec, topics, topicKey) });
     if (topic.custom) pane = customPane(p, topic.custom, topic, null);
     else if (sub?.custom) pane = customPane(p, sub.custom, topic, sub);
-    else pane = paneFields(p, topic, sub, !subCol);
+    else pane = paneFields(p, topic, sub);
     return `<div class="nf-sec${subCol ? ' nf-sec--subs' : ''}">${topicColumn(p, sec, topics, topicKey)}${subCol}<section class="nf-pane" data-scroll="pane">${pane}</section></div>`;
 }
 
@@ -638,9 +638,8 @@ function paneHead(title, extra = '') {
     return `<div class="nf-pane__head"><h2 class="nf-pane__title">${esc(title)}</h2>${extra}</div>`;
 }
 
-function paneFields(p, topic, sub, showQuick) {
+function paneFields(p, topic, sub) {
     return `${paneHead(sub && sub.label !== topic.label ? `${topic.label} · ${sub.label}` : topic.label)}
-        ${showQuick && topic.quick ? `<div class="nf-pane__quick">${quickTile(p, topic)}</div>` : ''}
         ${(sub?.fields || []).map((f) => fieldGroup(p, f)).join('')}`;
 }
 
