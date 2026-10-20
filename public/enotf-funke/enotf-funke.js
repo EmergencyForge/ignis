@@ -29,7 +29,7 @@ const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const SHY = Object.fromEntries(['Rassel|geräusche', 'Sinus|rhythmus', 'Kammer|flimmern', 'Schritt|macher|rhythmus', 'Links|schenkel|block', 'Rechts|schenkel|block',
     'Massen|veranstaltung', 'Bildungs|einrichtung', 'ein|richtung', 'Geburts|haus', 'Entlastungs|punktion', 'Immobili|sation', 'Endo|tracheal|tubus', 'Zwangs|unter|bringung',
     'Patienten|zugang', 'Patienten|übergabe', 'Abwehr|bewegungen', 'Beuge|synergismen', 'Streck|synergismen', 'unver|ständliche', 'Auf|forderung', 'Extremitäten|bewegung',
-    'Bewusstseins|lage', 'Schmerz|reiz', 'un|eingeschränkt', 'Notarzt|zubringer', 'Reanimations|situation', 'Transport|führer', 'Fahrzeug|führer', 'Protokol|lant']
+    'Bewusstseins|lage', 'Schmerz|reiz', 'un|eingeschränkt', 'Notarzt|zubringer', 'Medi|kamenten|liste', 'Fach|abteilungen', 'Des|infektions|plan', 'Funkruf|namen', 'Brust|schmerz', 'Reanimations|situation', 'Transport|führer', 'Fahrzeug|führer', 'Protokol|lant']
     .map((w) => [w.replaceAll('|', ''), w.replaceAll('|', '&shy;')]));
 const hy = (v) => esc(v).replace(/[A-Za-zÄÖÜäöüß]{9,}/g, (w) => SHY[w] ?? w);
 const get = (o, path) => path.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);
@@ -214,7 +214,6 @@ function starred(p, path) {
     if (path.startsWith('absch.reaD.') && p.absch.rea !== 'Reanimation durchgeführt') return false;
     return true;
 }
-const star = (on) => (on ? '<span class="ignis-field__required" aria-label="Pflichtangabe">★</span>' : '');
 const missChip = (txt = 'fehlt') => `<span class="ignis-chip" data-tone="danger"><span class="ignis-dot"></span>${esc(txt)}</span>`;
 
 /* ══ Themenbäume der Abschnitte ═════════════════════════════════ */
@@ -314,7 +313,7 @@ function fieldGroup(p, f) {
         const v = get(p, f.path) || '';
         const req = starred(p, f.path);
         return `<div class="nf-group">
-            <div class="nf-group__head"><span class="nf-group__label">${esc(f.label)} ${star(req)}</span>${req && !v ? missChip() : ''}</div>
+            <div class="nf-group__head"><span class="nf-group__label">${esc(f.label)}</span>${req && !v ? missChip() : ''}</div>
             <div class="nf-inline">
                 <input class="ignis-input nf-input-time ignis-mono" type="text" inputmode="numeric" placeholder="HH:MM" maxlength="5" data-mask="time" data-bind="p:${esc(f.path)}" value="${esc(v)}"${dis(p)}>
                 <button type="button" class="ignis-btn ignis-btn--secondary" data-act="now" data-path="${esc(f.path)}"${dis(p)}>${fa('fa-clock')}jetzt</button>
@@ -344,7 +343,7 @@ function fieldGroup(p, f) {
         : `<div class="nf-opts${cols}">${opts.map(button).join('')}</div>`;
     return `<div class="nf-group" role="group" aria-label="${esc(f.label)}">
         <div class="nf-group__head">
-            <span class="nf-group__label">${esc(f.label)} ${star(req)}</span>
+            <span class="nf-group__label">${esc(f.label)}</span>
             ${missing ? missChip() : ''}
         </div>
         ${body}
@@ -353,7 +352,7 @@ function fieldGroup(p, f) {
 
 function kv(label, value, { req = false, mono = false, empty = '—' } = {}) {
     const has = isSet(value);
-    return `<div class="nf-kv"><span class="nf-kv__k">${esc(label)} ${star(req)}</span>
+    return `<div class="nf-kv"><span class="nf-kv__k">${esc(label)}</span>
         <span class="nf-kv__v${mono ? ' ignis-mono' : ''}">${has ? esc(Array.isArray(value) ? value.join(', ') : value) : (req ? missChip() : `<span class="nf-dim">${esc(empty)}</span>`)}</span></div>`;
 }
 
@@ -680,7 +679,7 @@ function sectionOverview(p, sec) {
         const vit = C.VITALS.map((v) => {
             const val = e.vitals?.[v.key];
             const r = v.req && !C.isFehl(p);
-            return `<div class="nf-kv"><span class="nf-kv__k">${esc(v.label)} ${star(r)}</span><span class="nf-kv__v ignis-mono">${isSet(val) ? `${esc(vitalText(v.key, val))} ${gradeChip(v.key, val, { short: true })}` : (r ? missChip() : '<span class="nf-dim">—</span>')}</span></div>`;
+            return `<div class="nf-kv"><span class="nf-kv__k">${esc(v.label)}</span><span class="nf-kv__v ignis-mono">${isSet(val) ? `${esc(vitalText(v.key, val))} ${gradeChip(v.key, val, { short: true })}` : (r ? missChip() : '<span class="nf-dim">—</span>')}</span></div>`;
         }).join('');
         return `${paneHead('Erstbefund · Übersicht', `<span class="nf-pane__state" data-live-state="erst">${stateIcon(secState(p, 'erst'))}</span>`)}
         <div class="nf-tiles">
@@ -761,7 +760,7 @@ function input(p, path, { label, ph = '', mask, req, readonly, mono, id, type = 
     const r = req ?? starred(p, path);
     const miss = r && !isSet(v);
     return `<label class="ignis-field nf-field">
-        <span class="ignis-field__label">${esc(label)} ${star(r)}</span>
+        <span class="ignis-field__label">${esc(label)}</span>
         <input class="ignis-input${mono ? ' ignis-mono' : ''}${miss ? ' nf-input--missing' : ''}" type="${type}" ${inputmode ? `inputmode="${inputmode}"` : ''} ${id ? `id="${id}"` : ''} placeholder="${esc(ph)}"
             ${mask ? `data-mask="${mask}" maxlength="${mask === 'date' ? 10 : 5}"` : ''} ${readonly ? 'readonly' : `data-bind="p:${esc(path)}"`} value="${esc(v)}"${readonly ? '' : dis(p)}>
     </label>`;
@@ -771,7 +770,7 @@ function select(p, path, options, { label, req } = {}) {
     const r = req ?? starred(p, path);
     const miss = r && !isSet(v);
     return `<label class="ignis-field nf-field">
-        <span class="ignis-field__label">${esc(label)} ${star(r)}</span>
+        <span class="ignis-field__label">${esc(label)}</span>
         <select class="ignis-input${miss ? ' nf-input--missing' : ''}" data-bind="p:${esc(path)}"${dis(p)}>
             ${options.map((o) => {
                 const [val, lab] = Array.isArray(o) ? o : [o, o];
@@ -794,7 +793,7 @@ function rettOverview(p) {
                 <div class="ignis-bezel__actions"><a class="ignis-btn ignis-btn--secondary ignis-btn--sm" href="${href('p', p.enr, 'rett', key)}">${fa('fa-pen')}Adresse</a></div></div>
             <a class="ignis-bezel__well nf-addr-well" href="${href('p', p.enr, 'rett', key)}">
                 ${kv(`${pre} Einrichtung`, a.einrichtung)}
-                <div class="nf-kv"><span class="nf-kv__k">${pre} Adresse ${star(reqd)}</span><span class="nf-kv__v">${line ? esc(line) : (reqd ? missChip() : '<span class="nf-dim">Straße HNR, Ort-Ortsteil</span>')}</span></div>
+                <div class="nf-kv"><span class="nf-kv__k">${pre} Adresse</span><span class="nf-kv__v">${line ? esc(line) : (reqd ? missChip() : '<span class="nf-dim">Straße HNR, Ort-Ortsteil</span>')}</span></div>
                 ${kv(key === 'von' ? 'SR Anfahrt' : 'SR Transport', a.sr && a.sr !== '-' ? a.sr : '')}
             </a>
         </div>`;
@@ -849,7 +848,7 @@ function timeCell(p, z) {
     const req = ZEIT_REQ[z.key]?.(p) || false;
     const empty = !v?.t;
     return `<button type="button" class="nf-time${empty ? ' is-empty' : ''}${empty && req ? ' is-missing' : ''}" data-act="time" data-key="${z.key}" aria-label="${esc(z.label)}: ${empty ? 'leer, antippen setzt jetzt' : esc(v.t + ' ' + v.d)}">
-        <span class="nf-time__label">${esc(z.label)} ${star(req)}</span>
+        <span class="nf-time__label">${esc(z.label)}</span>
         <span class="nf-time__date">${empty ? '&nbsp;' : esc(v.d)}</span>
         <span class="nf-time__value ignis-mono">${empty ? '--:--' : esc(v.t)}</span>
         ${empty && z.mark ? `<span class="nf-time__mark">${req ? '<span class="ignis-dot" data-tone="danger"></span>fehlt' : '<span class="ignis-dot"></span>leer'}</span>` : `<span class="nf-time__mark nf-time__mark--ghost">${empty ? 'jetzt' : '&nbsp;'}</span>`}
@@ -905,7 +904,7 @@ function poiHits(hits) {
 /* ══ Erstbefund: Sonderansichten ═══════════════════════════════ */
 
 function pupillenPane(p) {
-    const col = (path, title, opts) => `<div class="nf-pcol"><div class="nf-pcol__title">${esc(title)} ${star(starred(p, path))} ${starred(p, path) && !isSet(get(p, path)) ? missChip() : ''}</div>
+    const col = (path, title, opts) => `<div class="nf-pcol"><div class="nf-pcol__title">${esc(title)} ${starred(p, path) && !isSet(get(p, path)) ? missChip() : ''}</div>
         <div class="nf-opts nf-opts--list">${opts.map(C.parseOpt).map((o) => optButton({ act: 'pick', path, val: o.label, label: o.label, normal: o.normal, pressed: get(p, path) === o.label })).join('')}</div></div>`;
     return `${paneHead('Neurologie · Pupillen')}
         <div class="nf-group"><div class="nf-group__head"><span class="nf-group__label">Pupillenweite</span></div>
@@ -1008,7 +1007,7 @@ function vbox(p, kp, key, { inner = false } = {}) {
     const display = val === 'ng' ? 'nicht gemessen' : val === 'nm' ? 'nicht messbar' : val;
     return `<button type="button" class="nf-vbox${inner ? ' nf-vbox--inner' : ''}${active ? ' is-active' : ''}${req && !isSet(val) ? ' is-missing' : ''}${val === 'ng' || val === 'nm' ? ' is-word' : ''}"
         data-act="kp-focus" data-key="${key}" aria-pressed="${active}" ${g ? `data-grade="${g}"` : ''} aria-label="${esc(v.long)} ${esc(display || 'leer')} ${esc(v.unit)}">
-        <span class="nf-vbox__head"><span class="nf-vbox__label">${esc(v.label)} ${star(req)}</span>${inner ? '' : `<span class="nf-vbox__unit">${esc(v.unit)}</span>`}</span>
+        <span class="nf-vbox__head"><span class="nf-vbox__label">${esc(v.label)}</span>${inner ? '' : `<span class="nf-vbox__unit">${esc(v.unit)}</span>`}</span>
         <span class="nf-vbox__value ignis-mono">${display ? esc(display) : `<span class="nf-vbox__ph">${esc(v.ph)}</span>`}</span>
         <span class="nf-vbox__foot">${g ? gradeChip(key, val) : req && !isSet(val) ? missChip('Pflicht') : '<span class="nf-dim">—</span>'}<span class="nf-vbox__norm">Norm ${esc(v.norm.replace(` ${v.unit}`, ''))}</span></span>
     </button>`;
@@ -1601,7 +1600,7 @@ function overviewView() {
     }).join('');
     const links = S.quicklinksEmpty
         ? emptyBlock({ icon: 'fa-link', title: 'Keine Links verfügbar.', pattern: true })
-        : `<div class="nf-links">${C.QUICKLINKS.map((l) => `<button type="button" class="nf-link" data-act="qlink" data-val="${esc(l.label)}"><span class="ignis-glyph ignis-glyph--md">${fa(l.icon)}</span><span class="nf-link__text"><span class="nf-link__label">${esc(l.label)}</span><span class="nf-link__note">${esc(l.note)}</span></span></button>`).join('')}</div>`;
+        : `<div class="nf-links">${C.QUICKLINKS.map((l) => `<button type="button" class="nf-link" data-act="qlink" data-val="${esc(l.label)}"><span class="ignis-glyph ignis-glyph--sm">${fa(l.icon)}</span><span class="nf-link__text"><span class="nf-link__label">${hy(l.label)}</span><span class="nf-link__note">${esc(l.note)}</span></span></button>`).join('')}</div>`;
     const tools = `<button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="vinfo" data-ignis-tooltip="Fahrzeuginfo" aria-label="Fahrzeuginfo">${fa('fa-circle-info')}<span class="nf-tbtn__label">Fahrzeuginfo</span></button>
         <button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="logbook" data-ignis-tooltip="Fahrtenbuch" aria-label="Fahrtenbuch">${fa('fa-book')}<span class="nf-tbtn__label">Fahrtenbuch</span></button>
         <button type="button" class="ignis-btn ignis-btn--ghost nf-tbtn" data-act="logout" data-ignis-tooltip="Abmelden" aria-label="Abmelden">${fa('fa-right-from-bracket')}<span class="nf-tbtn__label">Abmelden</span></button>`;
@@ -1645,13 +1644,13 @@ function createView() {
             <section class="ignis-bezel nf-create">
                 <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-plus')}</span><h1 class="ignis-bezel__title">Neuen Einsatz erstellen</h1></div>
                 <div class="ignis-bezel__well nf-form">
-                    <label class="ignis-field nf-field ${c.err === 'enr' ? 'is-invalid' : ''}"><span class="ignis-field__label">Einsatznummer ${star(true)}</span>
+                    <label class="ignis-field nf-field ${c.err === 'enr' ? 'is-invalid' : ''}"><span class="ignis-field__label">Einsatznummer</span>
                         <input class="ignis-input ignis-mono nf-input-xl" id="nf-create-enr" data-bind="c:enr" inputmode="numeric" autocomplete="off" placeholder="z. B. 2610201530" value="${esc(c.enr)}" ${c.err === 'enr' || c.err === 'enrInvalid' ? 'aria-invalid="true"' : ''}>
                         ${c.err === 'enr' ? '<span class="ignis-field__error">Bitte gib eine Einsatznummer ein.</span>' : ''}
                         ${c.err === 'enrInvalid' ? '<span class="ignis-field__error">Ungültige Einsatznummer. Erlaubt sind nur Ziffern und Unterstriche.</span>' : ''}
                         <span class="ignis-field__hint">Nur Ziffern und Unterstriche.</span>
                     </label>
-                    <div class="ignis-field nf-field"><span class="ignis-field__label">Protokollart ${star(true)}</span>
+                    <div class="ignis-field nf-field"><span class="ignis-field__label">Protokollart</span>
                         <div class="nf-types" role="group" aria-label="Protokollart">${tileBtn('NF')}${tileBtn('NA')}</div>
                         ${c.err === 'type' ? '<span class="ignis-field__error">Bitte wähle ein Protokoll aus (RD oder NA).</span>' : ''}
                     </div>
@@ -1679,10 +1678,10 @@ function loginView() {
         const m = L[role];
         const err = L.errs[role];
         return `<div class="nf-person">
-            <label class="ignis-field nf-field ${err === 'name' ? 'is-invalid' : ''}"><span class="ignis-field__label">${esc(label)}-Name ${star(req)}</span>
+            <label class="ignis-field nf-field ${err === 'name' ? 'is-invalid' : ''}"><span class="ignis-field__label">${esc(label)}-Name</span>
                 <input class="ignis-input" data-bind="l:${role}.name" value="${esc(m.name)}" placeholder="Vorname Nachname" autocomplete="off" ${err === 'name' ? 'aria-invalid="true"' : ''}>
                 ${err === 'name' ? '<span class="ignis-field__error">Bitte Namen eintragen.</span>' : ''}</label>
-            <label class="ignis-field nf-field ${err === 'quali' ? 'is-invalid' : ''}"><span class="ignis-field__label">Qualifikation ${star(req)}</span>
+            <label class="ignis-field nf-field ${err === 'quali' ? 'is-invalid' : ''}"><span class="ignis-field__label">Qualifikation</span>
                 <select class="ignis-input" data-bind="l:${role}.quali">${C.QUALIS.map((q) => `<option ${q === m.quali ? 'selected' : ''}>${esc(q)}</option>`).join('')}</select>
                 ${err === 'quali' ? '<span class="ignis-field__error">Bitte Qualifikation wählen.</span>' : ''}</label>
         </div>`;
@@ -1694,7 +1693,7 @@ function loginView() {
                 <div class="ignis-bezel__head"><span class="ignis-glyph ignis-glyph--sm">${fa('fa-users')}</span><h1 class="ignis-bezel__title">Besatzung anmelden</h1>
                     <div class="ignis-bezel__actions"><button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-act="theme">${fa(document.documentElement.dataset.theme === 'light' ? 'fa-moon' : 'fa-sun')}${document.documentElement.dataset.theme === 'light' ? 'Dunkel' : 'Hell'}</button></div></div>
                 <div class="ignis-bezel__well nf-form">
-                    <label class="ignis-field nf-field ${L.errs.vehicle ? 'is-invalid' : ''}"><span class="ignis-field__label">Fahrzeug ${star(true)}</span>
+                    <label class="ignis-field nf-field ${L.errs.vehicle ? 'is-invalid' : ''}"><span class="ignis-field__label">Fahrzeug</span>
                         <select class="ignis-input" data-bind="l:vehicle" ${L.errs.vehicle ? 'aria-invalid="true"' : ''}><option value="">Fahrzeug wählen</option>${C.VEHICLES.map((v) => `<option value="${esc(v.id)}" ${v.id === L.vehicle ? 'selected' : ''}>${esc(v.id)} · ${esc(v.wache)}</option>`).join('')}</select>
                         ${L.errs.vehicle ? '<span class="ignis-field__error">Bitte ein Fahrzeug wählen.</span>' : ''}</label>
                     ${existing ? `<div class="ignis-alert ignis-alert--info nf-existing">${fa('fa-users', 'ignis-alert__icon')}
