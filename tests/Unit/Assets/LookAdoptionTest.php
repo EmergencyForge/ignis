@@ -10,7 +10,8 @@ use PHPUnit\Framework\TestCase;
  * Prüft am gebauten ui.css, dass der gemeinsame Look im Skin-Block ankommt
  * und die eigenen Namen von ignis dort auf seine Rollen zeigen. Der Minifier
  * darf doppelte Deklarationen zusammenlegen, deshalb zählt je Eigenschaft
- * der letzte Wert im Block.
+ * der letzte Wert im Block. Die sRGB-Rückfälle für Browser ohne oklch()
+ * (seit ui 1.0, unter @supports not) zählen dabei nicht mit.
  */
 final class LookAdoptionTest extends TestCase
 {
@@ -19,7 +20,7 @@ final class LookAdoptionTest extends TestCase
     /** @return array<string, string> */
     private function skinBlock(string $selector): array
     {
-        $css = (string) file_get_contents(self::CSS);
+        $css = $this->withoutFallbacks((string) file_get_contents(self::CSS));
         $values = [];
         $pattern = '/(?:^|})\s*' . preg_quote($selector, '/') . '\s*\{([^{}]*)\}/';
         preg_match_all($pattern, $css, $blocks);
@@ -30,6 +31,33 @@ final class LookAdoptionTest extends TestCase
             }
         }
         return $values;
+    }
+
+    /** Schneidet die @supports-not-Blöcke heraus, samt verschachtelter Regeln. */
+    private function withoutFallbacks(string $css): string
+    {
+        while (($start = strpos($css, '@supports not')) !== false) {
+            $open = (int) strpos($css, '{', $start);
+            $depth = 0;
+            for ($i = $open, $n = strlen($css); $i < $n; $i++) {
+                $depth += $css[$i] === '{' ? 1 : ($css[$i] === '}' ? -1 : 0);
+                if ($depth === 0) {
+                    break;
+                }
+            }
+            $css = substr($css, 0, $start) . substr($css, $i + 1);
+        }
+        return $css;
+    }
+
+    /**
+     * Das FiveM-Tablet (Chromium 103) kennt kein oklch(). Für dort bringt der
+     * Look jede feste Farbe zusätzlich in sRGB mit.
+     */
+    public function testTheSkinHasAnSrgbFallbackForTheTablet(): void
+    {
+        $css = (string) file_get_contents(self::CSS);
+        self::assertMatchesRegularExpression('/@supports not \\(?color: ?oklch\\(0%? 0 0(deg)?\\)\\)?\\s*\\{[^@]*body\\[data-ui-skin=core\\]\\{--canvas:#[0-9a-f]{6}/', $css);
     }
 
     public function testTheSkinUsesTheSharedLook(): void
