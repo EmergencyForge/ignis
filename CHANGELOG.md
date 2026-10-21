@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.1.7-beta
+
+### Sicherheit
+- Das Docker-Image läuft jetzt auf PHP 8.3.36, das die beiden kritischen Lücken CVE-2026-109618 und CVE-2026-109619 schließt. Die Notmaßnahmen aus 2026.1.6-beta fallen weg: PHP hat wieder 256 MB Speicher pro Anfrage, Uploads und Plugin-ZIPs gehen wieder bis 50 MB. Der Upload-Fortschritt in der Sitzung bleibt aus, ignis braucht ihn nicht
+- Wer ignis auf eigenem Webspace betreibt und noch nicht aktualisiert hat: PHP 8.3.36, 8.4.27 oder 8.5.12, oder das gepatchte Paket der Distribution
+
 ## 2026.1.6-beta
 
 ### Sicherheit
