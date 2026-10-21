@@ -1,5 +1,45 @@
 # Changelog
 
+## 2026.1.7
+
+Fasst die Betas 2026.1.2 bis 2026.1.7 für alle zusammen, die bei 2026.1.1 stehen.
+
+### Sicherheit
+- Das Docker-Image läuft auf PHP 8.3.36. Es schließt CVE-2026-109618 und CVE-2026-109619, zwei kritische Lücken in PHP, über die ein Angreifer ohne Anmeldung Code auf dem Server ausführen kann. Wer das Image mit `:latest` betreibt, bekommt den Fix mit diesem Release
+- Wer ignis auf eigenem Webspace betreibt, braucht PHP 8.3.36, 8.4.27 oder 8.5.12 oder das gepatchte Paket seiner Distribution. Das aktualisiert der Hoster, nicht ignis
+
+### Atemschutzüberwachung im fireTab
+- Neu als Reiter „Atemschutz“ im Einsatz, eine Zeile je Trupp mit Einsatzzeit, Rest bis zum Rückzug, niedrigstem Druck, Ort und nächster Abfrage. Die Farbe zeigt den Zustand: grün unter Atemschutz, orange bei fälliger Abfrage, rot unter dem Rückzugsdruck, blau auf dem Rückweg
+- Rückzugsdruck nach FwDV 7, maßgeblich ist die Person mit dem niedrigsten Druck. Die Abfragen nach 1/3 und 2/3 der erwarteten Einsatzzeit werden angezeigt und mit Uhrzeit festgehalten, „Aktion“ zählt bis zur nächsten herunter und öffnet sie per Tipp
+- Druck je Person über einen Zahlenblock, Schnellstart für Angriffs- und Sicherheitstrupp. Das Zahnrad öffnet ein Seitenfenster mit Druckverlauf, Rückzugsrechnung und dem Ablauf, in dem sich jeder Eintrag einzeln zurücknehmen lässt
+- MAYDAY oben und in jedem Trupp. Die Notfallmeldung schlägt den bereiten Sicherheitstrupp vor, die Zeile zeigt danach die Minuten seit dem Notruf
+- Alle Tablets eines Einsatzes sehen denselben Stand. Ohne Verbindung warten Meldungen auf dem Tablet und gehen raus, sobald das Netz zurück ist
+- Neue Einstellungen unter fireTab: Normalverbrauch des Pressluftatmers (Vorgabe 10 bar/min) und Fülldruck (Vorgabe 300 bar)
+- Der Einsatzbericht listet die Registrierung je Trupp. Alte Protokolle bleiben lesbar, der Menüpunkt „AS-Überwachung“ entfällt
+
+### fireTab
+- Das Menü liegt auf allen fireTab-Seiten hinter dem Knopf oben links und klappt über dem Inhalt aus
+
+### eNOTF
+- Vor der PIN-Sperre wird gespeichert, was gerade eingetippt ist. Nach der PIN geht es zurück auf dieselbe Seite, und wer lange in einem Feld schreibt, wird beim nächsten Klick nicht mehr gesperrt
+- Stellt ein gemeldeter Defekt das Fahrzeug außer Dienst, endet die Anmeldung mit einem Hinweis statt mit „Fahrzeug nicht gefunden“
+- Die Druckansicht passt wieder auf die Seite und öffnet im selben Tab
+
+### Tablet in FiveM
+- Im Tablet greifen die Breakpoints wieder, das eNOTF-Seitenmenü steht links neben dem Inhalt. FiveM zeigt Seiten mit Chromium 103, das die neue Schreibweise der Media Queries übersprungen hat
+- Läuft ignis als DUI auf dem Tablet-Modell, nimmt es Tastatureingaben von ef_bridge an. Dafür braucht es ef_bridge mit DUI-Tablet, das ist noch nicht veröffentlicht
+
+### Dashboard
+- Die Ankündigungen kommen aus dem Blog auf emergencyforge.de, das Forum ist abgeschaltet. Der Knopf heißt „Alle im Blog“, Installationen mit der alten Forenadresse laden weiter
+
+### Dokumente und Editor
+- Auf den Lehrgangszertifikaten wählt man den Lehrgang wieder aus einer Liste, die männliche oder weibliche Form richtet sich nach dem Mitarbeiter. Vorlagen, deren Feld schon eine eigene Liste hat, bleiben unverändert
+
+### Behoben
+- Auswahllisten in fireTab, eNOTF und MANV-Board zeigten an jeder Option einen Haken
+- Nach dem Hochladen eines Logos schrieb Speichern in der Konfiguration den alten Pfad zurück, und ein ersetztes Logo mit gleichem Dateinamen kam weiter aus dem Browser-Cache
+- Updates überschrieben Logos und Dienstgradabzeichen, die unter den mitgelieferten Dateinamen in `public/assets/img` ausgetauscht worden waren
+
 ## 2026.1.7-beta
 
 ### Sicherheit
