@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.1.6-beta
+
+### Sicherheit
+- PHP hat am 21. Oktober zwei kritische Lücken geschlossen (CVE-2026-109618 und CVE-2026-109619), über die ein Angreifer ohne Anmeldung Code auf dem Server ausführen kann. Das Docker-Image läuft mit Apache und mod_php, also in der Variante, die PHP für am stärksten gefährdet hält. Das gepatchte Basis-Image mit PHP 8.3.36 gibt es auf Docker Hub noch nicht, deshalb setzt dieses Image die Gegenmaßnahmen aus dem PHP-Advisory: kein Speicherlimit für PHP, Upload-Fortschritt in der Sitzung aus, Uploads bis 30 MB, auch für Plugin-ZIPs. Das senkt das Risiko, beseitigt es aber nicht. Sobald das Basis-Image da ist, folgt ein Release mit PHP 8.3.36
+- Wer ignis auf eigenem Webspace betreibt, braucht PHP 8.3.36, 8.4.27 oder 8.5.12 oder das gepatchte Paket seiner Distribution. Das aktualisiert der Hoster, nicht ignis
+
+### Dashboard
+- Die Ankündigungen kommen aus dem Blog auf emergencyforge.de, das Forum ist abgeschaltet. Der Knopf heißt „Alle im Blog“. Installationen mit der alten Forenadresse laden weiter, weil das Forum dorthin umleitet
+
+### Dokumente und Editor
+- Auf den Lehrgangszertifikaten wählt man den Lehrgang wieder aus einer Liste, die männliche oder weibliche Form richtet sich nach dem Mitarbeiter. Vorlagen, deren Feld schon eine eigene Liste hat, bleiben unverändert. Im Vorlagen-Editor lassen sich Optionen mit ihren drei Formen anlegen und entfernen
+
+### Behoben
+- Nach dem Hochladen eines Logos schrieb Speichern in der Konfiguration den alten Pfad zurück
+- Ein ersetztes Logo mit gleichem Dateinamen kam weiter aus dem Browser-Cache
+- Updates überschrieben Logos und Dienstgradabzeichen, die unter den mitgelieferten Dateinamen in `public/assets/img` ausgetauscht worden waren
+
 ## 2026.1.5-beta
 
 ### fireTab
