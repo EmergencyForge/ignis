@@ -1,4 +1,6 @@
-FROM php:8.3-apache
+# Genaue Patch-Version: 8.3.36 schließt CVE-2026-109618 und -109619. Mit dem
+# wandernden Tag 8.3-apache kann ein Build unbemerkt eine ältere Basis ziehen.
+FROM php:8.3.36-apache
 
 # Internal capability for EmergencyForge-managed Fabrica deployments.
 LABEL de.emergencyforge.fabrica.login="1"
