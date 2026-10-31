@@ -22,6 +22,12 @@ declare(strict_types=1);
  * hält shell.js in localStorage). Unter 900 px ist sie ein Drawer hinter
  * dem Menü-Knopf der Topbar, mit Scrim.
  *
+ * Einstellungsmodus: Gehört die Seite zu einem Eintrag der
+ * placement=settings-Gruppen (Navigation::inSettings()), zeigt die Sidebar
+ * statt der normalen Gruppen oben „Zurück“ und „Übersicht“, darunter nur
+ * die Gruppen der Einstellungen. Markup und Aussehen bleiben dieselben, es
+ * gibt keine zweite Navigation neben der Seite.
+ *
  * Läuft per `require` im Scope des Layouts (oder des Shims navbar.php) und
  * teilt dessen Variablen. Alle lokalen Variablen tragen darum das Präfix
  * `nav`; tests/Unit/Templates/SidebarScopeTest.php hält das fest.
@@ -30,13 +36,28 @@ declare(strict_types=1);
 use App\Helpers\Navigation;
 use App\Support\NavigationCounters;
 
-$navGroups = Navigation::sidebarGroups(Navigation::groups());
+$navAllGroups = Navigation::groups();
+$navSettingsGroups = Navigation::settingsGroups($navAllGroups);
+$navInSettings = Navigation::inSettings($navSettingsGroups);
+if ($navInSettings) {
+    $navOverview = in_array(Navigation::currentPath(), ['/settings', '/settings/index'], true);
+    $navGroups = array_merge([[
+        'id'    => 'settings-head',
+        'label' => null,
+        'items' => [
+            ['label' => 'Zurück', 'href' => BASE_PATH . 'index', 'icon' => 'fa-solid fa-arrow-left', 'active' => false],
+            ['label' => 'Übersicht', 'href' => BASE_PATH . 'settings/index', 'icon' => 'fa-solid fa-gear', 'active' => $navOverview],
+        ],
+    ]], $navSettingsGroups);
+} else {
+    $navGroups = Navigation::sidebarGroups($navAllGroups);
+}
 
 $navVersionFile = dirname(__DIR__, 2) . '/storage/version.json';
 $navVersionInfo = is_file($navVersionFile) ? json_decode((string) file_get_contents($navVersionFile), true) : null;
 $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? (string) $navVersionInfo['version'] : null;
 ?>
-<aside class="ignis-sidebar" id="ignisSidebar" aria-label="Hauptnavigation">
+<aside class="ignis-sidebar" id="ignisSidebar" aria-label="<?= $navInSettings ? 'Einstellungen' : 'Hauptnavigation' ?>">
     <nav class="ignis-sidebar__nav">
         <?php foreach ($navGroups as $navGroup): ?>
             <?php if (!empty($navGroup['label'])): ?>

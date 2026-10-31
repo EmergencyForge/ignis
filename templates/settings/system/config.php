@@ -444,6 +444,11 @@ $SITE_TITLE = 'System-Konfiguration';
                 });
             });
             if (location.hash.indexOf('#cfg-') === 0) jumpTo(location.hash.slice(1));
+            // Treffer aus der Suche der Einstellungsleiste springen auf ein
+            // Feld dieser Seite, auch in einen gerade versteckten Abschnitt.
+            window.addEventListener('hashchange', function () {
+                if (location.hash.indexOf('#cfg-') === 0) jumpTo(decodeURIComponent(location.hash.slice(1)));
+            });
         })();
 
         function updateLogoPreview(value) {

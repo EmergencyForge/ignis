@@ -79,25 +79,26 @@ final class SettingsOverviewTest extends FeatureTestCase
     }
 
     #[Test]
-    public function eine_settings_unterseite_markiert_einstellungen_als_aktuell(): void
+    public function eine_settings_unterseite_markiert_ihren_bereich_als_aktuell(): void
     {
         $this->login();
 
         $response = $this->get('/settings/personnel/ranks/index');
 
         $this->assertOk($response);
-        $this->assertMatchesRegularExpression('~href="/settings/index"[^>]*aria-current="page"~', $response->body);
+        $this->assertMatchesRegularExpression('~href="/settings/personnel/ranks/index"[^>]*aria-current="page"~', $response->body);
     }
 
     #[Test]
-    public function enotf_unterseiten_markieren_einstellungen_als_aktuell(): void
+    public function enotf_unterseiten_stehen_im_einstellungsmodus(): void
     {
         $this->login();
 
         foreach (['/settings/enotf/kategorien/index'] as $path) {
             $response = $this->get($path);
             $this->assertOk($response);
-            $this->assertMatchesRegularExpression('~href="/settings/index"[^>]*aria-current="page"~', $response->body, $path);
+            $this->assertStringContainsString('aria-label="Einstellungen"', $response->body, $path);
+            $this->assertMatchesRegularExpression('~class="ignis-sidebar__link"[^>]*aria-current="page"~', $response->body, $path);
         }
     }
 
@@ -113,19 +114,20 @@ final class SettingsOverviewTest extends FeatureTestCase
     }
 
     #[Test]
-    public function sechs_abschnitte_in_fester_reihenfolge(): void
+    public function sieben_abschnitte_in_fester_reihenfolge(): void
     {
         $this->login();
 
         $body = $this->get('/settings/index')->body;
 
         preg_match_all('~<h2>([^<]+)</h2>~', $body, $headings);
-        $this->assertSame(['Personal', 'Zugang', 'Inhalte', 'eNOTF', 'Mail', 'System'], $headings[1]);
+        $this->assertSame(['Personal', 'Zugang', 'Inhalte', 'eNOTF', 'Mail', 'System', 'Wartung'], $headings[1]);
         $this->assertBodyContains('Einladungen', $this->get('/settings/index'));
         $this->assertStringNotContainsString('Registrierungscodes', $body);
-        // Die Konfiguration hat eine eigene Kachel, der Rest des Systembereichs heißt Wartung und Diagnose.
+        // Die Konfiguration hat eine eigene Kachel, die Seiten von „Wartung und Diagnose“ stehen einzeln unter Wartung.
         $this->assertMatchesRegularExpression('~href="/settings/system/config" class="twplus-link-card"~', $body);
-        $this->assertStringContainsString('Wartung und Diagnose', $body);
+        $this->assertStringNotContainsString('Wartung und Diagnose', $body);
+        $this->assertMatchesRegularExpression('~<h2>Wartung</h2>(?:(?!<h2>).)*href="/settings/system/logs"~s', $body);
         // Beladelisten stehen jetzt unter Inhalte, nicht mehr in einem eigenen Abschnitt.
         $this->assertMatchesRegularExpression('~<h2>Inhalte</h2>(?:(?!<h2>).)*Beladelisten~s', $body);
     }
@@ -180,5 +182,90 @@ final class SettingsOverviewTest extends FeatureTestCase
             Capsule::table('intra_config')->where('config_key', $key)->update(['config_value' => $value]);
         }
         (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
+    }
+
+    /**
+     * Die Gruppenüberschriften der Sidebar.
+     *
+     * @return list<string>
+     */
+    private function sidebarGroups(string $body): array
+    {
+        preg_match('~<aside class="ignis-sidebar".*?</aside>~s', $body, $sidebar);
+        preg_match_all('~<div class="ignis-sidebar__group">([^<]+)</div>~', $sidebar[0] ?? '', $groups);
+
+        return $groups[1];
+    }
+
+    #[Test]
+    public function in_den_einstellungen_zeigt_die_sidebar_nur_deren_gruppen(): void
+    {
+        $this->login();
+
+        $body = $this->get('/settings/personnel/ranks/index')->body;
+
+        $this->assertStringContainsString('<aside class="ignis-sidebar" id="ignisSidebar" aria-label="Einstellungen">', $body);
+        $this->assertSame(['Personal', 'Zugang', 'Inhalte', 'eNOTF', 'Mail', 'System', 'Wartung'], $this->sidebarGroups($body));
+        $this->assertMatchesRegularExpression('~href="/index"\s+class="ignis-sidebar__link"\s+aria-label="Zurück"~', $body);
+        $this->assertMatchesRegularExpression('~href="/settings/personnel/ranks/index"\s+class="ignis-sidebar__link"\s+aria-label="Dienstgrade"[^>]*\s+aria-current="page"~', $body);
+        // Die Schnellaktion bleibt an der Zeile, wie in der normalen Sidebar.
+        $this->assertStringContainsString('data-quick-action-target="dienstgrad-create"', $body);
+    }
+
+    #[Test]
+    public function auf_der_uebersicht_ist_uebersicht_aktiv(): void
+    {
+        $this->login();
+
+        $body = $this->get('/settings/index')->body;
+
+        $this->assertMatchesRegularExpression('~href="/settings/index"\s+class="ignis-sidebar__link"\s+aria-label="Übersicht"[^>]*\s+aria-current="page"~', $body);
+    }
+
+    #[Test]
+    public function der_einstellungsmodus_zeigt_nur_erlaubte_gruppen(): void
+    {
+        $this->login(['personnel.view']);
+
+        $body = $this->get('/settings/personnel/ranks/index')->body;
+
+        $this->assertSame(['Personal'], $this->sidebarGroups($body));
+    }
+
+    #[Test]
+    public function ausserhalb_der_einstellungen_bleibt_die_normale_sidebar(): void
+    {
+        $this->login();
+
+        $body = $this->get('/index')->body;
+
+        $this->assertStringContainsString('aria-label="Hauptnavigation"', $body);
+        $this->assertNotContains('Wartung', $this->sidebarGroups($body));
+    }
+
+    #[Test]
+    public function systemseiten_haben_keine_zweite_reiterleiste_mehr(): void
+    {
+        $this->login();
+
+        $body = $this->get('/settings/system/logs')->body;
+
+        $this->assertStringNotContainsString('twplus-settings-nav', $body);
+        $this->assertMatchesRegularExpression('~href="/settings/system/logs"\s+class="ignis-sidebar__link"\s+aria-label="Logs"[^>]*\s+aria-current="page"~', $body);
+    }
+
+    #[Test]
+    public function die_suche_findet_einzelne_felder_der_konfiguration(): void
+    {
+        $this->login();
+
+        $body = $this->get('/index')->body;
+
+        // Die Ziele der Palette stehen als JSON am Suchfeld (topbar.php).
+        $this->assertStringContainsString('&quot;label&quot;:&quot;Hauptfarbe&quot;', $body);
+        $this->assertStringContainsString('settings/system/config#cfg-SYSTEM_COLOR', $body);
+
+        $this->login(['personnel.view']);
+        $this->assertStringNotContainsString('cfg-SYSTEM_COLOR', $this->get('/index')->body);
     }
 }

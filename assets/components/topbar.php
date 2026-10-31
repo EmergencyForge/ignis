@@ -106,8 +106,19 @@ foreach ($topGroups as $topGroup) {
             'sub'      => 'Gehe zu',
             'href'     => (string) $topItem['href'],
             'drawer'   => false,
-            'keywords' => 'gehe zu öffnen ' . (is_string($topGroup['label'] ?? null) ? $topGroup['label'] : ''),
+            'keywords' => 'gehe zu öffnen ' . (is_string($topGroup['label'] ?? null) ? $topGroup['label'] : '') . ' ' . (string) ($topItem['keywords'] ?? ''),
         ];
+        // Einzelne Felder der Einstellungen, etwa „Hauptfarbe“: springen auf
+        // ihr Feld (config/navigation.php, `fields`).
+        foreach (Navigation::settingsFields($topItem) as $topField) {
+            $topPalette[] = [
+                'label'    => $topField['label'],
+                'sub'      => (string) $topItem['label'],
+                'href'     => $topField['href'],
+                'drawer'   => false,
+                'keywords' => 'einstellung feld ' . (string) $topItem['label'],
+            ];
+        }
     }
 }
 ?>
