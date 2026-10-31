@@ -158,6 +158,97 @@ final class Navigation
     }
 
     /**
+     * Gruppen der Sidebar im Einstellungsmodus: die `placement => 'settings'`-Gruppen
+     * aus groups(), in derselben Reihenfolge. Aktiv ist hier der Eintrag,
+     * der unter diesen Einträgen am besten zum Pfad passt, auch wenn in der
+     * normalen Sidebar ein anderer gewinnt: /settings/vehicles/vehload/index
+     * gehört dort zu „Fahrzeuge“, in den Einstellungen zu „Beladelisten“.
+     *
+     * @param list<array<string, mixed>> $groups Ergebnis von groups()
+     * @return list<array<string, mixed>>
+     */
+    public static function settingsGroups(array $groups): array
+    {
+        $settings = [];
+        foreach ($groups as $group) {
+            if (($group['placement'] ?? null) !== 'settings' || ($group['items'] ?? []) === []) {
+                continue;
+            }
+            foreach ($group['items'] as &$item) {
+                $item['active'] = false;
+            }
+            unset($item);
+            $settings[] = $group;
+        }
+
+        self::markActive($settings, self::currentPath());
+
+        return $settings;
+    }
+
+    /**
+     * Gehört die aktuelle Seite in die Einstellungen? Dann zeigt die Sidebar
+     * deren Gruppen statt der normalen. Ja auf der Übersicht /settings und
+     * überall, wo ein Eintrag der Leiste aktiv ist.
+     *
+     * @param list<array<string, mixed>> $settingsGroups Ergebnis von settingsGroups()
+     */
+    public static function inSettings(array $settingsGroups): bool
+    {
+        if ($settingsGroups === []) {
+            return false;
+        }
+        if (in_array(self::currentPath(), ['/settings', '/settings/index'], true)) {
+            return true;
+        }
+        foreach ($settingsGroups as $group) {
+            foreach ($group['items'] as $item) {
+                if (!empty($item['active'])) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Die Felder eines Eintrags für die Suche (Strg K), je mit Beschriftung
+     * und Link auf den Anker der Seite. `fields` ist eine Liste oder eine
+     * Closure, die sie liefert (System-Konfiguration: aus intra_config).
+     * Schlägt die Closure fehl, findet die Suche eben nur die Bereiche.
+     *
+     * @param array<string, mixed> $item
+     * @return list<array{label: string, href: string}>
+     */
+    public static function settingsFields(array $item): array
+    {
+        $fields = $item['fields'] ?? [];
+        if ($fields instanceof \Closure) {
+            try {
+                $fields = $fields();
+            } catch (\Throwable $e) {
+                Logger::warning('Felder der Einstellungen für die Suche nicht geladen: ' . $e->getMessage());
+                $fields = [];
+            }
+        }
+
+        $href = explode('#', (string) $item['href'])[0];
+        $result = [];
+        foreach (is_array($fields) ? $fields : [] as $field) {
+            if (!is_array($field) || !is_string($field['label'] ?? null) || !is_string($field['anchor'] ?? null)) {
+                continue;
+            }
+            if (trim($field['label']) === '' || $field['anchor'] === '') {
+                continue;
+            }
+            $result[] = ['label' => trim($field['label']), 'href' => $href . '#' . rawurlencode($field['anchor'])];
+        }
+
+        return $result;
+    }
+
+    /**
      * Die Schnellaktionen der sichtbaren Einträge, in Sidebar-Reihenfolge.
      *
      * @param list<array<string, mixed>> $groups

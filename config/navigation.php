@@ -15,13 +15,18 @@
  *       label: string|null,           Überschrift; null = ohne Überschrift
  *       permissions?: string[],       Permissions::check, ANY-Match
  *       placement?: 'settings',       Gruppe erscheint nicht in der Sidebar,
- *                                     sondern als Abschnitt auf /settings/index
- *                                     (App\Helpers\Navigation::sidebarGroups())
+ *                                     sondern in der Sidebar im Einstellungsmodus
+ *                                     (App\Helpers\Navigation::settingsGroups())
  *       items: array<array{
  *           label: string,
  *           href: string,             absoluter Pfad mit BASE_PATH oder externe URL
  *           icon: string,             Font-Awesome-Klasse, z.B. 'fa-solid fa-users'
- *           description?: string,     Ein Satz für die Kachel auf /settings/index
+ *           description?: string,     Ein Satz zum Eintrag (Palette, Kachel der Systemübersicht)
+ *           keywords?: string,        Weitere Suchbegriffe für die Kachelsuche auf /settings/index
+ *           fields?: list<array{label: string, anchor: string}>|\Closure,
+ *                                     Felder der Seite für die Suche (Strg K),
+ *                                     anchor ist die id auf der Seite; eine
+ *                                     Closure liefert die Liste erst beim Rendern
  *           permissions?: string[],   ANY-Match; fehlt: jeder Eingeloggte
  *           match?: string[],         Pfadpräfixe (ohne BASE_PATH), unter denen der
  *                                     Eintrag als aktiv gilt, zusätzlich zum href
@@ -57,9 +62,11 @@
  * wird weiterhin gelesen. Eine Gruppe ohne Einträge, etwa „Protokolle"
  * ohne aktives Protokoll-Plugin, erscheint nicht.
  *
- * Gruppen mit `placement => 'settings'` bündeln sich statt in der Sidebar
- * auf der Übersicht /settings/index (SettingsController::index), je eine
- * als Abschnitt mit Kachel pro Eintrag; das hält die Sidebar auf die
+ * Gruppen mit `placement => 'settings'` stehen nicht in der normalen
+ * Sidebar, sondern als Kacheln auf /settings/index. Auf jeder Seite, die zu
+ * einem ihrer Einträge gehört, wechselt die Sidebar in den
+ * Einstellungsmodus: oben „Zurück“, darunter nur diese Gruppen
+ * (assets/components/navbar-sidebar.php). Das hält die Sidebar auf die
  * täglich genutzten Einträge beschränkt. Die Gruppe „Verwaltung" (id
  * `admin`) bleibt sichtbar und bekommt dort den Einstellungen-Eintrag
  * synthetisch dazu (Navigation::sidebarGroups()).
@@ -178,6 +185,7 @@ return [
                     'href'         => BASE_PATH . 'settings/personnel/ranks/index',
                     'icon'         => 'fa-solid fa-medal',
                     'description'  => 'Dienstgradstufen für Mitarbeiter pflegen.',
+                    'keywords'     => 'Rang Beförderung Stufe Abzeichen',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/ranks'],
                     'quick_action' => [
@@ -191,6 +199,7 @@ return [
                     'href'         => BASE_PATH . 'settings/personnel/fdskills/index',
                     'icon'         => 'fa-solid fa-fire',
                     'description'  => 'Qualifikationen für den Feuerwehrdienst verwalten.',
+                    'keywords'     => 'Feuerwehr Lehrgang Ausbildung',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/fdskills'],
                     'quick_action' => [
@@ -204,6 +213,7 @@ return [
                     'href'         => BASE_PATH . 'settings/personnel/ambskills/index',
                     'icon'         => 'fa-solid fa-kit-medical',
                     'description'  => 'Qualifikationen für den Rettungsdienst verwalten.',
+                    'keywords'     => 'Rettungsdienst Notfallsanitäter Lehrgang Ausbildung',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/ambskills'],
                     'quick_action' => [
@@ -217,6 +227,7 @@ return [
                     'href'         => BASE_PATH . 'settings/personnel/specialties/index',
                     'icon'         => 'fa-solid fa-layer-group',
                     'description'  => 'Fachdienste und ihre Zuordnungen verwalten.',
+                    'keywords'     => 'Fachgruppe Spezialisierung',
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/settings/personnel/specialties'],
                     'quick_action' => [
@@ -230,6 +241,7 @@ return [
                     'href'        => BASE_PATH . 'settings/personnel/titles/index',
                     'icon'        => 'fa-solid fa-graduation-cap',
                     'description' => 'Titel wie Dr. oder Prof. für Mitarbeiter pflegen.',
+                    'keywords'    => 'Doktor Professor Anrede',
                     'permissions' => ['admin', 'personnel.view'],
                     'match'       => ['/settings/personnel/titles'],
                 ],
@@ -246,6 +258,7 @@ return [
                     'href'         => BASE_PATH . 'users/roles/index',
                     'icon'         => 'fa-solid fa-user-shield',
                     'description'  => 'Rollen und ihre Berechtigungen verwalten.',
+                    'keywords'     => 'Rechte Berechtigungen Permissions Gruppen',
                     'permissions'  => ['admin', 'users.view'],
                     'match'        => ['/users/roles'],
                     'quick_action' => [
@@ -259,6 +272,7 @@ return [
                     'href'         => BASE_PATH . 'users/registration-codes',
                     'icon'         => 'fa-solid fa-ticket',
                     'description'  => 'Codes, mit denen sich neue Mitarbeiter registrieren.',
+                    'keywords'     => 'Registrierungscode Code Einladungslink Registrierung',
                     'permissions'  => ['admin', 'users.create'],
                     'quick_action' => [
                         'type'   => 'modal',
@@ -271,6 +285,7 @@ return [
                     'href'        => BASE_PATH . 'users/audit-log',
                     'icon'        => 'fa-solid fa-clock-rotate-left',
                     'description' => 'Änderungen im System nachvollziehen.',
+                    'keywords'    => 'Protokoll Verlauf Änderungen Log',
                     'permissions' => ['admin', 'audit.view'],
                 ],
             ],
@@ -286,6 +301,7 @@ return [
                     'href'        => BASE_PATH . 'settings/documents/editor-templates',
                     'icon'        => 'fa-solid fa-file-lines',
                     'description' => 'Vorlagen für Urkunden, Zertifikate und Schreiben.',
+                    'keywords'    => 'Urkunde Zertifikat Schreiben Editor',
                     'permissions' => ['admin', 'personnel.documents.manage'],
                     'match'       => ['/settings/documents'],
                 ],
@@ -295,6 +311,7 @@ return [
                     'href'        => BASE_PATH . 'settings/dashboard/index',
                     'icon'        => 'fa-solid fa-table-cells-large',
                     'description' => 'Kacheln und Kategorien auf dem Dashboard.',
+                    'keywords'    => 'Startseite Kacheln Links',
                     'permissions' => ['admin', 'dashboard.manage'],
                     'match'       => ['/settings/dashboard'],
                 ],
@@ -303,6 +320,7 @@ return [
                     'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
                     'icon'        => 'fa-solid fa-boxes-stacked',
                     'description' => 'Was auf welchem Fahrzeug verladen ist.',
+                    'keywords'    => 'Beladung Fahrzeug Geräte Fächer',
                     'permissions' => ['admin', 'vehicles.manage'],
                     'match'       => ['/settings/vehicles/vehload'],
                 ],
@@ -341,29 +359,35 @@ return [
                     'href'        => BASE_PATH . 'settings/system/config',
                     'icon'        => 'fa-solid fa-sliders',
                     'description' => 'Name, Adresse, Anmeldung, eNOTF-PIN und Schnittstellen.',
+                    'keywords'    => 'Farbe Logo Name Adresse API Webhook Impressum',
                     'permissions' => ['admin'],
+                    // Die Beschriftungen der Felder stehen in intra_config
+                    // (description); die Seite gibt jedem Feld die id cfg-<KEY>.
+                    // Dieselbe Auswahl wie templates/settings/system/config.php.
+                    'fields'      => static fn (): array => array_values(array_map(
+                        static fn (array $config): array => ['label' => (string) $config['description'], 'anchor' => 'cfg-' . $config['config_key']],
+                        array_filter(
+                            (new \App\Config\ConfigManager())->getAllConfig(),
+                            static fn (array $config): bool => ((bool) $config['is_editable'] || in_array($config['config_key'], ['API_KEY', 'INSTALLATION_ID'], true))
+                                && trim((string) $config['description']) !== '',
+                        ),
+                    )),
                 ],
                 [
                     'label'       => 'Module',
                     'href'        => BASE_PATH . 'settings/system/modules',
                     'icon'        => 'fa-solid fa-puzzle-piece',
                     'description' => 'Welche Module wie eNOTF, Kalender oder Anträge ihr benutzt.',
+                    'keywords'    => 'eNOTF fireTab Kalender Anträge aktivieren',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/system/modules'],
-                ],
-                [
-                    'label'       => 'Wartung und Diagnose',
-                    'href'        => BASE_PATH . 'settings/system/index',
-                    'icon'        => 'fa-solid fa-screwdriver-wrench',
-                    'description' => 'Updates, Plugins, Logs, Cronjobs und Leistung.',
-                    'permissions' => ['admin'],
-                    'match'       => ['/settings/system'],
                 ],
                 [
                     'label'       => 'Instanzvernetzung',
                     'href'        => BASE_PATH . 'settings/federation/index',
                     'icon'        => 'fa-solid fa-diagram-project',
                     'description' => 'Verbindungen zu anderen ıgnıs-Instanzen verwalten.',
+                    'keywords'    => 'Föderation Vernetzung Instanz',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/federation'],
                 ],
@@ -372,8 +396,78 @@ return [
                     'href'        => BASE_PATH . 'settings/system/discord',
                     'icon'        => 'fa-brands fa-discord',
                     'description' => 'Eigener Bot für Benachrichtigungen und Einladungen per Direktnachricht.',
+                    'keywords'    => 'Bot Token Direktnachricht Benachrichtigung',
                     'permissions' => ['admin'],
                     'match'       => ['/settings/system/discord'],
+                ],
+            ],
+        ],
+
+        // Was früher hinter „Wartung und Diagnose“ als zweite Reiterleiste
+        // lag, steht jetzt direkt in der Sidebar der Einstellungen.
+        [
+            'id'        => 'maintenance',
+            'label'     => 'Wartung',
+            'placement' => 'settings',
+            'items'     => [
+                [
+                    'label'       => 'Systemübersicht',
+                    'href'        => BASE_PATH . 'settings/system/index',
+                    'icon'        => 'fa-solid fa-screwdriver-wrench',
+                    'description' => 'Version, Build und PHP auf einen Blick.',
+                    'keywords'    => 'Version Build PHP Wartung Diagnose',
+                    'permissions' => ['admin'],
+                    // Fängt Systemseiten ohne eigenen Eintrag auf.
+                    'match'       => ['/settings/system'],
+                ],
+                [
+                    'label'       => 'Updates',
+                    'href'        => BASE_PATH . 'settings/system/updater',
+                    'icon'        => 'fa-solid fa-arrow-up-from-bracket',
+                    'description' => 'Auf neue Releases prüfen, Updates installieren, Branch wechseln.',
+                    'keywords'    => 'Updater Release Version Branch aktualisieren',
+                    'permissions' => ['admin'],
+                ],
+                [
+                    'label'       => 'Plugins',
+                    'href'        => BASE_PATH . 'settings/system/plugins',
+                    'icon'        => 'fa-solid fa-plug',
+                    'description' => 'Community-Plugins installieren und aktualisieren.',
+                    'keywords'    => 'Erweiterungen installieren Hub',
+                    'permissions' => ['admin'],
+                    'match'       => ['/settings/system/plugins'],
+                ],
+                [
+                    'label'       => 'Leistung',
+                    'href'        => BASE_PATH . 'settings/system/performance',
+                    'icon'        => 'fa-solid fa-gauge-high',
+                    'description' => 'Anfragezeiten, langsame Abfragen, OpCache.',
+                    'keywords'    => 'Performance Metriken Slow Query OpCache',
+                    'permissions' => ['admin'],
+                ],
+                [
+                    'label'       => 'Telemetrie',
+                    'href'        => BASE_PATH . 'settings/system/telemetry',
+                    'icon'        => 'fa-solid fa-chart-line',
+                    'description' => 'Anonyme Statistiken und globale Ankündigungen.',
+                    'keywords'    => 'Statistik Ankündigungen',
+                    'permissions' => ['admin'],
+                ],
+                [
+                    'label'       => 'Logs',
+                    'href'        => BASE_PATH . 'settings/system/logs',
+                    'icon'        => 'fa-solid fa-rectangle-list',
+                    'description' => 'Fehlerprotokoll ansehen und durchsuchen.',
+                    'keywords'    => 'Fehler Error Protokoll',
+                    'permissions' => ['admin'],
+                ],
+                [
+                    'label'       => 'Cronjobs',
+                    'href'        => BASE_PATH . 'settings/system/cron',
+                    'icon'        => 'fa-solid fa-clock',
+                    'description' => 'Geplante Jobs, manuell starten, Verlauf.',
+                    'keywords'    => 'Cron Aufgaben Zeitplan Jobs',
+                    'permissions' => ['admin'],
                 ],
             ],
         ],

@@ -32,8 +32,6 @@
 $layoutMotion = preg_match('~/settings/vehicles/vehicles(?:/\d+)?$~', \App\Helpers\Navigation::currentPath()) === 1 ? 'record' : '';
 $layoutThemeFade = \App\Helpers\Theme::consumeTransition();
 $layoutTheme = \App\Helpers\Theme::mode();
-$layoutPath  = \App\Helpers\Navigation::currentPath();
-$layoutSystemNav = str_starts_with($layoutPath, '/settings/system/');
 ?>
 <!DOCTYPE html>
 <html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-efe-icons="fontawesome" data-efe-tooltip="data-ignis-tooltip" data-page-motion="<?= $layoutMotion ?>">
@@ -59,11 +57,6 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/');
 
     <main class="ignis-main">
         <?php \App\Helpers\Flash::render(); ?>
-        <?php if ($layoutSystemNav): ?>
-            <div class="twplus-page" style="padding-bottom:0;">
-                <?php include dirname(__DIR__, 2) . '/assets/components/settings/system/_navigation.php'; ?>
-            </div>
-        <?php endif; ?>
 <?= $layoutContent ?>
         <?php include dirname(__DIR__, 2) . '/assets/components/footer.php'; ?>
     </main>
