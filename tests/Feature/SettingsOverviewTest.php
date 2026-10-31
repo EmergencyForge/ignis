@@ -184,7 +184,11 @@ final class SettingsOverviewTest extends FeatureTestCase
         (new \ReflectionProperty(\App\Config\ConfigManager::class, 'configCache'))->setValue(null, null);
     }
 
-    /** Die Gruppenüberschriften der Sidebar. */
+    /**
+     * Die Gruppenüberschriften der Sidebar.
+     *
+     * @return list<string>
+     */
     private function sidebarGroups(string $body): array
     {
         preg_match('~<aside class="ignis-sidebar".*?</aside>~s', $body, $sidebar);
