@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.1.8-beta
+
+### Einstellungen
+- Auf jeder Einstellungsseite zeigt die Seitenleiste die Bereiche der Einstellungen, ganz oben „Zurück“ und „Übersicht“. Von einem Bereich zum nächsten geht es direkt, ohne Umweg über die Übersicht
+- Updates, Plugins, Leistung, Telemetrie, Logs und Cronjobs stehen als Gruppe „Wartung“ in der Seitenleiste und auf der Übersicht. Die zweite Reiterleiste unter „Wartung und Diagnose“ entfällt
+- Die Suche (Strg K) findet einzelne Felder der System-Konfiguration, etwa die Hauptfarbe, und springt direkt hin, auch in einen gerade zugeklappten Abschnitt
+
 ## 2026.1.7
 
 Fasst die Betas 2026.1.2 bis 2026.1.7 für alle zusammen, die bei 2026.1.1 stehen.
