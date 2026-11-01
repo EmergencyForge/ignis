@@ -283,7 +283,7 @@ final class Navigation
      * Topbar und Desktop-Hülle hängen sie als JSON an das Suchfeld.
      *
      * @param list<array<string, mixed>> $groups Ergebnis von groups()
-     * @return list<array{label: string, sub: string, href: string, drawer: bool, keywords: string, quick?: ?string}>
+     * @return list<array{label: string, sub: string, href: string, drawer: bool, keywords: string, quick?: string}>
      */
     public static function palette(array $groups): array
     {
@@ -296,9 +296,8 @@ final class Navigation
                     ? $action['parent'] . (str_contains($action['parent'], '?') ? '&' : '?') . 'action=create&quick=' . rawurlencode($action['target'])
                     : $action['target'],
                 'drawer'   => $action['type'] === 'drawer',
-                'quick'    => $action['quick'],
                 'keywords' => 'neu anlegen erstellen',
-            ];
+            ] + ($action['quick'] !== null ? ['quick' => $action['quick']] : []);
         }
         foreach ($groups as $group) {
             foreach ((array) ($group['items'] ?? []) as $item) {
