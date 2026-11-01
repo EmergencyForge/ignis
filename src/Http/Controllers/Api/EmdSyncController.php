@@ -49,11 +49,12 @@ final class EmdSyncController
             return Response::json(['success' => false, 'error' => 'Ungültiges JSON'], 400);
         }
 
-        // Letzten Sync-Zeitpunkt speichern (für Verbindungs-Status in der Topbar)
-        @file_put_contents(
-            dirname(__DIR__, 4) . '/storage/last_emd_sync.txt',
-            date('Y-m-d H:i:s')
-        );
+        // Letzten Sync-Zeitpunkt speichern (für Verbindungs-Status in der Topbar).
+        // Die Anzeige wird erst nach 120 s rot, ein Stand alle 30 s reicht.
+        $syncFile = dirname(__DIR__, 4) . '/storage/last_emd_sync.txt';
+        if ((int) @filemtime($syncFile) < time() - 30) {
+            @file_put_contents($syncFile, date('Y-m-d H:i:s'));
+        }
 
         try {
             // ── Vehicle Registry (optional, kann mit oder ohne dispatch kommen) ──
