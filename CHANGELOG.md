@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.1.11-beta
+
+### efOS
+- Strg P druckt jetzt nur den Inhalt des vorderen Fensters, ebenso der Druck über das Browsermenü. Bisher tat das nur „Drucken …“ in der Ablage
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.2.1.
+
 ## 2026.1.10-beta
 
 ### efOS: Menüleiste und Formulare
