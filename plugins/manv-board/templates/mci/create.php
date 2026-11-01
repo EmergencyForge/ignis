@@ -10,6 +10,7 @@
 $SITE_TITLE = 'Neue MANV-Lage anlegen';
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'manv-create';
 $bodyPage = 'edivi';
 ?>

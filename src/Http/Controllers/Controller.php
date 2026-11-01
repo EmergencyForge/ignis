@@ -123,8 +123,10 @@ abstract class Controller
      * Setzt das Template `$layout = 'admin'`, liefert es nur den Inhalt von
      * <main>; die Hülle (templates/layouts/admin.php, immer aus dem Kern,
      * auch für Plugin-Templates) kommt von App\Helpers\Layout. Das Template
-     * gibt dazu `$bodyId` und `$SITE_TITLE` mit, optional `$bodyPage` und
-     * `$layoutHead`. Ohne `$layout` bleibt alles wie bisher: eNOTF und die
+     * gibt dazu `$bodyId` und `$SITE_TITLE` mit, optional `$bodyPage`,
+     * `$layoutHead` und für die Desktop-Hülle `$windowSingle` (höchstens ein
+     * Fenster, weil Skripte über IDs suchen) oder `$windowPage` (nie im
+     * Fenster). Ohne `$layout` bleibt alles wie bisher: eNOTF und die
      * Seiten mit eigener Hülle bauen ihr <html> weiter selbst.
      *
      * Fragment statt Seite: mit `X-Requested-With: fragment` (Drawer,
@@ -170,6 +172,8 @@ abstract class Controller
                 'bodyId'     => $bodyId ?? null,
                 'bodyPage'   => $bodyPage ?? null,
                 'layoutHead' => $layoutHead ?? null,
+                'windowSingle' => $windowSingle ?? false,
+                'windowPage' => $windowPage ?? false,
             ]);
         }
 

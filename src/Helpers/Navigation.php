@@ -277,6 +277,54 @@ final class Navigation
     }
 
     /**
+     * Einträge der Palette ohne Server (assets/js/ui/palette.js): „X anlegen"
+     * aus den Schnellaktionen und „Gehe zu" aus der sichtbaren Navigation.
+     * Topbar und Desktop-Hülle hängen sie als JSON an das Suchfeld.
+     *
+     * @param list<array<string, mixed>> $groups Ergebnis von groups()
+     * @return list<array{label: string, sub: string, href: string, drawer: bool, keywords: string}>
+     */
+    public static function palette(array $groups): array
+    {
+        $palette = [];
+        foreach (self::quickActions($groups) as $action) {
+            $palette[] = [
+                'label'    => $action['label'],
+                'sub'      => 'Neu',
+                'href'     => $action['type'] === 'modal'
+                    ? $action['parent'] . (str_contains($action['parent'], '?') ? '&' : '?') . 'action=create&quick=' . rawurlencode($action['target'])
+                    : $action['target'],
+                'drawer'   => $action['type'] === 'drawer',
+                'keywords' => 'neu anlegen erstellen',
+            ];
+        }
+        foreach ($groups as $group) {
+            foreach ((array) ($group['items'] ?? []) as $item) {
+                $palette[] = [
+                    'label'    => (string) $item['label'],
+                    'sub'      => 'Gehe zu',
+                    'href'     => (string) $item['href'],
+                    'drawer'   => false,
+                    'keywords' => 'gehe zu öffnen ' . (is_string($group['label'] ?? null) ? $group['label'] : '') . ' ' . (string) ($item['keywords'] ?? ''),
+                ];
+                // Einzelne Felder der Einstellungen, etwa „Hauptfarbe“: springen auf
+                // ihr Feld (config/navigation.php, `fields`).
+                foreach (self::settingsFields($item) as $field) {
+                    $palette[] = [
+                        'label'    => $field['label'],
+                        'sub'      => (string) $item['label'],
+                        'href'     => $field['href'],
+                        'drawer'   => false,
+                        'keywords' => 'einstellung feld ' . (string) $item['label'],
+                    ];
+                }
+            }
+        }
+
+        return $palette;
+    }
+
+    /**
      * Pfad der aktuellen Anfrage ohne BASE_PATH, ohne `.php`, ohne Schrägstrich
      * am Ende (die Wurzel bleibt `/`).
      */

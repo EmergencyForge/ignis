@@ -47,6 +47,7 @@ $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleI
 
 $SITE_TITLE = 'Fahrzeug: ' . $heading;
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'fahrzeuge';
 ?>
     <div class="container-full relative" id="mainpageContainer">

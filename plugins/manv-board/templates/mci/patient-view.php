@@ -27,6 +27,7 @@ $canTransport = !in_array($patient['sichtungskategorie'] ?? '', ['SK4', 'SK5', '
 $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'patient-view';
 $bodyPage = 'edivi';
 ?>

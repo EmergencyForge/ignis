@@ -12,6 +12,7 @@
 $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer']);
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'manv-ressourcen';
 $bodyPage = 'edivi';
 ?>

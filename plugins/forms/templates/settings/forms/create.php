@@ -9,6 +9,7 @@
 
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'antragstyp-create';
 $SITE_TITLE = 'Neuer Antragstyp';
 ?>

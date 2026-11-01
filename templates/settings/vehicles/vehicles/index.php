@@ -20,6 +20,7 @@ use App\Models\Vehicle;
 use App\Security\CsrfProtection;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'fahrzeuge';
 $SITE_TITLE = 'Fahrzeuge';
 ?>

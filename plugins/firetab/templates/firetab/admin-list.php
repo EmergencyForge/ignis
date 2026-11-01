@@ -18,6 +18,7 @@
 use App\Security\CsrfProtection;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'protokolle';
 $SITE_TITLE = 'Einsatz-QM';
 

@@ -1,6 +1,7 @@
 <?php
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'lexicon';
 $SITE_TITLE = 'KB Kategorien & Tags';
 ?>

@@ -29,6 +29,7 @@ $categories = Capsule::table('intra_fahrzeuge_beladung_categories as c')
     ->all();
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'fahrzeuge';
 $SITE_TITLE = 'Beladelisten';
 ?>

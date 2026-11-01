@@ -9,6 +9,8 @@ use App\Helpers\Theme;
 use App\Models\User;
 use App\Security\CsrfProtection;
 use App\Session\SessionManager;
+use App\Support\DeskShell;
+use EmergencyForge\Ui\Desk;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 
@@ -46,6 +48,24 @@ final class ProfileController extends Controller
         }
         SessionManager::set('theme', $theme);
         Theme::flagTransition();
+
+        return Response::redirect($back);
+    }
+
+    /**
+     * POST /profile/ui: Oberfläche dieses Geräts (Klassisch, Automatisch,
+     * Desktop, Tablet). Hängt am Gerät, nicht am Konto, deshalb nur das
+     * Cookie (App\Support\DeskShell).
+     */
+    public function ui(Request $request): Response
+    {
+        $back = $this->backTarget($request);
+        $mode = (string) ($request->post['ui'] ?? '');
+        if (!in_array($mode, Desk::MODES, true)) {
+            Flash::error('Unbekannte Oberfläche.');
+            return Response::redirect($back);
+        }
+        DeskShell::remember($mode);
 
         return Response::redirect($back);
     }

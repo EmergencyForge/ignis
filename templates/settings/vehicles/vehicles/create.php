@@ -18,6 +18,7 @@ $vehicle = isset($vehicle) && is_array($vehicle) ? $vehicle : null;
 $isEdit  = $vehicle !== null;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'fahrzeuge';
 $SITE_TITLE = $isEdit ? 'Fahrzeug bearbeiten' : 'Fahrzeug anlegen';
 

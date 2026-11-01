@@ -281,7 +281,7 @@ final class VehicleWorkbenchTest extends FeatureTestCase
         $this->assertBodyContains('"tz_name":"HLF Vorlage"', $page);
 
         $fragment = $this->get('/settings/vehicles/vehicles/' . $vehicle['id'] . '/edit', ['headers' => ['X-Requested-With' => 'fragment']]);
-        $this->assertStringStartsWith('<div class="ignis-fragment" data-title="Fahrzeug bearbeiten">', $fragment->body);
+        $this->assertStringStartsWith('<div class="ignis-fragment" data-title="Fahrzeug bearbeiten"', $fragment->body);
         $this->assertBodyNotContains('<html', $fragment);
 
         $this->login(['vehicles.view']);

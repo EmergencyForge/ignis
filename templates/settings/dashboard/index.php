@@ -10,6 +10,7 @@
 
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'Dashboard-Konfiguration';
 ?>

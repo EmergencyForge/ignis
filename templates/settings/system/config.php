@@ -123,6 +123,7 @@ foreach ($setupOpen as $setupItem) {
 }
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'System-Konfiguration';
 ?>

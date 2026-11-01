@@ -11,6 +11,7 @@
  */
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'mitarbeiter';
 $SITE_TITLE = 'Mitarbeiter anlegen';
 

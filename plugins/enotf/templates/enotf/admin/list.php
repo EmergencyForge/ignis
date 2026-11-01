@@ -19,6 +19,7 @@
 use Plugin\Enotf\Helpers\EnotfUrl;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'protokolle';
 $SITE_TITLE = 'eNOTF-QM';
 

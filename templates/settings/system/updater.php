@@ -265,6 +265,7 @@ if ($isDevMode) {
 }
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'System Updates';
 ?>

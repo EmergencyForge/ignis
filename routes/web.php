@@ -149,6 +149,8 @@ $router->get('/inbox',                 [InboxController::class, 'index'],   [new
 $router->get('/inbox/popover',         [InboxController::class, 'popover'], [new AuthMiddleware()]);
 $router->get('/inbox/{id:\d+}/open',   [InboxController::class, 'open'],    [new AuthMiddleware()]);
 $router->post('/inbox/read',           [InboxController::class, 'read'],    [new AuthMiddleware()]);
+// Dieselben Einträge als Mitteilungen der Desktop-Hülle (efOS), als JSON.
+$router->get('/inbox/notifications',   [InboxController::class, 'notifications'], [new AuthMiddleware()]);
 
 // Eigene Dokumente, Anträge und Protokolle: die ganzen Listen hinter
 // „Alle anzeigen“ der Dashboard-Karten.
@@ -174,6 +176,8 @@ foreach (['/notifications', '/notifications/', '/notifications/index', '/notific
 
 $router->post('/profile/theme', [ProfileController::class, 'theme'], [new AuthMiddleware()]);
 $router->post('/profile/discord-dm', [ProfileController::class, 'discordDm'], [new AuthMiddleware()]);
+// Oberfläche dieses Geräts (klassisch oder Desktop-Hülle), ebenfalls aus dem Benutzermenü.
+$router->post('/profile/ui', [ProfileController::class, 'ui'], [new AuthMiddleware()]);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul

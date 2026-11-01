@@ -16,6 +16,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
 $chipClassFor = ['success' => 'ok', 'warning' => 'warn'];
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'benutzer';
 $SITE_TITLE = 'Rollen';
 ?>

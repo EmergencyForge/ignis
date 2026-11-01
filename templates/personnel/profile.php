@@ -40,6 +40,7 @@ use App\Helpers\Flash;
 $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'mitarbeiter';
 // Einladungen: im Modus „code“ Pflicht, im Modus „open“ verknüpfen sie das
 // neue Konto gleich mit dem Mitarbeiter. Bei geschlossener Registrierung

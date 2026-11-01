@@ -79,6 +79,7 @@
 body[data-ui-skin="core"] {
   @include ef.tokens('ignis');
   @include ef.look-tokens('ignis');
+  @include ef.desk-tokens;
   @include look-aliases.aliases;
   @include ef.components('ignis');
   @include ef.dashboard('ignis');
@@ -86,6 +87,7 @@ body[data-ui-skin="core"] {
   @include ef.auth('ignis');
   @include ef.look('ignis');
   @include ef.empty('ignis');
+  @include ef.desk('ignis');
 
   // Ab 901 px endet die Kopfzeile rechts mit der Tafel, 8 px vor dem
   // Fensterrand. Schmaler liegt die Tafel randlos, dann gilt das Polster

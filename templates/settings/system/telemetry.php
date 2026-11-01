@@ -101,6 +101,7 @@ $previewData = $telemetryEnabled ? $telemetry->collectData() : null;
 $cacheInfo = $announcements->getCacheInfo();
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'Telemetrie & Ankündigungen';
 ?>

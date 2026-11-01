@@ -25,6 +25,7 @@
 $SITE_TITLE = 'Fahrtenbuch';
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'fahrzeuge';
 
 // Fahrttyp => Chip-Semantik (FAHRTTYP_BADGES nennt die alten Namen).

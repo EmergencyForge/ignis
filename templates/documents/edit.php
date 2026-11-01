@@ -59,6 +59,7 @@ $gender = match ($document->mitarbeiter?->geschlecht) {
 };
 
 $layout     = 'admin';
+$windowSingle = true;
 $bodyId     = 'documents';
 $SITE_TITLE = $document->title;
 $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') . '">';

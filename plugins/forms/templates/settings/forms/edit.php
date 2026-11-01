@@ -11,6 +11,7 @@
 
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'antragstyp-edit';
 $SITE_TITLE = 'Antragstyp bearbeiten';
 ?>

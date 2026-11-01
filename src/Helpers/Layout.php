@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Support\DeskShell;
+
 /**
  * Legt eine gerenderte Ansicht in eine Seitenhülle aus templates/layouts/.
  *
@@ -20,6 +22,12 @@ namespace App\Helpers;
  *
  * Mit `X-Requested-With: fragment` (Drawer) kommt statt der Hülle nur
  * fragment(): der Inhalt in <div class="ignis-fragment" data-title="…">.
+ *
+ * Will das Gerät die Desktop-Hülle (App\Support\DeskShell), kommt statt
+ * `admin` das Layout `desk`: die Ansicht steht dort als erstes Fenster.
+ * Fenster laden Seiten ebenfalls als Fragment, das Fragment trägt dafür
+ * die Seiten-ID, das Markup aus $layoutHead (ein Fenster hat keinen
+ * eigenen <head>) und die Schalter $windowSingle und $windowPage.
  */
 final class Layout
 {
@@ -45,23 +53,52 @@ final class Layout
      * davor, damit sie nach einer Weiterleitung zurück aufs Formular im
      * Drawer als Toast erscheint statt auf der nächsten ganzen Seite.
      */
-    public static function fragment(string $content, ?string $title = null): string
+    /**
+     * @param array{bodyId?: string|null, head?: string|null, single?: bool, page?: bool} $meta
+     */
+    public static function fragment(string $content, ?string $title = null, array $meta = []): string
     {
         ob_start();
         Flash::render();
         $flash = (string) ob_get_clean();
 
-        return '<div class="ignis-fragment" data-title="' . htmlspecialchars((string) $title, ENT_QUOTES) . '">'
-            . $flash . $content . '</div>';
+        $attrs = ' data-title="' . htmlspecialchars((string) $title, ENT_QUOTES) . '"';
+        $bodyId = self::text($meta['bodyId'] ?? null);
+        if ($bodyId !== null) {
+            $attrs .= ' data-body-id="' . htmlspecialchars($bodyId, ENT_QUOTES) . '"';
+        }
+        if (!empty($meta['single'])) {
+            $attrs .= ' data-window-single';
+        }
+        if (!empty($meta['page'])) {
+            $attrs .= ' data-window-page';
+        }
+
+        return '<div class="ignis-fragment"' . $attrs . '>' . (self::text($meta['head'] ?? null) ?? '') . $flash . $content . '</div>';
     }
 
     /**
-     * @param array<string, mixed> $vars  SITE_TITLE, bodyId, bodyPage, layoutHead
+     * @param array<string, mixed> $vars  SITE_TITLE, bodyId, bodyPage, layoutHead, windowSingle, windowPage
      */
     public static function render(string $name, string $content, array $vars = []): string
     {
+        $meta = [
+            'bodyId' => self::text($vars['bodyId'] ?? null),
+            'head'   => self::text($vars['layoutHead'] ?? null),
+            'single' => !empty($vars['windowSingle']),
+            'page'   => !empty($vars['windowPage']),
+        ];
         if (self::wantsFragment()) {
-            return self::fragment($content, self::text($vars['SITE_TITLE'] ?? null));
+            return self::fragment($content, self::text($vars['SITE_TITLE'] ?? null), $meta);
+        }
+
+        DeskShell::rememberFromQuery();
+        $layoutFragment = '';
+        $layoutUrl = '';
+        if ($name === 'admin' && !$meta['page'] && DeskShell::active()) {
+            $name = 'desk';
+            $layoutFragment = self::fragment($content, self::text($vars['SITE_TITLE'] ?? null), $meta);
+            $layoutUrl = (string) ($_SERVER['REQUEST_URI'] ?? '/');
         }
 
         $layoutPath = self::path($name);

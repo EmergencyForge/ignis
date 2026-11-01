@@ -65,6 +65,14 @@ $topThemes = [
     'system' => ['System', 'circle-half-stroke'],
 ];
 
+$topModes = [
+    'classic' => ['Klassisch', 'table-columns'],
+    'auto'    => ['Automatisch', 'wand-magic-sparkles'],
+    'desktop' => ['Desktop', 'display'],
+    'tablet'  => ['Tablet', 'tablet-screen-button'],
+];
+$topMode = \App\Support\DeskShell::mode();
+
 // Glocke: ungelesene Benachrichtigungen, derselbe Zähler wie in der
 // Sidebar (NavigationCounters::for('inbox'), je Request gecacht).
 $topUnread = $topLoggedIn ? (int) (NavigationCounters::for('inbox') ?? 0) : 0;
@@ -83,44 +91,10 @@ $topActions = Navigation::quickActions($topGroups);
 // sekundär. Im Shim (navbar.php) ist der Inhalt noch nicht bekannt.
 $topNewStyle = isset($layoutContent) && !str_contains((string) $layoutContent, 'ignis-btn--primary') ? 'primary' : 'secondary';
 
-// Einträge der Palette ohne Server (assets/js/ui/palette.js): „X anlegen"
-// aus den Schnellaktionen und „Gehe zu" aus der sichtbaren Navigation,
-// als JSON am Suchfeld. Die Treffer aus dem Datenbestand kommen von
+// Einträge der Palette ohne Server (assets/js/ui/palette.js), als JSON am
+// Suchfeld. Die Treffer aus dem Datenbestand kommen von
 // GET /api/system/global-search dazu.
-$topPalette = [];
-foreach ($topActions as $topAction) {
-    $topPalette[] = [
-        'label'    => $topAction['label'],
-        'sub'      => 'Neu',
-        'href'     => $topAction['type'] === 'modal'
-            ? $topAction['parent'] . (str_contains($topAction['parent'], '?') ? '&' : '?') . 'action=create&quick=' . rawurlencode($topAction['target'])
-            : $topAction['target'],
-        'drawer'   => $topAction['type'] === 'drawer',
-        'keywords' => 'neu anlegen erstellen',
-    ];
-}
-foreach ($topGroups as $topGroup) {
-    foreach ($topGroup['items'] as $topItem) {
-        $topPalette[] = [
-            'label'    => (string) $topItem['label'],
-            'sub'      => 'Gehe zu',
-            'href'     => (string) $topItem['href'],
-            'drawer'   => false,
-            'keywords' => 'gehe zu öffnen ' . (is_string($topGroup['label'] ?? null) ? $topGroup['label'] : '') . ' ' . (string) ($topItem['keywords'] ?? ''),
-        ];
-        // Einzelne Felder der Einstellungen, etwa „Hauptfarbe“: springen auf
-        // ihr Feld (config/navigation.php, `fields`).
-        foreach (Navigation::settingsFields($topItem) as $topField) {
-            $topPalette[] = [
-                'label'    => $topField['label'],
-                'sub'      => (string) $topItem['label'],
-                'href'     => $topField['href'],
-                'drawer'   => false,
-                'keywords' => 'einstellung feld ' . (string) $topItem['label'],
-            ];
-        }
-    }
-}
+$topPalette = Navigation::palette($topGroups);
 ?>
 <header class="ignis-topbar" data-base-path="<?= htmlspecialchars($topBasePath, ENT_QUOTES) ?>">
     <div class="ignis-topbar__identity">
@@ -214,6 +188,17 @@ foreach ($topGroups as $topGroup) {
                     <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-density="compact" aria-pressed="true">Kompakt</button>
                     <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-ignis-density="comfortable" aria-pressed="false">Komfortabel</button>
                 </div>
+                <div class="ignis-menu__heading">Oberfläche</div>
+                <?php // Oberfläche des Geräts: die klassische Hülle oder efOS (App\Support\DeskShell, Cookie statt Konto). ?>
+                <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/ui', ENT_QUOTES) ?>" class="ignis-menu__form ignis-theme-options">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken(), ENT_QUOTES) ?>">
+                    <?php foreach ($topModes as $topModeKey => [$topModeLabel, $topModeIcon]): ?>
+                        <button type="submit" name="ui" value="<?= $topModeKey ?>" class="ignis-menu__item<?= $topMode === $topModeKey ? ' is-current' : '' ?>" aria-pressed="<?= $topMode === $topModeKey ? 'true' : 'false' ?>">
+                            <i class="fa-solid fa-<?= $topModeIcon ?>" aria-hidden="true"></i> <?= htmlspecialchars($topModeLabel) ?>
+                            <?php if ($topMode === $topModeKey): ?><i class="fa-solid fa-check ignis-menu__check" aria-hidden="true"></i><?php endif; ?>
+                        </button>
+                    <?php endforeach; ?>
+                </form>
                 <?php if ($topDiscordDm !== null): ?>
                     <div class="ignis-menu__heading">Discord</div>
                     <form method="POST" action="<?= htmlspecialchars($topBasePath . 'profile/discord-dm', ENT_QUOTES) ?>" class="ignis-menu__form">

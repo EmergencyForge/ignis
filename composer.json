@@ -10,7 +10,8 @@
     { "type": "path", "url": "../WebPackages/packages/cron-scheduler", "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/fuzzy-search",   "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/mail",           "options": { "symlink": true } },
-    { "type": "path", "url": "../WebPackages/packages/list-query",     "options": { "symlink": true } }
+    { "type": "path", "url": "../WebPackages/packages/list-query",     "options": { "symlink": true } },
+    { "type": "path", "url": "../WebPackages/packages/ui/php",         "options": { "symlink": true } }
   ],
   "require": {
     "php": ">=8.3",
@@ -36,7 +37,8 @@
     "emergencyforge/cron-scheduler": "^0.1",
     "emergencyforge/fuzzy-search": "^0.1",
     "emergencyforge/mail": "^0.1",
-    "emergencyforge/list-query": "^0.1"
+    "emergencyforge/list-query": "^0.1",
+    "emergencyforge/ui-php": "^1.1"
   },
   "autoload": {
     "psr-4": {

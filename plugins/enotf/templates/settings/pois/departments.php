@@ -15,6 +15,7 @@
 use App\Auth\Permissions;
 
 $layout     = 'admin';
+$windowSingle = true;
 $bodyId     = 'settings';
 $SITE_TITLE = 'Fachrichtungen';
 $pgPath     = 'settings/pois/departments';

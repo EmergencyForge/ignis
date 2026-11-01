@@ -15,6 +15,7 @@
  */
 
 $layout     = 'admin';
+$windowSingle = true;
 $bodyId     = 'mail';
 $SITE_TITLE = $mailbox->isGroup() ? 'Signatur: ' . $mailbox->display_name : 'Signatur';
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';

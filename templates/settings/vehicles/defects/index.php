@@ -134,6 +134,7 @@ $listUrl = static function (array $overrides = []) use ($filterVehicle, $filterS
 };
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'fahrzeuge';
 $SITE_TITLE = 'Fahrzeug-Defekte';
 ?>

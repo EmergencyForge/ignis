@@ -14,6 +14,7 @@ use App\Security\CsrfProtection;
 $csrfToken = CsrfProtection::getToken();
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'Fehlerprotokoll';
 ?>

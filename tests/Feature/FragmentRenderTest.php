@@ -39,7 +39,8 @@ final class FragmentRenderTest extends FeatureTestCase
         $response = $this->get('/settings/vehicles/vehicles/create', self::FRAGMENT);
 
         $this->assertOk($response);
-        $this->assertStringStartsWith('<div class="ignis-fragment" data-title="Fahrzeug anlegen">', $response->body);
+        // Danach dürfen die Angaben für die Fenster der Desktop-Hülle folgen (Layout::fragment()).
+        $this->assertStringStartsWith('<div class="ignis-fragment" data-title="Fahrzeug anlegen"', $response->body);
         $this->assertBodyNotContains('<html', $response);
         $this->assertBodyNotContains('ignis-topbar', $response);
         $this->assertBodyContains('name="identifier"', $response);
@@ -72,7 +73,7 @@ final class FragmentRenderTest extends FeatureTestCase
         ] as $path => [$title, $field]) {
             $response = $this->get($path, self::FRAGMENT);
             $this->assertOk($response);
-            $this->assertStringStartsWith('<div class="ignis-fragment" data-title="' . $title . '">', $response->body, $path);
+            $this->assertStringStartsWith('<div class="ignis-fragment" data-title="' . $title . '"', $response->body, $path);
             $this->assertBodyNotContains('<html', $response);
             $this->assertBodyContains($field, $response);
         }

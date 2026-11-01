@@ -3,6 +3,7 @@ use App\Auth\Permissions;
 use Plugin\KnowledgeBase\KBHelper;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'lexicon';
 $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
 

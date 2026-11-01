@@ -15,6 +15,7 @@ use App\Auth\Gate;
 $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'benutzer';
 ?>
     <div class="container-full relative" id="mainpageContainer">

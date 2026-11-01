@@ -88,6 +88,8 @@ const uiPackageModules = [
     // ui 0.10.0
     'calendar', 'carousel', 'cell-edit', 'columns', 'counter', 'datefield', 'daterange', 'filter-chips', 'hotkeys',
     'hovercard', 'menu', 'otp', 'questionnaire', 'range', 'relative-time', 'resizable', 'ring', 'tour',
+    // ui 1.1.0: Desktop-Hülle (efOS), nur auf templates/layouts/desk.php geladen
+    'desk',
 ];
 const uiProductFiles = {
     dialog:   'assets/js/ui/dialog-compat.js',

@@ -13,6 +13,7 @@
 $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'patient-create';
 $bodyPage = 'edivi';
 ?>

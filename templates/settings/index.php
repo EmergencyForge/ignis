@@ -18,6 +18,7 @@
  */
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings-index';
 $SITE_TITLE = 'Einstellungen';
 ?>

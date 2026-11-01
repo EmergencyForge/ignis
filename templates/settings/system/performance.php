@@ -9,6 +9,7 @@
 use App\Auth\Permissions;
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'Performance';
 ?>

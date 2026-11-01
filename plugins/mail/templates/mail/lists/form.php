@@ -17,6 +17,7 @@ use Plugin\Mail\MailAddressRules;
 use Plugin\Mail\Models\MailList;
 
 $layout     = 'admin';
+$windowSingle = true;
 $bodyId     = 'mail';
 $SITE_TITLE = $list === null ? 'Verteiler anlegen' : 'Verteiler bearbeiten';
 $isDynamic  = $form['kind'] === 'dynamic';

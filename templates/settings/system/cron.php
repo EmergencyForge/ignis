@@ -30,6 +30,7 @@ $runStatus = [
 ];
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'settings';
 $SITE_TITLE = 'Cron-Jobs';
 ?>

@@ -11,6 +11,7 @@ use App\Session\SessionManager;
 use App\Support\ListQuery;
 use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
+use EmergencyForge\Http\Response;
 
 /**
  * Posteingang: die Benachrichtigungen des angemeldeten Nutzers
@@ -24,6 +25,8 @@ use EmergencyForge\Http\Request;
  *                            seinem Ziel (ohne Ziel zurück zur Seite)
  *   POST /inbox/read         setzt einen (`id`) oder alle Einträge auf
  *                            gelesen, mit CSRF-Token
+ *   GET  /inbox/notifications  die letzten Einträge als JSON für die
+ *                            Mitteilungen der Desktop-Hülle (efOS)
  *
  * Alle nur hinter der Anmeldung; welche Typen ein Nutzer sieht,
  * entscheiden die Handler der Registry (NotificationTypeInterface::allowed()).
@@ -32,6 +35,19 @@ final class InboxController extends Controller
 {
     public const POPOVER_LIMIT = 5;
     public const PAGE_SIZE = 25;
+    public const NOTIFICATIONS_LIMIT = 20;
+
+    /**
+     * Zu welcher App der Desktop-Hülle ein Typ gehört (IDs aus
+     * App\Support\DeskShell): Banner und Stapel tragen dann ihr Symbol.
+     */
+    private const DESK_APPS = [
+        'antrag'         => 'forms',
+        'calendar'       => 'calendar',
+        'protokoll'      => 'enotf-admin',
+        'vehicle_defect' => 'defects',
+        'dokument'       => 'personnel',
+    ];
 
     public function __construct(private readonly NotificationManager $notifications)
     {
@@ -81,6 +97,35 @@ final class InboxController extends Controller
             'unread'  => $this->notifications->count($userId),
             'limit'   => self::POPOVER_LIMIT,
         ]);
+    }
+
+    /**
+     * Die Hülle merkt sich, welche IDs sie schon gezeigt hat, und meldet
+     * nur Neues als Banner. `href` geht über /inbox/{id}/open, damit der
+     * Eintrag auch hier als gelesen gilt.
+     */
+    public function notifications(): Response
+    {
+        $this->requireAuth();
+        $userId = (int) SessionManager::userId();
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+
+        $items = [];
+        foreach ($this->notifications->forUser($userId, false, self::NOTIFICATIONS_LIMIT) as $entry) {
+            $created = strtotime((string) ($entry['created_at'] ?? ''));
+            $items[] = [
+                'id'    => 'inbox:' . (int) $entry['id'],
+                'app'   => self::DESK_APPS[(string) ($entry['type'] ?? '')] ?? null,
+                'group' => (string) ($entry['label'] ?? ''),
+                'title' => (string) ($entry['title'] ?? ''),
+                'body'  => (string) ($entry['message'] ?? ''),
+                'href'  => $base . 'inbox/' . (int) $entry['id'] . '/open',
+                'read'  => (int) ($entry['is_read'] ?? 0) === 1,
+                'at'    => $created !== false ? date(DATE_ATOM, $created) : null,
+            ];
+        }
+
+        return Response::json(['count' => $this->notifications->count($userId), 'items' => $items]);
     }
 
     public function open(Request $request, string $id): void

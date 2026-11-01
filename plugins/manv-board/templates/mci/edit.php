@@ -13,6 +13,7 @@ $lageId     = (int) $lage['id'];
 $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer']);
 
 $layout = 'admin';
+$windowSingle = true;
 $bodyId = 'manv-edit';
 $bodyPage = 'edivi';
 ?>

@@ -37,6 +37,7 @@ $contentJson = htmlspecialchars(
 );
 
 $layout     = 'admin';
+$windowSingle = true;
 $bodyId     = 'settings';
 $SITE_TITLE = $isEdit ? 'Vorlage bearbeiten' : 'Vorlage anlegen';
 $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') . '">';

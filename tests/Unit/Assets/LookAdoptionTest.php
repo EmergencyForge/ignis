@@ -16,10 +16,35 @@ final class LookAdoptionTest extends TestCase
 {
     private const CSS = __DIR__ . '/../../../public/assets/dist/ui.css';
 
+    /**
+     * Seit ui 1.0 steht hinter dem Skin-Block derselbe Selektor noch einmal
+     * in `@supports not (color: oklch(…))`, mit sRGB-Werten für Browser
+     * ohne oklch. Für die Prüfung zählt der echte Block, sonst gewänne der
+     * Rückfall, weil er später kommt.
+     */
+    private static function withoutSrgbFallback(string $css): string
+    {
+        if (preg_match('/@supports\s+not\s*\(\s*color:\s*oklch/i', $css, $m, PREG_OFFSET_CAPTURE) !== 1) {
+            return $css;
+        }
+
+        $start = (int) $m[0][1];
+        $depth = 0;
+        for ($i = (int) strpos($css, '{', $start); $i < strlen($css); $i++) {
+            if ($css[$i] === '{') {
+                $depth++;
+            } elseif ($css[$i] === '}' && --$depth === 0) {
+                return substr($css, 0, $start) . substr($css, $i + 1);
+            }
+        }
+
+        return $css;
+    }
+
     /** @return array<string, string> */
     private function skinBlock(string $selector): array
     {
-        $css = (string) file_get_contents(self::CSS);
+        $css = self::withoutSrgbFallback((string) file_get_contents(self::CSS));
         $values = [];
         $pattern = '/(?:^|})\s*' . preg_quote($selector, '/') . '\s*\{([^{}]*)\}/';
         preg_match_all($pattern, $css, $blocks);
@@ -38,6 +63,11 @@ final class LookAdoptionTest extends TestCase
         self::assertSame('10px', $skin['--radius-2'] ?? null);
         self::assertSame('16px', $skin['--radius-3'] ?? null);
         self::assertStringStartsWith('oklch(', $skin['--canvas'] ?? '');
+        self::assertMatchesRegularExpression(
+            '/@supports\s+not\s*\(\s*color:\s*oklch/i',
+            (string) file_get_contents(self::CSS),
+            'Der sRGB-Rückfall des Pakets für Browser ohne oklch fehlt.',
+        );
     }
 
     public function testIgnisNamesPointAtTheRoles(): void
