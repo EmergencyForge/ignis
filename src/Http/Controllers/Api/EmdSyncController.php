@@ -333,7 +333,7 @@ final class EmdSyncController
 
             $vehicleRow = Capsule::table('intra_fahrzeuge')
                 ->where('name', $sender)
-                ->first(['identifier', 'rd_type']);
+                ->first(['id', 'identifier', 'rd_type']);
 
             if (!$vehicleRow) {
                 $notFound++;
@@ -344,6 +344,22 @@ final class EmdSyncController
 
             $vehicleIdentifier = $vehicleRow->identifier;
             $rdType            = (int) ($vehicleRow->rd_type ?? 0);
+
+            // Feuerwehr bekommt nie ein eNOTF-Protokoll, ihr Status gehört in
+            // den fireTab-Einsatz.
+            if ($rdType === 3) {
+                $landed = $this->applyFireStatus((int) $vehicleRow->id, (string) $missionNumber, (string) $statusValue);
+                if ($landed === null) {
+                    $notFound++;
+                    $finalIds[] = $statusId;
+                } elseif ($landed) {
+                    $successfulIds[] = $statusId;
+                } else {
+                    // Einsatz oder Zuordnung kommt mit der nächsten Einsatzrunde
+                    $notFound++;
+                }
+                continue;
+            }
 
             // Status-Zuordnung läuft über intra_edivi (eNOTF-Plugin). Ohne
             // aktives Plugin gibt es keine Protokolle, denen der Status
@@ -409,38 +425,6 @@ final class EmdSyncController
                 $updated++;
             }
 
-            // Fire Incident Status für Feuerwehr-Fahrzeuge (rd_type = 3)
-            if ($rdType === 3 && $this->firetabActive()) {
-                $fireIncidentId = Capsule::table('intra_fire_incidents')
-                    ->where('incident_number', (string) $missionNumber)
-                    ->value('id');
-
-                if ($fireIncidentId !== null) {
-                    $fireIncidentId = (int) $fireIncidentId;
-                    $vehicleId = Capsule::table('intra_fahrzeuge')
-                        ->where('identifier', $vehicleIdentifier)
-                        ->value('id');
-
-                    if ($vehicleId !== null) {
-                        $vehicleId = (int) $vehicleId;
-                        $fireStatusAffected = Capsule::table('intra_fire_incident_vehicles')
-                            ->where('incident_id', $fireIncidentId)
-                            ->where('vehicle_id', $vehicleId)
-                            ->update([
-                                'current_status'    => (string) $statusValue,
-                                'status_updated_at' => Capsule::connection()->raw('NOW()'),
-                            ]);
-                        if ($fireStatusAffected > 0) {
-                            Logger::info('EmdSync: Fire Incident Status aktualisiert', [
-                                'vehicle_id'  => $vehicleId,
-                                'incident_id' => $fireIncidentId,
-                                'status'      => $statusValue,
-                            ]);
-                        }
-                    }
-                }
-            }
-
             // Auch bei 0 geänderten Zeilen: dann stand derselbe Wert schon im
             // Protokoll, ein erneuter Versuch änderte nichts.
             $successfulIds[] = $statusId;
@@ -459,6 +443,47 @@ final class EmdSyncController
             'final_ids'      => $finalIds,
             'total'          => count($statuses),
         ];
+    }
+
+    /**
+     * Schreibt den Status eines Feuerwehrfahrzeugs in seinen fireTab-Einsatz
+     * und ans Fahrzeug, wie das Setzen am Tablet (FireController).
+     *
+     * @return bool|null  null: fireTab aus, der Status landet nie. false:
+     *                    Einsatz oder Zuordnung fehlt noch.
+     */
+    private function applyFireStatus(int $vehicleId, string $missionNumber, string $status): ?bool
+    {
+        if (!$this->firetabActive()) {
+            return null;
+        }
+
+        $assignmentId = Capsule::table('intra_fire_incident_vehicles as fiv')
+            ->join('intra_fire_incidents as fi', 'fiv.incident_id', '=', 'fi.id')
+            ->where('fi.incident_number', $missionNumber)
+            ->where('fiv.vehicle_id', $vehicleId)
+            ->value('fiv.id');
+        if ($assignmentId === null) {
+            return false;
+        }
+
+        $now = Capsule::connection()->raw('NOW()');
+        Capsule::table('intra_fire_incident_vehicles')
+            ->where('id', (int) $assignmentId)
+            ->update(['current_status' => $status, 'status_updated_at' => $now]);
+        // Die Statusseite am Tablet liest nach einem Status ohne Einsatz
+        // (status_source = no_dispatch) nur intra_fahrzeuge
+        Capsule::table('intra_fahrzeuge')
+            ->where('id', $vehicleId)
+            ->update(['current_status' => $status, 'status_updated_at' => $now, 'status_source' => 'incident']);
+
+        Logger::info('EmdSync: Fire Incident Status aktualisiert', [
+            'vehicle_id' => $vehicleId,
+            'mission'    => $missionNumber,
+            'status'     => $status,
+        ]);
+
+        return true;
     }
 
     // ── V2: Unified Sync (Haupt-Einsatz-Verarbeitung) ────────────────
