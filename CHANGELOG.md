@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026.1.10-beta
+
+### efOS: Menüleiste und Formulare
+- Die Menüleiste ist neu sortiert: Systemmenü, App, „Ablage“, „Gehe zu“ und „Fenster“. Dort liegen jetzt die Fensteraktionen mit Tastenkürzeln: Alt N für ein neues Fenster, Alt W zum Schließen, Alt Q beendet die App, Alt ← und Alt → blättern zurück und vor. „Drucken …“ druckt nur den Inhalt des vorderen Fensters
+- „Über efOS“ zeigt Hülle und ignis zusammen in einem Fenster
+- Mission Control heißt jetzt „Fensterübersicht“ (F3), Schreibtisch zeigen heißt „Schreibtisch freiräumen“ (Umschalt F3). Die Glocke öffnet die Mitteilungszentrale
+- Rechtsklick in einem Fenster öffnet das Menü von efOS, in Eingabefeldern mit Rückgängig, Ausschneiden, Kopieren und Einfügen. Mit Umschalt kommt das Browsermenü
+- Formulare, die bisher von rechts hereinfuhren, öffnen im Desktop und im Tablet als Tab im Fenster, aus dem sie kommen. Mehrere können gleichzeitig offen sein, ein Punkt am Tab zeigt ungespeicherte Eingaben
+- Mitarbeiter, Fahrzeug und Mangel lassen sich aus „Ablage“ in einer Zeile anlegen. Was zu einer Auswahl passt, etwa Dienstgrad, Fahrzeug oder Kategorie, wird erkannt, der Rest ist Name oder Titel. Enter legt an und öffnet das Formular nur, wenn noch etwas fehlt, Umschalt Enter öffnet es vorausgefüllt
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.2.0.
+
 ## 2026.1.9-beta
 
 ### efOS: ignis als Desktop und Tablet
