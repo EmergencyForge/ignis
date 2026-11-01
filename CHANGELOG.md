@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026.1.9-beta
+
+### efOS: ignis als Desktop und Tablet
+- ignis lässt sich jetzt auch als Desktop oder als Tablet bedienen, im Benutzermenü unter „Oberfläche“. Die Wahl gilt für dieses Gerät, „Klassisch“ bleibt die Vorgabe. „Automatisch“ wählt je nach Bildschirm zwischen Desktop und Tablet
+- Im Desktop werden die Bereiche zu Apps im Dock, jede Seite öffnet in einem eigenen Fenster. Fenster lassen sich verschieben, an allen Kanten in der Größe ändern, an den Rand ziehen für Hälften und Viertel, ablegen und mit Mission Control (F3) überblicken. Links innerhalb eines Fensters bleiben im Fenster, Formulare und Drawer funktionieren wie gewohnt
+- Im Tablet steht ein Startbildschirm mit allen Apps, jede App läuft im Vollbild. Zwei Apps nebeneinander, Slide Over, Wischen an der Home-Leiste zum Wechseln und Zurück zum Start sind dabei. Mit `?ui=tablet` in der Adresse stellt ef_bridge das Tablet beim Öffnen gleich ein
+- Benachrichtigungen erscheinen als Banner oben rechts und gestapelt nach App in der Mitteilungszentrale (Klick auf Uhr oder Glocke). „Nicht stören“ hält die Banner zurück
+- Das Kontrollzentrum in der Menüleiste stellt Darstellung, Dichte, Oberfläche, Dockgröße und Vergrößerung ein und legt fest, was die vier Bildschirmecken auslösen
+- eNOTF und fireTab stehen im Dock, öffnen aber weiter ihre eigene Oberfläche
+- Seiten, deren Skripte nur einmal im Dokument laufen dürfen, öffnen im Desktop höchstens ein Fenster und holen dieses nach vorn
+
+Aktualisiert sind das UI-Paket auf 1.1.0, das Editor-Paket auf 0.5.2 und das Listen-Paket auf 0.1.1. Neu dabei ist ui-php 1.1.0.
+
 ## 2026.1.8-beta
 
 ### Einstellungen
