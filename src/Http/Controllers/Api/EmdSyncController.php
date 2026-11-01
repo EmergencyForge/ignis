@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Logging\Logger;
+use App\Models\Vehicle;
 use DateTime;
 use DateTimeZone;
 use EmergencyForge\Http\Request;
@@ -458,24 +459,53 @@ final class EmdSyncController
             return null;
         }
 
-        $assignmentId = Capsule::table('intra_fire_incident_vehicles as fiv')
+        $assignment = Capsule::table('intra_fire_incident_vehicles as fiv')
             ->join('intra_fire_incidents as fi', 'fiv.incident_id', '=', 'fi.id')
             ->where('fi.incident_number', $missionNumber)
             ->where('fiv.vehicle_id', $vehicleId)
-            ->value('fiv.id');
-        if ($assignmentId === null) {
+            ->first(['fiv.id', 'fiv.incident_id', 'fiv.current_status']);
+        if ($assignment === null) {
             return false;
+        }
+
+        // Ein Status vom Tablet kommt über EMD zurück. Ohne diese Prüfung
+        // stünde er doppelt im Log, und das Echo einer 3 würde eine schon
+        // gedrückte 4 für ein paar Sekunden zurückdrehen.
+        $echoId = Capsule::table('intra_fire_status_queue')
+            ->where('vehicle_id', $vehicleId)
+            ->where('incident_number', $missionNumber)
+            ->where('new_status', $status)
+            ->where('delivered', 1)
+            ->where('echoed', 0)
+            ->whereRaw('created_at >= NOW() - INTERVAL 2 MINUTE')
+            ->orderBy('id')
+            ->value('id');
+        if ($echoId !== null) {
+            Capsule::table('intra_fire_status_queue')->where('id', (int) $echoId)->update(['echoed' => 1]);
+
+            return true;
         }
 
         $now = Capsule::connection()->raw('NOW()');
         Capsule::table('intra_fire_incident_vehicles')
-            ->where('id', (int) $assignmentId)
+            ->where('id', (int) $assignment->id)
             ->update(['current_status' => $status, 'status_updated_at' => $now]);
         // Die Statusseite am Tablet liest nach einem Status ohne Einsatz
         // (status_source = no_dispatch) nur intra_fahrzeuge
         Capsule::table('intra_fahrzeuge')
             ->where('id', $vehicleId)
             ->update(['current_status' => $status, 'status_updated_at' => $now, 'status_source' => 'incident']);
+
+        // Derselbe Status noch einmal ist eine Wiederholung der Bridge oder ein zweiter Tastendruck
+        if ((string) $assignment->current_status !== $status) {
+            $label = Vehicle::STATUS_LABELS[$status] ?? null;
+            Capsule::table('intra_fire_incident_log')->insert([
+                'incident_id'        => (int) $assignment->incident_id,
+                'action_type'        => 'status_changed',
+                'action_description' => 'Status auf ' . $status . ($label !== null ? " ($label)" : '') . ' über die Leitstelle gesetzt',
+                'vehicle_id'         => $vehicleId,
+            ]);
+        }
 
         Logger::info('EmdSync: Fire Incident Status aktualisiert', [
             'vehicle_id' => $vehicleId,

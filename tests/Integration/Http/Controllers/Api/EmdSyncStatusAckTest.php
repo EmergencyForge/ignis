@@ -53,6 +53,8 @@ class EmdSyncStatusAckTest extends IntegrationTestCase
             }
             $pdo->prepare('DELETE FROM intra_fire_incidents WHERE incident_number = :inc')
                 ->execute([':inc' => $this->dispatchId]);
+            $pdo->prepare('DELETE FROM intra_fire_status_queue WHERE incident_number = :inc')
+                ->execute([':inc' => $this->dispatchId]);
             $pdo->prepare('DELETE FROM intra_edivi WHERE enr = :enr OR enr LIKE :pat')
                 ->execute([':enr' => $this->dispatchId, ':pat' => $this->dispatchId . '_%']);
             foreach ([$this->rtw['id'] ?? 0, $this->lhf['id'] ?? 0] as $id) {
@@ -131,5 +133,63 @@ class EmdSyncStatusAckTest extends IntegrationTestCase
         $vehicle = Capsule::table('intra_fahrzeuge')->where('id', $this->lhf['id'])->first(['current_status', 'status_source']);
         $this->assertSame('3', $vehicle->current_status);
         $this->assertSame('incident', $vehicle->status_source);
+    }
+
+    #[Test]
+    public function fire_status_from_emd_is_logged_once_and_tablet_echoes_are_swallowed(): void
+    {
+        $this->sync(['dispatch_data' => ['vehicles' => [
+            ['dispatch' => (int) $this->dispatchId, 'value' => $this->lhf['name']],
+        ]]]);
+        $status = fn (int $id, string $value) => [
+            'id'             => $id,
+            'mission_number' => $this->dispatchId,
+            'sender'         => $this->lhf['name'],
+            'status'         => $value,
+            'timestamp'      => '01.11.2026 10:05',
+        ];
+
+        // In EMD gedrückt, dann von der Bridge wiederholt
+        $this->sync(['status_updates' => ['statuses' => [$status(1, '3')]]]);
+        $this->sync(['status_updates' => ['statuses' => [$status(1, '3')]]]);
+        $this->assertSame(['Status auf 3 (Einsatz übernommen) über die Leitstelle gesetzt'], $this->statusLog());
+
+        // Am Tablet schnell 4 und 2, die Bridge hat beide abgeholt
+        foreach (['4', '2'] as $value) {
+            Capsule::table('intra_fire_status_queue')->insert([
+                'vehicle_id'      => $this->lhf['id'],
+                'vehicle_name'    => $this->lhf['name'],
+                'incident_number' => $this->dispatchId,
+                'new_status'      => $value,
+                'delivered'       => 1,
+            ]);
+        }
+        Capsule::table('intra_fire_incident_vehicles')->where('vehicle_id', $this->lhf['id'])->update(['current_status' => '2']);
+
+        $body = $this->sync(['status_updates' => ['statuses' => [$status(2, '4'), $status(3, '2')]]]);
+        $this->assertSame([2, 3], $body['status_ack']['successful_ids']);
+        $this->assertSame('2', $this->fireStatus(), 'das Echo der 4 dreht die 2 nicht zurück');
+        $this->assertCount(1, $this->statusLog());
+
+        // Jede Tablet-Meldung schluckt nur ein Echo
+        $this->sync(['status_updates' => ['statuses' => [$status(4, '4')]]]);
+        $this->assertSame('4', $this->fireStatus());
+        $this->assertCount(2, $this->statusLog());
+    }
+
+    private function fireStatus(): ?string
+    {
+        return Capsule::table('intra_fire_incident_vehicles')->where('vehicle_id', $this->lhf['id'])->value('current_status');
+    }
+
+    /** @return list<string> */
+    private function statusLog(): array
+    {
+        return Capsule::table('intra_fire_incident_log')
+            ->where('vehicle_id', $this->lhf['id'])
+            ->where('action_type', 'status_changed')
+            ->orderBy('id')
+            ->pluck('action_description')
+            ->all();
     }
 }

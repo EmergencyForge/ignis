@@ -20,6 +20,7 @@ use App\Models\Model;
  * @property string      $new_status
  * @property string|null $created_at
  * @property int         $delivered
+ * @property int         $echoed           Echo aus EMD schon angekommen (EmdSyncController::applyFireStatus)
  */
 class FireStatusQueueEntry extends Model
 {
