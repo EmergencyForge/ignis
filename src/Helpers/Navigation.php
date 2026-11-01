@@ -252,7 +252,7 @@ final class Navigation
      * Die Schnellaktionen der sichtbaren Einträge, in Sidebar-Reihenfolge.
      *
      * @param list<array<string, mixed>> $groups
-     * @return list<array{type: string, target: string, parent: string, label: string, icon: string}>
+     * @return list<array{type: string, target: string, parent: string, label: string, icon: string, quick: ?string}>
      */
     public static function quickActions(array $groups): array
     {
@@ -269,6 +269,7 @@ final class Navigation
                     'parent' => (string) $item['href'],
                     'label'  => (string) $action['label'],
                     'icon'   => is_string($action['icon'] ?? null) && $action['icon'] !== '' ? $action['icon'] : (string) $item['icon'],
+                    'quick'  => is_string($action['quick'] ?? null) ? $action['quick'] : null,
                 ];
             }
         }
@@ -282,7 +283,7 @@ final class Navigation
      * Topbar und Desktop-Hülle hängen sie als JSON an das Suchfeld.
      *
      * @param list<array<string, mixed>> $groups Ergebnis von groups()
-     * @return list<array{label: string, sub: string, href: string, drawer: bool, keywords: string}>
+     * @return list<array{label: string, sub: string, href: string, drawer: bool, keywords: string, quick?: ?string}>
      */
     public static function palette(array $groups): array
     {
@@ -295,6 +296,7 @@ final class Navigation
                     ? $action['parent'] . (str_contains($action['parent'], '?') ? '&' : '?') . 'action=create&quick=' . rawurlencode($action['target'])
                     : $action['target'],
                 'drawer'   => $action['type'] === 'drawer',
+                'quick'    => $action['quick'],
                 'keywords' => 'neu anlegen erstellen',
             ];
         }

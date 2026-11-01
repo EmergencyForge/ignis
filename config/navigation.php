@@ -38,6 +38,8 @@
  *               target: string,       URL (drawer, link) oder Event-Name (modal)
  *               label: string,        Tooltip des Plus-Knopfs, Eintrag im Neu-Menü
  *               icon?: string,        Standard: das Icon des Eintrags
+ *               quick?: string,       Textfeld des Formulars für die Schnellerfassung
+ *                                     in efOS (nur 'drawer')
  *               permissions?: string[], ANY-Match; fehlt: wer den Eintrag sieht
  *           }
  *       }>
@@ -109,6 +111,7 @@ return [
                         'type'        => 'drawer',
                         'target'      => BASE_PATH . 'personnel/create',
                         'label'       => 'Neuen Mitarbeiter anlegen',
+                        'quick'       => 'fullname',
                         'permissions' => ['admin', 'personnel.edit'],
                     ],
                 ],
@@ -139,6 +142,7 @@ return [
                         'type'        => 'drawer',
                         'target'      => BASE_PATH . 'settings/vehicles/vehicles/create',
                         'label'       => 'Neues Fahrzeug anlegen',
+                        'quick'       => 'name',
                         'permissions' => ['admin', 'vehicles.manage'],
                     ],
                 ],
@@ -151,6 +155,7 @@ return [
                         'type'   => 'drawer',
                         'target' => BASE_PATH . 'settings/vehicles/defects/create',
                         'label'  => 'Mangel melden',
+                        'quick'  => 'title',
                     ],
                 ],
                 // Fahrtenbuch hängt das Plugin `logbook` hier ein.

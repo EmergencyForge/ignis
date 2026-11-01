@@ -194,7 +194,7 @@ final class DeskShell
      * des Eintrags, an dem sie in der Sidebar steht.
      *
      * @param list<array<string, mixed>> $groups
-     * @return array<string, list<array{label: string, href: string, drawer: bool}>>
+     * @return array<string, list<array{label: string, href: string, drawer: bool, quick: ?string}>>
      */
     private static function createByApp(array $groups, string $base): array
     {
@@ -207,7 +207,7 @@ final class DeskShell
             foreach (self::APPS as $appPath => $spec) {
                 foreach ($spec['prefixes'] ?? ['/' . $appPath] as $prefix) {
                     if ($path === ltrim($prefix, '/') || str_starts_with($path, ltrim($prefix, '/') . '/') || str_starts_with($path, ltrim($prefix, '/') . '?')) {
-                        $map[$spec['id']][] = ['label' => $entry['label'], 'href' => $entry['href'], 'drawer' => $entry['drawer']];
+                        $map[$spec['id']][] = ['label' => $entry['label'], 'href' => $entry['href'], 'drawer' => $entry['drawer'], 'quick' => $entry['quick'] ?? null];
                         continue 3;
                     }
                 }
