@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5990a24bd86b186108a24811445e9946",
+    "content-hash": "d5c5714ccb46299239c79efdc7e6f631",
     "packages": [
         {
             "name": "brick/math",
@@ -774,7 +774,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "6a31cef1a84cbff1ee4f630a265c4a12d737756f"
+                "reference": "65d84bf2d7db846a3f2d14cbf2f65569791c16f1"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -814,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "db81ed7a056fdeff5dea4c09498bb5f03d8e8cfa"
+                "reference": "17928d1678bb3773bf7cbd11fd7a9d3bcd2bbab1"
             },
             "require": {
                 "php": ">=8.3",
@@ -849,7 +849,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/fuzzy-search",
-                "reference": "b3fa193136c2103719a5a5385296fdaa169bb0ca"
+                "reference": "4427f102cd2ffc856e50b9b584f401e1d1bdd277"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/list-query",
-                "reference": "73ea471c04ce957d594130b782442a1e73bc5e66"
+                "reference": "52372ca02747645051cd1ca198e8b92555a4f4e5"
             },
             "require": {
                 "php": ">=8.3"
@@ -988,7 +988,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "654b0c808f0f8abbf342a2554a6adeb88cda593b"
+                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1023,7 +1023,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "104305c7824343cbfb2b92ae7b677c2b4ced8a7f"
+                "reference": "86d39abe912783f75a01293284400eb680c7721c"
             },
             "require": {
                 "ext-tokenizer": "*",
@@ -1054,11 +1054,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "21d41ef886242ff2a11962c6e1c12794a3198e39"
+                "reference": "e8054827aa96057950befcff6428d236fabe3485"
             },
             "require": {
                 "php": ">=8.3"
@@ -7843,13 +7843,13 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.3.0"
     },
