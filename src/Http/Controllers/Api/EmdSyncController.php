@@ -300,14 +300,20 @@ final class EmdSyncController
      * Interne Status-Update-Verarbeitung, gemeinsam genutzt von V1-Handler
      * und V2-Unified-Request.
      *
+     * final_ids: Status, die nie in einem Protokoll landen können. Die Bridge
+     * schickt sie sonst bis zu zehn Minuten lang mit jedem Heartbeat erneut.
+     * Ein RD-Fahrzeug ohne Protokoll gehört nicht dazu, sein Protokoll kann
+     * mit der nächsten Einsatzrunde noch kommen.
+     *
      * @param  array<int, array<string, mixed>>  $statuses
-     * @return array{updated:int, not_found:int, successful_ids:array<int, int|string>, total:int}
+     * @return array{updated:int, not_found:int, successful_ids:array<int, int|string>, final_ids:array<int, int|string>, total:int}
      */
     private function processStatusUpdatesInternal(array $statuses): array
     {
         $updated       = 0;
         $notFound      = 0;
         $successfulIds = [];
+        $finalIds      = [];
 
         foreach ($statuses as $status) {
             $statusValue   = $status['status'];
@@ -318,6 +324,7 @@ final class EmdSyncController
             $statusTime = DateTime::createFromFormat('d.m.Y H:i', $status['timestamp']);
             if (!$statusTime) {
                 Logger::warning('EmdSync: Ungültiges Zeitformat', ['status_id' => $statusId]);
+                $finalIds[] = $statusId;
                 continue;
             }
 
@@ -329,6 +336,7 @@ final class EmdSyncController
 
             if (!$vehicleRow) {
                 $notFound++;
+                $finalIds[] = $statusId;
                 Logger::warning('EmdSync: Fahrzeug nicht gefunden', ['sender' => $sender, 'status_id' => $statusId]);
                 continue;
             }
@@ -341,6 +349,7 @@ final class EmdSyncController
             // zugeordnet werden könnte.
             if (!$this->enotfActive()) {
                 $notFound++;
+                $finalIds[] = $statusId;
                 continue;
             }
 
@@ -357,6 +366,10 @@ final class EmdSyncController
 
             if ($enrValue === null) {
                 $notFound++;
+                // Protokolle entstehen nur für rd_type 1 und 2 (processDispatch)
+                if ($rdType !== 1 && $rdType !== 2) {
+                    $finalIds[] = $statusId;
+                }
                 Logger::warning('EmdSync: Einsatz nicht gefunden', [
                     'identifier' => $vehicleIdentifier,
                     'mission'    => $missionNumber,
@@ -377,6 +390,7 @@ final class EmdSyncController
                 $allowedColumns = ['s1', 's2', 's3', 's4', 's7', 's8'];
                 if (!in_array($statusColumn, $allowedColumns, true)) {
                     Logger::warning('EmdSync: Ungültige Status-Spalte', ['column' => $statusColumn, 'status_id' => $statusId]);
+                    $finalIds[] = $statusId;
                     continue;
                 }
                 $affectedRows = Capsule::table('intra_edivi')
@@ -390,10 +404,8 @@ final class EmdSyncController
                 ]);
             }
 
-            $updatedThisStatus = false;
             if ($affectedRows > 0) {
                 $updated++;
-                $updatedThisStatus = true;
             }
 
             // Fire Incident Status für Feuerwehr-Fahrzeuge (rd_type = 3)
@@ -428,9 +440,9 @@ final class EmdSyncController
                 }
             }
 
-            if ($updatedThisStatus) {
-                $successfulIds[] = $statusId;
-            }
+            // Auch bei 0 geänderten Zeilen: dann stand derselbe Wert schon im
+            // Protokoll, ein erneuter Versuch änderte nichts.
+            $successfulIds[] = $statusId;
         }
 
         Logger::info('EmdSync: processStatusUpdatesInternal Ergebnis', [
@@ -443,6 +455,7 @@ final class EmdSyncController
             'updated'        => $updated,
             'not_found'      => $notFound,
             'successful_ids' => $successfulIds,
+            'final_ids'      => $finalIds,
             'total'          => count($statuses),
         ];
     }
@@ -455,7 +468,7 @@ final class EmdSyncController
     private function handleUnifiedSync(array $receivedData): Response
     {
         $isV2           = isset($receivedData['protocol_version']) && (int) $receivedData['protocol_version'] === 2;
-        $v2StatusResult = ['successful_ids' => []];
+        $v2StatusResult = ['successful_ids' => [], 'final_ids' => []];
 
         if ($isV2) {
             Logger::info('EmdSync: Protocol v2 erkannt - Unified Request');
@@ -633,7 +646,12 @@ final class EmdSyncController
 
         if ($isV2) {
             $response['status_poll'] = ['status_changes' => $statusChanges];
-            $response['status_ack']  = ['successful_ids' => $v2StatusResult['successful_ids']];
+            // final_ids erst ab ef_bridge mit Bestätigung je ID. Ältere Bridges
+            // werten successful_ids als Hochwassermarke und kennen final_ids nicht.
+            $response['status_ack']  = [
+                'successful_ids' => $v2StatusResult['successful_ids'],
+                'final_ids'      => $v2StatusResult['final_ids'],
+            ];
         }
 
         // Prüfe ob Fahrzeug-Import angefordert wurde (File-Flag)
