@@ -264,9 +264,7 @@ final class DeskShell
 
     private static function basePath(): string
     {
-        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-
-        return $base === '' ? '/' : $base;
+        return rtrim(defined('BASE_PATH') ? (string) BASE_PATH : '/', '/') . '/';
     }
 
     private static function isHttps(): bool
