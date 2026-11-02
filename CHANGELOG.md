@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.1.13-beta
+
+### efOS: Fenster und Rückfragen
+- Kleine Rückfragen wie „Fenster schließen?“ gleiten als Blatt unter der Titelleiste aus dem Fenster, zu dem sie gehören, statt die ganze Seite abzudunkeln
+- Die Titelleiste ist etwas höher, Zurück und Vor liegen in einer Pille, Neu laden, Neues Fenster und Link kopieren in einer zweiten. Auf dem Tablet sind die Knöpfe rechts in der App-Leiste genauso gruppiert
+- Am Desktop gibt es Mauszeiger im Stil des Mac, auch für Text, Links, Ziehen und Größe ändern (aus apple_cursor, GPL 3.0)
+
+### efOS: Kontrollzentrum
+- „Durchscheinend“ ist ein Regler, das Glas dahinter ist stärker weichgezeichnet
+- Die Module sind durchscheinende Inseln, die Regler breite Balken mit Symbol
+- Darstellung und Oberfläche wählt man über kleine Vorschaubilder
+
+### efOS: Fehler
+- Klebende Teile einer Seite, etwa die Einstellungsnavigation, kleben im Fenster wieder direkt unter der Titelleiste
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.5.0.
+
 ## 2026.1.12-beta
 
 ### efOS: Mac-Look
