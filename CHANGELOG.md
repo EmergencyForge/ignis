@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026.1.14-beta
+
+### efOS: Suche
+- Die Suche klappt am Desktop als Glasmenü unter der Lupe in der Menüleiste auf, die Fenster dahinter bleiben sichtbar
+- Neben „Alle“ stehen zwei Bereiche als Segmente, die übrigen kommen über „Mehr“
+- Jeder Treffer trägt das Symbol seiner App, ohne Eingabe zeigt die Suche, was zuletzt offen war
+- Auf dem Tablet ist das Suchfeld eine Kapsel oben, die Bereiche lassen sich waagrecht wischen
+- In der klassischen Oberfläche sind die Bereiche runde Pillen, der orange Strich unter dem Feld ist weg
+
+### efOS: Schreibtisch und Fenster
+- Der Schreibtisch zeigt die Kennzahlen und Hinweise der Übersicht als Widgets, am Desktop und auf dem Tablet
+- Apps tragen in der Menüleiste eigene Namen: Mitarbeiterübersicht, Wissensdatenbank, Antragsübersicht und Benutzerübersicht
+- Neue Fenster legen sich als Treppe an und beginnen am Rand oben neu, statt sich zu stapeln
+- Die Brotkrume beginnt im Fenster nicht mehr mit dem Dashboard, auf dem Tablet zeigt die Adressleiste die Seite der App im Vordergrund
+
+### Fehler
+- Seiten verschiedener Apps landen nicht mehr im selben Fenster
+- In der Mitarbeiterliste ist der Name wieder ganz zu lesen
+- Abschnittstitel in den Einstellungen sind auch im Desk kleiner als der Seitentitel
+- Das Fahrtenbuch filtert den Zeitraum mit einer Pille wie bei Fahrzeug und Fahrttyp statt mit zwei Datumsfeldern
+- Hat eine leere Liste einen Knopf in der Mitte, fehlt derselbe Knopf oben im Seitenkopf
+- Ein Wechsel der Oberfläche über die Adresse bleibt nicht mehr in gespeicherten Fenstern hängen
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.6.0.
+
 ## 2026.1.13-beta
 
 ### efOS: Fenster und Rückfragen
