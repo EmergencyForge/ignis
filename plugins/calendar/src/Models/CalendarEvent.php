@@ -84,6 +84,18 @@ class CalendarEvent extends EloquentModel
         'orange', 'blue', 'green', 'red', 'purple', 'gray',
     ];
 
+    /**
+     * Farbe, mit der ein neuer Termin einer Kategorie startet. Rot bleibt
+     * frei, damit es auffällt, wenn jemand es bewusst wählt.
+     */
+    public const CATEGORY_COLORS = [
+        'general'  => 'orange',
+        'meeting'  => 'blue',
+        'training' => 'green',
+        'dienst'   => 'purple',
+        'absence'  => 'gray',
+    ];
+
     /** @var array<string, string> */
     protected $casts = [
         'id'               => 'integer',

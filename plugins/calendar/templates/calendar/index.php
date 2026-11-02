@@ -10,6 +10,7 @@
  * @var array<int,array<string,mixed>>                              $roles
  * @var array<string,string>                                        $categories
  * @var array<int,string>                                           $colors
+ * @var array<string,string>                                        $categoryColors
  * @var \Illuminate\Support\Collection<int,\App\Models\Personnel> $absentToday
  */
 
@@ -64,6 +65,7 @@ $bodyId = 'kalender';
                         <?php foreach ($categories as $key => $label): ?>
                             <label class="ignis-chip ignis-chip--toggle is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
                                 <input type="checkbox" class="filter-category" data-category="<?= htmlspecialchars($key) ?>" checked hidden>
+                                <span class="calendar-dot calendar-dot--<?= htmlspecialchars($categoryColors[$key] ?? 'orange') ?>" aria-hidden="true"></span>
                                 <?= htmlspecialchars($label) ?>
                             </label>
                         <?php endforeach; ?>

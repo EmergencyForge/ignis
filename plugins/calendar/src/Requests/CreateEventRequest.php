@@ -135,6 +135,9 @@ class CreateEventRequest extends FormRequest
             $attendees = array_values(array_unique($attendees));
         }
 
+        $category = !empty($input['category']) && array_key_exists($input['category'], CalendarEvent::CATEGORIES)
+            ? (string) $input['category'] : 'general';
+
         return [
             'title'              => trim((string) $input['title']),
             'description'        => !empty($input['description']) ? trim((string) $input['description']) : null,
@@ -143,9 +146,8 @@ class CreateEventRequest extends FormRequest
             'ends_at'            => $endsAt,
             'all_day'            => $allDay,
             'color'              => !empty($input['color']) && in_array($input['color'], CalendarEvent::COLORS, true)
-                ? (string) $input['color'] : 'orange',
-            'category'           => !empty($input['category']) && array_key_exists($input['category'], CalendarEvent::CATEGORIES)
-                ? (string) $input['category'] : 'general',
+                ? (string) $input['color'] : CalendarEvent::CATEGORY_COLORS[$category],
+            'category'           => $category,
             'visibility'          => $visibility,
             'visibility_role_ids' => $roleIds,
             'track_attendance'    => $trackAttendance,

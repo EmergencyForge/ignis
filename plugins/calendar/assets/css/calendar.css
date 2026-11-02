@@ -272,6 +272,22 @@
     margin-right: 0.25rem;
 }
 
+/* Farbpunkt der Kategorie an den Filter-Chips. Die Werte sind dieselben
+   wie in CalendarController::toFullCalendarEvent(). */
+.calendar-dot {
+    display: inline-block;
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+.calendar-dot--blue   { background: #3b82f6; }
+.calendar-dot--green  { background: #16a34a; }
+.calendar-dot--red    { background: #dc2626; }
+.calendar-dot--purple { background: #a855f7; }
+.calendar-dot--gray   { background: #6b7280; }
+
 /* Aktiv-Highlight fuer RSVP-Buttons im View-Template: currentColor
    sorgt dafuer dass der Ring zur Textfarbe des Knopfs passt statt zum
    orangen Brand-Default. */

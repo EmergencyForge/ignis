@@ -6,6 +6,7 @@
  *
  * @var array<string,string>                                        $categories
  * @var array<int,string>                                           $colors
+ * @var array<string,string>                                        $categoryColors
  * @var array<int,array<string,mixed>>                              $roles
  * @var \Illuminate\Support\Collection<int,\App\Models\Personnel>   $mitarbeiter
  * @var string|null                                                 $eventFormStart

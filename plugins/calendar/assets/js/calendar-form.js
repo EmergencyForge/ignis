@@ -66,6 +66,19 @@ export function bindEventForm(scope) {
         syncPickerType(scope, !!alldayToggle?.checked);
     }
 
+    // Die Farbe folgt der Kategorie, solange sie noch die Farbe der vorigen
+    // Kategorie ist. Eine bewusst gewählte Farbe bleibt.
+    const categorySelect = scope.querySelector('[data-category-colors]');
+    const colorSelect    = scope.querySelector('[name="color"]');
+    if (categorySelect && colorSelect) {
+        const defaults = JSON.parse(categorySelect.dataset.categoryColors || '{}');
+        let previous = categorySelect.value;
+        categorySelect.addEventListener('change', () => {
+            if (colorSelect.value === defaults[previous] && defaults[categorySelect.value]) colorSelect.value = defaults[categorySelect.value];
+            previous = categorySelect.value;
+        });
+    }
+
     visSelect?.addEventListener('change', applyVisibility);
     recurToggle?.addEventListener('change', applyRecurrence);
     freqSelect?.addEventListener('change', applyRecurrence);

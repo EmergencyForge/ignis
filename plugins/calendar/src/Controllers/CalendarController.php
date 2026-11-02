@@ -85,6 +85,7 @@ class CalendarController extends Controller
             'roles'       => $roles,
             'categories'  => CalendarEvent::CATEGORIES,
             'colors'      => CalendarEvent::COLORS,
+            'categoryColors' => CalendarEvent::CATEGORY_COLORS,
             'absentToday' => $absentToday,
         ]);
     }
@@ -400,6 +401,7 @@ class CalendarController extends Controller
             'roles'          => $this->roleOptions(),
             'categories'     => CalendarEvent::CATEGORIES,
             'colors'         => CalendarEvent::COLORS,
+            'categoryColors' => CalendarEvent::CATEGORY_COLORS,
             'eventFormStart' => $prefill !== null ? $prefill . 'T09:00' : null,
             'eventFormEnd'   => $prefill !== null ? $prefill . 'T10:00' : null,
         ]);

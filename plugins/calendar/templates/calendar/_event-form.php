@@ -13,6 +13,7 @@
  *
  * @var array<string,string>                                        $categories
  * @var array<int,string>                                           $colors
+ * @var array<string,string>                                        $categoryColors
  * @var array<int,array<string,mixed>>                              $roles
  * @var \Illuminate\Support\Collection<int,\App\Models\Personnel>   $mitarbeiter
  * @var string|null                                                 $eventFormStart
@@ -100,7 +101,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label for="evt-category" class="ignis-field__label">Kategorie</label>
-                    <select id="evt-category" name="category" class="ignis-input" data-custom-dropdown="true">
+                    <select id="evt-category" name="category" class="ignis-input" data-custom-dropdown="true" data-category-colors="<?= htmlspecialchars((string) json_encode($categoryColors)) ?>">
                         <?php foreach ($categories as $key => $label): ?>
                             <?php if ($key === 'absence') continue; /* nur via Antrag-Sync */ ?>
                             <option value="<?= htmlspecialchars($key) ?>"<?= (string) old('category', 'general') === $key ? ' selected' : '' ?>><?= htmlspecialchars($label) ?></option>
@@ -111,7 +112,7 @@ foreach (explode(';', $oldRule) as $rulePart) {
                     <label for="evt-color" class="ignis-field__label">Farbe</label>
                     <select id="evt-color" name="color" class="ignis-input" data-custom-dropdown="true">
                         <?php foreach ($colors as $color): ?>
-                            <option value="<?= htmlspecialchars($color) ?>"<?= (string) old('color', 'orange') === $color ? ' selected' : '' ?>><?= htmlspecialchars($colorLabelsDe[$color] ?? ucfirst($color)) ?></option>
+                            <option value="<?= htmlspecialchars($color) ?>"<?= (string) old('color', $categoryColors[(string) old('category', 'general')] ?? 'orange') === $color ? ' selected' : '' ?>><?= htmlspecialchars($colorLabelsDe[$color] ?? ucfirst($color)) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
