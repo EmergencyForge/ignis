@@ -1,8 +1,8 @@
 <?php
 /**
  * Partial: Lesebereich einer Mail. Kommt per GET …/{id}/preview in den
- * Arbeitsbereich (workbench.js) und steht auf der Einzelseite
- * /mail/{folder}/{id} (schmale Schirme, ohne JS).
+ * Arbeitsbereich (workbench.js) und steht auf der eigenen Seite der Mail
+ * /mail/{folder}/{id} (templates/mail/read.php).
  *
  * Die Knöpfe tragen data-mail-action; mail.js wertet sie per Klick-
  * Delegation am document aus, weil dieses Partial per innerHTML getauscht

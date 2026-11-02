@@ -86,16 +86,16 @@ final class MailPagesTest extends FeatureTestCase
         $this->assertBodyNotContains('data-mail-mark-read', $this->get('/mail/inbox/' . $id . '/preview'));
     }
 
-    /** Der Lesebereich einer Seite: alles ab dem <aside> des Arbeitsbereichs. */
+    /** Der Lesebereich der eigenen Seite einer Mail. */
     private static function pane(string $body): string
     {
-        $start = strpos($body, 'data-ignis-preview aria-live');
+        $start = strpos($body, 'class="ignis-mail-read__pane"');
 
         return $start === false ? '' : substr($body, $start);
     }
 
     #[Test]
-    public function per_url_zeigt_der_lesebereich_die_gewaehlte_mail(): void
+    public function die_eigene_seite_zeigt_nur_die_gewaehlte_mail(): void
     {
         $this->loginAs($this->alice['user']);
         $older = (int) $this->send(['subject' => 'Ältere Mail', 'body_json' => self::doc('Alt'), 'to' => [$this->bob['mailbox']->address]])['messageId'];
@@ -111,8 +111,8 @@ final class MailPagesTest extends FeatureTestCase
             $this->assertStringContainsString('<h3 class="ignis-preview__title">' . $subject . '</h3>', $pane);
             $this->assertStringNotContainsString($other, $pane);
             $this->assertStringContainsString('data-mail-id="' . $id . '"', $pane);
-            $this->assertMatchesRegularExpression('~data-ignis-row="' . $id . '"[^>]*aria-selected="true"~', $page->body, 'Die gewählte Zeile ist markiert.');
-            $this->assertSame(1, substr_count($page->body, 'aria-selected="true"'));
+            $this->assertStringNotContainsString('data-ignis-row=', $page->body, 'Ohne Liste daneben.');
+            $this->assertStringContainsString('href="/mail/inbox?postfach=' . $this->bob['mailbox']->id . '"', $page->body);
         }
         $this->assertStringContainsString('dienstplan-neu.txt', self::pane($this->get('/mail/inbox/' . $newer)->body));
         $this->assertStringNotContainsString('dienstplan-neu.txt', self::pane($this->get('/mail/inbox/' . $older)->body));

@@ -62,6 +62,15 @@
     .ignis-mail__tools { display: flex; flex-wrap: wrap; border-top: 0; padding-top: 0; }
 }
 
+/* Mail auf eigener Seite (templates/mail/read.php): eine Spalte in Lesebreite. */
+.ignis-mail-read { max-width: 60rem; }
+.ignis-mail-read__back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; color: var(--secondary-text); font-size: var(--fs-sm, 13px); text-decoration: none; }
+.ignis-mail-read__back:hover { color: var(--content-text); }
+.ignis-mail-read__pane { padding: 24px 32px; border: 1px solid var(--border-subtle); border-radius: var(--radius-3, 10px); background: var(--surface); box-shadow: var(--shadow-card); color: var(--secondary-text); }
+.ignis-mail-read .ignis-preview__title { margin-bottom: 16px; font-size: 1.5rem; }
+.ignis-mail-read .ignis-mail__body { font-size: 1rem; line-height: 1.6; }
+@media (max-width: 640px) { .ignis-mail-read__pane { padding: 16px; } }
+
 /* Verfassen und Signatur: der Editor im Mailmodus ohne A4-Blatt. */
 .ignis-mail-compose { display: grid; gap: 14px; }
 .ignis-mail-compose > .ignis-btn { justify-self: start; }

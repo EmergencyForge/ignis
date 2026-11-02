@@ -116,12 +116,14 @@ final class MailController extends Controller
     {
         $mailbox = $this->currentMailbox($request);
 
-        return $mailbox === null ? $this->noMailboxPage() : $this->renderFolder($mailbox, $folder, null);
+        return $mailbox === null ? $this->noMailboxPage() : $this->renderFolder($mailbox, $folder);
     }
 
     /**
-     * GET /mail/{folder}/{id}: derselbe Arbeitsbereich mit der Mail im
-     * Lesebereich (schmale Schirme, ohne JS, Link aus der Glocke).
+     * GET /mail/{folder}/{id}: die Mail auf eigener Seite in voller Breite,
+     * wie in einem Mailprogramm (in efOS ein eigenes Fenster, auch der Link
+     * aus der Glocke). Die Vorschau neben der Liste ist für lange Mails zu
+     * schmal.
      */
     public function messagePage(Request $request, string $folder, string $id): Response
     {
@@ -134,7 +136,7 @@ final class MailController extends Controller
             return ErrorPage::notFound($request->path);
         }
 
-        return $this->renderFolder($mailbox, $folder, $delivery);
+        return $this->page('mail/read', $this->readingPane($delivery, $mailbox, $folder) + ['folders' => self::folders()]);
     }
 
     /** GET /mail/{folder}/{id}/preview: nur der Lesebereich (workbench.js). */
@@ -692,7 +694,7 @@ final class MailController extends Controller
         ];
     }
 
-    private function renderFolder(Mailbox $mailbox, string $folder, ?Delivery $selected): Response
+    private function renderFolder(Mailbox $mailbox, string $folder): Response
     {
         $ids = Capsule::table('intra_mail_deliveries as d')
             ->join('intra_mail_messages as m', 'm.id', '=', 'd.message_id')
@@ -725,7 +727,6 @@ final class MailController extends Controller
             'inboxUnread'    => self::inboxUnread(array_map(static fn (Mailbox $m): int => $m->id, $mailboxes)),
             'deliveries'     => array_values($unique),
             'unreadCounts'   => self::unreadCounts($mailbox),
-            'readingPane'    => $selected !== null ? $this->readingPane($selected, $mailbox, $folder) : null,
             'canManageLists' => self::canManageLists(),
         ]);
     }

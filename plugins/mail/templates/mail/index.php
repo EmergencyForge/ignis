@@ -3,16 +3,13 @@
  * View: Mail-Arbeitsbereich, Ordner links, Liste in der Mitte, Lesebereich
  * rechts (ab 1200px immer sichtbar, siehe assets/plugin.css und mail.js).
  * Das Workbench-Muster aus dem UI-Paket (assets/js/ui/workbench.js) lädt
- * die gewählte Mail per GET …/{id}/preview, ↑/↓ wählen, Enter öffnet die
- * Mail als eigene Seite, Escape schließt. Ohne Sammelaktionen.
+ * die gewählte Mail per GET …/{id}/preview, ↑/↓ wählen, Escape schließt.
+ * Name, Doppelklick, Enter und „Öffnen“ zeigen die Mail auf eigener Seite
+ * (templates/mail/read.php), in efOS in einem eigenen Fenster
+ * (`data-ignis-open="window"`). Ohne Sammelaktionen.
  *
  * Kein Schreiben auf GET: „gelesen“ setzt mail.js per POST, sobald der
  * Lesebereich die Mail zeigt (data-mail-mark-read).
- *
- * Die per URL gewählte Mail trägt in der Liste aria-selected="true"
- * (workbench.js pflegt das Attribut danach selbst). Der Lesebereich
- * bekommt seine Variablen in einem eigenen Scope; die Schleifenvariablen
- * der Liste dürfen ihn nicht überdecken.
  *
  * @var string                                   $folder
  * @var array<string, array{label:string, icon:string}> $folders
@@ -27,7 +24,6 @@
  * @var array<int,int>                           $inboxUnread  Postfach-ID → ungelesen im Posteingang
  * @var list<\Plugin\Mail\Models\Delivery>       $deliveries
  * @var array<string,int>                        $unreadCounts
- * @var array<string,mixed>|null                 $readingPane  Variablen für _reading-pane.php
  * @var bool                                     $canManageLists
  */
 
@@ -36,7 +32,6 @@ $bodyId     = 'mail';
 $SITE_TITLE = 'Mail · ' . $folders[$folder]['label'];
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $isOutgoing = in_array($folder, ['sent', 'drafts'], true);
-$selectedId = $readingPane !== null ? (int) $readingPane['message']->id : null;
 $inBox      = '?postfach=' . (int) $mailbox->id;
 
 $snippet = static function (?string $html): string {
@@ -60,7 +55,7 @@ $snippet = static function (?string $html): string {
                 </div>
             </div>
 
-            <div class="ignis-workbench ignis-mail" data-ignis-workbench data-mail-base="<?= htmlspecialchars($base) ?>" data-mail-mailbox="<?= (int) $mailbox->id ?>"
+            <div class="ignis-workbench ignis-mail" data-ignis-workbench data-mail-root data-ignis-open="window" data-mail-base="<?= htmlspecialchars($base) ?>" data-mail-mailbox="<?= (int) $mailbox->id ?>"
                  data-ignis-preview-url="<?= htmlspecialchars($base . 'mail/' . $folder . '/{id}/preview' . $inBox) ?>">
                 <nav class="ignis-mail__folders" aria-label="Ordner">
                     <?php if (count($mailboxes) > 1): ?>
@@ -145,9 +140,9 @@ $snippet = static function (?string $html): string {
                                         $href       = $base . 'mail/' . $folder . '/' . $rowId . $inBox;
                                         $subject    = $rowMessage->subject !== '' ? $rowMessage->subject : '(kein Betreff)';
                                         ?>
-                                        <tr data-ignis-row="<?= $rowId ?>" data-href="<?= htmlspecialchars($href) ?>" tabindex="0"<?= $unread ? ' class="is-unread"' : '' ?><?= $rowId === $selectedId ? ' aria-selected="true"' : '' ?>>
+                                        <tr data-ignis-row="<?= $rowId ?>" data-href="<?= htmlspecialchars($href) ?>" tabindex="0"<?= $unread ? ' class="is-unread"' : '' ?>>
                                             <td data-label="<?= $isOutgoing ? 'An' : 'Von' ?>" data-mobile-primary class="ignis-mail__party">
-                                                <a href="<?= htmlspecialchars($href) ?>"><?= htmlspecialchars($party !== '' ? $party : '-') ?></a>
+                                                <a href="<?= htmlspecialchars($href) ?>" data-ignis-new-window><?= htmlspecialchars($party !== '' ? $party : '-') ?></a>
                                                 <?php if ($unread): ?><span class="ignis-sr-only">(ungelesen)</span><?php endif; ?>
                                             </td>
                                             <td data-label="Betreff" data-mobile-context class="ignis-mail__subject">
@@ -177,18 +172,11 @@ $snippet = static function (?string $html): string {
                 </div>
 
                 <aside class="ignis-preview ignis-mail__pane" data-ignis-preview aria-live="polite">
-                    <?php if ($readingPane !== null): ?>
-                        <?php (static function (array $pane): void {
-                            extract($pane);
-                            require __DIR__ . '/_reading-pane.php';
-                        })($readingPane); ?>
-                    <?php else: ?>
-                        <div class="ignis-preview__empty">
-                            <i class="fa-solid fa-envelope-open" aria-hidden="true"></i>
-                            <b>Keine Mail gewählt</b>
-                            Zeile anklicken oder mit <kbd>↑</kbd> <kbd>↓</kbd> wählen, <kbd>Enter</kbd> öffnet die Mail.
-                        </div>
-                    <?php endif; ?>
+                    <div class="ignis-preview__empty">
+                        <i class="fa-solid fa-envelope-open" aria-hidden="true"></i>
+                        <b>Keine Mail gewählt</b>
+                        Zeile anklicken oder mit <kbd>↑</kbd> <kbd>↓</kbd> wählen. Doppelklick oder <kbd>Enter</kbd> öffnet die Mail in voller Größe.
+                    </div>
                 </aside>
             </div>
         </div>

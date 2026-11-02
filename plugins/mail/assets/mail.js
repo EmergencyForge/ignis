@@ -13,7 +13,7 @@
  * csrf_head() als Header; jede Antwort bringt ihn zurück, er wird ins
  * Meta-Tag übernommen.
  *
- * Bewusst kein ES-Modul: die Datei läuft einmal je Seite, klassisch.
+ * Bewusst kein ES-Modul. Sie läuft je Seite, in efOS je Fenster, siehe `first`.
  */
 (function () {
     'use strict';
@@ -27,12 +27,12 @@
         }
     }
 
-    function post(url, body) {
+    function post(url, body, scope) {
         var run = queue.then(function () {
             var meta = document.querySelector('meta[name="csrf-token"]');
             if (meta) body.set('csrf_token', meta.getAttribute('content') || '');
             // Das Postfach, für das die Seite gerendert wurde, nicht die Wahl eines anderen Tabs.
-            var r = root();
+            var r = root(scope);
             if (r && r.getAttribute('data-mail-mailbox')) body.set('mailbox_id', r.getAttribute('data-mail-mailbox'));
             return fetch(url, { method: 'POST', body: body, headers: { Accept: 'application/json' }, credentials: 'same-origin' })
                 .then(function (response) {
@@ -51,22 +51,32 @@
         if (s && typeof s[kind] === 'function') s[kind](text);
     }
 
-    function root() {
-        return document.querySelector('.ignis-mail[data-ignis-workbench]');
+    // Liste und Lese-Seite tragen beide die Daten. In efOS können mehrere
+    // offen sein, deshalb zählt die, in der der Knopf steckt.
+    function root(scope) {
+        return (scope && scope.closest && scope.closest('[data-mail-root]')) || document.querySelector('[data-mail-root]');
     }
 
-    function base() {
-        var r = root();
+    function base(scope) {
+        var r = root(scope);
         return (r && r.getAttribute('data-mail-base')) || '/';
     }
 
     function reloadFolder(scope) {
         var pane = scope && scope.closest ? scope.closest('[data-mail-folder]') : null;
         var folder = pane ? pane.getAttribute('data-mail-folder') : 'inbox';
-        var r = root();
+        var r = root(scope);
         var mailbox = r && r.getAttribute('data-mail-mailbox') ? '?postfach=' + encodeURIComponent(r.getAttribute('data-mail-mailbox')) : '';
-        window.location.href = base() + 'mail/' + folder + mailbox;
+        var url = base(scope) + 'mail/' + folder + mailbox;
+        var go = window.ignis && window.ignis.ui && window.ignis.ui.go;
+        if (go) go(url, { from: scope, replace: true });
+        else window.location.href = url;
     }
+
+    // In efOS läuft die Datei bei jedem Fenster neu. Die Listener am
+    // document dürfen nur einmal hängen, sonst geht jede Aktion mehrfach raus.
+    var first = !window.ignisMailBound;
+    window.ignisMailBound = true;
 
     function confirmDanger(text, title, confirmText) {
         return window.Dialog && window.Dialog.confirm
@@ -76,14 +86,14 @@
 
     // Gelesen erst, wenn der Lesebereich die Mail wirklich zeigt.
     function markRead(scope) {
-        var target = scope && scope.querySelector ? scope.querySelector('[data-mail-mark-read]') : null;
-        if (!target) return;
-        var id = target.getAttribute('data-mail-mark-read');
-        target.removeAttribute('data-mail-mark-read');
-        post(base() + 'mail/messages/' + id + '/read', new FormData()).then(function (result) {
-            if (!result.ok) return;
-            var row = document.querySelector('tr[data-ignis-row="' + id + '"]');
-            if (row) row.classList.remove('is-unread');
+        if (!scope || !scope.querySelectorAll) return;
+        scope.querySelectorAll('[data-mail-mark-read]').forEach(function (target) {
+            var id = target.getAttribute('data-mail-mark-read');
+            target.removeAttribute('data-mail-mark-read');
+            post(base(target) + 'mail/messages/' + id + '/read', new FormData(), target).then(function (result) {
+                if (!result.ok) return;
+                document.querySelectorAll('tr[data-ignis-row="' + id + '"]').forEach(function (row) { row.classList.remove('is-unread'); });
+            });
         });
     }
 
@@ -109,14 +119,14 @@
     } else {
         onReady();
     }
-    document.addEventListener('ignis:preview', function (event) { markRead(event.target); });
+    if (first) document.addEventListener('ignis:preview', function (event) { markRead(event.target); });
 
     // Ab 1200px steht der Lesebereich immer (drei Spalten wie ein
     // Mailprogramm). workbench.js versteckt ihn beim Start und nach
     // Escape per `hidden`; das Attribut schlägt jede CSS-Regel, also
     // nimmt es ein Observer wieder weg.
     (function keepPaneVisible() {
-        var r = root();
+        var r = document.querySelector('.ignis-mail[data-ignis-workbench]');
         var pane = r && r.querySelector('[data-ignis-preview]');
         if (!pane || !window.matchMedia) return;
         var wide = window.matchMedia('(min-width: 1200px)');
@@ -128,12 +138,12 @@
         if (wide.addEventListener) wide.addEventListener('change', sync);
     })();
 
-    document.addEventListener('click', function (event) {
+    if (first) document.addEventListener('click', function (event) {
         var button = event.target.closest('[data-mail-action]');
         if (!button) return;
         var action = button.getAttribute('data-mail-action');
         var id = button.getAttribute('data-mail-id');
-        var url = base() + 'mail/messages/' + id + '/';
+        var url = base(button) + 'mail/messages/' + id + '/';
 
         if (action === 'discard' || action === 'delete') {
             var ask = action === 'discard'
@@ -141,7 +151,7 @@
                 : confirmDanger('Deine Kopie der Mail wird endgültig gelöscht. Die anderen Beteiligten behalten ihre.', 'Endgültig löschen?', 'Löschen');
             ask.then(function (ok) {
                 if (!ok) return;
-                post(url + 'delete', new FormData()).then(function (result) {
+                post(url + 'delete', new FormData(), button).then(function (result) {
                     if (result.ok) reloadFolder(button);
                     else snack('error', (result.data && result.data.message) || 'Löschen fehlgeschlagen.');
                 });
@@ -156,7 +166,7 @@
             var flagBody = new FormData();
             flagBody.set('flagged', next);
             button.disabled = true;
-            post(url + 'flag', flagBody).then(function (result) {
+            post(url + 'flag', flagBody, button).then(function (result) {
                 button.disabled = false;
                 if (!result.ok) {
                     snack('error', (result.data && result.data.message) || 'Das hat nicht geklappt.');
@@ -188,7 +198,7 @@
             return;
         }
         button.disabled = true;
-        post(target, body).then(function (result) {
+        post(target, body, button).then(function (result) {
             if (result.ok) {
                 reloadFolder(button);
                 return;
