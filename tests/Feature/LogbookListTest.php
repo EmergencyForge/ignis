@@ -54,7 +54,8 @@ final class LogbookListTest extends FeatureTestCase
         $this->assertOk($page);
         $this->assertBodyContains('<title>Fahrtenbuch', $page);
         $this->assertBodyContains('<form method="GET" action="/logbook/index" class="ignis-list-toolbar" role="search">', $page);
-        $this->assertBodyContains('<label class="ignis-list-toolbar__field">', $page);
+        $this->assertBodyContains('<span class="ignis-filter__label">Zeitraum</span>', $page);
+        $this->assertBodyContains('data-ignis-daterange data-from-name="date_from" data-to-name="date_to"', $page);
         $this->assertBodyContains('<table class="ignis-table" id="fahrtenbuchAdminTable">', $page);
         $this->assertBodyContains('Lena Logbuch', $page);
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--danger">Einsatzfahrt</span>', $page);
