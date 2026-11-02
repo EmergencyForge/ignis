@@ -28,6 +28,7 @@ services:
       - ../WebPackages/packages/fuzzy-search:/var/www/html/vendor/emergencyforge/fuzzy-search
       - ../WebPackages/packages/mail:/var/www/html/vendor/emergencyforge/mail
       - ../WebPackages/packages/list-query:/var/www/html/vendor/emergencyforge/list-query
+      - ../WebPackages/packages/ui/php:/var/www/html/vendor/emergencyforge/ui-php
       # Persist storage data
       - intrarp-storage:/var/www/html/storage
       # Sonst läge im Volume die version.json vom Bau des Images, und Plugins,

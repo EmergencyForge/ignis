@@ -42,6 +42,7 @@ echo \App\Helpers\Theme::accentStyleTag(); ?>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/tabs.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/accordion.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/datepicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/daterange.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/datetimepicker.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/timepicker.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/chip.js"></script>
@@ -54,6 +55,7 @@ echo \App\Helpers\Theme::accentStyleTag(); ?>
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-search.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/user-hover-card.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/empty.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/dui-keys.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <?php foreach ($__pluginAssets['js'] as $__pluginJs): ?>

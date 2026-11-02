@@ -83,7 +83,7 @@ const { emergencyForgeUi } = await import(pathToFileURL(resolve(packagesDir, 'pa
 // hier. tests/Unit/Assets/UiPackageTest.php hält den Ordner sauber.
 const uiPackageModules = [
     'accordion', 'alert', 'breadcrumb', 'chip', 'colorpicker', 'combobox', 'datepicker',
-    'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'error-stage', 'file',
+    'datetimepicker', 'dialog', 'drawer', 'drawer-form', 'dropdown', 'empty', 'error-stage', 'file',
     'form', 'login-stage', 'multi-select', 'preferences', 'snackbar', 'spark', 'tabs', 'timepicker', 'tooltip', 'workbench',
     // ui 0.10.0
     'calendar', 'carousel', 'cell-edit', 'columns', 'counter', 'datefield', 'daterange', 'filter-chips', 'hotkeys',

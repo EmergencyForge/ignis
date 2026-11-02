@@ -81,6 +81,7 @@ $router->get('/',          $rootIndex);
 $router->get('/index',     $rootIndex);
 $router->get('/index.php', $rootIndex);
 $router->get('/dashboard', $rootScript('dashboard.php'));
+$router->get('/desk/widgets', $rootScript('desk-widgets.php'));
 $router->match(['GET', 'POST'], '/login', $rootScript('login.php'));
 $router->get('/invite',        $rootScript('invite.php'));
 $router->get('/logout',        $rootScript('logout.php'));

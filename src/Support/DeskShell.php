@@ -31,16 +31,17 @@ final class DeskShell
      * welchen Pfaden eine Seite zur App gehört, und Sonderfälle.
      *
      * `label` ersetzt die Beschriftung der Sidebar, wo sie als Verb gedacht
-     * ist („eNOTF öffnen“) und unter dem Symbol nur stört.
+     * ist („eNOTF öffnen“) und unter dem Symbol nur stört, und wo die App wie
+     * ihre Seite heißen soll.
      *
      * @var array<string, array{id: string, tone: string, label?: string, prefixes?: list<string>, dock?: bool, single?: bool, external?: bool, size?: array{int, int}}>
      */
     private const APPS = [
-        'personnel/list'                   => ['id' => 'personnel', 'tone' => 'indigo', 'prefixes' => ['/personnel'], 'dock' => true],
+        'personnel/list'                   => ['id' => 'personnel', 'tone' => 'indigo', 'label' => 'Mitarbeiterübersicht', 'prefixes' => ['/personnel'], 'dock' => true],
         'calendar'                         => ['id' => 'calendar', 'tone' => 'pink', 'dock' => true],
         'mail'                             => ['id' => 'mail', 'tone' => 'blue', 'single' => true, 'dock' => true],
-        'lexicon/index'                    => ['id' => 'lexicon', 'tone' => 'teal', 'prefixes' => ['/lexicon']],
-        'forms/admin/list'                 => ['id' => 'forms', 'tone' => 'amber', 'prefixes' => ['/forms']],
+        'lexicon/index'                    => ['id' => 'lexicon', 'tone' => 'teal', 'label' => 'Wissensdatenbank', 'prefixes' => ['/lexicon']],
+        'forms/admin/list'                 => ['id' => 'forms', 'tone' => 'amber', 'label' => 'Antragsübersicht', 'prefixes' => ['/forms']],
         'enotf'                            => ['id' => 'enotf', 'tone' => 'red', 'label' => 'eNOTF', 'external' => true, 'dock' => true],
         'enotf/admin/list'                 => ['id' => 'enotf-admin', 'tone' => 'red', 'prefixes' => ['/enotf/admin']],
         'firetab'                          => ['id' => 'firetab', 'tone' => 'orange', 'label' => 'fireTab', 'external' => true, 'dock' => true],
@@ -49,7 +50,7 @@ final class DeskShell
         'settings/vehicles/vehicles/index' => ['id' => 'vehicles', 'tone' => 'cyan', 'prefixes' => ['/settings/vehicles/vehicles']],
         'settings/vehicles/defects/index'  => ['id' => 'defects', 'tone' => 'amber', 'prefixes' => ['/settings/vehicles/defects']],
         'logbook/index'                    => ['id' => 'logbook', 'tone' => 'green', 'prefixes' => ['/logbook']],
-        'users/list'                       => ['id' => 'users', 'tone' => 'slate', 'prefixes' => ['/users/list', '/users/edit', '/users/create']],
+        'users/list'                       => ['id' => 'users', 'tone' => 'slate', 'label' => 'Benutzerübersicht', 'prefixes' => ['/users/list', '/users/edit', '/users/create']],
         'settings/index'                   => ['id' => 'settings', 'tone' => 'graphite', 'prefixes' => ['/settings', '/users/roles', '/users/registration-codes', '/users/audit-log']],
     ];
 
@@ -159,6 +160,7 @@ final class DeskShell
             'storageKey' => 'ignis.desk.' . ($userId !== null ? (string) $userId : 'local'),
             'mode' => self::mode(),
             'cookie' => self::COOKIE,
+            'widgets' => $base . 'desk/widgets',
             'menu' => [
                 'settings' => self::hasSettings($sidebar) ? $base . 'settings/index' : null,
                 'logout' => $base . 'logout',

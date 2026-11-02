@@ -152,14 +152,10 @@ $hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !==
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label class="ignis-list-toolbar__field">
-                        <span class="ignis-field__label">Von</span>
-                        <input type="date" name="date_from" class="ignis-input" data-ignis-datepicker value="<?= htmlspecialchars($filterDateFrom) ?>">
-                    </label>
-                    <label class="ignis-list-toolbar__field">
-                        <span class="ignis-field__label">Bis</span>
-                        <input type="date" name="date_to" class="ignis-input" data-ignis-datepicker value="<?= htmlspecialchars($filterDateTo) ?>">
-                    </label>
+                    <div class="ignis-filter">
+                        <span class="ignis-filter__label">Zeitraum</span>
+                        <div data-ignis-daterange data-from-name="date_from" data-to-name="date_to" data-from="<?= htmlspecialchars($filterDateFrom) ?>" data-to="<?= htmlspecialchars($filterDateTo) ?>" data-presets="7d,30d,month,lastmonth,year"></div>
+                    </div>
                     <button type="submit" class="ignis-btn ignis-btn--secondary">Filtern</button>
                     <?php if ($hasFilter): ?>
                         <a href="<?= BASE_PATH ?>logbook/index" class="ignis-btn ignis-btn--ghost">Zurücksetzen</a>

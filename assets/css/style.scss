@@ -57,7 +57,7 @@ h6, .h6 { font-size: 0.85rem; }
 // Im Skin ist ein h2 Abschnittstitel mit 20/28 wie in der Schriftskala,
 // kleiner als der Seitentitel (24/32). :where hält die Spezifität bei der
 // von h2, eine Klasse an der Überschrift gewinnt also weiter.
-:where(body.ignis-app) h2 { font-size: 20px; line-height: 28px; }
+:where(body.ignis-app, body.ignis-desk-body) h2 { font-size: 20px; line-height: 28px; }
 
 // Feld-Hinweise stehen dicht unter ihrem Feld und bekommen den Absatzrand
 // nicht. :where() hält die Spezifität bei der eines nackten p. Ihr Reset
@@ -83,25 +83,26 @@ body:not(#antrag) {
 }
 
 // Typografie der eingeloggten Ansichten (Hülle aus templates/layouts/admin.php,
-// Raster und Leisten in _shell.scss).
-body.ignis-app {
+// Raster und Leisten in _shell.scss). Der Desk hat einen eigenen Body, seine
+// Fenster brauchen dieselbe Typografie.
+body:is(.ignis-app, .ignis-desk-body) {
   color: var(--text-2);
 }
 
-body.ignis-app h1,
-body.ignis-app h2,
-body.ignis-app h3,
-body.ignis-app h4,
-body.ignis-app h5,
-body.ignis-app h6 {
+body:is(.ignis-app, .ignis-desk-body) h1,
+body:is(.ignis-app, .ignis-desk-body) h2,
+body:is(.ignis-app, .ignis-desk-body) h3,
+body:is(.ignis-app, .ignis-desk-body) h4,
+body:is(.ignis-app, .ignis-desk-body) h5,
+body:is(.ignis-app, .ignis-desk-body) h6 {
   color: var(--text);
 }
 
-body.ignis-app .text-muted {
+body:is(.ignis-app, .ignis-desk-body) .text-muted {
   color: var(--text-3) !important;
 }
 
-body.ignis-app {
+body:is(.ignis-app, .ignis-desk-body) {
   --bs-body-font-weight: 400;
 
   h1, h2, h3, h4, h5, h6 {

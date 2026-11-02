@@ -194,4 +194,26 @@ final class Overview
             'weekReleased' => (int) ($week->released ?? 0),
         ];
     }
+
+    /**
+     * Pille mit dem Delta der Einsätze gegen gestern bis zur selben Uhrzeit.
+     * Mehr Einsätze sind weder gut noch schlecht, die Pille bleibt deshalb
+     * neutral. Die Richtung steht als Text für Screenreader in der Pille, ein
+     * aria-label an einem span lesen sie nicht vor.
+     *
+     * @param array{today:int, yesterday:int}|null $incidents
+     */
+    public static function delta(?array $incidents): string
+    {
+        if ($incidents === null) {
+            return '';
+        }
+        $diff = $incidents['today'] - $incidents['yesterday'];
+
+        return '<span class="ignis-delta" data-trend="neutral">' . match (true) {
+            $diff > 0 => '<span class="ignis-sr-only">plus </span><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>' . $diff,
+            $diff < 0 => '<span class="ignis-sr-only">minus </span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i>' . -$diff,
+            default   => '<span aria-hidden="true">0</span><span class="ignis-sr-only">unverändert</span>',
+        } . '</span>';
+    }
 }
