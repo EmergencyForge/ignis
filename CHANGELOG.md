@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026.1.12-beta
+
+### efOS: Mac-Look
+- Ohne eigenes Hintergrundbild ist der Schreibtisch dunkel mit einem violetten Leuchten in der Mitte, darin liegt dezent das ignis-Zeichen als Glas
+- Fenster haben eine dunkle Außen- und eine helle Innenkante, die Titelleiste ist heller als der Inhalt
+- „Durchscheinend“ im Kontrollzentrum macht Fenster und Leisten durchlässig für den Hintergrund, der Leistungsmodus schaltet das wieder ab
+- Formulare in Fenstern zeigen ihre Felder als Reihen, die Beschriftung links, alles in einer gruppierten Fläche. Ein Formular-Tab steht als Spalte in der Mitte
+- Tabs sind gleich breit und liegen in einer Mulde wie in Safari
+
+### efOS: Fehler
+- Abmelden über das Menü oben rechts lädt die Anmeldeseite nicht mehr in ein Fenster, auch nicht bei abgelaufener Sitzung
+- Auf dem Tablet schließt ein zweiter Tipp auf „…“ das Menü wieder, die aktuelle Ansicht trägt dort einen Haken
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.3.1.
+
 ## 2026.1.11-beta
 
 ### efOS
