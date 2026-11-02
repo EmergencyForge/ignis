@@ -38,7 +38,7 @@
     "emergencyforge/fuzzy-search": "^0.1",
     "emergencyforge/mail": "^0.1",
     "emergencyforge/list-query": "^0.1",
-    "emergencyforge/ui-php": "^1.3"
+    "emergencyforge/ui-php": "^1.4"
   },
   "autoload": {
     "psr-4": {
