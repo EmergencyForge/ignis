@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026.1.15-beta
+
+### efOS: Laden
+- Fenster zeigen beim Laden ein Skelett der Seite, unter der Titelleiste läuft eine dünne Linie statt den Inhalt abzudunkeln
+- Beim Speichern dreht sich der Spinner nur am geklickten Knopf
+- Die Widgets zeigen beim Laden Platzhalter und bei einem Fehler „Erneut laden“
+- Kann ein Fenster eine Seite nicht laden, steht dort warum, mit „Erneut laden“ und „Im Browser öffnen“
+- Ohne Netz lädt das Fenster von selbst neu, sobald die Verbindung zurück ist
+- Fährt die Maus über ein App-Symbol im Dock, wird die Seite schon vorgeladen
+
+### efOS: Fenster und Tablet
+- Schmale Fenster ordnen Übersicht, Brotkrumen und Filter so an wie eine schmale Seite
+- Auf dem Tablet geht ein Wisch vom linken Fensterrand eine Seite zurück
+- Am Seitenanfang mit dem Finger nach unten ziehen lädt das Fenster neu
+
+### Kalender
+- Jede Kategorie hat eine feste Farbe, mit der neue Termine starten, etwa Schulung grün und Besprechung blau
+- Wechselt die Kategorie, zieht die Farbe mit, eine selbst gewählte Farbe bleibt
+- Die Kategorie-Filter tragen ihre Farbe als Punkt
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.7.0.
+
 ## 2026.1.14-beta
 
 ### efOS: Suche
