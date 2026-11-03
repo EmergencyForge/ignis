@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026.1.16-beta
+
+### Mail
+- Doppelklick, Enter oder „Öffnen“ in der Vorschau holen eine Mail auf eine eigene Seite in voller Breite
+- In efOS ist das ein eigenes Fenster neben dem Postfach, mehrere Mails können gleichzeitig offen sein
+- Ein Klick auf eine Zeile zeigt weiter die Vorschau
+
+### efOS
+- Am Desktop lässt sich ein Link aus einem Fenster auf ein Feld in einem anderen ziehen, dann steht dort sein Name, bei einer Auswahlliste wird der passende Eintrag gewählt
+- Nach fünf Minuten ohne Eingabe legt sich ein Ruhebildschirm mit Uhrzeit, Datum, neuen Mitteilungen und der Zahl im Posteingang über den Schreibtisch, eine Taste oder ein Klick holt ihn zurück
+- Am Anfasser zum Vergrößern von Textfeldern steht der passende Mauszeiger
+
+Aktualisiert sind das UI-Paket und ui-php auf 1.8.0.
+
 ## 2026.1.15-beta
 
 ### efOS: Laden
