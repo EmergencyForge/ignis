@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1f61918947799e666c98963480ef85d8",
+    "content-hash": "1fef8f8acd86550cf7c56bc850a20722",
     "packages": [
         {
             "name": "brick/math",
@@ -1054,11 +1054,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.7.0",
+            "version": "1.8.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "c43516aa38b831a83274c24f214c63ea50af41f0"
+                "reference": "df4f1664261df5aa694a71e02f60d7125a26063c"
             },
             "require": {
                 "php": ">=8.3"
