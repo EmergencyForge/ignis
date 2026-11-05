@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Documents\Editor\DocumentId;
+use App\Documents\Editor\FieldChoices;
 use App\Documents\Editor\PdfGenerator;
 use App\Documents\Editor\VariableCatalog;
 use App\Helpers\Flash;
@@ -113,6 +114,8 @@ final class EditorDocumentController extends Controller
             $this->redirect('documents/' . $document->id);
         }
 
+        $document->content = FieldChoices::fill($document->content);
+
         $this->renderView('documents/edit', [
             'document'       => $document,
             'variables'      => VariableCatalog::resolve($this->variableContext($document)),
@@ -169,7 +172,10 @@ final class EditorDocumentController extends Controller
         }
 
         try {
-            $result = (new SectionGuard())->restoreLockedSections($template->content, $decoded);
+            $result = (new SectionGuard())->restoreLockedSections(
+                FieldChoices::fill($template->content, $document->content),
+                $decoded,
+            );
         } catch (InvalidArgumentException $e) {
             Logger::warning('Vorlage von Dokument ' . $document->id . ' ist beschädigt: ' . $e->getMessage());
 

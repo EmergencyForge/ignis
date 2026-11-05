@@ -137,9 +137,10 @@ final class SystemTemplates
 
     /**
      * @param  list<array<string,string>>  $options  Auswahl statt Freitext
+     * @param  string|null                $source   Auswahl aus den Stammdaten, siehe {@see FieldChoices}
      * @return array<string,mixed>
      */
-    private function f(string $id, string $label, bool $required = true, int $maxLength = 120, array $options = []): array
+    private function f(string $id, string $label, bool $required = true, int $maxLength = 120, array $options = [], ?string $source = null): array
     {
         $attrs = [
             'fieldId'   => $id,
@@ -150,6 +151,9 @@ final class SystemTemplates
         ];
         if ($options !== []) {
             $attrs['options'] = $options;
+        }
+        if ($source !== null) {
+            $attrs['optionsSource'] = $source;
         }
 
         return ['type' => 'docField', 'attrs' => $attrs];
@@ -249,7 +253,7 @@ final class SystemTemplates
                             $this->t('mit sofortiger Wirkung befördert und '),
                             $this->v('mitarbeiter.zum_zur'),
                         ], 'center'),
-                        $this->p([$this->f('dienstgrad', 'Neuer Dienstgrad')], 'center'),
+                        $this->p([$this->f('dienstgrad', 'Neuer Dienstgrad', source: FieldChoices::RANKS)], 'center'),
                         $this->p([
                             $this->t('der '), $this->v('organisation.art'), $this->t(' '),
                             $this->v('organisation.stadt'), $this->t(' ernannt.'),
@@ -268,7 +272,7 @@ final class SystemTemplates
                         $this->p([$this->v('mitarbeiter.name')], 'center'),
                         $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
                         $this->p([$this->t('mit sofortiger Wirkung in das Beamtenverhältnis auf Widerruf berufen und im Dienstverhältnis als')], 'center'),
-                        $this->p([$this->f('dienstgrad', 'Dienstgrad')], 'center'),
+                        $this->p([$this->f('dienstgrad', 'Dienstgrad', source: FieldChoices::RANKS)], 'center'),
                         $this->p([
                             $this->t('zum Beamten der '), $this->v('organisation.art'), $this->t(' '),
                             $this->v('organisation.stadt'), $this->t(' ernannt.'),
@@ -305,7 +309,7 @@ final class SystemTemplates
                         $this->p([$this->v('mitarbeiter.name')], 'center'),
                         $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
                         $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
-                        $this->p([$this->f('qualifikation', 'Berufsbezeichnung')], 'center'),
+                        $this->p([$this->f('qualifikation', 'Berufsbezeichnung', source: FieldChoices::AMB_SKILLS)], 'center'),
                         $this->p([
                             $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', true, 20),
                             $this->t(' bestanden und somit die Genehmigung zum Führen der Qualifikation und oben genannter Berufsbezeichnung erworben hat.'),

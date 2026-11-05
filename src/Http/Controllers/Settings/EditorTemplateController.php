@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Documents\Editor\FieldChoices;
 use App\Documents\Editor\VariableCatalog;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
@@ -101,7 +102,7 @@ final class EditorTemplateController extends Controller
             'template'       => $template,
             'formAction'     => BASE_PATH . 'settings/documents/editor-templates/' . $template->id,
             'variables'      => VariableCatalog::catalog(),
-            'initialContent' => $template->content,
+            'initialContent' => FieldChoices::fill($template->content),
         ]);
     }
 

@@ -810,11 +810,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.5.2",
+            "version": "0.5.3",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "17928d1678bb3773bf7cbd11fd7a9d3bcd2bbab1"
+                "reference": "3ef6ca28211a257ba413a0850e1414581a630f75"
             },
             "require": {
                 "php": ">=8.3",

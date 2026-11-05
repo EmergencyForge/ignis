@@ -101,7 +101,8 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                         <div class="efe-page"
                              id="template-editor-mount"
                              data-efe-variables="<?= $variablesJson ?>"
-                             data-efe-content="<?= $contentJson ?>"></div>
+                             data-efe-content="<?= $contentJson ?>"
+                             data-field-sources="<?= htmlspecialchars(json_encode(\App\Documents\Editor\FieldChoices::SOURCES, JSON_UNESCAPED_UNICODE) ?: '{}', ENT_QUOTES) ?>"></div>
                     </div>
                 </div>
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Documents\Editor\FieldChoices;
 use App\Documents\Editor\PdfGenerator;
 use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
@@ -207,6 +208,73 @@ final class EditorDocumentTest extends FeatureTestCase
             $saved->content['content'][1]['content'][0]['content'][0]['text'],
             'Der freie Abschnitt bleibt, wie der Verfasser ihn geschickt hat.',
         );
+    }
+
+    /**
+     * Dokument aus einer Vorlage, deren Feld seine Liste aus den Dienstgraden
+     * zieht.
+     *
+     * @return array{EditorDocument, array<string,mixed>}
+     */
+    private function draftWithRankField(): array
+    {
+        $content = $this->templateContent();
+        $content['content'][0]['content'][0]['content'] = [[
+            'type'  => 'docField',
+            'attrs' => ['fieldId' => 'dienstgrad', 'label' => 'Dienstgrad', 'value' => '', 'optionsSource' => FieldChoices::RANKS],
+        ]];
+
+        $template          = $this->template();
+        $template->content = $content;
+        $template->save();
+
+        return [$this->draft($template), $content];
+    }
+
+    /** @param array<string,mixed> $content */
+    private function saveRank(EditorDocument $document, array $content, string $value): string
+    {
+        $content['content'][0]['content'][0]['content'][0]['attrs']['value'] = $value;
+
+        $this->postWithToken('/documents/' . $document->id . '/save', [
+            'content' => json_encode($content, JSON_UNESCAPED_UNICODE),
+            'title'   => 'Ein Dokument',
+        ]);
+
+        return EditorDocument::find($document->id)->content['content'][0]['content'][0]['content'][0]['attrs']['value'];
+    }
+
+    #[Test]
+    public function ein_feld_mit_quelle_nimmt_die_form_aus_den_stammdaten_an(): void
+    {
+        [$document, $content] = $this->draftWithRankField();
+
+        $this->assertSame('Brandmeisterin', $this->saveRank($document, $content, 'Brandmeisterin'));
+        $this->assertSame('', $this->saveRank($document, $content, 'Gefälscht'));
+    }
+
+    #[Test]
+    public function ein_getippter_wert_im_entwurf_uebersteht_den_autosave(): void
+    {
+        [$document, $content] = $this->draftWithRankField();
+
+        $stored = $content;
+        $stored['content'][0]['content'][0]['content'][0]['attrs']['value'] = 'Von Hand getippt';
+        Capsule::table('intra_documents')->where('id', $document->id)->update([
+            'content' => json_encode($stored, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        $this->assertSame('Von Hand getippt', $this->saveRank($document, $content, 'Von Hand getippt'));
+    }
+
+    #[Test]
+    public function der_editor_bekommt_die_aktuelle_liste(): void
+    {
+        [$document] = $this->draftWithRankField();
+
+        $html = $this->get('/documents/' . $document->id . '/edit')->body;
+
+        $this->assertStringContainsString('Brandmeisterin', html_entity_decode($html));
     }
 
     #[Test]

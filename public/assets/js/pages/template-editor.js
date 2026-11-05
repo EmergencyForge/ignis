@@ -22,6 +22,8 @@
     var FIELD_LABEL_ID = 'template-field-label-input';
     var FIELD_REQUIRED_ID = 'template-field-required-input';
     var FIELD_OPTIONS_ID = 'template-field-options';
+    var FIELD_SOURCE_ID = 'template-field-source';
+    var FIELD_CUSTOM_ID = 'template-field-custom-options';
     var SECTION_TITLE_ID = 'template-section-title-input';
     var SECTION_HINT_ID = 'template-section-hint-input';
     var SECTION_REPEATABLE_ID = 'template-section-repeatable-input';
@@ -176,16 +178,23 @@
      * Dialog für ein Feld.
      *
      * `options.isEdit` unterscheidet Anlegen von Bearbeiten (nur beim
-     * Bearbeiten gibt es "Feld entfernen"); `label`, `required` und
-     * `choices` (die Auswahlliste) sind die Vorbelegung. Beim Anlegen kommt
-     * die Beschriftung aus dem markierten Text.
+     * Bearbeiten gibt es "Feld entfernen"); `label`, `required`, `source`
+     * (Liste aus den Stammdaten) und `choices` (eigene Auswahlliste) sind die
+     * Vorbelegung. Beim Anlegen kommt die Beschriftung aus dem markierten
+     * Text. `options.sources` bildet die Stammdaten-Listen auf ihren Namen ab.
      *
-     * Liefert `{ label, required, choices }` zum Übernehmen, den String
-     * `'remove'` zum Entfernen, sonst null (abgebrochen). `choices` ist null,
-     * wenn das Feld Freitext bleibt.
+     * Liefert `{ label, required, source, choices }` zum Übernehmen, den
+     * String `'remove'` zum Entfernen, sonst null (abgebrochen). `choices`
+     * ist null, wenn das Feld Freitext bleibt oder eine Quelle hat.
      */
     function openFieldDialog(options) {
         var isEdit = Boolean(options.isEdit);
+        var source = options.source || '';
+        var sources = options.sources || {};
+        var sourceOptions = Object.keys(sources).map(function (key) {
+            return '<option value="' + escapeHtml(key) + '"' + (key === source ? ' selected' : '') + '>' +
+                escapeHtml(sources[key]) + '</option>';
+        }).join('');
         var body =
             '<div class="ignis-field">' +
             '<label class="ignis-field__label" for="' + FIELD_LABEL_ID + '">Beschriftung</label>' +
@@ -200,12 +209,16 @@
             '</label>' +
             '</div>' +
             '<div class="ignis-field">' +
-            '<div class="ignis-field__label">Auswahl</div>' +
-            '<p class="ignis-field__hint mb-2">Mit Optionen wählt der Aussteller aus der Liste, statt frei zu schreiben. ' +
+            '<label class="ignis-field__label" for="' + FIELD_SOURCE_ID + '">Auswahl</label>' +
+            '<p class="ignis-field__hint mb-2">Mit einer Liste wählt der Aussteller aus, statt frei zu schreiben. ' +
             'Die männliche oder weibliche Form setzt ignis passend zum Mitarbeiter ein, ist sie leer, gilt die allgemeine.</p>' +
+            '<select class="ignis-input mb-2" id="' + FIELD_SOURCE_ID + '" data-custom-dropdown="true">' +
+            '<option value="">Eigene Optionen</option>' + sourceOptions + '</select>' +
+            '<div id="' + FIELD_CUSTOM_ID + '"' + (source ? ' hidden' : '') + '>' +
             '<div id="' + FIELD_OPTIONS_ID + '">' + (options.choices || []).map(optionRowHtml).join('') + '</div>' +
             '<button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-field-option-add>' +
             '<i class="fa-solid fa-plus" aria-hidden="true"></i> Option hinzufügen</button>' +
+            '</div>' +
             '</div>';
 
         var actions = [{ label: 'Abbrechen', variant: 'ghost', close: true }];
@@ -216,10 +229,12 @@
             label: isEdit ? 'Übernehmen' : 'Einfügen',
             variant: 'primary',
             onClick: function (d) {
-                var choices = readOptions(d);
+                var picked = inputIn(d, FIELD_SOURCE_ID).value;
+                var choices = picked ? [] : readOptions(d);
                 d.close({
                     label: inputIn(d, FIELD_LABEL_ID).value.trim(),
                     required: inputIn(d, FIELD_REQUIRED_ID).checked,
+                    source: picked || null,
                     choices: choices.length ? choices : null,
                 });
             },
@@ -232,6 +247,9 @@
             // Drei Formen je Option nebeneinander brauchen die Breite.
             size: 'lg',
             onOpen: function (d) {
+                inputIn(d, FIELD_SOURCE_ID).addEventListener('change', function (event) {
+                    inputIn(d, FIELD_CUSTOM_ID).hidden = Boolean(event.target.value);
+                });
                 d.element.addEventListener('click', function (event) {
                     if (event.target.closest('[data-field-option-add]')) {
                         var list = inputIn(d, FIELD_OPTIONS_ID);
@@ -305,6 +323,7 @@
     function wireTemplateTools(editor, mount) {
         var fieldButton = document.getElementById('template-field-button');
         var sectionButton = document.getElementById('template-section-button');
+        var sources = readJsonAttr(mount, 'data-field-sources', {});
 
         if (!window.Dialog || typeof window.Dialog !== 'function') {
             console.error('[template-editor] Dialog-Komponente (die UI-Module) nicht geladen.');
@@ -321,7 +340,10 @@
                 isEdit: true,
                 label: node.attrs.label || '',
                 required: Boolean(node.attrs.required),
-                choices: node.attrs.options,
+                source: node.attrs.optionsSource,
+                sources: sources,
+                // Bei einer Quelle stehen hier die Stammdaten, keine eigene Liste.
+                choices: node.attrs.optionsSource ? null : node.attrs.options,
             }).then(function (result) {
                 if (result === 'remove') {
                     editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
@@ -336,6 +358,7 @@
                     .command(function (props) {
                         props.tr.setNodeAttribute(pos, 'label', result.label);
                         props.tr.setNodeAttribute(pos, 'required', result.required);
+                        props.tr.setNodeAttribute(pos, 'optionsSource', result.source);
                         props.tr.setNodeAttribute(pos, 'options', result.choices);
                         return true;
                     })
@@ -349,7 +372,7 @@
             var selection = editor.state.selection;
             var selected = editor.state.doc.textBetween(selection.from, selection.to, ' ').trim();
 
-            openFieldDialog({ isEdit: false, label: selected, required: false }).then(function (result) {
+            openFieldDialog({ isEdit: false, label: selected, required: false, sources: sources }).then(function (result) {
                 if (!result || result === 'remove') {
                     return;
                 }
@@ -368,6 +391,7 @@
                             fieldId: generateFieldId(),
                             label: result.label,
                             required: result.required,
+                            optionsSource: result.source,
                             options: result.choices,
                             value: '',
                         },
