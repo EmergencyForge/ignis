@@ -119,7 +119,7 @@ final class SystemLogoUploadTest extends FeatureTestCase
     {
         $this->actingAsAdmin();
 
-        $content = str_repeat('x', 2 * 1024 * 1024 + 1);
+        $content = str_repeat('x', 5 * 1024 * 1024 + 1);
         $tmp = sys_get_temp_dir() . '/system_logo_big_' . bin2hex(random_bytes(6));
         file_put_contents($tmp, $content);
         $this->cleanupFiles[] = $tmp;

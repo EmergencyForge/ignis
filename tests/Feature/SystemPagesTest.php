@@ -129,7 +129,7 @@ final class SystemPagesTest extends FeatureTestCase
         $page = $this->get('/settings/system/config');
 
         $this->assertOk($page);
-        $this->assertBodyContains('id="system-logo-dropzone" data-ignis-file data-max-bytes="2097152"', $page);
+        $this->assertBodyContains('id="system-logo-dropzone" data-ignis-file data-max-bytes="5242880"', $page);
         $this->assertBodyContains('accept="image/png,image/jpeg,image/webp" class="ignis-file__input"', $page);
         $this->assertBodyContains('<summary>Stattdessen Pfad oder URL angeben</summary>', $page);
         $this->assertBodyContains('name="SYSTEM_LOGO"', $page);
