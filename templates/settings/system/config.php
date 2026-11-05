@@ -276,12 +276,12 @@ $SITE_TITLE = 'System-Konfiguration';
                                                     $logoIsDefault = systemLogoIsDefault((string) $config['config_value']);
                                                     $logoCurrent   = $logoIsDefault ? '' : systemLogoUrl((string) $config['config_value']);
                                                 ?>
-                                                    <div class="ignis-file ignis-file--dropzone ignis-file--photo mb-2" id="system-logo-dropzone" data-ignis-file data-max-bytes="2097152" data-ignis-file-current="<?= htmlspecialchars($logoCurrent, ENT_QUOTES) ?>">
+                                                    <div class="ignis-file ignis-file--dropzone ignis-file--photo mb-2" id="system-logo-dropzone" data-ignis-file data-max-bytes="5242880" data-ignis-file-current="<?= htmlspecialchars($logoCurrent, ENT_QUOTES) ?>">
                                                         <input type="file" id="system-logo-upload" accept="image/png,image/jpeg,image/webp" class="ignis-file__input">
                                                         <label for="system-logo-upload" class="ignis-file__zone">
                                                             <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-image"></i></span>
                                                             <span class="ignis-file__title">Logo hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
-                                                            <span class="ignis-file__hint">PNG, JPEG oder WebP, max. 2 MB</span>
+                                                            <span class="ignis-file__hint">PNG, JPEG oder WebP, max. 5 MB</span>
                                                         </label>
                                                         <div class="ignis-file__selected" hidden></div>
                                                         <p class="ignis-file__error" role="alert" hidden></p>

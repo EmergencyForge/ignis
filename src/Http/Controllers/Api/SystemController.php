@@ -282,7 +282,7 @@ final class SystemController
             $gespeichert = FileUpload::store(
                 $fileInfo,
                 dirname(__DIR__, 4) . '/storage/' . self::LOGO_DIR,
-                2 * 1024 * 1024,
+                5 * 1024 * 1024,
                 self::LOGO_ERLAUBT,
             );
         } catch (UploadException $e) {
