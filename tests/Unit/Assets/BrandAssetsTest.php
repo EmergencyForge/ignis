@@ -8,14 +8,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Logos und Favicons aus der Punze (docs/design/logos/ignis in WebPackages):
- * Rastergrößen, das Micro-Motiv im SVG-Favicon und die Seitenverhältnisse
+ * Logos und App-Icons aus der Punze (docs/design/logos/ignis in WebPackages):
+ * Rastergrößen, die kleine Fassung im SVG-Favicon und die Seitenverhältnisse
  * der Verlaufsmaske passend zu den viewBox-Werten.
  */
 final class BrandAssetsTest extends TestCase
 {
     private const ROOT = __DIR__ . '/../../..';
-    private const MICRO_PATH = 'M4 0H16V12L12 16H0V4ZM6 14H9V8L6 11ZM8 5H11V2H8Z';
+    private const SMALL_PLATE = 'M5 2H14V11L11 14H2V5ZM6 12H8V8L6 10ZM8 4V6H10V4Z';
 
     /** @return array<string, array{string, int}> */
     public static function pngs(): array
@@ -25,6 +25,8 @@ final class BrandAssetsTest extends TestCase
             'apple' => ['apple-touch-icon.png', 180],
             'manifest 192' => ['web-app-manifest-192x192.png', 192],
             'manifest 512' => ['web-app-manifest-512x512.png', 512],
+            'icon 192' => ['web-app-icon-192x192.png', 192],
+            'icon 512' => ['web-app-icon-512x512.png', 512],
         ];
     }
 
@@ -54,11 +56,11 @@ final class BrandAssetsTest extends TestCase
         self::assertSame([16, 32, 48], $sizes);
     }
 
-    public function testSvgFaviconIsTheMicroMarkInTheAccent(): void
+    public function testSvgFaviconIsTheSmallAppIcon(): void
     {
         $svg = (string) file_get_contents(self::ROOT . '/assets/favicon/favicon.svg');
-        self::assertStringContainsString('d="' . self::MICRO_PATH . '"', $svg);
-        self::assertStringContainsString('fill="#ff4d00"', $svg);
+        self::assertStringContainsString('fill="#fff" fill-rule="evenodd" d="' . self::SMALL_PLATE . '"', $svg);
+        self::assertStringContainsString('fill="url(#bg)"', $svg);
     }
 
     public function testLogosAreThePunze(): void
@@ -101,22 +103,25 @@ final class BrandAssetsTest extends TestCase
             self::markTestSkipped('GD (imagecreatefrompng) ist nicht verfügbar.');
         }
         foreach (['assets/favicon', 'public/assets/favicon'] as $dir) {
-            $apple = imagecreatefrompng(self::ROOT . '/' . $dir . '/apple-touch-icon.png');
-            self::assertNotFalse($apple, $dir);
-            $rgb = imagecolorsforindex($apple, imagecolorat($apple, 2, 2));
-            self::assertSame('161616', sprintf('%02x%02x%02x', $rgb['red'], $rgb['green'], $rgb['blue']), $dir . '/apple-touch-icon.png');
+            // iOS und Android schneiden diese Icons selbst zu, eine durchsichtige Ecke würde dort schwarz.
+            foreach (['apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png'] as $file) {
+                $png = imagecreatefrompng(self::ROOT . '/' . $dir . '/' . $file);
+                self::assertNotFalse($png, $file);
+                $rgb = imagecolorsforindex($png, imagecolorat($png, 2, 2));
+                self::assertSame(0, $rgb['alpha'], $dir . '/' . $file);
+                self::assertGreaterThan($rgb['blue'] + 100, $rgb['red'], $dir . '/' . $file . ' ist nicht orange');
+            }
 
-            $manifest512 = imagecreatefrompng(self::ROOT . '/' . $dir . '/web-app-manifest-512x512.png');
-            self::assertNotFalse($manifest512, $dir);
-            $rgb = imagecolorsforindex($manifest512, imagecolorat($manifest512, 2, 2));
-            self::assertSame('161616', sprintf('%02x%02x%02x', $rgb['red'], $rgb['green'], $rgb['blue']), $dir . '/web-app-manifest-512x512.png');
-
-            // Bildmitte fällt auf den Micro-Motiv-Ausschnitt, nicht den Rand: opak.
-            $favicon96 = imagecreatefrompng(self::ROOT . '/' . $dir . '/favicon-96x96.png');
-            self::assertNotFalse($favicon96, $dir);
-            $centre = intdiv(imagesx($favicon96), 2) - 1;
-            $rgb = imagecolorsforindex($favicon96, imagecolorat($favicon96, $centre, $centre));
-            self::assertSame(0, $rgb['alpha'], $dir . '/favicon-96x96.png Mitte');
+            // Alle anderen bringen das Squircle selbst mit.
+            foreach (['favicon-96x96.png', 'web-app-icon-192x192.png', 'web-app-icon-512x512.png'] as $file) {
+                $png = imagecreatefrompng(self::ROOT . '/' . $dir . '/' . $file);
+                self::assertNotFalse($png, $file);
+                $corner = imagecolorsforindex($png, imagecolorat($png, 0, 0));
+                self::assertSame(127, $corner['alpha'], $dir . '/' . $file . ' Ecke');
+                $centre = intdiv(imagesx($png), 2) - 1;
+                $rgb = imagecolorsforindex($png, imagecolorat($png, $centre, $centre));
+                self::assertSame(0, $rgb['alpha'], $dir . '/' . $file . ' Mitte');
+            }
         }
     }
 
@@ -127,14 +132,14 @@ final class BrandAssetsTest extends TestCase
             self::assertIsArray($manifest, $dir);
             self::assertSame('#161616', $manifest['theme_color'] ?? null, $dir);
 
-            $hasAnyPurpose = false;
+            $srcs = ['any' => [], 'maskable' => []];
             foreach ($manifest['icons'] ?? [] as $icon) {
-                if (str_contains((string) ($icon['purpose'] ?? ''), 'any')) {
-                    $hasAnyPurpose = true;
-                    break;
-                }
+                $srcs[(string) ($icon['purpose'] ?? '')][] = (string) ($icon['src'] ?? '');
+                self::assertFileExists(self::ROOT . '/' . $dir . '/' . $icon['src']);
             }
-            self::assertTrue($hasAnyPurpose, $dir . ': kein Icon mit purpose "any"');
+            self::assertNotSame([], $srcs['any'], $dir . ': kein Icon mit purpose "any"');
+            // Das maskable Bild ist vollflächig, als "any" stünde es ohne Squircle da.
+            self::assertSame([], array_intersect($srcs['any'], $srcs['maskable']), $dir);
         }
     }
 }

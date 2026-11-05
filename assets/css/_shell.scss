@@ -198,7 +198,10 @@ html.is-collapsed body.ignis-app--legacy {
   &__bell > summary { position: relative; }
 }
 
-// Logo als zwei Masken: das Zeichen im Akzentverlauf, daneben der
+// Dieselbe Form wie im App-Icon (assets/favicon), Ecken nach dem iOS-Verlauf.
+$ignis-squircle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M175.08 0H336.92C387.33 0 412.54 0 439.67 8.58C469.3 19.36 492.64 42.7 503.42 72.33C512 99.46 512 124.67 512 175.08V336.92C512 387.33 512 412.54 503.42 439.67C492.64 469.3 469.3 492.64 439.67 503.42C412.54 512 387.33 512 336.92 512H175.08C124.67 512 99.46 512 72.33 503.42C42.7 492.64 19.36 469.3 8.58 439.67C0 412.54 0 387.33 0 336.92V175.08C0 124.67 0 99.46 8.58 72.33C19.36 42.7 42.7 19.36 72.33 8.58C99.46 0 124.67 0 175.08 0Z'/%3E%3C/svg%3E");
+
+// Logo aus Masken: das Zeichen als App-Icon im Akzentverlauf, daneben der
 // Schriftzug in der Textfarbe. Topbar und Anmeldung zeigen es nur beim
 // Standardlogo (sonst bleibt ein Betreiberlogo ein <img>), der Footer immer.
 // Die Maske übernimmt vom SVG nur die Deckkraft, so folgt das Logo Theme und
@@ -218,10 +221,24 @@ html.is-collapsed body.ignis-app--legacy {
   // Kopf der Anmeldeschale: so breit wie das frühere Lockup dort.
   &--login { --lockup-h: calc(92px * 76 / 283); }
 }
-.ignis-lockup__mark {
+.ignis-lockup > .ignis-lockup__mark {
+  position: relative;
   height: var(--lockup-h);
   aspect-ratio: 1;
-  background-image: linear-gradient(135deg, var(--accent-fill), var(--accent-fill-2, var(--accent-fill)));
+  background-image: linear-gradient(180deg, var(--accent-fill-2, var(--accent-fill)), var(--accent-fill));
+  -webkit-mask: $ignis-squircle center / contain no-repeat;
+  mask: $ignis-squircle center / contain no-repeat;
+
+  // Die Punze liegt als Platte darauf, durch ihr i scheint der Akzent.
+  // --switch-thumb ist Weiß und wird nur auf zu hellem Akzent dunkel.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 16%;
+    background: var(--switch-thumb, white);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
 }
 .ignis-lockup__word {
   // Die Grundlinie des Logos liegt so unter dem Schriftzug wie bei der
@@ -233,8 +250,17 @@ html.is-collapsed body.ignis-app--legacy {
 }
 
 @media print {
-  // Kein Akzent im Ausdruck, nur die Textfarbe (siehe print ohne Schatten/Verläufe).
-  .ignis-lockup__mark { background: var(--content-text); }
+  // Kein Akzent im Ausdruck, nur die Punze in der Textfarbe (siehe print ohne Schatten/Verläufe).
+  .ignis-lockup > .ignis-lockup__mark {
+    background: none;
+    -webkit-mask: none;
+    mask: none;
+
+    &::after {
+      inset: 0;
+      background: var(--content-text);
+    }
+  }
 }
 
 // =====================================================
