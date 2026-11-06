@@ -382,7 +382,12 @@ final class FabricaLoginTest extends IntegrationTestCase
     /** @param array<string,mixed> $answer */
     private function tabletLogin(User $user, int $status = 200, array $answer = []): \EmergencyForge\Http\Response
     {
-        defined('BASE_PATH') || define('BASE_PATH', '/');
+        // Name in einer Variablen: ein zweites wörtliches define('BASE_PATH')
+        // ließe PHPStan die Konstante im ganzen Projekt vergessen.
+        $constant = 'BASE_PATH';
+        if (!defined($constant)) {
+            define($constant, '/');
+        }
         $token = 'tablet-token-' . random_int(1000, 9999);
         \Illuminate\Database\Capsule\Manager::table('intra_tablet_login_tokens')->insert([
             'user_id' => $user->id, 'discord_id' => '123456789012345678', 'token_hash' => hash('sha256', $token),
