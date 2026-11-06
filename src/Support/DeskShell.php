@@ -6,6 +6,7 @@ namespace App\Support;
 
 use App\Helpers\Navigation;
 use App\Helpers\Theme;
+use App\Models\User;
 use App\Session\SessionManager;
 use EmergencyForge\Ui\Desk;
 use EmergencyForge\Ui\Ui;
@@ -170,7 +171,7 @@ final class DeskShell
                 'inboxPopover' => $base . 'inbox/popover',
             ],
             'create' => self::createByApp($groups, $base),
-            'user' => ['initials' => mb_strtoupper(mb_substr($name !== '' ? $name : '?', 0, 2)), 'name' => $name],
+            'user' => ['initials' => mb_strtoupper(mb_substr($name !== '' ? $name : '?', 0, 2)), 'name' => $name, 'fullName' => User::find($userId)?->fullname ?: $name],
             'theme' => [
                 'action' => $base . 'profile/theme',
                 'field' => 'csrf_token',
