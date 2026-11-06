@@ -22,6 +22,26 @@ final class FabricaIdentity
         return $id === null ? null : User::query()->where('is_active', 1)->whereKey((int) $id)->first();
     }
 
+    public static function subject(string $issuer, int $userId): ?string
+    {
+        $subject = Capsule::table(self::TABLE)->where('issuer', $issuer)->where('user_id', $userId)->value('subject');
+        return is_string($subject) ? $subject : null;
+    }
+
+    /**
+     * Keeps the local copy current so the tablet in the game finds the account.
+     * The column allows duplicates, but two active accounts with one ID would
+     * block the tablet for both, so a held ID stays where it is. This must never
+     * merge accounts, and only an admin can tell which one is right.
+     */
+    public static function rememberDiscordId(User $user, ?string $discordId): void
+    {
+        if ($discordId === null || $discordId === $user->discord_id) return;
+        if (User::query()->where('discord_id', $discordId)->where('is_active', 1)->whereKeyNot($user->id)->exists()) return;
+        $user->discord_id = $discordId;
+        $user->save();
+    }
+
     /** Register a confirmed Fabrica identity under the product's local admission rules. */
     public static function resolve(string $issuer, string $subject, ?string $username, string $mode, ?string $code): User
     {

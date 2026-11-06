@@ -79,7 +79,7 @@ final class FabricaClient
 
     /** @param array<string,mixed> $session
      *  @param array<string,mixed> $query
-     *  @return array{subject:string,username:?string,lease:string,expires:int,checked:int,context:string}
+     *  @return array{subject:string,username:?string,discordId:?string,lease:string,expires:int,checked:int,context:string}
      */
     public function finish(array &$session, array $query): array
     {
@@ -92,7 +92,26 @@ final class FabricaClient
             throw new RuntimeException('Die Anmeldung ist ungültig oder abgelaufen. Bitte beginne erneut.');
         }
         $started = time();
-        $result = $this->post('redeem', ['code' => $query['code'], 'verifier' => $pending['verifier']]);
+        return $this->login($this->post('redeem', ['code' => $query['code'], 'verifier' => $pending['verifier']]), $started);
+    }
+
+    /**
+     * The tablet in the game has no browser for the handoff. The game server
+     * vouched for the Discord ID, and Fabrica opens a session of its own.
+     *
+     * @return array{subject:string,username:?string,discordId:?string,lease:string,expires:int,checked:int,context:string}
+     */
+    public function tablet(string $subject, string $discordId): array
+    {
+        $started = time();
+        return $this->login($this->post('tablet', ['subject' => $subject, 'discordId' => $discordId]), $started);
+    }
+
+    /** @param array<string,mixed> $result
+     *  @return array{subject:string,username:?string,discordId:?string,lease:string,expires:int,checked:int,context:string}
+     */
+    private function login(array $result, int $started): array
+    {
         if (!$this->validIdentity($result) || !self::opaque($result['lease'] ?? null)) {
             throw new RuntimeException('Die Anmeldung konnte nicht bestätigt werden.');
         }
@@ -100,7 +119,10 @@ final class FabricaClient
         if ($username !== null && (!is_string($username) || trim($username) === '' || mb_strlen($username) > 200)) {
             throw new RuntimeException('Fabrica hat ein ungültiges Benutzerprofil geliefert.');
         }
-        return ['subject' => $result['subject'], 'username' => $username, 'lease' => $result['lease'], 'expires' => (int) strtotime($result['expiresAt']), 'checked' => $started, 'context' => $this->context()];
+        $discordId = $result['discordId'] ?? null;
+        // Older consoles send nothing, and a bad value must not cost the login.
+        if (!is_string($discordId) || preg_match('/^[0-9]{17,20}$/D', $discordId) !== 1) $discordId = null;
+        return ['subject' => $result['subject'], 'username' => $username, 'discordId' => $discordId, 'lease' => $result['lease'], 'expires' => (int) strtotime($result['expiresAt']), 'checked' => $started, 'context' => $this->context()];
     }
 
     /** @param array<string,mixed> $login */

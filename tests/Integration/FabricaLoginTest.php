@@ -356,6 +356,75 @@ final class FabricaLoginTest extends IntegrationTestCase
         self::assertSame((int) $person->id, \App\Personnel\AccountLink::personnelFor((int) $user->id)?->id);
     }
 
+    public function test_callback_keeps_the_discord_id_current(): void
+    {
+        $id = '123456789012345678';
+        self::assertSame(302, $this->performCallback(['discordId' => $id])->status);
+        $user = User::query()->findOrFail(SessionManager::userId());
+        self::assertSame($id, $user->discord_id);
+
+        // Unlinked at Discord: the copy stays, and Fabrica refuses it at the tablet.
+        self::assertSame(302, $this->performCallback(['discordId' => null])->status);
+        self::assertSame($id, $user->fresh()->discord_id);
+    }
+
+    public function test_callback_never_takes_a_discord_id_from_an_active_account(): void
+    {
+        $holder = $this->account();
+        $holder->discord_id = '123456789012345678';
+        $holder->save();
+        self::assertSame(302, $this->performCallback(['discordId' => '123456789012345678'])->status);
+        $user = User::query()->findOrFail(SessionManager::userId());
+        self::assertNotSame((int) $holder->id, (int) $user->id);
+        self::assertNull($user->discord_id);
+    }
+
+    /** @param array<string,mixed> $answer */
+    private function tabletLogin(User $user, int $status = 200, array $answer = []): \EmergencyForge\Http\Response
+    {
+        defined('BASE_PATH') || define('BASE_PATH', '/');
+        $token = 'tablet-token-' . random_int(1000, 9999);
+        \Illuminate\Database\Capsule\Manager::table('intra_tablet_login_tokens')->insert([
+            'user_id' => $user->id, 'discord_id' => '123456789012345678', 'token_hash' => hash('sha256', $token),
+            'expires_at' => date('Y-m-d H:i:s', time() + 60), 'created_at' => date('Y-m-d H:i:s'),
+        ]);
+        \Illuminate\Database\Capsule\Manager::table('intra_config')->where('config_key', 'TABLET_LOGIN_ENABLED')->update(['config_value' => 'true']);
+        $data = array_replace(['username' => 'Sync member', 'subject' => self::SUBJECT, 'instanceId' => self::INSTANCE, 'lease' => str_repeat('x', 43), 'expiresAt' => gmdate('c', time() + 3600), 'maxAge' => 60], $answer);
+        $client = new FabricaClient($_ENV['FABRICA_URL'], self::INSTANCE, $_ENV['FABRICA_INSTANCE_CREDENTIAL'], new Client(['handler' => HandlerStack::create(new MockHandler([new Response($status, [], json_encode($data, JSON_THROW_ON_ERROR))]))]));
+        return (new \App\Http\Controllers\TabletLoginController($client))->login(new Request('GET', '/auth/tablet', ['token' => $token]));
+    }
+
+    public function test_tablet_login_gets_a_lease_that_survives_the_session_check(): void
+    {
+        $user = $this->account();
+        FabricaIdentity::link($_ENV['FABRICA_URL'], self::SUBJECT, (int) $user->id);
+
+        self::assertSame(302, $this->tabletLogin($user)->status);
+
+        self::assertSame((int) $user->id, (int) $_SESSION['userid']);
+        self::assertSame(str_repeat('x', 43), $_SESSION['fabrica_login']['lease']);
+        \App\Auth\FabricaSession::enforce();
+        self::assertSame((int) $user->id, (int) ($_SESSION['userid'] ?? 0));
+    }
+
+    public function test_tablet_login_stops_when_fabrica_refuses(): void
+    {
+        $user = $this->account();
+        FabricaIdentity::link($_ENV['FABRICA_URL'], self::SUBJECT, (int) $user->id);
+
+        self::assertSame(302, $this->tabletLogin($user, 401)->status);
+
+        self::assertArrayNotHasKey('userid', $_SESSION);
+        self::assertArrayNotHasKey('fabrica_login', $_SESSION);
+    }
+
+    public function test_tablet_login_needs_a_linked_identity(): void
+    {
+        self::assertSame(302, $this->tabletLogin($this->account())->status);
+
+        self::assertArrayNotHasKey('userid', $_SESSION);
+    }
+
     public function test_login_route_can_resolve_its_controller_and_start_the_handoff(): void
     {
         $controller = $GLOBALS['app_container']->get(FabricaAuthController::class);

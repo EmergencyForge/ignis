@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Auth\FabricaClient;
+use App\Auth\FabricaIdentity;
 use App\Config\ConfigManager;
 use App\Helpers\ProtocolDetection;
 use App\Http\ErrorPage;
@@ -13,6 +15,7 @@ use App\Utils\AuditLogger;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Throwable;
 
 /**
  * Anmeldung über ef_bridge (vormals ignisTab). Discord-OAuth läuft im CEF von FiveM nicht, also
@@ -21,12 +24,19 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *
  * Gespeichert wird nur der SHA-256 des Tokens; der Token selbst gehört in
  * kein Log.
+ *
+ * Hängt ignis an der zentralen Anmeldung, braucht auch das Tablet dort einen
+ * Zugang, sonst wirft FabricaSession die Sitzung beim nächsten Aufruf hinaus.
+ * Die Discord-ID steht deshalb an der Tokenzeile: beim Rückfall über den
+ * discordtag trägt das Konto selbst noch keine.
  */
 final class TabletLoginController
 {
     private const TABLE = 'intra_tablet_login_tokens';
     private const TTL = 60;
     private const PER_MINUTE = 10;
+
+    public function __construct(private readonly ?FabricaClient $client = null) {}
 
     /** POST /api/tablet/login-token (ApiKeyMiddleware), Body {"discord_id": "…"} */
     public function issue(Request $request): Response
@@ -82,6 +92,7 @@ final class TabletLoginController
         $token = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
         Capsule::table(self::TABLE)->insert([
             'user_id'    => $userId,
+            'discord_id' => $discordId,
             'token_hash' => hash('sha256', $token),
             'expires_at' => date('Y-m-d H:i:s', $now + self::TTL),
             'created_at' => date('Y-m-d H:i:s', $now),
@@ -103,10 +114,12 @@ final class TabletLoginController
         }
 
         $token = $request->query['token'] ?? null;
+        SessionManager::start();
         $user = is_string($token) && $token !== '' ? $this->redeem($token) : null;
 
-        if ($user === null) {
-            // Bewusst ohne Grund: ob abgelaufen, benutzt oder erfunden, verrät die Seite nicht.
+        if ($user === null || !$this->openFabricaLogin($user, (string) $token)) {
+            // Bewusst ohne Grund: ob abgelaufen, benutzt oder abgelehnt, verrät die Seite nicht.
+            SessionManager::logoutUser();
             SessionManager::setRegistrationError('Die Anmeldung über das Tablet hat nicht geklappt. Öffne das Tablet bitte erneut.');
             return self::private(Response::redirect(BASE_PATH . 'login'));
         }
@@ -135,6 +148,26 @@ final class TabletLoginController
         $userId = Capsule::table(self::TABLE)->where('token_hash', $hash)->value('user_id');
 
         return User::query()->whereKey($userId)->where('is_active', 1)->first();
+    }
+
+    private function openFabricaLogin(User $user, string $token): bool
+    {
+        if (!FabricaClient::enabled()) {
+            return true;
+        }
+        try {
+            $client = $this->client ?? FabricaClient::fromEnvironment();
+            $subject = FabricaIdentity::subject($client->origin, (int) $user->id);
+            $discordId = Capsule::table(self::TABLE)->where('token_hash', hash('sha256', $token))->value('discord_id');
+            if ($subject === null || !is_string($discordId)) {
+                return false;
+            }
+            $_SESSION['fabrica_login'] = $client->tablet($subject, $discordId) + ['localUserId' => (int) $user->id];
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     private static function enabled(): bool

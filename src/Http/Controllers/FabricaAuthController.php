@@ -40,6 +40,7 @@ final class FabricaAuthController
                 is_string($code) ? $code : null,
             );
             SessionManager::clearRegistrationCode();
+            FabricaIdentity::rememberDiscordId($user, $login['discordId']);
             $_SESSION['fabrica_login'] = $login + ['localUserId' => (int) $user->id];
             SessionManager::loginAccount($user->toArray());
             return $this->privateResponse(Response::redirect(SessionManager::pullRedirectUrl() ?? (defined('BASE_PATH') ? (string) BASE_PATH : '/')));
