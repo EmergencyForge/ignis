@@ -5,6 +5,7 @@
 ### Tablet im Spiel
 - Der Tablet-Login über ef_bridge funktioniert jetzt auch auf Instanzen hinter der EmergencyForge Console, die Sitzung bleibt nach der Anmeldung bestehen. Die Console braucht dafür einen Stand mit Tablet-Sitzung
 - Die Console gibt die Discord-ID bei jeder Anmeldung mit, sie steht danach am Konto, sofern kein anderes aktives Konto sie schon hat. Dafür muss Discord im Konto verknüpft sein, und jeder meldet sich nach dem Update einmal neu an
+- Der Wechsel der Oberfläche greift auch im Tablet
 
 ### Dokumente
 - Dienstgrad und RD-Qualifikation sind auf Beförderungs-, Ernennungs- und Ausbildungsurkunden wieder Auswahllisten aus den Stammdaten
@@ -21,7 +22,7 @@
 ### Sicherheit
 - `symfony/config` und `symfony/filesystem` stehen auf 7.4.23 und schließen zwei am 2026-11-04 gemeldete Sicherheitslücken
 
-Dazu gehören das UI-Paket 1.9.1 und der Editor 0.5.3.
+Dazu gehören das UI-Paket 1.9.2 und der Editor 0.5.3.
 
 ## 2026.1.16-beta
 
