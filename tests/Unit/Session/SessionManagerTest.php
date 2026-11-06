@@ -557,4 +557,26 @@ final class SessionManagerTest extends TestCase
         $this->assertSame('Name', $_SESSION['char_name'] ?? null);
         $this->assertSame('ENR-1', $_SESSION['klinik_access_enr'] ?? null);
     }
+
+    #[Test]
+    public function embedded_verlangt_frame_und_https(): void
+    {
+        $server = $_SERVER;
+        try {
+            unset($_SERVER['HTTPS'], $_SERVER['SERVER_PORT'], $_SERVER['HTTP_X_FORWARDED_PROTO'], $_SERVER['HTTP_X_FORWARDED_SSL'], $_SERVER['HTTP_REFERER']);
+            $_SERVER['REQUEST_URI'] = '/profile/ui';
+            $this->assertFalse(SessionManager::embedded());
+
+            $_SERVER['HTTP_SEC_FETCH_DEST'] = 'iframe';
+            $this->assertFalse(SessionManager::embedded(), 'SameSite=None ohne HTTPS verwirft der Browser');
+
+            $_SERVER['HTTPS'] = 'on';
+            $this->assertTrue(SessionManager::embedded());
+
+            unset($_SERVER['HTTP_SEC_FETCH_DEST']);
+            $this->assertFalse(SessionManager::embedded());
+        } finally {
+            $_SERVER = $server;
+        }
+    }
 }

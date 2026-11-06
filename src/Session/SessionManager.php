@@ -107,9 +107,18 @@ class SessionManager
     }
 
     /**
+     * Läuft ignis im Frame eines Tablets? SameSite=None verlangt Secure, ohne
+     * HTTPS bliebe dort gar kein Cookie.
+     */
+    public static function embedded(): bool
+    {
+        return self::isHttps() && self::isIframeContext();
+    }
+
+    /**
      * Prüft ob die Verbindung über HTTPS läuft
      */
-    private static function isHttps(): bool
+    public static function isHttps(): bool
     {
         // Standard HTTPS Check
         if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {

@@ -91,8 +91,8 @@ final class DeskShell
         setcookie(self::COOKIE, $mode, [
             'expires' => time() + 31536000,
             'path' => self::basePath(),
-            'samesite' => 'Lax',
-            'secure' => self::isHttps(),
+            'samesite' => SessionManager::embedded() ? 'None' : 'Lax',
+            'secure' => SessionManager::isHttps(),
             'httponly' => false,
         ]);
     }
@@ -267,11 +267,5 @@ final class DeskShell
     private static function basePath(): string
     {
         return rtrim(defined('BASE_PATH') ? (string) BASE_PATH : '/', '/') . '/';
-    }
-
-    private static function isHttps(): bool
-    {
-        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     }
 }
