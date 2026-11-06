@@ -17,6 +17,7 @@ $dashboardIncidents = Overview::incidents($dashboardPlugins, $dashboardNow);
 $dashboardVehicles  = Overview::vehicles();
 $dashboardProtocols = Overview::openProtocols($dashboardPlugins, $dashboardNow);
 $dashboardDelta     = Overview::delta($dashboardIncidents);
+$hintsWithoutTasks  = true;
 
 ob_start();
 ?>

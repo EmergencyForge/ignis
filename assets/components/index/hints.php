@@ -4,7 +4,9 @@
  * eine Regel aus den Daten: offene eNOTF-Protokolle, Fahrzeuge in Status
  * 6 und die offenen Aufgaben des Betrachters (App\Support\OpenTasks). Ist
  * nichts davon offen, steht dort ein ruhiger Hinweis. Ohne Recht auf eine
- * der Quellen entfällt die Schale. Eingebunden aus index.php.
+ * der Quellen entfällt die Schale. Eingebunden aus index.php und, ohne
+ * Aufgaben ($hintsWithoutTasks, die stehen dort in den Mitteilungen), aus
+ * desk-widgets.php.
  *
  * @var \App\Plugins\PluginLoader $dashboardPlugins
  * @var array{total:int, ready:int, unknown:int, rows:list<array<string,mixed>>, down:list<array{name:string, since:?DateTimeImmutable}>}|null $dashboardVehicles
@@ -16,7 +18,7 @@ use App\Support\Overview;
 
 $hintTasksFailed = false;
 try {
-    $hintTasks = \App\Support\OpenTasks::forCurrentUser($dashboardPlugins);
+    $hintTasks = empty($hintsWithoutTasks) ? \App\Support\OpenTasks::forCurrentUser($dashboardPlugins) : null;
 } catch (\Throwable $error) {
     \App\Logging\Logger::error('Dashboard-Aufgaben konnten nicht geladen werden', ['error' => $error->getMessage()]);
     $hintTasks = [];
@@ -94,9 +96,9 @@ $hintAny  = $hintOpen > 0 || $hintDown !== [] || ($hintTasks ?? []) !== [] || $h
                 <div class="ignis-hint">
                     <div class="ignis-hint__head">
                         <span class="ignis-glyph ignis-glyph--sm" data-tone="ok" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
-                        <h3 class="ignis-hint__title">Nichts wartet auf dich</h3>
+                        <h3 class="ignis-hint__title"><?= empty($hintsWithoutTasks) ? 'Nichts wartet auf dich' : 'Alles im Dienst' ?></h3>
                     </div>
-                    <p class="ignis-hint__text">Offene Protokolle, Fahrzeuge außer Dienst und deine Aufgaben erscheinen hier.</p>
+                    <p class="ignis-hint__text"><?= empty($hintsWithoutTasks) ? 'Offene Protokolle, Fahrzeuge außer Dienst und deine Aufgaben erscheinen hier.' : 'Offene Protokolle und Fahrzeuge außer Dienst erscheinen hier.' ?></p>
                 </div>
             <?php endif; ?>
         </div>

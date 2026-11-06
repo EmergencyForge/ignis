@@ -6,9 +6,12 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Flash;
 use App\Http\Requests\Inbox\MarkInboxReadRequest;
+use App\Logging\Logger;
 use App\Notifications\NotificationManager;
+use App\Plugins\PluginLoader;
 use App\Session\SessionManager;
 use App\Support\ListQuery;
+use App\Support\OpenTasks;
 use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
@@ -125,7 +128,26 @@ final class InboxController extends Controller
             ];
         }
 
-        return Response::json(['count' => $this->notifications->count($userId), 'items' => $items]);
+        $tasks = [];
+        try {
+            $tasks = OpenTasks::forCurrentUser(app(PluginLoader::class)) ?? [];
+        } catch (\Throwable $error) {
+            Logger::error('Offene Aufgaben für die Mitteilungen nicht geladen', ['error' => $error->getMessage()]);
+        }
+        foreach ($tasks as $task) {
+            $items[] = [
+                'id'    => 'task:' . substr(hash('sha256', $task['href']), 0, 16),
+                'app'   => null,
+                'group' => 'Für dich offen',
+                'title' => $task['label'],
+                'body'  => $task['reason'],
+                'href'  => $task['href'],
+                'read'  => false,
+                'at'    => null,
+            ];
+        }
+
+        return Response::json(['count' => $this->notifications->count($userId) + count($tasks), 'items' => $items]);
     }
 
     public function open(Request $request, string $id): void
