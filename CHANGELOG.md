@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026.1.17-beta
+
+### Tablet im Spiel
+- Der Tablet-Login über ef_bridge funktioniert jetzt auch auf Instanzen hinter der EmergencyForge Console, die Sitzung bleibt nach der Anmeldung bestehen. Die Console braucht dafür einen Stand mit Tablet-Sitzung
+- Die Console gibt die Discord-ID bei jeder Anmeldung mit, sie steht danach am Konto, sofern kein anderes aktives Konto sie schon hat. Dafür muss Discord im Konto verknüpft sein, und jeder meldet sich nach dem Update einmal neu an
+
+### Dokumente
+- Dienstgrad und RD-Qualifikation sind auf Beförderungs-, Ernennungs- und Ausbildungsurkunden wieder Auswahllisten aus den Stammdaten
+- Im Felddialog des Vorlageneditors lassen sich beide Listen als Quelle wählen, ein schon gespeicherter Wert bleibt wählbar
+
+### efOS
+- Beim Ziehen zeigen sichtbare Zonen, wo ein Fenster andockt, und jedes Fenster hat farbige Fensterknöpfe
+- Ein gezogener Listeneintrag hängt als Karte am Zeiger, auf Zahlen-, Mail- und Datumsfeldern löst er keinen Fehler mehr aus
+
+### Erscheinungsbild
+- Favicons und das Zeichen in der Topbar sind jetzt ein App-Icon auf oranger Kachel, im Logo-Schriftzug folgt die Kachel weiter der Akzentfarbe
+- Das Logo darf 5 MB groß sein
+
+### Sicherheit
+- `symfony/config` und `symfony/filesystem` stehen auf 7.4.23 und schließen zwei am 2026-11-04 gemeldete Sicherheitslücken
+
+Dazu gehören das UI-Paket 1.9.1 und der Editor 0.5.3.
+
 ## 2026.1.16-beta
 
 ### Mail
