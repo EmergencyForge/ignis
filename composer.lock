@@ -1054,11 +1054,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.9.3",
+            "version": "1.9.6",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "1db2f592255ff4a7ef3fd9ea912ec99c04458abf"
+                "reference": "aaa884ea63ac5a0db47da3bfa917a020ba2a2c20"
             },
             "require": {
                 "php": ">=8.3"
