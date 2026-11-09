@@ -13,11 +13,12 @@ use App\Http\Requests\Documents\SaveDocumentRequest;
 use App\Logging\Logger;
 use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
+use App\Models\EditorTemplateVersion;
 use App\Models\Personnel;
+use App\Policies\DocumentPolicy;
 use App\Session\SessionManager;
 use App\Utils\AuditLogger;
-use EmergencyForge\Editor\Renderer;
-use EmergencyForge\Editor\SectionGuard;
+use EmergencyForge\Editor\PackageGuard;
 use EmergencyForge\Http\Exceptions\ValidationException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
@@ -52,9 +53,8 @@ final class EditorDocumentController extends Controller
 {
     /**
      * POST /personnel/{id}/documents: Dokument aus einer aktiven Vorlage
-     * anlegen. Das Vorlagen-JSON wird unverändert übernommen, samt der
-     * Abschnitts-Kennungen; der erste Speichervorgang prüft dann gegen
-     * dieselbe Vorlage.
+     * anlegen. Es hängt an der jüngsten Fassung und startet mit deren
+     * Inhalt; jedes Speichern prüft gegen genau diese Fassung.
      */
     public function create(Request $request, string $id): void
     {
@@ -86,12 +86,10 @@ final class EditorDocumentController extends Controller
         $createdBy = SessionManager::userId();
 
         $document = DocumentId::create(
-            static fn (string $docid): EditorDocument => EditorDocument::create([
+            static fn (string $docid): EditorDocument => EditorDocument::create($template->newDocumentAttributes() + [
                 'docid'          => $docid,
-                'template_id'    => $template->id,
                 'mitarbeiter_id' => $mitarbeiter->id,
                 'title'          => $title,
-                'content'        => $template->content,
                 'status'         => EditorDocument::STATUS_DRAFT,
                 'created_by'     => $createdBy,
             ]),
@@ -108,21 +106,122 @@ final class EditorDocumentController extends Controller
         $this->requireAuth();
         $this->ensure('document.manage', null, 'index');
 
-        $document = $this->findOrRedirect((int) $id, ['template', 'mitarbeiter']);
+        $document = $this->findOrRedirect((int) $id, ['template', 'templateVersion', 'mitarbeiter']);
 
         if ($document->isIssued()) {
             $this->redirect('documents/' . $document->id);
         }
 
+        $upgrade           = $this->pendingUpgrade($document);
         $document->content = FieldChoices::fill($document->content);
+        $who               = DocumentPolicy::whoOptions();
 
         $this->renderView('documents/edit', [
             'document'       => $document,
             'variables'      => VariableCatalog::resolve($this->variableContext($document)),
             'catalog'        => VariableCatalog::catalog(),
             'missingReasons' => VariableCatalog::missingReasons($this->variableContext($document)),
+            'who'            => $who,
+            'grants'         => array_values(array_filter(
+                array_column($who, 'key'),
+                static fn (string $key): bool => DocumentPolicy::mayFill($key),
+            )),
+            'upgrade'        => $upgrade,
             'saveAction'     => BASE_PATH . 'documents/' . $document->id . '/save',
         ]);
+    }
+
+    /**
+     * Neuere Fassung der Vorlage, auf die der Entwurf umgestellt werden kann,
+     * samt dem, was dabei verloren ginge. Null, wenn er aktuell ist.
+     *
+     * @return array{version: EditorTemplateVersion, lost: list<array{type: string, key: string, label: string, length: int}>}|null
+     */
+    private function pendingUpgrade(EditorDocument $document): ?array
+    {
+        $current = $document->templateVersion;
+        $latest  = $document->template?->latestVersion();
+        if ($current === null || $latest === null || $latest->version <= $current->version) {
+            return null;
+        }
+
+        try {
+            $lost = (new PackageGuard())->lostEntries($document->content, $current->content, $latest->content);
+        } catch (InvalidArgumentException $e) {
+            Logger::warning('Fassung ' . $latest->id . ' ist beschädigt: ' . $e->getMessage());
+
+            return null;
+        }
+
+        return ['version' => $latest, 'lost' => $lost];
+    }
+
+    /**
+     * POST /documents/{id}/upgrade: stellt einen Entwurf auf die jüngste
+     * Fassung seiner Vorlage um. Werte bleiben über ihre IDs erhalten. Die
+     * Seite hat vorher genannt, was verloren geht (`lost`); weicht das
+     * inzwischen ab (jemand hat weitergeschrieben oder die Vorlage geändert),
+     * stellt ignis nicht um, sondern zeigt die neue Liste.
+     */
+    public function upgrade(Request $request, string $id): void
+    {
+        $this->requireAuth();
+        $this->ensure('document.manage', null, 'index');
+
+        $document = $this->findOrRedirect((int) $id, ['template', 'templateVersion']);
+        $editUrl  = 'documents/' . $document->id . '/edit';
+
+        if ($document->isIssued()) {
+            $this->redirect('documents/' . $document->id);
+        }
+
+        $pending = $this->pendingUpgrade($document);
+        if ($pending === null) {
+            Flash::info('Der Entwurf nutzt schon die aktuelle Fassung der Vorlage.');
+            $this->redirect($editUrl);
+        }
+
+        $expected = array_values(array_filter(
+            explode(',', (string) ($request->post['lost'] ?? '')),
+            static fn (string $key): bool => $key !== '',
+        ));
+        $actual = array_column($pending['lost'], 'key');
+        sort($expected);
+        sort($actual);
+        if ($expected !== $actual) {
+            Flash::error('Seit dem Laden der Seite hat sich geändert, was beim Umstellen verloren ginge. Bitte prüf die Liste noch einmal.');
+            $this->redirect($editUrl);
+        }
+
+        $version = $pending['version'];
+        $package = (new PackageGuard())->restore(
+            FieldChoices::fill($version->content, $document->content),
+            $document->content,
+            $document->content,
+        )->package;
+
+        $affected = Capsule::table('intra_documents')
+            ->where('id', $document->id)
+            ->where('status', EditorDocument::STATUS_DRAFT)
+            ->where('template_version_id', $document->template_version_id)
+            ->update([
+                'content'             => json_encode($package, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'template_version_id' => $version->id,
+                'updated_at'          => date('Y-m-d H:i:s'),
+            ]);
+        if ($affected === 0) {
+            Flash::error('Der Entwurf wurde inzwischen geändert oder ausgestellt. Bitte lade die Seite neu.');
+            $this->redirect($editUrl);
+        }
+
+        $lost = array_column($pending['lost'], 'label');
+        $this->audit(
+            'Dokument auf neue Vorlagenfassung umgestellt',
+            $document,
+            ', Fassung: ' . $version->version . ($lost !== [] ? ', verloren: ' . implode(', ', $lost) : ''),
+        );
+        Flash::success('Der Entwurf nutzt jetzt Fassung ' . $version->version . ' der Vorlage.');
+        $this->redirect($editUrl);
     }
 
     /** POST /documents/{id}/save: Klick auf Speichern und Autosave. */
@@ -146,12 +245,12 @@ final class EditorDocumentController extends Controller
             return $this->failure($request, 'Nur Entwürfe können gespeichert werden.', 403, $showUrl);
         }
 
-        // Ohne Vorlage gibt es keine Referenz, gegen die sich gesperrte
-        // Abschnitte wiederherstellen liessen. Speichern zuzulassen hiesse,
-        // sie in Wahrheit ungeschuetzt zu lassen. Also bleibt der Entwurf
-        // lesbar und unveraenderlich.
-        $template = $document->template;
-        if ($template === null) {
+        // Ohne Fassung gibt es keine Referenz, gegen die sich feste Teile
+        // wiederherstellen liessen. Speichern zuzulassen hiesse, sie in
+        // Wahrheit ungeschuetzt zu lassen. Also bleibt der Entwurf lesbar
+        // und unveraenderlich.
+        $version = $document->templateVersion;
+        if ($version === null) {
             return $this->failure(
                 $request,
                 'Die Vorlage dieses Dokuments wurde gelöscht. Der Entwurf ist schreibgeschützt.',
@@ -172,12 +271,17 @@ final class EditorDocumentController extends Controller
         }
 
         try {
-            $result = (new SectionGuard())->restoreLockedSections(
-                FieldChoices::fill($template->content, $document->content),
-                $decoded,
+            // Alles außer Eingaben kommt aus der Fassung, Felder mit `who`
+            // nur mit dem Recht, sonst bleibt der gespeicherte Stand.
+            $result = (new PackageGuard())->restore(
+                template: FieldChoices::fill($version->content, $document->content),
+                submitted: $decoded,
+                previous: $document->content,
+                may: DocumentPolicy::mayFill(...),
             );
         } catch (InvalidArgumentException $e) {
-            Logger::warning('Vorlage von Dokument ' . $document->id . ' ist beschädigt: ' . $e->getMessage());
+            // Ein feindliches Submit wirft nie, nur eine kaputte Fassung.
+            Logger::warning('Fassung ' . $version->id . ' von Dokument ' . $document->id . ' ist beschädigt: ' . $e->getMessage());
 
             return $this->failure(
                 $request,
@@ -192,7 +296,7 @@ final class EditorDocumentController extends Controller
         }
 
         $update = [
-            'content'    => json_encode($result->document, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'content'    => json_encode($result->package, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
         if ($data['title'] !== '') {
@@ -274,33 +378,39 @@ final class EditorDocumentController extends Controller
         try {
             $issued = Capsule::connection()->transaction(function () use (&$document, &$leftEmpty, $userId, $editUrl, $acceptMissing): bool {
                 // Inhalt, Pflichtfelder und PDF bleiben bis zum Commit derselbe Stand.
-                $locked = EditorDocument::query()->with('mitarbeiter')->lockForUpdate()->find($document->id);
+                $locked = EditorDocument::query()->with(['mitarbeiter', 'templateVersion'])->lockForUpdate()->find($document->id);
                 if ($locked === null || $locked->isIssued()) {
                     return false;
                 }
-                $document = $locked;
+                $document  = $locked;
+                $leftEmpty = [];
 
-                $frozen = VariableCatalog::resolve($this->variableContext($document));
-                $missing = $this->emptyRequiredFields($document, $frozen);
+                // Mit der Fassung zählt auch ein unveränderter Vorschlagstext
+                // als offen.
+                $frozen  = VariableCatalog::resolve($this->variableContext($document));
+                $catalog = VariableCatalog::catalog();
+                $missing = [];
+                foreach ((new PackageGuard())->openItems($document->content, $frozen, $document->templateVersion?->content) as $item) {
+                    if ($item['type'] === 'variable') {
+                        $leftEmpty[] = $catalog[$item['id']] ?? $item['id'];
+                        continue;
+                    }
+                    $missing[] = $this->openItemText($item);
+                }
                 if ($missing !== []) {
                     Flash::error(
-                        'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden. Diese '
-                        . 'Pflichtfelder sind leer: ' . implode(', ', $missing) . '.',
+                        'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden. '
+                        . 'Noch offen: ' . implode(', ', $missing) . '.',
                     );
                     $this->redirect($editUrl);
                 }
 
-                // Platzhalter ohne Wert halten nicht auf wie ein leeres
+                // Platzhalter ohne Wert halten nicht auf wie ein offenes
                 // Pflichtfeld: oft fehlt nur etwas, das jemand anderes
                 // pflegt (Titel, Dienstnummer). Ausgestellt wird aber erst,
                 // wenn der Schreiber bestätigt hat, dass die Stellen leer
                 // bleiben dürfen. Die Rückfrage im Editor schickt dafür
                 // accept_missing=1 mit.
-                $catalog   = VariableCatalog::catalog();
-                $leftEmpty = array_map(
-                    static fn (string $name): string => $catalog[$name] ?? $name,
-                    Renderer::unresolvedVariables($document->content, $frozen),
-                );
                 if ($leftEmpty !== [] && !$acceptMissing) {
                     Flash::error(
                         'Dokument „' . $document->title . '" wurde nicht ausgestellt. Diese Platzhalter haben '
@@ -382,25 +492,20 @@ final class EditorDocumentController extends Controller
     }
 
     /**
-     * Welche Pflichtfelder noch leer sind. Der Renderer meldet sie als
-     * Warnung. Ihn zu fragen ist verlässlicher, als das Dokument-JSON hier
-     * ein zweites Mal zu durchlaufen.
+     * Ein offener Punkt aus PackageGuard::openItems() als Text für die
+     * Meldung, mit dem Recht, falls der Verfasser ihn nicht selbst ausfüllt.
      *
-     * @param  array<string,string>  $variables
-     * @return list<string>
+     * @param array{type: string, id: string, label: string, region: string, reason: string, who: ?string} $item
      */
-    private function emptyRequiredFields(EditorDocument $document, array $variables): array
+    private function openItemText(array $item): string
     {
-        $prefix = 'Pflichtfeld leer: ';
-        $labels = [];
-
-        foreach ((new Renderer())->render($document->content, $variables)->warnings as $warning) {
-            if (str_starts_with($warning, $prefix)) {
-                $labels[] = substr($warning, strlen($prefix));
-            }
+        $text = $item['label'] . ($item['reason'] === 'minLength' ? ' (zu kurz)' : '');
+        if ($item['who'] !== null) {
+            $labels = array_column(DocumentPolicy::whoOptions(), 'label', 'key');
+            $text  .= ', füllt aus: ' . ($labels[$item['who']] ?? $item['who']);
         }
 
-        return $labels;
+        return $text;
     }
 
     /**

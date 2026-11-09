@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -11,11 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Eloquent-Model für `intra_document_templates`: die Vorlagen des
  * Dokumenten-Editors aus emergencyforge/editor.
  *
- * `content` ist ProseMirror-JSON aus `docSection`-Knoten: gesperrte
- * Abschnitte, die beim Ausstellen unverändert aus der Vorlage
- * zurückgeholt werden, und freie Abschnitte, in denen der Aussteller
- * schreiben darf. Gerendert wird das nur über
- * `EmergencyForge\Editor\Renderer`.
+ * `content` ist das Dokumentpaket (editor 0.6) der aktuellen Fassung.
+ * Jede Fassung steht zusätzlich in `intra_document_template_versions`, die
+ * jüngste immer mit demselben Inhalt wie `content`. Ein Dokument hängt an
+ * der Fassung, mit der es angelegt wurde.
  *
  * Nicht zu verwechseln mit {@see DocumentTemplate}. Das ist die Vorlage
  * des alten Canvas-Systems und verschwindet mit ihm.
@@ -52,6 +52,71 @@ class EditorTemplate extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(EditorDocument::class, 'template_id', 'id');
+    }
+
+    /** @return HasMany<EditorTemplateVersion, $this> */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(EditorTemplateVersion::class, 'template_id', 'id');
+    }
+
+    public function latestVersion(): ?EditorTemplateVersion
+    {
+        return $this->versions()->orderBy('version', 'desc')->first();
+    }
+
+    /**
+     * Speichert Vorlage und Inhalt. Hängt an der jüngsten Fassung schon ein
+     * Dokument, entsteht eine neue; sonst wird die jüngste überschrieben,
+     * damit nicht jeder Zwischenstand eine Fassung wird.
+     *
+     * @param array<string,mixed> $content
+     */
+    public function saveContent(array $content, ?int $userId): void
+    {
+        Capsule::connection()->transaction(function () use ($content, $userId): void {
+            $this->content = $content;
+            $this->save();
+
+            // Sperrt die Zeile, damit zwei gleichzeitige Speicherungen nicht
+            // dieselbe Fassungsnummer ziehen.
+            static::query()->whereKey($this->id)->lockForUpdate()->first();
+
+            $latest = $this->latestVersion();
+            if ($latest !== null && !EditorDocument::query()->where('template_version_id', $latest->id)->exists()) {
+                $latest->content = $content;
+                $latest->save();
+                return;
+            }
+
+            $this->versions()->create([
+                'version'    => ($latest->version ?? 0) + 1,
+                'content'    => $content,
+                'created_by' => $userId,
+            ]);
+        });
+    }
+
+    /**
+     * Felder für ein neues Dokument aus dieser Vorlage: es hängt an der
+     * jüngsten Fassung und startet mit deren Inhalt.
+     *
+     * @return array{template_id: int, template_version_id: int, content: array<string,mixed>}
+     */
+    public function newDocumentAttributes(): array
+    {
+        $version = $this->latestVersion();
+        if ($version === null) {
+            // Vorlage aus der Zeit vor den Fassungen, etwa per Hand eingefügt.
+            $this->saveContent($this->content, $this->created_by);
+            $version = $this->latestVersion();
+        }
+
+        return [
+            'template_id'         => $this->id,
+            'template_version_id' => (int) $version?->id,
+            'content'             => $version->content ?? $this->content,
+        ];
     }
 
     /**

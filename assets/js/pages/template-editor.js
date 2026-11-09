@@ -1,476 +1,30 @@
 /**
- * assets/js/pages/template-editor.js: Mountet den Dokumenten-Editor im
- * Vorlagen-Modus auf templates/settings/documents/edit.php.
+ * assets/js/pages/template-editor.js: mountet createDocumentEditor() auf
+ * dem Vorlagen- und dem Briefbogen-Editor und schreibt das Paket beim
+ * Absenden ins Feld `content`.
  *
- * Bewusst KEIN ES-Modul (kein import/export): diese Datei wird NICHT durch
- * Vite transpiliert/gebündelt (siehe vite.config.js: der Build kopiert
- * `assets/js/pages/` unverändert nach `public/assets/js/pages/`, analog zu
- * den Bildern/Fonts), sondern klassisch per `<script src>` eingebunden
- * (siehe edit.php, direkt nach `editor.iife.js`, das dasselbe Muster
- * nutzt und den globalen `EmergencyForgeEditor`-Namespace bereitstellt). Läuft nur auf
- * dieser einen Seite, ohne globalen Effekt auf andere Templates.
- *
- * Dazu die ignis-eigene Bedienoberfläche für die Vorlagen-Bausteine des
- * Pakets: ein Knopf "Feld …" (anlegen, bearbeiten, entfernen; Doppelklick
- * auf ein Feld öffnet denselben Dialog) und ein Knopf "Abschnitt …" (Titel,
- * Hinweis, wiederholbar). Das Paket bringt dafür bewusst nichts mit, es ist
- * produktneutral. Die Dialoge kommen aus `window.Dialog` (die UI-Module).
+ * Kein ES-Modul: Vite kopiert `assets/js/pages/` unverändert, das Paket
+ * kommt als `window.EmergencyForgeEditor` aus editor.iife.js.
  */
 (function () {
     'use strict';
 
-    var FIELD_LABEL_ID = 'template-field-label-input';
-    var FIELD_REQUIRED_ID = 'template-field-required-input';
-    var FIELD_OPTIONS_ID = 'template-field-options';
-    var FIELD_SOURCE_ID = 'template-field-source';
-    var FIELD_CUSTOM_ID = 'template-field-custom-options';
-    var SECTION_TITLE_ID = 'template-section-title-input';
-    var SECTION_HINT_ID = 'template-section-hint-input';
-    var SECTION_REPEATABLE_ID = 'template-section-repeatable-input';
-
-    /**
-     * Kennung für ein neues Feld. `crypto.randomUUID()` gibt es nur im
-     * sicheren Kontext (https oder localhost), derselbe Rückfallweg wie in
-     * `section.js::generateSectionId()` im Editor-Paket, damit eine
-     * Installation auf nacktem http nicht am Feld-Einfügen scheitert.
-     */
-    function generateFieldId() {
-        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-            return crypto.randomUUID();
-        }
-        return 'field-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
-    }
-
-    /**
-     * Eingabefeld aus dem Dialog, nicht aus dem Dokument: Dialoge lassen
-     * sich stapeln, und dann steht dieselbe id zweimal im DOM,
-     * `getElementById` läge dann auf dem falschen.
-     */
-    function inputIn(dialog, id) {
-        return dialog.element.querySelector('#' + id);
-    }
-
-    function escapeHtml(value) {
-        return String(value == null ? '' : value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
     function readJsonAttr(element, attr, fallback) {
-        var raw = element.getAttribute(attr);
-        if (!raw) {
-            return fallback;
-        }
         try {
-            var parsed = JSON.parse(raw);
-            return parsed === null || parsed === undefined ? fallback : parsed;
+            var parsed = JSON.parse(element.getAttribute(attr) || 'null');
+            return parsed === null ? fallback : parsed;
         } catch (e) {
-            // Kaputtes/serverseitig-manipuliertes Attribut darf den Editor
-            // nicht crashen lassen. Der Fallback (leeres Dokument bzw.
-            // leerer Katalog) ist ein sicherer Ersatzzustand.
-            console.error('[template-editor] Konnte Attribut ' + attr + ' nicht als JSON lesen.', e);
+            console.error('[template-editor] Attribut ' + attr + ' ist kein JSON.', e);
             return fallback;
         }
     }
 
-    /**
-     * VariableCatalog::catalog() liefert name -> Label (flaches Objekt),
-     * createEditor erwartet name -> { label, value }. `value` bleibt hier
-     * bewusst weg: im Vorlagen-Editor gibt es keinen konkreten Kontext
-     * (keine Person/Akte), Variablen-Chips zeigen darum immer `{{name}}`
-     * (siehe DocVariable::render() in variable.js), mit dem Label nur als
-     * Tooltip.
-     */
-    function buildVariableMap(catalog) {
-        var map = {};
-        Object.keys(catalog || {}).forEach(function (name) {
-            map[name] = { label: catalog[name] };
-        });
-        return map;
-    }
-
-    /**
-     * Das `docField` unter dem Cursor, sonst null. Trifft zu, wenn der
-     * Knoten als Ganzes ausgewählt ist. Mit den Pfeiltasten landet man so
-     * auf einem Feld, ein Klick dagegen landet in dessen Eingabefläche (die
-     * NodeView hält den Klick von ProseMirror fern). Für die Maus gibt es
-     * deshalb den Doppelklick, siehe unten.
-     */
-    function fieldAtSelection(editor) {
-        var node = editor.state.selection.node;
-        return node && node.type.name === 'docField' ? { node: node, pos: editor.state.selection.from } : null;
-    }
-
-    /**
-     * Dokumentposition des `docField`-Knotens zu einem `.efe-field`-Element.
-     *
-     * `posAtDOM()` liefert bei einem atomaren Knoten je nach Einstiegspunkt
-     * die Position davor oder darin, deshalb die Suche über drei Positionen
-     * statt eines festen Offsets.
-     */
-    function fieldPosFromDom(editor, element) {
-        var near = editor.view.posAtDOM(element, 0);
-        for (var pos = Math.max(0, near - 1); pos <= near + 1; pos++) {
-            var node = editor.state.doc.nodeAt(pos);
-            if (node && node.type.name === 'docField') {
-                return pos;
-            }
-        }
-        return null;
-    }
-
-    /** Die `docSection`, in der der Cursor steht, sonst null. */
-    function sectionAtSelection(editor) {
-        var $from = editor.state.selection.$from;
-        for (var depth = $from.depth; depth > 0; depth -= 1) {
-            var node = $from.node(depth);
-            if (node.type.name === 'docSection') {
-                return { node: node, pos: $from.before(depth) };
-            }
-        }
-        return null;
-    }
-
-    /** Eine Zeile der Auswahlliste: allgemeine, männliche, weibliche Form. */
-    function optionRowHtml(option) {
-        option = option || {};
-        var input = function (key, placeholder) {
-            return '<input type="text" class="ignis-input flex-1 min-w-0" maxlength="100" data-option-form="' + key +
-                '" placeholder="' + placeholder + '" aria-label="' + placeholder + '" value="' +
-                escapeHtml(option[key]) + '">';
-        };
-        return '<div class="flex items-center gap-2 mb-2" data-field-option>' +
-            input('label', 'Allgemein') + input('male', 'Männlich') + input('female', 'Weiblich') +
-            '<button type="button" class="ignis-btn ignis-btn--ghost-danger ignis-btn--icon ignis-btn--sm" ' +
-            'data-field-option-remove aria-label="Option entfernen" data-ignis-tooltip="Option entfernen">' +
-            '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
-            '</div>';
-    }
-
-    /**
-     * Die Auswahlliste aus dem Dialog. Zeilen ohne allgemeine Form fallen
-     * weg, die braucht jede Option als Rückfall.
-     */
-    function readOptions(dialog) {
-        var options = [];
-        dialog.element.querySelectorAll('[data-field-option]').forEach(function (row) {
-            var form = function (key) {
-                return row.querySelector('[data-option-form="' + key + '"]').value.trim();
-            };
-            if (!form('label')) {
-                return;
-            }
-            var option = { label: form('label') };
-            if (form('male')) {
-                option.male = form('male');
-            }
-            if (form('female')) {
-                option.female = form('female');
-            }
-            options.push(option);
-        });
-        return options;
-    }
-
-    /**
-     * Dialog für ein Feld.
-     *
-     * `options.isEdit` unterscheidet Anlegen von Bearbeiten (nur beim
-     * Bearbeiten gibt es "Feld entfernen"); `label`, `required`, `source`
-     * (Liste aus den Stammdaten) und `choices` (eigene Auswahlliste) sind die
-     * Vorbelegung. Beim Anlegen kommt die Beschriftung aus dem markierten
-     * Text. `options.sources` bildet die Stammdaten-Listen auf ihren Namen ab.
-     *
-     * Liefert `{ label, required, source, choices }` zum Übernehmen, den
-     * String `'remove'` zum Entfernen, sonst null (abgebrochen). `choices`
-     * ist null, wenn das Feld Freitext bleibt oder eine Quelle hat.
-     */
-    function openFieldDialog(options) {
-        var isEdit = Boolean(options.isEdit);
-        var source = options.source || '';
-        var sources = options.sources || {};
-        var sourceOptions = Object.keys(sources).map(function (key) {
-            return '<option value="' + escapeHtml(key) + '"' + (key === source ? ' selected' : '') + '>' +
-                escapeHtml(sources[key]) + '</option>';
-        }).join('');
-        var body =
-            '<div class="ignis-field">' +
-            '<label class="ignis-field__label" for="' + FIELD_LABEL_ID + '">Beschriftung</label>' +
-            '<input type="text" class="ignis-input" id="' + FIELD_LABEL_ID + '" maxlength="100" value="' +
-            escapeHtml(options.label) + '">' +
-            '</div>' +
-            '<div class="ignis-field">' +
-            '<label class="flex items-center gap-2">' +
-            '<input type="checkbox" id="' + FIELD_REQUIRED_ID + '"' +
-            (options.required ? ' checked' : '') + '>' +
-            '<span>Pflichtfeld: ohne Eintrag lässt sich das Dokument nicht ausstellen</span>' +
-            '</label>' +
-            '</div>' +
-            '<div class="ignis-field">' +
-            '<label class="ignis-field__label" for="' + FIELD_SOURCE_ID + '">Auswahl</label>' +
-            '<p class="ignis-field__hint mb-2">Mit einer Liste wählt der Aussteller aus, statt frei zu schreiben. ' +
-            'Die männliche oder weibliche Form setzt ignis passend zum Mitarbeiter ein, ist sie leer, gilt die allgemeine.</p>' +
-            '<select class="ignis-input mb-2" id="' + FIELD_SOURCE_ID + '" data-custom-dropdown="true">' +
-            '<option value="">Eigene Optionen</option>' + sourceOptions + '</select>' +
-            '<div id="' + FIELD_CUSTOM_ID + '"' + (source ? ' hidden' : '') + '>' +
-            '<div id="' + FIELD_OPTIONS_ID + '">' + (options.choices || []).map(optionRowHtml).join('') + '</div>' +
-            '<button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-field-option-add>' +
-            '<i class="fa-solid fa-plus" aria-hidden="true"></i> Option hinzufügen</button>' +
-            '</div>' +
-            '</div>';
-
-        var actions = [{ label: 'Abbrechen', variant: 'ghost', close: true }];
-        if (isEdit) {
-            actions.push({ label: 'Feld entfernen', variant: 'danger', onClick: function (d) { d.close('remove'); } });
-        }
-        actions.push({
-            label: isEdit ? 'Übernehmen' : 'Einfügen',
-            variant: 'primary',
-            onClick: function (d) {
-                var picked = inputIn(d, FIELD_SOURCE_ID).value;
-                var choices = picked ? [] : readOptions(d);
-                d.close({
-                    label: inputIn(d, FIELD_LABEL_ID).value.trim(),
-                    required: inputIn(d, FIELD_REQUIRED_ID).checked,
-                    source: picked || null,
-                    choices: choices.length ? choices : null,
-                });
-            },
-        });
-
-        return new window.Dialog({
-            title: isEdit ? 'Feld bearbeiten' : 'Feld einfügen',
-            body: body,
-            actions: actions,
-            // Drei Formen je Option nebeneinander brauchen die Breite.
-            size: 'lg',
-            onOpen: function (d) {
-                inputIn(d, FIELD_SOURCE_ID).addEventListener('change', function (event) {
-                    inputIn(d, FIELD_CUSTOM_ID).hidden = Boolean(event.target.value);
-                });
-                d.element.addEventListener('click', function (event) {
-                    if (event.target.closest('[data-field-option-add]')) {
-                        var list = inputIn(d, FIELD_OPTIONS_ID);
-                        list.insertAdjacentHTML('beforeend', optionRowHtml());
-                        list.lastElementChild.querySelector('input').focus();
-                        return;
-                    }
-                    var remove = event.target.closest('[data-field-option-remove]');
-                    if (remove) {
-                        remove.closest('[data-field-option]').remove();
-                    }
-                });
-            },
-        }).open();
-    }
-
-    /**
-     * Dialog für die Eigenschaften eines Abschnitts: Titel, Hinweis,
-     * wiederholbar. Titel und Hinweis sind reine Editor-Hilfen und
-     * erscheinen nie im gerenderten PDF (siehe README des Editor-Pakets).
-     */
-    function openSectionDialog(attrs) {
-        var body =
-            '<div class="ignis-field">' +
-            '<label class="ignis-field__label" for="' + SECTION_TITLE_ID + '">Titel</label>' +
-            '<input type="text" class="ignis-input" id="' + SECTION_TITLE_ID + '" maxlength="100" value="' +
-            escapeHtml(attrs.title) + '">' +
-            '</div>' +
-            '<div class="ignis-field">' +
-            '<label class="ignis-field__label" for="' + SECTION_HINT_ID + '">Hinweis für den Verfasser</label>' +
-            '<input type="text" class="ignis-input" id="' + SECTION_HINT_ID + '" maxlength="200" value="' +
-            escapeHtml(attrs.hint) + '">' +
-            '</div>' +
-            '<div class="ignis-field">' +
-            '<label class="flex items-center gap-2">' +
-            '<input type="checkbox" id="' + SECTION_REPEATABLE_ID + '"' + (attrs.repeatable ? ' checked' : '') + '>' +
-            '<span>Wiederholbar: der Verfasser darf weitere Ausfertigungen dieses Abschnitts anlegen</span>' +
-            '</label>' +
-            '</div>' +
-            '<p class="text-sm text-muted">Titel und Hinweis sieht nur, wer in ignis schreibt. Im PDF stehen sie nicht. ' +
-            'Wer dort eine Überschrift will, schreibt sie als gesperrten Text in den Abschnitt.</p>';
-
-        return new window.Dialog({
-            title: 'Abschnitt',
-            body: body,
-            actions: [
-                { label: 'Abbrechen', variant: 'ghost', close: true },
-                {
-                    label: 'Übernehmen',
-                    variant: 'primary',
-                    onClick: function (d) {
-                        d.close({
-                            title: inputIn(d, SECTION_TITLE_ID).value.trim(),
-                            hint: inputIn(d, SECTION_HINT_ID).value.trim(),
-                            repeatable: inputIn(d, SECTION_REPEATABLE_ID).checked,
-                        });
-                    },
-                },
-            ],
-        }).open();
-    }
-
-    /**
-     * Hängt die beiden ignis-eigenen Knöpfe an den Editor.
-     *
-     * Das Markup legt sie schon in den Toolbar-Container, `createToolbar()`
-     * stellt sie hinter die eigenen Knöpfe. Das Paket selbst bringt sie
-     * bewusst nicht mit. Es ist produktneutral, die Bedienoberfläche
-     * gehört dem Produkt.
-     */
-    function wireTemplateTools(editor, mount) {
-        var fieldButton = document.getElementById('template-field-button');
-        var sectionButton = document.getElementById('template-section-button');
-        var sources = readJsonAttr(mount, 'data-field-sources', {});
-
-        if (!window.Dialog || typeof window.Dialog !== 'function') {
-            console.error('[template-editor] Dialog-Komponente (die UI-Module) nicht geladen.');
-            return;
-        }
-
-        function editFieldAt(pos) {
-            var node = editor.state.doc.nodeAt(pos);
-            if (!node || node.type.name !== 'docField') {
-                return;
-            }
-
-            openFieldDialog({
-                isEdit: true,
-                label: node.attrs.label || '',
-                required: Boolean(node.attrs.required),
-                source: node.attrs.optionsSource,
-                sources: sources,
-                // Bei einer Quelle stehen hier die Stammdaten, keine eigene Liste.
-                choices: node.attrs.optionsSource ? null : node.attrs.options,
-            }).then(function (result) {
-                if (result === 'remove') {
-                    editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
-                    return;
-                }
-                if (!result) {
-                    return;
-                }
-                editor
-                    .chain()
-                    .focus()
-                    .command(function (props) {
-                        props.tr.setNodeAttribute(pos, 'label', result.label);
-                        props.tr.setNodeAttribute(pos, 'required', result.required);
-                        props.tr.setNodeAttribute(pos, 'optionsSource', result.source);
-                        props.tr.setNodeAttribute(pos, 'options', result.choices);
-                        return true;
-                    })
-                    .run();
-            });
-        }
-
-        function insertField() {
-            // Markierter Text füllt die Beschriftung vor und wird vom Feld
-            // ersetzt: "Ort" schreiben, markieren, Knopf drücken.
-            var selection = editor.state.selection;
-            var selected = editor.state.doc.textBetween(selection.from, selection.to, ' ').trim();
-
-            openFieldDialog({ isEdit: false, label: selected, required: false, sources: sources }).then(function (result) {
-                if (!result || result === 'remove') {
-                    return;
-                }
-                // insertContent ersetzt eine bestehende Markierung, genau
-                // das soll hier passieren: aus dem markierten "Ort" wird das
-                // Feld mit der Beschriftung "Ort".
-                editor
-                    .chain()
-                    .focus()
-                    .insertContent({
-                        type: 'docField',
-                        attrs: {
-                            // Die Kennung ist Maschinenkram und wird nie
-                            // angezeigt; der Bearbeiter kennt sein Feld an
-                            // der Beschriftung.
-                            fieldId: generateFieldId(),
-                            label: result.label,
-                            required: result.required,
-                            optionsSource: result.source,
-                            options: result.choices,
-                            value: '',
-                        },
-                    })
-                    .run();
-            });
-        }
-
-        // Ohne das nimmt der Knopf dem Editor beim Drücken den Fokus, und
-        // ProseMirror lässt seine Auswahl fallen, und der markierte Text käme
-        // dann nie in der Vorbelegung an. Betrifft beide Knöpfe: der
-        // Abschnitts-Dialog braucht die Cursorposition genauso.
-        [fieldButton, sectionButton].forEach(function (button) {
-            if (button) {
-                button.addEventListener('mousedown', function (event) {
-                    event.preventDefault();
-                });
-            }
-        });
-
-        if (fieldButton) {
-            fieldButton.addEventListener('click', function () {
-                var selected = fieldAtSelection(editor);
-                if (selected) {
-                    editFieldAt(selected.pos);
-                } else {
-                    insertField();
-                }
-            });
-        }
-
-        // Doppelklick auf ein Feld öffnet seine Eigenschaften. Ein einfacher
-        // Klick gehört der Eingabefläche der NodeView (dort tippt man den
-        // vorbelegten Wert), deshalb der Doppelklick für die Maus. Über die
-        // Tastatur führt der Knopf oben zum selben Dialog.
-        mount.addEventListener('dblclick', function (event) {
-            var element = event.target.closest ? event.target.closest('.efe-field') : null;
-            if (!element) {
-                return;
-            }
-            var pos = fieldPosFromDom(editor, element);
-            if (pos !== null) {
-                event.preventDefault();
-                editFieldAt(pos);
-            }
-        });
-
-        if (sectionButton) {
-            sectionButton.addEventListener('click', function () {
-                var section = sectionAtSelection(editor);
-                if (!section) {
-                    window.Dialog.alert('Setz den Cursor in den Abschnitt, den du bearbeiten willst.');
-                    return;
-                }
-
-                openSectionDialog({
-                    title: section.node.attrs.title || '',
-                    hint: section.node.attrs.hint || '',
-                    repeatable: Boolean(section.node.attrs.repeatable),
-                }).then(function (result) {
-                    if (!result) {
-                        return;
-                    }
-
-                    var attrs = { title: result.title, hint: result.hint, repeatable: result.repeatable };
-
-                    // Ohne Gruppen-ID wäre "wiederholbar" wirkungslos: der
-                    // Server ordnet Instanzen über templateSectionId zu, und
-                    // setzen kann der Bearbeiter das Attribut nirgends
-                    // selbst. Einmal gesetzt bleibt es stehen, auch wenn die
-                    // Wiederholung später wieder abgeschaltet wird, sonst
-                    // verlören bereits angelegte Dokumente ihren Bezug.
-                    if (result.repeatable && !section.node.attrs.templateSectionId) {
-                        attrs.templateSectionId = section.node.attrs.sectionId;
-                    }
-
-                    editor.chain().focus().updateAttributes('docSection', attrs).run();
-                });
-            });
+    function warn(message) {
+        var stack = window.ignis && window.ignis.snack;
+        if (stack) {
+            stack.warning(message);
+        } else {
+            window.alert(message);
         }
     }
 
@@ -478,33 +32,87 @@
         var mount = document.getElementById('template-editor-mount');
         var form = document.getElementById('template-form');
         var contentInput = document.getElementById('template-content-input');
-        var toolbar = document.getElementById('template-toolbar');
-
-        if (!mount || !form || !contentInput) {
-            return;
-        }
-
-        if (!window.EmergencyForgeEditor || typeof window.EmergencyForgeEditor.createEditor !== 'function') {
+        var csrfInput = document.getElementById('template-csrf-input');
+        var lib = window.EmergencyForgeEditor;
+        if (!mount || !form || !contentInput) return;
+        if (!lib || typeof lib.createDocumentEditor !== 'function') {
             console.error('[template-editor] Editor-Bundle (editor.iife.js) nicht geladen.');
             return;
         }
 
-        var content = readJsonAttr(mount, 'data-efe-content', { type: 'doc', content: [] });
-        var variables = buildVariableMap(readJsonAttr(mount, 'data-efe-variables', {}));
-
-        var editor = window.EmergencyForgeEditor.createEditor(mount, {
-            content: content,
-            editable: true,
-            toolbar: toolbar,
-            features: 'document',
-            variables: variables,
-            templateMode: true,
+        var catalog = readJsonAttr(mount, 'data-efe-variables', {});
+        var variables = {};
+        Object.keys(catalog).forEach(function (name) {
+            variables[name] = { label: catalog[name] };
         });
+        var uploadUrl = mount.getAttribute('data-efe-upload-url');
+        var modes = document.getElementById('template-modes');
+        var editor = null;
 
-        wireTemplateTools(editor, mount);
+        function uploadImage(file) {
+            var body = new FormData();
+            body.append('image', file);
+            body.append('csrf_token', csrfInput ? csrfInput.value : '');
+            return fetch(uploadUrl, { method: 'POST', body: body, credentials: 'same-origin', headers: { Accept: 'application/json' } })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (!data || !data.success) throw new Error((data && data.message) || 'Das Bild konnte nicht hochgeladen werden.');
+                    return { src: data.src };
+                })
+                .catch(function (error) {
+                    warn(error.message);
+                    throw error;
+                });
+        }
+
+        function mountEditor(pkg) {
+            editor = lib.createDocumentEditor(mount, {
+                package: pkg,
+                role: 'template',
+                mode: 'template',
+                variables: variables,
+                who: readJsonAttr(mount, 'data-efe-who', []),
+                can: function () { return true; },
+                letterheads: readJsonAttr(mount, 'data-efe-letterheads', []),
+                optionsSources: readJsonAttr(mount, 'data-efe-sources', {}),
+                optionsSourceLabels: readJsonAttr(mount, 'data-efe-source-labels', {}),
+                uploadImage: uploadUrl ? uploadImage : undefined,
+            });
+            if (modes) modes.hidden = false;
+        }
+
+        if (modes) {
+            modes.addEventListener('click', function (event) {
+                var button = event.target.closest('[data-template-mode]');
+                if (!button || !editor) return;
+                editor.setMode(button.getAttribute('data-template-mode'));
+                modes.querySelectorAll('[data-template-mode]').forEach(function (b) {
+                    b.setAttribute('aria-pressed', b === button ? 'true' : 'false');
+                    b.classList.toggle('is-active', b === button);
+                });
+            });
+        }
+
+        var start = document.getElementById('template-start');
+        var content = readJsonAttr(mount, 'data-efe-content', null);
+        if (content) {
+            mountEditor(content);
+        } else if (start) {
+            start.addEventListener('click', function (event) {
+                var button = event.target.closest('[data-template-start]');
+                if (!button) return;
+                start.remove();
+                mountEditor(lib.newTemplatePackage(button.getAttribute('data-template-start')));
+            });
+        }
 
         form.addEventListener('submit', function () {
-            contentInput.value = JSON.stringify(editor.getJSON());
+            // Proben im Schreib- oder Druckmodus gelten nicht: getPackage()
+            // liefert die Vorlage, und die steht nur im Vorlagenmodus fest.
+            if (editor) {
+                editor.setMode('template');
+                contentInput.value = JSON.stringify(editor.getPackage());
+            }
         });
     }
 

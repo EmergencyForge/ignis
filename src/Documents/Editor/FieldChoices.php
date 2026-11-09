@@ -7,14 +7,15 @@ namespace App\Documents\Editor;
 use App\Models\AmbSkill;
 use App\Models\Rank;
 use EmergencyForge\Editor\Nodes\DocField;
+use EmergencyForge\Editor\Package;
 
 /**
  * Auswahlfelder, deren Liste aus den Stammdaten kommt.
  *
  * Dienstgrade pflegt jede Organisation selbst, deshalb steht in der Vorlage
  * nur die Quelle (`optionsSource`). Die Optionen werden jedes Mal frisch
- * eingesetzt: beim Anzeigen und vor dem SectionGuard, der gegen die Liste
- * der Vorlage prüft.
+ * eingesetzt: beim Anzeigen und vor dem PackageGuard, der gegen die Liste
+ * der Fassung prüft. Bei einem Dokumentpaket in Textkörper und Bändern.
  */
 final class FieldChoices
 {
@@ -40,7 +41,7 @@ final class FieldChoices
 
     /**
      * Ein gespeicherter Wert bleibt wählbar, auch wenn er nicht in der Liste
-     * steht: der SectionGuard verwirft sonst beim nächsten Autosave still
+     * steht: der PackageGuard verwirft sonst beim nächsten Autosave still
      * einen Entwurf, dessen Dienstgrad umbenannt oder von Hand getippt wurde.
      *
      * @param  array<string,mixed>                                     $document
@@ -51,10 +52,52 @@ final class FieldChoices
     public static function apply(array $document, callable $list, array $stored = []): array
     {
         $values = [];
-        self::collectValues($stored, $values);
+        foreach (self::regions($stored) as [, , $region]) {
+            self::collectValues($region, $values);
+        }
         $lists = [];
 
-        return self::walk($document, $list, $values, $lists);
+        foreach (self::regions($document) as [$key, $page, $region]) {
+            $filled = self::walk($region, $list, $values, $lists);
+            if ($key === null) {
+                return $filled;
+            }
+            if ($page === null) {
+                $document[$key] = $filled;
+            } else {
+                $document[$key][$page] = $filled;
+            }
+        }
+
+        return $document;
+    }
+
+    /**
+     * Die ProseMirror-Dokumente eines Pakets mit ihrer Stelle darin, oder
+     * das Dokument selbst (Stelle null), wenn es kein Paket ist.
+     *
+     * @param  array<string,mixed>  $document
+     * @return list<array{0: string|null, 1: string|null, 2: array<mixed>}>
+     */
+    private static function regions(array $document): array
+    {
+        if (!Package::isPackage($document)) {
+            return [[null, null, $document]];
+        }
+
+        $regions = [];
+        if (is_array($document['body'] ?? null)) {
+            $regions[] = ['body', null, $document['body']];
+        }
+        foreach (['header', 'footer'] as $key) {
+            foreach (['first', 'rest'] as $page) {
+                if (is_array($document[$key][$page] ?? null)) {
+                    $regions[] = [$key, $page, $document[$key][$page]];
+                }
+            }
+        }
+
+        return $regions;
     }
 
     /**
@@ -116,6 +159,21 @@ final class FieldChoices
                 self::collectValues($child, $values);
             }
         }
+    }
+
+    /**
+     * Alle Listen für `optionsSources` im Vorlagen-Editor.
+     *
+     * @return array<string, list<array<string,string>>>
+     */
+    public static function lists(): array
+    {
+        $lists = [];
+        foreach (array_keys(self::SOURCES) as $source) {
+            $lists[$source] = self::fromDatabase($source);
+        }
+
+        return $lists;
     }
 
     /** @return list<array<string,string>> */

@@ -34,6 +34,7 @@ return [
         'personnel.delete'           => 'Mitarbeiter löschen',
         'personnel.comment.delete'   => 'Mitarbeiter-Kommentare löschen',
         'personnel.documents.manage' => 'Mitarbeiter-Dokumente verwalten',
+        'personnel.documents.approve' => 'Mitarbeiter-Dokumente freigeben',
         'audit.view'                 => 'Logs einsehen',
     ],
     'Sonstiges' => [

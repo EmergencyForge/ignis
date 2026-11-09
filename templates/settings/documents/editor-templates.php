@@ -30,7 +30,7 @@ $SITE_TITLE = 'Dokumentvorlagen';
                     <p class="twplus-page-header__eyebrow">Dokumente</p>
                     <h1>Dokumentvorlagen</h1>
                     <p class="twplus-page-header__description">
-                        Vorlagen mit gesperrten und freien Abschnitten für ausgestellte Dokumente.
+                        Vorlagen für ausgestellte Dokumente: fester Text, dazu Felder und Bereiche zum Ausfüllen.
                     </p>
                 </div>
                 <div class="header-actions twplus-page-header__actions">
@@ -99,7 +99,7 @@ $SITE_TITLE = 'Dokumentvorlagen';
                         'icon'    => 'fa-file-lines',
                         'heading' => 2,
                         'title'   => 'Noch keine Vorlagen',
-                        'text'    => 'Vorlagen legen Briefkopf und feste Abschnitte der Dokumente fest.',
+                        'text'    => 'Vorlagen legen Briefbogen, festen Text und die Felder zum Ausfüllen fest.',
                         'actions' => [['label' => 'Neue Vorlage', 'href' => BASE_PATH . 'settings/documents/editor-templates/create', 'style' => 'secondary', 'icon' => 'fa-plus']],
                     ];
                     require dirname(__DIR__, 2) . '/partials/empty.php';

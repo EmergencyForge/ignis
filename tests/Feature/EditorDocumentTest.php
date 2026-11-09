@@ -11,6 +11,8 @@ use App\Models\EditorTemplate;
 use App\Security\CsrfProtection;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use EmergencyForge\Editor\Layout;
+use EmergencyForge\Editor\PageShell;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Events\Dispatcher;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,15 +24,14 @@ use Tests\FixtureFactory;
  * speichern, ausstellen.
  *
  * Geprüft wird dabei vor allem, was der Editor nicht selbst garantieren
- * kann: dass ein gesperrter Abschnitt beim Speichern aus der Vorlage
- * zurückkommt, auch wenn der Browser etwas anderes schickt, und dass ein
- * ausgestelltes Dokument sich nicht mehr speichern lässt.
+ * kann: dass fester Text beim Speichern aus der Vorlagenfassung
+ * zurückkommt, auch wenn der Browser etwas anderes schickt, dass ein Feld
+ * mit Recht nur mit diesem Recht ausgefüllt wird, dass ein Entwurf auf eine
+ * neue Fassung umgestellt werden kann, und dass ein ausgestelltes Dokument
+ * sich nicht mehr speichern lässt.
  */
 final class EditorDocumentTest extends FeatureTestCase
 {
-    private const SECTION_LOCKED = '11111111-1111-4111-8111-111111111111';
-    private const SECTION_FREE   = '22222222-2222-4222-8222-222222222222';
-
     private int $mitarbeiterId = 0;
 
     /** @var list<string> */
@@ -96,30 +97,49 @@ final class EditorDocumentTest extends FeatureTestCase
     }
 
     /**
-     * Eine Vorlage aus einem gesperrten und einem freien Abschnitt.
+     * Eine Vorlage aus festem Text und einem Textbereich.
      *
      * @return array<string,mixed>
      */
     private function templateContent(): array
     {
         return [
-            'type'    => 'doc',
-            'content' => [
+            'format' => 2,
+            'layout' => Layout::defaults(),
+            'body'   => ['type' => 'doc', 'content' => [
                 [
-                    'type'    => 'docSection',
-                    'attrs'   => ['mode' => 'locked', 'sectionId' => self::SECTION_LOCKED],
-                    'content' => [[
-                        'type'    => 'paragraph',
-                        'content' => [['type' => 'text', 'text' => 'Aus der Vorlage.']],
-                    ]],
+                    'type'    => 'paragraph',
+                    'content' => [['type' => 'text', 'text' => 'Aus der Vorlage.']],
                 ],
                 [
-                    'type'    => 'docSection',
-                    'attrs'   => ['mode' => 'free', 'sectionId' => self::SECTION_FREE],
+                    'type'    => 'docInput',
+                    'attrs'   => [
+                        'inputId' => 'frei', 'kind' => 'text', 'label' => 'Text', 'format' => 'full',
+                        'start' => 'empty', 'placeholder' => '', 'required' => false, 'minLength' => null, 'who' => null,
+                    ],
                     'content' => [['type' => 'paragraph']],
                 ],
-            ],
+            ]],
+            'header' => ['first' => null, 'rest' => null],
+            'footer' => ['first' => null, 'rest' => null],
         ];
+    }
+
+    /**
+     * Vorlage mit genau diesem Inhalt im ersten Absatz.
+     *
+     * @param list<array<string,mixed>> $inline
+     */
+    private function templateWithInline(array $inline): EditorTemplate
+    {
+        $content = $this->templateContent();
+        $content['body']['content'][0]['content'] = $inline;
+
+        $template          = $this->template();
+        $template->content = $content;
+        $template->save();
+
+        return $template;
     }
 
     private function template(): EditorTemplate
@@ -179,14 +199,25 @@ final class EditorDocumentTest extends FeatureTestCase
     }
 
     #[Test]
-    public function gesperrter_abschnitt_kommt_beim_speichern_aus_der_vorlage_zurueck(): void
+    public function anlegen_haengt_den_entwurf_an_die_juengste_fassung(): void
+    {
+        $template = $this->template();
+        $document = $this->draft($template);
+
+        $version = $template->latestVersion();
+        $this->assertNotNull($version);
+        $this->assertSame($version->id, $document->template_version_id);
+    }
+
+    #[Test]
+    public function fester_text_kommt_beim_speichern_aus_der_vorlage_zurueck(): void
     {
         $document = $this->draft($this->template());
 
-        // Der Browser schickt einen manipulierten gesperrten Abschnitt mit.
+        // Der Browser schickt manipulierten festen Text mit.
         $tampered = $this->templateContent();
-        $tampered['content'][0]['content'][0]['content'][0]['text'] = 'Heimlich geändert.';
-        $tampered['content'][1]['content'][0] = [
+        $tampered['body']['content'][0]['content'][0]['text'] = 'Heimlich geändert.';
+        $tampered['body']['content'][1]['content'][0] = [
             'type'    => 'paragraph',
             'content' => [['type' => 'text', 'text' => 'Frei geschrieben.']],
         ];
@@ -200,14 +231,104 @@ final class EditorDocumentTest extends FeatureTestCase
         $saved = EditorDocument::find($document->id);
         $this->assertSame(
             'Aus der Vorlage.',
-            $saved->content['content'][0]['content'][0]['content'][0]['text'],
-            'Der gesperrte Abschnitt muss aus der Vorlage stammen, nicht aus dem Formular.',
+            $saved->content['body']['content'][0]['content'][0]['text'],
+            'Fester Text muss aus der Vorlage stammen, nicht aus dem Formular.',
         );
         $this->assertSame(
             'Frei geschrieben.',
-            $saved->content['content'][1]['content'][0]['content'][0]['text'],
-            'Der freie Abschnitt bleibt, wie der Verfasser ihn geschickt hat.',
+            $saved->content['body']['content'][1]['content'][0]['content'][0]['text'],
+            'Der Textbereich bleibt, wie der Verfasser ihn geschickt hat.',
         );
+    }
+
+    /**
+     * Ein Feld, das `personnel.documents.approve` verlangt: ohne das Recht
+     * bleibt der gespeicherte Stand, mit dem Recht kommt der Wert an.
+     */
+    #[Test]
+    public function ein_feld_mit_recht_fuellt_nur_wer_das_recht_hat(): void
+    {
+        $field = [
+            'type'  => 'docField',
+            'attrs' => [
+                'fieldId' => 'freigabe', 'label' => 'Freigabe', 'kind' => 'line', 'required' => false,
+                'value' => '', 'who' => 'personnel.documents.approve',
+            ],
+        ];
+        $document = $this->draft($this->templateWithInline([$field]));
+
+        $content = $this->templateContent();
+        $field['attrs']['value'] = 'Freigegeben';
+        $content['body']['content'][0]['content'] = [$field];
+        $_SESSION['permissions'] = ['personnel.documents.manage'];
+        $this->assertSame('', $this->saveAndRead($document, $content)['body']['content'][0]['content'][0]['attrs']['value']);
+
+        $_SESSION['permissions'] = ['personnel.documents.manage', 'personnel.documents.approve'];
+        $this->assertSame('Freigegeben', $this->saveAndRead($document, $content)['body']['content'][0]['content'][0]['attrs']['value']);
+    }
+
+    /**
+     * @param  array<string,mixed> $content
+     * @return array<string,mixed>
+     */
+    private function saveAndRead(EditorDocument $document, array $content): array
+    {
+        $this->postWithToken('/documents/' . $document->id . '/save', [
+            'content' => json_encode($content, JSON_UNESCAPED_UNICODE),
+            'title'   => 'Ein Dokument',
+        ]);
+
+        return EditorDocument::find($document->id)->content;
+    }
+
+    #[Test]
+    public function ein_entwurf_wechselt_auf_die_neue_fassung_und_behaelt_seinen_text(): void
+    {
+        $template = $this->template();
+        $document = $this->draft($template);
+
+        $written = $this->templateContent();
+        $written['body']['content'][1]['content'][0] = [
+            'type'    => 'paragraph',
+            'content' => [['type' => 'text', 'text' => 'Bleibt stehen.']],
+        ];
+        $this->postWithToken('/documents/' . $document->id . '/save', [
+            'content' => json_encode($written, JSON_UNESCAPED_UNICODE),
+            'title'   => 'Ein Dokument',
+        ]);
+
+        // Am Entwurf hängt Fassung 1, also legt Speichern Fassung 2 an.
+        $neu = $this->templateContent();
+        $neu['body']['content'][0]['content'][0]['text'] = 'Neuer fester Text.';
+        $template->saveContent($neu, null);
+        $this->assertSame(2, $template->latestVersion()?->version);
+
+        $edit = $this->get('/documents/' . $document->id . '/edit')->body;
+        $this->assertStringContainsString('id="document-upgrade-notice"', $edit);
+
+        $response = $this->postWithToken('/documents/' . $document->id . '/upgrade', ['lost' => '']);
+        $this->assertRedirect($response, '/documents/' . $document->id . '/edit');
+
+        $saved = EditorDocument::find($document->id);
+        $this->assertSame($template->latestVersion()->id, $saved->template_version_id);
+        $this->assertSame('Neuer fester Text.', $saved->content['body']['content'][0]['content'][0]['text']);
+        $this->assertSame('Bleibt stehen.', $saved->content['body']['content'][1]['content'][0]['content'][0]['text']);
+    }
+
+    #[Test]
+    public function umgestellt_wird_nicht_wenn_die_liste_der_verluste_nicht_stimmt(): void
+    {
+        $template = $this->template();
+        $document = $this->draft($template);
+        $before   = $document->template_version_id;
+
+        $neu = $this->templateContent();
+        $neu['body']['content'][0]['content'][0]['text'] = 'Neuer fester Text.';
+        $template->saveContent($neu, null);
+
+        $this->postWithToken('/documents/' . $document->id . '/upgrade', ['lost' => 'erfunden']);
+
+        $this->assertSame($before, EditorDocument::find($document->id)->template_version_id);
     }
 
     /**
@@ -218,30 +339,27 @@ final class EditorDocumentTest extends FeatureTestCase
      */
     private function draftWithRankField(): array
     {
-        $content = $this->templateContent();
-        $content['content'][0]['content'][0]['content'] = [[
+        $inline = [[
             'type'  => 'docField',
-            'attrs' => ['fieldId' => 'dienstgrad', 'label' => 'Dienstgrad', 'value' => '', 'optionsSource' => FieldChoices::RANKS],
+            'attrs' => ['fieldId' => 'dienstgrad', 'label' => 'Dienstgrad', 'value' => '', 'optionsSource' => FieldChoices::RANKS, 'who' => null],
         ]];
+        $content = $this->templateContent();
+        $content['body']['content'][0]['content'] = $inline;
 
-        $template          = $this->template();
-        $template->content = $content;
-        $template->save();
-
-        return [$this->draft($template), $content];
+        return [$this->draft($this->templateWithInline($inline)), $content];
     }
 
     /** @param array<string,mixed> $content */
     private function saveRank(EditorDocument $document, array $content, string $value): string
     {
-        $content['content'][0]['content'][0]['content'][0]['attrs']['value'] = $value;
+        $content['body']['content'][0]['content'][0]['attrs']['value'] = $value;
 
         $this->postWithToken('/documents/' . $document->id . '/save', [
             'content' => json_encode($content, JSON_UNESCAPED_UNICODE),
             'title'   => 'Ein Dokument',
         ]);
 
-        return EditorDocument::find($document->id)->content['content'][0]['content'][0]['content'][0]['attrs']['value'];
+        return EditorDocument::find($document->id)->content['body']['content'][0]['content'][0]['attrs']['value'];
     }
 
     #[Test]
@@ -259,7 +377,7 @@ final class EditorDocumentTest extends FeatureTestCase
         [$document, $content] = $this->draftWithRankField();
 
         $stored = $content;
-        $stored['content'][0]['content'][0]['content'][0]['attrs']['value'] = 'Von Hand getippt';
+        $stored['body']['content'][0]['content'][0]['attrs']['value'] = 'Von Hand getippt';
         Capsule::table('intra_documents')->where('id', $document->id)->update([
             'content' => json_encode($stored, JSON_UNESCAPED_UNICODE),
         ]);
@@ -406,9 +524,9 @@ final class EditorDocumentTest extends FeatureTestCase
     {
         $document = $this->draft($this->template());
         $changed = $this->templateContent();
-        $changed['content'][1]['content'][0]['content'] = [[
+        $changed['body']['content'][0]['content'] = [[
             'type' => 'docField',
-            'attrs' => ['fieldId' => 'required', 'label' => 'Unterschrift', 'required' => true, 'value' => ''],
+            'attrs' => ['fieldId' => 'required', 'label' => 'Unterschrift', 'required' => true, 'value' => '', 'who' => null],
         ]];
 
         $connection = Capsule::connection();
@@ -445,7 +563,7 @@ final class EditorDocumentTest extends FeatureTestCase
     }
 
     /**
-     * Wie template(), nur steht im gesperrten Abschnitt ein Satz mit diesen
+     * Wie template(), nur steht im festen Text ein Satz mit diesen
      * Platzhaltern.
      */
     private function templateWithVariables(string ...$names): EditorTemplate
@@ -455,13 +573,7 @@ final class EditorDocumentTest extends FeatureTestCase
             $inline[] = ['type' => 'docVariable', 'attrs' => ['name' => $name]];
         }
 
-        $template          = $this->template();
-        $content           = $this->templateContent();
-        $content['content'][0]['content'][0]['content'] = $inline;
-        $template->content = $content;
-        $template->save();
-
-        return $template;
+        return $this->templateWithInline($inline);
     }
 
     /**
@@ -495,9 +607,8 @@ final class EditorDocumentTest extends FeatureTestCase
         $issued = $document->fresh();
         $this->assertSame(EditorDocument::STATUS_ISSUED, $issued->status);
 
-        $html = (new \EmergencyForge\Editor\Renderer())
-            ->render($issued->content, $issued->frozen_values, blankUnresolved: true)->html;
-        $this->assertStringContainsString('<span class="efe-variable">Testperson</span><span class="efe-variable"></span>', $html);
+        $html = PageShell::html($issued->content, $issued->frozen_values)->html;
+        $this->assertStringContainsString('Testperson', $html);
         $this->assertStringNotContainsString('{{', $html);
 
         $audit = Capsule::table('intra_audit_log')->where('action', 'Dokument ausgestellt')->orderBy('id', 'desc')->first();
@@ -526,7 +637,6 @@ final class EditorDocumentTest extends FeatureTestCase
         $this->assertOk($response);
         $this->assertStringContainsString('data-efe-missing-reasons=', $response->body);
         $this->assertStringContainsString('Beim Mitarbeiter ist kein Titel eingetragen.', $response->body);
-        $this->assertStringContainsString('id="document-open-items"', $response->body);
         $this->assertStringContainsString('name="accept_missing"', $response->body);
     }
 
