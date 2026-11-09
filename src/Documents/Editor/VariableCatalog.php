@@ -67,7 +67,7 @@ final class VariableCatalog
      * Ausstellen fragt ignis nach, und im PDF bleibt die Stelle leer
      * (PdfGenerator, blankUnresolved).
      *
-     * @param  array{mitarbeiter?: Personnel|null, docid?: string|null}  $context
+     * @param  array{mitarbeiter?: Personnel|null, docid?: string|null, aussteller?: Personnel|null}  $context
      * @return array<string,string>
      */
     public static function resolve(array $context = []): array
@@ -79,7 +79,7 @@ final class VariableCatalog
             $values += self::person($mitarbeiter, 'mitarbeiter');
         }
 
-        $issuer = self::issuer();
+        $issuer = self::issuer($context);
         if ($issuer instanceof Personnel) {
             $issuerValues = self::person($issuer, 'aussteller');
             // Der Aussteller braucht nur Name, Titel, Dienstgrad und Zusatz; der
@@ -109,7 +109,7 @@ final class VariableCatalog
      * damit der Wert kommt. Gleicher Kontext wie {@see resolve()};
      * Schlüssel mit Wert kommen nicht vor.
      *
-     * @param  array{mitarbeiter?: Personnel|null, docid?: string|null}  $context
+     * @param  array{mitarbeiter?: Personnel|null, docid?: string|null, aussteller?: Personnel|null}  $context
      * @return array<string,string>
      */
     public static function missingReasons(array $context = []): array
@@ -118,7 +118,7 @@ final class VariableCatalog
         $reasons  = [];
 
         $mitarbeiter = $context['mitarbeiter'] ?? null;
-        $issuer      = self::issuer();
+        $issuer      = self::issuer($context);
 
         foreach (array_keys(self::catalog()) as $name) {
             if (isset($resolved[$name])) {
@@ -201,14 +201,19 @@ final class VariableCatalog
     }
 
     /**
-     * Wer stellt aus: der mit dem angemeldeten Konto verknüpfte Mitarbeiter.
-     * Ohne Mitarbeiterdatensatz bleiben die Aussteller-Felder leer. Der
-     * Name aus dem Benutzerkonto allein wäre in einer Urkunde irreführend,
-     * weil dort der Dienstgrad danebenstünde.
+     * Wer stellt aus: der übergebene Aussteller, sonst der mit dem
+     * angemeldeten Konto verknüpfte Mitarbeiter. Ohne Mitarbeiterdatensatz
+     * bleiben die Aussteller-Felder leer. Der Name aus dem Benutzerkonto
+     * allein wäre in einer Urkunde irreführend, weil dort der Dienstgrad
+     * danebenstünde.
+     *
+     * @param  array{aussteller?: Personnel|null}  $context
      */
-    private static function issuer(): ?Personnel
+    private static function issuer(array $context): ?Personnel
     {
-        return AccountLink::current();
+        // array_key_exists, weil ein ausdrücklich leerer Aussteller nicht auf
+        // die Sitzung zurückfallen darf.
+        return array_key_exists('aussteller', $context) ? $context['aussteller'] : AccountLink::current();
     }
 
     /**

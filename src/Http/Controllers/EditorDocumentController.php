@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Documents\Editor\DocumentId;
+use App\Documents\Editor\DocumentIssuer;
+use App\Documents\Editor\DocumentNotIssued;
 use App\Documents\Editor\FieldChoices;
 use App\Documents\Editor\PdfGenerator;
 use App\Documents\Editor\VariableCatalog;
@@ -15,6 +17,7 @@ use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
 use App\Models\EditorTemplateVersion;
 use App\Models\Personnel;
+use App\Personnel\AccountLink;
 use App\Policies\DocumentPolicy;
 use App\Session\SessionManager;
 use App\Utils\AuditLogger;
@@ -24,7 +27,6 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * Dokumente am Mitarbeiter: aus einer Vorlage anlegen, im Entwurf
@@ -51,6 +53,10 @@ use RuntimeException;
  */
 final class EditorDocumentController extends Controller
 {
+    public function __construct(private readonly DocumentIssuer $issuer)
+    {
+    }
+
     /**
      * POST /personnel/{id}/documents: Dokument aus einer aktiven Vorlage
      * anlegen. Es hängt an der jüngsten Fassung und startet mit deren
@@ -349,11 +355,9 @@ final class EditorDocumentController extends Controller
     }
 
     /**
-     * POST /documents/{id}/issue: aus dem Entwurf wird ein Dokument.
-     *
-     * Statuswechsel und PDF-Erzeugung liegen in einer Transaktion: scheitert
-     * das Rendern, rollt der bereits geschriebene Statuswechsel mit zurück
-     * und der Entwurf bleibt wirklich ein Entwurf.
+     * POST /documents/{id}/issue: aus dem Entwurf wird ein Dokument. Die
+     * Arbeit macht {@see DocumentIssuer}, hier bleiben Rechte, Meldung und
+     * Weiterleitung.
      */
     public function issue(Request $request, string $id): void
     {
@@ -363,94 +367,17 @@ final class EditorDocumentController extends Controller
         $document = $this->findOrRedirect((int) $id, ['mitarbeiter']);
 
         $showUrl = 'documents/' . $document->id;
-        $editUrl = 'documents/' . $document->id . '/edit';
-
-        if ($document->isIssued()) {
-            Flash::error('Dieses Dokument wurde bereits ausgestellt.');
-            $this->redirect($showUrl);
-        }
-
-        $userId = SessionManager::userId();
-
-        $acceptMissing = ($request->post['accept_missing'] ?? '') === '1';
-        $leftEmpty     = [];
 
         try {
-            $issued = Capsule::connection()->transaction(function () use (&$document, &$leftEmpty, $userId, $editUrl, $acceptMissing): bool {
-                // Inhalt, Pflichtfelder und PDF bleiben bis zum Commit derselbe Stand.
-                $locked = EditorDocument::query()->with(['mitarbeiter', 'templateVersion'])->lockForUpdate()->find($document->id);
-                if ($locked === null || $locked->isIssued()) {
-                    return false;
-                }
-                $document  = $locked;
-                $leftEmpty = [];
-
-                // Mit der Fassung zählt auch ein unveränderter Vorschlagstext
-                // als offen.
-                $frozen  = VariableCatalog::resolve($this->variableContext($document));
-                $catalog = VariableCatalog::catalog();
-                $missing = [];
-                foreach ((new PackageGuard())->openItems($document->content, $frozen, $document->templateVersion?->content) as $item) {
-                    if ($item['type'] === 'variable') {
-                        $leftEmpty[] = $catalog[$item['id']] ?? $item['id'];
-                        continue;
-                    }
-                    $missing[] = $this->openItemText($item);
-                }
-                if ($missing !== []) {
-                    Flash::error(
-                        'Dokument „' . $document->title . '" kann noch nicht ausgestellt werden. '
-                        . 'Noch offen: ' . implode(', ', $missing) . '.',
-                    );
-                    $this->redirect($editUrl);
-                }
-
-                // Platzhalter ohne Wert halten nicht auf wie ein offenes
-                // Pflichtfeld: oft fehlt nur etwas, das jemand anderes
-                // pflegt (Titel, Dienstnummer). Ausgestellt wird aber erst,
-                // wenn der Schreiber bestätigt hat, dass die Stellen leer
-                // bleiben dürfen. Die Rückfrage im Editor schickt dafür
-                // accept_missing=1 mit.
-                if ($leftEmpty !== [] && !$acceptMissing) {
-                    Flash::error(
-                        'Dokument „' . $document->title . '" wurde nicht ausgestellt. Diese Platzhalter haben '
-                        . 'keinen Wert und blieben leer: ' . implode(', ', $leftEmpty) . '. Trag die Angaben nach '
-                        . 'oder bestätige beim Ausstellen, dass sie leer bleiben dürfen.',
-                    );
-                    $this->redirect($editUrl);
-                }
-
-                $now = date('Y-m-d H:i:s');
-
-                $affected = Capsule::table('intra_documents')
-                    ->where('id', $document->id)
-                    ->where('status', EditorDocument::STATUS_DRAFT)
-                    ->update([
-                        'status'        => EditorDocument::STATUS_ISSUED,
-                        'frozen_values' => json_encode($frozen, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        'issued_by'     => $userId,
-                        'issued_at'     => $now,
-                        'updated_at'    => $now,
-                    ]);
-
-                if ($affected === 0) {
-                    return false;
-                }
-
-                $pdfPath = (new PdfGenerator())->generate($document, $frozen);
-                Capsule::table('intra_documents')->where('id', $document->id)->update(['pdf_path' => $pdfPath]);
-
-                return true;
-            });
-        } catch (RuntimeException $e) {
-            Logger::error('Ausstellen von Dokument ' . $document->docid . ' fehlgeschlagen: ' . $e->getMessage());
-            Flash::error('Das Dokument konnte nicht als PDF ausgestellt werden. Der Entwurf bleibt unverändert.');
-            $this->redirect($editUrl);
-        }
-
-        if (!$issued) {
-            Flash::error('Dieses Dokument wurde inzwischen ausgestellt.');
-            $this->redirect($showUrl);
+            $leftEmpty = $this->issuer->issue(
+                $document,
+                AccountLink::currentId(),
+                SessionManager::userId(),
+                acceptMissing: ($request->post['accept_missing'] ?? '') === '1',
+            );
+        } catch (DocumentNotIssued $e) {
+            Flash::error($e->getMessage());
+            $this->redirect($e->alreadyIssued ? $showUrl : $showUrl . '/edit');
         }
 
         $this->audit(
@@ -489,23 +416,6 @@ final class EditorDocumentController extends Controller
             ->where('id', $id)
             ->where('status', EditorDocument::STATUS_DRAFT)
             ->exists();
-    }
-
-    /**
-     * Ein offener Punkt aus PackageGuard::openItems() als Text für die
-     * Meldung, mit dem Recht, falls der Verfasser ihn nicht selbst ausfüllt.
-     *
-     * @param array{type: string, id: string, label: string, region: string, reason: string, who: ?string} $item
-     */
-    private function openItemText(array $item): string
-    {
-        $text = $item['label'] . ($item['reason'] === 'minLength' ? ' (zu kurz)' : '');
-        if ($item['who'] !== null) {
-            $labels = array_column(DocumentPolicy::whoOptions(), 'label', 'key');
-            $text  .= ', füllt aus: ' . ($labels[$item['who']] ?? $item['who']);
-        }
-
-        return $text;
     }
 
     /**

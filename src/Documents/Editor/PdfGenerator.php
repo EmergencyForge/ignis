@@ -52,7 +52,7 @@ final class PdfGenerator
     {
         // Ein Platzhalter ohne Wert bleibt leer, `{{name}}` gehört nicht in
         // eine Urkunde. Ausgestellt wird so etwas erst nach Rückfrage
-        // (EditorDocumentController::issue()).
+        // (DocumentIssuer::issue()).
         $package = SectionsToPackage::convert($document->content);
         $shell   = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
 
