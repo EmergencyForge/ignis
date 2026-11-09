@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Documents\Editor\DocumentIssuer;
+use App\Documents\Editor\DocumentNotIssued;
 use App\Documents\Editor\FieldChoices;
 use App\Documents\Editor\PdfGenerator;
 use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
+use App\Personnel\AccountLink;
+use App\Personnel\PersonalLogManager;
 use App\Security\CsrfProtection;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -649,5 +653,74 @@ final class EditorDocumentTest extends FeatureTestCase
         }
         $this->pdfFiles[] = $file;
         file_put_contents($file, '%PDF-test');
+    }
+
+    #[Test]
+    public function ausstellen_schreibt_den_verlauf_und_benachrichtigt_den_mitarbeiter(): void
+    {
+        $konto = FixtureFactory::user();
+        Capsule::table('intra_users')->where('id', $konto->id)->update(['aktenid' => $this->mitarbeiterId]);
+        AccountLink::forget();
+
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.name'));
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/storage/private/editor-documents/' . $document->docid . '.pdf';
+
+        $this->postWithToken('/documents/' . $document->id . '/issue', []);
+
+        $eintrag = Capsule::table('intra_mitarbeiter_log')
+            ->where('profilid', $this->mitarbeiterId)
+            ->where('type', PersonalLogManager::TYPE_DOCUMENT)
+            ->orderBy('logid', 'desc')
+            ->first();
+        $this->assertNotNull($eintrag);
+        $this->assertStringContainsString('documents/' . $document->id, (string) $eintrag->content);
+        $this->assertStringContainsString($document->docid, (string) $eintrag->content);
+
+        $nachricht = Capsule::table('intra_notifications')->where('user_id', $konto->id)->where('type', 'dokument')->first();
+        $this->assertNotNull($nachricht);
+        $this->assertSame('Neues Dokument ausgestellt', $nachricht->title);
+        $this->assertStringEndsWith('documents/' . $document->id, (string) $nachricht->link);
+    }
+
+    /**
+     * Ein Ablauf ohne Sitzung (etwa ein Lehrgangsabschluss) nennt den
+     * Aussteller selbst. Dessen Werte stehen im Dokument, nicht die des
+     * angemeldeten Kontos, und zusätzliche Werte übersteuern den Katalog.
+     */
+    #[Test]
+    public function ein_uebergebener_aussteller_und_eigene_werte_landen_im_dokument(): void
+    {
+        $row = (array) Capsule::table('intra_mitarbeiter')->where('id', $this->mitarbeiterId)->first();
+        unset($row['id']);
+        $ausstellerId = (int) Capsule::table('intra_mitarbeiter')->insertGetId(
+            ['fullname' => 'Lehrgangsleitung', 'charakterid' => 'T2', 'dienstnr' => 'T-2'] + $row,
+        );
+
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.name', 'aussteller.name', 'datum'));
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/storage/private/editor-documents/' . $document->docid . '.pdf';
+
+        $leer = app(DocumentIssuer::class)->issue($document, $ausstellerId, null, ['datum' => '01.02.2027']);
+
+        $this->assertSame([], $leer);
+        $issued = $document->fresh();
+        $this->assertSame(EditorDocument::STATUS_ISSUED, $issued->status);
+        $this->assertNull($issued->issued_by);
+        $this->assertSame('Lehrgangsleitung', $issued->frozen_values['aussteller.name'] ?? null);
+        $this->assertSame('01.02.2027', $issued->frozen_values['datum'] ?? null);
+    }
+
+    #[Test]
+    public function ein_ausgestelltes_dokument_wird_nicht_noch_einmal_ausgestellt(): void
+    {
+        $document = $this->draft($this->templateWithVariables('mitarbeiter.name'));
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/storage/private/editor-documents/' . $document->docid . '.pdf';
+        app(DocumentIssuer::class)->issue($document, null, null);
+
+        try {
+            app(DocumentIssuer::class)->issue($document, null, null);
+            $this->fail('Zweites Ausstellen muss scheitern.');
+        } catch (DocumentNotIssued $e) {
+            $this->assertTrue($e->alreadyIssued);
+        }
     }
 }
