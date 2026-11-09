@@ -810,11 +810,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.6.0",
+            "version": "0.6.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "e9355036aa7a37d5f4781791dd0876e4bd6646f2"
+                "reference": "044b9564aa39d0a015c01438a751907966d5e2e8"
             },
             "require": {
                 "php": ">=8.3",
@@ -1058,11 +1058,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.9.9",
+            "version": "1.9.10",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "54f068e585ac287051924a23700e9f085046f5d4"
+                "reference": "811bf8e3c0cde46ffc2353ad39f48759d35b5a9c"
             },
             "require": {
                 "php": ">=8.3"
