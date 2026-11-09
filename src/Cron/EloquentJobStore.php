@@ -18,6 +18,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  */
 final class EloquentJobStore implements JobStore
 {
+    /** Wie lange ein laufender Job als belegt gilt, siehe acquireLock(). Deutlich über jedem Job-Timeout. */
+    private const LEASE_MINUTES = 60;
+
     private const COLUMNS = [
         'id', 'identifier', 'handler_type', 'handler', 'schedule', 'config',
         'last_run_at', 'fail_count',
@@ -55,6 +58,13 @@ final class EloquentJobStore implements JobStore
      * Wer zu spät kommt, bekommt 0 betroffene Zeilen. So läuft ein Job
      * auch dann nur einmal, wenn Piggyback-Tick und Cron-Endpunkt
      * gleichzeitig anklopfen.
+     *
+     * Dazu rückt `next_run_at` für die Dauer des Laufs eine Stunde vor
+     * (LEASE_MINUTES). Ohne das wäre der Job während des Laufs weiter
+     * fällig, und ein Tick, der erst jetzt liest, bekäme mit dem neuen
+     * `last_run_at` ebenfalls den Lock. saveOutcome() setzt danach den
+     * echten Termin; bricht der Lauf hart ab, kommt der Job nach Ablauf
+     * der Stunde wieder dran.
      */
     public function acquireLock(Job $job): bool
     {
@@ -66,7 +76,10 @@ final class EloquentJobStore implements JobStore
             $query->where('last_run_at', $job->lastRunAt);
         }
 
-        return $query->update(['last_run_at' => Capsule::connection()->raw('UTC_TIMESTAMP()')]) === 1;
+        return $query->update([
+            'last_run_at' => Capsule::connection()->raw('UTC_TIMESTAMP()'),
+            'next_run_at' => Capsule::connection()->raw('UTC_TIMESTAMP() + INTERVAL ' . self::LEASE_MINUTES . ' MINUTE'),
+        ]) === 1;
     }
 
     public function startRun(int $jobId): int
