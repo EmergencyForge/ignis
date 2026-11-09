@@ -20,6 +20,7 @@ class PersonalLogManager
     public const TYPE_MODIFICATION = 5;   // Profile modification
     public const TYPE_CREATED = 6;        // Profile created
     public const TYPE_DOCUMENT = 7;       // Document created
+    public const TYPE_TRAINING = 8;       // Qualification from a course
 
     /**
      * Add a new log entry
@@ -290,7 +291,7 @@ class PersonalLogManager
 
     /**
      * Get system logs (auto-generated entries) for a profile with pagination
-     * System logs are types 4, 5, 6, 7 (RANK_CHANGE, MODIFICATION, CREATED, DOCUMENT)
+     * System logs are types 4, 5, 6, 7, 8 (RANK_CHANGE, MODIFICATION, CREATED, DOCUMENT, TRAINING)
      *
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
@@ -303,7 +304,8 @@ class PersonalLogManager
             self::TYPE_RANK_CHANGE,
             self::TYPE_MODIFICATION,
             self::TYPE_CREATED,
-            self::TYPE_DOCUMENT
+            self::TYPE_DOCUMENT,
+            self::TYPE_TRAINING,
         ]);
     }
 
@@ -334,7 +336,8 @@ class PersonalLogManager
             self::TYPE_RANK_CHANGE => 'rank',
             self::TYPE_MODIFICATION => 'modify',
             self::TYPE_CREATED => 'created',
-            self::TYPE_DOCUMENT => 'document'
+            self::TYPE_DOCUMENT => 'document',
+            self::TYPE_TRAINING => 'training',
         ];
 
         return $types[$type] ?? 'note';

@@ -15,6 +15,7 @@ $typeIcons = [
     'modify' => 'fa-pen',
     'document' => 'fa-file-lines',
     'created' => 'fa-circle-plus',
+    'training' => 'fa-graduation-cap',
     'note' => 'fa-sticky-note',
     'positive' => 'fa-circle-check',
     'negative' => 'fa-circle-xmark',

@@ -312,6 +312,9 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/main.php' ?>
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/editor.php' ?>
                         </div>
+                        <?php foreach ($pluginCards as $pluginCard): ?>
+                            <div class="lg:col-span-2"><?php include $pluginCard; ?></div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
