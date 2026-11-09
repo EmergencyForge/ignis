@@ -7,16 +7,15 @@
  *   @var \App\Models\EditorTemplate|null $template
  *   @var string               $formAction
  *   @var array<string,string> $variables       Schlüssel auf Beschriftung
- *   @var array<string,mixed>  $initialContent  Start-Dokument für den Editor
+ *   @var array<string,mixed>|null $initialContent  Dokumentpaket; null fragt zuerst nach der Art
+ *   @var list<array<string,mixed>> $letterheads   Briefbögen in der Form für createDocumentEditor
+ *   @var list<array{key: string, label: string}> $who  Rechte, die ein Feld verlangen kann
+ *   @var string               $uploadUrl       Bild-Upload für Logo und Wappen
  *
  * Die Editor-Dateien hängen an dieser Seite und nicht in head.php: das
- * Bundle wiegt knapp 500 kB, und außerhalb der beiden Editor-Seiten
- * braucht es niemand.
- *
- * Die zweite Leiste über dem Editor ist ignis-eigen. Das Paket bringt für
- * Felder, Titel und Wiederholung bewusst keine Bedienoberfläche mit, und
- * in seine Toolbar ließe sich nichts einhängen: createToolbar() leert
- * ihren Container beim Mounten.
+ * Bundle wiegt gut 500 kB, und außerhalb der Editor-Seiten braucht es
+ * niemand. Werkzeuge, Lineal und Eigenschaften bringt createDocumentEditor
+ * mit.
  *
  * Variablen und Startinhalt gehen als escaptes JSON in data-Attribute,
  * nicht als Inline-Skript.
@@ -32,9 +31,14 @@ $variablesJson = htmlspecialchars(
     ENT_QUOTES,
 );
 $contentJson = htmlspecialchars(
-    json_encode($initialContent, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{"type":"doc","content":[]}',
+    json_encode($initialContent, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: 'null',
     ENT_QUOTES,
 );
+$letterheadsJson = htmlspecialchars(json_encode($letterheads, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]', ENT_QUOTES);
+$whoJson         = htmlspecialchars(json_encode($who, JSON_UNESCAPED_UNICODE) ?: '[]', ENT_QUOTES);
+// Listen aus den Stammdaten für „Liste aus dem System“.
+$sourcesJson = htmlspecialchars(json_encode(\App\Documents\Editor\FieldChoices::lists(), JSON_UNESCAPED_UNICODE) ?: '{}', ENT_QUOTES);
+$sourceLabelsJson = htmlspecialchars(json_encode(\App\Documents\Editor\FieldChoices::SOURCES, JSON_UNESCAPED_UNICODE) ?: '{}', ENT_QUOTES);
 
 $layout     = 'admin';
 $windowSingle = true;
@@ -56,15 +60,15 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     <p class="twplus-page-header__eyebrow">Dokumente</p>
                     <h1><?= htmlspecialchars($SITE_TITLE) ?></h1>
                     <p class="twplus-page-header__description">
-                        Gesperrte Abschnitte bleiben in jedem Dokument aus dieser Vorlage unverändert;
-                        freie Abschnitte darf der Aussteller später bearbeiten. Ausfüllbare Felder gehen
-                        auch in gesperrtem Text. Ein Doppelklick darauf öffnet die Eigenschaften.
+                        Text der Vorlage ist im Dokument fest. Ausfüllen kann der Aussteller nur die
+                        Eingabebereiche und Felder, die du hier anlegst. Dokumente, die schon laufen,
+                        behalten ihre Fassung, bis jemand sie umstellt.
                     </p>
                 </div>
             </div>
 
             <form method="POST" action="<?= htmlspecialchars($formAction) ?>" id="template-form">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                <input type="hidden" name="csrf_token" id="template-csrf-input" value="<?= htmlspecialchars($csrfToken) ?>">
                 <input type="hidden" name="content" id="template-content-input" value="">
 
                 <div class="ignis-card mb-4">
@@ -84,27 +88,42 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     </div>
                 </div>
 
-                <div class="efe-frame mb-4">
-                    <!-- Die eigenen Bausteine liegen schon im Container, die
-                         Toolbar des Pakets stellt sie hinter ihre Knöpfe. -->
-                    <div id="template-toolbar">
-                        <div class="efe-toolbar__group" role="group" aria-label="Vorlagen-Bausteine">
-                            <button type="button" id="template-field-button"
-                                    class="efe-btn efe-btn--labelled"
-                                    aria-label="Ausfüllbares Feld einfügen oder bearbeiten">Feld …</button>
-                            <button type="button" id="template-section-button"
-                                    class="efe-btn efe-btn--labelled"
-                                    aria-label="Titel, Hinweis und Wiederholung des Abschnitts">Abschnitt …</button>
+                <?php if ($initialContent === null): ?>
+                    <div class="ignis-card mb-4" id="template-start">
+                        <div class="ignis-card__body">
+                            <p class="mb-3">Wie soll die Vorlage beginnen?</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" data-template-start="free">
+                                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Frei, mit festen Teilen
+                                </button>
+                                <button type="button" class="ignis-btn ignis-btn--secondary" data-template-start="fixed">
+                                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i> Fest, mit Lücken
+                                </button>
+                            </div>
+                            <p class="ignis-field__hint mt-2">
+                                Frei: der Aussteller schreibt den ganzen Text, du setzt einzelne Teile fest.
+                                Fest: der Text steht, der Aussteller füllt nur die Lücken aus. Beides lässt sich
+                                danach noch ändern.
+                            </p>
                         </div>
                     </div>
-                    <div class="efe-surround">
-                        <div class="efe-page"
-                             id="template-editor-mount"
-                             data-efe-variables="<?= $variablesJson ?>"
-                             data-efe-content="<?= $contentJson ?>"
-                             data-field-sources="<?= htmlspecialchars(json_encode(\App\Documents\Editor\FieldChoices::SOURCES, JSON_UNESCAPED_UNICODE) ?: '{}', ENT_QUOTES) ?>"></div>
-                    </div>
+                <?php endif; ?>
+
+                <div class="ignis-segmented mb-3" role="group" aria-label="Ansicht" id="template-modes"<?= $initialContent === null ? ' hidden' : '' ?>>
+                    <button type="button" class="is-active" data-template-mode="template" aria-pressed="true">Vorlage</button>
+                    <button type="button" data-template-mode="write" aria-pressed="false">Probe ausfüllen</button>
+                    <button type="button" data-template-mode="preview" aria-pressed="false">Druckansicht</button>
                 </div>
+
+                <div class="mb-4"
+                     id="template-editor-mount"
+                     data-efe-variables="<?= $variablesJson ?>"
+                     data-efe-content="<?= $contentJson ?>"
+                     data-efe-letterheads="<?= $letterheadsJson ?>"
+                     data-efe-who="<?= $whoJson ?>"
+                     data-efe-sources="<?= $sourcesJson ?>"
+                     data-efe-source-labels="<?= $sourceLabelsJson ?>"
+                     data-efe-upload-url="<?= htmlspecialchars($uploadUrl) ?>"></div>
 
                 <div class="flex gap-2">
                     <button type="submit" class="ignis-btn ignis-btn--primary">Speichern</button>

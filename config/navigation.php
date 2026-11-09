@@ -308,7 +308,16 @@ return [
                     'description' => 'Vorlagen für Urkunden, Zertifikate und Schreiben.',
                     'keywords'    => 'Urkunde Zertifikat Schreiben Editor',
                     'permissions' => ['admin', 'personnel.documents.manage'],
-                    'match'       => ['/settings/documents'],
+                    'match'       => ['/settings/documents/editor-templates'],
+                ],
+                [
+                    'label'       => 'Briefbögen',
+                    'href'        => BASE_PATH . 'settings/documents/letterheads',
+                    'icon'        => 'fa-solid fa-envelope-open-text',
+                    'description' => 'Ränder, Kopf- und Fußzeilen, die mehrere Vorlagen teilen.',
+                    'keywords'    => 'Briefkopf Kopfzeile Fußzeile Logo Wappen',
+                    'permissions' => ['admin', 'personnel.documents.manage'],
+                    'match'       => ['/settings/documents/letterheads'],
                 ],
                 // Antragstypen hängt das Plugin `forms` hier ein.
                 [

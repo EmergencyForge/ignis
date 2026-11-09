@@ -8,25 +8,40 @@ use App\Logging\Logger;
 use App\Models\EditorDocument;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use EmergencyForge\Editor\PrintStyles;
-use EmergencyForge\Editor\Renderer;
+use EmergencyForge\Editor\Migration\SectionsToPackage;
+use EmergencyForge\Editor\PageShell;
 use RuntimeException;
 
 /**
- * Macht aus dem Dokument-JSON das PDF, das beim Ausstellen auf der Platte
+ * Macht aus dem Dokumentpaket das PDF, das beim Ausstellen auf der Platte
  * landet und von da an ausgeliefert wird.
  *
- * Der Weg von JSON zu HTML führt ausschließlich über den `Renderer` des
- * Editor-Pakets: er kennt eine Whitelist von Knoten und Marken und
- * verwirft alles andere. Meldet er einen Fehler, wird nicht gerendert und
- * nicht ausgestellt. Ein halb verstandenes Dokument darf keine Urkunde
- * werden.
+ * HTML entsteht nur im Editor-Paket: `PageShell::html()` rendert Textkörper
+ * und Bänder über den `Renderer`, der eine Whitelist von Knoten und Marken
+ * kennt, und baut das Seitengerüst mit Rändern, Kopf- und Fußzeilen und
+ * Hoch- oder Querformat aus dem Layout. Meldet er einen Fehler, wird nicht
+ * ausgestellt. Ein halb verstandenes Dokument darf keine Urkunde werden.
+ * Bilder kommen als Data-URI aus {@see TemplateImageSource}, weil Dompdf
+ * nichts nachlädt.
  *
  * Editor-PDFs liegen unter `storage/private/editor-documents/` und werden nur
  * vom berechtigten Dokument-Endpunkt ausgeliefert.
  */
 final class PdfGenerator
 {
+    /**
+     * Schrift und Tabellen. Ränder, Bänder und Seitenformat kommen aus dem
+     * Layout über PageShell. Nichts hier darf `html` einen Rand geben, Dompdf
+     * legt die @page-Ränder darauf.
+     */
+    private const PRODUCT_CSS = <<<'CSS'
+    body { font-family: 'DejaVu Sans', sans-serif; font-size: 11pt; color: #1a1a1a; }
+    p { margin: 0 0 0.75em; }
+    table { border-collapse: collapse; width: 100%; margin: 0 0 0.75em; }
+    th, td { border: 1px solid #999999; padding: 0.35em 0.5em; vertical-align: top; }
+    th { background: #eeeeee; font-weight: bold; text-align: left; }
+    CSS;
+
     /**
      * Rendert und speichert; liefert den Pfad relativ zum Projektordner,
      * wie er in `pdf_path` steht.
@@ -38,22 +53,30 @@ final class PdfGenerator
         // Ein Platzhalter ohne Wert bleibt leer, `{{name}}` gehört nicht in
         // eine Urkunde. Ausgestellt wird so etwas erst nach Rückfrage
         // (EditorDocumentController::issue()).
-        $result = (new Renderer())->render($document->content, $variables, blankUnresolved: true);
+        $package = SectionsToPackage::convert($document->content);
+        $shell   = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
 
-        if ($result->error) {
+        if ($shell->error) {
             throw new RuntimeException(
                 'Dokument "' . $document->docid . '" konnte nicht sicher gerendert werden. Ausstellen abgebrochen.',
             );
         }
 
-        foreach ($result->warnings as $warning) {
+        foreach ($shell->warnings as $warning) {
             Logger::warning('Dokument ' . $document->docid . ': ' . $warning);
         }
 
-        $dompdf = new Dompdf($this->options());
-        $dompdf->loadHtml($this->html($result->html), 'UTF-8');
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        $options = $this->options();
+        // Zwei Läufe, wenn das Dokument die Gesamtseitenzahl zeigt.
+        $pdf = PageShell::render($shell->html, static function (string $html) use ($options, $shell): array {
+            $dompdf = new Dompdf($options);
+            $dompdf->setCallbacks(PageShell::callbacks());
+            $dompdf->loadHtml($html, 'UTF-8');
+            $dompdf->setPaper('A4', $shell->orientation);
+            $dompdf->render();
+
+            return [(string) $dompdf->output(), $dompdf->getCanvas()->get_page_count()];
+        });
 
         $dir = $this->documentsDir();
         if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
@@ -67,7 +90,7 @@ final class PdfGenerator
         // kein Dokument zeigt. Harmlos: `pdf_path` wird erst nach
         // erfolgreichem Schreiben gesetzt, und ein zweiter Anlauf
         // überschreibt dieselbe Datei.
-        $written = @file_put_contents(dirname(__DIR__, 3) . '/' . $relativePath, $dompdf->output());
+        $written = @file_put_contents(dirname(__DIR__, 3) . '/' . $relativePath, $pdf);
         if ($written === false) {
             throw new RuntimeException('PDF-Datei konnte nicht gespeichert werden.');
         }
@@ -121,32 +144,6 @@ final class PdfGenerator
         $options->setIsHtml5ParserEnabled(true);
 
         return $options;
-    }
-
-    private function html(string $bodyHtml): string
-    {
-        $editorCss = PrintStyles::css();
-
-        return <<<HTML
-        <!DOCTYPE html>
-        <html lang="de">
-        <head>
-        <meta charset="utf-8">
-        <style>
-            @page { margin: 20mm 18mm; }
-            body { font-family: 'DejaVu Sans', sans-serif; font-size: 11pt; color: #1a1a1a; }
-            p { margin: 0 0 0.75em; }
-            table { border-collapse: collapse; width: 100%; margin: 0 0 0.75em; }
-            th, td { border: 1px solid #999999; padding: 0.35em 0.5em; vertical-align: top; }
-            th { background: #eeeeee; font-weight: bold; text-align: left; }
-        {$editorCss}
-        </style>
-        </head>
-        <body>
-        {$bodyHtml}
-        </body>
-        </html>
-        HTML;
     }
 
     private function documentsDir(): string

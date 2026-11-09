@@ -326,6 +326,43 @@ $router->post(
     [\App\Http\Controllers\Settings\EditorTemplateController::class, 'deactivate'],
     [new AuthMiddleware()],
 );
+$router->post(
+    '/settings/documents/editor-templates/images',
+    [\App\Http\Controllers\Settings\EditorTemplateController::class, 'uploadImage'],
+    [new AuthMiddleware()],
+);
+
+// Briefbögen: Ränder, Kopf- und Fußzeilen, die mehrere Vorlagen teilen.
+$router->get(
+    '/settings/documents/letterheads',
+    [\App\Http\Controllers\Settings\LetterheadController::class, 'index'],
+    $settingsAuth,
+);
+$router->get(
+    '/settings/documents/letterheads/create',
+    [\App\Http\Controllers\Settings\LetterheadController::class, 'createView'],
+    $settingsAuth,
+);
+$router->post(
+    '/settings/documents/letterheads/create',
+    [\App\Http\Controllers\Settings\LetterheadController::class, 'store'],
+    [new AuthMiddleware()],
+);
+$router->get(
+    '/settings/documents/letterheads/{id:\d+}',
+    [\App\Http\Controllers\Settings\LetterheadController::class, 'editView'],
+    $settingsAuth,
+);
+$router->post(
+    '/settings/documents/letterheads/{id:\d+}',
+    [\App\Http\Controllers\Settings\LetterheadController::class, 'update'],
+    [new AuthMiddleware()],
+);
+$router->post(
+    '/settings/documents/letterheads/{id:\d+}/delete',
+    [\App\Http\Controllers\Settings\LetterheadController::class, 'destroy'],
+    [new AuthMiddleware()],
+);
 
 // Dokumente aus dem Editor. Anlegen haengt am Mitarbeiter, alles Weitere
 // am Dokument selbst.
@@ -347,6 +384,11 @@ $router->get(
 $router->post(
     '/documents/{id:\d+}/save',
     [\App\Http\Controllers\EditorDocumentController::class, 'save'],
+    [new AuthMiddleware()],
+);
+$router->post(
+    '/documents/{id:\d+}/upgrade',
+    [\App\Http\Controllers\EditorDocumentController::class, 'upgrade'],
     [new AuthMiddleware()],
 );
 $router->post(

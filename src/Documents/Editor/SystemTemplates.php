@@ -4,24 +4,22 @@ declare(strict_types=1);
 
 namespace App\Documents\Editor;
 
+use EmergencyForge\Editor\Layout;
+
 /**
- * Die zehn Systemvorlagen, die ignis mitbringt, als ProseMirror-Dokumente
- * fuer den Editor.
+ * Die zehn Systemvorlagen, die ignis mitbringt, als Dokumentpakete.
  *
- * Der Wortlaut stammt woertlich aus den Twig-Vorlagen des alten
- * Canvas-Systems. Was der Editor nicht kann, faellt weg: der rote Rahmen,
- * das eingebettete Wappen und die am Seitenfuss festgenagelte Fussnote. Er
- * setzt fliessenden Text, keine absolut positionierten Kaesten.
+ * Der Wortlaut stammt aus den Twig-Vorlagen des alten Canvas-Systems.
+ * Urkunden und Zertifikate liegen quer, mit breitem Rand und ohne
+ * Textbereich: ausgefüllt werden nur die Felder im festen Text (der neue
+ * Dienstgrad einer Beförderung stand nie im Mitarbeiterdatensatz). Der
+ * Hinweis, der früher am Seitenfuß klebte, steht in der Fußzeile. Die
+ * Schreiben bleiben hochkant, der Grund ist ein Textbereich.
  *
- * Was die alten Vorlagen ueber Zusatzfelder geloest haben, sind hier
- * ausfuellbare Felder im gesperrten Text: der neue Dienstgrad einer
- * Befoerderung stand nie im Mitarbeiterdatensatz, er wird beim Ausstellen
- * eingetragen. Bei den Schreiben ist der Grund ein freier Abschnitt. Dort
- * schreibt der Aussteller Fliesstext, und nur dort.
- *
- * Die Migration `20260914000002_seed_editor_templates` legt sie an;
- * getestet werden sie ueber den Renderer, damit ein Tippfehler in der
- * Struktur nicht erst beim Ausstellen auffaellt.
+ * Nur frische Installationen bekommen sie
+ * (`20260914000002_seed_editor_templates`); bestehende Vorlagen stellt
+ * `20261109100001_editor_template_versions_letterheads` um, ohne sie zu
+ * überschreiben.
  */
 final class SystemTemplates
 {
@@ -45,10 +43,16 @@ final class SystemTemplates
         ['label' => 'Luftrettungspilot/-in', 'male' => 'Luftrettungspilot', 'female' => 'Luftrettungspilotin'],
     ];
 
+    private const CERTIFICATE_LAYOUT = [
+        'orientation'    => 'landscape',
+        'margins'        => ['top' => 25, 'right' => 35, 'bottom' => 30, 'left' => 35],
+        'footerDistance' => 10,
+    ];
+
     /**
-     * Name auf Kategorie und Abschnitte.
+     * Name auf Kategorie und Dokumentpaket.
      *
-     * @return array<string,array{category: string, sections: list<array<string,mixed>>}>
+     * @return array<string,array{category: string, content: array<string,mixed>}>
      */
     public static function all(): array
     {
@@ -58,30 +62,23 @@ final class SystemTemplates
     // ── Bausteine ─────────────────────────────────────────────────────
 
     /**
-     * @param  array<int,array<string,mixed>>  $content
+     * @param  list<array<string,mixed>>       $body
+     * @param  array<string,mixed>             $layout
+     * @param  list<array<string,mixed>>|null  $header
+     * @param  list<array<string,mixed>>|null  $footer
      * @return array<string,mixed>
      */
-    private function locked(array $content): array
+    private function package(array $body, array $layout, ?array $header = null, ?array $footer = null): array
     {
+        $doc = static fn (?array $content): ?array => $content === null ? null : ['type' => 'doc', 'content' => $content];
+
         return [
-            'type'    => 'docSection',
-            'attrs'   => ['mode' => 'locked', 'sectionId' => $this->uuid()],
-            'content' => $content,
+            'format' => 2,
+            'layout' => Layout::normalize($layout),
+            'body'   => $doc($body),
+            'header' => ['first' => null, 'rest' => $doc($header)],
+            'footer' => ['first' => null, 'rest' => $doc($footer)],
         ];
-    }
-
-    /**
-     * @param  array<int,array<string,mixed>>  $content
-     * @return array<string,mixed>
-     */
-    private function free(array $content, string $title = ''): array
-    {
-        $attrs = ['mode' => 'free', 'sectionId' => $this->uuid()];
-        if ($title !== '') {
-            $attrs['title'] = $title;
-        }
-
-        return ['type' => 'docSection', 'attrs' => $attrs, 'content' => $content];
     }
 
     /**
@@ -140,14 +137,16 @@ final class SystemTemplates
      * @param  string|null                $source   Auswahl aus den Stammdaten, siehe {@see FieldChoices}
      * @return array<string,mixed>
      */
-    private function f(string $id, string $label, bool $required = true, int $maxLength = 120, array $options = [], ?string $source = null): array
+    private function f(string $id, string $label, string $kind = 'line', array $options = [], ?string $source = null): array
     {
         $attrs = [
             'fieldId'   => $id,
             'label'     => $label,
-            'required'  => $required,
-            'maxLength' => $maxLength,
+            'kind'      => $kind,
+            'required'  => true,
+            'maxLength' => 120,
             'value'     => '',
+            'who'       => null,
         ];
         if ($options !== []) {
             $attrs['options'] = $options;
@@ -159,247 +158,234 @@ final class SystemTemplates
         return ['type' => 'docField', 'attrs' => $attrs];
     }
 
-    private function uuid(): string
-    {
-        $d    = random_bytes(16);
-        $d[6] = chr((ord($d[6]) & 0x0f) | 0x40);
-        $d[8] = chr((ord($d[8]) & 0x3f) | 0x80);
-        $h    = bin2hex($d);
-
-        return sprintf('%s-%s-%s-%s-%s', substr($h, 0, 8), substr($h, 8, 4), substr($h, 12, 4), substr($h, 16, 4), substr($h, 20, 12));
-    }
-
     /**
-     * Kopfzeile, die in allen zehn Vorlagen gleich aussieht.
+     * Pflicht-Textbereich für den Grund eines Schreibens.
      *
-     * @return list<array<string,mixed>>
+     * @return array<string,mixed>
      */
-    private function head(string $titel): array
+    private function reason(string $id, string $label): array
     {
         return [
-            $this->p([$this->v('organisation.art'), $this->t(' '), $this->v('organisation.stadt')], 'center'),
-            $this->h(1, [$this->t($titel)]),
+            'type'    => 'docInput',
+            'attrs'   => [
+                'inputId'     => $id,
+                'kind'        => 'text',
+                'label'       => $label,
+                'format'      => 'basic',
+                'start'       => 'empty',
+                'placeholder' => '',
+                'required'    => true,
+                'minLength'   => null,
+                'who'         => null,
+            ],
+            'content' => [$this->p()],
         ];
     }
 
     /**
-     * Abbinder mit Ort, Datum, Zeichen und Aussteller.
+     * Urkunde oder Zertifikat: Kopf, Text in der Mitte, Abbinder.
+     *
+     * @param  list<array<string,mixed>>  $middle
+     * @return array<string,mixed>
+     */
+    private function certificate(string $titel, array $middle): array
+    {
+        $body = array_merge(
+            [
+                $this->p([$this->v('organisation.art'), $this->t(' '), $this->v('organisation.stadt')], 'center'),
+                $this->h(1, [$this->t($titel)]),
+            ],
+            $middle,
+            [
+                $this->p(),
+                $this->p([
+                    $this->v('organisation.stadt'), $this->t(', den '), $this->v('datum'),
+                    $this->t(' · Zeichen: '), $this->v('dokument.kennung'),
+                ], 'center'),
+                $this->p([$this->v('aussteller.name'), $this->t(', '), $this->v('aussteller.dienstgrad')], 'center'),
+            ],
+        );
+
+        $footer = [
+            $this->p([$this->t('Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig.', ['italic'])], 'center'),
+            $this->p([
+                $this->t('Diese fiktive Urkunde ist lediglich für das Roleplay-Projekt „', ['italic']),
+                $this->v('organisation.name'),
+                $this->t('" ausgelegt. Der Besitz dieser Urkunde befugt in keinster Weise zum Führen einer echten Qualifikation.', ['italic']),
+            ], 'center'),
+        ];
+
+        return $this->package($body, self::CERTIFICATE_LAYOUT, null, $footer);
+    }
+
+    /**
+     * Schreiben: Absender im Kopf, Anschrift, Betreff, fester Text, Grund
+     * als Textbereich, Abbinder.
+     *
+     * @param  list<array<string,mixed>>  $text
+     * @return array<string,mixed>
+     */
+    private function letter(string $betreff, array $text, string $reasonLabel): array
+    {
+        $header = [
+            $this->p([$this->v('organisation.art'), $this->t(' '), $this->v('organisation.stadt')], 'right'),
+            $this->p([
+                $this->v('organisation.strasse'), $this->t(', '),
+                $this->v('organisation.plz'), $this->t(' '), $this->v('organisation.stadt'),
+            ], 'right'),
+        ];
+
+        $body = array_merge(
+            [
+                $this->p([$this->v('mitarbeiter.anrede'), $this->t(' '), $this->v('mitarbeiter.name')]),
+                $this->p([$this->v('organisation.plz'), $this->t(' '), $this->v('organisation.stadt')]),
+                $this->p(),
+                $this->p([$this->v('organisation.stadt'), $this->t(', den '), $this->v('datum')], 'right'),
+                $this->p([$this->t('Ihr Zeichen: ', ['bold']), $this->v('dokument.kennung')], 'right'),
+                $this->h(2, [$this->t($betreff)], null),
+                $this->p([
+                    $this->v('mitarbeiter.briefanrede'), $this->t(' '),
+                    $this->v('mitarbeiter.name'), $this->t(','),
+                ]),
+            ],
+            $text,
+            [
+                $this->reason('grund', $reasonLabel),
+                $this->p(),
+                $this->p([$this->v('aussteller.name')]),
+                $this->p([$this->v('aussteller.dienstgrad')]),
+            ],
+        );
+
+        $footer = [
+            $this->p([$this->t('Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig.', ['italic'])], 'center'),
+        ];
+
+        return $this->package($body, [], $header, $footer);
+    }
+
+    /**
+     * Name der Person, darunter ihr Geburtsdatum.
      *
      * @return list<array<string,mixed>>
      */
-    private function foot(bool $disclaimer): array
+    private function person(bool $geburtsdatum = true): array
     {
-        $nodes = [
-            $this->p(),
-            $this->p([$this->v('organisation.stadt'), $this->t(', den '), $this->v('datum')]),
-            $this->p([$this->t('Ihr Zeichen: ', ['bold']), $this->v('dokument.kennung')]),
-            $this->p(),
-            $this->p([$this->v('aussteller.name', )], null),
-            $this->p([$this->v('aussteller.dienstgrad')]),
-            $this->p([$this->t('Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig.', ['italic'])]),
-        ];
-
-        if ($disclaimer) {
-            $nodes[] = $this->p([$this->t(
-                'Diese fiktive Urkunde ist lediglich für das Roleplay-Projekt „' ,
-                ['italic'],
-            ), $this->v('organisation.name'), $this->t(
-                '" ausgelegt. Der Besitz dieser Urkunde befugt in keinster Weise zum Führen einer echten Qualifikation.',
-                ['italic'],
-            )]);
+        $nodes = [$this->p([$this->v('mitarbeiter.name')], 'center')];
+        if ($geburtsdatum) {
+            $nodes[] = $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center');
         }
 
         return $nodes;
     }
 
     /**
-     * Anschrift und Betreff der vier Schreiben.
-     *
-     * @return list<array<string,mixed>>
-     */
-    private function letterHead(string $betreff): array
-    {
-        return [
-            $this->p([$this->v('organisation.art'), $this->t(' '), $this->v('organisation.stadt')]),
-            $this->p([$this->v('organisation.strasse')]),
-            $this->p([$this->v('organisation.plz'), $this->t(' '), $this->v('organisation.stadt')]),
-            $this->p(),
-            $this->p([$this->v('mitarbeiter.anrede'), $this->t(' '), $this->v('mitarbeiter.name')]),
-            $this->p([$this->v('organisation.plz'), $this->t(' '), $this->v('organisation.stadt')]),
-            $this->p(),
-            $this->h(2, [$this->t($betreff)], null),
-            $this->p([
-                $this->v('mitarbeiter.briefanrede'), $this->t(' '),
-                $this->v('mitarbeiter.name'), $this->t(','),
-            ]),
-        ];
-    }
-
-    /**
-     * @return array<string,array{category: string, sections: list<array<string,mixed>>}>
+     * @return array<string,array{category: string, content: array<string,mixed>}>
      */
     private function templates(): array
     {
+        $stadt = [$this->t('Im Namen der Stadt '), $this->v('organisation.stadt')];
+
         return [
-            'Beförderungsurkunde' => ['category' => 'Urkunde', 'sections' => [
-                $this->locked(array_merge(
-                    $this->head('URKUNDE'),
-                    [
-                        $this->p([$this->t('Im Namen der Stadt '), $this->v('organisation.stadt')], 'center'),
-                        $this->p([$this->t('wird '), $this->v('mitarbeiter.anrede')], 'center'),
-                        $this->p([$this->v('mitarbeiter.name')], 'center'),
-                        $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
-                        $this->p([
-                            $this->t('mit sofortiger Wirkung befördert und '),
-                            $this->v('mitarbeiter.zum_zur'),
-                        ], 'center'),
-                        $this->p([$this->f('dienstgrad', 'Neuer Dienstgrad', source: FieldChoices::RANKS)], 'center'),
-                        $this->p([
-                            $this->t('der '), $this->v('organisation.art'), $this->t(' '),
-                            $this->v('organisation.stadt'), $this->t(' ernannt.'),
-                        ], 'center'),
-                    ],
-                    $this->foot(true),
-                )),
-            ]],
+            'Beförderungsurkunde' => ['category' => 'Urkunde', 'content' => $this->certificate('URKUNDE', [
+                $this->p($stadt, 'center'),
+                $this->p([$this->t('wird '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('mit sofortiger Wirkung befördert und '), $this->v('mitarbeiter.zum_zur')], 'center'),
+                $this->p([$this->f('dienstgrad', 'Neuer Dienstgrad', 'choice', source: FieldChoices::RANKS)], 'center'),
+                $this->p([
+                    $this->t('der '), $this->v('organisation.art'), $this->t(' '),
+                    $this->v('organisation.stadt'), $this->t(' ernannt.'),
+                ], 'center'),
+            ])],
 
-            'Ernennungsurkunde' => ['category' => 'Urkunde', 'sections' => [
-                $this->locked(array_merge(
-                    $this->head('URKUNDE'),
-                    [
-                        $this->p([$this->t('Im Namen der Stadt '), $this->v('organisation.stadt')], 'center'),
-                        $this->p([$this->t('wird '), $this->v('mitarbeiter.anrede')], 'center'),
-                        $this->p([$this->v('mitarbeiter.name')], 'center'),
-                        $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
-                        $this->p([$this->t('mit sofortiger Wirkung in das Beamtenverhältnis auf Widerruf berufen und im Dienstverhältnis als')], 'center'),
-                        $this->p([$this->f('dienstgrad', 'Dienstgrad', source: FieldChoices::RANKS)], 'center'),
-                        $this->p([
-                            $this->t('zum Beamten der '), $this->v('organisation.art'), $this->t(' '),
-                            $this->v('organisation.stadt'), $this->t(' ernannt.'),
-                        ], 'center'),
-                    ],
-                    $this->foot(true),
-                )),
-            ]],
+            'Ernennungsurkunde' => ['category' => 'Urkunde', 'content' => $this->certificate('URKUNDE', [
+                $this->p($stadt, 'center'),
+                $this->p([$this->t('wird '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('mit sofortiger Wirkung in das Beamtenverhältnis auf Widerruf berufen und im Dienstverhältnis als')], 'center'),
+                $this->p([$this->f('dienstgrad', 'Dienstgrad', 'choice', source: FieldChoices::RANKS)], 'center'),
+                $this->p([
+                    $this->t('zum Beamten der '), $this->v('organisation.art'), $this->t(' '),
+                    $this->v('organisation.stadt'), $this->t(' ernannt.'),
+                ], 'center'),
+            ])],
 
-            'Entlassungsurkunde' => ['category' => 'Urkunde', 'sections' => [
-                $this->locked(array_merge(
-                    $this->head('URKUNDE'),
-                    [
-                        $this->p([$this->t('Im Namen der Stadt '), $this->v('organisation.stadt')], 'center'),
-                        $this->p([$this->t('wird '), $this->v('mitarbeiter.anrede')], 'center'),
-                        $this->p([$this->v('mitarbeiter.name')], 'center'),
-                        $this->p([$this->t('auf eigenes Verlangen mit sofortiger Wirkung aus dem Beamtenverhältnis sowie aus dem Dienst entlassen.')], 'center'),
-                        $this->p([
-                            $this->t('Für '), $this->v('mitarbeiter.seine_ihre'),
-                            $this->t(' geleisteten Dienste sprechen wir '), $this->v('mitarbeiter.ihm_ihr'),
-                            $this->t(' Dank und Anerkennung aus.'),
-                        ], 'center'),
-                    ],
-                    $this->foot(true),
-                )),
-            ]],
+            'Entlassungsurkunde' => ['category' => 'Urkunde', 'content' => $this->certificate('URKUNDE', [
+                $this->p($stadt, 'center'),
+                $this->p([$this->t('wird '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(false),
+                $this->p([$this->t('auf eigenes Verlangen mit sofortiger Wirkung aus dem Beamtenverhältnis sowie aus dem Dienst entlassen.')], 'center'),
+                $this->p([
+                    $this->t('Für '), $this->v('mitarbeiter.seine_ihre'),
+                    $this->t(' geleisteten Dienste sprechen wir '), $this->v('mitarbeiter.ihm_ihr'),
+                    $this->t(' Dank und Anerkennung aus.'),
+                ], 'center'),
+            ])],
 
-            'Ausbildungszertifikat' => ['category' => 'Zertifikat', 'sections' => [
-                $this->locked(array_merge(
-                    $this->head('ZERTIFIKAT'),
-                    [
-                        $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
-                        $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
-                        $this->p([$this->v('mitarbeiter.name')], 'center'),
-                        $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
-                        $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
-                        $this->p([$this->f('qualifikation', 'Berufsbezeichnung', source: FieldChoices::AMB_SKILLS)], 'center'),
-                        $this->p([
-                            $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', true, 20),
-                            $this->t(' bestanden und somit die Genehmigung zum Führen der Qualifikation und oben genannter Berufsbezeichnung erworben hat.'),
-                        ], 'center'),
-                    ],
-                    $this->foot(true),
-                )),
-            ]],
+            'Ausbildungszertifikat' => ['category' => 'Zertifikat', 'content' => $this->certificate('ZERTIFIKAT', [
+                $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
+                $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
+                $this->p([$this->f('qualifikation', 'Berufsbezeichnung', 'choice', source: FieldChoices::AMB_SKILLS)], 'center'),
+                $this->p([
+                    $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', 'date'),
+                    $this->t(' bestanden und somit die Genehmigung zum Führen der Qualifikation und oben genannter Berufsbezeichnung erworben hat.'),
+                ], 'center'),
+            ])],
 
-            'Lehrgangszertifikat' => ['category' => 'Zertifikat', 'sections' => [
-                $this->locked(array_merge(
-                    $this->head('ZERTIFIKAT'),
-                    [
-                        $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
-                        $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
-                        $this->p([$this->v('mitarbeiter.name')], 'center'),
-                        $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
-                        $this->p([$this->t('den Lehrgang '), $this->v('mitarbeiter.zum_zur')], 'center'),
-                        $this->p([$this->f('qualifikation', 'Lehrgang', options: self::LEHRGAENGE)], 'center'),
-                        $this->p([
-                            $this->t('am '), $this->f('pruefungsdatum', 'Abschlussdatum', true, 20),
-                            $this->t(' erfolgreich absolviert hat.'),
-                        ], 'center'),
-                    ],
-                    $this->foot(true),
-                )),
-            ]],
+            'Lehrgangszertifikat' => ['category' => 'Zertifikat', 'content' => $this->certificate('ZERTIFIKAT', [
+                $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
+                $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('den Lehrgang '), $this->v('mitarbeiter.zum_zur')], 'center'),
+                $this->p([$this->f('qualifikation', 'Lehrgang', 'choice', self::LEHRGAENGE)], 'center'),
+                $this->p([
+                    $this->t('am '), $this->f('pruefungsdatum', 'Abschlussdatum', 'date'),
+                    $this->t(' erfolgreich absolviert hat.'),
+                ], 'center'),
+            ])],
 
-            'Lehrgangszertifikat Fachdienste' => ['category' => 'Zertifikat', 'sections' => [
-                $this->locked(array_merge(
-                    $this->head('ZERTIFIKAT'),
-                    [
-                        $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
-                        $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
-                        $this->p([$this->v('mitarbeiter.name')], 'center'),
-                        $this->p([$this->t('» geb. am '), $this->v('mitarbeiter.geburtsdatum'), $this->t(' «')], 'center'),
-                        $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
-                        $this->p([$this->f('qualifikation', 'Fachdienst-Qualifikation', options: self::FACHDIENSTE)], 'center'),
-                        $this->p([
-                            $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', true, 20),
-                            $this->t(' erfolgreich absolviert hat.'),
-                        ], 'center'),
-                    ],
-                    $this->foot(true),
-                )),
-            ]],
+            'Lehrgangszertifikat Fachdienste' => ['category' => 'Zertifikat', 'content' => $this->certificate('ZERTIFIKAT', [
+                $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
+                $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
+                $this->p([$this->f('qualifikation', 'Fachdienst-Qualifikation', 'choice', self::FACHDIENSTE)], 'center'),
+                $this->p([
+                    $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', 'date'),
+                    $this->t(' erfolgreich absolviert hat.'),
+                ], 'center'),
+            ])],
 
-            'Schriftliche Abmahnung' => ['category' => 'Schreiben', 'sections' => [
-                $this->locked(array_merge($this->letterHead('Schriftliche Abmahnung'), [
-                    $this->p([$this->t('hiermit werden Sie schriftlich bezüglich der unten genannten Vorfälle abgemahnt.')]),
-                    $this->p([$this->t('Sollten Sie weiterhin dienstlich auffällig werden, müssen Sie mit weiteren dienstrechtlichen Konsequenzen bis hin zur Dienstentfernung rechnen.')]),
-                    $this->p([$this->t('Der Grund der Abmahnung lautet:', ['bold'])]),
-                ])),
-                $this->free([$this->p()], 'Grund der Abmahnung'),
-                $this->locked($this->foot(false)),
-            ]],
+            'Schriftliche Abmahnung' => ['category' => 'Schreiben', 'content' => $this->letter('Schriftliche Abmahnung', [
+                $this->p([$this->t('hiermit werden Sie schriftlich bezüglich der unten genannten Vorfälle abgemahnt.')]),
+                $this->p([$this->t('Sollten Sie weiterhin dienstlich auffällig werden, müssen Sie mit weiteren dienstrechtlichen Konsequenzen bis hin zur Dienstentfernung rechnen.')]),
+                $this->p([$this->t('Der Grund der Abmahnung lautet:', ['bold'])]),
+            ], 'Grund der Abmahnung')],
 
-            'Vorläufige Dienstenthebung' => ['category' => 'Schreiben', 'sections' => [
-                $this->locked(array_merge($this->letterHead('Vorläufige Dienstenthebung'), [
-                    $this->p([$this->t('mit diesem Schreiben informieren wir Sie über Ihre vorläufige Dienstenthebung.')]),
-                    $this->p([
-                        $this->t('Ab sofort sind Sie '),
-                        $this->f('zeitraum', 'Zeitraum der Suspendierung', true, 80),
-                        $this->t(' suspendiert. In diesem Zeitraum sind Sie von Ihren dienstlichen Pflichten entbunden.'),
-                    ]),
-                    $this->p([$this->t('Der Grund der Suspendierung lautet:', ['bold'])]),
-                ])),
-                $this->free([$this->p()], 'Grund der Suspendierung'),
-                $this->locked($this->foot(false)),
-            ]],
+            'Vorläufige Dienstenthebung' => ['category' => 'Schreiben', 'content' => $this->letter('Vorläufige Dienstenthebung', [
+                $this->p([$this->t('mit diesem Schreiben informieren wir Sie über Ihre vorläufige Dienstenthebung.')]),
+                $this->p([
+                    $this->t('Ab sofort sind Sie '),
+                    $this->f('zeitraum', 'Zeitraum der Suspendierung'),
+                    $this->t(' suspendiert. In diesem Zeitraum sind Sie von Ihren dienstlichen Pflichten entbunden.'),
+                ]),
+                $this->p([$this->t('Der Grund der Suspendierung lautet:', ['bold'])]),
+            ], 'Grund der Suspendierung')],
 
-            'Dienstentfernung' => ['category' => 'Schreiben', 'sections' => [
-                $this->locked(array_merge($this->letterHead('Dienstentfernung'), [
-                    $this->p([$this->t('mit diesem Schreiben informieren wir Sie über Ihre Entfernung aus dem Beamtendienst.')]),
-                    $this->p([$this->t('Mit sofortiger Wirkung ist das Arbeits-/Beamtenverhältnis beendigt. Eine Wiedereinstellung ist ausgeschlossen.')]),
-                    $this->p([$this->t('Der Grund der Dienstentfernung lautet:', ['bold'])]),
-                ])),
-                $this->free([$this->p()], 'Grund der Dienstentfernung'),
-                $this->locked($this->foot(false)),
-            ]],
+            'Dienstentfernung' => ['category' => 'Schreiben', 'content' => $this->letter('Dienstentfernung', [
+                $this->p([$this->t('mit diesem Schreiben informieren wir Sie über Ihre Entfernung aus dem Beamtendienst.')]),
+                $this->p([$this->t('Mit sofortiger Wirkung ist das Arbeits-/Beamtenverhältnis beendigt. Eine Wiedereinstellung ist ausgeschlossen.')]),
+                $this->p([$this->t('Der Grund der Dienstentfernung lautet:', ['bold'])]),
+            ], 'Grund der Dienstentfernung')],
 
-            'Außerordentliche Kündigung' => ['category' => 'Schreiben', 'sections' => [
-                $this->locked(array_merge($this->letterHead('Außerordentliche Kündigung'), [
-                    $this->p([$this->t('mit diesem Schreiben informieren wir Sie über Ihre außerordentliche Kündigung.')]),
-                    $this->p([$this->t('Mit sofortiger Wirkung ist das Arbeitsverhältnis beendigt. Eine Wiedereinstellung ist ausgeschlossen.')]),
-                    $this->p([$this->t('Der Grund für die Kündigung lautet:', ['bold'])]),
-                ])),
-                $this->free([$this->p()], 'Grund der Kündigung'),
-                $this->locked($this->foot(false)),
-            ]],
+            'Außerordentliche Kündigung' => ['category' => 'Schreiben', 'content' => $this->letter('Außerordentliche Kündigung', [
+                $this->p([$this->t('mit diesem Schreiben informieren wir Sie über Ihre außerordentliche Kündigung.')]),
+                $this->p([$this->t('Mit sofortiger Wirkung ist das Arbeitsverhältnis beendigt. Eine Wiedereinstellung ist ausgeschlossen.')]),
+                $this->p([$this->t('Der Grund für die Kündigung lautet:', ['bold'])]),
+            ], 'Grund der Kündigung')],
         ];
     }
 }

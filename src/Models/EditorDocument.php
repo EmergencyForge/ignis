@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int                      $id
  * @property string                   $docid
  * @property int|null                 $template_id
+ * @property int|null                 $template_version_id
  * @property int                      $mitarbeiter_id
  * @property string                   $title
  * @property array<string,mixed>      $content
@@ -39,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon      $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read EditorTemplate|null $template
+ * @property-read EditorTemplateVersion|null $templateVersion
  * @property-read Personnel|null      $mitarbeiter
  */
 class EditorDocument extends Model
@@ -54,6 +56,7 @@ class EditorDocument extends Model
     protected $casts = [
         'id'             => 'integer',
         'template_id'    => 'integer',
+        'template_version_id' => 'integer',
         'mitarbeiter_id' => 'integer',
         'content'        => 'array',
         'frozen_values'  => 'array',
@@ -68,6 +71,17 @@ class EditorDocument extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(EditorTemplate::class, 'template_id', 'id');
+    }
+
+    /**
+     * Die Fassung, gegen die der Entwurf beim Speichern geprüft wird. Nie
+     * die aktuelle Vorlage: die kann seitdem geändert worden sein.
+     *
+     * @return BelongsTo<EditorTemplateVersion, $this>
+     */
+    public function templateVersion(): BelongsTo
+    {
+        return $this->belongsTo(EditorTemplateVersion::class, 'template_version_id', 'id');
     }
 
     /** @return BelongsTo<Personnel, $this> */

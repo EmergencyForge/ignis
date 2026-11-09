@@ -10,7 +10,9 @@ use Phinx\Migration\AbstractMigration;
  * steht in {@see SystemTemplates}, hier geht es nur ums Einspielen.
  *
  * Läuft nur einmal: Vorlagen mit demselben Namen bleiben unangetastet,
- * damit eine bearbeitete Fassung eine erneute Migration überlebt.
+ * damit eine bearbeitete Fassung eine erneute Migration überlebt. Auf einer
+ * frischen Installation sind es schon Dokumentpakete; die späteren
+ * Migrationen, die Abschnitte umbauen, lassen sie deshalb in Ruhe.
  */
 final class SeedEditorTemplates extends AbstractMigration
 {
@@ -28,7 +30,7 @@ final class SeedEditorTemplates extends AbstractMigration
                 'name'      => $name,
                 'category'  => $tpl['category'],
                 'content'   => json_encode(
-                    ['type' => 'doc', 'content' => $tpl['sections']],
+                    $tpl['content'],
                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
                 ),
                 'is_active' => 1,

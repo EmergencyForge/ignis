@@ -6,24 +6,25 @@ namespace Tests\Unit\Documents;
 
 use App\Documents\Editor\SystemTemplates;
 use App\Documents\Editor\VariableCatalog;
-use EmergencyForge\Editor\Renderer;
-use EmergencyForge\Editor\SectionGuard;
+use EmergencyForge\Editor\PackageGuard;
+use EmergencyForge\Editor\PageShell;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Die mitgelieferten Vorlagen müssen durch denselben Renderer gehen wie
- * jedes andere Dokument. Ein Tippfehler in der Struktur soll hier auffallen
- * und nicht erst, wenn jemand eine Urkunde ausstellen will.
- *
- * Geprüft wird dreierlei: der Renderer nimmt sie ohne Fehler an, jeder
- * benutzte Platzhalter steht auch im Katalog, und der SectionGuard hält die
- * Abschnitts-Kennungen für brauchbar. Ohne das ließe sich aus der Vorlage
- * kein Dokument speichern.
+ * Die mitgelieferten Vorlagen müssen durch denselben Guard und dieselbe
+ * Seitenhülle gehen wie jedes andere Dokumentpaket. Ein Tippfehler in der
+ * Struktur soll hier auffallen und nicht erst, wenn jemand eine Urkunde
+ * ausstellen will.
  */
 final class SystemTemplatesTest extends TestCase
 {
+    private const URKUNDEN = [
+        'Beförderungsurkunde', 'Ernennungsurkunde', 'Entlassungsurkunde',
+        'Ausbildungszertifikat', 'Lehrgangszertifikat', 'Lehrgangszertifikat Fachdienste',
+    ];
+
     /** @return iterable<string,array{string}> */
     public static function templateProvider(): iterable
     {
@@ -33,9 +34,9 @@ final class SystemTemplatesTest extends TestCase
     }
 
     /** @return array<string,mixed> */
-    private function doc(string $name): array
+    private function package(string $name): array
     {
-        return ['type' => 'doc', 'content' => SystemTemplates::all()[$name]['sections']];
+        return SystemTemplates::all()[$name]['content'];
     }
 
     #[Test]
@@ -57,31 +58,30 @@ final class SystemTemplatesTest extends TestCase
 
     #[Test]
     #[DataProvider('templateProvider')]
-    public function der_renderer_nimmt_die_vorlage_an(string $name): void
+    public function der_guard_nimmt_die_vorlage_an(string $name): void
+    {
+        (new PackageGuard())->assertValidTemplate($this->package($name));
+
+        $this->addToAssertionCount(1);
+    }
+
+    #[Test]
+    #[DataProvider('templateProvider')]
+    public function die_seitenhuelle_setzt_die_vorlage_ohne_warnung(string $name): void
     {
         // Alle Platzhalter mit einem Wert versorgen, damit die Warnungen
         // nur von der Struktur kommen können.
         $variables = array_map(static fn (string $label): string => 'X', VariableCatalog::catalog());
 
-        $result = (new Renderer())->render($this->doc($name), $variables);
+        $shell = PageShell::html($this->package($name), $variables);
 
-        $this->assertFalse($result->error, 'Renderer-Fehler in „' . $name . '"');
-        $this->assertNotSame('', $result->html);
-
+        $this->assertFalse($shell->error, 'Fehler in „' . $name . '"');
         $structural = array_filter(
-            $result->warnings,
-            static fn (string $w): bool => !str_starts_with($w, 'Pflichtfeld leer: '),
+            $shell->warnings,
+            static fn (string $w): bool => !str_contains($w, 'Pflichtfeld leer: '),
         );
         $this->assertSame([], array_values($structural), 'Warnungen in „' . $name . '"');
-    }
-
-    #[Test]
-    #[DataProvider('templateProvider')]
-    public function die_abschnitte_taugen_als_vorlage(string $name): void
-    {
-        (new SectionGuard())->assertUniqueSectionIds($this->doc($name));
-
-        $this->addToAssertionCount(1);
+        $this->assertSame(in_array($name, self::URKUNDEN, true) ? 'landscape' : 'portrait', $shell->orientation);
     }
 
     #[Test]
@@ -90,10 +90,10 @@ final class SystemTemplatesTest extends TestCase
     {
         $catalog = VariableCatalog::catalog();
         $unknown = [];
-        $doc     = $this->doc($name);
+        $package = $this->package($name);
 
         array_walk_recursive(
-            $doc,
+            $package,
             static function (mixed $value, string|int $key) use (&$unknown, $catalog): void {
                 // docVariable-Knoten tragen den Namen unter attrs.name.
                 if ($key === 'name' && is_string($value) && !isset($catalog[$value]) && str_contains($value, '.')) {
@@ -106,50 +106,27 @@ final class SystemTemplatesTest extends TestCase
     }
 
     /**
-     * Was der Aussteller je Vorlage beitraegt. Die Entlassungsurkunde
-     * steht bewusst ohne Eingabe da. Schon die Twig-Fassung kam ohne aus,
-     * alles darin steht im Mitarbeiterdatensatz.
-     *
-     * @return iterable<string,array{string,string}>
+     * Urkunden haben keinen Textbereich, nur Felder im festen Text; die
+     * Entlassungsurkunde nicht einmal das, alles darin steht im
+     * Mitarbeiterdatensatz. Schreiben haben einen Pflicht-Textbereich.
      */
-    public static function eingabeProvider(): iterable
-    {
-        $erwartet = [
-            'Beförderungsurkunde'             => 'field',
-            'Ernennungsurkunde'               => 'field',
-            'Entlassungsurkunde'              => 'nichts',
-            'Ausbildungszertifikat'           => 'field',
-            'Lehrgangszertifikat'             => 'field',
-            'Lehrgangszertifikat Fachdienste' => 'field',
-            'Schriftliche Abmahnung'          => 'free',
-            'Vorläufige Dienstenthebung'      => 'free',
-            'Dienstentfernung'                => 'free',
-            'Außerordentliche Kündigung'      => 'free',
-        ];
-
-        foreach ($erwartet as $name => $art) {
-            yield $name => [$name, $art];
-        }
-    }
-
     #[Test]
-    #[DataProvider('eingabeProvider')]
-    public function der_aussteller_traegt_genau_das_bei_was_vorgesehen_ist(string $name, string $art): void
+    #[DataProvider('templateProvider')]
+    public function der_aussteller_traegt_genau_das_bei_was_vorgesehen_ist(string $name): void
     {
-        $json = (string) json_encode(SystemTemplates::all()[$name]['sections'], JSON_UNESCAPED_UNICODE);
-
+        $json    = (string) json_encode($this->package($name), JSON_UNESCAPED_UNICODE);
         $hatFeld = str_contains($json, '"docField"');
-        $hatFrei = str_contains($json, '"mode":"free"');
+        $hatText = str_contains($json, '"docInput"');
 
-        match ($art) {
-            'field'  => $this->assertTrue($hatFeld, 'In „' . $name . '" fehlt das ausfuellbare Feld.'),
-            'free'   => $this->assertTrue($hatFrei, 'In „' . $name . '" fehlt der freie Abschnitt.'),
-            'nichts' => $this->assertFalse(
-                $hatFeld || $hatFrei,
-                '„' . $name . '" soll vollstaendig aus dem Datenbestand kommen.',
-            ),
-            default  => $this->fail('Unbekannte Erwartung: ' . $art),
-        };
+        if ($name === 'Entlassungsurkunde') {
+            $this->assertFalse($hatFeld || $hatText);
+        } elseif (in_array($name, self::URKUNDEN, true)) {
+            $this->assertTrue($hatFeld);
+            $this->assertFalse($hatText);
+        } else {
+            $this->assertTrue($hatText);
+            $this->assertStringContainsString('"required":true', $json);
+        }
     }
 
     /** @return iterable<string,array{string,list<array<string,string>>}> */
@@ -169,17 +146,15 @@ final class SystemTemplatesTest extends TestCase
     #[DataProvider('auswahlProvider')]
     public function der_lehrgang_kommt_aus_der_liste(string $name, array $liste): void
     {
-        $vorlage = $this->doc($name);
-        $feld    = $this->qualifikationsfeld($vorlage);
-        $this->assertSame($liste, $feld['attrs']['options'] ?? null);
+        $vorlage = $this->package($name);
+        $this->assertSame($liste, $this->qualifikationsfeld($vorlage['body'])['attrs']['options'] ?? null);
 
-        $wert    = $liste[0]['female'] ?? $liste[0]['label'];
-        $eingabe = $this->mitWert($vorlage, $wert);
-        $result  = (new SectionGuard())->restoreLockedSections($vorlage, $eingabe);
-        $this->assertSame($wert, $this->qualifikationsfeld($result->document)['attrs']['value']);
+        $wert   = $liste[0]['female'] ?? $liste[0]['label'];
+        $result = (new PackageGuard())->restore($vorlage, $this->mitWert($vorlage, $wert), $vorlage);
+        $this->assertSame($wert, $this->qualifikationsfeld($result->package['body'])['attrs']['value']);
 
-        $result = (new SectionGuard())->restoreLockedSections($vorlage, $this->mitWert($vorlage, 'Ehrenkommandant'));
-        $this->assertSame('', $this->qualifikationsfeld($result->document)['attrs']['value']);
+        $result = (new PackageGuard())->restore($vorlage, $this->mitWert($vorlage, 'Ehrenkommandant'), $vorlage);
+        $this->assertSame('', $this->qualifikationsfeld($result->package['body'])['attrs']['value'] ?? '');
     }
 
     /**
@@ -202,16 +177,31 @@ final class SystemTemplatesTest extends TestCase
     }
 
     /**
+     * @param  array<string,mixed> $package
+     * @return array<string,mixed>
+     */
+    private function mitWert(array $package, string $wert): array
+    {
+        $package['body'] = $this->setze($package['body'], $wert);
+
+        return $package;
+    }
+
+    /**
      * @param  array<string,mixed> $node
      * @return array<string,mixed>
      */
-    private function mitWert(array $node, string $wert): array
+    private function setze(array $node, string $wert): array
     {
         if (($node['type'] ?? null) === 'docField' && ($node['attrs']['fieldId'] ?? null) === 'qualifikation') {
             $node['attrs']['value'] = $wert;
+
+            return $node;
         }
         foreach ($node['content'] ?? [] as $i => $child) {
-            $node['content'][$i] = is_array($child) ? $this->mitWert($child, $wert) : $child;
+            if (is_array($child)) {
+                $node['content'][$i] = $this->setze($child, $wert);
+            }
         }
 
         return $node;

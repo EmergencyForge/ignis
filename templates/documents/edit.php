@@ -7,13 +7,15 @@
  *   @var array<string,string>       $variables   aufgelöste Werte
  *   @var array<string,string>       $catalog     Schlüssel auf Beschriftung
  *   @var array<string,string>       $missingReasons  warum ein Platzhalter leer bleibt
+ *   @var list<array{key: string, label: string}> $who  Rechte, die ein Feld verlangen kann
+ *   @var list<string>               $grants      welche davon die angemeldete Person hat
+ *   @var array{version: \App\Models\EditorTemplateVersion, lost: list<array{key: string, label: string}>}|null $upgrade
  *   @var string                     $saveAction
  *
  * Gespeichert wird per fetch, nicht als Formular mit Weiterleitung: ein
  * Seitenwechsel würde den Zustand des Editors verwerfen, und die Autosave
  * alle 30 Sekunden hätte dasselbe Problem. Der CSRF-Token liegt in einem
- * versteckten Feld, das `document-editor.js` nach jeder Antwort
- * nachzieht, denn der Token rotiert bei jeder Prüfung.
+ * versteckten Feld.
  *
  * Ausstellen ist dagegen ein eigenes, klassisches Formular: ein einmaliger,
  * folgenreicher Schritt, nach dem die Weiterleitung auf das PDF genau
@@ -21,15 +23,20 @@
  * Speichern-Feld übernommen. Zwei von Hand gepflegte Felder würden
  * auseinanderlaufen, sobald ein Autosave dazwischenkommt.
  *
- * Fehlt die Vorlage (gelöscht, Fremdschlüssel auf null), ist der Entwurf
- * schreibgeschützt: ohne Referenz kann der SectionGuard gesperrte
- * Abschnitte nicht zurückholen, und „gesperrt" wäre nur noch behauptet.
+ * Fehlt die Vorlagenfassung (Vorlage gelöscht, Fremdschlüssel auf null),
+ * ist der Entwurf schreibgeschützt: ohne Referenz kann der PackageGuard
+ * feste Teile nicht zurückholen, und „fest" wäre nur noch behauptet.
+ *
+ * `$upgrade` meldet eine neuere Fassung der Vorlage samt dem, was beim
+ * Umstellen verloren ginge. Die Liste geht als `lost` mit; weicht sie
+ * inzwischen ab, lehnt EditorDocumentController::upgrade() ab, damit
+ * niemand etwas verliert, das er nicht gesehen hat.
  */
 
 use App\Security\CsrfProtection;
 
 $csrfToken = CsrfProtection::getToken();
-$readOnly  = $document->template === null;
+$readOnly  = $document->templateVersion === null;
 $issueUrl  = BASE_PATH . 'documents/' . $document->id . '/issue';
 
 $contentJson = htmlspecialchars(
@@ -50,6 +57,9 @@ $reasonsJson = htmlspecialchars(
     json_encode($missingReasons, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
     ENT_QUOTES,
 );
+
+$whoJson    = htmlspecialchars(json_encode($who, JSON_UNESCAPED_UNICODE) ?: '[]', ENT_QUOTES);
+$grantsJson = htmlspecialchars(json_encode($grants) ?: '[]', ENT_QUOTES);
 
 // Auswahlfelder tragen die Form zum Geschlecht ein (0 männlich, 1 weiblich).
 $gender = match ($document->mitarbeiter?->geschlecht) {
@@ -83,8 +93,8 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     <p class="twplus-page-header__eyebrow">Dokumente</p>
                     <h1><?= htmlspecialchars($document->title) ?></h1>
                     <p class="twplus-page-header__description">
-                        Kennung <?= htmlspecialchars($document->docid) ?> (Entwurf). Gesperrte Abschnitte sind
-                        aus der Vorlage vorgegeben und lassen sich nicht ändern.
+                        Kennung <?= htmlspecialchars($document->docid) ?> (Entwurf). Ausfüllen lassen sich die
+                        markierten Felder und Bereiche, der übrige Text kommt aus der Vorlage.
                     </p>
                 </div>
             </div>
@@ -95,6 +105,41 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     <div class="ignis-alert__body">
                         <strong>Schreibgeschützt</strong><br>
                         Die Vorlage dieses Dokuments wurde gelöscht. Der Entwurf kann nicht mehr gespeichert werden.
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($upgrade !== null && !$readOnly): ?>
+                <?php
+                $lostText = implode(', ', array_map(
+                    static fn (array $entry): string => $entry['label'],
+                    $upgrade['lost'],
+                ));
+                $upgradeQuestion = 'Den Entwurf auf Fassung ' . $upgrade['version']->version . ' der Vorlage umstellen? '
+                    . ($upgrade['lost'] === [] ? 'Alle Einträge bleiben erhalten.' : 'Diese Einträge gehen verloren: ' . $lostText . '.');
+                $upgradeTokenCopy = "document.getElementById('document-upgrade-csrf-input').value = "
+                    . "document.getElementById('document-csrf-input').value; ";
+                ?>
+                <div class="ignis-alert ignis-alert--info mb-4" id="document-upgrade-notice">
+                    <i class="fa-solid fa-code-branch ignis-alert__icon" aria-hidden="true"></i>
+                    <div class="ignis-alert__body">
+                        <div class="ignis-alert__title">Die Vorlage wurde geändert</div>
+                        Dieser Entwurf nutzt Fassung <?= (int) $document->templateVersion->version ?>, aktuell ist
+                        Fassung <?= (int) $upgrade['version']->version ?>.
+                        <?= $upgrade['lost'] === []
+                            ? 'Beim Umstellen bleiben alle Einträge erhalten.'
+                            : 'Beim Umstellen gehen verloren: ' . htmlspecialchars($lostText) . '.' ?>
+                        <form id="document-upgrade-form" class="mt-2" method="POST"
+                              action="<?= htmlspecialchars(BASE_PATH . 'documents/' . $document->id . '/upgrade') ?>"
+                              onsubmit="<?= htmlspecialchars($upgradeTokenCopy, ENT_QUOTES) ?><?= confirm_attr($upgradeQuestion) ?>">
+                            <input type="hidden" name="csrf_token" id="document-upgrade-csrf-input"
+                                   value="<?= htmlspecialchars($csrfToken) ?>">
+                            <input type="hidden" name="lost"
+                                   value="<?= htmlspecialchars(implode(',', array_column($upgrade['lost'], 'key'))) ?>">
+                            <button type="submit" id="document-upgrade-button" class="ignis-btn ignis-btn--secondary ignis-btn--sm">
+                                Auf Fassung <?= (int) $upgrade['version']->version ?> umstellen
+                            </button>
+                        </form>
                     </div>
                 </div>
             <?php endif; ?>
@@ -124,27 +169,18 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                     </div>
                 </div>
 
-                <?php if (!$readOnly): ?>
-                    <!-- Was vor dem Ausstellen noch offen ist (document-editor.js):
-                         leere Pflichtfelder und Platzhalter ohne Wert, jeder Eintrag
-                         springt an seine Stelle. Ohne JS bleibt der Kasten leer, der
-                         Server prüft beim Ausstellen ohnehin. -->
-                    <div id="document-open-items" class="ignis-doc-review mb-4" aria-live="polite" hidden></div>
-                <?php endif; ?>
-
-                <div class="efe-frame mb-4">
-                    <div id="document-toolbar"></div>
-                    <div class="efe-surround">
-                        <div class="efe-page"
-                             id="document-editor-mount"
-                             data-efe-content="<?= $contentJson ?>"
-                             data-efe-variables="<?= $labelsJson ?>"
-                             data-efe-resolved="<?= $resolvedJson ?>"
-                             data-efe-missing-reasons="<?= $reasonsJson ?>"
-                             data-efe-gender="<?= $gender ?>"
-                             data-efe-readonly="<?= $readOnly ? '1' : '0' ?>"></div>
-                    </div>
-                </div>
+                <!-- Blatt mit Kopf- und Fußzeilen; was vor dem Ausstellen noch
+                     offen ist, zeigt der Eigenschaften-Bereich daneben. -->
+                <div class="mb-4"
+                     id="document-editor-mount"
+                     data-efe-content="<?= $contentJson ?>"
+                     data-efe-variables="<?= $labelsJson ?>"
+                     data-efe-resolved="<?= $resolvedJson ?>"
+                     data-efe-missing-reasons="<?= $reasonsJson ?>"
+                     data-efe-who="<?= $whoJson ?>"
+                     data-efe-grants="<?= $grantsJson ?>"
+                     data-efe-gender="<?= $gender ?>"
+                     data-efe-readonly="<?= $readOnly ? '1' : '0' ?>"></div>
             </form>
 
             <?php

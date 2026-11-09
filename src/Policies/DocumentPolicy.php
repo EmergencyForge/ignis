@@ -32,6 +32,28 @@ class DocumentPolicy
         return Permissions::check(['admin', 'personnel.documents.manage']);
     }
 
+    /**
+     * Rechte, die eine Vorlage für ein Feld oder einen Bereich verlangen kann
+     * („Wer füllt aus“), in der Form, die der Editor erwartet.
+     *
+     * @return list<array{key: string, label: string}>
+     */
+    public static function whoOptions(): array
+    {
+        $labels = (require dirname(__DIR__, 2) . '/config/permissions.php')['Personal'] ?? [];
+
+        return array_map(
+            static fn (string $key): array => ['key' => $key, 'label' => (string) ($labels[$key] ?? $key)],
+            ['personnel.documents.manage', 'personnel.documents.approve'],
+        );
+    }
+
+    /** Ob die angemeldete Person ein Feld mit diesem `who` ausfüllen darf. */
+    public static function mayFill(string $who): bool
+    {
+        return Permissions::check(['admin', $who]);
+    }
+
     public static function resetTemplate(mixed $context = null): bool
     {
         return Permissions::check(['admin']);
