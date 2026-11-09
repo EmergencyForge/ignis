@@ -38,6 +38,7 @@ class PluginLoader
         'logbook',
         'forms',
         'calendar',
+        'training',
     ];
 
     /**

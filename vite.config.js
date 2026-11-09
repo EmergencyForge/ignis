@@ -90,6 +90,8 @@ const uiPackageModules = [
     'hovercard', 'menu', 'otp', 'questionnaire', 'range', 'relative-time', 'resizable', 'ring', 'tour',
     // ui 1.1.0: Desktop-Hülle (efOS), nur auf templates/layouts/desk.php geladen
     'desk',
+    // ui 1.10.0: PDF-Betrachter der Ausbildung
+    'document-viewer',
 ];
 const uiProductFiles = {
     dialog:   'assets/js/ui/dialog-compat.js',
@@ -145,6 +147,10 @@ function publishStaticAssets() {
         ['assets/js',      'public/assets/js'],
         [resolve(editorDist, 'editor.iife.js'), 'public/assets/dist/editor.iife.js'],
         [resolve(editorDist, 'editor.css'),     'public/assets/dist/editor.css'],
+        // pdf.js für document-viewer.js als legacy-Build: die FiveM-NUI läuft
+        // auf Chromium 103, dem fehlt Promise.withResolvers.
+        ['node_modules/pdfjs-dist/legacy/build/pdf.min.mjs',        'public/assets/dist/pdfjs/pdf.min.mjs'],
+        ['node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs', 'public/assets/dist/pdfjs/pdf.worker.min.mjs'],
     ];
     const filter = (src) => {
         if (src === uiSourceDir || src.startsWith(uiSourceDir + sep)) return false;
