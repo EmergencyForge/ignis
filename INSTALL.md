@@ -370,7 +370,11 @@ Unter **Einstellungen › System-Konfiguration › Adresse und Anmeldung** legst
 
 ### Cronjob einrichten
 
-ignis hat Hintergrundaufgaben, zum Beispiel Discord-Webhooks und Benachrichtigungen aus der Warteschlange, die Ankündigungen von emergencyforge.de, die Prüfung auf Updates und das Aufräumen alter Dateien. Ohne weitere Einrichtung laufen sie nebenbei mit, wenn jemand eine Seite aufruft. Auf einer wenig besuchten Instanz passiert dann aber lange nichts. Besser ist einer dieser Wege:
+ignis hat Hintergrundaufgaben, zum Beispiel Discord-Webhooks und Benachrichtigungen aus der Warteschlange, die Ankündigungen von emergencyforge.de, die Prüfung auf Updates und das Aufräumen alter Dateien.
+
+Im Docker-Image ist nichts einzurichten: der Container ruft die Aufgaben selbst jede Minute auf. Wer das abschalten will, setzt `CRON_LOOP=0` in der Umgebung.
+
+Auf einem Webspace laufen sie ohne weitere Einrichtung nebenbei mit, wenn jemand eine Seite aufruft. Auf einer wenig besuchten Instanz passiert dann aber lange nichts. Besser ist einer dieser Wege:
 
 **Cronjob auf dem Server** (Weg B):
 
@@ -379,12 +383,6 @@ ignis hat Hintergrundaufgaben, zum Beispiel Discord-Webhooks und Benachrichtigun
 ```
 
 Der Cronjob sollte als Webserver-Benutzer laufen (zum Beispiel in der Crontab von `www-data`), sonst gehören neue Dateien `root`.
-
-**Docker:**
-
-```cron
-* * * * * cd /pfad/zu/ignis && docker compose -f docker-compose.prod.yml exec -T -u www-data app php cli/intra.php cron:tick > /dev/null 2>&1
-```
 
 **Cron-Dienst über das Web** (Webspace ohne Cronjobs): Lass einen Dienst wie cron-job.org jede Minute diese Adresse aufrufen:
 

@@ -87,5 +87,22 @@ if [ -n "$SYSTEM_URL" ]; then
       || echo "[entrypoint] WARNING: SYSTEM_URL konnte nicht gesetzt werden"
 fi
 
+# Cron tickt im Container jede volle Minute aus dieser Schleife. Der
+# Piggyback-Tick in public/index.php hielte unter mod_php die Antwort eines
+# Besuchers auf, solange die Jobs laufen; CRON_LOOP=1 schaltet ihn ab.
+# Als www-data, sonst gehören neue Dateien root. CRON_LOOP=0 lässt die
+# Schleife weg, dann tickt wieder der Piggyback.
+if [ "${CRON_LOOP:-1}" = "1" ]; then
+    export CRON_LOOP=1
+    (
+        while :; do
+            sleep $((60 - $(date +%s) % 60))
+            setpriv --reuid=www-data --regid=www-data --init-groups \
+                php /var/www/html/cli/intra.php cron:tick > /dev/null || true
+        done
+    ) &
+    echo "[entrypoint] Cron-Schleife gestartet"
+fi
+
 echo "[entrypoint] Starting Apache..."
 exec "$@"

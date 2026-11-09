@@ -132,12 +132,16 @@ try {
 
     $response->send();
 
-    // Piggyback-Cron — Response ist bereits geflusht, jetzt fällige Jobs
-    // abarbeiten. Eignung des Requests und der 60s-Deckel stecken in
-    // runIfDue(); fastcgi_finish_request() trennt vorher die Verbindung,
-    // damit der Besucher nicht auf den Tick wartet.
-    $tick = app(\EmergencyForge\Cron\CronTickMiddleware::class);
-    if ($tick->isEligible($request)) {
+    // Piggyback-Cron: die Antwort ist raus, jetzt fällige Jobs abarbeiten.
+    // Eignung des Requests und der 60s-Deckel stecken in runIfDue().
+    // fastcgi_finish_request() trennt unter FPM vorher die Verbindung, unter
+    // mod_php wartet der Besucher den Tick ab. Die Session wird vorher
+    // geschlossen, sonst warten alle weiteren Requests desselben Nutzers
+    // (andere Tabs, Polls) auf das Ende des Ticks. Im Container tickt statt
+    // dessen die Schleife aus docker/entrypoint.sh.
+    $tick = getenv('CRON_LOOP') === '1' ? null : app(\EmergencyForge\Cron\CronTickMiddleware::class);
+    if ($tick !== null && $tick->isEligible($request)) {
+        session_write_close();
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
