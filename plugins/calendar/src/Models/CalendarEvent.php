@@ -32,7 +32,7 @@ use Illuminate\Support\Carbon;
  * @property string         $color
  * @property string         $category
  * @property string         $visibility           'private'|'attendees'|'role'|'all'
- * @property string         $source               'manual'|'antrag'
+ * @property string         $source               'manual'|'antrag'|'training'
  * @property int|null       $source_ref_id
  * @property int            $created_by
  * @property string|null    $recurrence_rule
@@ -63,6 +63,7 @@ class CalendarEvent extends EloquentModel
 
     public const SOURCE_MANUAL = 'manual';
     public const SOURCE_ANTRAG = 'antrag';
+    public const SOURCE_TRAINING = 'training';
 
     /**
      * Kategorie-Tokens: UI-Farbgebung + Filter-Auswahl haengen daran.
