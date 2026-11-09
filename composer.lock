@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "097d487bc8452d5c61135ff048eef659",
+    "content-hash": "f97b6db903fae703f07e7143e219f886",
     "packages": [
         {
             "name": "brick/math",
@@ -1057,12 +1057,52 @@
             }
         },
         {
+            "name": "emergencyforge/training",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/training",
+                "reference": "1c2e7acf4e6f81ae19812a9cff04d6a4aba83529"
+            },
+            "require": {
+                "emergencyforge/fuzzy-search": "^0.1",
+                "ext-fileinfo": "*",
+                "ext-mbstring": "*",
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "suggest": {
+                "ext-zip": "Erkennt PPTX, DOCX und XLSX; ohne die Erweiterung werden sie abgelehnt."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\Training\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\Training\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Ausbildung und Lehrgänge für Lex und ignis: Status, Fragen und ihre Bewertung, Prüfungsziehung, Versuche, Notenschlüssel, Fortschritt und Dateiprüfung, ohne Datenbank.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "emergencyforge/ui-php",
-            "version": "1.9.10",
+            "version": "1.10.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "811bf8e3c0cde46ffc2353ad39f48759d35b5a9c"
+                "reference": "c03523ab8481dafcbcec6d039a62cc5c6f820b68"
             },
             "require": {
                 "php": ">=8.3"
@@ -7847,15 +7887,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

@@ -128,6 +128,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
      *   server?: array<string,string>,
      *   cookies?: array<string,string>,
      *   files?: array<string,mixed>,
+     *   body?: string,
      *   session?: array<string,mixed>,
      * } $opts
      */
@@ -156,6 +157,7 @@ abstract class FeatureTestCase extends IntegrationTestCase
             server:  $server,
             cookies: $opts['cookies'] ?? [],
             files:   $opts['files'] ?? [],
+            rawBody: $opts['body'] ?? null,
         );
 
         // Output-Buffer einschalten. Legacy-Controller rufen teilweise

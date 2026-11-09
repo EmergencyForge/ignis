@@ -36,6 +36,7 @@ final class ModuleSelection
         'calendar'       => ['Verwaltung', 'Termine und Dienste; genehmigter Urlaub erscheint als Abwesenheit.'],
         'mail'           => ['Verwaltung', 'Internes Mailsystem mit Postfächern für Mitarbeiter und Gruppen.'],
         'knowledge-base' => ['Verwaltung', 'Lexikon mit Artikeln, Kategorien und Schlagworten.'],
+        'training'       => ['Verwaltung', 'Lehrgänge mit Unterlagen, Fortschritt, Terminen und Anwesenheit.'],
     ];
 
     public function __construct(
