@@ -63,13 +63,14 @@ class KbSanitizeContentTest extends TestCase
     }
 
     #[Test]
-    public function benanntes_colon_bleibt_harmloser_relativer_link(): void
+    public function benanntes_colon_ergibt_keinen_javascript_link(): void
     {
-        // libxml kennt &colon; nicht. Der Wert geht escaped raus, der Browser
-        // sieht wieder "javascript&colon;..." ohne Doppelpunkt, also ein relatives Ziel.
-        $this->assertSame(
-            '<a href="javascript&amp;colon;alert(1)">x</a>',
-            KBHelper::sanitizeContent('<a href="javascript&colon;alert(1)">x</a>')
+        // Ältere libxml kennen &colon; nicht: der Wert geht escaped raus und
+        // bleibt ein relatives Ziel. Neuere mit HTML5-Parser machen daraus
+        // "javascript:" und der Link entfällt. Beides ist harmlos.
+        $this->assertContains(
+            KBHelper::sanitizeContent('<a href="javascript&colon;alert(1)">x</a>'),
+            ['<a href="javascript&amp;colon;alert(1)">x</a>', 'x']
         );
     }
 
