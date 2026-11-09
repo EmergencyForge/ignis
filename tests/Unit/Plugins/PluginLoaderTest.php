@@ -256,5 +256,15 @@ class PluginLoaderTest extends TestCase
         $this->assertSame([], $loader->mergeConsoleCommands([]));
         $this->assertSame([], $loader->mergePermissionGroups([]));
         $this->assertSame([], $loader->routeFiles());
+        $this->assertSame([], $loader->profileCards());
+    }
+
+    #[Test]
+    public function profile_cards_come_sorted_and_only_if_the_partial_exists(): void
+    {
+        $cards = $this->loaderWith([$this->goodPlugin()])->profileCards();
+
+        $this->assertSame(['profile-early.php', 'profile-late.php'], array_map('basename', $cards));
+        $this->assertFileExists($cards[0]);
     }
 }

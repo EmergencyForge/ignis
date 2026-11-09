@@ -514,6 +514,36 @@ class PluginLoader
     }
 
     /**
+     * Karten aktiver Plugins für das Mitarbeiterprofil. Ein Plugin liefert
+     * in profile.php eine Liste ['partial' => Pfad im Plugin, 'order' => int];
+     * das Profil bindet die Partials nach den Dokumenten ein, kleinere
+     * order zuerst. Die Partials sehen dieselben Variablen wie
+     * templates/personnel/profile.php, vor allem $mitarbeiter und $row.
+     *
+     * @return list<string> absolute Pfade der Partials
+     */
+    public function profileCards(): array
+    {
+        $cards = [];
+        foreach ($this->active() as $plugin) {
+            $file = $plugin->path('profile.php');
+            if ($file === null) {
+                continue;
+            }
+            $fragment = require $file;
+            foreach (is_array($fragment) ? $fragment : [] as $card) {
+                $partial = is_array($card) && is_string($card['partial'] ?? null) ? $plugin->path($card['partial']) : null;
+                if ($partial !== null) {
+                    $cards[] = ['partial' => $partial, 'order' => (int) ($card['order'] ?? 0)];
+                }
+            }
+        }
+        usort($cards, static fn (array $a, array $b): int => $a['order'] <=> $b['order']);
+
+        return array_column($cards, 'partial');
+    }
+
+    /**
      * Kompilierte CSS-/JS-Dateien aktiver Plugins. Plugins liefern diese
      * Dateien fertig gebaut aus; ignis führt keinen Build zur Laufzeit aus.
      *

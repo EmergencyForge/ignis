@@ -11,14 +11,13 @@ use App\Exceptions\UploadException;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Personnel\UpdateProfileRequest;
 use App\Logging\Logger;
-use App\Models\AmbSkill;
-use App\Models\FdSkill;
 use App\Models\Personnel;
 use App\Models\PersonnelTitle;
 use App\Models\Rank;
 use App\Models\RegistrationCode;
 use App\Personnel\AccountLink;
 use App\Personnel\PersonalLogManager;
+use App\Personnel\PersonnelQualifications;
 use App\Support\FileUpload;
 use App\Utils\AuditLogger;
 use DateTime;
@@ -292,23 +291,11 @@ final class PersonnelController
                 $changes[] = 'dienstgrad';
             }
 
-            // RD-Quali-Change
-            if ((int) $current['qualird'] !== $qualird) {
-                Capsule::table('intra_mitarbeiter')->where('id', $id)->update(['qualird' => $qualird]);
-
-                $oldQName = AmbSkill::query()->where('id', (int) $current['qualird'])->value('name');
-                $newQName = AmbSkill::query()->where('id', $qualird)->value('name');
-                $logManager->logQualificationChange($id, 'RD', $oldQName, $newQName, $edituser);
+            $qualifications = new PersonnelQualifications($logManager);
+            if ($qualifications->set($id, PersonnelQualifications::AREA_RD, $qualird, $edituser)) {
                 $changes[] = 'qualird';
             }
-
-            // FW-Quali-Change
-            if ((int) $current['qualifw2'] !== $qualifw2) {
-                Capsule::table('intra_mitarbeiter')->where('id', $id)->update(['qualifw2' => $qualifw2]);
-
-                $oldQName = FdSkill::query()->where('id', (int) $current['qualifw2'])->value('name');
-                $newQName = FdSkill::query()->where('id', $qualifw2)->value('name');
-                $logManager->logQualificationChange($id, 'FW', $oldQName, $newQName, $edituser);
+            if ($qualifications->set($id, PersonnelQualifications::AREA_FW, $qualifw2, $edituser)) {
                 $changes[] = 'qualifw2';
             }
 

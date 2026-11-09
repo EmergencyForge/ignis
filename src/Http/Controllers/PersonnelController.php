@@ -24,6 +24,8 @@ use App\Models\User;
 use App\Notifications\NotificationManager;
 use App\Personnel\AccountLink;
 use App\Personnel\PersonalLogManager;
+use App\Personnel\PersonnelQualifications;
+use App\Plugins\PluginLoader;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use EmergencyForge\Http\Exceptions\ValidationException;
@@ -338,6 +340,7 @@ class PersonnelController extends Controller
             'openedID'          => $openedID,
             'editdg'            => $editdg,
             'edituseric'        => $edituseric,
+            'pluginCards'       => app(PluginLoader::class)->profileCards(),
         ]);
     }
 
@@ -387,21 +390,11 @@ class PersonnelController extends Controller
             $mitarbeiter->dienstgrad = $data['dienstgrad'];
         }
 
-        // RD-Quali-Wechsel logging
-        if ($mitarbeiter->qualird !== $data['qualird']) {
-            $oldName = AmbSkill::find($mitarbeiter->qualird)->name ?? '?';
-            $newName = AmbSkill::find($data['qualird'])->name ?? '?';
-            $logManager->logQualificationChange($mitarbeiter->id, 'RD', $oldName, $newName, $edituser);
-            $mitarbeiter->qualird = $data['qualird'];
-        }
-
-        // FW-Quali-Wechsel logging
-        if ($mitarbeiter->qualifw2 !== $data['qualifw2']) {
-            $oldName = FdSkill::find($mitarbeiter->qualifw2)->name ?? '?';
-            $newName = FdSkill::find($data['qualifw2'])->name ?? '?';
-            $logManager->logQualificationChange($mitarbeiter->id, 'FW', $oldName, $newName, $edituser);
-            $mitarbeiter->qualifw2 = $data['qualifw2'];
-        }
+        // Schreibt direkt in die Tabelle. Das Model bleibt dabei unberührt,
+        // save() unten überschreibt die Stufen deshalb nicht.
+        $qualifications = new PersonnelQualifications($logManager);
+        $qualifications->set((int) $mitarbeiter->id, PersonnelQualifications::AREA_RD, $data['qualird'], $edituser);
+        $qualifications->set((int) $mitarbeiter->id, PersonnelQualifications::AREA_FW, $data['qualifw2'], $edituser);
 
         // Generische Datenänderung erkennen: wenn irgendetwas anderes anders
         // ist, wird ein "Profil bearbeitet"-Eintrag geschrieben.
@@ -456,23 +449,13 @@ class PersonnelController extends Controller
             $this->redirect('personnel/list');
         }
 
-        /** @var Personnel|null $mitarbeiter */
-        $mitarbeiter = Personnel::find($id);
-        if ($mitarbeiter === null) {
+        if (Personnel::find($id) === null) {
             $this->redirect('personnel/list');
         }
 
-        $fachdiensteJson = json_encode($data['fachdienste']);
-
-        if ($mitarbeiter->fachdienste !== $fachdiensteJson) {
-            $mitarbeiter->fachdienste = $fachdiensteJson;
-            $mitarbeiter->save();
-
-            $userHelper = new UserHelper();
-            (new PersonalLogManager())->logDepartmentModification(
-                $id,
-                $userHelper->getCurrentUserFullnameForAction()
-            );
+        $editor = (new UserHelper())->getCurrentUserFullnameForAction();
+        if ((new PersonnelQualifications())->setDepartments($id, $data['fachdienste'], $editor)) {
+            app(\App\Events\EventDispatcher::class)->fire(new \App\Events\PersonnelSaved($id));
         }
 
         $this->redirect('personnel/profile?id=' . $id);
