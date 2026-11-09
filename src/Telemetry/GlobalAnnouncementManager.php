@@ -17,6 +17,13 @@ class GlobalAnnouncementManager
 
     public const CACHE_DURATION = 3600; // 1 Stunde
 
+    /**
+     * Zeitpunkt des letzten Abrufversuchs. Nicht aus fetched_at im Cache
+     * ableiten: liefert der Hub nichts oder ist er weg, bleibt die Tabelle
+     * leer und jeder Seitenaufruf löst einen neuen Abruf aus.
+     */
+    private const LAST_FETCH_KEY = 'ANNOUNCEMENTS_LAST_FETCH';
+
     public function __construct()
     {
         $this->config = new ConfigManager();
@@ -145,18 +152,10 @@ class GlobalAnnouncementManager
      */
     public function isCacheStale(): bool
     {
-        try {
-            $lastFetchValue = Capsule::table('intra_global_announcements_cache')->max('fetched_at');
+        $lastFetch = $this->config->get(self::LAST_FETCH_KEY);
 
-            if (!$lastFetchValue) {
-                return true;
-            }
-
-            $lastFetch = strtotime($lastFetchValue);
-            return (time() - $lastFetch) >= self::CACHE_DURATION;
-        } catch (\PDOException $e) {
-            return false;
-        }
+        return !is_string($lastFetch)
+            || (time() - (int) strtotime($lastFetch)) >= self::CACHE_DURATION;
     }
 
     /**
@@ -164,20 +163,8 @@ class GlobalAnnouncementManager
      */
     private function refreshCacheIfNeeded(): void
     {
-        try {
-            $lastFetchValue = Capsule::table('intra_global_announcements_cache')->max('fetched_at');
-
-            if (!$lastFetchValue) {
-                $this->refreshCache();
-                return;
-            }
-
-            $lastFetch = strtotime($lastFetchValue);
-            if ((time() - $lastFetch) >= self::CACHE_DURATION) {
-                $this->refreshCache();
-            }
-        } catch (\PDOException $e) {
-            \App\Logging\Logger::warning("Cache check failed: " . $e->getMessage());
+        if ($this->isCacheStale()) {
+            $this->refreshCache();
         }
     }
 
@@ -188,6 +175,9 @@ class GlobalAnnouncementManager
      */
     public function refreshCache(): array
     {
+        // Vor dem Abruf, damit auch Fehlschläge eine Stunde Ruhe geben.
+        $this->markFetched();
+
         $hubUrl = $this->getHubUrl();
         $endpoint = rtrim($hubUrl, '/') . '/api/hub-announcements.php';
 
@@ -256,6 +246,27 @@ class GlobalAnnouncementManager
             ];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Fehler: ' . $e->getMessage()];
+        }
+    }
+
+    private function markFetched(): void
+    {
+        try {
+            Capsule::table('intra_config')->upsert(
+                [[
+                    'config_key'    => self::LAST_FETCH_KEY,
+                    'config_value'  => date('c'),
+                    'config_type'   => 'string',
+                    'category'      => 'telemetrie',
+                    'description'   => 'Letzter Abruf der Hub-Ankündigungen',
+                    'is_editable'   => 0,
+                    'display_order' => 3,
+                ]],
+                ['config_key'],
+                ['config_value']
+            );
+        } catch (\PDOException $e) {
+            \App\Logging\Logger::warning('Abrufzeit der Ankündigungen nicht gespeichert: ' . $e->getMessage());
         }
     }
 
