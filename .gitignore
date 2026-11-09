@@ -22,7 +22,8 @@ skills-lock.json
 .vscode
 .idea
 .qodo
-.claude
+.claude/*
+!.claude/settings.json
 .agents
 .augment
 .codebuddy

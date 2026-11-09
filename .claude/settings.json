@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "floorplan": {
+      "source": {
+        "source": "github",
+        "repo": "haydenschmitty/floorplan"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "floorplan@floorplan": true
+  }
+}
