@@ -368,7 +368,8 @@ final class EditorDocumentTest extends FeatureTestCase
         [$document, $content] = $this->draftWithRankField();
 
         $this->assertSame('Brandmeisterin', $this->saveRank($document, $content, 'Brandmeisterin'));
-        $this->assertSame('', $this->saveRank($document, $content, 'Gefälscht'));
+        // Ein Wert außerhalb der Liste kommt nicht an, der gespeicherte bleibt.
+        $this->assertSame('Brandmeisterin', $this->saveRank($document, $content, 'Gefälscht'));
     }
 
     #[Test]
