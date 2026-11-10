@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -207,24 +206,26 @@ final class MciFormsTest extends FeatureTestCase
     }
 
     #[Test]
-    #[DataProvider('schnellsichtung')]
-    public function schnellsichtung_per_link(string $param): void
+    public function schnellsichtung_nur_per_post(): void
     {
         $lageId    = $this->lage();
         $patientId = (int) Capsule::table('intra_manv_patienten')->insertGetId([
             'manv_lage_id' => $lageId, 'patienten_nummer' => 'P-07', 'sichtungskategorie' => 'SK3', 'erstellt_von' => $this->userId,
         ]);
+        $kategorie = static fn (): string => (string) Capsule::table('intra_manv_patienten')->where('id', $patientId)->value('sichtungskategorie');
 
-        $response = $this->get('/mci/patient-view', ['query' => ['id' => (string) $patientId, $param => 'SK1']]);
+        $view = $this->get('/mci/patient-view', ['query' => ['id' => (string) $patientId, 'quick_sk' => 'SK1']]);
+        $this->assertOk($view);
+        $this->assertSame('SK3', $kategorie(), 'ein Link ändert nichts');
+        $this->assertBodyContains('<form method="post" action="/mci/patient-triage"', $view);
 
+        $this->assertRedirect($this->post('/mci/patient-triage', ['id' => (string) $patientId, 'category' => 'SK7']), '/mci/patient-view?id=' . $patientId);
+        $this->assertSame('SK3', $kategorie());
+
+        $response = $this->post('/mci/patient-triage', ['id' => (string) $patientId, 'category' => 'SK1']);
         $this->assertRedirect($response, '/mci/patient-view?id=' . $patientId);
-        $this->assertSame('SK1', Capsule::table('intra_manv_patienten')->where('id', $patientId)->value('sichtungskategorie'));
-    }
-
-    /** @return array<string, array{string}> */
-    public static function schnellsichtung(): array
-    {
-        return ['neu' => ['quick_triage'], 'alt' => ['quick_sk']];
+        $this->assertSame('SK1', $kategorie());
+        $this->assertTrue(Capsule::table('intra_manv_log')->where('manv_lage_id', $lageId)->where('aktion', 'sichtung_geaendert')->exists());
     }
 
     #[Test]

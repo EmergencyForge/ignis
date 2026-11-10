@@ -463,8 +463,6 @@ class MciController extends Controller
 
     /**
      * GET /mci/patient-view?id=X: Patient-Detail.
-     * Quick-Sichtung via `?quick_triage=SK1` etc. wird auch hier behandelt
-     * (Original-Verhalten 1:1).
      */
     public function patientView(): void
     {
@@ -478,28 +476,10 @@ class MciController extends Controller
 
         $manvPatient = new MANVPatient();
         $manvLage    = new MANVLage();
-        $manvLog     = new MANVLog();
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
             $this->redirect('mci/index');
-        }
-
-        // Quick-Sichtung via GET: schreibt Sichtung sofort, redirect auf saubere URL
-        $allowedSk = ['SK1', 'SK2', 'SK3', 'SK4', 'SK5', 'SK6', 'tot'];
-        $quickTriage = $_GET['quick_triage'] ?? $_GET['quick_sk'] ?? null;
-        if (in_array($quickTriage, $allowedSk, true)) {
-            $manvPatient->updateSichtung($patientId, $quickTriage, $_SESSION['userid'] ?? null);
-            $manvLog->log(
-                (int) $patient['manv_lage_id'],
-                'sichtung_geaendert',
-                'Sichtungskategorie geändert zu ' . $quickTriage,
-                $_SESSION['userid'] ?? null,
-                $_SESSION['username'] ?? null,
-                'patient',
-                $patientId
-            );
-            $this->redirect('mci/patient-view?id=' . $patientId);
         }
 
         $lage                   = $manvLage->getById((int) $patient['manv_lage_id']);
@@ -521,6 +501,41 @@ class MciController extends Controller
      * POST /mci/patient-view?id=X: Patient aktualisieren.
      * Sichtungskategorie wird separat geloggt wenn sie sich ändert.
      */
+    /**
+     * POST /mci/patient-triage: Schnell-Sichtung. Bewusst kein GET-Link: den
+     * löst schon ein vorgeladener Link oder ein eingebettetes Bild aus, und
+     * die CSRF-Prüfung greift nur bei schreibenden Methoden.
+     */
+    public function patientTriage(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mci.update', redirectTo: 'index');
+
+        $patientId = (int) ($_POST['id'] ?? 0);
+        $category  = (string) ($_POST['category'] ?? '');
+        $manvPatient = new MANVPatient();
+        $patient     = $patientId > 0 ? $manvPatient->getById($patientId) : null;
+        if ($patient === null) {
+            $this->redirect('mci/index');
+        }
+        if (!in_array($category, ['SK1', 'SK2', 'SK3', 'SK4', 'SK5', 'SK6', 'tot'], true)) {
+            Flash::error('Ungültige Sichtungskategorie.');
+            $this->redirect('mci/patient-view?id=' . $patientId);
+        }
+
+        $manvPatient->updateSichtung($patientId, $category, $_SESSION['userid'] ?? null);
+        (new MANVLog())->log(
+            (int) $patient['manv_lage_id'],
+            'sichtung_geaendert',
+            'Sichtungskategorie geändert zu ' . $category,
+            $_SESSION['userid'] ?? null,
+            $_SESSION['username'] ?? null,
+            'patient',
+            $patientId
+        );
+        $this->redirect('mci/patient-view?id=' . $patientId);
+    }
+
     public function patientUpdate(): void
     {
         $this->requireAuth();
