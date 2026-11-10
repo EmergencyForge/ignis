@@ -49,14 +49,16 @@ final class EnotfVehicleOutOfServiceTest extends FeatureTestCase
     {
         Capsule::table('intra_fahrzeuge')->where('id', $this->vehicle['id'])->update(['active' => 0]);
 
-        $this->assertRedirect($this->get('/enotf/vehicle-info'), '/enotf/loggedout?grund=ausser-dienst');
+        $this->assertRedirect($this->get('/enotf/vehicle-info'), '/enotf/loggedout?reason=ausser-dienst');
         $this->assertFalse(SessionManager::isEnotfActive());
         $this->assertFalse(Capsule::table('intra_enotf_sessions')
             ->where('vehicle_identifier', $this->vehicle['identifier'])->where('active', 1)->exists());
 
-        $hinweis = $this->get('/enotf/loggedout', ['query' => ['grund' => 'ausser-dienst']]);
-        $this->assertOk($hinweis);
-        $this->assertBodyContains('Das Fahrzeug ist außer Dienst', $hinweis);
-        $this->assertBodyNotContains('Sie sind nicht angemeldet!', $hinweis);
+        foreach (['reason', 'grund'] as $param) {
+            $hinweis = $this->get('/enotf/loggedout', ['query' => [$param => 'ausser-dienst']]);
+            $this->assertOk($hinweis);
+            $this->assertBodyContains('Das Fahrzeug ist außer Dienst', $hinweis);
+            $this->assertBodyNotContains('Sie sind nicht angemeldet!', $hinweis);
+        }
     }
 }

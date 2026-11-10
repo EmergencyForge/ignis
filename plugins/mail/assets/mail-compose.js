@@ -63,7 +63,7 @@
         var inReplyTo = form.getAttribute('data-in-reply-to') || '';
         var forwardFrom = form.getAttribute('data-forward-from') || '';
         var mailboxId = form.getAttribute('data-mailbox-id') || '';
-        var inBox = mailboxId ? '?postfach=' + encodeURIComponent(mailboxId) : '';
+        var inBox = mailboxId ? '?mailbox=' + encodeURIComponent(mailboxId) : '';
         var tokenInput = form.querySelector('input[name="csrf_token"]');
         var statusEl = document.getElementById('mail-compose-status');
         var subject = document.getElementById('mail-compose-subject');

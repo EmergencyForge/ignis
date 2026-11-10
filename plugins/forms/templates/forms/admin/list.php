@@ -99,7 +99,7 @@ $chipFor = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'succes
                                 <?php endif; ?>
                                 <?php foreach ($antraege as $antrag):
                                     $status  = $statusDisplay[$antrag->cirs_status] ?? ['class' => 'secondary', 'text' => 'Unbekannt', 'icon' => ''];
-                                    $viewUrl = BASE_PATH . "forms/view?antrag=" . urlencode($antrag->uniqueid);
+                                    $viewUrl = BASE_PATH . "forms/view?form=" . urlencode($antrag->uniqueid);
                                 ?>
                                     <tr>
                                         <td><a class="ignis-mono" href="<?= $viewUrl ?>"><?= htmlspecialchars($antrag->uniqueid) ?></a></td>

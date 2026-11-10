@@ -59,7 +59,7 @@ final class MailIntegrationTest extends FeatureTestCase
         // Der Link führt dorthin, wo die Mail gerade liegt.
         $this->loginAs($bob['user']);
         // Er nennt das Postfach, damit er auch aus einem Gruppenpostfach richtig öffnet.
-        $inBox = '?postfach=' . $bob['mailbox']->id;
+        $inBox = '?mailbox=' . $bob['mailbox']->id;
         $this->assertSame('/mail/inbox/' . $id . $inBox, $type->link(['link' => '/mail/inbox/' . $id]));
         $this->post('/mail/messages/' . $id . '/move', ['folder' => 'archive']);
         $this->assertSame('/mail/archive/' . $id . $inBox, $type->link(['link' => '/mail/inbox/' . $id]));
@@ -130,7 +130,7 @@ final class MailIntegrationTest extends FeatureTestCase
         $hits = $this->search('Funkprobe')['items'];
         $this->assertCount(1, $hits);
         $this->assertSame('Funkprobe Dienstag', $hits[0]['label']);
-        $this->assertSame('/mail/inbox/' . $id . '?postfach=' . $bob['mailbox']->id, $hits[0]['href']);
+        $this->assertSame('/mail/inbox/' . $id . '?mailbox=' . $bob['mailbox']->id, $hits[0]['href']);
         $this->assertCount(1, $this->search('Fahrzeughalle')['items'], 'Treffer im Text.');
         $this->assertCount(1, $this->search('Alice')['items'], 'Treffer am Absender.');
         $this->assertSame([], $this->search('<p>')['items'], 'Tags im HTML sind kein Treffer.');

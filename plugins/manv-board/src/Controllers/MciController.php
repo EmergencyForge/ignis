@@ -329,14 +329,14 @@ class MciController extends Controller
     }
 
     /**
-     * GET /mci/patient-create?lage_id=X: Form für neuen Patient.
+     * GET /mci/patient-create?situation_id=X: Form für neuen Patient.
      */
     public function patientCreate(): void
     {
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId = (int) ($_GET['lage_id'] ?? 0);
+        $lageId = (int) ($_GET['situation_id'] ?? $_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
             $this->redirect('mci/index');
         }
@@ -364,7 +364,7 @@ class MciController extends Controller
     }
 
     /**
-     * POST /mci/patient-create?lage_id=X: Patient anlegen mit
+     * POST /mci/patient-create?situation_id=X: Patient anlegen mit
      * Fahrzeugzuweisung-Check (verhindert Doppel-Zuweisung).
      */
     public function patientStore(): void
@@ -372,7 +372,7 @@ class MciController extends Controller
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId = (int) ($_GET['lage_id'] ?? 0);
+        $lageId = (int) ($_GET['situation_id'] ?? $_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
             $this->redirect('mci/index');
         }
@@ -381,7 +381,7 @@ class MciController extends Controller
             $input = SavePatientRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mci/patient-create?lage_id=' . $lageId);
+            $this->redirect('mci/patient-create?situation_id=' . $lageId);
         }
 
         $manvPatient = new MANVPatient();
@@ -414,7 +414,7 @@ class MciController extends Controller
                         . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
-                    $this->redirect('mci/patient-create?lage_id=' . $lageId);
+                    $this->redirect('mci/patient-create?situation_id=' . $lageId);
                 }
 
                 $transportmittel        = $fahrzeug->fahrzeugtyp;
@@ -455,7 +455,7 @@ class MciController extends Controller
             );
         } catch (\Throwable $e) {
             Flash::error('Fehler beim Erstellen des Patienten: ' . $e->getMessage());
-            $this->redirect('mci/patient-create?lage_id=' . $lageId);
+            $this->redirect('mci/patient-create?situation_id=' . $lageId);
         }
 
         $this->redirect('mci/patient-view?id=' . $patientId);
@@ -463,7 +463,7 @@ class MciController extends Controller
 
     /**
      * GET /mci/patient-view?id=X: Patient-Detail.
-     * Quick-Sichtung via `?quick_sk=SK1` etc. wird auch hier behandelt
+     * Quick-Sichtung via `?quick_triage=SK1` etc. wird auch hier behandelt
      * (Original-Verhalten 1:1).
      */
     public function patientView(): void
@@ -487,12 +487,13 @@ class MciController extends Controller
 
         // Quick-Sichtung via GET: schreibt Sichtung sofort, redirect auf saubere URL
         $allowedSk = ['SK1', 'SK2', 'SK3', 'SK4', 'SK5', 'SK6', 'tot'];
-        if (isset($_GET['quick_sk']) && in_array($_GET['quick_sk'], $allowedSk, true)) {
-            $manvPatient->updateSichtung($patientId, $_GET['quick_sk'], $_SESSION['userid'] ?? null);
+        $quickTriage = $_GET['quick_triage'] ?? $_GET['quick_sk'] ?? null;
+        if (in_array($quickTriage, $allowedSk, true)) {
+            $manvPatient->updateSichtung($patientId, $quickTriage, $_SESSION['userid'] ?? null);
             $manvLog->log(
                 (int) $patient['manv_lage_id'],
                 'sichtung_geaendert',
-                'Sichtungskategorie geändert zu ' . $_GET['quick_sk'],
+                'Sichtungskategorie geändert zu ' . $quickTriage,
                 $_SESSION['userid'] ?? null,
                 $_SESSION['username'] ?? null,
                 'patient',
@@ -637,7 +638,7 @@ class MciController extends Controller
     }
 
     /**
-     * GET /mci/resources?lage_id=X: Fahrzeug-Verwaltung einer Lage.
+     * GET /mci/resources?situation_id=X: Fahrzeug-Verwaltung einer Lage.
      * Auch der GET-basierte `delete_id`-Pfad landet hier (Legacy-Routing,
      * im Stub abgefangen).
      */
@@ -646,7 +647,7 @@ class MciController extends Controller
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId = (int) ($_GET['lage_id'] ?? 0);
+        $lageId = (int) ($_GET['situation_id'] ?? $_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
             $this->redirect('mci/index');
         }
@@ -685,14 +686,14 @@ class MciController extends Controller
     }
 
     /**
-     * POST /mci/resources?lage_id=X (action=create): neue Ressource anlegen.
+     * POST /mci/resources?situation_id=X (action=create): neue Ressource anlegen.
      */
     public function ressourceStore(): void
     {
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId = (int) ($_GET['lage_id'] ?? 0);
+        $lageId = (int) ($_GET['situation_id'] ?? $_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
             $this->redirect('mci/index');
         }
@@ -701,7 +702,7 @@ class MciController extends Controller
             $input = SaveRessourceRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mci/resources?lage_id=' . $lageId);
+            $this->redirect('mci/resources?situation_id=' . $lageId);
         }
 
         $manvRessource = new MANVRessource();
@@ -710,7 +711,7 @@ class MciController extends Controller
         $bezeichnung = trim((string) $input['bezeichnung']);
         if ($bezeichnung === '') {
             Flash::error('Bezeichnung ist Pflichtfeld.');
-            $this->redirect('mci/resources?lage_id=' . $lageId);
+            $this->redirect('mci/resources?situation_id=' . $lageId);
         }
 
         // Doppelte Bezeichnung in derselben Lage verhindern
@@ -725,7 +726,7 @@ class MciController extends Controller
                 'Das Fahrzeug ' . $bezeichnung
                 . ' wurde bereits zu dieser MANV-Lage hinzugefügt.'
             );
-            $this->redirect('mci/resources?lage_id=' . $lageId);
+            $this->redirect('mci/resources?situation_id=' . $lageId);
         }
 
         $data = [
@@ -756,24 +757,24 @@ class MciController extends Controller
             Flash::error('Fehler beim Erstellen: ' . $e->getMessage());
         }
 
-        $this->redirect('mci/resources?lage_id=' . $lageId);
+        $this->redirect('mci/resources?situation_id=' . $lageId);
     }
 
     /**
-     * POST /mci/resources?lage_id=X (action=edit): bestehende Ressource updaten.
+     * POST /mci/resources?situation_id=X (action=edit): bestehende Ressource updaten.
      */
     public function ressourceUpdate(): void
     {
         $this->requireAuth();
         $this->ensure('mci.update', redirectTo: 'index');
 
-        $lageId = (int) ($_GET['lage_id'] ?? 0);
+        $lageId = (int) ($_GET['situation_id'] ?? $_GET['lage_id'] ?? 0);
 
         try {
             $input = SaveRessourceRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mci/resources?lage_id=' . $lageId);
+            $this->redirect('mci/resources?situation_id=' . $lageId);
         }
 
         $resourceId = $input['ressource_id'];
@@ -806,11 +807,11 @@ class MciController extends Controller
             Flash::error('Fehler beim Bearbeiten: ' . $e->getMessage());
         }
 
-        $this->redirect('mci/resources?lage_id=' . $lageId);
+        $this->redirect('mci/resources?situation_id=' . $lageId);
     }
 
     /**
-     * GET /mci/resources?lage_id=X&delete_id=Y: Ressource löschen.
+     * GET /mci/resources?situation_id=X&delete_id=Y: Ressource löschen.
      * Wird via Legacy-GET-Link aufgerufen (showConfirm im JS).
      */
     public function ressourceDelete(): void
@@ -818,7 +819,7 @@ class MciController extends Controller
         $this->requireAuth();
         $this->ensure('mci.delete', redirectTo: 'index');
 
-        $lageId     = (int) ($_GET['lage_id'] ?? 0);
+        $lageId     = (int) ($_GET['situation_id'] ?? $_GET['lage_id'] ?? 0);
         $resourceId = (int) ($_GET['delete_id'] ?? 0);
         if ($lageId <= 0 || $resourceId <= 0) {
             $this->redirect('mci/index');
@@ -838,7 +839,7 @@ class MciController extends Controller
             Flash::error('Fehler beim Löschen: ' . $e->getMessage());
         }
 
-        $this->redirect('mci/resources?lage_id=' . $lageId);
+        $this->redirect('mci/resources?situation_id=' . $lageId);
     }
 
     // -----------------------------------------------------------------------

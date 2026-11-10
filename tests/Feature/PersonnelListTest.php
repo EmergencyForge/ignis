@@ -175,4 +175,21 @@ final class PersonnelListTest extends FeatureTestCase
         $this->assertStringContainsString('"S-026";"Seite 26"', $csv->body);
         $this->assertStringNotContainsString('<html', $csv->body);
     }
+
+    #[Test]
+    public function archiv_ueber_neuen_und_alten_parameter(): void
+    {
+        $archiv = $this->rank('Ausgeschieden', 1);
+        $archiv->archive = true;
+        $archiv->save();
+        $this->person('Arno Archiv', 'T-951', $archiv);
+        $this->person('Anna Aktiv', 'T-952', $this->rankLow);
+
+        foreach (['archived', 'archiv'] as $param) {
+            $page = $this->get('/personnel/list', ['query' => ['q' => 'T-95', $param => '1']]);
+            $this->assertBodyContains('Arno Archiv', $page);
+            $this->assertBodyNotContains('Anna Aktiv', $page);
+        }
+        $this->assertBodyContains('href="/personnel/list?archived=1"', $this->get('/personnel/list'));
+    }
 }

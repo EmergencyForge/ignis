@@ -27,7 +27,8 @@ final class MciController
     public function handle(Request $request): Response
     {
         $action = (string) ($request->query['action'] ?? $request->post['action'] ?? '');
-        $lageIdParam = $request->query['lage_id'] ?? $request->post['lage_id'] ?? null;
+        $lageIdParam = $request->query['situation_id'] ?? $request->post['situation_id']
+            ?? $request->query['lage_id'] ?? $request->post['lage_id'] ?? null;
         $lageId = $lageIdParam !== null ? (int) $lageIdParam : null;
 
         $manvLage    = new MANVLage();

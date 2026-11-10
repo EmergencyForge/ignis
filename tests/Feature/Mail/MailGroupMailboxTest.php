@@ -144,19 +144,21 @@ final class MailGroupMailboxTest extends FeatureTestCase
         $this->loginAs($member['user']);
         $page = $this->get('/mail/inbox');
         $this->assertBodyContains('aria-label="Postfach wechseln"', $page);
-        $this->assertBodyContains('href="/mail/inbox?postfach=' . $group->id . '"', $page);
+        $this->assertBodyContains('href="/mail/inbox?mailbox=' . $group->id . '"', $page);
         $this->assertBodyContains('Mein Postfach', $page);
 
-        $groupPage = $this->get('/mail/inbox', ['query' => ['postfach' => (string) $group->id]]);
+        $groupPage = $this->get('/mail/inbox', ['query' => ['mailbox' => (string) $group->id]]);
         $this->assertBodyContains('<h1>Leitstelle</h1>', $groupPage);
         $this->assertBodyContains('data-mail-mailbox="' . $group->id . '"', $groupPage);
+        // ?postfach= steht in alten Benachrichtigungen und Lesezeichen.
+        $this->assertBodyContains('<h1>Leitstelle</h1>', $this->get('/mail/inbox', ['query' => ['postfach' => (string) $group->id]]));
         // Die Wahl gilt für die nächsten Seiten.
         $this->assertBodyContains('data-mail-mailbox="' . $group->id . '"', $this->get('/mail/sent'));
 
         // Wer nicht Mitglied ist, kommt nicht hinein, auch nicht mit mail.admin.
         $this->loginAs($outsider['user'], ['mail.use', 'mail.admin']);
-        $this->assertBodyNotContains('postfach=' . $group->id, $this->get('/mail/inbox'));
-        $this->assertBodyNotContains('data-mail-mailbox="' . $group->id . '"', $this->get('/mail/inbox', ['query' => ['postfach' => (string) $group->id]]));
+        $this->assertBodyNotContains('mailbox=' . $group->id, $this->get('/mail/inbox'));
+        $this->assertBodyNotContains('data-mail-mailbox="' . $group->id . '"', $this->get('/mail/inbox', ['query' => ['mailbox' => (string) $group->id]]));
         $this->assertStatus(403, $this->post('/mail/drafts', ['mailbox_id' => (string) $group->id, 'subject' => 'Fremd', 'body_json' => self::doc('x')]));
         $this->assertSame(0, Message::query()->where('sender_mailbox_id', $group->id)->count());
     }
@@ -178,7 +180,7 @@ final class MailGroupMailboxTest extends FeatureTestCase
         foreach ([$mia, $max] as $member) {
             $this->assertSame(1, Capsule::table('intra_notifications')->where('user_id', $member['user']->id)->where('type', 'mail')->count());
             $this->loginAs($member['user']);
-            $this->assertSame('/mail/inbox/' . $id . '?postfach=' . $group->id, $type->link(['link' => '/mail/inbox/' . $id]));
+            $this->assertSame('/mail/inbox/' . $id . '?mailbox=' . $group->id, $type->link(['link' => '/mail/inbox/' . $id]));
             $this->assertSame(1, $counter(), 'Der Zähler am Eintrag Mail zählt die Gruppe mit.');
         }
 
@@ -198,7 +200,7 @@ final class MailGroupMailboxTest extends FeatureTestCase
         $group = $this->group('Leitstelle', 'leitstelle', [$mia['user'], $max['user']]);
 
         $this->loginAs($mia['user']);
-        $compose = $this->get('/mail/compose', ['query' => ['postfach' => (string) $group->id]]);
+        $compose = $this->get('/mail/compose', ['query' => ['mailbox' => (string) $group->id]]);
         $this->assertBodyContains('data-mailbox-id="' . $group->id . '"', $compose);
         $this->assertBodyContains('Du schreibst für das Gruppenpostfach', $compose);
 
@@ -217,7 +219,7 @@ final class MailGroupMailboxTest extends FeatureTestCase
         $this->assertBodyNotContains('Geschrieben von', $received);
 
         $this->loginAs($max['user']);
-        $sentPage = $this->get('/mail/sent/' . $draft, ['query' => ['postfach' => (string) $group->id]]);
+        $sentPage = $this->get('/mail/sent/' . $draft, ['query' => ['mailbox' => (string) $group->id]]);
         $this->assertBodyContains('Antwort der Leitstelle', $sentPage);
         $this->assertBodyContains('Geschrieben von', $sentPage);
         $this->assertBodyContains((string) ($mia['user']->fullname ?: $mia['user']->username), $sentPage);
@@ -267,13 +269,13 @@ final class MailGroupMailboxTest extends FeatureTestCase
         ]])]);
         $this->loginAs($mia['user']);
 
-        $compose = $this->get('/mail/compose', ['query' => ['postfach' => (string) $group->id]]);
+        $compose = $this->get('/mail/compose', ['query' => ['mailbox' => (string) $group->id]]);
         $this->assertBodyContains('&quot;text&quot;:&quot;Mia Mitglied&quot;', $compose);
         $this->assertBodyContains('&quot;text&quot;:&quot;Leitstelle&quot;', $compose);
         $this->assertBodyContains('&quot;text&quot;:&quot;leitstelle@ignis.ef&quot;', $compose);
 
         // Die eigene Signatur der Gruppe gehört der Gruppe und darf Platzhalter tragen.
-        $form = $this->get('/mail/signature', ['query' => ['postfach' => (string) $group->id]]);
+        $form = $this->get('/mail/signature', ['query' => ['mailbox' => (string) $group->id]]);
         $this->assertBodyContains('Signatur des Gruppenpostfachs', $form);
         $this->assertBodyContains('name="mailbox_id" value="' . $group->id . '"', $form);
         $this->assertBodyContains('data-mail-variable="postfach.name"', $form);
@@ -284,7 +286,7 @@ final class MailGroupMailboxTest extends FeatureTestCase
         $this->assertRedirect($saved, '/mail/signature');
         $this->assertNotNull(Signature::query()->where('mailbox_id', $group->id)->first());
         $this->assertNull(Signature::query()->where('mailbox_id', $mia['mailbox']->id)->first());
-        $this->assertBodyContains('&quot;text&quot;:&quot;Leitstelle&quot;', $this->get('/mail/compose', ['query' => ['postfach' => (string) $group->id]]));
+        $this->assertBodyContains('&quot;text&quot;:&quot;Leitstelle&quot;', $this->get('/mail/compose', ['query' => ['mailbox' => (string) $group->id]]));
     }
 
     #[Test]

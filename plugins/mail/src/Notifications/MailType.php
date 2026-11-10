@@ -60,6 +60,6 @@ final class MailType implements NotificationTypeInterface
             ->where('deleted_at', null)->get(['mailbox_id', 'role', 'folder']);
         $copy = $copies->first(static fn (Delivery $d): bool => $d->role !== 'sender') ?? $copies->first();
 
-        return $copy !== null ? MailController::basePath() . 'mail/' . $copy->folder . '/' . (int) $m[1] . '?postfach=' . $copy->mailbox_id : null;
+        return $copy !== null ? MailController::basePath() . 'mail/' . $copy->folder . '/' . (int) $m[1] . '?mailbox=' . $copy->mailbox_id : null;
     }
 }

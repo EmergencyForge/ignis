@@ -81,7 +81,7 @@ $bodyPage = 'edivi';
                                                     onclick="openEditRessourceModal(this)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
+                                                <a href="?situation_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>

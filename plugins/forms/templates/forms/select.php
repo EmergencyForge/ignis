@@ -36,7 +36,7 @@ $bodyId = 'antrag-select';
             <?php else: ?>
                 <div class="twplus-resource-grid">
                     <?php foreach ($typen as $typ): ?>
-                        <a href="<?= BASE_PATH . 'forms/create?typ=' . (int) $typ->id ?>"
+                        <a href="<?= BASE_PATH . 'forms/create?type=' . (int) $typ->id ?>"
                             class="twplus-resource-card no-underline">
                             <div class="flex items-start gap-3">
                                 <span class="twplus-link-card__icon"><i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i></span>

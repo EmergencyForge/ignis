@@ -164,7 +164,7 @@ final class DashboardTest extends FeatureTestCase
         $this->assertBodyContains('id="dashboard-applications-title">Eigene Anträge', $page);
         $this->assertBodyContains('<table class="ignis-table" id="dashboardApplications">', $page);
         $this->assertBodyContains('<span class="ignis-chip ignis-chip--dot ignis-chip--warn">Aufgeschoben</span>', $page);
-        $this->assertBodyContains('href="/forms/view?antrag=D0000001"', $page);
+        $this->assertBodyContains('href="/forms/view?form=D0000001"', $page);
         $this->assertBodyContains('Kein Mitarbeiterprofil verknüpft', $page);
         $this->assertBodyNotContains('table-striped', $page);
         $this->assertBodyNotContains('empty-state', $page);

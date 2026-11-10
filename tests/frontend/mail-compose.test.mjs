@@ -215,5 +215,5 @@ test('Jede Anfrage nennt das Postfach des Fensters, danach geht es in dessen Ord
     await sendOnce(c);
 
     assert.equal(c.requests[0].body.values.get('mailbox_id'), '42');
-    assert.equal(c.location.href, '/mail/sent?postfach=42');
+    assert.equal(c.location.href, '/mail/sent?mailbox=42');
 });

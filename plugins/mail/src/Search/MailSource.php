@@ -78,7 +78,7 @@ final class MailSource implements SearchSourceInterface
                 'label' => (string) $row->subject !== '' ? (string) $row->subject : '(kein Betreff)',
                 'sub'   => ($row->status === 'draft' ? 'Entwurf' : 'Von ' . $row->display_name)
                     . ($row->sent_at !== null ? ' · ' . date('d.m.Y', (int) strtotime((string) $row->sent_at)) : ''),
-                'href'  => search_base_path() . 'mail/' . $row->folder . '/' . $id . '?postfach=' . (int) $row->mailbox_id,
+                'href'  => search_base_path() . 'mail/' . $row->folder . '/' . $id . '?mailbox=' . (int) $row->mailbox_id,
             ];
             if (count($items) >= $limit) {
                 break;

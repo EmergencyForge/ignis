@@ -66,7 +66,7 @@
         var pane = scope && scope.closest ? scope.closest('[data-mail-folder]') : null;
         var folder = pane ? pane.getAttribute('data-mail-folder') : 'inbox';
         var r = root(scope);
-        var mailbox = r && r.getAttribute('data-mail-mailbox') ? '?postfach=' + encodeURIComponent(r.getAttribute('data-mail-mailbox')) : '';
+        var mailbox = r && r.getAttribute('data-mail-mailbox') ? '?mailbox=' + encodeURIComponent(r.getAttribute('data-mail-mailbox')) : '';
         var url = base(scope) + 'mail/' + folder + mailbox;
         var go = window.ignis && window.ignis.ui && window.ignis.ui.go;
         if (go) go(url, { from: scope, replace: true });

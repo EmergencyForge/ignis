@@ -15,7 +15,7 @@
  * @var array<string, array{label:string, icon:string}> $folders
  * Darf das Konto mehrere Postfächer lesen (das eigene und
  * Gruppenpostfächer), steht über den Ordnern der Wechsel. Links und
- * Anfragen dieser Seite nennen das gewählte Postfach (`?postfach=`,
+ * Anfragen dieser Seite nennen das gewählte Postfach (`?mailbox=`,
  * `data-mail-mailbox` für mail.js), damit ein zweiter Tab mit einem anderen
  * Postfach nichts durcheinanderbringt.
  *
@@ -32,7 +32,7 @@ $bodyId     = 'mail';
 $SITE_TITLE = 'Mail · ' . $folders[$folder]['label'];
 $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $isOutgoing = in_array($folder, ['sent', 'drafts'], true);
-$inBox      = '?postfach=' . (int) $mailbox->id;
+$inBox      = '?mailbox=' . (int) $mailbox->id;
 
 $snippet = static function (?string $html): string {
     $text = \Plugin\Mail\MailBodyRenderer::plainText($html);
@@ -64,7 +64,7 @@ $snippet = static function (?string $html): string {
                             <?php foreach ($mailboxes as $box): ?>
                                 <?php $isCurrent = $box->id === $mailbox->id; $boxUnread = (int) ($inboxUnread[$box->id] ?? 0); ?>
                                 <li>
-                                    <a href="<?= htmlspecialchars($base . 'mail/inbox?postfach=' . (int) $box->id) ?>" class="ignis-mail__folder<?= $isCurrent ? ' is-active' : '' ?>"<?= $isCurrent ? ' aria-current="true"' : '' ?> data-ignis-tooltip="<?= htmlspecialchars($box->kindLabel() . ': ' . $box->address) ?>">
+                                    <a href="<?= htmlspecialchars($base . 'mail/inbox?mailbox=' . (int) $box->id) ?>" class="ignis-mail__folder<?= $isCurrent ? ' is-active' : '' ?>"<?= $isCurrent ? ' aria-current="true"' : '' ?> data-ignis-tooltip="<?= htmlspecialchars($box->kindLabel() . ': ' . $box->address) ?>">
                                         <i class="fa-solid <?= $box->isGroup() ? 'fa-users' : 'fa-user' ?>" aria-hidden="true"></i>
                                         <span><?= htmlspecialchars($box->isGroup() ? $box->display_name : 'Mein Postfach') ?><span class="ignis-sr-only">, <?= htmlspecialchars($box->kindLabel()) ?></span></span>
                                         <?php if ($boxUnread > 0): ?>
