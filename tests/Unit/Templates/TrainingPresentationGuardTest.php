@@ -67,6 +67,22 @@ final class TrainingPresentationGuardTest extends TestCase
         self::assertStringNotContainsString('doc.destroy(', self::read('assets/js/presentation.js'));
     }
 
+    #[Test]
+    public function presentation_video_has_no_controls_or_audio(): void
+    {
+        $videos = 0;
+        foreach (self::templates() as $file) {
+            preg_match_all('~<video\b[^>]*>~', (string) file_get_contents($file), $m);
+            foreach ($m[0] as $tag) {
+                $videos++;
+                self::assertMatchesRegularExpression('~\smuted\b~', $tag, basename($file) . ': ohne Ton, sonst blockt Autoplay.');
+                self::assertMatchesRegularExpression('~\splaysinline\b~', $tag, basename($file));
+                self::assertDoesNotMatchRegularExpression('~\scontrols\b~', $tag, basename($file) . ': keine eigenen Bedienelemente.');
+            }
+        }
+        self::assertGreaterThan(0, $videos, 'Die Vortragsansichten haben ein video.');
+    }
+
     private static function read(string $path): string
     {
         $file = self::PLUGIN . '/' . $path;

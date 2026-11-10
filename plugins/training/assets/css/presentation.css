@@ -93,6 +93,7 @@
   max-width: 100%;
 }
 .tr-live__slide,
+.tr-live__screen,
 .tr-live__pause { height: var(--tr-live-h, auto); aspect-ratio: 16 / 9; }
 .tr-live__slide {
   position: relative;
@@ -119,6 +120,33 @@
 .tr-live__pause .ignis-btn { margin-top: 14px; }
 .tr-live__frame[data-mode="pause"] > .tr-live__slide { display: none; }
 .tr-live__frame[data-mode="pause"] > .tr-live__pause { display: grid; }
+
+/* Geteilter Bildschirm: nur das Bild, ohne Zeichenfläche. contain, weil Fenster jedes Seitenverhältnis haben. */
+.tr-live__screen { position: relative; display: none; place-items: center; overflow: hidden; border-radius: var(--radius-2); background: var(--bg-2); }
+.tr-live__screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.tr-live__screen-note { position: relative; max-width: 32rem; margin: 0; padding: 0 16px; text-align: center; color: var(--secondary-text); font-size: 13px; }
+.tr-live__screen-note[hidden] { display: none; }
+.tr-live__frame[data-mode="screen"] > .tr-live__slide { display: none; }
+.tr-live__frame[data-mode="screen"] > .tr-live__screen { display: grid; }
+
+/* Statt des Docks, solange der Host teilt. */
+.tr-live__share {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  padding: 6px 6px 6px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+  font-size: 13px;
+}
+.tr-live__share[hidden] { display: none; }
+.tr-live__rec { flex: none; width: 8px; height: 8px; border-radius: 999px; background: var(--danger); }
+/* Nicht disabled: ein deaktivierter Knopf bekommt keine Maus-Ereignisse, der Tooltip sagt aber, warum es nicht geht. */
+.tr-live .ignis-segmented [aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 
 .tr-live__note { align-self: center; justify-self: center; margin: 0; text-align: center; color: var(--secondary-text); font-size: 13px; }
 
@@ -323,7 +351,7 @@
 .tr-live--narrow, .tr-live--narrow .tr-live__stage { grid-template-rows: auto; grid-auto-rows: auto; }
 .tr-live--narrow .tr-live__main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
 .tr-live--narrow .tr-live__frame > * { width: 100%; }
-.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__pause { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
+.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__screen, .tr-live--narrow .tr-live__pause { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
 .tr-live--narrow .tr-live__side { max-height: 320px; border-left: 0; border-top: 1px solid var(--border-subtle); }
 .tr-live--narrow .tr-live__stage { gap: 10px; padding: 12px; }
 .tr-live--narrow .tr-live__group + .tr-live__group { padding-left: 4px; border-left: 0; }

@@ -151,6 +151,9 @@ function publishStaticAssets() {
         // auf Chromium 103, dem fehlt Promise.withResolvers.
         ['node_modules/pdfjs-dist/legacy/build/pdf.min.mjs',        'public/assets/dist/pdfjs/pdf.min.mjs'],
         ['node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs', 'public/assets/dist/pdfjs/pdf.worker.min.mjs'],
+        // Bildschirm teilen: livekit-client bringt seine Abhängigkeiten gebündelt mit,
+        // die Vortragsseite lädt es erst bei Bedarf per import().
+        ['node_modules/livekit-client/dist/livekit-client.esm.mjs', 'public/assets/dist/livekit/livekit-client.esm.mjs'],
     ];
     const filter = (src) => {
         if (src === uiSourceDir || src.startsWith(uiSourceDir + sep)) return false;
