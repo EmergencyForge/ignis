@@ -13,7 +13,7 @@ use Phinx\Migration\AbstractMigration;
  */
 final class SeedTrainingCertificateTemplates extends AbstractMigration
 {
-    private const NAMES = [SystemTemplates::TRAINING_QUALIFICATION, SystemTemplates::TRAINING_COURSE];
+    private const NAMES = [SystemTemplates::TRAINING_DIPLOMA, SystemTemplates::TRAINING_COURSE];
 
     public function up(): void
     {

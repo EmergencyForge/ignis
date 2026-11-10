@@ -23,11 +23,11 @@ final class SystemTemplatesTest extends TestCase
     private const URKUNDEN = [
         'Beförderungsurkunde', 'Ernennungsurkunde', 'Entlassungsurkunde',
         'Ausbildungszertifikat', 'Lehrgangszertifikat', 'Lehrgangszertifikat Fachdienste',
-        SystemTemplates::TRAINING_QUALIFICATION, SystemTemplates::TRAINING_COURSE,
+        SystemTemplates::TRAINING_DIPLOMA,
     ];
 
     /** Alles darin steht im Mitarbeiterdatensatz oder kommt aus dem Lehrgangsabschluss. */
-    private const OHNE_EINGABE = ['Entlassungsurkunde', SystemTemplates::TRAINING_QUALIFICATION, SystemTemplates::TRAINING_COURSE];
+    private const OHNE_EINGABE = ['Entlassungsurkunde', SystemTemplates::TRAINING_DIPLOMA, SystemTemplates::TRAINING_COURSE];
 
     /** @return iterable<string,array{string}> */
     public static function templateProvider(): iterable
@@ -53,7 +53,7 @@ final class SystemTemplatesTest extends TestCase
             'Ausbildungszertifikat',
             'Lehrgangszertifikat',
             'Lehrgangszertifikat Fachdienste',
-            'Ausbildungszertifikat (Lehrgang)',
+            'Urkunde (Lehrgang)',
             'Lehrgangszertifikat (Lehrgang)',
             'Schriftliche Abmahnung',
             'Vorläufige Dienstenthebung',

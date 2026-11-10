@@ -133,7 +133,7 @@ final class Steps
             $document = DocumentId::create(static fn (string $docid): EditorDocument => EditorDocument::create($template->newDocumentAttributes() + [
                 'docid'          => $docid,
                 'mitarbeiter_id' => $p->personnel_id,
-                'title'          => 'Zertifikat ' . $p->course->title,
+                'title'          => trim(str_replace('(Lehrgang)', '', $template->name)) . ' ' . $p->course->title,
                 'status'         => EditorDocument::STATUS_DRAFT,
                 'created_by'     => $signerUser,
             ]));
@@ -340,9 +340,13 @@ final class Steps
                 $examDay = $attempt->submitted_at;
             }
         }
-        $hours = 0.0;
+        $hours        = 0.0;
+        $firstSession = null;
         foreach ($course->sessions as $session) {
             $hours += max(0, $session->ends_at->getTimestamp() - $session->starts_at->getTimestamp()) / 3600;
+            if ($firstSession === null || $session->starts_at->lessThan($firstSession)) {
+                $firstSession = $session->starts_at;
+            }
         }
         $lead = $course->lead;
         $leadName = null;
@@ -354,11 +358,13 @@ final class Steps
             $course->title,
             $type->name,
             $type->short,
-            $course->starts_on,
-            $course->ends_on,
+            // Ohne festes Datum am Lehrgang zählen erster Termin und Abschluss
+            // der Teilnahme, damit das Zertifikat keine leeren Zeilen hat.
+            $course->starts_on ?? $firstSession,
+            $course->ends_on ?? $p->finished_at,
             $leadName,
             $hours,
-            $examDay,
+            $examDay ?? $p->finished_at,
             $p->result_percent !== null ? (float) $p->result_percent : null,
             null,
             $max > 0 ? $points : null,

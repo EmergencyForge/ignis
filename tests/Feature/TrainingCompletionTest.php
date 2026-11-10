@@ -284,11 +284,18 @@ final class TrainingCompletionTest extends FeatureTestCase
         $learner = $this->account();
         $p       = $this->admit($course, $learner['personnel']);
 
+        $course->ends_on = null;
+        $course->save();
+
         $this->as($lead['user'], ['training.teach']);
         $this->post('/training/manage/' . $course->id . '/status', ['status' => 'completed']);
 
         $this->assertSame('passed', Participation::query()->whereKey($p->id)->value('status'));
         $this->assertTrue((new CompletionTable())->find($p->id)?->passed);
+        $frozen = EditorDocument::query()->where('mitarbeiter_id', $learner['personnel'])->firstOrFail()->frozen_values;
+        $today  = Carbon::now()->format('d.m.Y');
+        $this->assertSame($today, $frozen['lehrgang.ende'] ?? null, 'Ohne Enddatum zählt der Abschluss der Teilnahme.');
+        $this->assertSame($today, $frozen['pruefung.datum'] ?? null, 'Ohne Prüfung ebenso.');
     }
 
     #[Test]
