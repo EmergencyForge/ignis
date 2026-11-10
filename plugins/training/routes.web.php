@@ -15,6 +15,7 @@ declare(strict_types=1);
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
+use Plugin\Training\Controllers\AiDraftController;
 use Plugin\Training\Controllers\AttemptController;
 use Plugin\Training\Controllers\CurriculumController;
 use Plugin\Training\Controllers\ExamController;
@@ -96,6 +97,8 @@ $router->get('/training/types/{id:\d+}/questions/create',    [QuestionController
 $router->post('/training/types/{id:\d+}/questions',          [QuestionController::class, 'store'],       $exams);
 $router->get('/training/types/{id:\d+}/questions/export',    [QuestionController::class, 'export'],      $exams);
 $router->post('/training/types/{id:\d+}/questions/import',   [QuestionController::class, 'import'],      $exams);
+$router->get('/training/types/{id:\d+}/questions/ai',        [AiDraftController::class, 'form'],         $exams);
+$router->post('/training/types/{id:\d+}/questions/ai',       [AiDraftController::class, 'generate'],     $exams);
 $router->get('/training/questions/{id:\d+}/edit',            [QuestionController::class, 'edit'],        $exams);
 $router->post('/training/questions/{id:\d+}',                [QuestionController::class, 'update'],      $exams);
 $router->post('/training/questions/{id:\d+}/delete',         [QuestionController::class, 'destroy'],     $exams);

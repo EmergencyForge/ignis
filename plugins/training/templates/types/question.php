@@ -83,6 +83,9 @@ ob_start();
                 </div>
             </div>
 
+            <?php if ($question->ai_draft): ?>
+                <div class="ignis-alert ignis-alert--info mb-4"><div class="ignis-alert__body">Diesen Entwurf hat die KI vorgeschlagen<?= $question->source !== null ? ', aus „' . htmlspecialchars($question->source) . '“' : '' ?>. Prüfe Frage, Antworten und Erklärung. Wer ihn auf aktiv setzt, gibt ihn für Prüfungen frei.</div></div>
+            <?php endif; ?>
             <?php if ($versions): ?>
                 <div class="ignis-alert ignis-alert--warn mb-4"><div class="ignis-alert__body">Diese Frage kam in <?= $usage ?> <?= $usage === 1 ? 'Versuch' : 'Versuchen' ?> vor. Wer Text, Antworten oder Punkte ändert, legt Version <?= (int) $question->version + 1 ?> an; abgegebene Versuche behalten den alten Wortlaut und die alte Lösung.</div></div>
             <?php endif; ?>

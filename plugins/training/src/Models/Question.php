@@ -26,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property int                       $version
  * @property int|null                  $previous_id
  * @property bool                      $is_active
+ * @property bool                      $ai_draft    von der KI vorgeschlagen und noch nicht angeschaltet
+ * @property string|null               $source      Herkunft eines KI-Entwurfs, z. B. „Skript.pdf, S. 12“
  * @property Carbon|null               $deleted_at
  * @property int|null                  $created_by
  * @property Carbon                    $created_at
@@ -50,6 +52,7 @@ class Question extends EloquentModel
         'version'        => 'integer',
         'previous_id'    => 'integer',
         'is_active'      => 'boolean',
+        'ai_draft'       => 'boolean',
         'deleted_at'     => 'datetime',
         'created_by'     => 'integer',
     ];
