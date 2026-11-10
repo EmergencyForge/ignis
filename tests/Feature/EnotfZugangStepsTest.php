@@ -49,7 +49,7 @@ final class EnotfZugangStepsTest extends FeatureTestCase
     #[DataProvider('schritte')]
     public function q_oeffnet_den_passenden_schritt(string $q, ?string $ort): void
     {
-        $page = $this->get('/enotf/p/' . $this->enr . '/massnahmen', ['query' => ['t' => 'zugang', 'q' => $q]]);
+        $page = $this->get('/enotf/p/' . $this->enr . '/interventions', ['query' => ['t' => 'zugang', 'q' => $q]]);
         $this->assertOk($page);
 
         $offen = array_values(array_filter(

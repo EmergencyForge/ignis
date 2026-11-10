@@ -52,12 +52,12 @@ date_default_timezone_set('Europe/Berlin');
                     <i class="fa-solid fa-arrow-right-from-bracket"></i><br>
                     <small>Abmelden</small>
                 </a>
-                <a href="<?= $e(EnotfUrl::page('fahrzeuginfo')) ?>" class="edivi__iconlink">
+                <a href="<?= $e(EnotfUrl::page('vehicle-info')) ?>" class="edivi__iconlink">
                     <i class="fa-solid fa-truck-medical"></i><br>
                     <small>Fahrzeuginfo</small>
                 </a>
                 <?php if (app(\App\Plugins\PluginLoader::class)->isActive('logbook')): ?>
-                <a href="<?= $e(EnotfUrl::page('fahrtenbuch')) ?>" class="edivi__iconlink">
+                <a href="<?= $e(EnotfUrl::page('logbook')) ?>" class="edivi__iconlink">
                     <i class="fa-solid fa-book"></i><br>
                     <small>Fahrtenbuch</small>
                 </a>

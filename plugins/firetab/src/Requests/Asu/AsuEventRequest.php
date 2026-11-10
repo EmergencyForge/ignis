@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * POST /api/fire/asu/event: ein Ereignis eines Trupps. Die client_uuid
+ * POST /api/fire/ba/event: ein Ereignis eines Trupps. Die client_uuid
  * erzeugt das Tablet; kommt dieselbe zweimal, bleibt es ein Eintrag.
  */
 class AsuEventRequest extends FormRequest

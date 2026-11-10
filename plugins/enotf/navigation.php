@@ -91,7 +91,7 @@ return [
                     ],
                     [
                         'label'       => 'Schnellzugriff-Kategorien',
-                        'href'        => BASE_PATH . 'settings/enotf/kategorien/index',
+                        'href'        => BASE_PATH . 'settings/enotf/categories/index',
                         'icon'        => 'fa-solid fa-folder-tree',
                         'description' => 'Gruppen, in denen die Schnellzugriffs-Links stehen.',
                         'permissions' => ['admin', 'edivi.view'],

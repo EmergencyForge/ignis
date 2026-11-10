@@ -20,14 +20,14 @@ use PDOException;
 final class EnotfController
 {
     /**
-     * GET /api/enotf/prereg?klinik=...
+     * GET /api/enotf/prereg?hospital=... (alt: ?klinik=)
      * Aktive Voranmeldungen abfragen. Deaktiviert gleichzeitig veraltete
      * Einträge (ankunftszeit älter als 10 Min).
      */
     public function prereg(Request $request): Response
     {
         date_default_timezone_set('Europe/Berlin');
-        $ziel = $request->query['klinik'] ?? null;
+        $ziel = $request->query['hospital'] ?? $request->query['klinik'] ?? null;
 
         try {
             DB::table('intra_edivi_prereg')

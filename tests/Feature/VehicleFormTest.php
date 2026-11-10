@@ -15,7 +15,7 @@ use Tests\FixtureFactory;
  */
 final class VehicleFormTest extends FeatureTestCase
 {
-    private const HANDLER = '/settings/vehicles/vehload/beladung_handler';
+    private const HANDLER = '/api/vehicles/vehload-handler';
 
     protected function setUp(): void
     {

@@ -140,8 +140,8 @@ class CrewConditionsServiceTest extends TestCase
 
         $open = $this->service->evaluate($daten);
 
-        $this->assertArrayHasKey('rettdaten', $open);
-        $this->assertSame(['ziel_adresse'], array_column($open['rettdaten'], 'key'));
+        $this->assertArrayHasKey('mission', $open);
+        $this->assertSame(['ziel_adresse'], array_column($open['mission'], 'key'));
     }
 
     // ── zeroIsValid-Semantik (sectionStatus) ─────────────────────────
@@ -151,8 +151,8 @@ class CrewConditionsServiceTest extends TestCase
     {
         $status = $this->service->sectionStatus(['patsex' => 0]);
 
-        $this->assertSame('partfilled', $status['rettdaten']['status']);
-        $this->assertSame(1, $status['rettdaten']['filled']);
+        $this->assertSame('partfilled', $status['mission']['status']);
+        $this->assertSame(1, $status['mission']['filled']);
     }
 
     #[Test]
@@ -160,8 +160,8 @@ class CrewConditionsServiceTest extends TestCase
     {
         $status = $this->service->sectionStatus(['ezeit' => '0']);
 
-        $this->assertSame('unfilled', $status['rettdaten']['status']);
-        $this->assertSame(0, $status['rettdaten']['filled']);
+        $this->assertSame('unfilled', $status['mission']['status']);
+        $this->assertSame(0, $status['mission']['filled']);
     }
 
     // ── sectionStatus-Mapping ────────────────────────────────────────
@@ -172,7 +172,7 @@ class CrewConditionsServiceTest extends TestCase
         $status = $this->service->sectionStatus([]);
 
         $this->assertSame(
-            ['rettdaten', 'erstbefund', 'anamnese', 'diagnose', 'verlauf', 'massnahmen', 'abschluss'],
+            ['mission', 'assessment', 'history', 'diagnosis', 'progress', 'interventions', 'completion'],
             array_keys($status),
         );
     }
@@ -182,7 +182,7 @@ class CrewConditionsServiceTest extends TestCase
     {
         $status = $this->service->sectionStatus([]);
 
-        $this->assertSame(['status' => 'nocheck', 'filled' => 0, 'total' => 0], $status['verlauf']);
+        $this->assertSame(['status' => 'nocheck', 'filled' => 0, 'total' => 0], $status['progress']);
     }
 
     #[Test]
@@ -190,7 +190,7 @@ class CrewConditionsServiceTest extends TestCase
     {
         $status = $this->service->sectionStatus($this->vollstaendigeDaten());
 
-        foreach (['rettdaten', 'erstbefund', 'anamnese', 'diagnose', 'massnahmen', 'abschluss'] as $key) {
+        foreach (['mission', 'assessment', 'history', 'diagnosis', 'interventions', 'completion'] as $key) {
             $this->assertSame('filled', $status[$key]['status'], "Section $key");
         }
     }
@@ -201,7 +201,7 @@ class CrewConditionsServiceTest extends TestCase
         // transportziel=4 entfernt alle Erstbefund-Regeln → Section ohne Pflichtspalten
         $status = $this->service->sectionStatus(['transportziel' => 4]);
 
-        $this->assertSame('nocheck', $status['erstbefund']['status']);
+        $this->assertSame('nocheck', $status['assessment']['status']);
     }
 
     // ── isReleasable ─────────────────────────────────────────────────
@@ -221,7 +221,7 @@ class CrewConditionsServiceTest extends TestCase
         $this->assertFalse($this->service->isReleasable($daten));
 
         $open = $this->service->evaluate($daten);
-        $this->assertSame(['pfname'], array_column($open['abschluss'] ?? [], 'key'));
+        $this->assertSame(['pfname'], array_column($open['completion'] ?? [], 'key'));
     }
 
     #[Test]
@@ -261,7 +261,7 @@ class CrewConditionsServiceTest extends TestCase
 
         $this->assertFalse($this->service->isReleasable($daten));
         $open = $this->service->evaluate($daten);
-        $this->assertSame(['rea_details'], array_column($open['abschluss'] ?? [], 'key'));
+        $this->assertSame(['rea_details'], array_column($open['completion'] ?? [], 'key'));
 
         $daten += [
             'rea_kollaps' => 99, 'rea_hdm_durch' => 4, 'rea_hdm_zeit' => '12:03',
@@ -288,6 +288,6 @@ class CrewConditionsServiceTest extends TestCase
         unset($daten['rea_status']);
 
         $open = $this->service->evaluate($daten);
-        $this->assertSame(['rea_status'], array_column($open['abschluss'] ?? [], 'key'));
+        $this->assertSame(['rea_status'], array_column($open['completion'] ?? [], 'key'));
     }
 }

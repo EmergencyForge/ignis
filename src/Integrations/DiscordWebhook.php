@@ -150,7 +150,7 @@ class DiscordWebhook
                 self::field('Intubiert', self::yesNo($preregData['intubiert'] ?? null, '✅', '❌')),
                 self::field('Kreislauf', self::yesNo($preregData['kreislauf'] ?? null, 'Stabil', 'Instabil')),
             ],
-            'url'         => $enr !== '' ? self::link('enotf/schnittstelle/voranmeldung?enr=' . rawurlencode($enr)) : null,
+            'url'         => $enr !== '' ? self::link('enotf/monitor/prereg?enr=' . rawurlencode($enr)) : null,
         ]);
     }
 

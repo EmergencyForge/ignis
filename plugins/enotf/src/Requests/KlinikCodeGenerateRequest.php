@@ -9,7 +9,7 @@ use EmergencyForge\Http\Request;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für POST /api/klinik/generate-code.
+ * Validation für POST /api/hospitals/generate-code.
  *
  * Erwartet eine `enr` (Einsatznummer), entweder als Form-POST oder als
  * JSON-Body. Der Klinik-Code-Endpoint wird historisch per `application/

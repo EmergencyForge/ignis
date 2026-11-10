@@ -43,7 +43,7 @@ final class EnotfProtokollAccessTest extends FeatureTestCase
     {
         $this->crew('RTW-1');
 
-        $page = $this->get('/enotf/p/' . $this->enr . '/abschluss');
+        $page = $this->get('/enotf/p/' . $this->enr . '/completion');
 
         $this->assertOk($page);
         $this->assertBodyNotContains('Nur Ansicht', $page);
@@ -57,7 +57,7 @@ final class EnotfProtokollAccessTest extends FeatureTestCase
         $user = FixtureFactory::user();
         $this->actingAs($user->id, ['permissions' => ['edivi.view'], 'cirs_username' => $user->username]);
 
-        $page = $this->get('/enotf/p/' . $this->enr . '/abschluss');
+        $page = $this->get('/enotf/p/' . $this->enr . '/completion');
 
         $this->assertOk($page);
         $this->assertBodyContains('Nur Ansicht', $page);
@@ -110,13 +110,22 @@ final class EnotfProtokollAccessTest extends FeatureTestCase
     }
 
     #[Test]
+    public function alter_abschnitt_leitet_mit_fokus_auf_den_englischen_slug(): void
+    {
+        $response = $this->get('/enotf/p/' . $this->enr . '/erstbefund', ['query' => ['t' => 'atemwege', 'q' => '2']]);
+
+        $this->assertStatus(301, $response);
+        $this->assertSame('/enotf/p/' . $this->enr . '/assessment?t=atemwege&q=2', $response->headers['Location'] ?? null);
+    }
+
+    #[Test]
     public function alte_unterseiten_landen_auf_ihrem_abschnitt(): void
     {
         $base = '/enotf/p/' . $this->enr;
 
-        $this->assertSame($base . '/abschluss?t=freigabe', $this->get($base . '/abschluss/freigabe')->headers['Location'] ?? null);
-        $this->assertSame($base . '/erstbefund', $this->get($base . '/erstbefund/atemwege/1')->headers['Location'] ?? null);
-        $this->assertSame($base . '/diagnose', $this->get('/enotf/protokoll/diagnose/1_10_3', ['query' => ['enr' => $this->enr]])->headers['Location'] ?? null);
+        $this->assertSame($base . '/completion?t=freigabe', $this->get($base . '/abschluss/freigabe')->headers['Location'] ?? null);
+        $this->assertSame($base . '/assessment', $this->get($base . '/erstbefund/atemwege/1')->headers['Location'] ?? null);
+        $this->assertSame($base . '/diagnosis', $this->get('/enotf/protokoll/diagnose/1_10_3', ['query' => ['enr' => $this->enr]])->headers['Location'] ?? null);
         $this->assertSame($base, $this->get('/enotf/protokoll/protokollart', ['query' => ['enr' => $this->enr]])->headers['Location'] ?? null);
         $this->assertSame('/enotf/overview', $this->get('/enotf/protokoll/index')->headers['Location'] ?? null);
         $this->assertSame($base, $this->get('/enotf-v2/p/' . $this->enr)->headers['Location'] ?? null);

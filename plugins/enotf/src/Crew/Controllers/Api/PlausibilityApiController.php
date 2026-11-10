@@ -19,8 +19,8 @@ use Plugin\Enotf\Crew\Support\ProtokollService;
  *       "ok":         true,
  *       "releasable": bool,                     // keine offene Pflichtregel
  *       "openCount":  int,
- *       "open":       { "rettdaten": [{ "key": "...", "message": "..." }, ...], ... },
- *       "sections":   { "rettdaten": { "status": "partfilled", "filled": 3, "total": 9 }, ... }
+ *       "open":       { "mission": [{ "key": "...", "message": "..." }, ...], ... },
+ *       "sections":   { "mission": { "status": "partfilled", "filled": 3, "total": 9 }, ... }
  *     }
  *
  * Der Autosave-Client (assets/autosave.js) ruft den Endpoint nach jedem

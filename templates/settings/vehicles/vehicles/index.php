@@ -354,7 +354,7 @@ $SITE_TITLE = 'Fahrzeuge';
     <script>
     initVehiclesAdminPage({
         basePath:  '<?= BASE_PATH ?>',
-        tzTplApi:  '<?= BASE_PATH ?>api/vehicles/tz-templates',
+        tzTplApi:  '<?= BASE_PATH ?>api/vehicles/tactical-symbol-templates',
         importApi: '<?= BASE_PATH ?>api/vehicles/import-handler',
     });
     </script>

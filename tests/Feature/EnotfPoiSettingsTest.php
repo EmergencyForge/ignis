@@ -207,7 +207,7 @@ final class EnotfPoiSettingsTest extends FeatureTestCase
         $this->assertBodyNotContains($this->prefix . 'Wache', $list);
         $this->assertBodyContains('Nicht konfiguriert', $list);
         $this->assertBodyContains('1 bis 1 von 1 Krankenhäusern', $list);
-        $this->assertBodyContains('enotf/schnittstelle/hospital-availability', $list);
+        $this->assertBodyContains('enotf/monitor/availability', $list);
 
         $this->assertRedirect($this->post($path, ['poi_id' => (string) $klinik, 'new_code' => 'Code1234abcd']), $path);
         $this->assertSame('Code1234abcd', Capsule::table('intra_edivi_hospital_access_codes')->where('poi_id', $klinik)->value('code'));

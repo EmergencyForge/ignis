@@ -44,7 +44,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 // Platzhalters, sonst sähe ein gefülltes Altprotokoll hier leer aus.
 $tzPoiAnzeige = app(ProtokollService::class)->transportzielPoiAnzeige($protokoll['transportziel'] ?? null);
 
-$sectionUrl = EnotfUrl::protokoll($enr, 'rettdaten');
+$sectionUrl = EnotfUrl::protokoll($enr, 'mission');
 
 // v1-Body-Attribut der Rettdaten-Seiten (nav.php-Konvention)
 $sectionBodyPage = 'stammdaten';

@@ -45,9 +45,9 @@ final class EnotfVoranmeldungLogTest extends FeatureTestCase
         $body = ['new' => '1', 'text' => 'Patient Max Muster, Sturz'];
 
         // request() statt post(): post() legt den Token bei.
-        $this->assertStatus(403, $this->request('POST', '/enotf/schnittstelle/voranmeldung', ['query' => ['enr' => $enr], 'post' => $body]));
+        $this->assertStatus(403, $this->request('POST', '/enotf/monitor/prereg', ['query' => ['enr' => $enr], 'post' => $body]));
 
-        $response = $this->post('/enotf/schnittstelle/voranmeldung', $body, ['query' => ['enr' => $enr]]);
+        $response = $this->post('/enotf/monitor/prereg', $body, ['query' => ['enr' => $enr]]);
 
         $this->assertOk($response);
         $this->assertFileDoesNotExist(self::LOG);

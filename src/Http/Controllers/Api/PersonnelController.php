@@ -34,7 +34,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 final class PersonnelController
 {
     /**
-     * POST /api/personnel/check-dienstnr
+     * POST /api/personnel/check-service-number
      *
      * JSON: { "dienstnr": "..." }
      * Antwort: { "available": bool, ... }
@@ -68,11 +68,11 @@ final class PersonnelController
     }
 
     /**
-     * POST /api/personnel/check-dienstnr-legacy
+     * POST /api/personnel/check-service-number-legacy
      *
      * Liefert Plain-Text ("exists" | "not_exists" | "error"). Wird vom
      * Legacy-Frontend (direkt `fetch(...).then(r => r.text())`) genutzt.
-     * Ein späteres Frontend-Update kann auf `check-dienstnr` umschwenken.
+     * Ein späteres Frontend-Update kann auf `check-service-number` umschwenken.
      */
     public function checkDienstnrLegacy(Request $request): Response
     {

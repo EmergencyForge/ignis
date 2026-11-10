@@ -12,7 +12,7 @@
  * Aufruf vom Template:
  *   initVehiclesAdminPage({
  *     basePath:  '/',
- *     tzTplApi:  '/api/vehicles/tz-templates',
+ *     tzTplApi:  '/api/vehicles/tactical-symbol-templates',
  *     importApi: '/api/vehicles/import-handler',
  *   });
  *

@@ -31,7 +31,7 @@ class KlinikCodeControllerTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $controller = $this->resolve(KlinikCodeController::class);
-        $controller->generate(new Request('POST', '/api/klinik/generate-code'));
+        $controller->generate(new Request('POST', '/api/hospitals/generate-code'));
     }
 
     #[Test]
@@ -42,7 +42,7 @@ class KlinikCodeControllerTest extends TestCase
         $controller = $this->resolve(KlinikCodeController::class);
         $req = new Request(
             method:  'POST',
-            path:    '/api/klinik/generate-code',
+            path:    '/api/hospitals/generate-code',
             post:    ['enr' => ''],
         );
         $controller->generate($req);

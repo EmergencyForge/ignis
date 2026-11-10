@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Die Formulare der Quicklink-Kategorien (POST /settings/enotf/kategorien/
+ * Die Formulare der Quicklink-Kategorien (POST /settings/enotf/categories/
  * create, /update und /delete). Das Löschen schickt nur `id`.
  *
  * Leere Pflichtfelder, eine fehlende `id` und doppelte Slugs meldet der

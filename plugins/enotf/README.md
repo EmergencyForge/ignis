@@ -1,6 +1,6 @@
 # eNOTF
 
-Elektronisches Notfallprotokoll für den Rettungsdienst. Die Crew arbeitet unter `/enotf/` (Anmeldung, Übersicht, Protokoll), das Back-Office in der Prüfliste unter `/enotf/admin/list`, Kliniken über die Schnittstelle unter `/enotf/schnittstelle/`.
+Elektronisches Notfallprotokoll für den Rettungsdienst. Die Crew arbeitet unter `/enotf/` (Anmeldung, Übersicht, Protokoll), das Back-Office in der Prüfliste unter `/enotf/admin/list`, Kliniken über die Schnittstelle unter `/enotf/monitor/`.
 
 ## Aufbau
 

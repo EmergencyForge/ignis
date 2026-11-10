@@ -187,7 +187,7 @@ class PersonnelController extends Controller
     }
 
     /**
-     * GET /api/personnel/by-dienstnr/{nr}/card: Hover-Card-Fragment
+     * GET /api/personnel/by-service-number/{nr}/card: Hover-Card-Fragment
      * gelookupt per Dienstnummer statt per Datenbank-ID.
      *
      * Verwendung: Templates rendern Dienstnr-Strings (z.B. Tabellen,

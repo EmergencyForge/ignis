@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * POST /api/fire/asu/trupp: Trupp anlegen (ohne trupp_id) oder ändern.
+ * POST /api/fire/ba/team: Trupp anlegen (ohne trupp_id) oder ändern.
  * Mitglieder kommen als Liste mit Position; leerer Name heißt „Platz frei“.
  */
 class AsuTruppRequest extends FormRequest

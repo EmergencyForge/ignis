@@ -34,7 +34,7 @@ final class KlinikCodeController
     private const MAX_GENERATE_ATTEMPTS = 100;
 
     /**
-     * POST /api/klinik/generate-code
+     * POST /api/hospitals/generate-code
      */
     public function generate(Request $request): Response
     {

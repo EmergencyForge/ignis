@@ -36,7 +36,7 @@ final class FireAsuController
         'mayday_ende'   => 'Mayday beendet',
     ];
 
-    /** GET /api/fire/asu/state?incident_id= */
+    /** GET /api/fire/ba/state?incident_id= */
     public function state(Request $request): Response
     {
         $incidentId = (int) ($request->query['incident_id'] ?? 0);
@@ -99,7 +99,7 @@ final class FireAsuController
         ]);
     }
 
-    /** POST /api/fire/asu/trupp: anlegen oder ändern */
+    /** POST /api/fire/ba/team: anlegen oder ändern */
     public function saveTrupp(Request $request): Response
     {
         $data = AsuTruppRequest::validate($request->json() ?? $request->post);
@@ -142,7 +142,7 @@ final class FireAsuController
         return Response::json(['success' => true, 'trupp_id' => $truppId]);
     }
 
-    /** POST /api/fire/asu/trupp/delete: nur ohne gültige Ereignisse, also bei Fehleingaben */
+    /** POST /api/fire/ba/team/delete: nur ohne gültige Ereignisse, also bei Fehleingaben */
     public function deleteTrupp(Request $request): Response
     {
         $body       = $request->json() ?? $request->post;
@@ -163,7 +163,7 @@ final class FireAsuController
         return Response::json(['success' => true]);
     }
 
-    /** POST /api/fire/asu/event */
+    /** POST /api/fire/ba/event */
     public function event(Request $request): Response
     {
         $data = AsuEventRequest::validate($request->json() ?? $request->post);
@@ -204,7 +204,7 @@ final class FireAsuController
         return Response::json(['success' => true, 'event_id' => $eventId]);
     }
 
-    /** POST /api/fire/asu/event/void: Fehleingabe zurücknehmen, bleibt sichtbar im Ablauf */
+    /** POST /api/fire/ba/event/void: Fehleingabe zurücknehmen, bleibt sichtbar im Ablauf */
     public function voidEvent(Request $request): Response
     {
         $body       = $request->json() ?? $request->post;

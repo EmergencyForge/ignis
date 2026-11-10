@@ -33,7 +33,7 @@ use PDOException;
 final class AsuSyncController
 {
     /**
-     * POST /api/asu/sync
+     * POST /api/ba/sync
      */
     public function sync(Request $request): Response
     {

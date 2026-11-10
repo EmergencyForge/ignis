@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validation für POST /api/fire/lagekarte?action=create.
+ * Validation für POST /api/fire/situation-map?action=create.
  *
  * Lagekarten-Marker werden als relative Prozentwerte in der Karte
  * gespeichert (0–100 auf jeder Achse). Die taktischen Symbol-Felder

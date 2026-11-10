@@ -264,7 +264,7 @@ if (!isset($useGlobalBind)) {
 (function() {
     const prefix = '<?= $prefix ?>';
     const tzFields = ['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 'typ', 'text'];
-    const TZ_API = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '<?= BASE_PATH ?>') + 'api/vehicles/tz-templates';
+    const TZ_API = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '<?= BASE_PATH ?>') + 'api/vehicles/tactical-symbol-templates';
     const select = document.getElementById(prefix + 'tz-template-select');
     const saveBtn = document.getElementById(prefix + 'tz-save-template-btn');
 

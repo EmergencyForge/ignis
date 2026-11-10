@@ -82,7 +82,7 @@ use App\Helpers\Flash;
         <div data-dialog-source class="modal" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/enotf/kategorien/update" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/enotf/categories/update" method="POST">
                         <?= csrf_field() ?>
                         <div class="modal-header">
                             <h5 class="modal-title" id="editCategoryModalLabel">Kategorie bearbeiten</h5>
@@ -121,7 +121,7 @@ use App\Helpers\Flash;
         <div data-dialog-source class="modal" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/enotf/kategorien/create" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/enotf/categories/create" method="POST">
                         <?= csrf_field() ?>
                         <div class="modal-header">
                             <h5 class="modal-title" id="createCategoryModalLabel">Neue Kategorie erstellen</h5>
@@ -171,7 +171,7 @@ use App\Helpers\Flash;
                         // POST mit CSRF-Token: die Route nimmt nur POST an.
                         const form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '<?= BASE_PATH ?>settings/enotf/kategorien/delete';
+                        form.action = '<?= BASE_PATH ?>settings/enotf/categories/delete';
                         form.innerHTML = <?= json_encode(csrf_field(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
                         const idField = document.createElement('input');
                         idField.type = 'hidden';

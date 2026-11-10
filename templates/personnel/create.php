@@ -2,7 +2,7 @@
 /**
  * View: Mitarbeiter anlegen. Als Seite oder, mit `X-Requested-With: fragment`,
  * als Inhalt des Drawers (assets/js/ui/drawer-form.js). Die Dienstnummer
- * wird beim Tippen gegen /api/personnel/check-dienstnr geprüft
+ * wird beim Tippen gegen /api/personnel/check-service-number geprüft
  * (assets/js/dienstnr-check.js); das Skript wird nachgeladen, wenn die
  * Seite es noch nicht hat, damit es auch im Drawer läuft.
  *

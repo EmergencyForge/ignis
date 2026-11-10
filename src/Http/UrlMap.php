@@ -13,11 +13,13 @@ namespace App\Http;
  * Tabelle, die sowohl der Front-Controller-Redirector (public/index.php)
  * als auch die Auto-Translation in `Controller::redirect()` nutzen.
  *
- * Drei Kategorien von Mapping:
+ * Vier Kategorien von Mapping:
  *
  *   1. **Top-Segment**: `/kalender/X` → `/calendar/X`
  *   2. **API-Segment**: `/api/kalender/X` → `/api/calendar/X` (auch /api/v1/...)
  *   3. **Settings-Segment**: `/settings/<de>/.../...` → `/settings/<en>/.../...`
+ *   4. **Praefix**: `/enotf/schnittstelle/X` → `/enotf/monitor/X`, fuer Pfade,
+ *      deren erstes Segment schon englisch ist
  *
  * Trailing-Slash bleibt **strikt** erhalten: `/kalender/` → `/calendar/`,
  * `/kalender` → `/calendar`. Sub-Pfade und Query-Strings werden 1:1 durch-
@@ -64,6 +66,28 @@ final class UrlMap
         'medikamente'  => 'medications',
         'antrag'       => 'forms',
         'personal'     => 'personnel',
+        'kategorien'   => 'categories',
+    ];
+
+    /**
+     * Praefix-Mapping fuer ganze Pfadanfaenge. Ein Eintrag greift nur an
+     * einer Segmentgrenze, der laengste Treffer gewinnt. Deshalb steht
+     * `index.php` hier ausdruecklich: der Front-Controller schneidet
+     * `.php` bei `index.php` nicht ab, und ef_klinikmonitor ruft genau
+     * `/enotf/schnittstelle/index.php?klinik=` auf.
+     *
+     * @var array<string,string>
+     */
+    public const PREFIX_LEGACY_TO_CANONICAL = [
+        '/enotf/schnittstelle'                       => '/enotf/monitor',
+        '/enotf/schnittstelle/index.php'             => '/enotf/monitor/index',
+        '/enotf/schnittstelle/klinikcode'            => '/enotf/monitor/code',
+        '/enotf/schnittstelle/voranmeldung'          => '/enotf/monitor/prereg',
+        '/enotf/schnittstelle/hospital-availability' => '/enotf/monitor/availability',
+        '/enotf/schnittstelle/api-prereg'            => '/api/enotf/prereg',
+        '/enotf/monitor/index.php'                   => '/enotf/monitor/index',
+        '/enotf/fahrzeuginfo'                        => '/enotf/vehicle-info',
+        '/enotf/fahrtenbuch'                         => '/enotf/logbook',
     ];
 
     /**
@@ -90,6 +114,11 @@ final class UrlMap
     {
         if ($path === '' || $path === '/') {
             return null;
+        }
+
+        $prefixed = self::translatePrefix($path);
+        if ($prefixed !== null) {
+            return $prefixed;
         }
 
         // Trailing-Slash merken, damit am Ende rekonstruiert
@@ -138,6 +167,20 @@ final class UrlMap
             $result .= '/';
         }
         return $result;
+    }
+
+    private static function translatePrefix(string $path): ?string
+    {
+        $best = null;
+        foreach (self::PREFIX_LEGACY_TO_CANONICAL as $legacy => $canonical) {
+            if (($path === $legacy || str_starts_with($path, $legacy . '/'))
+                && ($best === null || strlen($legacy) > strlen($best))
+            ) {
+                $best = $legacy;
+            }
+        }
+
+        return $best === null ? null : self::PREFIX_LEGACY_TO_CANONICAL[$best] . substr($path, strlen($best));
     }
 
     /**

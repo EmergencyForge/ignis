@@ -37,7 +37,7 @@ use Plugin\Enotf\Crew\Models\EdiviVitalwert;
 
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 
-$sectionUrl = EnotfUrl::protokoll($enr, 'verlauf');
+$sectionUrl = EnotfUrl::protokoll($enr, 'progress');
 $fokusUrl   = static fn (string $t): string => $sectionUrl . '?t=' . rawurlencode($t);
 
 $fokus = $fokusThema ?? null;

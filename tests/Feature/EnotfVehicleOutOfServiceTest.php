@@ -38,7 +38,7 @@ final class EnotfVehicleOutOfServiceTest extends FeatureTestCase
     #[Test]
     public function ein_aktives_fahrzeug_zeigt_seine_fahrzeuginfo(): void
     {
-        $page = $this->get('/enotf/fahrzeuginfo');
+        $page = $this->get('/enotf/vehicle-info');
 
         $this->assertOk($page);
         $this->assertBodyContains('Defekt melden', $page);
@@ -49,7 +49,7 @@ final class EnotfVehicleOutOfServiceTest extends FeatureTestCase
     {
         Capsule::table('intra_fahrzeuge')->where('id', $this->vehicle['id'])->update(['active' => 0]);
 
-        $this->assertRedirect($this->get('/enotf/fahrzeuginfo'), '/enotf/loggedout?grund=ausser-dienst');
+        $this->assertRedirect($this->get('/enotf/vehicle-info'), '/enotf/loggedout?grund=ausser-dienst');
         $this->assertFalse(SessionManager::isEnotfActive());
         $this->assertFalse(Capsule::table('intra_enotf_sessions')
             ->where('vehicle_identifier', $this->vehicle['identifier'])->where('active', 1)->exists());

@@ -101,7 +101,7 @@
         const saveBtn = findEl(root, prefix + 'tz-save-template-btn');
         if (!select || !saveBtn) return;
 
-        const TZ_API = (basePath || global.BASE_PATH || '/') + 'api/vehicles/tz-templates';
+        const TZ_API = (basePath || global.BASE_PATH || '/') + 'api/vehicles/tactical-symbol-templates';
 
         function loadTemplates() {
             fetch(TZ_API + '?action=list')

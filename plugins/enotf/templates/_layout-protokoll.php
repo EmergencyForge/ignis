@@ -68,13 +68,13 @@ require_once $__root . '/assets/functions/enotf/conditions.php';
 
 // v1-Section-Nummern für enotf_get_nav_requires (verlauf hat keine Pflichten)
 $__sectionNums = [
-    'rettdaten'  => 1,
-    'erstbefund' => 2,
-    'anamnese'   => 3,
-    'diagnose'   => 4,
-    'verlauf'    => null,
-    'massnahmen' => 6,
-    'abschluss'  => 7,
+    'mission'       => 1,
+    'assessment'    => 2,
+    'history'       => 3,
+    'diagnosis'     => 4,
+    'progress'      => null,
+    'interventions' => 6,
+    'completion'    => 7,
 ];
 
 // Füllstands-Klasse je Section (Initialwert serverseitig aus dem
@@ -252,7 +252,7 @@ date_default_timezone_set('Europe/Berlin');
 
                 <?php if (!$__istFreigegeben): ?>
                     <?php if (defined('ENOTF_PREREG') && ENOTF_PREREG): ?>
-                        <a href="<?= $__e(EnotfUrl::schnittstelle('voranmeldung', ['enr' => (string) $__enr])) ?>" id="prereg" class="edivi__iconlink">
+                        <a href="<?= $__e(EnotfUrl::monitor('prereg', ['enr' => (string) $__enr])) ?>" id="prereg" class="edivi__iconlink">
                             <i class="fa-solid fa-house-medical"></i><br>
                             <small>Anmeldung</small>
                         </a>
@@ -484,7 +484,7 @@ date_default_timezone_set('Europe/Berlin');
                     $__requires = $__num !== null ? enotf_get_nav_requires($__tz, $__num) : '';
                     ?>
                     <a href="<?= $__e(EnotfUrl::protokoll((string) $__enr, (string) $__key)) ?>"
-                       data-page="<?= $__e($__key === 'rettdaten' ? 'stammdaten' : $__key) ?>"
+                       data-page="<?= $__e($__key === 'mission' ? 'stammdaten' : $__section['template']) ?>"
                        <?= $__requires !== '' ? 'data-requires="' . $__e($__requires) . '"' : '' ?>
                        class="<?= $__key === $__activeSection ? 'active ' : '' ?><?= $__requires !== '' ? $__navFillClass($__key) : 'edivi__nidanav-nocheck' ?>"
                        data-section-key="<?= $__e($__key) ?>">

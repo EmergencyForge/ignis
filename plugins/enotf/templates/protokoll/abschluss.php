@@ -45,7 +45,7 @@ use Plugin\Enotf\Crew\Support\ConditionsService;
 
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 
-$sectionUrl = EnotfUrl::protokoll($enr, 'abschluss');
+$sectionUrl = EnotfUrl::protokoll($enr, 'completion');
 $fokusUrl   = static fn (string $t): string => $sectionUrl . '?t=' . rawurlencode($t);
 
 $protBy = ($protokoll['prot_by'] !== null && $protokoll['prot_by'] !== '')
@@ -920,7 +920,7 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
                     title: 'Klinikcode',
                     body: '<p class="ignis-dialog__text">Code für Protokoll #<?= $e($enr) ?></p>'
                         + '<p id="klinikcode-wert" class="font-mono text-3xl font-bold tracking-[0.4em] my-4">…</p>'
-                        + '<p class="ignis-dialog__text">Gültig für eine Stunde unter<br><?= $e('https://' . SYSTEM_URL . EnotfUrl::schnittstelle('klinikcode')) ?></p>',
+                        + '<p class="ignis-dialog__text">Gültig für eine Stunde unter<br><?= $e('https://' . SYSTEM_URL . EnotfUrl::monitor('code')) ?></p>',
                     actions: [
                         { label: 'Schließen', variant: 'ghost' },
                         { label: 'Code kopieren', variant: 'primary', close: false, onClick: function () {
@@ -936,7 +936,7 @@ $pick     = static fn (array $codes, array $katalog): array => array_combine($co
                 var feld = document.getElementById('klinikcode-wert');
                 var body = new FormData();
                 body.append('enr', <?= json_encode((string) $enr, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>);
-                fetch(<?= json_encode(BASE_PATH . 'api/klinik/generate-code') ?>, { method: 'POST', body: body, headers: { 'Accept': 'application/json' } })
+                fetch(<?= json_encode(BASE_PATH . 'api/hospitals/generate-code') ?>, { method: 'POST', body: body, headers: { 'Accept': 'application/json' } })
                     .then(function (r) { return r.json().catch(function () { return {}; }); })
                     .then(function (data) {
                         if (data && data.success) {
