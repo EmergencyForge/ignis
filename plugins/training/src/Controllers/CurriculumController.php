@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Plugin\Training\Controllers;
 
+use App\Documents\Editor\TemplateImageSource;
+use App\Exceptions\UploadException;
 use App\Helpers\Flash;
 use App\Plugins\PluginLoader;
 use DomainException;
@@ -230,25 +232,27 @@ final class CurriculumController extends BaseController
         return $module === null ? self::notFound() : self::deliver($file, $request->queryString('download') === '1');
     }
 
-    /** POST /api/training/images: Bild aus dem Editor einer Text-Einheit. */
-    public function uploadImage(Request $request): Response
+    /**
+     * POST /api/training/modules/{id}/images: Bild für einen Artikel. Liegt
+     * bei den Vorlagenbildern, weil der Renderer nur Pfade derselben Seite
+     * mit Bildendung durchlässt und deren Route ohne Anmeldung ausliefert.
+     */
+    public function uploadImage(Request $request, string $id): Response
     {
+        if ($this->module($id) === null) {
+            return self::json(['error' => 'Keine Berechtigung für diesen Lehrplan.'], 403);
+        }
         $upload = $request->files['image'] ?? null;
         if (!is_array($upload)) {
-            return self::json(['error' => 'Keine Datei hochgeladen.'], 400);
+            return self::json(['error' => 'Es wurde keine Datei ausgewählt.'], 422);
         }
         try {
-            $file = $this->files->store($upload, self::userId() ?: null);
-        } catch (DomainException $e) {
-            return self::json(['error' => $e->getMessage()], 422);
-        }
-        if (!$file->isImage()) {
-            $this->files->delete($file);
-
-            return self::json(['error' => 'Bitte ein Bild hochladen.'], 422);
+            $name = TemplateImageSource::store($upload);
+        } catch (UploadException $e) {
+            return self::json(['error' => $e->getMessage()], $e->status);
         }
 
-        return self::json(['src' => self::base() . 'training/images/' . $file->id, 'alt' => '']);
+        return self::json(['src' => self::base() . TemplateImageSource::ROUTE . $name, 'alt' => '']);
     }
 
     private function addModule(string $column, int $ownerId, string $title): Response

@@ -291,19 +291,6 @@ final class TrainingController extends BaseController
         return self::deliver($fileModel, $download);
     }
 
-    /** GET /training/images/{id}: Bilder in Text-Einheiten. */
-    public function image(Request $request, string $id): Response
-    {
-        // Nur Editor-Bilder. Unterlagen laufen über file() mit Teilnahmeprüfung, Fragenbilder über den Versuch.
-        $file = TrainingFile::query()->find((int) $id);
-        if ($file === null || !$file->isImage() || Unit::query()->where('file_id', $file->id)->exists()
-            || \Plugin\Training\Models\Question::query()->where('image_path', (string) $file->id)->exists()) {
-            return self::notFound();
-        }
-
-        return self::deliver($file, false);
-    }
-
     private function participation(Course $course): ?Participation
     {
         $personnelId = self::personnelId();
