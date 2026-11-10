@@ -239,7 +239,9 @@ final class FabricaClient
         // Absagen formuliert die Konsole für Menschen (Budget aufgebraucht,
         // nicht freigeschaltet); alles andere bleibt allgemein.
         $error = is_array($data) && is_string($data['error'] ?? null) ? mb_substr($data['error'], 0, 300) : '';
-        throw new RuntimeException($error !== '' ? $error . '.' : 'Die EmergencyForge-Konsole hat die Anfrage abgelehnt.');
+        // Der Status geht als Code mit, damit ein Aufrufer eine erwartete Absage
+        // (503, nicht eingerichtet) von einer Störung unterscheiden kann.
+        throw new RuntimeException($error !== '' ? $error . '.' : 'Die EmergencyForge-Konsole hat die Anfrage abgelehnt.', $response->getStatusCode());
     }
 
     /** @param array<string,string> $body

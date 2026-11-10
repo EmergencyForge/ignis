@@ -932,6 +932,7 @@
     // Das FiveM-Tablet kann nicht teilen, auch wenn es getDisplayMedia kennt; zuschauen geht dort.
     const canShare = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) && !/CitizenFX/.test(navigator.userAgent);
     const MISSING = 'Der Bildschirm kommt bei dir nicht an. Lade die Seite neu oder schau später wieder rein.';
+    const TOO_MANY = 'Bildschirm teilen geht gerade nicht: zu viele Zuschauer für eine direkte Übertragung.';
     let livekit = null;
     let share = null;
     let starting = false;
@@ -1011,7 +1012,7 @@
                 end();
                 // Der Server teilt schon, das Fenster ist aber weg.
                 if (stopped) { if (status === 200) screenOff(); return; }
-                if (status === 409 && data.error === 'too_many') hint('Bildschirm teilen geht gerade nicht: zu viele Zuschauer für eine direkte Übertragung.');
+                if (status === 409 && data.error === 'too_many') hint(TOO_MANY);
                 else if (status === 409 && data.error === 'ended') showEnded();
                 else if (status === 403 || status === 404 || status === 409) reloadView();
                 else hint('Bildschirm teilen hat gerade nicht geklappt.');
@@ -1027,7 +1028,14 @@
             showMode('screen');
             // Ab hier läuft das Teilen; beenden muss auch gehen, während LiveKit noch verbindet.
             starting = false;
-            if (s.via === 'livekit') await publish(s, data);
+            if (s.via === 'livekit') {
+                try {
+                    await publish(s, data);
+                } catch (error) {
+                    if (stopped || share !== s) throw error;
+                    await fallBack(s);
+                }
+            }
         } catch (error) {
             end();
             // Schon beendet, etwa mit „Teilen beenden“, während LiveKit verband.
@@ -1035,7 +1043,7 @@
             if (mine) leaveScreen('slides');
             // Ohne Antwort weiß niemand, ob der Server schon teilt; der nächste Paket-POST stellt den Modus klar.
             else pendingMode = st.mode;
-            hint('Bildschirm teilen hat gerade nicht geklappt.');
+            hint(error && error.message === 'too_many' ? TOO_MANY : 'Bildschirm teilen hat gerade nicht geklappt.');
         } finally {
             starting = false;
         }
@@ -1046,11 +1054,26 @@
         if (share !== s) return;
         const room = new Room();
         s.room = room;
-        // Gibt LiveKit endgültig auf, sähe sonst niemand mehr etwas.
-        room.on(RoomEvent.Disconnected, () => { if (share === s) leaveScreen('slides'); });
         await room.connect(data.url, data.token);
         if (share !== s) return;
         await room.localParticipant.publishTrack(s.track, { source: Track.Source.ScreenShare });
+        // Erst jetzt: bis hierhin führt jeder Fehler zu fallBack(). Gibt LiveKit danach endgültig auf, sähe sonst niemand mehr etwas.
+        room.on(RoomEvent.Disconnected, () => { if (share === s) leaveScreen('slides'); });
+    }
+
+    /**
+     * Die Konsole gab einen Schlüssel, LiveKit selbst kommt aber nicht zustande
+     * (Dienst aus, Ports zu): einmal direkt, mit demselben Bild und ohne zweite Auswahl.
+     */
+    async function fallBack(s) {
+        const room = s.room;
+        s.room = null;
+        if (room) room.disconnect();
+        const { status, data } = await post('/screen', { via: 'direct' });
+        if (share !== s) return;
+        if (status !== 200) throw new Error(status === 409 && data.error === 'too_many' ? 'too_many' : 'direct');
+        s.via = 'direct';
+        screenButton();
     }
 
     /** Ohne Warten und ohne Abbruchsignal: die Zuschauer sollen auf die Folie zurück statt auf ein schwarzes Bild. */
@@ -1123,9 +1146,10 @@
 
     /** Verbinden, sobald der Stand `screen` meldet, nicht erst nach der Nachspiel-Verzögerung. */
     function follow(s) {
-        const on = s.mode === 'screen' && !!s.screen;
-        if (on && !watch) startWatch(s.screen.via);
-        else if (!on && watch) unwatch(false);
+        const way = s.mode === 'screen' && s.screen ? s.screen.via : null;
+        // Ein anderer Weg heißt neu verbinden, etwa wenn der Host von LiveKit auf direkt ausweicht.
+        if (watch && watch.via !== way) unwatch(false);
+        if (way && !watch) startWatch(way);
     }
 
     function startWatch(way) {
@@ -1147,6 +1171,13 @@
         w.room = room;
         room.on(RoomEvent.TrackSubscribed, (track) => { if (watch === w && track.kind === 'video') track.attach(video); });
         await room.connect(data.url, data.token);
+        // Erst nach dem Verbinden, sonst fragte ein gescheiterter Aufbau bei jeder Abfrage neu.
+        // Rausgeworfen oder aufgegeben: die nächste Abfrage verbindet neu, bis dahin steht der Hinweis.
+        room.on(RoomEvent.Disconnected, () => {
+            if (watch !== w) return;
+            unwatch(false);
+            screenNote(MISSING);
+        });
     }
 
     async function viewerSignal(e) {

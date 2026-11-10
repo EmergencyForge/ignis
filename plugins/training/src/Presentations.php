@@ -253,7 +253,10 @@ final class Presentations
             try {
                 $token = $client->liveToken($room, 'u' . $userId, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], true);
             } catch (\Throwable $e) {
-                error_log('LiveKit-Schlüssel fehlgeschlagen, Bildschirm geht direkt: ' . $e->getMessage());
+                // 503: die Konsole hat kein LiveKit eingerichtet. Das ist der Normalfall, keine Störung.
+                if ($e->getCode() !== 503) {
+                    error_log('LiveKit-Schlüssel fehlgeschlagen, Bildschirm geht direkt: ' . $e->getMessage());
+                }
                 $room = null;
             }
         }
@@ -297,7 +300,11 @@ final class Presentations
             throw new \RuntimeException('Keine EmergencyForge-Konsole.');
         }
 
-        return $client->liveToken($p->screen_room, 'u' . $userId, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], $userId === $p->presenter_id);
+        $host = $userId === $p->presenter_id;
+        // Zuschauer je Tab eindeutig: kommt dieselbe Identität zweimal, wirft LiveKit die ältere Verbindung hinaus.
+        $identity = 'u' . $userId . ($host ? '' : '-' . bin2hex(random_bytes(4)));
+
+        return $client->liveToken($p->screen_room, $identity, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], $host);
     }
 
     /**

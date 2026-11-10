@@ -10,6 +10,7 @@ use DateTimeImmutable;
 use DomainException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 use RuntimeException;
 use Plugin\Training\AiDrafts;
@@ -33,6 +34,8 @@ final class PresentationController extends BaseController
 {
     private const MAX_EVENTS = 200;
     private const MAX_PAGES  = 500;
+    /** Schlüssel je Nutzer und Minute; jeder ist eine Anfrage an die Konsole mit bis zu 5 s Wartezeit. */
+    private const TOKEN_LIMIT = 10;
 
     /** GET /training/courses/{course}/sessions/{session}/slides */
     public function slides(Request $request, string $course, string $session): Response
@@ -198,8 +201,13 @@ final class PresentationController extends BaseController
         if ($live === null) {
             return $error;
         }
+        $via = ($request->json() ?? [])['via'] ?? null;
+        if ($via !== null && $via !== 'direct') {
+            return self::json(['error' => 'invalid'], 422);
+        }
         try {
-            $result = Presentations::startScreen($live, self::userId(), AiDrafts::client());
+            // `direct`: der Host bekam einen LiveKit-Schlüssel, kam aber nicht in den Raum.
+            $result = Presentations::startScreen($live, self::userId(), $via === 'direct' ? null : AiDrafts::client());
         } catch (DomainException $e) {
             return self::json(['error' => $e->getMessage()], 409);
         }
@@ -215,8 +223,16 @@ final class PresentationController extends BaseController
         if ($live === null) {
             return self::json(['error' => 'not_found'], 404);
         }
+        $userId = self::userId();
+        $key    = 'training_screen_tokens_' . $userId;
+        $now    = Carbon::now()->getTimestamp();
+        $recent = array_values(array_filter((array) ($_SESSION[$key] ?? []), static fn ($at): bool => is_int($at) && $at > $now - 60));
+        if (count($recent) >= self::TOKEN_LIMIT) {
+            return self::json(['error' => 'too_many_tokens'], 429);
+        }
+        $_SESSION[$key] = [...$recent, $now];
         try {
-            $token = Presentations::screenToken($live, self::userId(), AiDrafts::client());
+            $token = Presentations::screenToken($live, $userId, AiDrafts::client());
         } catch (DomainException) {
             return self::json(['error' => 'not_livekit'], 409);
         } catch (RuntimeException) {

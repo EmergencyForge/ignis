@@ -1304,6 +1304,57 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function screen_goes_direct_on_request_without_asking_the_console(): void
+    {
+        [, , $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->console([$this->liveKey('host-jwt')]);
+        $this->assertSame('livekit', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
+
+        // LiveKit kam nicht zustande; der Host weicht mit demselben Bild aus.
+        $res = $this->assertJsonResponse($this->postJson($path . '/screen', ['via' => 'direct']));
+        $this->assertSame('direct', $res['via']);
+        $this->assertCount(1, $this->sent);
+        $p = $this->live($session);
+        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->screen_room]);
+
+        $this->assertStatus(422, $this->postJson($path . '/screen', ['via' => 'livekit']));
+
+        $this->viewers($p, Presentations::SCREEN_LIMIT + 1);
+        $full = $this->postJson($path . '/screen', ['via' => 'direct']);
+        $this->assertStatus(409, $full);
+        $this->assertSame('too_many', $this->assertJsonResponse($full)['error']);
+        $this->assertCount(1, $this->sent);
+    }
+
+    #[Test]
+    public function viewer_tokens_stop_at_ten_a_minute(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $viewer = $this->learnerIn($course);
+        $this->console(array_fill(0, 11, $this->liveKey()));
+        $this->as($teacher['user'], ['training.teach']);
+        $this->postJson($path . '/screen');
+
+        $this->as($viewer['user'], ['training.view']);
+        for ($i = 0; $i < 10; $i++) {
+            $this->assertJsonResponse($this->postJson($path . '/screen/token'));
+        }
+        $refused = $this->postJson($path . '/screen/token');
+        $this->assertStatus(429, $refused);
+        $this->assertSame('too_many_tokens', $this->assertJsonResponse($refused)['error']);
+        $this->assertCount(11, $this->sent);
+
+        Carbon::setTestNow(Carbon::now()->addSeconds(61));
+        try {
+            $this->assertJsonResponse($this->postJson($path . '/screen/token'));
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    #[Test]
     public function only_the_host_starts_screen(): void
     {
         [, $course, $session, $path] = $this->talk();
@@ -1330,7 +1381,9 @@ final class TrainingPresentationTest extends FeatureTestCase
         $res = $this->assertJsonResponse($this->postJson($path . '/screen/token'));
         $this->assertSame(['wss://live.example.test', 'viewer-jwt'], [$res['url'], $res['token']]);
         $sent = $this->sentBody(1);
-        $this->assertSame([$room, 'u' . $viewer['user'], 'viewer'], [$sent['room'], $sent['identity'], $sent['role']]);
+        $this->assertSame([$room, 'viewer'], [$sent['room'], $sent['role']]);
+        // Je Tab eine eigene Identität, sonst wirft LiveKit den älteren Tab hinaus.
+        $this->assertMatchesRegularExpression('/^u' . $viewer['user'] . '-[0-9a-f]{8}$/', (string) $sent['identity']);
 
         $this->console([new HttpResponse(503)]);
         $down = $this->postJson($path . '/screen/token');
