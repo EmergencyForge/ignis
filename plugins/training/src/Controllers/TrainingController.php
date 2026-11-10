@@ -96,12 +96,13 @@ final class TrainingController extends BaseController
         $curriculum = Curriculum::for($course);
         $state      = $participation !== null ? ($curriculum->states([$participation->id])[$participation->id] ?? []) : [];
         $progress   = $curriculum->progress($state);
-        // Laufende Vorträge der Termine mit Folien; wer nicht folgen darf, sieht keinen Hinweis.
+        // Laufende Vorträge der Termine mit Folien; wer nicht folgen darf, sieht keinen Hinweis,
+        // der Host keinen zum eigenen Vortrag.
         $lives = [];
         if (TrainingPolicy::follow($course, $participation)) {
             $now = new \DateTimeImmutable();
             foreach ($course->sessions as $session) {
-                if ($session->slides_file_id !== null && ($live = Presentations::live($session, $now)) !== null) {
+                if ($session->slides_file_id !== null && ($live = Presentations::live($session, $now)) !== null && $live->presenter_id !== self::userId()) {
                     $lives[$session->id] = [$session, $live];
                 }
             }

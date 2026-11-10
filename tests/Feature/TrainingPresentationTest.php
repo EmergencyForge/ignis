@@ -990,6 +990,63 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function course_page_hides_the_live_hint_from_the_host(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $other = $this->instructor($course);
+        $this->post($path . '/start');
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertBodyNotContains('Vortrag läuft', $this->get('/training/courses/' . $course->id));
+
+        $this->as($other['user'], ['training.teach']);
+        $this->assertBodyContains('Vortrag läuft: Theorie', $this->get('/training/courses/' . $course->id));
+    }
+
+    #[Test]
+    public function both_views_render(): void
+    {
+        [, $course, , $path] = $this->talk();
+        $other = $this->instructor($course);
+        $this->post($path . '/start');
+
+        $host = $this->get($path);
+        $this->assertOk($host);
+        $this->assertBodyContains('data-role="present"', $host);
+        $this->assertBodyContains('data-tr-live', $host);
+        $this->assertBodyContains('data-pdfjs="', $host);
+        $this->assertBodyContains('data-elapsed="', $host);
+        $this->assertBodyContains('plugins/training/assets/css/presentation.css', $host);
+        $this->assertBodyContains('plugins/training/assets/js/presentation.js', $host);
+        $this->assertBodyContains('data-handover-to="' . $other['user'] . '"', $host);
+        $this->assertBodyContains('An wen soll der Vortrag gehen? Die Person muss annehmen.', $host);
+        $this->assertBodyContains('data-tool="ellipse"', $host);
+        $this->assertBodyContains('style="background:#ef4444"', $host);
+        $this->assertBodyContains($path . '/end"', $host);
+        $this->assertBodyContains('Vortrag beendet', $host);
+
+        $this->learnerIn($course);
+        $follow = $this->get($path);
+        $this->assertOk($follow);
+        $this->assertBodyContains('data-role="follow"', $follow);
+        $this->assertBodyContains('Kurze Pause', $follow);
+        $this->assertBodyContains('Verbunden', $follow);
+        $this->assertBodyContains('Folien öffnen', $follow);
+        $this->assertBodyNotContains('data-handover-to', $follow);
+        $this->assertBodyNotContains('data-tool=', $follow);
+        $this->assertBodyNotContains($path . '/end"', $follow);
+    }
+
+    #[Test]
+    public function host_without_other_teachers_sees_the_empty_handover_list(): void
+    {
+        [, , , $path] = $this->talk();
+        $this->post($path . '/start');
+
+        $this->assertBodyContains('Im Lehrgang lehrt sonst niemand.', $this->get($path));
+    }
+
+    #[Test]
     public function staff_page_offers_follow_to_non_hosts(): void
     {
         [, $course, , $path] = $this->talk();

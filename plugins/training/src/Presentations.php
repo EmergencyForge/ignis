@@ -307,7 +307,7 @@ final class Presentations
     /**
      * Wem der Host den Vortrag übergeben kann, nach Namen.
      *
-     * @return list<array{id:int, name:string}>
+     * @return list<array{id:int, name:string, initials:string, role:string}>
      */
     public static function targets(Presentation $p): array
     {
@@ -315,9 +315,11 @@ final class Presentations
             self::staffIds($p),
             static fn (int $id): bool => $id !== $p->presenter_id && TrainingPolicy::canTeach($id),
         ));
-        $out = [];
+        $lead = Session::query()->with('course')->findOrFail($p->session_id)->course->lead_user_id;
+        $out  = [];
         foreach (User::query()->with('mitarbeiter')->whereKey($ids)->get() as $user) {
-            $out[] = ['id' => (int) $user->id, 'name' => self::identity($user)['name']];
+            $who   = self::identity($user);
+            $out[] = ['id' => (int) $user->id, 'name' => $who['name'], 'initials' => $who['initials'], 'role' => (int) $user->id === $lead ? 'Leitung' : 'Ausbilder'];
         }
         usort($out, static fn (array $a, array $b): int => strcasecmp($a['name'], $b['name']));
 
