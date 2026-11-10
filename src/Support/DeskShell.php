@@ -6,7 +6,6 @@ namespace App\Support;
 
 use App\Helpers\Navigation;
 use App\Helpers\Theme;
-use App\Models\User;
 use App\Session\SessionManager;
 use EmergencyForge\Ui\Desk;
 use EmergencyForge\Ui\Ui;
@@ -147,7 +146,7 @@ final class DeskShell
         $base = self::basePath();
         $groups = Navigation::groups();
         $sidebar = Navigation::sidebarGroups($groups);
-        $name = (string) ($_SESSION['cirs_username'] ?? '');
+        $identity = AccountIdentity::current();
         $userId = SessionManager::userId();
 
         return (new Desk(self::ui()))->config(self::nav($sidebar), [
@@ -171,7 +170,7 @@ final class DeskShell
                 'inboxPopover' => $base . 'inbox/popover',
             ],
             'create' => self::createByApp($groups, $base),
-            'user' => ['initials' => mb_strtoupper(mb_substr($name !== '' ? $name : '?', 0, 2)), 'name' => $name, 'fullName' => User::find($userId)?->fullname ?: $name],
+            'user' => ['initials' => $identity['initials'], 'name' => $identity['name'], 'fullName' => $identity['name'], 'photo' => $identity['photo']],
             'theme' => [
                 'action' => $base . 'profile/theme',
                 'field' => 'csrf_token',
