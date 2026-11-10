@@ -12,7 +12,7 @@ final class StoredLinksEnglishMigrationTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
-        require_once dirname(__DIR__, 3) . '/database/migrations/20261110500001_rewrite_stored_links_english.php';
+        require_once dirname(__DIR__, 3) . '/database/migrations/20261110500003_rewrite_stored_links_english.php';
     }
 
     #[Test]
