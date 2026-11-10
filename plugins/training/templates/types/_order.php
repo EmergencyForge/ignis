@@ -41,7 +41,7 @@ $criterionRow = static fn (string $g, string $c, array $crit): string => '<div c
     . '<input type="hidden" name="groups[' . $g . '][criteria][' . $c . '][key]" value="' . htmlspecialchars((string) ($crit['key'] ?? '')) . '">'
     . '<input type="text" name="groups[' . $g . '][criteria][' . $c . '][label]" class="ignis-input tr-crit__label" maxlength="300" placeholder="Kriterium" aria-label="Kriterium" value="' . htmlspecialchars((string) ($crit['label'] ?? '')) . '">'
     . '<input type="number" name="groups[' . $g . '][criteria][' . $c . '][points]" class="ignis-input tr-num" min="0.5" step="0.5" placeholder="ja/nein" aria-label="Punkte, leer für erfüllt oder nicht erfüllt" data-ignis-tooltip="Leer: erfüllt oder nicht erfüllt" value="' . htmlspecialchars(isset($crit['points']) ? (string) $crit['points'] : '') . '">'
-    . '<label class="ignis-checkbox"><input type="checkbox" name="groups[' . $g . '][criteria][' . $c . '][knockout]" value="1"' . (!empty($crit['knockout']) ? ' checked' : '') . '><span>K.-o.</span></label>'
+    . '<label class="ignis-checkbox"><input type="checkbox" name="groups[' . $g . '][criteria][' . $c . '][knockout]" value="1"' . (!empty($crit['knockout']) ? ' checked' : '') . '><span>Muss erfüllt sein</span></label>'
     . '<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm" data-tr-remove aria-label="Kriterium entfernen" data-ignis-tooltip="Entfernen"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>';
 $groupBlock = static function (string $g, array $group) use ($criterionRow): string {
     $rows = '';
@@ -131,8 +131,9 @@ $groupBlock = static function (string $g, array $group) use ($criterionRow): str
                     <?php endforeach; ?>
                 </div>
                 <div class="mt-3">
-                    <span class="ignis-field__label">K.-o.-Fragen: falsch heißt nicht bestanden</span>
-                    <?= $multi('knockouts[]', array_map('intval', $settings->knockouts), 'K.-o.-Fragen') ?>
+                    <span class="ignis-field__label">Muss stimmen</span>
+                    <?= $multi('knockouts[]', array_map('intval', $settings->knockouts), 'Fragen, die stimmen müssen') ?>
+                    <p class="ignis-field__hint">Fehlt bei einer dieser Fragen die vollständig richtige Antwort, gilt der Teil als nicht bestanden, egal wie viele Punkte sonst erreicht sind.</p>
                 </div>
 
                 <h4>Ablauf</h4>
@@ -187,7 +188,7 @@ $groupBlock = static function (string $g, array $group) use ($criterionRow): str
                     <template data-tr-template data-placeholder="__i__"><?= $groupBlock('__i__', ['criteria' => [[]]]) ?></template>
                     <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm mt-2" data-tr-add><i class="fa-solid fa-plus" aria-hidden="true"></i> Gruppe</button>
                 </div>
-                <p class="ignis-detail__muted">Ohne Punkte zählt ein Kriterium als erfüllt oder nicht erfüllt (ein Punkt). Ein K.-o.-Kriterium, das nicht erfüllt ist, heißt nicht bestanden.</p>
+                <p class="ignis-detail__muted">Ohne Punkte zählt ein Kriterium als erfüllt oder nicht erfüllt (ein Punkt). Ist „Muss erfüllt sein“ gesetzt, gilt der Praxisteil als nicht bestanden, wenn dieses Kriterium fehlt, unabhängig von den übrigen Punkten.</p>
 
                 <h4>Bewertung</h4>
                 <div class="tr-grid">

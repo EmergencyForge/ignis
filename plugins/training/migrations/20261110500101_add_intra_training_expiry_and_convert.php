@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Documents\Editor\SystemTemplates;
 use Phinx\Migration\AbstractMigration;
 
 /**
  * Erinnerung vor Ablauf (`training:expiry`, täglich) und Umwandlung von
  * PowerPoint in PDF (`training:convert`, jede Minute; ohne eingerichteten
  * Umwandler endet der Lauf sofort). `expiry_notified_at` hält fest, dass
- * eine Teilnahme ihre Erinnerung schon bekommen hat.
+ * eine Teilnahme ihre Erinnerung schon bekommen hat. Dazu der Prüfcode an
+ * den mitgelieferten Lehrgangsurkunden.
  */
 final class AddIntraTrainingExpiryAndConvert extends AbstractMigration
 {
@@ -34,6 +36,11 @@ final class AddIntraTrainingExpiryAndConvert extends AbstractMigration
         $this->table('intra_training_participations')
             ->addColumn('expiry_notified_at', 'datetime', ['null' => true, 'after' => 'expires_on'])
             ->update();
+
+        // Die mitgelieferten Lehrgangsurkunden drucken den Prüfcode ab Werk, eigene Vorlagen nicht.
+        $this->getAdapter()->getConnection()
+            ->prepare('UPDATE intra_document_templates SET print_verification = 1 WHERE name IN (?, ?)')
+            ->execute([SystemTemplates::TRAINING_DIPLOMA, SystemTemplates::TRAINING_COURSE]);
 
         if (!$this->hasTable('intra_cron_jobs')) {
             return;

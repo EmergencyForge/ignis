@@ -93,6 +93,25 @@ final class DocumentVerificationTest extends FeatureTestCase
         return $this->get('/verify', ['query' => ['code' => $code], 'server' => ['REMOTE_ADDR' => $ip]]);
     }
 
+    private function pdf(string $code, string $ip = '203.0.113.8'): Response
+    {
+        return $this->get('/verify/pdf', ['query' => ['code' => $code], 'server' => ['REMOTE_ADDR' => $ip]]);
+    }
+
+    #[Test]
+    public function verify_pdf_liefert_die_gueltige_urkunde(): void
+    {
+        $document = $this->issued();
+        unset($_SESSION['userid'], $_SESSION['permissions']);
+
+        $response = $this->pdf($document->verification_code);
+
+        $this->assertOk($response);
+        $this->assertSame('application/pdf', $response->headers['Content-Type'] ?? null);
+        $this->assertStringStartsWith('%PDF', $response->body);
+        $this->assertStatus(404, $this->pdf('ABCD-EFGH-JK'));
+    }
+
     #[Test]
     public function ausstellen_mit_schalter_vergibt_einen_pruefcode(): void
     {
@@ -134,9 +153,10 @@ final class DocumentVerificationTest extends FeatureTestCase
         $response = $this->verify(strtolower(str_replace('-', ' ', VerificationCode::format($document->verification_code))));
 
         $this->assertOk($response);
-        $this->assertBodyContains('Diese Urkunde ist echt.', $response);
+        $this->assertBodyContains('Zu diesem Prüfcode ist eine gültige Urkunde hinterlegt.', $response);
         $this->assertBodyContains('Erika Muster', $response);
         $this->assertBodyContains('unbefristet', $response);
+        $this->assertBodyContains('Urkunde ansehen', $response);
         $this->assertSame('noindex', $response->headers['X-Robots-Tag'] ?? null);
     }
 
@@ -146,22 +166,22 @@ final class DocumentVerificationTest extends FeatureTestCase
         $code = $this->issued()->verification_code;
         unset($_SESSION['userid'], $_SESSION['permissions']);
 
-        $this->assertBodyContains('Diese Urkunde ist echt.', $this->verify($code));
+        $this->assertBodyContains('Zu diesem Prüfcode ist eine gültige Urkunde hinterlegt.', $this->verify($code));
     }
 
     #[Test]
     public function verify_erkennt_tippfehler_und_unbekannte_codes(): void
     {
-        $this->assertBodyContains('Zu diesem Prüfcode gibt es keine Urkunde.', $this->verify(VerificationCode::generate(999999, new DateTimeImmutable(), 'k')));
+        $this->assertBodyContains('Zu diesem Prüfcode ist keine Urkunde hinterlegt.', $this->verify(VerificationCode::generate(999999, new DateTimeImmutable(), 'k')));
 
+        // Ein Tippfehler bricht die Prüfsumme und zählt nicht gegen das Limit.
         $response = $this->verify('ABCD-EFGH-JK');
         $this->assertOk($response);
-        $this->assertBodyContains('aria-invalid="true"', $response);
-        $this->assertStringNotContainsString('Zu diesem Prüfcode', $response->body);
+        $this->assertBodyContains('Prüfcode unbekannt.', $response);
     }
 
     #[Test]
-    public function verify_zeigt_beim_abgelaufenen_nur_das_datum(): void
+    public function verify_zeigt_beim_abgelaufenen_das_enddatum(): void
     {
         $document                = $this->issued();
         $values                  = $document->frozen_values;
@@ -171,8 +191,9 @@ final class DocumentVerificationTest extends FeatureTestCase
 
         $response = $this->verify($document->verification_code);
 
-        $this->assertBodyContains('Abgelaufen am 01.01.2020', $response);
-        $this->assertStringNotContainsString('Erika Muster', $response->body);
+        $this->assertBodyContains('ihre Gültigkeit endete am 01.01.2020', $response);
+        $this->assertBodyContains('Erika Muster', $response);
+        $this->assertSame('application/pdf', $this->pdf($document->verification_code)->headers['Content-Type'] ?? null);
     }
 
     #[Test]
@@ -211,7 +232,7 @@ final class DocumentVerificationTest extends FeatureTestCase
     }
 
     #[Test]
-    public function widerrufen_zeigt_verify_nur_das_datum(): void
+    public function widerrufen_zeigt_verify_das_datum_ohne_pdf(): void
     {
         $document = $this->issued();
         $user     = FixtureFactory::user();
@@ -224,7 +245,9 @@ final class DocumentVerificationTest extends FeatureTestCase
         $this->assertSame($user->id, $fresh->revoked_by);
 
         $response = $this->verify($document->verification_code);
-        $this->assertBodyContains('Widerrufen am ' . date('d.m.Y'), $response);
-        $this->assertStringNotContainsString('Erika Muster', $response->body);
+        $this->assertBodyContains('Die Urkunde wurde am ' . date('d.m.Y') . ' widerrufen', $response);
+        $this->assertStringNotContainsString('Prüfung wiederholt', $response->body);
+        $this->assertStringNotContainsString('Urkunde ansehen', $response->body);
+        $this->assertStatus(404, $this->pdf($document->verification_code));
     }
 }

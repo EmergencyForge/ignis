@@ -91,7 +91,7 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                                 <input type="checkbox" name="print_verification" value="1" aria-describedby="template-verification-hint"<?= ($template->print_verification ?? false) ? ' checked' : '' ?>>
                                 <span>Prüfcode aufdrucken</span>
                             </label>
-                            <p class="ignis-field__hint" id="template-verification-hint">Ausgestellte Dokumente bekommen einen Prüfcode, unten rechts mit QR-Code. Über /verify lässt sich die Echtheit ohne Anmeldung prüfen.</p>
+                            <p class="ignis-field__hint" id="template-verification-hint">Ausgestellte Dokumente bekommen einen Prüfcode, unten mit QR-Code. Über /verify lässt sich die Echtheit ohne Anmeldung prüfen.</p>
                         </div>
                     </div>
                 </div>

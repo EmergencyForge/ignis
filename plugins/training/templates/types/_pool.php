@@ -142,7 +142,7 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
                 </table>
             </div>
         <?php endif; ?>
-        <p class="ignis-detail__muted mt-2">„Richtig“ ist der Schnitt der erreichten Punkte über alle Versionen. Ab <?= QuestionStats::MIN_ASKED ?> Antworten gilt eine Frage unter <?= (int) (QuestionStats::TOO_HARD * 100) ?> % als zu schwer und über <?= (int) (QuestionStats::TOO_EASY * 100) ?> % als zu leicht. Antworten, die noch bewertet werden, zählen nicht mit.</p>
+        <p class="ignis-detail__muted mt-2">„Richtig“ heißt: Anteil der erreichten Punkte über alle abgegebenen Versuche und alle Versionen. Ab <?= QuestionStats::MIN_ASKED ?> Versuchen werden Fragen unter <?= (int) (QuestionStats::TOO_HARD * 100) ?> % als zu schwer und über <?= (int) (QuestionStats::TOO_EASY * 100) ?> % als zu leicht markiert. Antworten, die noch bewertet werden, zählen nicht mit.</p>
         <p class="ignis-detail__muted mt-2">CSV: Spalten Thema; Art; Frage; Antworten; Punkte; Erklärung. Antworten mit <code>|</code> trennen, richtige mit <code>*</code> markieren, Zuordnung als <code>links=rechts</code>, Zahl als <code>Wert|Toleranz|Einheit</code>.</p>
     </div>
 </div>

@@ -101,12 +101,15 @@ final class Steps
         }
         [$area, $value] = $grant;
         $name = (string) $this->qualificationName($p);
+        // Die Stufe davor braucht der Widerruf der Urkunde, um die Qualifikation zurückzunehmen.
+        $before = $area === PersonnelQualifications::AREA_DEPARTMENT ? null
+            : Capsule::table('intra_mitarbeiter')->where('id', $p->personnel_id)->value($area === PersonnelQualifications::AREA_RD ? 'qualird' : 'qualifw2');
         if (!$this->qualifications->grant($p->personnel_id, $area, $value, $p->course->title . ' bestanden', self::EDITOR)) {
             return StepResult::skipped('Gleiche oder höhere Qualifikation vorhanden, nicht geändert.');
         }
         $until = $p->expires_on !== null ? ' bis ' . $p->expires_on->format('d.m.Y') : '';
 
-        return StepResult::done($name . $until, ['name' => $name]);
+        return StepResult::done($name . $until, ['name' => $name] + ($before !== null ? ['before' => (int) $before] : []));
     }
 
     /**

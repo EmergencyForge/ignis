@@ -67,6 +67,13 @@ final class CompletionTable implements CompletionStore
         return $id !== null ? (int) $id : null;
     }
 
+    public function participationFor(int $documentId): ?int
+    {
+        $id = Capsule::table(self::TABLE)->where('document_id', $documentId)->value('participation_id');
+
+        return $id !== null ? (int) $id : null;
+    }
+
     public function setDocument(int $participationId, int $documentId): void
     {
         Capsule::table(self::TABLE)->where('participation_id', $participationId)->update(['document_id' => $documentId]);

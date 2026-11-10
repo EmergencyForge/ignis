@@ -5,6 +5,7 @@
  * Erwartete Variablen (EditorDocumentController::show()):
  *   @var \App\Models\EditorDocument $document
  *   @var bool                       $canRevoke
+ *   @var string|null                $qualification
  *
  * Fehlt `pdf_path` (was nur passieren kann, wenn das Erzeugen mitten im
  * Ausstellen gescheitert ist), steht hier ein Hinweis statt eines leeren
@@ -54,7 +55,13 @@ $SITE_TITLE = $document->title;
                                     <label class="ignis-field__label" for="revoke-reason">Begründung</label>
                                     <textarea id="revoke-reason" name="reason" class="ignis-input" rows="3" maxlength="500" required
                                               aria-describedby="revoke-hint" placeholder="z. B. Prüfung nachträglich aberkannt"></textarea>
-                                    <p class="ignis-field__hint" id="revoke-hint">Die Begründung sieht nur, wer das Dokument öffnen darf. Die Echtheitsprüfung zeigt danach „Widerrufen am …“.</p>
+                                    <p class="ignis-field__hint" id="revoke-hint">Steht im Verlauf und im Audit-Log, nicht auf der Prüfseite. Die Prüfseite zeigt danach „Widerrufen“. Zurücknehmen geht nicht.</p>
+                                    <?php if ($qualification !== null): ?>
+                                        <label class="ignis-checkbox">
+                                            <input type="checkbox" name="revoke_qualification" value="1">
+                                            <span>Qualifikation <?= htmlspecialchars($qualification) ?> ebenfalls entziehen</span>
+                                        </label>
+                                    <?php endif; ?>
                                     <button type="submit" class="ignis-btn ignis-btn--danger ignis-btn--sm">Urkunde widerrufen</button>
                                 </form>
                             </div>

@@ -355,9 +355,11 @@ final class EditorDocumentController extends Controller
             $this->redirect('documents/' . $document->id . '/edit');
         }
 
+        $canRevoke = $document->verification_code !== null && !$document->isRevoked() && Gate::allows('document.revoke');
         $this->renderView('documents/show', [
-            'document'  => $document->load('revoker'),
-            'canRevoke' => $document->verification_code !== null && !$document->isRevoked() && Gate::allows('document.revoke'),
+            'document'      => $document->load('revoker'),
+            'canRevoke'     => $canRevoke,
+            'qualification' => $canRevoke ? self::certificateQualification($document)?->name : null,
         ]);
     }
 
@@ -382,28 +384,47 @@ final class EditorDocumentController extends Controller
             $this->redirect($back);
         }
 
-        $affected = Capsule::table('intra_documents')->where('id', $document->id)->whereNull('revoked_at')->update([
-            'revoked_at'    => date('Y-m-d H:i:s'),
-            'revoked_by'    => SessionManager::userId(),
-            'revoke_reason' => $reason,
-        ]);
-        if ($affected === 0) {
+        $editor        = (new UserHelper())->getCurrentUserFullnameForAction();
+        $qualification = ($request->post['revoke_qualification'] ?? '') === '1' ? self::certificateQualification($document) : null;
+        $revoked       = Capsule::connection()->transaction(static function () use ($document, $reason, $qualification, $editor): bool {
+            $affected = Capsule::table('intra_documents')->where('id', $document->id)->whereNull('revoked_at')->update([
+                'revoked_at'    => date('Y-m-d H:i:s'),
+                'revoked_by'    => SessionManager::userId(),
+                'revoke_reason' => $reason,
+            ]);
+            if ($affected === 0) {
+                return false;
+            }
+            $qualification?->withdraw($editor);
+
+            return true;
+        });
+        if (!$revoked) {
             Flash::error('Dieses Dokument wurde bereits widerrufen.');
             $this->redirect($back);
         }
 
+        $withdrawn = $qualification !== null ? ' Qualifikation ' . $qualification->name . ' entzogen.' : '';
         if ($document->mitarbeiter !== null) {
             (new PersonalLogManager())->addEntry(
                 (int) $document->mitarbeiter_id,
                 PersonalLogManager::TYPE_DOCUMENT,
-                sprintf('Dokument <a href="%s">%s</a> (%s) wurde widerrufen: %s', htmlspecialchars(BASE_PATH . $back), htmlspecialchars($document->title), htmlspecialchars($document->docid), htmlspecialchars($reason)),
-                (new UserHelper())->getCurrentUserFullnameForAction(),
+                sprintf('Dokument <a href="%s">%s</a> (%s) wurde widerrufen: %s', htmlspecialchars(BASE_PATH . $back), htmlspecialchars($document->title), htmlspecialchars($document->docid), htmlspecialchars($reason)) . htmlspecialchars($withdrawn),
+                $editor,
                 ['change_type' => 'document_revoked', 'document_id' => (int) $document->id, 'docid' => $document->docid],
             );
         }
-        $this->audit('Dokument widerrufen', $document, ', Grund: ' . $reason);
-        Flash::success('Dokument „' . $document->title . '“ wurde widerrufen.');
+        $this->audit('Dokument widerrufen', $document, ', Grund: ' . $reason . $withdrawn);
+        Flash::success('Dokument „' . $document->title . '“ wurde widerrufen.' . $withdrawn);
         $this->redirect($back);
+    }
+
+    /** Was der Lehrgang zu dieser Urkunde eingetragen hat, nur mit Ausbildungs-Plugin. */
+    private static function certificateQualification(EditorDocument $document): ?\Plugin\Training\CertificateQualification
+    {
+        return class_exists(\Plugin\Training\CertificateQualification::class)
+            ? \Plugin\Training\CertificateQualification::forDocument((int) $document->id)
+            : null;
     }
 
     /**

@@ -63,7 +63,7 @@ ob_start();
                             $label  = 'crit-' . htmlspecialchars($key);
                             ?>
                             <div class="tr-sheet__row" data-tr-criterion data-max="<?= htmlspecialchars((string) ($max ?? 1)) ?>">
-                                <b id="<?= $label ?>"><?= htmlspecialchars($criterion['label']) ?><?php if ($criterion['knockout']): ?> <span class="ignis-chip ignis-chip--sm ignis-chip--danger">K.-o.</span><?php endif; ?></b>
+                                <b id="<?= $label ?>"><?= htmlspecialchars($criterion['label']) ?><?php if ($criterion['knockout']): ?> <span class="ignis-chip ignis-chip--sm ignis-chip--danger">muss erfüllt sein</span><?php endif; ?></b>
                                 <?php if ($max === null): ?>
                                     <span class="tr-big" role="radiogroup" aria-labelledby="<?= $label ?>">
                                         <label class="is-yes"><input type="radio" name="<?= $field ?>" value="yes"<?= $value === true ? ' checked' : '' ?><?= $disabled ?>><span><i class="fa-solid fa-check" aria-hidden="true"></i> erfüllt</span></label>

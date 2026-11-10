@@ -196,10 +196,13 @@ a.tr-unit:hover { background: var(--fill-1); }
 /* Das Zeilenmenü der Zulassung soll aus der Tabelle herausragen dürfen. */
 .tr-admission, .tr-admission .twplus-table-card__scroll { overflow: visible; }
 
-/* Fragenauswertung: gewählte Antworten als Balken */
+/* Fragenauswertung: Anteil richtig und gewählte Antworten als Balken */
+.tr-bar { display: block; width: 4.5rem; height: 0.375rem; border-radius: 999px; background: var(--fill-1); overflow: hidden; }
+.tr-bar > span { display: block; height: 100%; background: var(--accent-base); }
+.tr-bar > span.is-warn { background: var(--warn); }
+.tr-share { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tr-dist { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
 .tr-dist li { display: grid; grid-template-columns: 1fr auto; gap: 0.25rem 0.5rem; align-items: center; }
 .tr-dist__count { font-variant-numeric: tabular-nums; color: var(--tertiary-text); }
-.tr-dist__bar { grid-column: 1 / -1; height: 0.375rem; border-radius: 999px; background: var(--fill-1); overflow: hidden; }
-.tr-dist__bar > span { display: block; height: 100%; background: var(--tertiary-text); }
-.tr-dist__bar.is-right > span { background: var(--ok); }
+.tr-dist__bar { grid-column: 1 / -1; width: auto; }
+.tr-dist__right { color: var(--ok); margin-right: 0.375rem; }

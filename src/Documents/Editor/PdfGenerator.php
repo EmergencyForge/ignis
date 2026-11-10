@@ -48,9 +48,9 @@ final class PdfGenerator
     th { background: #eeeeee; font-weight: bold; text-align: left; }
     CSS;
 
-    /** Prüfcode-Block: Abstand zur unteren Blattkante und Breite in mm. */
-    private const FOOTER_INSET = 6;
-    private const QR_SIZE      = 14;
+    /** Prüfcode-Streifen: so viel mm wächst der untere Rand, so groß ist der QR-Code. */
+    private const STRIP   = 16;
+    private const QR_SIZE = 12;
 
     /**
      * Rendert und speichert; liefert den Pfad relativ zum Projektordner,
@@ -64,16 +64,18 @@ final class PdfGenerator
         // eine Urkunde. Ausgestellt wird so etwas erst nach Rückfrage
         // (DocumentIssuer::issue()).
         $package = SectionsToPackage::convert($document->content);
-        $shell   = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
+        $code    = $document->verification_code;
+        if ($code !== null) {
+            $package = self::reserveStrip(Package::normalize($package));
+        }
+        $shell = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
 
         if ($shell->error) {
             throw new RuntimeException(
                 'Dokument "' . $document->docid . '" konnte nicht sicher gerendert werden. Ausstellen abgebrochen.',
             );
         }
-        $html = $document->verification_code !== null
-            ? str_replace('</body>', self::verificationFooter($document->verification_code, Package::normalize($package)['layout']) . '</body>', $shell->html)
-            : $shell->html;
+        $html = $code !== null ? self::withStrip($shell->html, $code, $package['layout']['firstPageDifferent'] === true) : $shell->html;
 
         foreach ($shell->warnings as $warning) {
             Logger::warning('Dokument ' . $document->docid . ': ' . $warning);
@@ -146,38 +148,67 @@ final class PdfGenerator
     }
 
     /**
-     * QR-Code und Prüfcode unten im rechten Seitenrand, neben allem, was die
-     * Vorlage setzt, auch neben ihrer Fußzeile. Feste Elemente stehen in
-     * Dompdf relativ zum Satzspiegel, deshalb die negativen Abstände.
+     * Macht den unteren Rand um den Streifen größer, damit er und die
+     * Fußzeile der Vorlage zusammen hineinpassen.
      *
-     * ponytail: rechnet mit den Rändern der ersten Seite; bei abweichender
-     * Folgeseite sitzt der Block dort um den Unterschied versetzt. Unter
-     * 14 mm rechtem Rand ragt er in den Satzspiegel.
+     * ponytail: Ränder über 80 mm kappt das Layout, dann schneidet das
+     * Fußband unten ab.
      *
-     * @param array<string,mixed> $layout normalisiertes Layout des Pakets
+     * @param array<string,mixed> $package normalisiertes Paket
+     * @return array<string,mixed>
      */
-    private static function verificationFooter(string $code, array $layout): string
+    private static function reserveStrip(array $package): array
     {
-        $margins = $layout['margins'];
-        $bottom  = $layout['firstPageDifferent'] === true && is_array($layout['firstPageMargins'])
-            ? (int) $layout['firstPageMargins']['bottom']
-            : (int) $margins['bottom'];
+        $package['layout']['margins']['bottom'] += self::STRIP;
+        if (is_array($package['layout']['firstPageMargins'] ?? null)) {
+            $package['layout']['firstPageMargins']['bottom'] += self::STRIP;
+        }
+
+        return $package;
+    }
+
+    /**
+     * Setzt den Streifen oben in die Fußbänder von PageShell, also direkt
+     * unter den Inhalt und über die Fußzeile der Vorlage. Hat die Vorlage
+     * keine Fußzeile, entsteht ein Band nur für den Streifen.
+     */
+    private static function withStrip(string $html, string $code, bool $firstPageDifferent): string
+    {
+        $strip = self::verificationStrip($code);
+        foreach ($firstPageDifferent ? ['efe-foot-first', 'efe-foot-rest'] : ['efe-foot-rest'] as $id) {
+            $open = '<div id="' . $id . '" class="efe-band efe-band--foot">';
+            $html = str_contains($html, $open)
+                ? str_replace($open, $open . $strip, $html)
+                : str_replace('<div class="efe-body">', $open . $strip . '</div><div class="efe-body">', $html);
+        }
+        // Ändert PageShell sein Gerüst, soll das Ausstellen scheitern statt ohne Prüfcode zu drucken.
+        if (!str_contains($html, $strip)) {
+            throw new RuntimeException('Der Prüfcode ließ sich nicht in den Fuß setzen.');
+        }
+
+        return $html;
+    }
+
+    /** QR-Code auf die Prüfseite, daneben Code und Adresse zum Abtippen. */
+    private static function verificationStrip(string $code): string
+    {
         $qr = (new QRCode(new QROptions([
             'eccLevel'         => EccLevel::M,
             'drawLightModules' => false,
             'connectPaths'     => true,
             'quietzoneSize'    => 0,
         ])))->render(ProtocolDetection::buildPublicUrl('verify?code=' . $code));
+        $address = (string) preg_replace('#^https?://#', '', ProtocolDetection::buildPublicUrl('verify'));
 
         return sprintf(
-            '<div style="position: fixed; right: %1$dmm; bottom: %2$dmm; width: %3$dmm; text-align: center; font-size: 5pt; line-height: 1.25; color: #444444;">'
-            . '<img src="%4$s" alt="" style="width: %5$dmm; height: %5$dmm;"><br>Echtheit prüfen<br><span style="font-family: \'DejaVu Sans Mono\', monospace;">%6$s</span></div>',
-            -intdiv((int) $margins['right'] + self::QR_SIZE, 2),
-            -($bottom - self::FOOTER_INSET),
+            '<div style="height: %2$dmm; margin: %1$dmm 0 %1$dmm; font-size: 7pt; font-style: normal; line-height: 1.4; text-align: left; color: #5b6478;">'
+            . '<img src="%3$s" alt="" style="width: %2$dmm; height: %2$dmm; float: left; margin-right: 3mm;">'
+            . '<div style="padding-top: 3mm;">Echtheit prüfen: <b style="color: #1a1a1a; font-family: \'DejaVu Sans Mono\', monospace; font-size: 8pt;">%4$s</b><br>%5$s</div></div>',
+            (self::STRIP - self::QR_SIZE) / 2,
             self::QR_SIZE,
             htmlspecialchars($qr),
-            self::QR_SIZE,
             htmlspecialchars(VerificationCode::format($code)),
+            htmlspecialchars($address),
         );
     }
 

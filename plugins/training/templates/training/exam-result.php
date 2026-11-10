@@ -62,7 +62,7 @@ ob_start();
                             <?php if ($settings->gradeScale !== null): ?> <b>Note: <?= htmlspecialchars(GradeScale::label($settings->gradeScale->grade($result->percent()))) ?></b><?php endif; ?></p>
                         <p class="ignis-detail__muted mt-1 mb-0">
                             <?= htmlspecialchars(Exams::number($result->points)) ?> von <?= htmlspecialchars(Exams::number($result->maxPoints)) ?> Punkten · Grenze <?= htmlspecialchars(Exams::number($settings->passPercent)) ?> %
-                            <?php if ($result->failedKnockouts !== []): ?> · <?= count($result->failedKnockouts) === 1 ? 'eine K.-o.-Frage falsch' : count($result->failedKnockouts) . ' K.-o.-Fragen falsch' ?><?php endif; ?>
+                            <?php if ($result->failedKnockouts !== []): ?> · <?= count($result->failedKnockouts) === 1 ? 'eine Frage mit „Muss stimmen“ falsch' : count($result->failedKnockouts) . ' Fragen mit „Muss stimmen“ falsch' ?><?php endif; ?>
                         </p>
                     </div>
                 </div></div>
