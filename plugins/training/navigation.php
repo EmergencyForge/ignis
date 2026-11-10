@@ -33,9 +33,9 @@ return [
                 'label'        => 'Lehrgangsarten',
                 'href'         => BASE_PATH . 'training/types',
                 'icon'         => 'fa-solid fa-graduation-cap',
-                'description'  => 'Lehrplan und Ziel-Qualifikation je Lehrgang.',
-                'keywords'     => 'Ausbildung Lehrgang Lehrplan Unterlagen',
-                'permissions'  => ['admin', 'training.manage'],
+                'description'  => 'Lehrplan, Fragenpool und Prüfungsordnung je Lehrgang.',
+                'keywords'     => 'Ausbildung Lehrgang Lehrplan Unterlagen Prüfung Fragen',
+                'permissions'  => ['admin', 'training.manage', 'training.exams'],
                 'match'        => ['/training/types'],
                 'quick_action' => [
                     'type'   => 'link',

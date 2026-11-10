@@ -8,6 +8,7 @@
  */
 
 use Plugin\Training\Models\CourseType;
+use Plugin\Training\Policies\TrainingPolicy;
 use Plugin\Training\Qualifications;
 
 $layout     = 'admin';
@@ -24,9 +25,20 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
                     <h1>Lehrgangsarten</h1>
                     <p class="twplus-page-header__description">Die Vorlage für Lehrgänge: Voraussetzungen, Qualifikation bei Beginn, Anmeldung und der Lehrplan mit Modulen und Unterlagen.</p>
                 </div>
-                <div class="header-actions twplus-page-header__actions">
-                    <a href="<?= $base ?>training/types/create" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Lehrgangsart anlegen</a>
-                </div>
+                <?php if (TrainingPolicy::manage()): ?>
+                    <div class="header-actions twplus-page-header__actions">
+                        <?php if (TrainingPolicy::exams()): ?>
+                            <?php
+                            $importUrl    = $base . 'training/types/import';
+                            $importAccept = '.json,application/json';
+                            $importHint   = 'JSON-Export einer Lehrgangsart aus ignis oder Lex';
+                            $importId     = 'type-import';
+                            require dirname(__DIR__) . '/partials/import.php';
+                            ?>
+                        <?php endif; ?>
+                        <a href="<?= $base ?>training/types/create" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Lehrgangsart anlegen</a>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="twplus-table-card">
@@ -72,3 +84,6 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             </div>
         </div>
     </div>
+<?php if (TrainingPolicy::exams()): ?>
+    <script type="module" src="<?= $base ?>assets/js/ui/menu.js"></script>
+<?php endif; ?>

@@ -227,9 +227,221 @@ function unitForm() {
     document.body.appendChild(script);
 }
 
+// Zeilen aus <template data-tr-template> anlegen. Der Platzhalter wird zu
+// einer Zahl, die größer ist als alle bestehenden Schlüssel, damit der
+// Server die Reihenfolge per ksort behält.
+let rowCounter = Date.now();
+function repeaters() {
+    document.addEventListener('click', (event) => {
+        const add = event.target.closest('[data-tr-add]');
+        if (add) {
+            const repeater = add.closest('[data-tr-repeater]');
+            const template = repeater?.querySelector(':scope > template[data-tr-template]');
+            const rows = repeater?.querySelector(':scope > [data-tr-rows], :scope > table > [data-tr-rows]');
+            if (!template || !rows) return;
+            const html = template.innerHTML.split(template.dataset.placeholder).join(String(rowCounter++));
+            const holder = document.createElement(rows.tagName === 'TBODY' ? 'tbody' : 'div');
+            holder.innerHTML = html;
+            const row = holder.firstElementChild;
+            rows.appendChild(row);
+            row.querySelector('input:not([type=hidden]), select, textarea')?.focus();
+            return;
+        }
+        const remove = event.target.closest('[data-tr-remove]');
+        if (remove) remove.closest('[data-tr-row]')?.remove();
+    });
+}
+
+function poolFilter() {
+    const text = document.querySelector('[data-tr-filter-text]');
+    const kind = document.querySelector('[data-tr-filter-kind]');
+    const table = document.querySelector(text?.dataset.trFilterText || '#pool-table');
+    if (!table) return;
+    const apply = () => {
+        const needle = (text?.value || '').trim().toLowerCase();
+        const want = kind?.value || '';
+        table.querySelectorAll('tbody tr').forEach((row) => {
+            row.hidden = (needle !== '' && !row.dataset.text.includes(needle)) || (want !== '' && row.dataset.kind !== want);
+        });
+    };
+    text?.addEventListener('input', apply);
+    kind?.addEventListener('change', apply);
+    document.querySelectorAll('[data-tr-question-active]').forEach((input) => {
+        input.addEventListener('change', async () => {
+            try {
+                await post(input.dataset.trQuestionActive, { active: input.checked ? '1' : '0' });
+            } catch (error) {
+                input.checked = !input.checked;
+                toast(error.message);
+            }
+        });
+    });
+}
+
+function questionForm() {
+    const form = document.querySelector('[data-tr-question-form]');
+    if (!form) return;
+    const type = form.querySelector('[data-tr-question-type]');
+    const show = () => {
+        form.querySelectorAll('[data-tr-spec]').forEach((set) => {
+            const on = set.dataset.trSpec === type.value;
+            set.hidden = !on;
+            set.disabled = !on;
+        });
+        form.querySelectorAll('[data-tr-kind]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.trKind === type.value)));
+    };
+    form.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-tr-kind]');
+        if (!button) return;
+        type.value = button.dataset.trKind;
+        show();
+    });
+    show();
+}
+
+function examOrder() {
+    document.querySelectorAll('[data-tr-variants]').forEach((toggle) => {
+        const part = toggle.closest('form');
+        const sync = () => {
+            part.querySelector('[data-tr-variants-on]').hidden = !toggle.checked;
+            part.querySelector('[data-tr-variants-off]').hidden = toggle.checked;
+        };
+        toggle.addEventListener('change', sync);
+    });
+}
+
+// Laufende Prüfung: bei jedem Schritt den ganzen Stand speichern, beim
+// Verlassen des Fensters nur zählen lassen. Die Frist prüft der Server.
+function exam() {
+    const form = document.querySelector('[data-tr-exam]');
+    if (!form) return;
+    const status = form.querySelector('[data-tr-saved]');
+    const answers = () => {
+        const data = {};
+        for (const [name, value] of new FormData(form)) {
+            const match = name.match(/^answers\[(\d+)\](?:\[(\d*)\])?$/);
+            if (!match) continue;
+            const [, position, key] = match;
+            if (key === undefined) data[position] = value;
+            else if (key === '') (data[position] ??= []).push(value);
+            else (data[position] ??= {})[key] = value;
+        }
+        return data;
+    };
+    let finished = false;
+    let pending = null;
+    const save = async () => {
+        if (finished) return;
+        status.textContent = 'speichert …';
+        try {
+            const result = await post(form.dataset.saveUrl, { answers: answers() }, { json: true });
+            if (!result.saved) {
+                // Abgelaufen oder anderswo abgegeben: der Server zeigt jetzt das Ergebnis.
+                finished = true;
+                location.reload();
+                return;
+            }
+            status.textContent = `gespeichert ${new Date().toLocaleTimeString('de-DE')}`;
+        } catch {
+            status.textContent = 'nicht gespeichert, neuer Versuch beim nächsten Schritt';
+        }
+    };
+    const queue = () => { clearTimeout(pending); pending = setTimeout(save, 800); };
+    form.addEventListener('ignis:questionnaire-step', save);
+    form.addEventListener('change', queue);
+    form.addEventListener('input', (event) => { if (event.target.matches('input[type=text], textarea')) queue(); });
+
+    form.querySelectorAll('[data-tr-order]').forEach((list) => {
+        list.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-tr-order-move]');
+            if (!button) return;
+            const item = button.closest('li');
+            const target = button.dataset.trOrderMove === 'up' ? item.previousElementSibling : item.nextElementSibling?.nextElementSibling;
+            if (button.dataset.trOrderMove === 'up' && !target) return;
+            list.insertBefore(item, target ?? null);
+            list.querySelectorAll('input[type=hidden]').forEach((input) => { input.disabled = false; });
+            button.focus();
+            form.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    });
+
+    if (form.dataset.focusUrl) {
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && !finished) post(form.dataset.focusUrl, {}, { keepalive: true }).catch(() => {});
+        });
+    }
+
+    form.addEventListener('submit', (event) => {
+        if (finished) return;
+        const open = [...form.querySelectorAll('[data-ignis-step]')].filter((step) => ![...step.querySelectorAll('input, select, textarea')]
+            .some((f) => !f.matches('[data-ignis-flag]') && !f.disabled && ((f.type === 'checkbox' || f.type === 'radio') ? f.checked : f.value.trim() !== ''))).length;
+        const timeout = event.submitter === null && form.dataset.timedOut === '1';
+        if (!timeout && !window.confirm(open > 0 ? `${open} ${open === 1 ? 'Frage ist' : 'Fragen sind'} noch offen. Trotzdem abgeben?` : 'Prüfung abgeben? Danach lässt sich nichts mehr ändern.')) {
+            event.preventDefault();
+            return;
+        }
+        finished = true;
+        clearTimeout(pending);
+    });
+    form.addEventListener('ignis:questionnaire-timeout', () => { form.dataset.timedOut = '1'; });
+}
+
+function sheet() {
+    const form = document.querySelector('[data-tr-sheet]');
+    if (!form) return;
+    const sum = form.querySelector('[data-tr-sheet-sum]');
+    const format = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
+    const update = () => {
+        let points = 0;
+        let max = 0;
+        let open = 0;
+        form.querySelectorAll('.tr-sheet__group').forEach((group) => {
+            let gPoints = 0;
+            let gMax = 0;
+            group.querySelectorAll('[data-tr-criterion]').forEach((row) => {
+                const rowMax = Number(row.dataset.max);
+                gMax += rowMax;
+                const radio = row.querySelector('input[type=radio]:checked');
+                const field = row.querySelector('input[type=text]');
+                if (radio) gPoints += radio.value === 'yes' ? rowMax : 0;
+                else if (field && field.value.trim() !== '') gPoints += Math.min(rowMax, Math.max(0, Number(field.value.replace(',', '.')) || 0));
+                else open++;
+            });
+            const label = group.querySelector('[data-tr-group-sum]');
+            if (label) label.textContent = `${format(gPoints)} / ${format(gMax)}`;
+            points += gPoints;
+            max += gMax;
+        });
+        if (sum) {
+            const percent = max > 0 ? Math.round((points / max) * 1000) / 10 : 0;
+            sum.textContent = `${format(points)} von ${format(max)} Punkten (${format(percent)} %)${open > 0 ? ` · ${open} ${open === 1 ? 'Kriterium' : 'Kriterien'} offen` : ''}`;
+        }
+    };
+    form.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-tr-step]');
+        if (!button) return;
+        const row = button.closest('[data-tr-criterion]');
+        const field = row.querySelector('input[type=text]');
+        const max = Number(row.dataset.max);
+        const current = field.value.trim() === '' ? null : Number(field.value.replace(',', '.')) || 0;
+        const next = current === null ? (Number(button.dataset.trStep) > 0 ? 1 : 0) : current + Number(button.dataset.trStep);
+        field.value = format(Math.min(max, Math.max(0, next)));
+        update();
+    });
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+}
+
 openTabFromHash();
 trackUnit();
 matrix();
 switches();
 curriculum();
 unitForm();
+repeaters();
+poolFilter();
+questionForm();
+examOrder();
+exam();
+sheet();

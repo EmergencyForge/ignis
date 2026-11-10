@@ -13,6 +13,11 @@ use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseType;
 use Plugin\Training\Models\Module;
 use Plugin\Training\Models\Prerequisite;
+use Plugin\Training\Models\Question;
+use Plugin\Training\Models\Topic;
+use Plugin\Training\Policies\TrainingPolicy;
+use Plugin\Training\Pool;
+use Plugin\Training\ExamBoard;
 use Plugin\Training\Qualifications;
 
 /** Lehrgangsarten unter /training/types (`training.manage`). */
@@ -66,7 +71,32 @@ final class TypeController extends BaseController
             ],
             'options' => self::options(),
             'courses' => Course::query()->where('course_type_id', $type->id)->count(),
-        ]);
+        ] + (TrainingPolicy::exams() ? self::examData($type, (int) $request->queryString('topic')) : []));
+    }
+
+    /** @return array<string, mixed> Daten für Fragenpool und Prüfungsordnung */
+    private static function examData(CourseType $type, int $topic): array
+    {
+        /** @var list<Question> $questions */
+        $questions = Question::query()->where('course_type_id', $type->id)->whereNull('deleted_at')->orderBy('topic_id')->orderBy('id')->get()->all();
+        $counts    = [];
+        $active    = [];
+        foreach ($questions as $question) {
+            $counts[(int) $question->topic_id] = ($counts[(int) $question->topic_id] ?? 0) + 1;
+            if ($question->is_active) {
+                $active[(int) $question->topic_id] = ($active[(int) $question->topic_id] ?? 0) + 1;
+            }
+        }
+
+        return [
+            'topics'    => Topic::query()->where('course_type_id', $type->id)->orderBy('position')->orderBy('name')->get()->all(),
+            'topic'     => $topic,
+            'questions' => $questions,
+            'counts'    => $counts,
+            'active'    => $active,
+            'usage'     => Pool::usage(array_map(static fn (Question $q): int => $q->id, $questions)),
+            'parts'     => ExamBoard::parts($type->id),
+        ];
     }
 
     /** POST /training/types/{id} */

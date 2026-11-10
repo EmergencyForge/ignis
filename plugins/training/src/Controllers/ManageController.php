@@ -17,7 +17,9 @@ use Illuminate\Support\Carbon;
 use Plugin\Training\Courses;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Enrollment;
+use Plugin\Training\ExamBoard;
 use Plugin\Training\Lifecycle;
+use Plugin\Training\Models\ExamRelease;
 use Plugin\Training\Models\Attendance;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
@@ -73,7 +75,7 @@ final class ManageController extends BaseController
 
         return $this->form(null, [
             'course_type_id' => $typeId, 'year' => (int) date('Y'), 'starts_on' => '', 'ends_on' => '', 'enroll_until' => '',
-            'seats' => '', 'lead_user_id' => self::userId(), 'instructors' => [],
+            'seats' => '', 'lead_user_id' => self::userId(), 'instructors' => [], 'examiners' => [],
         ]);
     }
 
@@ -99,7 +101,8 @@ final class ManageController extends BaseController
             'enroll_until'   => $course->enroll_until?->format('Y-m-d\TH:i') ?? '',
             'seats'          => $course->seats ?? '',
             'lead_user_id'   => $course->lead_user_id,
-            'instructors'    => CourseStaff::query()->where('course_id', $course->id)->pluck('user_id')->map(static fn ($id): int => (int) $id)->all(),
+            'instructors'    => self::staffIds($course, 'instructor'),
+            'examiners'      => self::staffIds($course, 'examiner'),
         ]);
     }
 
@@ -118,7 +121,7 @@ final class ManageController extends BaseController
     public function show(Request $request, string $id): Response
     {
         $course = self::findCourse($id);
-        if ($course === null || !TrainingPolicy::instruct($course)) {
+        if ($course === null || (!TrainingPolicy::instruct($course) && !TrainingPolicy::examine($course))) {
             return self::notFound();
         }
         $course->load(['lead', 'staff.user']);
@@ -188,6 +191,10 @@ final class ManageController extends BaseController
             'waiting'        => count(array_filter($participations, static fn (Participation $p): bool => $p->state() === ParticipationStatus::Waitlisted)),
             'canLead'        => TrainingPolicy::lead($course),
             'calendar'       => SessionSync::enabled(),
+            'board'          => ExamBoard::for($course, $learners),
+            'canExamine'     => TrainingPolicy::examine($course),
+            'reviews'        => Courses::reviewQueue($course->id),
+            'releases'       => ExamRelease::query()->with('releaser')->where('course_id', $course->id)->whereNull('participation_id')->get()->keyBy('exam_id')->all(),
         ]);
     }
 
@@ -394,6 +401,7 @@ final class ManageController extends BaseController
             'seats'          => trim((string) ($post['seats'] ?? '')),
             'lead_user_id'   => (int) ($post['lead_user_id'] ?? 0),
             'instructors'    => array_values(array_unique(array_map('intval', is_array($post['instructors'] ?? null) ? $post['instructors'] : []))),
+            'examiners'      => array_values(array_unique(array_map('intval', is_array($post['examiners'] ?? null) ? $post['examiners'] : []))),
         ];
 
         $type   = CourseType::query()->find($isNew ? $form['course_type_id'] : $course->course_type_id);
@@ -433,11 +441,19 @@ final class ManageController extends BaseController
         $course->save();
 
         CourseStaff::query()->where('course_id', $course->id)->delete();
-        foreach (User::query()->whereIn('id', $form['instructors'] ?: [0])->pluck('id') as $userId) {
-            CourseStaff::query()->create(['course_id' => $course->id, 'user_id' => (int) $userId, 'role' => 'instructor']);
+        foreach (['instructor' => $form['instructors'], 'examiner' => $form['examiners']] as $role => $ids) {
+            foreach (User::query()->whereIn('id', $ids ?: [0])->pluck('id') as $userId) {
+                CourseStaff::query()->create(['course_id' => $course->id, 'user_id' => (int) $userId, 'role' => $role]);
+            }
         }
 
         return self::back('training/manage/' . $course->id, null, $isNew ? $course->title . ' ist angelegt.' : 'Gespeichert.');
+    }
+
+    /** @return list<int> */
+    private static function staffIds(Course $course, string $role): array
+    {
+        return CourseStaff::query()->where('course_id', $course->id)->where('role', $role)->pluck('user_id')->map(static fn ($id): int => (int) $id)->all();
     }
 
     /** @return array{0: ?Course, 1: ?Participation} */

@@ -24,6 +24,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $admitted_at
  * @property Carbon|null $finished_at
  * @property string|null $start_qualification_before
+ * @property float|string|null $result_percent
+ * @property string|null $grade
  * @property-read Course         $course
  * @property-read Personnel|null $personnel
  *

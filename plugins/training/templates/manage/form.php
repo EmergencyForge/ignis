@@ -85,6 +85,13 @@ $userName   = static fn (\App\Models\User $u): string => $u->fullname ?: $u->use
                              data-value="<?= htmlspecialchars(implode(',', array_map('intval', (array) $form['instructors']))) ?>"></div>
                         <p class="ignis-field__hint">Ausbilder sehen Teilnehmer und Fortschritt, setzen Einheiten von Hand und tragen Anwesenheit ein.</p>
                     </div>
+                    <div>
+                        <span class="ignis-field__label" id="course-examiners-label">Prüfer</span>
+                        <div data-ignis-multi-select data-name="examiners[]" aria-labelledby="course-examiners-label" data-placeholder="Konto suchen"
+                             data-options="<?= htmlspecialchars((string) json_encode(array_map(static fn ($u): array => ['value' => (int) $u->id, 'label' => $userName($u)], $users), JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>"
+                             data-value="<?= htmlspecialchars(implode(',', array_map('intval', (array) ($form['examiners'] ?? [])))) ?>"></div>
+                        <p class="ignis-field__hint">Prüfer bewerten Freitexte und Praxisbögen. Ohne Prüfer bewerten Leitung und Ausbilder.</p>
+                    </div>
                 </div>
                 <div class="ignis-card__footer" data-form-actions>
                     <a href="<?= $base ?>training/manage<?= $course !== null ? '/' . (int) $course->id : '' ?>" class="ignis-btn ignis-btn--ghost">Abbrechen</a>

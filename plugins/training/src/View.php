@@ -7,6 +7,12 @@ namespace Plugin\Training;
 use EmergencyForge\Training\CourseStatus;
 use EmergencyForge\Training\ParticipationStatus;
 use EmergencyForge\Training\Progress\PageCoverage;
+use EmergencyForge\Training\Question\ChoiceSpec;
+use EmergencyForge\Training\Question\MatchSpec;
+use EmergencyForge\Training\Question\NumberSpec;
+use EmergencyForge\Training\Question\OrderSpec;
+use EmergencyForge\Training\Question\Question;
+use EmergencyForge\Training\Question\ShortAnswerSpec;
 use EmergencyForge\Training\UnitKind;
 use Plugin\Training\Models\Attendance;
 use Plugin\Training\Models\Session;
@@ -78,5 +84,37 @@ final class View
         }
 
         return implode(' · ', array_filter($parts));
+    }
+
+    /** Gespeicherte Antwort (Indizes der Frage) als lesbarer Text. */
+    public static function answerText(Question $question, mixed $answer): string
+    {
+        if ($answer === null || $answer === '' || $answer === []) {
+            return 'keine Antwort';
+        }
+        $spec = $question->spec;
+
+        return match (true) {
+            $spec instanceof ChoiceSpec => implode(', ', array_map(static fn ($i): string => $spec->options[(int) $i] ?? '?', (array) $answer)),
+            $spec instanceof MatchSpec  => implode('; ', array_map(static fn ($l, $r): string => ($spec->left()[(int) $l] ?? '?') . ' = ' . ($spec->right()[(int) $r] ?? '?'), array_keys((array) $answer), array_values((array) $answer))),
+            $spec instanceof OrderSpec  => implode(' → ', array_map(static fn ($i): string => $spec->items[(int) $i] ?? '?', (array) $answer)),
+            $spec instanceof NumberSpec => trim((string) $answer . ' ' . $spec->unit),
+            default                     => is_scalar($answer) ? (string) $answer : '',
+        };
+    }
+
+    /** Die richtige Lösung als Text; null bei Freitext. */
+    public static function solutionText(Question $question): ?string
+    {
+        $spec = $question->spec;
+
+        return match (true) {
+            $spec instanceof ChoiceSpec      => implode(', ', array_map(static fn (int $i): string => $spec->options[$i] ?? '?', $spec->correct)),
+            $spec instanceof MatchSpec       => implode('; ', array_map(static fn (array $p): string => $p[0] . ' = ' . $p[1], $spec->pairs)),
+            $spec instanceof OrderSpec       => implode(' → ', $spec->items),
+            $spec instanceof NumberSpec      => Exams::number($spec->value) . ($spec->tolerance > 0 ? ' (± ' . Exams::number($spec->tolerance) . ')' : '') . ($spec->unit !== '' ? ' ' . $spec->unit : ''),
+            $spec instanceof ShortAnswerSpec => implode(' oder ', $spec->accepted),
+            default                          => null,
+        };
     }
 }
