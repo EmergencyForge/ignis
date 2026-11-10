@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.1.21-beta
+
+### Ausbildung
+- Termine können Folien als PDF haben, und Leitung oder Ausbilder halten den Termin daraus als Live-Vortrag. Die Teilnehmer folgen im Browser: gleiche Folie, Zeichnungen, Laserpointer und Pause kommen bei ihnen an. Wer beim Start nicht zuschaut, bekommt eine Nachricht
+- Den Vortrag kann der Host an einen anderen Ausbilder weiterreichen, der ihn erst annehmen muss. Nach dem Ende schlägt ignis die Anwesenheit vor, nach der Zeit, die jemand zugeschaut hat. Eingetragen wird erst beim Speichern
+
+Dazu gehört training 0.4.2.
+
 ## 2026.1.20-beta
 
 ### Ausbildung
