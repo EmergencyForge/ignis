@@ -22,6 +22,7 @@ use Plugin\Training\Models\Prerequisite;
 use Plugin\Training\Models\Question;
 use Plugin\Training\Models\Topic;
 use Plugin\Training\Policies\TrainingPolicy;
+use Plugin\Training\AiDrafts;
 use Plugin\Training\Pool;
 use Plugin\Training\ExamBoard;
 use Plugin\Training\Qualifications;
@@ -79,7 +80,7 @@ final class TypeController extends BaseController
             'options' => self::options(),
             'courses' => Course::query()->where('course_type_id', $type->id)->count(),
         ] + (TrainingPolicy::manage() ? self::completionData($type) : [])
-          + (TrainingPolicy::exams() ? self::examData($type, (int) $request->queryString('topic')) : []));
+          + (TrainingPolicy::exams() ? self::examData($type, (int) $request->queryString('topic'), $request->queryString('draft') === '1') : []));
     }
 
     /**
@@ -105,7 +106,7 @@ final class TypeController extends BaseController
     }
 
     /** @return array<string, mixed> Daten für Fragenpool und Prüfungsordnung */
-    private static function examData(CourseType $type, int $topic): array
+    private static function examData(CourseType $type, int $topic, bool $draft): array
     {
         /** @var list<Question> $questions */
         $questions = Question::query()->where('course_type_id', $type->id)->whereNull('deleted_at')->orderBy('topic_id')->orderBy('id')->get()->all();
@@ -121,6 +122,8 @@ final class TypeController extends BaseController
         return [
             'topics'    => Topic::query()->where('course_type_id', $type->id)->orderBy('position')->orderBy('name')->get()->all(),
             'topic'     => $topic,
+            'draft'     => $draft,
+            'aiOffered' => AiDrafts::offered(),
             'questions' => $questions,
             'counts'    => $counts,
             'active'    => $active,

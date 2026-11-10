@@ -163,6 +163,8 @@ final class QuestionController extends BaseController
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
         $question->is_active = ($request->post['active'] ?? '') === '1';
+        // Wer einen KI-Entwurf anschaltet, gibt ihn frei.
+        $question->ai_draft = $question->ai_draft && !$question->is_active;
         $question->save();
 
         return self::json(['active' => $question->is_active]);
@@ -292,6 +294,7 @@ final class QuestionController extends BaseController
             return $this->editorPage($type, $question, 422);
         }
 
+        $question->ai_draft = $question->ai_draft && !$data['is_active'];
         $versioned = Pool::save($question, $data, self::userId() ?: null);
 
         return self::back(

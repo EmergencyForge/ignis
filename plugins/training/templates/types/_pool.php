@@ -6,6 +6,8 @@
  * @var \Plugin\Training\Models\CourseType       $type
  * @var list<\Plugin\Training\Models\Topic>      $topics
  * @var int                                      $topic
+ * @var bool                                     $draft      nur KI-Entwürfe zeigen
+ * @var bool                                     $aiOffered  die Konsole bietet KI-Entwürfe an
  * @var list<\Plugin\Training\Models\Question>   $questions
  * @var array<int, int>                          $counts  Thema (0 = ohne) => Fragen
  * @var array<int, int>                          $usage
@@ -28,16 +30,24 @@ $topicNames  = [];
 foreach ($topics as $t) {
     $topicNames[$t->id] = $t->name;
 }
-$shown       = $current === null ? $questions : array_values(array_filter($questions, static fn ($q): bool => $q->topic_id === $current->id));
+$drafts      = array_values(array_filter($questions, static fn ($q): bool => $q->ai_draft));
+$shown       = match (true) {
+    $draft            => $drafts,
+    $current === null => $questions,
+    default           => array_values(array_filter($questions, static fn ($q): bool => $q->topic_id === $current->id)),
+};
 $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' . $current->id . '&' : '?');
 ?>
 <div class="tr-split">
     <div class="ignis-card">
         <div class="ignis-card__body tr-topics">
-            <a href="<?= $typeUrl ?>#fragenpool"<?= $current === null ? ' class="is-current" aria-current="true"' : '' ?>><span>Alle Themen</span><small><?= count($questions) ?></small></a>
+            <a href="<?= $typeUrl ?>#fragenpool"<?= $current === null && !$draft ? ' class="is-current" aria-current="true"' : '' ?>><span>Alle Themen</span><small><?= count($questions) ?></small></a>
             <?php foreach ($topics as $t): ?>
                 <a href="<?= $typeUrl ?>?topic=<?= (int) $t->id ?>#fragenpool"<?= $current?->id === $t->id ? ' class="is-current" aria-current="true"' : '' ?>><span><?= htmlspecialchars($t->name) ?></span><small><?= (int) ($counts[$t->id] ?? 0) ?></small></a>
             <?php endforeach; ?>
+            <?php if ($drafts !== [] || $draft): ?>
+                <a href="<?= $typeUrl ?>?draft=1#fragenpool"<?= $draft ? ' class="is-current" aria-current="true"' : '' ?>><span><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> KI-Entwürfe</span><small><?= count($drafts) ?></small></a>
+            <?php endif; ?>
             <?php if (($counts[0] ?? 0) > 0): ?>
                 <p class="tr-meta mt-2 mb-0 px-2"><?= (int) $counts[0] ?> ohne Thema</p>
             <?php endif; ?>
@@ -85,6 +95,9 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
                 <?php endforeach; ?>
             </select>
             <span class="flex-1"></span>
+            <?php if ($aiOffered): ?>
+                <a href="<?= $typeUrl ?>/questions/ai" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Mit KI vorschlagen</a>
+            <?php endif; ?>
             <?php
             $importUrl    = $typeUrl . '/questions/import';
             $importAccept = '.csv,.json,text/csv,application/json';
@@ -111,7 +124,7 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
 
         <?php if ($shown === []): ?>
             <div class="ignis-card"><div class="ignis-card__body">
-                <p class="m-0">Noch keine Fragen<?= $current !== null ? ' in diesem Thema' : '' ?>. Lege eine an oder importiere eine CSV-Datei.</p>
+                <p class="m-0"><?= $draft ? 'Keine offenen KI-Entwürfe.' : 'Noch keine Fragen' . ($current !== null ? ' in diesem Thema' : '') . '. Lege eine an oder importiere eine CSV-Datei.' ?></p>
             </div></div>
         <?php else: ?>
             <div class="ignis-card ignis-card--table">
@@ -127,7 +140,7 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
                             <tr data-kind="<?= $kind->value ?>" data-verdict="<?= $verdict === null ? '' : $verdict->value ?>" data-text="<?= htmlspecialchars(mb_strtolower($question->body . ' ' . ($topicNames[$question->topic_id] ?? ''))) ?>">
                                 <td>
                                     <div class="tr-q"><a href="<?= $base ?>training/questions/<?= (int) $question->id ?>/edit"><?= htmlspecialchars($question->body) ?></a></div>
-                                    <div class="tr-meta"><?= htmlspecialchars($topicNames[$question->topic_id] ?? 'Ohne Thema') ?></div>
+                                    <div class="tr-meta"><?= htmlspecialchars($topicNames[$question->topic_id] ?? 'Ohne Thema') ?><?php if ($question->ai_draft): ?> · <span class="ignis-chip ignis-chip--sm ignis-chip--warn"<?= $question->source !== null ? ' data-ignis-tooltip="' . htmlspecialchars('Quelle: ' . $question->source) . '"' : '' ?>>KI-Entwurf</span><?php endif; ?></div>
                                 </td>
                                 <td><span class="ignis-chip ignis-chip--sm <?= $kind === QuestionType::FreeText ? 'ignis-chip--warn' : 'ignis-chip--secondary' ?>"><?= htmlspecialchars($kind->label()) ?></span></td>
                                 <td class="ignis-table__num"><?= htmlspecialchars(Exams::number($question->points)) ?></td>

@@ -155,6 +155,71 @@ final class FabricaClient
             && ($result['maxAge'] ?? null) === 60;
     }
 
+    /**
+     * Ob die Konsole dieser Instanz KI-Entwürfe erlaubt und wie viel Budget
+     * im Monat übrig ist.
+     *
+     * @return array{available:bool,enabled:bool,budgetCents:int,spentCents:int,remainingCents:int}
+     */
+    public function aiState(): array
+    {
+        $data = $this->ai('GET', '', null, 5);
+
+        return [
+            'available'      => ($data['available'] ?? null) === true,
+            'enabled'        => ($data['enabled'] ?? null) === true,
+            'budgetCents'    => (int) ($data['budgetCents'] ?? 0),
+            'spentCents'     => (int) ($data['spentCents'] ?? 0),
+            'remainingCents' => (int) ($data['remainingCents'] ?? 0),
+        ];
+    }
+
+    /**
+     * Fragenentwürfe aus Material. Die Konsole prüft und begrenzt die
+     * Entwürfe schon; ignis prüft sie vor dem Speichern trotzdem selbst.
+     *
+     * @param array<string,mixed> $request
+     * @return array{questions:list<array<string,mixed>>,rejected:int,costCents:int,remainingCents:int}
+     */
+    public function aiQuestions(array $request): array
+    {
+        // Ein Durchgang über ein dickes Skript dauert gut eine Minute.
+        $data = $this->ai('POST', '/questions', $request, 240);
+
+        return [
+            'questions'      => array_values(array_filter((array) ($data['questions'] ?? []), 'is_array')),
+            'rejected'       => (int) ($data['rejected'] ?? 0),
+            'costCents'      => (int) ($data['costCents'] ?? 0),
+            'remainingCents' => (int) ($data['remainingCents'] ?? 0),
+        ];
+    }
+
+    /**
+     * @param array<string,mixed>|null $body
+     * @return array<string,mixed>
+     */
+    private function ai(string $method, string $path, ?array $body, int $timeout): array
+    {
+        try {
+            $response = $this->http->request($method, $this->origin . '/api/instance/ai' . $path, [
+                'headers' => ['Authorization' => 'Bearer ' . $this->credential, 'Accept' => 'application/json'],
+                ...($body !== null ? ['json' => $body] : []),
+                'timeout' => $timeout, 'connect_timeout' => 3, 'allow_redirects' => false,
+                'verify' => true, 'http_errors' => false,
+            ]);
+            $data = json_decode($response->getBody()->read(2 * 1024 * 1024), true, 32);
+        } catch (Throwable) {
+            throw new RuntimeException('Die EmergencyForge-Konsole ist nicht erreichbar.');
+        }
+        if ($response->getStatusCode() === 200 && is_array($data)) {
+            return $data;
+        }
+        // Absagen formuliert die Konsole für Menschen (Budget aufgebraucht,
+        // nicht freigeschaltet); alles andere bleibt allgemein.
+        $error = is_array($data) && is_string($data['error'] ?? null) ? mb_substr($data['error'], 0, 300) : '';
+        throw new RuntimeException($error !== '' ? $error . '.' : 'Die EmergencyForge-Konsole hat die Anfrage abgelehnt.');
+    }
+
     /** @param array<string,string> $body
      *  @return array<string,mixed>
      */
