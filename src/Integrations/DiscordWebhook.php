@@ -173,7 +173,25 @@ class DiscordWebhook
         }
 
         $embed = array_filter($embed + ['timestamp' => date('c')], static fn (mixed $value): bool => $value !== null);
-        $body  = json_encode(['embeds' => [$embed], 'allowed_mentions' => ['parse' => []]], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        self::deliver($url, ['embeds' => [$embed]], '„' . $type . '“');
+
+        return true;
+    }
+
+    /**
+     * Eine Textnachricht an eine URL, die nicht in den Webhooks der
+     * System-Konfiguration steht (etwa die Bekanntgabe einer Lehrgangsart).
+     * Erwähnungen bleiben aus, sonst pingt „@everyone“ im Text den Kanal.
+     */
+    public static function post(string $url, string $content): void
+    {
+        self::deliver($url, ['content' => mb_substr($content, 0, 2000)], 'für die Bekanntgabe');
+    }
+
+    /** @param array<string, mixed> $payload */
+    private static function deliver(string $url, array $payload, string $label): void
+    {
+        $body = json_encode($payload + ['allowed_mentions' => ['parse' => []]], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         $response = self::$transport !== null
             ? (self::$transport)($url, $body)
@@ -189,10 +207,10 @@ class DiscordWebhook
 
         $status = (int) $response['status'];
         if ($status >= 200 && $status < 300) {
-            return true;
+            return;
         }
 
-        throw new DiscordWebhookException('Discord lehnt den Webhook „' . $type . '“ ab (HTTP ' . $status . '): ' . mb_substr($response['body'], 0, 300), $status);
+        throw new DiscordWebhookException('Discord lehnt den Webhook ' . $label . ' ab (HTTP ' . $status . '): ' . mb_substr($response['body'], 0, 300), $status);
     }
 
     /**

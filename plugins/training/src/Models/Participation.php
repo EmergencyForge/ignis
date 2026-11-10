@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $start_qualification_before
  * @property float|string|null $result_percent
  * @property string|null $grade
+ * @property Carbon|null $expires_on
  * @property-read Course         $course
  * @property-read Personnel|null $personnel
  *

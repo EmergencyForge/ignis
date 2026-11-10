@@ -385,7 +385,7 @@ final class TrainingExamTest extends FeatureTestCase
         $this->as($learner['user'], ['training.view']);
         $attempt = $this->begin($course, $exam, $p);
         $this->post('/training/attempts/' . $attempt->id . '/submit', ['answers' => ['0' => '0']]);
-        $this->assertSame('failed', $this->statusOf($p));
+        $this->assertSame('in_exam', $this->statusOf($p), 'Nicht bestanden erst, wenn die Leitung den Lehrgang abschließt.');
 
         $url = '/training/manage/' . $course->id . '/exams/' . $exam->id . '/extra';
         $this->as($lead['user'], ['training.teach']);

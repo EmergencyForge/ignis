@@ -23,7 +23,11 @@ final class SystemTemplatesTest extends TestCase
     private const URKUNDEN = [
         'Beförderungsurkunde', 'Ernennungsurkunde', 'Entlassungsurkunde',
         'Ausbildungszertifikat', 'Lehrgangszertifikat', 'Lehrgangszertifikat Fachdienste',
+        SystemTemplates::TRAINING_QUALIFICATION, SystemTemplates::TRAINING_COURSE,
     ];
+
+    /** Alles darin steht im Mitarbeiterdatensatz oder kommt aus dem Lehrgangsabschluss. */
+    private const OHNE_EINGABE = ['Entlassungsurkunde', SystemTemplates::TRAINING_QUALIFICATION, SystemTemplates::TRAINING_COURSE];
 
     /** @return iterable<string,array{string}> */
     public static function templateProvider(): iterable
@@ -40,7 +44,7 @@ final class SystemTemplatesTest extends TestCase
     }
 
     #[Test]
-    public function es_sind_die_zehn_vorlagen_des_alten_systems(): void
+    public function es_sind_die_vorlagen_des_alten_systems_und_die_fuer_lehrgaenge(): void
     {
         $this->assertSame([
             'Beförderungsurkunde',
@@ -49,6 +53,8 @@ final class SystemTemplatesTest extends TestCase
             'Ausbildungszertifikat',
             'Lehrgangszertifikat',
             'Lehrgangszertifikat Fachdienste',
+            'Ausbildungszertifikat (Lehrgang)',
+            'Lehrgangszertifikat (Lehrgang)',
             'Schriftliche Abmahnung',
             'Vorläufige Dienstenthebung',
             'Dienstentfernung',
@@ -107,8 +113,8 @@ final class SystemTemplatesTest extends TestCase
 
     /**
      * Urkunden haben keinen Textbereich, nur Felder im festen Text; die
-     * Entlassungsurkunde nicht einmal das, alles darin steht im
-     * Mitarbeiterdatensatz. Schreiben haben einen Pflicht-Textbereich.
+     * Entlassungsurkunde und die Lehrgangsfassungen nicht einmal das.
+     * Schreiben haben einen Pflicht-Textbereich.
      */
     #[Test]
     #[DataProvider('templateProvider')]
@@ -118,7 +124,7 @@ final class SystemTemplatesTest extends TestCase
         $hatFeld = str_contains($json, '"docField"');
         $hatText = str_contains($json, '"docInput"');
 
-        if ($name === 'Entlassungsurkunde') {
+        if (in_array($name, self::OHNE_EINGABE, true)) {
             $this->assertFalse($hatFeld || $hatText);
         } elseif (in_array($name, self::URKUNDEN, true)) {
             $this->assertTrue($hatFeld);

@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Plugin\Training\Controllers;
 
 use App\Helpers\Flash;
+use App\Models\EditorTemplate;
+use App\Models\Role;
+use App\Models\User;
+use EmergencyForge\Training\Completion\CompletionPlan;
+use EmergencyForge\Training\Completion\CompletionStep;
+use Plugin\Training\Completion\Settings;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use EmergencyForge\Training\EnrollmentMode;
@@ -71,7 +77,30 @@ final class TypeController extends BaseController
             ],
             'options' => self::options(),
             'courses' => Course::query()->where('course_type_id', $type->id)->count(),
-        ] + (TrainingPolicy::exams() ? self::examData($type, (int) $request->queryString('topic')) : []));
+        ] + (TrainingPolicy::manage() ? self::completionData($type) : [])
+          + (TrainingPolicy::exams() ? self::examData($type, (int) $request->queryString('topic')) : []));
+    }
+
+    /**
+     * Daten für den Reiter Abschluss, unter einem Schlüssel, weil die
+     * Partials davor eigene Variablen wie `$settings` setzen.
+     *
+     * @return array{completion: array<string, mixed>}
+     */
+    private static function completionData(CourseType $type): array
+    {
+        $users = [];
+        foreach (User::query()->where('is_active', true)->orderBy('fullname')->orderBy('username')->get(['id', 'fullname', 'username']) as $user) {
+            $users[(int) $user->id] = (string) ($user->fullname ?: $user->username);
+        }
+
+        return ['completion' => [
+            'plan'      => CompletionPlan::fromArray($type->completion_plan),
+            'settings'  => Settings::of($type),
+            'templates' => EditorTemplate::query()->where('is_active', true)->orderBy('category')->orderBy('name')->get(['id', 'name', 'category'])->all(),
+            'users'     => $users,
+            'roles'     => Role::query()->orderBy('priority')->pluck('name', 'id')->all(),
+        ]];
     }
 
     /** @return array<string, mixed> Daten für Fragenpool und Prüfungsordnung */
@@ -109,6 +138,70 @@ final class TypeController extends BaseController
         $error = $this->fill($type, $request->post);
 
         return self::back('training/types/' . $type->id, $error, $error === null ? 'Gespeichert.' : null);
+    }
+
+    /** POST /training/types/{id}/completion: Reiter Abschluss. */
+    public function completion(Request $request, string $id): Response
+    {
+        $type = CourseType::query()->find((int) $id);
+        if ($type === null) {
+            return self::notFound();
+        }
+        $post  = $request->post;
+        $text  = static fn (string $key): string => is_string($post[$key] ?? null) ? trim($post[$key]) : '';
+        $steps = is_array($post['steps'] ?? null) ? $post['steps'] : [];
+        $plan  = [];
+        foreach (CompletionStep::cases() as $step) {
+            $plan[$step->value] = $step === CompletionStep::Result || ($steps[$step->value] ?? '') === '1';
+        }
+
+        $signer   = $text('signer_mode');
+        $signerId = (int) $text('signer_user_id');
+        $template = $text('certificate_template_id');
+        $channel  = $text('announce_channel');
+        $webhook  = $text('announce_webhook');
+        $target   = $text('follow_up_target');
+        $days     = $text('follow_up_days');
+        [$kind, $targetId] = array_pad(explode(':', $target, 2), 2, '');
+        $targetOk = match ($kind) {
+            'role'  => Role::query()->whereKey((int) $targetId)->exists(),
+            'user'  => User::query()->whereKey((int) $targetId)->exists(),
+            default => false,
+        };
+
+        $error = match (true) {
+            !isset(Settings::SIGNERS[$signer])                                                       => 'Unbekannte Unterschrift.',
+            $signer === Settings::SIGNER_FIXED && !User::query()->whereKey($signerId)->exists()      => 'Bitte die Person wählen, die unterschreibt.',
+            $template !== '' && !EditorTemplate::query()->whereKey((int) $template)->exists()        => 'Diese Vorlage gibt es nicht.',
+            $plan['certificate'] && $template === ''                                                 => 'Bitte eine Vorlage für die Urkunde wählen.',
+            !isset(Settings::CHANNELS[$channel])                                                     => 'Unbekannter Ort für die Bekanntgabe.',
+            $webhook !== '' && preg_match(Settings::WEBHOOK_PATTERN, $webhook) !== 1                 => 'Die Webhook-URL muss ein Discord-Webhook sein (https://discord.com/api/webhooks/…).',
+            $plan['announce'] && $channel === 'discord' && $webhook === ''                           => 'Für Discord fehlt die Webhook-URL.',
+            $plan['announce'] && $text('announce_text') === ''                                       => 'Bitte einen Text für die Bekanntgabe angeben.',
+            $target !== '' && !$targetOk                                                             => 'Unbekannte Rolle oder Person für die Folgeaufgabe.',
+            $plan['follow_up'] && ($target === '' || $text('follow_up_title') === '')                => 'Die Folgeaufgabe braucht eine Rolle oder Person und einen Titel.',
+            $days !== '' && (!ctype_digit($days) || (int) $days > 365)                              => 'Frist in Tagen von 0 bis 365.',
+            default                                                                                  => null,
+        };
+        if ($error !== null) {
+            return self::back('training/types/' . $type->id . '#abschluss', $error);
+        }
+
+        $type->completion_plan         = $plan;
+        $type->certificate_template_id = $template !== '' ? (int) $template : null;
+        $type->signer_mode             = $signer;
+        $type->signer_user_id          = $signer === Settings::SIGNER_FIXED ? $signerId : null;
+        $type->completion_settings     = [
+            'announce_channel' => $channel,
+            'announce_webhook' => $webhook,
+            'announce_text'    => mb_substr($text('announce_text'), 0, 500),
+            'follow_up_target' => $target,
+            'follow_up_title'  => mb_substr($text('follow_up_title'), 0, 200),
+            'follow_up_days'   => $days !== '' ? (int) $days : 0,
+        ];
+        $type->save();
+
+        return self::back('training/types/' . $type->id . '#abschluss', null, 'Gespeichert.');
     }
 
     /** POST /training/types/{id}/sequential: Schalter im Reiter Lehrplan. */

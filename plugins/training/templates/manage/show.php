@@ -1,7 +1,7 @@
 <?php
 /**
  * Lehrgang für Leitung, Ausbilder und Prüfer: Teilnehmer, Fortschritt,
- * Termine, Unterlagen, Prüfungen und Bewertungen.
+ * Termine, Unterlagen, Prüfungen, Bewertungen und Abschluss.
  *
  * @var \Plugin\Training\Models\Course                    $course
  * @var list<\Plugin\Training\Models\Participation>       $participations
@@ -24,6 +24,7 @@
  * @var bool                                              $canExamine
  * @var list<\Plugin\Training\Models\Attempt>             $reviews
  * @var array<int, \Plugin\Training\Models\ExamRelease>   $releases
+ * @var array<int, array{completion: \EmergencyForge\Training\Completion\Completion, document_id: ?int}> $completions
  */
 
 use EmergencyForge\Training\CourseStatus;
@@ -51,6 +52,15 @@ if ($waiting > 0) {
 }
 $headline = implode(', ', $description) . ($learners !== [] ? ' · Ø ' . $average . ' % erledigt' : '');
 $startQual = Qualifications::label($course->type->start_qualification);
+$open      = array_map(static fn ($p): string => $p->name(), array_values(array_filter($learners, static fn ($p): bool => in_array($p->status, ['in_training', 'in_exam'], true))));
+$closeText = 'Lehrgang abschließen?';
+if ($open !== [] && array_filter($board->parts, static fn ($e): bool => (bool) $e->required) === []) {
+    $closeText = 'Lehrgang abschließen? Ohne Pflichtprüfung haben damit alle ' . count($open) . ' in Ausbildung bestanden.';
+} elseif ($open !== []) {
+    $last      = array_pop($open);
+    $who       = $open === [] ? $last : implode(', ', $open) . ' und ' . $last;
+    $closeText = (count($open) + 1) . ' Teilnehmer haben noch nicht bestanden: ' . $who . '. Sie gelten danach als nicht bestanden und bekommen eine Nachricht. Das lässt sich nicht zurücknehmen.';
+}
 ob_start();
 ?>
     <link rel="stylesheet" href="<?= htmlspecialchars(asset('plugins/training/assets/css/training.css')) ?>">
@@ -69,12 +79,18 @@ ob_start();
                     <?php if ($canLead): ?>
                         <a href="<?= $manageUrl ?>/edit" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-pen" aria-hidden="true"></i> Bearbeiten</a>
                         <?php if ($next !== null): ?>
-                            <form method="post" action="<?= $manageUrl ?>/status" class="inline" onsubmit="<?= confirm_attr($next === CourseStatus::Running && $startQual !== null
-                                ? 'Lehrgang starten? Alle Zugelassenen sind dann in Ausbildung und bekommen ' . $startQual . '.'
-                                : 'Status auf „' . $next->label() . '“ setzen?') ?>">
+                            <form method="post" action="<?= $manageUrl ?>/status" class="inline" onsubmit="<?= confirm_attr(match (true) {
+                                $next === CourseStatus::Running && $startQual !== null => 'Lehrgang starten? Alle Zugelassenen sind dann in Ausbildung und bekommen ' . $startQual . '.',
+                                $next === CourseStatus::Completed => $closeText,
+                                default => 'Status auf „' . $next->label() . '“ setzen?',
+                            }) ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="status" value="<?= htmlspecialchars($next->value) ?>">
-                                <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-forward" aria-hidden="true"></i> Status: <?= htmlspecialchars($next->label()) ?></button>
+                                <?php if ($next === CourseStatus::Completed): ?>
+                                    <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Lehrgang abschließen</button>
+                                <?php else: ?>
+                                    <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-forward" aria-hidden="true"></i> Status: <?= htmlspecialchars($next->label()) ?></button>
+                                <?php endif; ?>
                             </form>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -90,6 +106,9 @@ ob_start();
             ];
             if ($board->parts !== []) {
                 $tabs[] = ['id' => 'pruefungen', 'label' => 'Prüfungen', 'partial' => '_exams'];
+            }
+            if ($completions !== [] || $status === CourseStatus::ExamPhase || $status === CourseStatus::Completed) {
+                $tabs[] = ['id' => 'abschluss', 'label' => 'Abschluss', 'partial' => '_completion'];
             }
             if ($canExamine) {
                 $tabs[] = ['id' => 'bewertungen', 'label' => 'Bewertungen', 'count' => count($reviews), 'partial' => '_reviews'];

@@ -59,6 +59,9 @@ $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/release',         [Exa
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/revoke',          [ExamController::class, 'revoke'],          $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/extra',           [ExamController::class, 'extra'],           $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/sheet',           [ExamController::class, 'sheet'],           $teach);
+$router->post('/training/manage/{id:\d+}/completions/{pid:\d+}/retry',      [ManageController::class, 'retry'],         $teach);
+// Folgeaufgaben gehören oft Rollen ohne Ausbildungsrecht; wem sie gehört, prüft der Controller.
+$router->post('/training/follow-ups/{id:\d+}/done',                         [ManageController::class, 'followUpDone'],  [new AuthMiddleware()]);
 
 // Prüfung ablegen und bewerten: ob die Person das darf, prüft der Controller.
 $router->get('/training/courses/{course:\d+}/exams/{exam:\d+}',             [AttemptController::class, 'start'],  $view);
@@ -81,6 +84,7 @@ $router->get('/training/types/{id:\d+}',               [TypeController::class, '
 $router->get('/training/types/{id:\d+}/export',        [QuestionController::class, 'exportType'], $exams);
 $router->post('/training/types/{id:\d+}',              [TypeController::class, 'update'],     $manage);
 $router->post('/training/types/{id:\d+}/sequential',   [TypeController::class, 'sequential'], $manage);
+$router->post('/training/types/{id:\d+}/completion',   [TypeController::class, 'completion'], $manage);
 $router->post('/training/types/{id:\d+}/copy',         [TypeController::class, 'copy'],       $manage);
 $router->post('/training/types/{id:\d+}/delete',       [TypeController::class, 'destroy'],    $manage);
 $router->post('/training/types/{id:\d+}/modules',      [CurriculumController::class, 'addTypeModule'], $manage);

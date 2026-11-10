@@ -14,7 +14,10 @@ use EmergencyForge\Training\CourseTitle;
 use EmergencyForge\Training\ParticipationStatus;
 use EmergencyForge\Training\UnitKind;
 use Illuminate\Support\Carbon;
+use Plugin\Training\Completion\CompletionTable;
+use Plugin\Training\Completions;
 use Plugin\Training\Courses;
+use Plugin\Training\FollowUps;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Enrollment;
 use Plugin\Training\ExamBoard;
@@ -195,7 +198,35 @@ final class ManageController extends BaseController
             'canExamine'     => TrainingPolicy::examine($course),
             'reviews'        => Courses::reviewQueue($course->id),
             'releases'       => ExamRelease::query()->with('releaser')->where('course_id', $course->id)->whereNull('participation_id')->get()->keyBy('exam_id')->all(),
+            'completions'    => (new CompletionTable())->forParticipations(array_map(static fn (Participation $p): int => $p->id, $learners)),
         ]);
+    }
+
+    /** POST /training/follow-ups/{id}/done */
+    public function followUpDone(Request $request, string $id): Response
+    {
+        $done = FollowUps::close((int) $id, self::userId(), TrainingPolicy::manage());
+        $back = (string) ($request->post['back'] ?? '');
+        $back = str_starts_with($back, 'personnel/profile?id=') ? $back : 'inbox';
+
+        return self::back($back, $done ? null : 'Diese Aufgabe ist schon erledigt oder nicht deine.', $done ? 'Aufgabe erledigt.' : null);
+    }
+
+    /** POST /training/manage/{id}/completions/{pid}/retry: „Erneut versuchen“ ohne Wartezeit. */
+    public function retry(Request $request, string $id, string $pid): Response
+    {
+        [$course, $participation] = $this->leadParticipation($id, $pid);
+        if ($course === null || $participation === null) {
+            return self::notFound();
+        }
+        $completion = (new Completions())->run($participation->id, true);
+        if ($completion === null) {
+            return self::back('training/manage/' . $course->id . '#abschluss', 'Der Abschluss läuft gerade schon. Gleich noch einmal ansehen.');
+        }
+
+        return $completion->isFinished()
+            ? self::back('training/manage/' . $course->id . '#abschluss', null, 'Abschluss von ' . $participation->name() . ' ist durch.')
+            : self::back('training/manage/' . $course->id . '#abschluss', 'Ein Schritt ist wieder gescheitert. Der Hinweis in der Liste nennt den Grund.');
     }
 
     /** POST /training/manage/{id}/status */

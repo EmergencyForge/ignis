@@ -6,6 +6,7 @@ namespace App\Documents\Editor;
 
 use App\Models\Personnel;
 use App\Personnel\AccountLink;
+use EmergencyForge\Training\CertificateVariables;
 
 /**
  * Welche Platzhalter eine Vorlage kennt und womit sie beim Ausstellen
@@ -58,7 +59,7 @@ final class VariableCatalog
             'organisation.plz'             => 'Organisation: PLZ',
             'dokument.kennung'             => 'Dokument: Kennung',
             'datum'                        => 'Datum (heute)',
-        ];
+        ] + CertificateVariables::labels();
     }
 
     /**
@@ -135,6 +136,8 @@ final class VariableCatalog
                     : 'Dein Benutzerkonto ist mit keinem Mitarbeiter verknüpft. Das erledigt die Personalverwaltung.',
                 'organisation' => 'In den Systemeinstellungen ist dazu nichts eingetragen.',
                 'dokument'     => 'Das Dokument hat noch keine Kennung.',
+                // Gefüllt nur, wenn die Ausbildung das Dokument ausstellt.
+                'lehrgang', 'pruefung', 'qualifikation' => 'Kommt aus dem Abschluss eines Lehrgangs.',
                 default        => 'Dafür ist kein Wert erfasst.',
             };
         }

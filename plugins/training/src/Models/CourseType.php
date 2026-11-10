@@ -20,6 +20,11 @@ use Illuminate\Support\Carbon;
  * @property string|null $start_qualification  z. B. rd:5
  * @property string|null $pass_qualification
  * @property int|null    $validity_months
+ * @property int|null    $certificate_template_id
+ * @property string      $signer_mode          lead|fixed|grader
+ * @property int|null    $signer_user_id
+ * @property array<string, mixed>|null $completion_plan     Schritt => an/aus
+ * @property array<string, mixed>|null $completion_settings Bekanntgabe und Folgeaufgabe
  * @property string      $enrollment_mode
  * @property bool        $sequential
  * @property bool        $is_active
@@ -52,6 +57,9 @@ class CourseType extends EloquentModel
         'is_active'       => 'boolean',
         'created_by'      => 'integer',
         'completion_plan' => 'array',
+        'completion_settings'     => 'array',
+        'certificate_template_id' => 'integer',
+        'signer_user_id'          => 'integer',
     ];
 
     /** @return HasMany<Module, $this> */

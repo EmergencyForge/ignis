@@ -174,5 +174,24 @@ a.tr-unit:hover { background: var(--fill-1); }
 .tr-sticky { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border: 1px solid var(--border-subtle); border-radius: var(--radius-3); background: var(--surface-2); box-shadow: 0 -6px 16px rgba(0, 0, 0, .25); }
 .tr-sticky__sum { flex: 1; font-variant-numeric: tabular-nums; }
 
+.tr-chain { display: grid; gap: 0; padding-top: 0; padding-bottom: 0; }
+.tr-chain__row { padding: 14px 0; border-top: 1px solid var(--hairline); }
+.tr-chain__row:first-child { border-top: 0; }
+.tr-chain__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.tr-chain__title { font-weight: 600; cursor: pointer; }
+.tr-chain__text { margin: 2px 0 0; color: var(--tertiary-text); font-size: 13px; max-width: 70ch; }
+.tr-chain__more { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; padding: 12px; border-radius: var(--radius-3); background: var(--fill-1); }
+.tr-chain__more[hidden], .tr-chain__more [hidden] { display: none; }
+.tr-done { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.tr-done__icon { width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; background: var(--ok); color: #fff; flex: none; }
+.tr-done__icon.is-failed { background: var(--fill-1); color: var(--tertiary-text); }
+.tr-done h2 { margin: 0; font-size: 20px; }
+.tr-done p { margin: 2px 0 0; color: var(--tertiary-text); }
+.tr-done__action { margin-left: auto; }
+.tr-facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 24px; margin: 0; }
+.tr-facts dt { color: var(--tertiary-text); }
+.tr-facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+.tr-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
 /* Das Zeilenmenü der Zulassung soll aus der Tabelle herausragen dürfen. */
 .tr-admission, .tr-admission .twplus-table-card__scroll { overflow: visible; }

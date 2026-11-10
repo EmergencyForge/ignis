@@ -433,7 +433,31 @@ function sheet() {
     update();
 }
 
+// Abschluss der Lehrgangsart: Einstellungen eines Schritts nur zeigen,
+// solange er an ist; die feste Person nur bei dieser Unterschrift.
+function completion() {
+    document.querySelectorAll('[data-training-step]').forEach((input) => {
+        const more = document.querySelector(`[data-training-more="${input.dataset.trainingStep}"]`);
+        if (!more) return;
+        const update = () => { more.hidden = !input.checked; };
+        input.addEventListener('change', update);
+        update();
+    });
+    const signer = document.querySelector('[data-training-signer]');
+    const fixed = document.querySelector('[data-training-fixed]');
+    if (signer && fixed) {
+        const person = fixed.querySelector('select');
+        const update = () => {
+            fixed.hidden = signer.value !== 'fixed';
+            if (person) person.required = !fixed.hidden;
+        };
+        signer.addEventListener('change', update);
+        update();
+    }
+}
+
 openTabFromHash();
+completion();
 trackUnit();
 matrix();
 switches();

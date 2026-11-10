@@ -10,7 +10,6 @@ use DomainException;
 use EmergencyForge\Training\Exam\AttemptRules;
 use EmergencyForge\Training\Exam\ExamDrawer;
 use EmergencyForge\Training\Exam\ExamResult;
-use EmergencyForge\Training\Exam\GradeScale;
 use EmergencyForge\Training\Exam\NotEnoughQuestions;
 use EmergencyForge\Training\Exam\PracticalSheet;
 use EmergencyForge\Training\ParticipationStatus;
@@ -405,22 +404,17 @@ final class Exams
         ExamRelease::query()->where('exam_id', $exam->id)->where('course_id', $course->id)->where('participation_id', $participation?->id)->delete();
     }
 
-    /** Zusatzversuch mit Begründung; eine nicht bestandene Teilnahme geht zurück in die Prüfung. */
+    /** Zusatzversuch mit Begründung, solange der Lehrgang nicht abgeschlossen ist. */
     public function grantExtra(Participation $participation, Exam $exam, string $reason, int $userId, string $editor): void
     {
         $reason = trim($reason);
         if ($reason === '') {
             throw new DomainException('Bitte begründen, warum es einen Zusatzversuch gibt.');
         }
-        if (!in_array($participation->status, ['in_training', 'in_exam', 'failed'], true)) {
+        if (!in_array($participation->status, ['in_training', 'in_exam'], true)) {
             throw new DomainException('Diese Teilnahme ist nicht mehr in der Prüfung.');
         }
         ExtraAttempt::query()->create(['participation_id' => $participation->id, 'exam_id' => $exam->id, 'reason' => mb_substr($reason, 0, 500), 'granted_by' => $userId ?: null]);
-        if ($participation->state() === ParticipationStatus::Failed) {
-            $participation->status      = ParticipationStatus::InExam->value;
-            $participation->finished_at = null;
-            $participation->save();
-        }
         $this->log($participation, sprintf('%s: Zusatzversuch für <strong>%s</strong>. Begründung: %s', htmlspecialchars($participation->course->title), htmlspecialchars($exam->title), htmlspecialchars($reason)), $editor, ['change_type' => 'training_extra_attempt', 'exam_id' => $exam->id]);
         Notify::personnel(array_filter([$participation->personnel_id]), 'Zusatzversuch: ' . $exam->title, 'training/courses/' . $participation->course_id . '/exams/' . $exam->id);
     }
@@ -450,11 +444,13 @@ final class Exams
     }
 
     /**
-     * Was ein fertig bewerteter Versuch für die Teilnahme heißt: alle
-     * Pflicht-Teile bestanden, oder dieser Teil endgültig nicht.
+     * Was ein fertig bewerteter Versuch für die Teilnahme heißt. Bestanden
+     * ist sie mit dem letzten Pflicht-Teil; nicht bestanden erst, wenn die
+     * Leitung den Lehrgang abschließt, bis dahin sind Zusatzversuche möglich.
      */
     private function outcome(Attempt $attempt): void
     {
+        $passed = false;
         $participation = Participation::query()->with('course.type')->find($attempt->participation_id);
         if ($participation === null) {
             return;
@@ -467,32 +463,17 @@ final class Exams
 
         if (in_array($participation->status, ['in_training', 'in_exam'], true)) {
             if ($board->allRequiredPassed($participation)) {
-                $results = [];
-                $grade   = null;
-                foreach ($board->parts as $part) {
-                    $result = $part->required ? $board->state($participation, $part)->result() : null;
-                    if ($result === null) {
-                        continue;
-                    }
-                    $results[] = (float) $result->percent;
-                    $scale     = $part->examSettings()->gradeScale;
-                    if ($grade === null && $scale instanceof GradeScale) {
-                        $grade = GradeScale::label($scale->grade((float) $result->percent));
-                    }
-                }
-                $participation->status         = ParticipationStatus::Passed->value;
-                $participation->finished_at    = Carbon::now();
-                $participation->result_percent = $results !== [] ? round(array_sum($results) / count($results), 2) : null;
-                $participation->grade          = $grade;
-                $participation->save();
-            } elseif ($attempt->passed === false && $exam->required && $board->state($participation, $exam)->remaining === 0) {
-                $participation->status      = ParticipationStatus::Failed->value;
+                $participation->status      = ParticipationStatus::Passed->value;
                 $participation->finished_at = Carbon::now();
                 $participation->save();
+                $passed = true;
             }
         }
 
         Notify::personnel(array_filter([$participation->personnel_id]), 'Ergebnis: ' . $exam->title, 'training/attempts/' . $attempt->id, $attempt->passed ? 'Bestanden.' : 'Nicht bestanden.');
+        if ($passed) {
+            (new Completions())->startAndRun($participation, true);
+        }
     }
 
     private function askExaminers(Attempt $attempt, string $what, ?int $except = null): void

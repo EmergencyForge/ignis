@@ -11,6 +11,7 @@ use EmergencyForge\Training\Progress\ProgressUnit;
 use EmergencyForge\Training\UnitKind;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use Plugin\Training\Completion\CompletionTable;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Enrollment;
 use Plugin\Training\ExamBoard;
@@ -110,6 +111,7 @@ final class TrainingController extends BaseController
             'missing'       => ($pid = self::personnelId()) !== null ? Qualifications::missing($pid, $course->type->prerequisiteKeys()) : [],
             'linked'        => self::personnelId() !== null,
             'exams'         => self::examStates($course, $participation),
+            'completion'    => $participation !== null && in_array($participation->status, ['passed', 'failed'], true) ? (new CompletionTable())->find($participation->id) : null,
         ]);
     }
 

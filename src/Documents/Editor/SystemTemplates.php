@@ -43,6 +43,9 @@ final class SystemTemplates
         ['label' => 'Luftrettungspilot/-in', 'male' => 'Luftrettungspilot', 'female' => 'Luftrettungspilotin'],
     ];
 
+    public const TRAINING_QUALIFICATION = 'Ausbildungszertifikat (Lehrgang)';
+    public const TRAINING_COURSE        = 'Lehrgangszertifikat (Lehrgang)';
+
     private const CERTIFICATE_LAYOUT = [
         'orientation'    => 'landscape',
         'margins'        => ['top' => 25, 'right' => 35, 'bottom' => 30, 'left' => 35],
@@ -356,6 +359,34 @@ final class SystemTemplates
                 $this->p([
                     $this->t('am '), $this->f('pruefungsdatum', 'Prüfungsdatum', 'date'),
                     $this->t(' erfolgreich absolviert hat.'),
+                ], 'center'),
+            ])],
+
+            // Fassungen für den Lehrgangsabschluss: dieselben Sätze, aber aus
+            // den Lehrgangs-Variablen statt aus Auswahlfeldern, damit das
+            // System sie ohne Rückfrage ausstellen kann.
+            self::TRAINING_QUALIFICATION => ['category' => 'Zertifikat', 'content' => $this->certificate('ZERTIFIKAT', [
+                $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
+                $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('die Prüfung '), $this->v('mitarbeiter.zum_zur')], 'center'),
+                $this->p([$this->v('qualifikation.name')], 'center'),
+                $this->p([
+                    $this->t('am '), $this->v('pruefung.datum'), $this->t(' im '), $this->v('lehrgang.titel'),
+                    $this->t(' bestanden und somit die Genehmigung zum Führen der Qualifikation und oben genannter Berufsbezeichnung erworben hat.'),
+                ], 'center'),
+            ])],
+
+            self::TRAINING_COURSE => ['category' => 'Zertifikat', 'content' => $this->certificate('ZERTIFIKAT', [
+                $this->p([$this->t('Hiermit wird bestätigt,')], 'center'),
+                $this->p([$this->t('dass '), $this->v('mitarbeiter.anrede')], 'center'),
+                ...$this->person(),
+                $this->p([$this->t('den Lehrgang')], 'center'),
+                $this->p([$this->v('lehrgang.titel'), $this->t(' ('), $this->v('lehrgang.art'), $this->t(')')], 'center'),
+                $this->p([
+                    $this->t('vom '), $this->v('lehrgang.beginn'), $this->t(' bis '), $this->v('lehrgang.ende'),
+                    $this->t(' besucht und die Prüfung am '), $this->v('pruefung.datum'),
+                    $this->t(' mit '), $this->v('pruefung.ergebnis'), $this->t(' bestanden hat.'),
                 ], 'center'),
             ])],
 
