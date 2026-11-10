@@ -12,6 +12,7 @@ use App\Session\SessionManager;
 use EmergencyForge\Http\Response;
 use Plugin\Training\FileStore;
 use Plugin\Training\Models\Course;
+use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\TrainingFile;
 
 abstract class BaseController extends Controller
@@ -80,6 +81,19 @@ abstract class BaseController extends Controller
     protected static function findCourse(string $id): ?Course
     {
         return Course::query()->with('type')->find((int) $id);
+    }
+
+    /** Die eigene Teilnahme am Lehrgang, null ohne Mitarbeiter-Verknüpfung oder ohne Teilnahme. */
+    protected static function ownParticipation(Course $course): ?Participation
+    {
+        $personnelId = self::personnelId();
+        if ($personnelId === null) {
+            return null;
+        }
+        $participation = Participation::query()->where('course_id', $course->id)->where('personnel_id', $personnelId)->first();
+        $participation?->setRelation('course', $course);
+
+        return $participation;
     }
 
     /**

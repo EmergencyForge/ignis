@@ -11,12 +11,15 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use EmergencyForge\Training\CourseStatus;
 use EmergencyForge\Training\CourseTitle;
+use EmergencyForge\Training\MaterialType;
 use EmergencyForge\Training\ParticipationStatus;
 use EmergencyForge\Training\UnitKind;
 use Illuminate\Support\Carbon;
 use Plugin\Training\Completion\CompletionTable;
 use Plugin\Training\Completions;
+use Plugin\Training\Converter;
 use Plugin\Training\Courses;
+use Plugin\Training\FileStore;
 use Plugin\Training\FollowUps;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Enrollment;
@@ -29,6 +32,7 @@ use Plugin\Training\Models\CourseStaff;
 use Plugin\Training\Models\CourseType;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Session;
+use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Policies\TrainingPolicy;
 use Plugin\Training\SessionSync;
 
@@ -41,6 +45,8 @@ use Plugin\Training\SessionSync;
  */
 final class ManageController extends BaseController
 {
+    private const NEEDS_CONVERTER = 'PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.';
+
     public function __construct(
         private readonly Enrollment $enrollment = new Enrollment(),
         private readonly Lifecycle $lifecycle = new Lifecycle(),
@@ -146,7 +152,7 @@ final class ManageController extends BaseController
         }
 
         /** @var list<Session> $sessions */
-        $sessions   = Session::query()->where('course_id', $course->id)->orderBy('starts_at')->get()->all();
+        $sessions   = Session::query()->with('slides')->where('course_id', $course->id)->orderBy('starts_at')->get()->all();
         $attendance = [];
         foreach (Attendance::query()->whereIn('session_id', array_map(static fn (Session $s): int => $s->id, $sessions))->get() as $row) {
             $attendance[$row->session_id][$row->participation_id] = $row->state;
@@ -193,7 +199,9 @@ final class ManageController extends BaseController
             'seated'         => count(array_filter($participations, static fn (Participation $p): bool => $p->state()->occupiesSeat())),
             'waiting'        => count(array_filter($participations, static fn (Participation $p): bool => $p->state() === ParticipationStatus::Waitlisted)),
             'canLead'        => TrainingPolicy::lead($course),
-            'calendar'       => SessionSync::enabled(),
+            'canInstruct'    => TrainingPolicy::instruct($course),
+            'converter'      => Converter::configured() !== null,
+            'calendar'      => SessionSync::enabled(),
             'board'          => ExamBoard::for($course, $learners),
             'canExamine'     => TrainingPolicy::examine($course),
             'reviews'        => Courses::reviewQueue($course->id),
@@ -403,6 +411,64 @@ final class ManageController extends BaseController
         }
 
         return self::back('training/manage/' . $course->id . '#termine', null, 'Anwesenheit gespeichert.');
+    }
+
+    /**
+     * POST /training/manage/{id}/sessions/{sid}/slides
+     *
+     * Ein Upload schlägt die Auswahl aus dem Lehrplan. Geprüft wird, bevor
+     * etwas gespeichert wird, damit kein Termin auf Folien zeigt, die sich
+     * nicht anzeigen lassen.
+     */
+    public function slides(Request $request, string $id, string $sid): Response
+    {
+        $course  = self::findCourse($id);
+        $session = $course !== null ? Session::query()->where('course_id', $course->id)->find((int) $sid) : null;
+        if ($course === null || $session === null || !TrainingPolicy::instruct($course)) {
+            return self::notFound();
+        }
+        $back   = 'training/manage/' . $course->id . '#termine';
+        $post   = $request->post;
+        $upload = $request->files['slides'] ?? null;
+
+        // „Entfernen“ geht vor der Auswahl, die das Formular mit der aktuellen Wahl vorbelegt.
+        if (($post['remove'] ?? '') === '1') {
+            $session->slides_file_id = null;
+        } elseif (is_array($upload) && (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $kind = MaterialType::detect(is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '')?->kind;
+            if ($kind !== 'pdf' && $kind !== 'presentation') {
+                return self::back($back, 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.');
+            }
+            // Ohne Umwandler würde PowerPoint nie zur PDF und der Vortrag ließe sich nicht starten.
+            if ($kind === 'presentation' && Converter::configured() === null) {
+                return self::back($back, self::NEEDS_CONVERTER);
+            }
+            try {
+                $session->slides_file_id = (new FileStore())->store($upload, self::userId())->id;
+            } catch (DomainException | \RuntimeException $e) {
+                return self::back($back, $e->getMessage());
+            }
+        } elseif ((int) ($post['slides_file_id'] ?? 0) > 0) {
+            $fileId = (int) $post['slides_file_id'];
+            $file   = Curriculum::for($course)->usesFile($fileId) ? TrainingFile::query()->find($fileId) : null;
+            if ($file === null) {
+                return self::back($back, 'Diese Unterlage gehört nicht zu diesem Lehrgang.');
+            }
+            // Nur eine neue Wahl prüfen, damit sich ältere Termine weiter speichern lassen.
+            if ($file->id !== $session->slides_file_id && !$file->viewsAsPdf()) {
+                if ($file->mime !== Converter::PPTX) {
+                    return self::back($back, 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.');
+                }
+                if (Converter::configured() === null) {
+                    return self::back($back, self::NEEDS_CONVERTER);
+                }
+            }
+            $session->slides_file_id = $file->id;
+        }
+
+        $session->save();
+
+        return self::back($back, null, $session->slides_file_id === null ? 'Folien entfernt.' : 'Folien gespeichert.');
     }
 
     /** @param array<string, mixed> $form */

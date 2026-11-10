@@ -20,6 +20,7 @@ use Plugin\Training\Controllers\AttemptController;
 use Plugin\Training\Controllers\CurriculumController;
 use Plugin\Training\Controllers\ExamController;
 use Plugin\Training\Controllers\ManageController;
+use Plugin\Training\Controllers\PresentationController;
 use Plugin\Training\Controllers\QuestionController;
 use Plugin\Training\Controllers\TrainingController;
 use Plugin\Training\Controllers\TypeController;
@@ -38,6 +39,7 @@ $router->get('/training/courses/{course:\d+}/units/{unit:\d+}',       [TrainingC
 $router->post('/training/courses/{course:\d+}/units/{unit:\d+}/done', [TrainingController::class, 'done'],     $view);
 $router->post('/training/courses/{course:\d+}/units/{unit:\d+}/open', [TrainingController::class, 'open'],     $view);
 $router->get('/training/courses/{course:\d+}/files/{file:\d+}',       [TrainingController::class, 'file'],     $view);
+$router->get('/training/courses/{course:\d+}/sessions/{session:\d+}/slides', [PresentationController::class, 'slides'], $view);
 
 // Lehrgänge leiten und betreuen
 $router->get('/training/manage',                                            [ManageController::class, 'index'],         $teach);
@@ -54,6 +56,7 @@ $router->post('/training/manage/{id:\d+}/progress',                         [Man
 $router->post('/training/manage/{id:\d+}/sessions',                         [ManageController::class, 'storeSession'],  $teach);
 $router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/delete',        [ManageController::class, 'deleteSession'], $teach);
 $router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/attendance',    [ManageController::class, 'attendance'],    $teach);
+$router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/slides',        [ManageController::class, 'slides'],        $teach);
 $router->post('/training/manage/{id:\d+}/modules',                          [CurriculumController::class, 'addCourseModule'], $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/release',         [ExamController::class, 'release'],         $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/revoke',          [ExamController::class, 'revoke'],          $teach);

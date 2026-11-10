@@ -10,14 +10,29 @@
  * @var array<int, array<int, string>>              $responses
  * @var list<\Plugin\Training\Models\Unit>          $openSlots
  * @var bool                                        $canLead
+ * @var bool                                        $canInstruct
+ * @var bool                                        $converter  ob ein Umwandler für PowerPoint eingetragen ist
+ * @var \Plugin\Training\Curriculum                $curriculum
  * @var bool                                        $calendar
  * @var string                                      $manageUrl
  */
 
+use EmergencyForge\Training\UnitKind;
+use Plugin\Training\Converter;
 use Plugin\Training\Models\Attendance;
 
 $present = array_values(array_filter($participations, static fn ($p): bool => in_array($p->status, ['admitted', 'in_training', 'in_exam', 'passed', 'failed'], true)));
 $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentative' => 'vielleicht'];
+// Folien aus dem Lehrplan: PDFs, und PowerPoint nur, wenn sich etwas umwandeln lässt.
+$slideChoices = [];
+if ($canInstruct) {
+    foreach ($curriculum->units() as $unit) {
+        $file = $unit->type() === UnitKind::File ? $unit->file : null;
+        if ($file !== null && ($file->viewsAsPdf() || ($converter && $file->mime === Converter::PPTX))) {
+            $slideChoices[$file->id] = $file->original_name;
+        }
+    }
+}
 ?>
 <p class="ignis-detail__muted">
     <?= $calendar ? 'Jeder Termin steht als Schulung im Kalender der aktiven Teilnehmer.' : 'Ohne das Kalender-Plugin bleiben die Termine hier im Lehrgang.' ?>
@@ -25,7 +40,7 @@ $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentati
 </p>
 
 <?php foreach ($sessions as $session): ?>
-    <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/attendance" class="ignis-card mb-3">
+    <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/attendance" class="ignis-card <?= $canInstruct ? 'mb-2' : 'mb-3' ?>">
         <?= csrf_field() ?>
         <div class="ignis-card__body">
             <div class="flex items-start justify-between gap-3 flex-wrap mb-2">
@@ -70,6 +85,56 @@ $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentati
             <?php endif; ?>
         </div>
     </form>
+    <?php if ($canInstruct): $slides = $session->slides; ?>
+        <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/slides" enctype="multipart/form-data" id="slides-<?= (int) $session->id ?>" class="ignis-card mb-3">
+            <?= csrf_field() ?>
+            <div class="ignis-card__body grid gap-3">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <h4 class="ignis-card__title m-0">Folien</h4>
+                    <?php if ($slides !== null): ?>
+                        <span class="flex items-center gap-2">
+                            <span class="ignis-chip ignis-chip--sm"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> <?= htmlspecialchars($slides->original_name) ?></span>
+                            <?php if (!$slides->viewsAsPdf() && $slides->convert_status !== Converter::FAILED): ?>
+                                <span class="ignis-chip ignis-chip--sm ignis-chip--warn">wird umgewandelt</span>
+                            <?php elseif (!$slides->viewsAsPdf()): ?>
+                                <span class="ignis-chip ignis-chip--sm ignis-chip--danger">Umwandlung fehlgeschlagen</span>
+                            <?php endif; ?>
+                            <button type="submit" name="remove" value="1" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm" formnovalidate>Entfernen</button>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <div class="ignis-file ignis-file--dropzone" data-ignis-file data-max-bytes="26214400">
+                            <input type="file" id="slides-file-<?= (int) $session->id ?>" name="slides" class="ignis-file__input" accept="<?= $converter ? '.pdf,.pptx' : '.pdf' ?>">
+                            <label for="slides-file-<?= (int) $session->id ?>" class="ignis-file__zone">
+                                <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+                                <span class="ignis-file__title">Folien hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                                <span class="ignis-file__hint"><?= $converter ? 'PDF oder PowerPoint, höchstens 25 MB' : 'PDF, höchstens 25 MB' ?></span>
+                            </label>
+                            <div class="ignis-file__selected" hidden></div>
+                        </div>
+                        <?php if (!$converter): ?><p class="ignis-field__hint">Ohne Umwandler gehen hier nur PDF-Folien.</p><?php endif; ?>
+                    </div>
+                    <?php if ($slideChoices !== []): ?>
+                        <div>
+                            <label for="slides-pick-<?= (int) $session->id ?>" class="ignis-field__label">Oder aus dem Lehrplan</label>
+                            <select id="slides-pick-<?= (int) $session->id ?>" name="slides_file_id" class="ignis-input" data-custom-dropdown="true">
+                                <option value="">Keine Auswahl</option>
+                                <?php foreach ($slideChoices as $fileId => $fileName): ?>
+                                    <option value="<?= (int) $fileId ?>"<?= $session->slides_file_id === $fileId ? ' selected' : '' ?>><?= htmlspecialchars($fileName) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="ignis-field__hint">Ein Upload geht vor der Auswahl.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="ignis-card__footer" data-form-actions>
+                <button type="submit" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-display" aria-hidden="true"></i> Folien speichern</button>
+            </div>
+        </form>
+    <?php endif; ?>
     <?php if ($canLead): ?>
         <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/delete" id="delete-session-<?= (int) $session->id ?>" onsubmit="<?= confirm_attr('Termin „' . $session->title . '“ löschen? Die Anwesenheit dazu geht mit.') ?>" hidden>
             <?= csrf_field() ?>

@@ -10,6 +10,7 @@ use Plugin\Training\Courses;
 use Plugin\Training\Models\Attempt;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
+use Plugin\Training\Models\Participation;
 
 /**
  * Wer was in der Ausbildung darf. In einem Lehrgang zählt die Rolle dort
@@ -61,6 +62,17 @@ class TrainingPolicy
 
         return Permissions::check(['training.teach'])
             && CourseStaff::query()->where('course_id', $course->id)->where('user_id', self::userId())->where('role', 'instructor')->exists();
+    }
+
+    /**
+     * Dem Vortrag eines Termins folgen: Leitung und Ausbilder, dazu Lernende,
+     * deren Lehrgang die Unterlagen schon freigibt. Ein bloßes Teilnehmen
+     * reicht nicht, denn Folien sind Lehrgangsmaterial.
+     */
+    public static function follow(Course $course, ?Participation $own): bool
+    {
+        return self::instruct($course)
+            || ($own !== null && $own->canLearn() && $course->state()->materialsOpen());
     }
 
     /** Fragenpools und Prüfungsordnungen sehen und pflegen. */

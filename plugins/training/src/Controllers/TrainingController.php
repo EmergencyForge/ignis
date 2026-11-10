@@ -293,14 +293,7 @@ final class TrainingController extends BaseController
 
     private function participation(Course $course): ?Participation
     {
-        $personnelId = self::personnelId();
-        if ($personnelId === null) {
-            return null;
-        }
-        $participation = Participation::query()->where('course_id', $course->id)->where('personnel_id', $personnelId)->first();
-        $participation?->setRelation('course', $course);
-
-        return $participation;
+        return self::ownParticipation($course);
     }
 
     private function canLearn(Course $course, ?Participation $participation): bool
