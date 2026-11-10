@@ -11,25 +11,25 @@ use Illuminate\Support\Carbon;
  * Folgeaufgaben aus dem Lehrgangsabschluss und Bekanntgaben fürs
  * Dashboard. ignis hat kein Aufgabenmodul: offene Folgeaufgaben stehen
  * unter „Für dich offen“ und auf der Profilkarte, wo sie erledigt werden.
+ * Jede Aufgabe gehört genau einem Konto; an eine Rolle gerichtet, hat
+ * jedes Mitglied seine eigene.
  */
 final class FollowUps
 {
     private const TABLE = 'intra_training_follow_ups';
 
     /**
-     * Offene Aufgaben für ein Konto, direkt oder über seine Rolle.
+     * Offene Aufgaben eines Kontos.
      *
      * @return list<object{id: int, personnel_id: ?int, title: string, due_on: ?string, name: ?string}>
      */
     public static function openFor(int $userId): array
     {
-        $role = (int) Capsule::table('intra_users')->where('id', $userId)->value('role');
-
         /** @var list<object{id: int, personnel_id: ?int, title: string, due_on: ?string, name: ?string}> */
         return Capsule::table(self::TABLE . ' as f')
             ->leftJoin('intra_mitarbeiter as m', 'm.id', '=', 'f.personnel_id')
             ->whereNull('f.done_at')
-            ->where(static fn ($q) => $q->where('f.user_id', $userId)->orWhere('f.role_id', $role))
+            ->where('f.user_id', $userId)
             ->orderByRaw('f.due_on IS NULL')->orderBy('f.due_on')->orderBy('f.id')
             ->limit(20)
             ->get(['f.id', 'f.personnel_id', 'f.title', 'f.due_on', 'm.fullname as name'])->all();
@@ -38,19 +38,21 @@ final class FollowUps
     /**
      * Offene Aufgaben zu einem Mitarbeiter, für die Profilkarte.
      *
-     * @return list<object{id: int, title: string, due_on: ?string, user_id: ?int, role_id: ?int}>
+     * @return list<object{id: int, title: string, due_on: ?string, user_id: ?int, assignee: ?string}>
      */
     public static function openAbout(int $personnelId): array
     {
-        /** @var list<object{id: int, title: string, due_on: ?string, user_id: ?int, role_id: ?int}> */
-        return Capsule::table(self::TABLE)->where('personnel_id', $personnelId)->whereNull('done_at')->orderBy('id')
-            ->get(['id', 'title', 'due_on', 'user_id', 'role_id'])->all();
+        /** @var list<object{id: int, title: string, due_on: ?string, user_id: ?int, assignee: ?string}> */
+        return Capsule::table(self::TABLE . ' as f')
+            ->leftJoin('intra_users as u', 'u.id', '=', 'f.user_id')
+            ->where('f.personnel_id', $personnelId)->whereNull('f.done_at')->orderBy('f.id')
+            ->get(['f.id', 'f.title', 'f.due_on', 'f.user_id', Capsule::connection()->raw("COALESCE(NULLIF(u.fullname, ''), u.username) as assignee")])->all();
     }
 
     /** Erledigen darf, wem die Aufgabe gehört, und wer Ausbildung verwaltet. */
     public static function close(int $id, int $userId, bool $manage): bool
     {
-        $row = Capsule::table(self::TABLE)->where('id', $id)->whereNull('done_at')->first(['user_id', 'role_id']);
+        $row = Capsule::table(self::TABLE)->where('id', $id)->whereNull('done_at')->first(['user_id']);
         if ($row === null || (!$manage && !self::owns($row, $userId))) {
             return false;
         }
@@ -58,14 +60,10 @@ final class FollowUps
         return Capsule::table(self::TABLE)->where('id', $id)->whereNull('done_at')->update(['done_at' => Carbon::now(), 'done_by' => $userId, 'updated_at' => Carbon::now()]) === 1;
     }
 
-    /** @param object{user_id: ?int, role_id: ?int} $row */
+    /** @param object{user_id: ?int} $row */
     public static function owns(object $row, int $userId): bool
     {
-        if ($row->user_id !== null && (int) $row->user_id === $userId) {
-            return true;
-        }
-
-        return $row->role_id !== null && (int) $row->role_id === (int) Capsule::table('intra_users')->where('id', $userId)->value('role');
+        return $row->user_id !== null && (int) $row->user_id === $userId;
     }
 
     /** @return list<string> Texte der Bekanntgaben, die noch laufen, neueste zuerst */

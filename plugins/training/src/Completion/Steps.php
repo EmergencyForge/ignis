@@ -250,20 +250,26 @@ final class Steps
         }
         $title = mb_substr(self::fill($settings['follow_up_title'], $p), 0, 200);
         $due   = $settings['follow_up_days'] > 0 ? Carbon::today()->addDays($settings['follow_up_days']) : null;
-        Capsule::table('intra_training_follow_ups')->updateOrInsert(['participation_id' => $p->id], [
-            'personnel_id' => $p->personnel_id,
-            'user_id'      => $kind === 'user' ? (int) $id : null,
-            'role_id'      => $kind === 'role' ? (int) $id : null,
-            'title'        => $title,
-            'due_on'       => $due?->toDateString(),
-            'created_at'   => Carbon::now(),
-            'updated_at'   => Carbon::now(),
-        ]);
-        $users = $kind === 'user' ? [(int) $id] : Capsule::table('intra_users')->where('role', (int) $id)->pluck('id')->map(static fn ($u): int => (int) $u)->all();
-        $link  = $p->personnel_id !== null ? 'personnel/profile?id=' . $p->personnel_id : 'training/manage/' . $p->course_id;
-        Notify::users(array_values($users), 'Aufgabe: ' . $title, $link, $due !== null ? 'Frist ' . $due->format('d.m.Y') : null);
+        // Bei einer Rolle bekommt jedes aktive Konto eine eigene Aufgabe.
+        $users = $kind === 'user' ? [(int) $id] : Capsule::table('intra_users')->where('role', (int) $id)->where('is_active', 1)
+            ->orderBy('id')->pluck('id')->map(static fn ($u): int => (int) $u)->all();
+        if ($users === []) {
+            return StepResult::skipped('Die Rolle hat keine aktiven Konten.');
+        }
+        foreach ($users as $userId) {
+            Capsule::table('intra_training_follow_ups')->updateOrInsert(['participation_id' => $p->id, 'user_id' => $userId], [
+                'personnel_id' => $p->personnel_id,
+                'role_id'      => $kind === 'role' ? (int) $id : null,
+                'title'        => $title,
+                'due_on'       => $due?->toDateString(),
+                'created_at'   => Carbon::now(),
+                'updated_at'   => Carbon::now(),
+            ]);
+        }
+        $link = $p->personnel_id !== null ? 'personnel/profile?id=' . $p->personnel_id : 'training/manage/' . $p->course_id;
+        Notify::users($users, 'Aufgabe: ' . $title, $link, $due !== null ? 'Frist ' . $due->format('d.m.Y') : null);
 
-        return StepResult::done($kind === 'user' ? 'an Person' : 'an Rolle');
+        return StepResult::done($kind === 'user' ? 'an Person' : 'an ' . count($users) . ' in der Rolle');
     }
 
     /** Platzhalter in Bekanntgabe und Folgeaufgabe. */
