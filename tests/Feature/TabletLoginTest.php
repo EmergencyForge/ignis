@@ -225,9 +225,27 @@ final class TabletLoginTest extends FeatureTestCase
         $_SESSION = [];
 
         $second = $this->get('/auth/tablet', ['query' => ['token' => $token]]);
-        $this->assertRedirect($second, '/login');
+        $this->assertRedirect($second, '/login?tablet=failed');
         $this->assertArrayNotHasKey('userid', $_SESSION);
         $this->assertNotEmpty($_SESSION['registration_error'] ?? null);
+    }
+
+    #[Test]
+    public function ein_fehlgeschlagener_token_laesst_eine_offene_sitzung_stehen(): void
+    {
+        $user = FixtureFactory::user();
+        $token = $this->tokenFor($user);
+        $this->get('/auth/tablet', ['query' => ['token' => $token]]);
+
+        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => $token]]), '/index');
+        $this->assertSame($user->id, $_SESSION['userid']);
+        $this->assertArrayNotHasKey('registration_error', $_SESSION);
+    }
+
+    #[Test]
+    public function die_login_seite_meldet_dem_tablet_die_fehlende_sitzung(): void
+    {
+        $this->assertStringContainsString('ef_tablet_signed_out', $this->get('/login')->body);
     }
 
     #[Test]
@@ -239,9 +257,9 @@ final class TabletLoginTest extends FeatureTestCase
             ->where('token_hash', hash('sha256', $token))
             ->update(['expires_at' => date('Y-m-d H:i:s', time() - 1)]);
 
-        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => $token]]), '/login');
-        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => 'erfunden']]), '/login');
-        $this->assertRedirect($this->get('/auth/tablet'), '/login');
+        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => $token]]), '/login?tablet=failed');
+        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => 'erfunden']]), '/login?tablet=failed');
+        $this->assertRedirect($this->get('/auth/tablet'), '/login?tablet=failed');
         $this->assertArrayNotHasKey('userid', $_SESSION);
     }
 
@@ -253,7 +271,7 @@ final class TabletLoginTest extends FeatureTestCase
         $user->is_active = false;
         $user->save();
 
-        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => $token]]), '/login');
+        $this->assertRedirect($this->get('/auth/tablet', ['query' => ['token' => $token]]), '/login?tablet=failed');
         $this->assertArrayNotHasKey('userid', $_SESSION);
     }
 

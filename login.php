@@ -147,6 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
         <?php require __DIR__ . '/templates/partials/login-stage.php'; ?>
     </div>
 
+    <?php // Im Tablet von ef_bridge: ohne Sitzung holt die Bridge einen neuen Tablet-Login. ?>
+    <script>if (window.parent !== window) window.parent.postMessage({ type: 'ef_tablet_signed_out', failed: new URLSearchParams(location.search).get('tablet') === 'failed' }, '*');</script>
 </body>
 
 </html>
