@@ -14,6 +14,7 @@ use EmergencyForge\Training\CourseTitle;
 use EmergencyForge\Training\MaterialType;
 use EmergencyForge\Training\ParticipationStatus;
 use EmergencyForge\Training\UnitKind;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Carbon;
 use Plugin\Training\Completion\CompletionTable;
 use Plugin\Training\Completions;
@@ -31,9 +32,11 @@ use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
 use Plugin\Training\Models\CourseType;
 use Plugin\Training\Models\Participation;
+use Plugin\Training\Models\Presentation;
 use Plugin\Training\Models\Session;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Policies\TrainingPolicy;
+use Plugin\Training\Presentations;
 use Plugin\Training\SessionSync;
 
 /**
@@ -162,6 +165,23 @@ final class ManageController extends BaseController
             $responses[$session->id] = SessionSync::responses($session);
         }
 
+        // Verwaiste Vorträge enden hier, bevor die Seite „läuft“ anzeigt.
+        $now   = new \DateTimeImmutable();
+        $lives = [];
+        foreach ($sessions as $session) {
+            if ($session->slides_file_id !== null && ($live = Presentations::live($session, $now)) !== null) {
+                $lives[$session->id] = $live;
+            }
+        }
+        // Der jeweils letzte beendete Vortrag je Termin in einer Abfrage.
+        $talks = [];
+        $lastIds = Capsule::table('intra_training_presentations')->whereNotNull('ended_at')->whereIn('session_id', array_map(static fn (Session $s): int => $s->id, $sessions))
+            ->groupBy('session_id')->selectRaw('MAX(id) AS id')->pluck('id')->all();
+        $last = Presentation::query()->with('viewers')->findMany($lastIds);
+        foreach ($last as $talk) {
+            $talks[$talk->session_id] = Presentations::suggestions($talk);
+        }
+
         $joined    = array_filter(array_map(static fn (Participation $p): ?int => $p->personnel_id, $participations));
         $personnel = Personnel::query()->whereNotIn('id', $joined)->orderBy('fullname')->get(['id', 'fullname'])->all();
 
@@ -193,6 +213,9 @@ final class ManageController extends BaseController
             'sessions'       => $sessions,
             'attendance'     => $attendance,
             'responses'      => $responses,
+            'lives'          => $lives,
+            'talks'          => $talks,
+            'userId'         => self::userId(),
             'personnel'      => $personnel,
             'names'          => $names,
             'openSlots'      => $openSlots,

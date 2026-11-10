@@ -9,6 +9,7 @@ use App\Support\AccountIdentity;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DomainException;
+use EmergencyForge\Training\Presentation\Attendance as AttendanceRule;
 use EmergencyForge\Training\Presentation\DrawEvent;
 use EmergencyForge\Training\Presentation\Liveness;
 use EmergencyForge\Training\Presentation\WatchTime;
@@ -17,6 +18,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 use Plugin\Training\Models\CourseStaff;
+use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Presentation;
 use Plugin\Training\Models\PresentationEvent;
 use Plugin\Training\Models\PresentationViewer;
@@ -42,7 +44,7 @@ final class Presentations
     public static function start(Session $session, int $userId): Presentation
     {
         // Sperre auf dem Termin, damit zwei gleichzeitige Starts nur einen Vortrag anlegen.
-        return Capsule::connection()->transaction(static function () use ($session, $userId): Presentation {
+        $talk = Capsule::connection()->transaction(static function () use ($session, $userId): Presentation {
             Session::query()->whereKey($session->id)->lockForUpdate()->first();
             $now  = new DateTimeImmutable();
             $live = self::live($session, $now);
@@ -57,6 +59,62 @@ final class Presentations
                 'presenter_seen_at' => Carbon::instance($now),
             ]);
         });
+        if ($talk->wasRecentlyCreated) {
+            // Nach der Sperre und abgefangen: eine kaputte Benachrichtigung darf den Vortrag nicht verhindern.
+            try {
+                self::notifyStart($talk);
+            } catch (\Throwable $e) {
+                error_log('Vortragsstart: Benachrichtigung fehlgeschlagen: ' . $e->getMessage());
+            }
+        }
+
+        return $talk;
+    }
+
+    /**
+     * Teilnehmer mit offenen Unterlagen bekommen einen Hinweis, nur sie dürfen folgen.
+     * Die Lernenden-Bedingung steht hier direkt, denn `follow()` fragt das Recht des
+     * angemeldeten Hosts und ließe jeden durch.
+     */
+    public static function notifyStart(Presentation $p): void
+    {
+        $session = Session::query()->with('course')->findOrFail($p->session_id);
+        $course  = $session->course;
+        if (!$course->state()->materialsOpen()) {
+            return;
+        }
+        $host = User::query()->with('mitarbeiter')->find($p->presenter_id);
+        $ids  = [];
+        foreach ($course->participations as $participation) {
+            if ($participation->personnel_id !== null && $participation->canLearn() && $participation->personnel_id !== $host?->aktenid) {
+                $ids[] = (int) $participation->personnel_id;
+            }
+        }
+        Notify::personnel(
+            $ids,
+            'Vortrag läuft: ' . $session->title,
+            'training/courses/' . $course->id . '/sessions/' . $session->id . '/presentation',
+            self::identity($host)['name'] . ' zeigt gerade die Folien.',
+        );
+    }
+
+    /**
+     * Anwesenheitsvorschlag eines beendeten Vortrags je Teilnahme. Die Zuschauzeit
+     * wird hier erneut gekappt, denn ein später Abruf kann nach dem Ende noch zählen.
+     *
+     * @return array{minutes:int, need:int, viewers: array<int, array{minutes:int, suggested:bool}>}
+     */
+    public static function suggestions(Presentation $p): array
+    {
+        $seconds = $p->talkSeconds();
+        $base    = AttendanceRule::wholeMinutes($seconds, 0);
+        $out     = ['minutes' => $base['minutes'], 'need' => $base['need'], 'viewers' => []];
+        foreach ($p->viewers->whereNotNull('participation_id') as $viewer) {
+            $r = AttendanceRule::wholeMinutes($seconds, $viewer->seconds_watched);
+            $out['viewers'][$viewer->participation_id] = ['minutes' => $r['watched'], 'suggested' => $r['suggested']];
+        }
+
+        return $out;
     }
 
     /** Der laufende Vortrag des Termins; ein verwaister wird auf dem Weg beendet. */

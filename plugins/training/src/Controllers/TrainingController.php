@@ -22,6 +22,7 @@ use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Models\Unit;
 use Plugin\Training\Policies\TrainingPolicy;
+use Plugin\Training\Presentations;
 use Plugin\Training\Qualifications;
 
 /**
@@ -95,6 +96,16 @@ final class TrainingController extends BaseController
         $curriculum = Curriculum::for($course);
         $state      = $participation !== null ? ($curriculum->states([$participation->id])[$participation->id] ?? []) : [];
         $progress   = $curriculum->progress($state);
+        // Laufende Vorträge der Termine mit Folien; wer nicht folgen darf, sieht keinen Hinweis.
+        $lives = [];
+        if (TrainingPolicy::follow($course, $participation)) {
+            $now = new \DateTimeImmutable();
+            foreach ($course->sessions as $session) {
+                if ($session->slides_file_id !== null && ($live = Presentations::live($session, $now)) !== null) {
+                    $lives[$session->id] = [$session, $live];
+                }
+            }
+        }
         $next       = $progress->next();
         $nextUnit   = $next !== null ? $curriculum->unit($next->id) : null;
 
@@ -108,6 +119,7 @@ final class TrainingController extends BaseController
             'resume'        => $nextUnit !== null ? $curriculum->resumeLabel($nextUnit, $state[$nextUnit->id] ?? null) : null,
             'learning'      => $this->canLearn($course, $participation),
             'instructor'    => $instructor,
+            'lives'         => $lives,
             'missing'       => ($pid = self::personnelId()) !== null ? Qualifications::missing($pid, $course->type->prerequisiteKeys()) : [],
             'linked'        => self::personnelId() !== null,
             'exams'         => self::examStates($course, $participation),

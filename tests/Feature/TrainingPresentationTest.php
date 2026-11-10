@@ -891,4 +891,197 @@ final class TrainingPresentationTest extends FeatureTestCase
         $course->save();
         $this->assertOk($this->get($path . '/state'));
     }
+
+    private function notifications(int $userId): int
+    {
+        return Capsule::table('intra_notifications')->where('user_id', $userId)->where('type', 'training')->where('title', 'like', 'Vortrag läuft%')->count();
+    }
+
+    /**
+     * Ein beendeter Vortrag, der $talkSeconds lief; $watched je Teilnahme-ID in Sekunden.
+     *
+     * @param array<int, int> $watched
+     */
+    private function endedTalk(Session $session, int $hostId, int $talkSeconds, array $watched): Presentation
+    {
+        $end = Carbon::now();
+        $p   = Presentation::query()->create(['session_id' => $session->id, 'presenter_id' => $hostId, 'started_at' => $end->copy()->subSeconds($talkSeconds), 'ended_at' => $end, 'presenter_seen_at' => $end]);
+        foreach ($watched as $participationId => $seconds) {
+            $this->viewer($p, $participationId, $seconds);
+        }
+
+        return $p;
+    }
+
+    private function viewer(Presentation $p, int $participationId, int $seconds): void
+    {
+        $user = $this->account();
+        PresentationViewer::query()->create(['presentation_id' => $p->id, 'user_id' => $user['user'], 'participation_id' => $participationId, 'first_seen_at' => Carbon::now(), 'last_seen_at' => Carbon::now(), 'seconds_watched' => $seconds]);
+    }
+
+    #[Test]
+    public function start_notifies_only_learners_with_open_materials(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $open    = $this->account();
+        $blocked = $this->account();
+        $this->admit($course, $open['personnel']);
+        $this->admit($course, $blocked['personnel'], 'enrolled');
+
+        $this->post($path . '/start');
+
+        $this->assertSame(1, $this->notifications($open['user']));
+        $this->assertSame(0, $this->notifications($blocked['user']));
+        $this->assertSame(0, $this->notifications($teacher['user']));
+        $row = Capsule::table('intra_notifications')->where('user_id', $open['user'])->where('title', 'like', 'Vortrag läuft%')->first();
+        $this->assertSame('Vortrag läuft: Theorie', $row->title);
+        $this->assertStringEndsWith($path, (string) $row->link);
+
+        $this->post($path . '/start');
+        $this->assertSame(1, $this->notifications($open['user']));
+    }
+
+    #[Test]
+    public function notification_failure_does_not_block_the_start(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $learner = $this->account();
+        $this->admit($course, $learner['personnel']);
+        $container = $this->container;
+        if (!$container instanceof \DI\Container) {
+            $this->markTestSkipped('Braucht den PHP-DI-Container.');
+        }
+        $original = $container->get(\App\Notifications\NotificationManager::class);
+        $container->set(\App\Notifications\NotificationManager::class, new class extends \App\Notifications\NotificationManager {
+            public function notify(string $type, array $userIds, array $payload): int
+            {
+                throw new \RuntimeException('kaputt');
+            }
+        });
+        $previous = ini_set('error_log', sys_get_temp_dir() . '/presentation-notify-test.log');
+        try {
+            $this->assertRedirect($this->post($path . '/start'), $path);
+        } finally {
+            ini_set('error_log', (string) $previous);
+            $container->set(\App\Notifications\NotificationManager::class, $original);
+        }
+
+        $this->assertSame(1, Presentation::query()->where('session_id', $session->id)->whereNull('ended_at')->count());
+    }
+
+    #[Test]
+    public function course_page_shows_the_live_hint(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->learnerIn($course);
+
+        $response = $this->get('/training/courses/' . $course->id);
+
+        $this->assertOk($response);
+        $this->assertBodyContains('Vortrag läuft: Theorie', $response);
+        $this->assertBodyContains('zeigt gerade die Folien. Wer mitverfolgt, wird für die Anwesenheit vorgeschlagen.', $response);
+        $this->assertBodyContains('/sessions/' . $session->id . '/presentation"', $response);
+
+        // Ohne offene Unterlagen kein Hinweis.
+        $course->status = 'planned';
+        $course->save();
+        $this->assertBodyNotContains('Vortrag läuft', $this->get('/training/courses/' . $course->id));
+    }
+
+    #[Test]
+    public function staff_page_offers_follow_to_non_hosts(): void
+    {
+        [, $course, , $path] = $this->talk();
+        $other = $this->instructor($course);
+        $this->assertBodyContains('Vortrag starten', $this->get('/training/manage/' . $course->id));
+
+        $this->post($path . '/start');
+        $host = $this->get('/training/manage/' . $course->id);
+        $this->assertBodyContains('Vortrag fortsetzen', $host);
+        $this->assertBodyNotContains('Mitverfolgen', $host);
+
+        $this->as($other['user'], ['training.teach']);
+        $follower = $this->get('/training/manage/' . $course->id);
+        $this->assertBodyContains('Mitverfolgen', $follower);
+        $this->assertBodyNotContains('Vortrag fortsetzen', $follower);
+        $this->assertBodyContains('presentation"', $follower);
+    }
+
+    #[Test]
+    public function handover_target_sees_the_request_on_the_staff_page(): void
+    {
+        [, $course, , $path] = $this->talk();
+        $other = $this->instructor($course);
+        $this->post($path . '/start');
+        $this->assertOk($this->postJson($path . '/handover', ['user_id' => $other['user']]));
+
+        $this->as($other['user'], ['training.teach']);
+        $response = $this->get('/training/manage/' . $course->id);
+
+        $this->assertBodyContains('möchte dir den Vortrag übergeben.', $response);
+        $this->assertBodyContains('Zum Vortrag', $response);
+    }
+
+    #[Test]
+    public function attendance_suggests_half_the_talk(): void
+    {
+        [$teacher, $course, $session] = $this->talk();
+        $yes = $this->admit($course, $this->account()['personnel']);
+        $no  = $this->admit($course, $this->account()['personnel']);
+        $this->endedTalk($session, $teacher['user'], 42 * 60, [$yes->id => 21 * 60, $no->id => 20 * 60]);
+
+        $response = $this->get('/training/manage/' . $course->id);
+
+        $this->assertBodyContains('Vortrag lief 42 Minuten. Vorgeschlagen wird, wer mindestens 21 Minuten dabei war.', $response);
+        $this->assertBodyContains('21 von 42 Min.', $response);
+        $this->assertBodyContains('20 von 42 Min.', $response);
+        $this->assertSame(1, substr_count($response->body, '</i> anwesend</span>'));
+        $this->assertSame(1, substr_count($response->body, 'kein Vorschlag'));
+        // Keine Vorbelegung: kein Eintrag ist ausgewählt.
+        $this->assertBodyNotContains(' selected', $response);
+    }
+
+    #[Test]
+    public function short_talk_shows_under_one_minute(): void
+    {
+        [$teacher, $course, $session] = $this->talk();
+        $in  = $this->admit($course, $this->account()['personnel']);
+        $out = $this->admit($course, $this->account()['personnel']);
+        // Der zweite Zuschauer hat länger gezählt, als der Vortrag lief (später Abruf nach dem Ende).
+        $this->endedTalk($session, $teacher['user'], 20, [$in->id => 20, $out->id => 600]);
+
+        $response = $this->get('/training/manage/' . $course->id);
+
+        $this->assertBodyContains('Vortrag lief 1 Minute. Vorgeschlagen wird, wer mindestens 1 Minute dabei war.', $response);
+        $this->assertSame(2, substr_count($response->body, 'unter 1 Min.'));
+        $this->assertSame(0, substr_count($response->body, '</i> anwesend</span>'));
+    }
+
+    #[Test]
+    public function suggestion_never_sets_attendance(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $own = $this->admit($course, $this->account()['personnel']);
+        $this->post($path . '/start');
+        $p = $this->live($session);
+        Presentation::query()->whereKey($p->id)->update(['started_at' => Carbon::now()->subMinutes(10)]);
+        $this->viewer($p, $own->id, 540);
+        $this->assertRedirect($this->post($path . '/end'));
+
+        $this->assertSame(0, Capsule::table('intra_training_attendance')->count());
+        $this->assertTrue(Presentations::suggestions($this->live($session))['viewers'][$own->id]['suggested']);
+    }
+
+    #[Test]
+    public function hint_text_names_minutes_and_need(): void
+    {
+        [$teacher, $course, $session] = $this->talk();
+        $own = $this->admit($course, $this->account()['personnel']);
+        $this->endedTalk($session, $teacher['user'], 180, [$own->id => 120]);
+
+        $response = $this->get('/training/manage/' . $course->id);
+
+        $this->assertBodyContains('Vortrag lief 3 Minuten. Vorgeschlagen wird, wer mindestens 2 Minuten dabei war. Erst Speichern trägt die Anwesenheit ein.', $response);
+    }
 }
