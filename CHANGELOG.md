@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026.1.18-beta
+
+### Ausbildung
+- Neues Plugin Ausbildung, ab Werk an. Lehrgangsarten haben einen Lehrplan aus Modulen und Lerneinheiten (Datei, Text, Link, Wissensartikel, Termin), Voraussetzungen und eine Start- und Abschlussqualifikation. Lehrgänge haben Leitung, Ausbilder, Plätze, Anmeldung mit Warteliste und einen Status von geplant bis abgeschlossen
+- Teilnehmer arbeiten ihre Einheiten ab. Ein PDF gilt als gelesen, wenn jede Seite einmal offen war. Termine stehen im Kalender, die Anwesenheit hakt sie ab
+- Zu jeder Lehrgangsart gehört ein Fragenpool mit Themen, acht Fragetypen und Import und Export als CSV oder JSON. Theorieprüfungen ziehen ihre Fragen aus dem Pool und laufen mit Zeitlimit, Praxisprüfungen nutzen einen Bewertungsbogen, auf Wunsch mit zweitem Prüfer. Freitexte bewerten die Prüfer im Reiter Bewertungen
+- Wer den letzten Pflichtteil besteht, hat bestanden. ignis hebt dann die Qualifikation an, stellt die Urkunde aus und meldet das Ergebnis, auf Wunsch auch mit Bekanntgabe und Folgeaufgabe. Eine Folgeaufgabe an eine Rolle bekommt jedes aktive Mitglied einzeln. Was passiert, stellt man im Reiter Abschluss der Lehrgangsart ein
+- Urkunden tragen einen Prüfcode mit QR-Code. Unter `/verify` prüft jeder ohne Anmeldung, ob eine Urkunde echt ist und noch gilt, und kann sie ansehen, höchstens 20 Mal in der Stunde. Mit `training.manage` lässt sich eine Urkunde mit Begründung widerrufen, auf Wunsch samt Qualifikation oder Fachdienst
+- 30 Tage vor Ablauf einer Qualifikation bekommen die Person und die Leitung einen Hinweis. Präsentationen zeigt der Betrachter, wenn `TRAINING_CONVERTER` auf LibreOffice zeigt, sonst gibt es sie zum Herunterladen
+- Neu sind die Vorlagen Urkunde und Lehrgangszertifikat. Urkunden im Querformat zeigen die Fußzeile wieder vollständig
+
+### Personal
+- RD-Stufe, FW-Stufe und Fachdienste ändern sich jetzt über einen gemeinsamen Weg, jede Änderung steht gleich im Verlauf. Neu ist die Verlaufsart Ausbildung
+- Plugins können eigene Karten ins Personalprofil setzen
+
+### Dokumente
+- Vorlagen und Dokumente laufen über den Editor 0.6. Vorlagen haben Fassungen: Wer eine schon benutzte Vorlage ändert, legt eine neue an. Laufende Entwürfe behalten ihren Text und zeigen einen Hinweis, wenn es eine neuere Fassung gibt
+- Briefköpfe unter Einstellungen teilen Ränder, Kopf- und Fußzeilen über mehrere Vorlagen. Das neue Recht `personnel.documents.approve` regelt Felder, die nur bestimmte Personen ausfüllen dürfen
+- Ausstellen schreibt einen Eintrag ins Personalprofil und benachrichtigt das verknüpfte Konto
+
+### Adressen
+- eNOTF, Firetab und die APIs nutzen englische Pfade, Ansichten, Reiter und Parameter, etwa `/enotf/monitor` statt `/enotf/schnittstelle` und `?mailbox=` statt `?postfach=`. Alte Adressen und Lesezeichen funktionieren weiter, gespeicherte Links in Benachrichtigungen und Dashboard-Kacheln stellt das Update um
+- Der Klinikmonitor erreicht ignis unter der alten Adresse mit `index.php` wieder
+
+### Betrieb
+- Im Container läuft der Cron in einer eigenen Schleife und hält keine Seitenaufrufe mehr auf, `CRON_LOOP=0` schaltet zurück. Ein laufender Job startet nicht doppelt
+- Hub-Mitteilungen werden höchstens einmal in der Stunde abgerufen, auch wenn der Hub nicht erreichbar ist
+
+Dazu gehören das UI-Paket 1.11.0, der Editor 0.6.1 und training 0.3.0.
+
 ## 2026.1.17-beta
 
 ### Tablet im Spiel
