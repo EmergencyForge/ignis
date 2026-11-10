@@ -11,7 +11,8 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
-$ziel = $_GET['klinik'] ?? NULL;
+// ?klinik= steht in Konfigurationen von ef_klinikmonitor
+$ziel = $_GET['hospital'] ?? $_GET['klinik'] ?? NULL;
 $zielName = '';
 
 // Zielname über POIs ermitteln. Beide Eingangsformen (`poi_<id>` und
@@ -279,7 +280,7 @@ if ($ziel) {
             }
 
             function pollPreregistrations() {
-                var url = basePath + 'api/enotf/prereg' + (ziel ? '?klinik=' + encodeURIComponent(ziel) : '');
+                var url = basePath + 'api/enotf/prereg' + (ziel ? '?hospital=' + encodeURIComponent(ziel) : '');
                 fetch(url)
                     .then(function(res) {
                         return res.json();

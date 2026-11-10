@@ -9,7 +9,7 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
 /**
- * Validierung für POST /settings/vehicles/vehload/beladung_handler.
+ * Validierung für POST /api/vehicles/vehload-handler.
  *
  * Die Beladelisten-Seite und beladung-edit.js schicken alle Aktionen an
  * diese eine Adresse, `action` wählt sie aus. Deshalb steht hier die

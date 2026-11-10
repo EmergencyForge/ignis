@@ -124,7 +124,7 @@ $pgLabel    = 'Krankenhäusern';
                 <i class="fa-solid fa-info-circle ignis-alert__icon" aria-hidden="true"></i>
                 <div class="ignis-alert__body">
                     <strong>Hinweis:</strong> Die generierten Zugangscodes ermöglichen es Krankenhäusern, ihre Verfügbarkeiten über das externe Portal zu melden.
-                    Der Link zum Portal ist: <code class="break-all"><?= BASE_PATH ?>enotf/schnittstelle/hospital-availability</code>
+                    Der Link zum Portal ist: <code class="break-all"><?= BASE_PATH ?>enotf/monitor/availability</code>
                 </div>
             </div>
         </div>

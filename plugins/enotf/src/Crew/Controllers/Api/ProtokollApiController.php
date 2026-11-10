@@ -29,7 +29,7 @@ use Plugin\Enotf\Crew\Support\ProtokollService;
  *     Batch angeforderte Freigabe am serverseitigen Gate scheitert
  *     (offene Pflichtangaben / kein Protokollant / leerer Freigeber).
  *
- *   GET /api/enotf/protokoll/{enr}
+ *   GET /api/enotf/protocol/{enr}
  *     Antwort:  { "ok": true, "protokoll": { ...alle Spalten... } }
  *
  * Auth: AuthMiddleware('ENOTF_REQUIRE_USER_AUTH') auf der Route (User-
@@ -119,7 +119,7 @@ final class ProtokollApiController
     }
 
     /**
-     * GET /api/enotf/protokoll/{enr}: Volldaten als JSON.
+     * GET /api/enotf/protocol/{enr}: Volldaten als JSON.
      */
     public function show(Request $request, string $enr): Response
     {

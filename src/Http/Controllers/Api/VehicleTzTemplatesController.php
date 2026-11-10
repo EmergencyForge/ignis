@@ -24,7 +24,7 @@ use PDOException;
 final class VehicleTzTemplatesController
 {
     /**
-     * GET|POST /api/vehicles/tz-templates?action=list|save|delete|apply_to_type
+     * GET|POST /api/vehicles/tactical-symbol-templates?action=list|save|delete|apply_to_type
      */
     public function handle(Request $request): Response
     {

@@ -31,7 +31,7 @@ use Plugin\Firetab\Models\FireMapZone;
 final class FireLagekarteController
 {
     /**
-     * GET|POST /api/fire/lagekarte?action=...
+     * GET|POST /api/fire/situation-map?action=...
      * Action-Dispatcher.
      */
     public function handle(Request $request): Response

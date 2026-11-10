@@ -422,7 +422,6 @@ $router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\S
 $router->post('/settings/vehicles/vehicles/emd-status', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkEmdStatus'], [new AuthMiddleware()]);
 $router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware()]);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
-$router->post('/settings/vehicles/vehload/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
 $router->get('/settings/vehicles/defects/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
 // Legacy-Alias: alte Notification-Rows verlinken auf die ".../index.php"-Variante.
 // Public/index.php's Auto-Clean-Logik laesst Pfade die auf "index.php" enden
@@ -507,9 +506,10 @@ $legacyApiRedirect = function (string $target): \Closure {
 };
 $legacyApiPaths = [
     '/settings/vehicles/defects/handler'         => '/api/vehicles/defects-handler',
+    '/settings/vehicles/vehload/beladung_handler' => '/api/vehicles/vehload-handler',
     '/settings/system/regenerate-api-key'        => '/api/system/regenerate-api-key',
-    '/assets/functions/checkdienstnr2'           => '/api/personnel/check-dienstnr',
-    '/assets/functions/checkdnr'                 => '/api/personnel/check-dienstnr-legacy',
+    '/assets/functions/checkdienstnr2'           => '/api/personnel/check-service-number',
+    '/assets/functions/checkdnr'                 => '/api/personnel/check-service-number-legacy',
     '/assets/functions/system/global-search-api' => '/api/system/global-search',
     '/assets/functions/system/performance-api'   => '/api/system/performance',
     '/assets/functions/system/theme-api'         => '/api/system/theme',
@@ -549,7 +549,7 @@ $router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileControlle
  *
  * BEISPIEL: Wissensdatenbank (public wenn KB_PUBLIC_ACCESS=true)
  *
- * $router->get('/wissensdb/{slug}',
+ * $router->get('/lexicon/{slug}',
  *     [\App\Http\Controllers\KnowledgebaseController::class, 'show'],
  *     [new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)]
  * );

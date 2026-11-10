@@ -188,7 +188,7 @@ final class InternalLinksTest extends TestCase
             '~ensureAdmin\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => '',
             '~EnotfUrl::page\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/',
             '~EnotfUrl::admin\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/admin/',
-            '~EnotfUrl::schnittstelle\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/schnittstelle/',
+            '~EnotfUrl::monitor\(\s*[\'"]([a-z][a-z0-9_\-/.]*)~i' => 'enotf/monitor/',
         ];
 
         $root = strtr((string) realpath(self::ROOT), "\\", "/");

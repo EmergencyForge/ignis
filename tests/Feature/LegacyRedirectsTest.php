@@ -22,7 +22,7 @@ final class LegacyRedirectsTest extends FeatureTestCase
         $response = $this->post('/assets/functions/checkdienstnr2', ['x' => '1']);
 
         $this->assertStatus(308, $response);
-        $this->assertStringEndsWith('/api/personnel/check-dienstnr', $response->headers['Location'] ?? '');
+        $this->assertStringEndsWith('/api/personnel/check-service-number', $response->headers['Location'] ?? '');
     }
 
     #[Test]

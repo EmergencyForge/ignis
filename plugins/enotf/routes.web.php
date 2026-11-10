@@ -80,9 +80,9 @@ $protokollRedirect = static function (?string $enr, string $path): \EmergencyFor
         return \EmergencyForge\Http\Response::redirect(\Plugin\Enotf\Helpers\EnotfUrl::page('overview'), 301);
     }
     $segments = array_values(array_filter(explode('/', (string) preg_replace('/\.php$/', '', trim($path, '/')))));
-    $section  = $segments[0] ?? '';
+    $section  = ProtokollController::LEGACY_SECTIONS[$segments[0] ?? ''] ?? ($segments[0] ?? '');
     $url      = \Plugin\Enotf\Helpers\EnotfUrl::protokoll($enr, isset(ProtokollController::SECTIONS[$section]) ? $section : '');
-    if ($section === 'abschluss' && ($segments[1] ?? '') === 'freigabe') {
+    if ($section === 'completion' && ($segments[1] ?? '') === 'freigabe') {
         $url .= '?t=freigabe';
     }
     return \EmergencyForge\Http\Response::redirect($url, 301);
@@ -116,9 +116,9 @@ $router->get('/enotf/qm/log/{id:\d+}', function (\EmergencyForge\Http\Request $r
     return \EmergencyForge\Http\Response::empty();
 }, $crewQm);
 
-$router->get('/enotf/fahrzeuginfo',     [EnotfController::class, 'fahrzeuginfo'], $enotfCrew);
+$router->get('/enotf/vehicle-info',     [EnotfController::class, 'fahrzeuginfo'], $enotfCrew);
 
-$router->get('/enotf/fahrtenbuch',     [EnotfController::class, 'fahrtenbuch'], $enotfCrew);
+$router->get('/enotf/logbook',     [EnotfController::class, 'fahrtenbuch'], $enotfCrew);
 
 // hospital-availability ist public (kein Login, kein PIN)
 $router->get('/enotf/hospital-availability',     [EnotfController::class, 'hospitalAvailability'], $enotfPublic);
@@ -201,18 +201,15 @@ $router->get('/enotf/print/{enr:[\w._-]+}', function (\EmergencyForge\Http\Reque
 }, $enotfCrew);
 
 // Schnittstelle: public
-$router->get('/enotf/schnittstelle',           [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
-$router->get('/enotf/schnittstelle/',          [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
-$router->get('/enotf/schnittstelle/index',     [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
+$router->get('/enotf/monitor',           [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
+$router->get('/enotf/monitor/',          [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
+$router->get('/enotf/monitor/index',     [EnotfSchnittstelleController::class, 'index'], $enotfPublic);
 
-$router->match(['GET', 'POST'], '/enotf/schnittstelle/klinikcode',     [EnotfSchnittstelleController::class, 'klinikcode'], $enotfPublic);
+$router->match(['GET', 'POST'], '/enotf/monitor/code',     [EnotfSchnittstelleController::class, 'klinikcode'], $enotfPublic);
 
-$router->match(['GET', 'POST'], '/enotf/schnittstelle/voranmeldung',     [EnotfSchnittstelleController::class, 'voranmeldung'], $enotfPublic);
+$router->match(['GET', 'POST'], '/enotf/monitor/prereg',     [EnotfSchnittstelleController::class, 'voranmeldung'], $enotfPublic);
 
-$router->get('/enotf/schnittstelle/hospital-availability',     [EnotfSchnittstelleController::class, 'hospitalAvailability'], $enotfPublic);
-
-// api-prereg: 308 auf /api/enotf/prereg
-$router->match(['GET', 'POST'], '/enotf/schnittstelle/api-prereg', $enotfApiRedirect('/api/enotf/prereg'));
+$router->get('/enotf/monitor/availability',     [EnotfSchnittstelleController::class, 'hospitalAvailability'], $enotfPublic);
 
 // ----------------------------------------------------------------------------
 //  Settings: Schnellzugriff/Kategorien, Medikamente, POIs
@@ -225,10 +222,10 @@ $router->get('/settings/enotf/index',     [SettingsEnotfController::class, 'inde
 $router->post('/settings/enotf/create',     [SettingsEnotfController::class, 'store'],   $enotfSettingsAuth);
 $router->post('/settings/enotf/update',     [SettingsEnotfController::class, 'update'],  $enotfSettingsAuth);
 $router->post('/settings/enotf/delete',     [SettingsEnotfController::class, 'destroy'], $enotfSettingsAuth);
-$router->get('/settings/enotf/kategorien/index',     [SettingsEnotfController::class, 'categoriesIndex'],  $enotfSettingsAuth);
-$router->post('/settings/enotf/kategorien/create',     [SettingsEnotfController::class, 'categoryStore'],   $enotfSettingsAuth);
-$router->post('/settings/enotf/kategorien/update',     [SettingsEnotfController::class, 'categoryUpdate'],  $enotfSettingsAuth);
-$router->post('/settings/enotf/kategorien/delete',     [SettingsEnotfController::class, 'categoryDestroy'], $enotfSettingsAuth);
+$router->get('/settings/enotf/categories/index',     [SettingsEnotfController::class, 'categoriesIndex'],  $enotfSettingsAuth);
+$router->post('/settings/enotf/categories/create',     [SettingsEnotfController::class, 'categoryStore'],   $enotfSettingsAuth);
+$router->post('/settings/enotf/categories/update',     [SettingsEnotfController::class, 'categoryUpdate'],  $enotfSettingsAuth);
+$router->post('/settings/enotf/categories/delete',     [SettingsEnotfController::class, 'categoryDestroy'], $enotfSettingsAuth);
 
 // Medikamente-Settings
 $router->get('/settings/medications/index',     [MedikamenteController::class, 'index'],   $enotfSettingsAuth);

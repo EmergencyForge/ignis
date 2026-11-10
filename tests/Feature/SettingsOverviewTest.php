@@ -94,7 +94,7 @@ final class SettingsOverviewTest extends FeatureTestCase
     {
         $this->login();
 
-        foreach (['/settings/enotf/kategorien/index'] as $path) {
+        foreach (['/settings/enotf/categories/index'] as $path) {
             $response = $this->get($path);
             $this->assertOk($response);
             $this->assertStringContainsString('aria-label="Einstellungen"', $response->body, $path);

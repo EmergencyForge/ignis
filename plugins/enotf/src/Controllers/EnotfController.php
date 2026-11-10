@@ -31,7 +31,7 @@ class EnotfController extends Controller
     // ── Fahrzeuginfo / Fahrtenbuch / Hospital ─────────────
 
     /**
-     * GET /enotf/fahrzeuginfo.php: Fahrzeuginfo + Beladelisten-Kategorien.
+     * GET /enotf/vehicle-info: Fahrzeuginfo + Beladelisten-Kategorien.
      */
     public function fahrzeuginfo(): void
     {
@@ -96,7 +96,7 @@ class EnotfController extends Controller
     }
 
     /**
-     * GET /enotf/fahrtenbuch.php: Fahrtenbuch-Übersicht für eingeloggtes Fahrzeug.
+     * GET /enotf/logbook: Fahrtenbuch-Übersicht für eingeloggtes Fahrzeug.
      */
     public function fahrtenbuch(): void
     {

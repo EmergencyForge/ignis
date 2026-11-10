@@ -19,7 +19,7 @@
 
     var cfg = {
         incident: parseInt(root.dataset.incident, 10),
-        api: (root.dataset.base || '/') + 'api/fire/asu/',
+        api: (root.dataset.base || '/') + 'api/fire/ba/',
         consumption: parseInt(root.dataset.consumption, 10) || 10,
         startBar: parseInt(root.dataset.startBar, 10) || 300,
         vehicle: root.dataset.vehicle || '',

@@ -50,13 +50,13 @@ final class ConditionsService
 
     /** v1-Section-Nummer → v2-Section-Key (Stepper). */
     public const SECTION_KEYS = [
-        1 => 'rettdaten',
-        2 => 'erstbefund',
-        3 => 'anamnese',
-        4 => 'diagnose',
-        5 => 'verlauf',
-        6 => 'massnahmen',
-        7 => 'abschluss',
+        1 => 'mission',
+        2 => 'assessment',
+        3 => 'history',
+        4 => 'diagnosis',
+        5 => 'progress',
+        6 => 'interventions',
+        7 => 'completion',
     ];
 
     // ── Regelwerk (1:1-Port aus conditions.php) ──────────────────────

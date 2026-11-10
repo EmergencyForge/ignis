@@ -83,7 +83,41 @@ class UrlMapTest extends TestCase
             'personal + qualifd → personnel + specialties'  => ['/settings/personal/qualifd/index', '/settings/personnel/specialties/index'],
             'medikamente → medications'                     => ['/settings/medikamente/index', '/settings/medications/index'],
             'antrag-Sub → forms-Sub'                        => ['/settings/antrag/list', '/settings/forms/list'],
+            'enotf + kategorien → categories'               => ['/settings/enotf/kategorien/index', '/settings/enotf/categories/index'],
         ];
+    }
+
+    #[Test]
+    #[DataProvider('prefixTranslations')]
+    public function translates_path_prefixes(string $input, ?string $expected): void
+    {
+        $this->assertSame($expected, UrlMap::translatePath($input));
+    }
+
+    /** @return array<string, array{0:string, 1:?string}> */
+    public static function prefixTranslations(): array
+    {
+        return [
+            'schnittstelle → monitor'               => ['/enotf/schnittstelle', '/enotf/monitor'],
+            'schnittstelle mit Trailing-Slash'      => ['/enotf/schnittstelle/', '/enotf/monitor/'],
+            'schnittstelle/index'                   => ['/enotf/schnittstelle/index', '/enotf/monitor/index'],
+            'index.php aus ef_klinikmonitor'        => ['/enotf/schnittstelle/index.php', '/enotf/monitor/index'],
+            'index.php unter dem neuen Pfad'        => ['/enotf/monitor/index.php', '/enotf/monitor/index'],
+            'klinikcode → code'                     => ['/enotf/schnittstelle/klinikcode', '/enotf/monitor/code'],
+            'voranmeldung → prereg'                 => ['/enotf/schnittstelle/voranmeldung', '/enotf/monitor/prereg'],
+            'hospital-availability → availability'  => ['/enotf/schnittstelle/hospital-availability', '/enotf/monitor/availability'],
+            'api-prereg → API'                      => ['/enotf/schnittstelle/api-prereg', '/api/enotf/prereg'],
+            'fahrzeuginfo → vehicle-info'           => ['/enotf/fahrzeuginfo', '/enotf/vehicle-info'],
+            'fahrtenbuch → logbook'                 => ['/enotf/fahrtenbuch', '/enotf/logbook'],
+            'nur an der Segmentgrenze'              => ['/enotf/schnittstellenliste', null],
+            'neuer Pfad bleibt'                     => ['/enotf/monitor/prereg', null],
+        ];
+    }
+
+    #[Test]
+    public function translate_relative_kennt_die_praefixe(): void
+    {
+        $this->assertSame('enotf/monitor/index?klinik=42', UrlMap::translateRelative('enotf/schnittstelle/index.php?klinik=42'));
     }
 
     #[Test]

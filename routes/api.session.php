@@ -49,6 +49,7 @@ $router->post('/api/dismiss-announcement',  $announcementHandler, $auth);
 // ============================================================================
 //  ASU-Sync (FiveM-Server, API-Key), refactored
 // ============================================================================
+$router->post('/api/ba/sync',      [AsuSyncController::class, 'sync'], $apiKey);
 $router->post('/api/asu/sync',     [AsuSyncController::class, 'sync'], $apiKey);
 $router->post('/api/asu-sync', [AsuSyncController::class, 'sync'], $apiKey);
 
@@ -92,6 +93,8 @@ $personnelViewAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new 
 $usersCreateAuth   = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'users.create'])];
 
 // Dienstnummer-Check (JSON + Legacy-Plain-Text-Variante)
+$router->post('/api/personnel/check-service-number',        [PersonnelController::class, 'checkDienstnr'],        $personnelEditAuth);
+$router->post('/api/personnel/check-service-number-legacy', [PersonnelController::class, 'checkDienstnrLegacy'],  $personnelEditAuth);
 $router->post('/api/personnel/check-dienstnr',            [PersonnelController::class, 'checkDienstnr'],        $personnelEditAuth);
 $router->post('/api/personnel/check-dienstnr-legacy',     [PersonnelController::class, 'checkDienstnrLegacy'],  $personnelEditAuth);
 
@@ -152,6 +155,9 @@ $router->match(['GET', 'POST'], '/api/telemetry-background', [TelemetryApiContro
 $router->match(['GET', 'POST'], '/api/vehicles/defects-handler',     [\App\Http\Controllers\Api\VehicleDefectsController::class, 'handle'], [JsonExceptionMiddleware::class, new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH')]);
 $router->match(['GET', 'POST'], '/api/vehicles/import-handler',      [\App\Http\Controllers\Api\VehicleImportController::class,  'handle'], $auth);
 
+$router->post('/api/vehicles/vehload-handler', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $auth);
+
+$router->match(['GET', 'POST'], '/api/vehicles/tactical-symbol-templates', [VehicleTzTemplatesController::class, 'handle'], $auth);
 $router->match(['GET', 'POST'], '/api/vehicles/tz-templates',     [VehicleTzTemplatesController::class, 'handle'], $auth);
 
 // ============================================================================

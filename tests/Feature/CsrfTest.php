@@ -107,6 +107,7 @@ final class CsrfTest extends FeatureTestCase
             '/api/character/identify',
             '/api/emd/sync',
             '/api/emd-sync',
+            '/api/ba/sync',
             '/api/asu/sync',
             '/api/asu-sync',
             '/api/telemetry/heartbeat',

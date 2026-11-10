@@ -83,19 +83,19 @@ final class EnotfQuicklinkSettingsTest extends FeatureTestCase
     {
         $slug = 'test-' . uniqid();
 
-        $response = $this->post('/settings/enotf/kategorien/create', [
+        $response = $this->post('/settings/enotf/categories/create', [
             'name'       => 'Testkategorie',
             'slug'       => ' ' . strtoupper($slug) . ' ',
             'sort_order' => '5',
             'active'     => 'on',
         ]);
 
-        $this->assertRedirect($response, '/settings/enotf/kategorien/index');
+        $this->assertRedirect($response, '/settings/enotf/categories/index');
         $kategorie = Capsule::table('intra_enotf_categories')->where('slug', $slug)->first();
         $this->assertNotNull($kategorie);
         $this->assertSame(5, (int) $kategorie->sort_order);
 
-        $this->post('/settings/enotf/kategorien/update', [
+        $this->post('/settings/enotf/categories/update', [
             'id'         => (string) $kategorie->id,
             'name'       => 'Umbenannt',
             'slug'       => $slug,
@@ -110,7 +110,7 @@ final class EnotfQuicklinkSettingsTest extends FeatureTestCase
     #[Test]
     public function kategorie_ohne_id_wird_nicht_geaendert(): void
     {
-        $this->post('/settings/enotf/kategorien/update', ['name' => 'X', 'slug' => 'x']);
+        $this->post('/settings/enotf/categories/update', ['name' => 'X', 'slug' => 'x']);
 
         $this->assertSame('Ungültige Daten.', $_SESSION['flash']['text'] ?? null);
     }

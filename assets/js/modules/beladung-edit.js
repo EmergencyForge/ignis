@@ -10,13 +10,13 @@
  *     ein inline Number-Input. Enter speichert via fetch, Esc bricht ab.
  *
  * Erwartet das globale `Sortable` aus assets/_ext/sortablejs/Sortable.min.js.
- * Der Endpoint ist /settings/fahrzeuge/beladelisten/beladung_handler
+ * Der Endpoint ist /api/vehicles/vehload-handler
  * (existing) mit den neuen Actions `reorder_tiles` und `update_amount`.
  */
 
 // Basispfad aus der Topbar, ohne / am Ende.
 const BASE = (document.querySelector('[data-base-path]')?.dataset.basePath || '/').replace(/\/+$/, '');
-const HANDLER_URL = BASE + '/settings/vehicles/vehload/beladung_handler';
+const HANDLER_URL = BASE + '/api/vehicles/vehload-handler';
 
 function postForm(action, payload) {
     const fd = new FormData();

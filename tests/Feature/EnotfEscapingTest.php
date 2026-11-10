@@ -85,7 +85,7 @@ final class EnotfEscapingTest extends FeatureTestCase
         $response = $this->get('/enotf/protokoll/rettdaten/index', ['query' => ['enr' => self::ENR]]);
 
         $this->assertStatus(301, $response);
-        $this->assertSame('/enotf/p/' . rawurlencode(self::ENR) . '/rettdaten', $response->headers['Location'] ?? null);
+        $this->assertSame('/enotf/p/' . rawurlencode(self::ENR) . '/mission', $response->headers['Location'] ?? null);
     }
 
     /** @return array<string, array{string, bool}> */

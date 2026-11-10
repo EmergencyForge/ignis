@@ -46,7 +46,7 @@ final class FiretabAsuApiTest extends FeatureTestCase
 
     private function trupp(?int $incidentId = null): int
     {
-        $response = $this->post('/api/fire/asu/trupp', [
+        $response = $this->post('/api/fire/ba/team', [
             'incident_id'      => (string) ($incidentId ?? $this->incidentId),
             'name'             => 'AT 1/42-1',
             'role'             => 'angriff',
@@ -62,7 +62,7 @@ final class FiretabAsuApiTest extends FeatureTestCase
     /** @param array<string,mixed> $extra */
     private function event(int $truppId, string $type, array $extra = []): \EmergencyForge\Http\Response
     {
-        return $this->post('/api/fire/asu/event', [
+        return $this->post('/api/fire/ba/event', [
             'incident_id' => (string) $this->incidentId,
             'trupp_id'    => (string) $truppId,
             'type'        => $type,
@@ -76,7 +76,7 @@ final class FiretabAsuApiTest extends FeatureTestCase
         $truppId = $this->trupp();
         $this->assertSame(200, $this->event($truppId, 'angeschlossen', ['bar' => '300'])->status);
 
-        $state = json_decode($this->get('/api/fire/asu/state', ['query' => ['incident_id' => (string) $this->incidentId]])->body, true);
+        $state = json_decode($this->get('/api/fire/ba/state', ['query' => ['incident_id' => (string) $this->incidentId]])->body, true);
 
         $this->assertTrue($state['success']);
         $this->assertSame('AT 1/42-1', $state['trupps'][0]['name']);
@@ -117,12 +117,12 @@ final class FiretabAsuApiTest extends FeatureTestCase
     {
         $truppId = $this->trupp();
         $eventId = (int) json_decode($this->event($truppId, 'rueckzug')->body, true)['event_id'];
-        $delete  = fn () => $this->post('/api/fire/asu/trupp/delete', ['incident_id' => (string) $this->incidentId, 'trupp_id' => (string) $truppId]);
+        $delete  = fn () => $this->post('/api/fire/ba/team/delete', ['incident_id' => (string) $this->incidentId, 'trupp_id' => (string) $truppId]);
 
         $this->assertSame(409, $delete()->status, 'Trupp mit gültigem Eintrag bleibt');
-        $this->assertSame(200, $this->post('/api/fire/asu/event/void', ['incident_id' => (string) $this->incidentId, 'event_id' => (string) $eventId])->status);
+        $this->assertSame(200, $this->post('/api/fire/ba/event/void', ['incident_id' => (string) $this->incidentId, 'event_id' => (string) $eventId])->status);
 
-        $state = json_decode($this->get('/api/fire/asu/state', ['query' => ['incident_id' => (string) $this->incidentId]])->body, true);
+        $state = json_decode($this->get('/api/fire/ba/state', ['query' => ['incident_id' => (string) $this->incidentId]])->body, true);
         $this->assertTrue($state['events'][0]['voided']);
         $this->assertSame(200, $delete()->status, 'nur zurückgenommene Einträge: Fehleingabe, darf weg');
     }
@@ -145,8 +145,8 @@ final class FiretabAsuApiTest extends FeatureTestCase
     {
         $other = $this->incident();
 
-        $this->assertSame(403, $this->get('/api/fire/asu/state', ['query' => ['incident_id' => (string) $other]])->status);
-        $this->assertSame(403, $this->post('/api/fire/asu/trupp', [
+        $this->assertSame(403, $this->get('/api/fire/ba/state', ['query' => ['incident_id' => (string) $other]])->status);
+        $this->assertSame(403, $this->post('/api/fire/ba/team', [
             'incident_id' => (string) $other, 'name' => 'X', 'role' => 'angriff', 'expected_minutes' => '30',
             'members' => [['position' => 'tf', 'name' => 'A']],
         ])->status);
@@ -159,7 +159,17 @@ final class FiretabAsuApiTest extends FeatureTestCase
         Capsule::table('intra_fire_incidents')->where('id', $this->incidentId)->update(['finalized' => 1]);
 
         $this->assertSame(409, $this->event($truppId, 'draussen')->status);
-        $this->assertSame(200, $this->get('/api/fire/asu/state', ['query' => ['incident_id' => (string) $this->incidentId]])->status);
+        $this->assertSame(200, $this->get('/api/fire/ba/state', ['query' => ['incident_id' => (string) $this->incidentId]])->status);
+    }
+
+    #[Test]
+    public function tablets_mit_altem_stand_erreichen_die_asu_pfade(): void
+    {
+        $this->trupp();
+
+        $state = json_decode($this->get('/api/fire/asu/state', ['query' => ['incident_id' => (string) $this->incidentId]])->body, true);
+
+        $this->assertSame('AT 1/42-1', $state['trupps'][0]['name']);
     }
 
     #[Test]

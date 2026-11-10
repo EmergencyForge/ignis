@@ -18,7 +18,7 @@ class EnotfUrl
     }
 
     /**
-     * Top-Level-Seiten: overview, login, create, lockscreen, loggedout, fahrzeuginfo, hospital-availability
+     * Top-Level-Seiten: overview, login, create, lockscreen, loggedout, vehicle-info, hospital-availability
      *
      * @param array<string, mixed> $params
      */
@@ -82,9 +82,9 @@ class EnotfUrl
     /**
      * @param array<string, mixed> $params
      */
-    public static function schnittstelle(string $page = '', array $params = []): string
+    public static function monitor(string $page = '', array $params = []): string
     {
-        return self::appendParams(self::basePath() . 'enotf/schnittstelle/' . ($page !== '' ? $page : 'index'), $params);
+        return self::appendParams(self::basePath() . 'enotf/monitor/' . ($page !== '' ? $page : 'index'), $params);
     }
 
     /**

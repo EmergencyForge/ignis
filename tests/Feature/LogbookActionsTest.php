@@ -86,7 +86,7 @@ final class LogbookActionsTest extends FeatureTestCase
             'fahrttyp'           => 'dienstfahrt',
         ]);
 
-        $this->assertRedirect($response, '/enotf/fahrtenbuch');
+        $this->assertRedirect($response, '/enotf/logbook');
         // Das Rücksprungziel wird vor dem Formular gelesen und räumt die
         // alte Eingabe deshalb nicht weg
         $this->assertSame('Erika Muster', $_SESSION['old_input']['fahrer_name'] ?? null);

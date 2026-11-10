@@ -432,13 +432,13 @@ $SITE_TITLE = 'Beladelisten';
             // sie. Siehe openAdd/openEdit Beladung*Modal-Funktionen weiter unten.
         });
 
-        // ── Beladung-Modal-Helpers (AJAX gegen beladung_handler) ───────
+        // ── Beladung-Modal-Helpers (AJAX gegen /api/vehicles/vehload-handler) ───────
 
         function postBeladungAction(action, payload) {
             const formData = new FormData();
             formData.append('action', action);
             for (const [k, v] of Object.entries(payload)) formData.append(k, v);
-            return fetch('beladung_handler', {
+            return fetch('<?= BASE_PATH ?>api/vehicles/vehload-handler', {
                 method: 'POST',
                 body:   formData,
             }).then(r => r.json());
@@ -545,7 +545,7 @@ $SITE_TITLE = 'Beladelisten';
             formData.append('action', 'delete_category');
             formData.append('id', id);
 
-            fetch('beladung_handler', {
+            fetch('<?= BASE_PATH ?>api/vehicles/vehload-handler', {
                     method: 'POST',
                     body: formData
                 })
@@ -568,7 +568,7 @@ $SITE_TITLE = 'Beladelisten';
             formData.append('action', 'delete_tile');
             formData.append('id', id);
 
-            fetch('beladung_handler', {
+            fetch('<?= BASE_PATH ?>api/vehicles/vehload-handler', {
                     method: 'POST',
                     body: formData
                 })

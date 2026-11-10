@@ -29,7 +29,7 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
                                 <div class="flex flex-wrap gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/categories/index" class="ignis-btn ignis-btn--secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
                                     <button type="button" class="ignis-btn ignis-btn--primary" data-dialog-target="#createQuicklinkModal">

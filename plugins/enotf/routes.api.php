@@ -45,6 +45,7 @@ $enotfCrewAuth  = [...$enotfLoginAuth, CrewSessionMiddleware::class];
 
 // ── Protokoll ──
 $router->post('/api/enotf/save-fields', [ProtokollApiController::class, 'saveFields'], $enotfLoginAuth);
+$router->get('/api/enotf/protocol/{enr:[\w._-]+}', [ProtokollApiController::class, 'show'], $enotfLoginAuth);
 $router->get('/api/enotf/protokoll/{enr:[\w._-]+}', [ProtokollApiController::class, 'show'], $enotfLoginAuth);
 // Soft-Delete durch die Crew (403 bei Leitstellen-Protokollen)
 $router->post('/api/enotf/delete-protocol', [ProtokollApiController::class, 'deleteProtocol'], $enotfLoginAuth);
@@ -86,7 +87,7 @@ $router->post('/api/enotf/share/accept-request',        [ShareApiController::cla
 $router->post('/api/enotf/share/reject-request',        [ShareApiController::class, 'rejectRequest'],        $enotfLoginAuth);
 
 // ── Ankunftstafel, Prüfliste, Abrechnung ──
-// Pollt die öffentliche Ankunftstafel (/enotf/schnittstelle), ohne Anmeldung
+// Pollt die öffentliche Ankunftstafel (/enotf/monitor), ohne Anmeldung
 // wie die Seite selbst. Liefert nichts, was die Seite nicht schon zeigt.
 $router->match(['GET', 'POST'], '/api/enotf/prereg', [EnotfController::class, 'prereg'], [JsonExceptionMiddleware::class]);
 
@@ -112,6 +113,7 @@ $router->post('/api/hospital-availability-update',   $hospitalUpdate, $enotfApiA
 //  Klinik-Code
 // ============================================================================
 $klinikHandler = [KlinikCodeController::class, 'generate'];
+$router->post('/api/hospitals/generate-code',   $klinikHandler, $enotfCrewAuth);
 $router->post('/api/klinik/generate-code',      $klinikHandler, $enotfCrewAuth);
 $router->post('/api/generate-klinikcode',   $klinikHandler, $enotfCrewAuth);
 

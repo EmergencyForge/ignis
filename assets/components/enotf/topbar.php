@@ -48,7 +48,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <?php
                 if ($daten['freigegeben'] != 1) :
                     if (ENOTF_PREREG) : ?>
-                        <a href="<?= EnotfUrl::schnittstelle('voranmeldung', ['enr' => $enr]) ?>" id="prereg" class="edivi__iconlink">
+                        <a href="<?= EnotfUrl::monitor('prereg', ['enr' => $enr]) ?>" id="prereg" class="edivi__iconlink">
                             <i class="fa-solid fa-house-medical"></i><br>
                             <small>Anmeldung</small>
                         </a>

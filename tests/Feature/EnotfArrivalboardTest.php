@@ -37,7 +37,7 @@ final class EnotfArrivalboardTest extends FeatureTestCase
             'active'     => 1,
         ]);
 
-        $response = $this->get('/enotf/schnittstelle');
+        $response = $this->get('/enotf/monitor');
 
         $this->assertOk($response);
         foreach (['<script>alert(1)', '<img src=x', '<svg onload', '<b>50</b>', '<i>15</i>'] as $payload) {
@@ -52,7 +52,7 @@ final class EnotfArrivalboardTest extends FeatureTestCase
     #[Test]
     public function klinik_parameter_bleibt_im_script_ein_string(): void
     {
-        $response = $this->get('/enotf/schnittstelle', ['query' => ['klinik' => '</script><script>alert(1)</script>']]);
+        $response = $this->get('/enotf/monitor', ['query' => ['klinik' => '</script><script>alert(1)</script>']]);
 
         $this->assertOk($response);
         $this->assertBodyNotContains('<script>alert(1)', $response);
@@ -161,6 +161,6 @@ final class EnotfArrivalboardTest extends FeatureTestCase
             'priority'     => '1',
         ], $abweichung);
 
-        return $this->post('/enotf/schnittstelle/voranmeldung', $body, ['query' => ['enr' => $this->enr]]);
+        return $this->post('/enotf/monitor/prereg', $body, ['query' => ['enr' => $this->enr]]);
     }
 }

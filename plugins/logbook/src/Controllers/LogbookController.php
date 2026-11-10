@@ -360,7 +360,7 @@ class LogbookController extends Controller
     private function redirectByReturnTo(string $returnTo): never
     {
         $target = match ($returnTo) {
-            'enotf'   => 'enotf/fahrtenbuch',
+            'enotf'   => 'enotf/logbook',
             'firetab' => 'firetab/logbook',
             default   => 'logbook/index',
         };

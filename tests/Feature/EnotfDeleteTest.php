@@ -67,7 +67,7 @@ final class EnotfDeleteTest extends FeatureTestCase
         $this->assertRedirect($this->post('/settings/enotf/delete', ['id' => (string) $link]));
         $this->assertFalse(Capsule::table('intra_enotf_quicklinks')->where('id', $link)->exists());
 
-        $this->assertRedirect($this->post('/settings/enotf/kategorien/delete', ['id' => (string) $cat]));
+        $this->assertRedirect($this->post('/settings/enotf/categories/delete', ['id' => (string) $cat]));
         $this->assertFalse(Capsule::table('intra_enotf_categories')->where('id', $cat)->exists());
     }
 

@@ -186,7 +186,7 @@ class EnotfController extends Controller
     public function categoryStore(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/kategorien/index');
+        $this->ensureAdmin('settings/enotf/categories/index');
 
         $input     = $this->categoryInput();
         $name      = $input['name'];
@@ -196,13 +196,13 @@ class EnotfController extends Controller
 
         if ($name === '' || $slug === '') {
             Flash::set('error', 'Name und Slug dürfen nicht leer sein.');
-            $this->redirect('settings/enotf/kategorien/index');
+            $this->redirect('settings/enotf/categories/index');
         }
 
         $exists = Capsule::table('intra_enotf_categories')->where('slug', $slug)->exists();
         if ($exists) {
             Flash::set('error', 'Dieser Slug existiert bereits.');
-            $this->redirect('settings/enotf/kategorien/index');
+            $this->redirect('settings/enotf/categories/index');
         }
 
         try {
@@ -218,13 +218,13 @@ class EnotfController extends Controller
             error_log('Fehler beim Erstellen einer eNOTF Kategorie: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/kategorien/index');
+        $this->redirect('settings/enotf/categories/index');
     }
 
     public function categoryUpdate(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/kategorien/index');
+        $this->ensureAdmin('settings/enotf/categories/index');
 
         $input     = $this->categoryInput();
         $id        = $input['id'];
@@ -235,7 +235,7 @@ class EnotfController extends Controller
 
         if ($id <= 0 || $name === '' || $slug === '') {
             Flash::set('error', 'Ungültige Daten.');
-            $this->redirect('settings/enotf/kategorien/index');
+            $this->redirect('settings/enotf/categories/index');
         }
 
         $exists = Capsule::table('intra_enotf_categories')
@@ -244,7 +244,7 @@ class EnotfController extends Controller
             ->exists();
         if ($exists) {
             Flash::set('error', 'Dieser Slug existiert bereits.');
-            $this->redirect('settings/enotf/kategorien/index');
+            $this->redirect('settings/enotf/categories/index');
         }
 
         try {
@@ -260,18 +260,18 @@ class EnotfController extends Controller
             error_log('Fehler beim Aktualisieren einer eNOTF Kategorie: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/kategorien/index');
+        $this->redirect('settings/enotf/categories/index');
     }
 
     public function categoryDestroy(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/enotf/kategorien/index');
+        $this->ensureAdmin('settings/enotf/categories/index');
 
         $id = $this->categoryInput()['id'];
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
-            $this->redirect('settings/enotf/kategorien/index');
+            $this->redirect('settings/enotf/categories/index');
         }
 
         try {
@@ -282,7 +282,7 @@ class EnotfController extends Controller
                     ->count();
                 if ($linkCount > 0) {
                     Flash::set('error', 'Diese Kategorie kann nicht gelöscht werden, da noch ' . $linkCount . ' Link(s) zugewiesen sind.');
-                    $this->redirect('settings/enotf/kategorien/index');
+                    $this->redirect('settings/enotf/categories/index');
                 }
             }
 
@@ -293,7 +293,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Löschen einer eNOTF Kategorie: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/kategorien/index');
+        $this->redirect('settings/enotf/categories/index');
     }
 
     /**
@@ -318,7 +318,7 @@ class EnotfController extends Controller
             return QuicklinkCategoryRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::set('error', $e->firstError() ?? 'Ungültige Daten.');
-            $this->redirect('settings/enotf/kategorien/index');
+            $this->redirect('settings/enotf/categories/index');
         }
     }
 

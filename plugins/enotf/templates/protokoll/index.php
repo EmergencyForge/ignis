@@ -8,7 +8,7 @@
  *
  * @var string $enr
  * @var array<string,mixed> $protokoll            Komplette intra_edivi-Zeile
- * @var array<string,array{label:string,icon:string}> $sections
+ * @var array<string,array{label:string,icon:string,template:string}> $sections
  * @var string $activeSection
  * @var string $sectionTemplateFile               Absoluter Pfad
  * @var bool   $istGesperrt
@@ -36,6 +36,6 @@ ob_start();
 require $sectionTemplateFile;
 $__content = ob_get_clean();
 
-$__bodyPage   = $sectionBodyPage ?? $activeSection;
+$__bodyPage   = $sectionBodyPage ?? $sections[$activeSection]['template'];
 $__chromeless = $sectionChromeless ?? false;
 require dirname(__DIR__) . '/_layout-protokoll.php';
