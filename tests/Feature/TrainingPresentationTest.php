@@ -411,6 +411,24 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertNull(Session::query()->find($session->id)->slides_file_id);
     }
 
+    #[Test]
+    public function slides_stay_put_during_a_live_talk(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $slides = $session->slides_file_id;
+        $this->post($path . '/start');
+        $url = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides';
+
+        $this->assertRedirect($this->post($url, ['remove' => '1']), '/training/manage/' . $course->id . '#termine');
+        $this->assertSame('Während eines laufenden Vortrags lassen sich die Folien nicht ändern.', $_SESSION['flash']['text'] ?? null);
+        $this->post($url, [], ['files' => ['slides' => $this->upload("%PDF-1.4\n%%EOF\n", 'Neu.pdf')]]);
+        $this->assertSame($slides, Session::query()->find($session->id)->slides_file_id);
+
+        $this->assertRedirect($this->post($path . '/end'));
+        $this->post($url, ['remove' => '1']);
+        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
+    }
+
     /**
      * Leitung (angemeldet, mit Lehrrecht in der DB), Lehrgang, Termin mit Folien, Pfad zum Vortrag.
      *

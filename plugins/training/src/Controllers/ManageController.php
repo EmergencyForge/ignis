@@ -450,6 +450,10 @@ final class ManageController extends BaseController
             return self::notFound();
         }
         $back   = 'training/manage/' . $course->id . '#termine';
+        // Zuschauer laden die Folien beim Beitreten; ein Wechsel mitten im Vortrag verschöbe Seiten und Zeichnungen, Entfernen versteckte den Vortrag.
+        if (Presentations::live($session, new \DateTimeImmutable()) !== null) {
+            return self::back($back, 'Während eines laufenden Vortrags lassen sich die Folien nicht ändern.');
+        }
         $post   = $request->post;
         $upload = $request->files['slides'] ?? null;
 
