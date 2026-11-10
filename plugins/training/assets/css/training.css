@@ -32,8 +32,17 @@ a.tr-unit:hover { background: var(--fill-1); }
 .tr-outline h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--tertiary-text); margin: 12px 8px 4px; }
 .tr-outline h4:first-child { margin-top: 0; }
 
-.tr-text { line-height: 1.6; }
-.tr-text img { max-width: 100%; height: auto; }
+/* Artikel: ruhige Lesespalte, Hinweisboxen in den Statusfarben, Video auf
+   Spaltenbreite. editor.css bringt Box und Platzhalter mit. */
+.tr-text { max-width: 46rem; font-size: 1.0625rem; line-height: 1.7; }
+.tr-text h2 { font-size: 1.35rem; margin: 1.8em 0 .5em; color: var(--content-text); }
+.tr-text h3 { font-size: 1.1rem; margin: 1.5em 0 .4em; color: var(--content-text); }
+.tr-text > :first-child { margin-top: 0; }
+.tr-text img { max-width: 100%; height: auto; border-radius: var(--radius-2); }
+.efe-callout { --efe-callout-note: var(--info); --efe-callout-important: var(--warn); --efe-callout-tip: var(--ok); }
+.efe-video__frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* Schreibfläche ohne A4-Blatt, damit sie aussieht wie später die Lesespalte. */
+.tr-article-editor.efe-page { width: auto; min-height: 28rem; margin: 0; padding: 16px 20px; background: transparent; color: inherit; box-shadow: none; line-height: 1.7; --efe-page-text: currentColor; --efe-page-accent: var(--efe-accent); }
 .tr-text__end { height: 1px; }
 .tr-image { max-width: 100%; border-radius: var(--radius-3); border: 1px solid var(--border-subtle); }
 

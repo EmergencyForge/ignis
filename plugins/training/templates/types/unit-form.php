@@ -1,7 +1,8 @@
 <?php
 /**
  * Lerneinheit anlegen oder bearbeiten. Die Felder der gewählten Art blendet
- * training.js ein; der Text läuft über den Editor mit Preset `article`.
+ * training.js ein; der Artikel läuft über den Editor mit Preset `article`
+ * und lädt Bilder für das Modul hoch.
  *
  * @var \Plugin\Training\Models\Module             $module
  * @var \Plugin\Training\Models\Unit               $unit
@@ -82,13 +83,13 @@ ob_start();
                     </div>
 
                     <div class="tr-kind-fields grid gap-2" data-kind="text">
-                        <span id="unit-doc-label" class="ignis-field__label">Text</span>
+                        <span id="unit-doc-label" class="ignis-field__label">Artikel</span>
                         <input type="hidden" name="doc" value="<?= $json($doc) ?>">
                         <div class="efe-frame">
                             <div id="unit-doc-toolbar"></div>
-                            <div class="efe-page" data-training-editor aria-labelledby="unit-doc-label"
+                            <div class="efe-page tr-article-editor" data-training-editor aria-labelledby="unit-doc-label"
                                  data-content="<?= $json($doc) ?>"
-                                 data-upload-url="<?= $base ?>api/training/images"
+                                 data-upload-url="<?= $base ?>api/training/modules/<?= (int) $module->id ?>/images"
                                  data-editor-src="<?= htmlspecialchars(asset('assets/dist/editor.iife.js')) ?>"></div>
                         </div>
                         <p class="ignis-field__hint">Gilt als gelesen, wenn bis zum Ende gescrollt ist.</p>

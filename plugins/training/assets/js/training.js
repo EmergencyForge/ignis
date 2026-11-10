@@ -1,5 +1,6 @@
 // Ausbildung: Seitenmeldungen des PDF-Betrachters, Text bis zum Ende,
-// Matrix, Lehrplan ziehen und umschalten, Formular der Lerneinheit.
+// Videos in Artikeln, Matrix, Lehrplan ziehen und umschalten, Formular
+// der Lerneinheit.
 // Jeder Teil sucht seine Elemente selbst und tut ohne sie nichts.
 
 const csrf = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
@@ -53,6 +54,36 @@ function trackUnit() {
         });
         observer.observe(end);
     }
+}
+
+// Videos in Artikeln: vor dem Klick geht nichts an YouTube oder Vimeo. Der
+// Renderer prüft die Werte schon, hier noch einmal, weil daraus eine fremde
+// Adresse wird (Regeln wie Video::isValid() im Editor-Paket).
+function videos() {
+    document.addEventListener('click', (event) => {
+        const figure = event.target.closest?.('.efe-video__play')?.closest('figure.efe-video');
+        if (!figure) return;
+        const provider = figure.getAttribute('data-provider');
+        const id = figure.getAttribute('data-id') || '';
+        const hash = figure.getAttribute('data-hash');
+        let src = null;
+        if (provider === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(id) && hash === null) {
+            src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+        } else if (provider === 'vimeo' && /^\d{1,12}$/.test(id) && (hash === null || /^[a-f0-9]{6,20}$/.test(hash))) {
+            src = `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1${hash ? `&h=${hash}` : ''}`;
+        }
+        if (!src) return;
+
+        const frame = document.createElement('iframe');
+        frame.src = src;
+        frame.title = provider === 'youtube' ? 'YouTube-Video' : 'Vimeo-Video';
+        frame.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+        frame.allowFullscreen = true;
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        frame.className = 'efe-video__frame';
+        figure.replaceChildren(frame);
+        frame.focus();
+    });
 }
 
 function matrix() {
@@ -459,6 +490,7 @@ function completion() {
 openTabFromHash();
 completion();
 trackUnit();
+videos();
 matrix();
 switches();
 curriculum();

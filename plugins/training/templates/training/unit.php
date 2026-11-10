@@ -1,7 +1,8 @@
 <?php
 /**
- * Eine Lerneinheit: PDF im Betrachter, Bild, Download, Text, Link,
- * Wissensartikel oder Termin. Rechts der Lehrplan mit Stand.
+ * Eine Lerneinheit: PDF im Betrachter, Bild, Download, Artikel, Link,
+ * Wissensartikel oder Termin. Rechts der Lehrplan mit Stand. Videos im
+ * Artikel lädt training.js erst auf Klick.
  *
  * Ohne Teilnahme (Ausbilder in der Vorschau) meldet die Seite nichts.
  *
@@ -38,6 +39,9 @@ $markable = $participation !== null && !$done && in_array($unit->type(), [UnitKi
 ob_start();
 ?>
     <link rel="stylesheet" href="<?= htmlspecialchars(asset('plugins/training/assets/css/training.css')) ?>">
+    <?php if ($unit->type() === UnitKind::Text): ?>
+        <link rel="stylesheet" href="<?= htmlspecialchars(asset('assets/dist/editor.css')) ?>">
+    <?php endif; ?>
 <?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
