@@ -1,0 +1,70 @@
+---
+description: Coding rules for the ef_mechanic FiveM workshop resource (clean-room, ESX-first).
+globs:
+  - "**/*.{lua,js,ts,tsx,sql,css}"
+alwaysApply: true
+---
+
+# ef_mechanic — FiveM-Regeln
+
+## Clean Room und Recht
+
+- Kein Code, keine Assets, keine Icons, keine NUI-Layouts, keine Props, keine Sounds und keine internen Event- oder Dateinamen von JG Scripts / jg-mechanic.
+- Keine geleakten Repositories, keine Escrow-Dumps, kein Decompiling als Referenz.
+- Öffentliche Doku darf nur als **funktionale** Anforderung gelesen werden, nie als Vorlage für Implementierungsdetails.
+- Resource-Name bleibt `ef_mechanic`. Keine JG-Marken in Kommentaren, Testdaten, Screenshots oder Locale-Texten.
+
+## Sprache und Stil
+
+- Identifier, Dateien, Events, Callbacks, SQL und Config-Keys auf Englisch.
+- Spielertexte ausschließlich über Locales (`locales/de.lua`, `locales/en.lua`). Keine hardcodierten deutschen oder englischen Sätze in Client/Server/NUI außer als Locale-Key-Lookup.
+- Lua: `lua54`, Punkt als Dezimaltrenner im Code, explizite Locals, keine Globals außer `Config` und bewusste Exports.
+- Bevorzuge `lib.callback` (ox_lib) gegenüber offenen `TriggerServerEvent`-Geldflüssen.
+
+## Architektur
+
+- Trennung: `client/`, `server/`, `shared/`, `bridges/`, `config/`, `locales/`, `sql/`, `web/` (Quelle) und `nui/` (Build).
+- Framework-Zugriff nur über `bridges/framework.lua`. Kein direktes `ESX.GetPlayerFromId` über die Resource verstreut.
+- Inventar nur über `bridges/inventory.lua`. Im MVP ox_inventory.
+- Neue Features zuerst als Server-Autorität modellieren, dann Client/NUI anbinden.
+
+## Sicherheit
+
+- Preise, Item-Kosten, Job-Rechte, Rechnungsbeträge und Mod-Listen kommen von Server und Config, niemals ungeprüft vom Client.
+- Jede Aktion prüft: Quelle, Job/Grade, Distanz zu Zone und Fahrzeug, Rate Limit, Item- und Geldbestand, dann erst Mutation.
+- Keine Trust-Client-Mods: Vorschau darf lokal sein, Persistenz und Abrechnung nur nach Server-OK.
+- Statebags nur serverseitig schreiben. Resource muss mit `sv_stateBagStrictMode true` funktionieren.
+- Kennzeichen normalisieren (`trim`, `upper`) bevor sie in SQL oder Keys landen.
+
+## Performance
+
+- Idle-Ziel: 0.00 ms Resmon, wenn der Spieler kein Menü offen hat und in keiner Zone arbeitet.
+- Keine `Wait(0)`-Dauerloops, keine `while true` mit Unter-200ms-Wait ohne klaren, kurzlebigen Grund.
+- Zonen über ox_lib Points/Zones oder Prüfintervalle ≥ 500 ms.
+- Mileage und Verschleiß gedrosselt (mehrere Sekunden), mit Plausibilitätsgrenze gegen Teleport-Kilometer.
+- Handling-Offsets nur bei Zustandsänderung setzen, nicht jedes Frame.
+
+## Datenbank
+
+- oxmysql, parametrisierte Queries, keine String-Konkatenation von Userdaten in SQL.
+- `install.sql` muss idempotent oder klar als Erstinstallation dokumentiert sein.
+- Prefix `ef_mechanic_` für Tabellen.
+
+## NUI
+
+- React + Vite + TypeScript. Gebautes Ergebnis liegt in `nui/`.
+- Keine Preise fest im Frontend. UI zeigt vom Server gelieferte Werte.
+- Escape schließt das Tablet und gibt NUI-Focus frei, auch bei Fehlern.
+- Schlichtes, eigenes Design. Nicht das Erscheinungsbild bestehender Premium-Mechanic-Tablets nachahmen.
+
+## Config und Escrow
+
+- Server-Owner müssen Werkstätten, Preise, Items und Texte ohne Escrow-Änderung anpassen können.
+- `fxmanifest.lua` enthält `escrow_ignore` für `config/`, `locales/`, `sql/`, `install/` und `README.md`.
+- Config-Fehler sollen eine klare Server-Console-Meldung erzeugen, nicht still scheitern.
+
+## Tests vor dem Abschluss einer Aufgabe
+
+- Resource startet ohne Error/Warning, die auf dieses Script zurückgeht.
+- Mindestens ein Happy Path der geänderten Funktion auf ESX + ox_inventory beschrieben oder geprüft.
+- Exploit-Überlegung in einem Satz: Warum der Client das nicht faken kann.

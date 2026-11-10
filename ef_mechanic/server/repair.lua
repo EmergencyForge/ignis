@@ -1,0 +1,1 @@
+-- Milestone 1: repair callbacks (price from config, money removal).
