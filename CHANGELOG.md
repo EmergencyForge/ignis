@@ -24,6 +24,11 @@
 - eNOTF, Firetab und die APIs nutzen englische Pfade, Ansichten, Reiter und Parameter, etwa `/enotf/monitor` statt `/enotf/schnittstelle` und `?mailbox=` statt `?postfach=`. Alte Adressen und Lesezeichen funktionieren weiter, gespeicherte Links in Benachrichtigungen und Dashboard-Kacheln stellt das Update um
 - Der Klinikmonitor erreicht ignis unter der alten Adresse mit `index.php` wieder
 
+### Tablet und efOS
+- Der Wechsel der Oberfläche bleibt im Tablet jetzt auch erhalten, wenn man ihn im Kontomenü umstellt. In 2026.1.17-beta griff er dort noch nicht
+- Offene Aufgaben stehen im efOS bei den Mitteilungen statt in einem eigenen Block, das klassische Dashboard behält ihn
+- Der Ladebildschirm von efOS begrüßt mit dem vollen Namen
+
 ### Betrieb
 - Im Container läuft der Cron in einer eigenen Schleife und hält keine Seitenaufrufe mehr auf, `CRON_LOOP=0` schaltet zurück. Ein laufender Job startet nicht doppelt
 - Hub-Mitteilungen werden höchstens einmal in der Stunde abgerufen, auch wenn der Hub nicht erreichbar ist
