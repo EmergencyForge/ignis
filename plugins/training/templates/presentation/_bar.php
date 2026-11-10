@@ -36,7 +36,7 @@ ob_start();
          data-pdfjs-worker="<?= $e(asset('assets/dist/pdfjs/pdf.worker.min.mjs')) ?>"
          data-user="<?= (int) $userId ?>"
          data-screen-via="<?= $liveKit ? 'livekit' : 'direct' ?>"
-         data-livekit="<?= $e(asset('plugins/training/assets/dist/livekit/livekit-client.esm.mjs')) ?>"
+         data-livekit="<?= $e(asset('assets/dist/livekit/livekit-client.esm.mjs')) ?>"
          data-elapsed="<?= $liveElapsed ?>">
     <header class="tr-live__bar">
         <?php if (!$livePresent): ?>

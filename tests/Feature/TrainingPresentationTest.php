@@ -1553,7 +1553,7 @@ final class TrainingPresentationTest extends FeatureTestCase
             $this->assertBodyContains($role, $page);
             $this->assertBodyContains('data-screen-via="direct"', $page);
             $this->assertBodyContains('data-livekit="', $page);
-            $this->assertBodyContains('plugins/training/assets/dist/livekit/livekit-client.esm.mjs', $page);
+            $this->assertBodyContains('assets/dist/livekit/livekit-client.esm.mjs', $page);
             $this->assertBodyContains('<video data-live-video playsinline autoplay muted>', $page);
             $this->console([]);
             $page = $this->get($path);
