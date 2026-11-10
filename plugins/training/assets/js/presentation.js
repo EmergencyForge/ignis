@@ -127,6 +127,8 @@
             const first = (await doc.getPage(1)).getViewport({ scale: 1 });
             slideRatio = first.width / first.height;
         } catch (error) {
+            // Auch ein gescheiterter Ladeauftrag hält einen Worker, der sonst bis zum Schließen des Desks lebt.
+            if (loading) loading.destroy();
             loading = null;
             // Ohne Folien bleiben Pause, Laser und Übergabe nutzbar, nur Zeichnen und Blättern nicht.
             if (!stopped) note('Die Folien lassen sich hier nicht anzeigen.');
@@ -501,6 +503,10 @@
             if (stopped) return;
             if (response.status === 304) {
                 idle++;
+            } else if (response.status === 404) {
+                // Termin gelöscht, Teilnahme beendet oder Lehrgang abgesagt: weiterfragen bringt nichts mehr.
+                showEnded();
+                return;
             } else if (!response.ok) {
                 throw new Error('state ' + response.status);
             } else {
