@@ -25,6 +25,10 @@ require __DIR__ . '/_bar.php';
                 <canvas class="tr-live__pdf" data-live-pdf aria-hidden="true"></canvas>
                 <canvas class="tr-live__ink" data-live-ink aria-label="Folie"></canvas>
             </div>
+            <div class="tr-live__screen">
+                <video data-live-video playsinline autoplay muted></video>
+                <p class="tr-live__screen-note" data-live-screen-note hidden></p>
+            </div>
             <div class="tr-live__pause">
                 <div>
                     <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>

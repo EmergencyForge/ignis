@@ -22,6 +22,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $ended_at
  * @property int         $page  ab 0
  * @property string      $mode  slides|pause|screen
+ * @property string|null  $screen_via  livekit|direct, nur im Modus screen
+ * @property string|null  $screen_room  LiveKit-Raum, nur bei livekit
  * @property int         $version
  * @property int         $seq
  * @property Carbon      $presenter_seen_at
@@ -50,6 +52,8 @@ class Presentation extends EloquentModel
         'ended_at'          => 'datetime',
         'page'              => 'integer',
         'mode'              => 'string',
+        'screen_via'        => 'string',
+        'screen_room'       => 'string',
         'version'           => 'integer',
         'seq'               => 'integer',
         'presenter_seen_at' => 'datetime',

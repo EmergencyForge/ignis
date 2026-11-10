@@ -46,6 +46,9 @@ $router->get($live,                       [PresentationController::class, 'show'
 $router->post($live . '/start',           [PresentationController::class, 'start'],    $view);
 $router->get($live . '/state',            [PresentationController::class, 'state'],    $view);
 $router->post($live . '/events',          [PresentationController::class, 'events'],   $view);
+$router->post($live . '/screen',          [PresentationController::class, 'screen'],      $view);
+$router->post($live . '/screen/token',    [PresentationController::class, 'screenToken'], $view);
+$router->post($live . '/signal',          [PresentationController::class, 'signal'],      $view);
 $router->post($live . '/handover',        [PresentationController::class, 'handover'], $view);
 $router->post($live . '/handover/cancel', [PresentationController::class, 'cancel'],   $view);
 $router->post($live . '/handover/accept', [PresentationController::class, 'accept'],   $view);

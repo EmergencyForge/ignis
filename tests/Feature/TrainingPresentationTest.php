@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Auth\FabricaClient;
+use App\Models\User;
 use DateTimeImmutable;
 use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response as HttpResponse;
 use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
+use Plugin\Training\AiDrafts;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
 use Plugin\Training\Models\CourseType;
@@ -49,6 +57,7 @@ final class TrainingPresentationTest extends FeatureTestCase
 
     protected function tearDown(): void
     {
+        AiDrafts::useClient(null);
         foreach ([...$this->storedFiles, ...$this->tempFiles] as $path) {
             @unlink($path);
         }
@@ -1174,5 +1183,383 @@ final class TrainingPresentationTest extends FeatureTestCase
         $response = $this->get('/training/manage/' . $course->id);
 
         $this->assertBodyContains('Vortrag lief 3 Minuten. Vorgeschlagen wird, wer mindestens 2 Minuten dabei war. Erst Speichern trägt die Anwesenheit ein.', $response);
+    }
+
+    /** @var list<array<string, mixed>> */
+    private array $sent = [];
+
+    /**
+     * EF Sync mit gemockter Konsole; die Antworten in dieser Reihenfolge.
+     *
+     * @param list<HttpResponse> $answers
+     */
+    private function console(array $answers): void
+    {
+        $this->sent = [];
+        $stack = HandlerStack::create(new MockHandler($answers));
+        $stack->push(Middleware::history($this->sent));
+        $instance = 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa';
+        AiDrafts::useClient(new FabricaClient('https://console.example.test', $instance, $instance . '.' . str_repeat('s', 43), new Client(['handler' => $stack])));
+    }
+
+    private function liveKey(string $token = 'jwt'): HttpResponse
+    {
+        return new HttpResponse(200, [], (string) json_encode(['url' => 'wss://live.example.test', 'token' => $token, 'room' => 'x.y']));
+    }
+
+    /** @return array<string, mixed> Body der n-ten Anfrage an die Konsole */
+    private function sentBody(int $i): array
+    {
+        return (array) json_decode((string) $this->sent[$i]['request']->getBody(), true);
+    }
+
+    /** Zuschauerzeilen ohne Anmeldung, zuletzt vor $ago Sekunden gesehen. */
+    private function viewers(Presentation $p, int $count, int $ago = 0): void
+    {
+        for ($i = 0; $i < $count; $i++) {
+            PresentationViewer::query()->create(['presentation_id' => $p->id, 'user_id' => FixtureFactory::user()->id, 'first_seen_at' => Carbon::now()->subSeconds($ago),
+                'last_seen_at' => Carbon::now()->subSeconds($ago), 'seconds_watched' => 0]);
+        }
+    }
+
+    /**
+     * Leitung (angemeldet), Lehrgang, Termin, Pfad, Zuschauer A und B (haben schon gefragt); direkt geteilt.
+     *
+     * @return array{0: array{user: int, personnel: int}, 1: Course, 2: Session, 3: string, 4: array{user: int, personnel: int}, 5: array{user: int, personnel: int}}
+     */
+    private function directShare(): array
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $a = $this->learnerIn($course);
+        $this->get($path . '/state');
+        $b = $this->learnerIn($course);
+        $this->get($path . '/state');
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertSame('direct', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
+
+        return [$teacher, $course, $session, $path, $a, $b];
+    }
+
+    #[Test]
+    public function host_shares_over_livekit_with_ef_sync(): void
+    {
+        [$teacher, , $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->console([$this->liveKey('host-jwt')]);
+
+        $res = $this->assertJsonResponse($this->postJson($path . '/screen'));
+        $this->assertSame(['livekit', 'wss://live.example.test', 'host-jwt'], [$res['via'], $res['url'], $res['token']]);
+        $p = $this->live($session);
+        $this->assertSame('screen', $p->mode);
+        $this->assertSame('livekit', $p->screen_via);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', (string) $p->screen_room);
+        $this->assertSame(1, $p->version);
+        $this->assertSame('https://console.example.test/api/instance/livekit/token', (string) $this->sent[0]['request']->getUri());
+        $sent = $this->sentBody(0);
+        $this->assertSame([$p->screen_room, 'u' . $teacher['user'], 'host'], [$sent['room'], $sent['identity'], $sent['role']]);
+    }
+
+    #[Test]
+    public function screen_falls_back_to_direct_when_fabrica_fails(): void
+    {
+        [, , $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->console([new HttpResponse(503, [], (string) json_encode(['error' => 'Nicht eingerichtet']))]);
+
+        $res = $this->assertJsonResponse($this->postJson($path . '/screen'));
+        $this->assertSame('direct', $res['via']);
+        $this->assertArrayNotHasKey('token', $res);
+        $p = $this->live($session);
+        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->screen_room]);
+    }
+
+    #[Test]
+    public function screen_is_direct_without_ef_sync(): void
+    {
+        [, , , $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->assertNull(AiDrafts::client());
+
+        $this->assertSame('direct', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
+        $this->assertBodyContains('data-screen-via="direct"', $this->get($path));
+    }
+
+    #[Test]
+    public function direct_screen_needs_fifteen_viewers_or_fewer(): void
+    {
+        [, , $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $p = $this->live($session);
+        $this->viewers($p, Presentations::SCREEN_LIMIT);
+        $this->viewers($p, 5, 11);
+        $this->assertSame('direct', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
+
+        $this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'slides', 'events' => []]);
+        $this->viewers($p, 1);
+        $full = $this->postJson($path . '/screen');
+        $this->assertStatus(409, $full);
+        $this->assertSame('too_many', $this->assertJsonResponse($full)['error']);
+        $this->assertSame('slides', $this->live($session)->mode);
+    }
+
+    #[Test]
+    public function only_the_host_starts_screen(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->learnerIn($course);
+
+        $this->assertForbidden($this->postJson($path . '/screen'));
+        $this->assertSame('slides', $this->live($session)->mode);
+    }
+
+    #[Test]
+    public function viewer_token_only_while_sharing_over_livekit(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $viewer = $this->learnerIn($course);
+        $this->console([$this->liveKey('host-jwt'), $this->liveKey('viewer-jwt')]);
+        $this->assertStatus(409, $this->postJson($path . '/screen/token'));
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->postJson($path . '/screen');
+        $room = $this->live($session)->screen_room;
+        $this->as($viewer['user'], ['training.view']);
+        $res = $this->assertJsonResponse($this->postJson($path . '/screen/token'));
+        $this->assertSame(['wss://live.example.test', 'viewer-jwt'], [$res['url'], $res['token']]);
+        $sent = $this->sentBody(1);
+        $this->assertSame([$room, 'u' . $viewer['user'], 'viewer'], [$sent['room'], $sent['identity'], $sent['role']]);
+
+        $this->console([new HttpResponse(503)]);
+        $down = $this->postJson($path . '/screen/token');
+        $this->assertStatus(502, $down);
+        $this->assertSame('unavailable', $this->assertJsonResponse($down)['error']);
+
+        $this->as($this->account()['user'], ['training.view']);
+        $this->assertNotFound($this->postJson($path . '/screen/token'));
+
+        // Direkt geteilt gibt es keinen Raum.
+        $this->as($teacher['user'], ['training.teach']);
+        AiDrafts::useClient(null);
+        $this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'slides', 'events' => []]);
+        $this->postJson($path . '/screen');
+        $this->as($viewer['user'], ['training.view']);
+        $this->assertStatus(409, $this->postJson($path . '/screen/token'));
+    }
+
+    #[Test]
+    public function signals_reach_only_their_viewer(): void
+    {
+        [$teacher, , $session, $path, $a, $b] = $this->directShare();
+        $before = $this->live($session);
+        $this->assertOk($this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'offer', 'sdp' => 'v=0 fuer A', 'x' => 1]));
+        $this->assertSame($before->version, $this->live($session)->version);
+        $after = (string) $before->seq;
+
+        $this->as($a['user'], ['training.view']);
+        $seen = $this->assertJsonResponse($this->get($path . '/state', ['query' => ['after' => $after]]))['events'];
+        $this->assertCount(1, $seen);
+        $this->assertSame(['kind' => 'signal', 'from' => $teacher['user'], 'type' => 'offer', 'sdp' => 'v=0 fuer A'], array_diff_key($seen[0], ['seq' => 1]));
+        $this->assertSame([], $this->assertJsonResponse($this->get($path . '/state', ['query' => ['after' => '0']]))['events']);
+
+        $this->as($b['user'], ['training.view']);
+        $this->assertSame([], $this->assertJsonResponse($this->get($path . '/state', ['query' => ['after' => $after]]))['events']);
+        $this->assertSame([], $this->assertJsonResponse($this->get($path . '/state', ['query' => ['after' => '0']]))['events']);
+    }
+
+    #[Test]
+    public function viewer_signals_always_go_to_the_host(): void
+    {
+        [$teacher, , , $path, $a, $b] = $this->directShare();
+        $this->as($a['user'], ['training.view']);
+        $this->assertOk($this->postJson($path . '/signal', ['to' => $b['user'], 'type' => 'answer', 'sdp' => 'v=0 von A']));
+
+        $event = PresentationEvent::query()->where('kind', 'signal')->firstOrFail();
+        $this->assertSame($teacher['user'], $event->to_user_id);
+        $this->assertSame(['from' => $a['user'], 'type' => 'answer', 'sdp' => 'v=0 von A'], json_decode($event->data, true));
+    }
+
+    #[Test]
+    public function host_cannot_signal_strangers(): void
+    {
+        [, , , $path] = $this->directShare();
+        $stranger = FixtureFactory::user();
+
+        $this->assertStatus(422, $this->postJson($path . '/signal', ['to' => $stranger->id, 'type' => 'offer', 'sdp' => 'v=0']));
+        $this->assertStatus(422, $this->postJson($path . '/signal', ['type' => 'offer', 'sdp' => 'v=0']));
+        $this->assertSame(0, PresentationEvent::query()->count());
+    }
+
+    #[Test]
+    public function viewer_cannot_send_offers(): void
+    {
+        [$teacher, , , $path, $a] = $this->directShare();
+        $this->as($a['user'], ['training.view']);
+
+        $this->assertStatus(422, $this->postJson($path . '/signal', ['type' => 'offer', 'sdp' => 'v=0']));
+        $this->assertStatus(422, $this->postJson($path . '/signal', ['type' => 'full']));
+        $this->assertStatus(422, $this->postJson($path . '/signal', ['type' => 'script']));
+        $this->assertOk($this->postJson($path . '/signal', ['type' => 'ready']));
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertStatus(422, $this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'answer', 'sdp' => 'v=0']));
+        $this->assertSame(1, PresentationEvent::query()->count());
+    }
+
+    #[Test]
+    public function signals_need_direct_screen(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $a = $this->learnerIn($course);
+        $this->get($path . '/state');
+        $this->assertStatus(409, $this->postJson($path . '/signal', ['type' => 'ready']));
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->console([$this->liveKey()]);
+        $this->postJson($path . '/screen');
+        $this->assertStatus(409, $this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'offer', 'sdp' => 'v=0']));
+        $this->assertSame(0, PresentationEvent::query()->count());
+    }
+
+    #[Test]
+    public function leaving_screen_clears_the_room(): void
+    {
+        [, , $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->console([$this->liveKey()]);
+        $this->postJson($path . '/screen');
+        $this->assertNotNull($this->live($session)->screen_room);
+
+        $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'pause', 'events' => []]));
+        $p = $this->live($session);
+        $this->assertSame(['pause', null, null], [$p->mode, $p->screen_via, $p->screen_room]);
+        $this->assertSame(2, $p->version);
+        $this->assertNull($this->assertJsonResponse($this->get($path . '/state'))['screen']);
+
+        $this->postJson($path . '/screen');
+        $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'slides', 'events' => []]));
+        $p = $this->live($session);
+        $this->assertSame(['slides', null], [$p->mode, $p->screen_via]);
+    }
+
+    #[Test]
+    public function handover_and_end_leave_screen_mode(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $instructor = $this->instructor($course);
+        $this->postJson($path . '/screen');
+        $this->postJson($path . '/handover', ['user_id' => $instructor['user']]);
+
+        $this->as($instructor['user'], ['training.teach']);
+        $this->assertOk($this->postJson($path . '/handover/accept'));
+        $p = $this->live($session);
+        $this->assertSame(['slides', null], [$p->mode, $p->screen_via]);
+
+        $this->postJson($path . '/screen');
+        $this->assertSame('screen', $this->live($session)->mode);
+        $this->post($path . '/end');
+        $p = Presentation::query()->where('session_id', $session->id)->latest('id')->firstOrFail();
+        $this->assertNotNull($p->ended_at);
+        $this->assertSame(['slides', null], [$p->mode, $p->screen_via]);
+        $this->assertSame($instructor['user'], $p->presenter_id);
+        $this->assertNotSame($teacher['user'], $p->presenter_id);
+    }
+
+    #[Test]
+    public function signals_expire_after_a_minute(): void
+    {
+        [, , , $path, $a] = $this->directShare();
+        $this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'offer', 'sdp' => 'v=0']);
+        PresentationEvent::query()->where('kind', 'signal')->update(['created_at' => Carbon::now()->subSeconds(61)]);
+
+        $this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'bye']);
+        $types = PresentationEvent::query()->pluck('data')->map(static fn ($d) => json_decode((string) $d, true)['type'])->all();
+        $this->assertSame(['bye'], $types);
+        PresentationEvent::query()->update(['created_at' => Carbon::now()->subSeconds(61)]);
+        $this->postJson($path . '/events', ['page_count' => 3, 'events' => [$this->stroke(1)]]);
+        $this->assertSame(['begin'], PresentationEvent::query()->pluck('kind')->all());
+    }
+
+    #[Test]
+    public function state_tells_the_screen_path(): void
+    {
+        [, , , $path, $a, $b] = $this->directShare();
+        $host = $this->assertJsonResponse($this->get($path . '/state'));
+        $this->assertSame(['via' => 'direct'], $host['screen']);
+        $this->assertSame('screen', $host['mode']);
+        $this->assertEqualsCanonicalizing([$a['user'], $b['user']], array_column($host['viewers'], 'id'));
+
+        $this->as($a['user'], ['training.view']);
+        $follow = $this->assertJsonResponse($this->get($path . '/state'));
+        $this->assertSame(['via' => 'direct'], $follow['screen']);
+        $this->assertArrayNotHasKey('viewers', $follow);
+    }
+
+    #[Test]
+    public function signals_stop_at_twenty_a_minute(): void
+    {
+        [$teacher, , , $path, $a, $b] = $this->directShare();
+        $this->as($a['user'], ['training.view']);
+        for ($i = 0; $i < 20; $i++) {
+            $this->assertOk($this->postJson($path . '/signal', ['type' => 'ready']));
+        }
+        $refused = $this->postJson($path . '/signal', ['type' => 'ready']);
+        $this->assertStatus(429, $refused);
+        $this->assertSame('too_many_signals', $this->assertJsonResponse($refused)['error']);
+        $this->assertSame(20, PresentationEvent::query()->count());
+
+        // Andere Absender und andere Empfänger zählen für sich.
+        $this->as($b['user'], ['training.view']);
+        $this->assertOk($this->postJson($path . '/signal', ['type' => 'ready']));
+        $this->as($teacher['user'], ['training.teach']);
+        for ($i = 0; $i < 20; $i++) {
+            $this->assertOk($this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'full']));
+        }
+        $this->assertStatus(429, $this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'full']));
+        $this->assertOk($this->postJson($path . '/signal', ['to' => $b['user'], 'type' => 'full']));
+
+        // Nach einer Minute geht es wieder.
+        PresentationEvent::query()->update(['created_at' => Carbon::now()->subSeconds(61)]);
+        $this->as($a['user'], ['training.view']);
+        $this->assertOk($this->postJson($path . '/signal', ['type' => 'ready']));
+    }
+
+    #[Test]
+    public function livekit_name_stays_within_fifty(): void
+    {
+        [$teacher, , , $path] = $this->talk();
+        $this->post($path . '/start');
+        User::query()->whereKey($teacher['user'])->update(['aktenid' => null, 'username' => str_repeat('Ä', 60) . "\u{1F600}"]);
+        $this->console([$this->liveKey()]);
+
+        $this->postJson($path . '/screen');
+        $this->assertSame(str_repeat('Ä', 50), $this->sentBody(0)['name']);
+    }
+
+    #[Test]
+    public function both_views_carry_the_screen_path(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $viewer = $this->learnerIn($course);
+
+        foreach ([[$teacher['user'], 'training.teach', 'data-role="present"'], [$viewer['user'], 'training.view', 'data-role="follow"']] as [$user, $permission, $role]) {
+            $this->as($user, [$permission]);
+            AiDrafts::useClient(null);
+            $page = $this->get($path);
+            $this->assertBodyContains($role, $page);
+            $this->assertBodyContains('data-screen-via="direct"', $page);
+            $this->assertBodyContains('data-livekit="', $page);
+            $this->assertBodyContains('plugins/training/assets/dist/livekit/livekit-client.esm.mjs', $page);
+            $this->assertBodyContains('<video data-live-video playsinline autoplay muted>', $page);
+            $this->console([]);
+            $page = $this->get($path);
+            $this->assertBodyContains('data-screen-via="livekit"', $page);
+        }
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertBodyContains('data-live-mode="screen"', $this->get($path));
     }
 }

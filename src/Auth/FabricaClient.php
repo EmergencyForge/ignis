@@ -163,7 +163,7 @@ final class FabricaClient
      */
     public function aiState(): array
     {
-        $data = $this->ai('GET', '', null, 5);
+        $data = $this->instance('GET', '/ai', null, 5);
 
         return [
             'available'      => ($data['available'] ?? null) === true,
@@ -184,7 +184,7 @@ final class FabricaClient
     public function aiQuestions(array $request): array
     {
         // Ein Durchgang über ein dickes Skript dauert gut eine Minute.
-        $data = $this->ai('POST', '/questions', $request, 240);
+        $data = $this->instance('POST', '/ai/questions', $request, 240);
 
         return [
             'questions'      => array_values(array_filter((array) ($data['questions'] ?? []), 'is_array')),
@@ -195,13 +195,35 @@ final class FabricaClient
     }
 
     /**
+     * Raum-Schlüssel für Bildschirm teilen über LiveKit. Die Rechte je Rolle
+     * legt die Konsole fest, ignis sagt nur, ob es der Host ist. Der Name ist
+     * auf 50 Zeichen gekürzt, weil die Konsole bis 100 UTF-16-Einheiten nimmt
+     * und ein Zeichen außerhalb der BMP zwei davon belegt.
+     *
+     * @return array{url:string, token:string}
+     */
+    public function liveToken(string $room, string $identity, string $name, bool $host): array
+    {
+        $data = $this->instance('POST', '/livekit/token', [
+            'room' => $room, 'identity' => $identity, 'name' => mb_substr($name, 0, 50), 'role' => $host ? 'host' : 'viewer',
+        ], 5);
+        $url   = $data['url'] ?? null;
+        $token = $data['token'] ?? null;
+        if (!is_string($url) || $url === '' || !is_string($token) || $token === '') {
+            throw new RuntimeException('Die EmergencyForge-Konsole hat keinen Raum-Schlüssel geliefert.');
+        }
+
+        return ['url' => $url, 'token' => $token];
+    }
+
+    /**
      * @param array<string,mixed>|null $body
      * @return array<string,mixed>
      */
-    private function ai(string $method, string $path, ?array $body, int $timeout): array
+    private function instance(string $method, string $path, ?array $body, int $timeout): array
     {
         try {
-            $response = $this->http->request($method, $this->origin . '/api/instance/ai' . $path, [
+            $response = $this->http->request($method, $this->origin . '/api/instance' . $path, [
                 'headers' => ['Authorization' => 'Bearer ' . $this->credential, 'Accept' => 'application/json'],
                 ...($body !== null ? ['json' => $body] : []),
                 'timeout' => $timeout, 'connect_timeout' => 3, 'allow_redirects' => false,

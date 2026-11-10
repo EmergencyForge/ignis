@@ -14,11 +14,14 @@
  * @var list<array{id: int, name: string, initials: string, role: string}> $targets  nur present
  */
 
+use Plugin\Training\AiDrafts;
 use Plugin\Training\Presentations;
 
 $liveHost    = Presentations::identity($presentation->presenter()->with('mitarbeiter')->first());
 $livePresent = $liveRole === 'present';
 $liveElapsed = max(0, time() - $presentation->started_at->getTimestamp());
+// Mit EF Sync geht das Teilen über LiveKit; fällt die Konsole aus, zeigt sich das erst beim Start.
+$liveKit     = AiDrafts::client() !== null;
 $e           = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
 ob_start();
 ?>
@@ -32,6 +35,8 @@ ob_start();
          data-pdfjs="<?= $e(asset('assets/dist/pdfjs/pdf.min.mjs')) ?>"
          data-pdfjs-worker="<?= $e(asset('assets/dist/pdfjs/pdf.worker.min.mjs')) ?>"
          data-user="<?= (int) $userId ?>"
+         data-screen-via="<?= $liveKit ? 'livekit' : 'direct' ?>"
+         data-livekit="<?= $e(asset('plugins/training/assets/dist/livekit/livekit-client.esm.mjs')) ?>"
          data-elapsed="<?= $liveElapsed ?>">
     <header class="tr-live__bar">
         <?php if (!$livePresent): ?>
@@ -45,6 +50,7 @@ ob_start();
         <?php if ($livePresent): ?>
             <div class="ignis-segmented ignis-segmented--sm" role="group" aria-label="Anzeige">
                 <button type="button" data-live-mode="slides" aria-pressed="true"><i class="fa-solid fa-images" aria-hidden="true"></i> Folien</button>
+                <button type="button" data-live-mode="screen" aria-pressed="false" data-ignis-tooltip="<?= $liveKit ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15' ?>"><i class="fa-solid fa-display" aria-hidden="true"></i> Bildschirm</button>
                 <button type="button" data-live-mode="pause" aria-pressed="false"><i class="fa-solid fa-mug-hot" aria-hidden="true"></i> Pause</button>
             </div>
             <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-handover aria-expanded="false"><i class="fa-solid fa-right-left" aria-hidden="true"></i> <span>Weiterreichen</span></button>
