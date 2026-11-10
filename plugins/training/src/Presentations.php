@@ -99,19 +99,30 @@ final class Presentations
     }
 
     /**
-     * Anwesenheitsvorschlag eines beendeten Vortrags je Teilnahme. Die Zuschauzeit
-     * wird hier erneut gekappt, denn ein später Abruf kann nach dem Ende noch zählen.
+     * Anwesenheitsvorschlag je Teilnahme über alle Läufe eines Termins, damit ein
+     * neu gestarteter Vortrag die Zeit des abgebrochenen nicht verdrängt. Die
+     * Zuschauzeit wird je Lauf gekappt, denn ein später Abruf kann nach dem Ende
+     * noch zählen; die Minutenregel gilt einmal auf die Summen.
      *
+     * @param iterable<Presentation> $runs beendete Läufe eines Termins, Zuschauer vorab geladen
      * @return array{minutes:int, need:int, viewers: array<int, array{minutes:int, suggested:bool}>}
      */
-    public static function suggestions(Presentation $p): array
+    public static function suggestions(iterable $runs): array
     {
-        $seconds = $p->talkSeconds();
-        $base    = AttendanceRule::wholeMinutes($seconds, 0);
-        $out     = ['minutes' => $base['minutes'], 'need' => $base['need'], 'viewers' => []];
-        foreach ($p->viewers->whereNotNull('participation_id') as $viewer) {
-            $r = AttendanceRule::wholeMinutes($seconds, $viewer->seconds_watched);
-            $out['viewers'][$viewer->participation_id] = ['minutes' => $r['watched'], 'suggested' => $r['suggested']];
+        $seconds = 0;
+        $watched = [];
+        foreach ($runs as $p) {
+            $talk     = $p->talkSeconds();
+            $seconds += $talk;
+            foreach ($p->viewers->whereNotNull('participation_id') as $viewer) {
+                $watched[$viewer->participation_id] = ($watched[$viewer->participation_id] ?? 0) + min($viewer->seconds_watched, $talk);
+            }
+        }
+        $base = AttendanceRule::wholeMinutes($seconds, 0);
+        $out  = ['minutes' => $base['minutes'], 'need' => $base['need'], 'viewers' => []];
+        foreach ($watched as $participationId => $sum) {
+            $r = AttendanceRule::wholeMinutes($seconds, $sum);
+            $out['viewers'][$participationId] = ['minutes' => $r['watched'], 'suggested' => $r['suggested']];
         }
 
         return $out;

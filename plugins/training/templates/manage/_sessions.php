@@ -16,7 +16,7 @@
  * @var bool                                        $calendar
  * @var string                                      $manageUrl
  * @var array<int, \Plugin\Training\Models\Presentation> $lives  laufender Vortrag je Termin
- * @var array<int, array{minutes:int, need:int, viewers: array<int, array{minutes:int, suggested:bool}>}> $talks  letzter beendeter Vortrag je Termin
+ * @var array<int, array{minutes:int, need:int, viewers: array<int, array{minutes:int, suggested:bool}>}> $talks  alle beendeten Vorträge je Termin zusammen
  * @var int                                         $userId
  */
 

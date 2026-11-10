@@ -14,7 +14,6 @@ use EmergencyForge\Training\CourseTitle;
 use EmergencyForge\Training\MaterialType;
 use EmergencyForge\Training\ParticipationStatus;
 use EmergencyForge\Training\UnitKind;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Carbon;
 use Plugin\Training\Completion\CompletionTable;
 use Plugin\Training\Completions;
@@ -173,14 +172,14 @@ final class ManageController extends BaseController
                 $lives[$session->id] = $live;
             }
         }
-        // Der jeweils letzte beendete Vortrag je Termin in einer Abfrage.
-        $talks = [];
-        $lastIds = Capsule::table('intra_training_presentations')->whereNotNull('ended_at')->whereIn('session_id', array_map(static fn (Session $s): int => $s->id, $sessions))
-            ->groupBy('session_id')->selectRaw('MAX(id) AS id')->pluck('id')->all();
-        $last = Presentation::query()->with('viewers')->findMany($lastIds);
-        foreach ($last as $talk) {
-            $talks[$talk->session_id] = Presentations::suggestions($talk);
+        // Alle beendeten Vorträge je Termin zählen zusammen, sonst verdrängt ein Neustart die Zeit des abgebrochenen Laufs.
+        /** @var list<Presentation> $ended */
+        $ended = Presentation::query()->with('viewers')->whereNotNull('ended_at')->whereIn('session_id', array_map(static fn (Session $s): int => $s->id, $sessions))->get()->all();
+        $runs  = [];
+        foreach ($ended as $talk) {
+            $runs[$talk->session_id][] = $talk;
         }
+        $talks = array_map(Presentations::suggestions(...), $runs);
 
         $joined    = array_filter(array_map(static fn (Participation $p): ?int => $p->personnel_id, $participations));
         $personnel = Personnel::query()->whereNotIn('id', $joined)->orderBy('fullname')->get(['id', 'fullname'])->all();

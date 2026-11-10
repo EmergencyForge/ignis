@@ -1100,6 +1100,22 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function attendance_adds_up_all_runs_of_a_session(): void
+    {
+        [$teacher, $course, $session] = $this->talk();
+        $own = $this->admit($course, $this->account()['personnel']);
+        // Abgebrochener erster Lauf und Neustart: einzeln reicht keiner, zusammen schon.
+        $this->endedTalk($session, $teacher['user'], 10 * 60, [$own->id => 6 * 60]);
+        $this->endedTalk($session, $teacher['user'], 20 * 60, [$own->id => 9 * 60]);
+
+        $response = $this->get('/training/manage/' . $course->id);
+
+        $this->assertBodyContains('Vortrag lief 30 Minuten. Vorgeschlagen wird, wer mindestens 15 Minuten dabei war.', $response);
+        $this->assertBodyContains('15 von 30 Min.', $response);
+        $this->assertSame(1, substr_count($response->body, '</i> anwesend</span>'));
+    }
+
+    #[Test]
     public function short_talk_shows_under_one_minute(): void
     {
         [$teacher, $course, $session] = $this->talk();
@@ -1127,7 +1143,7 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertRedirect($this->post($path . '/end'));
 
         $this->assertSame(0, Capsule::table('intra_training_attendance')->count());
-        $this->assertTrue(Presentations::suggestions($this->live($session))['viewers'][$own->id]['suggested']);
+        $this->assertTrue(Presentations::suggestions([$this->live($session)])['viewers'][$own->id]['suggested']);
     }
 
     #[Test]
