@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property float|string|null $result_percent
  * @property string|null $grade
  * @property Carbon|null $expires_on
+ * @property Carbon|null $expiry_notified_at
  * @property-read Course         $course
  * @property-read Personnel|null $personnel
  *
@@ -49,6 +50,7 @@ class Participation extends EloquentModel
         'admitted_at'       => 'datetime',
         'finished_at'       => 'datetime',
         'expires_on'        => 'date',
+        'expiry_notified_at' => 'datetime',
     ];
 
     /** Status, in denen die Unterlagen offen sind. */

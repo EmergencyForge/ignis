@@ -88,17 +88,20 @@ abstract class BaseController extends Controller
      */
     protected static function deliver(TrainingFile $file, bool $download): Response
     {
-        $path = (new FileStore())->path($file);
-        $body = $path !== null ? file_get_contents($path) : false;
+        // Angezeigt wird die umgewandelte PDF, heruntergeladen immer das Original.
+        $converted = !$download && !$file->isPdf() && $file->viewsAsPdf();
+        $store     = new FileStore();
+        $path      = $converted ? $store->pdfPath($file) : $store->path($file);
+        $body      = $path !== null ? file_get_contents($path) : false;
         if ($body === false) {
             return Response::text('Die Datei wurde nicht gefunden.', 404)->withHeader('Cache-Control', 'private, no-store');
         }
-        $inline = !$download && ($file->isPdf() || $file->isImage());
+        $inline = !$download && ($file->viewsAsPdf() || $file->isImage());
 
         return new Response(200, $body, [
-            'Content-Type'           => $file->mime,
+            'Content-Type'           => $converted ? 'application/pdf' : $file->mime,
             'Content-Length'         => (string) strlen($body),
-            'Content-Disposition'    => self::disposition($inline ? 'inline' : 'attachment', $file->original_name),
+            'Content-Disposition'    => self::disposition($inline ? 'inline' : 'attachment', $converted ? pathinfo($file->original_name, PATHINFO_FILENAME) . '.pdf' : $file->original_name),
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control'          => 'private, no-store',
         ]);

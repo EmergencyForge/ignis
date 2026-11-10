@@ -85,6 +85,14 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                                    maxlength="100" placeholder="Urkunde"
                                    value="<?= htmlspecialchars($template->category ?? '') ?>">
                         </div>
+                        <div class="ignis-field" style="flex: 1 1 16rem;">
+                            <input type="hidden" name="print_verification" value="0">
+                            <label class="ignis-checkbox">
+                                <input type="checkbox" name="print_verification" value="1" aria-describedby="template-verification-hint"<?= ($template->print_verification ?? false) ? ' checked' : '' ?>>
+                                <span>Prüfcode aufdrucken</span>
+                            </label>
+                            <p class="ignis-field__hint" id="template-verification-hint">Ausgestellte Dokumente bekommen einen Prüfcode, unten mit QR-Code. Über /verify lässt sich die Echtheit ohne Anmeldung prüfen.</p>
+                        </div>
                     </div>
                 </div>
 

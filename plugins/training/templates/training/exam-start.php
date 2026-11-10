@@ -50,7 +50,7 @@ ob_start();
                     <?php else: ?>
                         <dt>Ablauf</dt><dd>Ein Prüfer bewertet dich vor Ort mit einem Bogen.</dd>
                     <?php endif; ?>
-                    <dt>Bestanden ab</dt><dd><?= htmlspecialchars(Exams::number($settings->passPercent)) ?> % der Punkte<?= $settings->knockouts !== [] ? '; die mit K.-o. markierten Fragen müssen richtig sein' : '' ?></dd>
+                    <dt>Bestanden ab</dt><dd><?= htmlspecialchars(Exams::number($settings->passPercent)) ?> % der Punkte<?= $settings->knockouts !== [] ? '; Fragen mit „Muss stimmen“ müssen vollständig richtig sein' : '' ?></dd>
                     <dt>Versuche</dt><dd><?= $used + $state->remaining ?><?= $used === 0 ? ', dies ist der erste' : ', ' . $used . ' davon genutzt' ?></dd>
                 </dl>
 

@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Documents\Editor;
 
+use App\Helpers\ProtocolDetection;
 use App\Logging\Logger;
 use App\Models\EditorDocument;
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use EmergencyForge\Editor\Layout;
 use EmergencyForge\Editor\Migration\SectionsToPackage;
+use EmergencyForge\Editor\Package;
 use EmergencyForge\Editor\PageShell;
+use EmergencyForge\Training\VerificationCode;
 use RuntimeException;
 
 /**
@@ -42,6 +49,10 @@ final class PdfGenerator
     th { background: #eeeeee; font-weight: bold; text-align: left; }
     CSS;
 
+    /** Prüfcode-Streifen: so viel mm wächst der untere Rand, so groß ist der QR-Code. */
+    private const STRIP   = 16;
+    private const QR_SIZE = 12;
+
     /**
      * Rendert und speichert; liefert den Pfad relativ zum Projektordner,
      * wie er in `pdf_path` steht.
@@ -54,13 +65,18 @@ final class PdfGenerator
         // eine Urkunde. Ausgestellt wird so etwas erst nach Rückfrage
         // (DocumentIssuer::issue()).
         $package = SectionsToPackage::convert($document->content);
-        $shell   = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
+        $code    = $document->verification_code;
+        if ($code !== null) {
+            $package = self::reserveStrip(Package::normalize($package));
+        }
+        $shell = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
 
         if ($shell->error) {
             throw new RuntimeException(
                 'Dokument "' . $document->docid . '" konnte nicht sicher gerendert werden. Ausstellen abgebrochen.',
             );
         }
+        $html = $code !== null ? self::withStrip($shell->html, $code, $package['layout']['firstPageDifferent'] === true) : $shell->html;
 
         foreach ($shell->warnings as $warning) {
             Logger::warning('Dokument ' . $document->docid . ': ' . $warning);
@@ -68,7 +84,7 @@ final class PdfGenerator
 
         $options = $this->options();
         // Zwei Läufe, wenn das Dokument die Gesamtseitenzahl zeigt.
-        $pdf = PageShell::render($shell->html, static function (string $html) use ($options, $shell): array {
+        $pdf = PageShell::render($html, static function (string $html) use ($options, $shell): array {
             $dompdf = new Dompdf($options);
             $dompdf->setCallbacks(PageShell::callbacks());
             $dompdf->loadHtml($html, 'UTF-8');
@@ -130,6 +146,76 @@ final class PdfGenerator
         $contents = file_get_contents($real);
 
         return $contents === false ? null : $contents;
+    }
+
+    /**
+     * Macht das Fußband um den Streifen höher, damit er und die Fußzeile
+     * der Vorlage zusammen hineinpassen. Das Band reicht vom Inhalt bis zum
+     * Fußabstand über der Kante; was der Rand über 80 mm nicht hergibt,
+     * kommt aus dem Fußabstand.
+     *
+     * @param array<string,mixed> $package normalisiertes Paket
+     * @return array<string,mixed>
+     */
+    private static function reserveStrip(array $package): array
+    {
+        $short = 0;
+        foreach (['margins', 'firstPageMargins'] as $key) {
+            if (is_array($package['layout'][$key] ?? null)) {
+                $bottom = $package['layout'][$key]['bottom'];
+                $grown  = min(Layout::MARGIN_MAX, $bottom + self::STRIP);
+                $short  = max($short, self::STRIP - ($grown - $bottom));
+                $package['layout'][$key]['bottom'] = $grown;
+            }
+        }
+        $package['layout']['footerDistance'] = max(Layout::DISTANCE_MIN, $package['layout']['footerDistance'] - $short);
+
+        return $package;
+    }
+
+    /**
+     * Setzt den Streifen oben in die Fußbänder von PageShell, also direkt
+     * unter den Inhalt und über die Fußzeile der Vorlage. Hat die Vorlage
+     * keine Fußzeile, entsteht ein Band nur für den Streifen.
+     */
+    private static function withStrip(string $html, string $code, bool $firstPageDifferent): string
+    {
+        $strip = self::verificationStrip($code);
+        foreach ($firstPageDifferent ? ['efe-foot-first', 'efe-foot-rest'] : ['efe-foot-rest'] as $id) {
+            $open = '<div id="' . $id . '" class="efe-band efe-band--foot">';
+            $html = str_contains($html, $open)
+                ? str_replace($open, $open . $strip, $html)
+                : str_replace('<div class="efe-body">', $open . $strip . '</div><div class="efe-body">', $html);
+        }
+        // Ändert PageShell sein Gerüst, soll das Ausstellen scheitern statt ohne Prüfcode zu drucken.
+        if (!str_contains($html, $strip)) {
+            throw new RuntimeException('Der Prüfcode ließ sich nicht in den Fuß setzen.');
+        }
+
+        return $html;
+    }
+
+    /** QR-Code auf die Prüfseite, daneben Code und Adresse zum Abtippen. */
+    private static function verificationStrip(string $code): string
+    {
+        $qr = (new QRCode(new QROptions([
+            'eccLevel'         => EccLevel::M,
+            'drawLightModules' => false,
+            'connectPaths'     => true,
+            'quietzoneSize'    => 0,
+        ])))->render(ProtocolDetection::buildPublicUrl('verify?code=' . $code));
+        $address = (string) preg_replace('#^https?://#', '', ProtocolDetection::buildPublicUrl('verify'));
+
+        return sprintf(
+            '<div style="height: %2$dmm; margin: %1$dmm 0 %1$dmm; font-size: 7pt; font-style: normal; line-height: 1.4; text-align: left; color: #5b6478;">'
+            . '<img src="%3$s" alt="" style="width: %2$dmm; height: %2$dmm; float: left; margin-right: 3mm;">'
+            . '<div style="padding-top: 3mm;">Echtheit prüfen: <b style="color: #1a1a1a; font-family: \'DejaVu Sans Mono\', monospace; font-size: 8pt;">%4$s</b><br>%5$s</div></div>',
+            (self::STRIP - self::QR_SIZE) / 2,
+            self::QR_SIZE,
+            htmlspecialchars($qr),
+            htmlspecialchars(VerificationCode::format($code)),
+            htmlspecialchars($address),
+        );
     }
 
     private function options(): Options

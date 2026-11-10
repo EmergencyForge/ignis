@@ -401,6 +401,15 @@ $router->get(
     [\App\Http\Controllers\EditorDocumentController::class, 'pdf'],
     [new AuthMiddleware()],
 );
+$router->post(
+    '/documents/{id:\d+}/revoke',
+    [\App\Http\Controllers\EditorDocumentController::class, 'revoke'],
+    [new AuthMiddleware()],
+);
+
+// Echtheitsprüfung von Urkunden, öffentlich.
+$router->get('/verify', [\App\Http\Controllers\VerifyController::class, 'show']);
+$router->get('/verify/pdf', [\App\Http\Controllers\VerifyController::class, 'pdf']);
 
 // Fahrzeuge-Settings (Fahrzeuge + Beladelisten + Defekte)
 $router->get('/settings/vehicles/vehicles/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'index'],   $settingsAuth);

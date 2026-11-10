@@ -80,7 +80,7 @@ ob_start();
                                 'Frage ' . ($p + 1),
                                 $question->type->label(),
                                 Exams::number($question->points) . ($question->points == 1 ? ' Punkt' : ' Punkte'),
-                                in_array($question->id, $knockouts, true) ? 'K.-o.' : null,
+                                in_array($question->id, $knockouts, true) ? 'muss stimmen' : null,
                                 $row->needs_review && $question->type === QuestionType::ShortAnswer ? 'automatisch nicht erkannt' : null,
                             ]);
                             $solution = View::solutionText($question);

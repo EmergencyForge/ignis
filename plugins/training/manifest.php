@@ -11,7 +11,7 @@
 return [
     'id'              => 'training',
     'name'            => 'Ausbildung',
-    'version'         => '0.3.0',
+    'version'         => '0.4.0',
     'vendor'          => 'EmergencyForge',
     'requires'        => ['ignis' => '>=2026.0.6-beta'],
     'depends'         => [],

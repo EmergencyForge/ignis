@@ -10,7 +10,9 @@ use App\Documents\Editor\DocumentNotIssued;
 use App\Documents\Editor\FieldChoices;
 use App\Documents\Editor\PdfGenerator;
 use App\Documents\Editor\VariableCatalog;
+use App\Auth\Gate;
 use App\Helpers\Flash;
+use App\Helpers\UserHelper;
 use App\Http\Requests\Documents\SaveDocumentRequest;
 use App\Logging\Logger;
 use App\Models\EditorDocument;
@@ -18,6 +20,7 @@ use App\Models\EditorTemplate;
 use App\Models\EditorTemplateVersion;
 use App\Models\Personnel;
 use App\Personnel\AccountLink;
+use App\Personnel\PersonalLogManager;
 use App\Policies\DocumentPolicy;
 use App\Session\SessionManager;
 use App\Utils\AuditLogger;
@@ -352,7 +355,79 @@ final class EditorDocumentController extends Controller
             $this->redirect('documents/' . $document->id . '/edit');
         }
 
-        $this->renderView('documents/show', ['document' => $document]);
+        $canRevoke = $document->verification_code !== null && !$document->isRevoked() && Gate::allows('document.revoke');
+        $this->renderView('documents/show', [
+            'document'      => $document->load('revoker'),
+            'canRevoke'     => $canRevoke,
+            'qualification' => $canRevoke ? self::certificateQualification($document) : null,
+        ]);
+    }
+
+    /**
+     * POST /documents/{id}/revoke: die Urkunde gilt nicht mehr. Das PDF
+     * bleibt, /verify meldet ab jetzt „Widerrufen am …“.
+     */
+    public function revoke(Request $request, string $id): void
+    {
+        $this->requireAuth();
+        $this->ensure('document.revoke', null, 'documents/' . (int) $id);
+
+        $document = $this->findOrRedirect((int) $id, ['mitarbeiter']);
+        $back     = 'documents/' . $document->id;
+        $reason   = trim((string) ($request->post['reason'] ?? ''));
+        if ($document->verification_code === null || !$document->isIssued()) {
+            Flash::error('Nur ausgestellte Dokumente mit Prüfcode lassen sich widerrufen.');
+            $this->redirect($back);
+        }
+        if ($reason === '' || mb_strlen($reason) > 500) {
+            Flash::error('Bitte gib eine Begründung an (höchstens 500 Zeichen).');
+            $this->redirect($back);
+        }
+
+        $editor        = (new UserHelper())->getCurrentUserFullnameForAction();
+        $qualification = ($request->post['revoke_qualification'] ?? '') === '1' ? self::certificateQualification($document) : null;
+        if ($qualification?->blocked !== null) {
+            $qualification = null;
+        }
+        $revoked      = Capsule::connection()->transaction(static function () use ($document, $reason, $qualification, $editor): bool {
+            $affected = Capsule::table('intra_documents')->where('id', $document->id)->whereNull('revoked_at')->update([
+                'revoked_at'    => date('Y-m-d H:i:s'),
+                'revoked_by'    => SessionManager::userId(),
+                'revoke_reason' => $reason,
+            ]);
+            if ($affected === 0) {
+                return false;
+            }
+            $qualification?->withdraw($editor);
+
+            return true;
+        });
+        if (!$revoked) {
+            Flash::error('Dieses Dokument wurde bereits widerrufen.');
+            $this->redirect($back);
+        }
+
+        $withdrawn = $qualification !== null ? ' Qualifikation ' . $qualification->name . ' entzogen.' : '';
+        if ($document->mitarbeiter !== null) {
+            (new PersonalLogManager())->addEntry(
+                (int) $document->mitarbeiter_id,
+                PersonalLogManager::TYPE_DOCUMENT,
+                sprintf('Dokument <a href="%s">%s</a> (%s) wurde widerrufen: %s', htmlspecialchars(BASE_PATH . $back), htmlspecialchars($document->title), htmlspecialchars($document->docid), htmlspecialchars($reason)) . htmlspecialchars($withdrawn),
+                $editor,
+                ['change_type' => 'document_revoked', 'document_id' => (int) $document->id, 'docid' => $document->docid],
+            );
+        }
+        $this->audit('Dokument widerrufen', $document, ', Grund: ' . $reason . $withdrawn);
+        Flash::success('Dokument „' . $document->title . '“ wurde widerrufen.' . $withdrawn);
+        $this->redirect($back);
+    }
+
+    /** Was der Lehrgang zu dieser Urkunde eingetragen hat, nur mit Ausbildungs-Plugin. */
+    private static function certificateQualification(EditorDocument $document): ?\Plugin\Training\CertificateQualification
+    {
+        return class_exists(\Plugin\Training\CertificateQualification::class)
+            ? \Plugin\Training\CertificateQualification::forDocument((int) $document->id)
+            : null;
     }
 
     /**

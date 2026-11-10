@@ -66,8 +66,13 @@ final class FileStore
         $file = $replace ?? new TrainingFile();
         if ($replace !== null) {
             $this->unlink($replace->storage_name);
+            if ($replace->pdf_storage_name !== null) {
+                $this->unlink($replace->pdf_storage_name);
+            }
             $file->version = $replace->version + 1;
         }
+        $file->pdf_storage_name = null;
+        $file->convert_status   = $type->mime === Converter::PPTX ? Converter::PENDING : null;
         $file->storage_name  = $name;
         $file->original_name = self::cleanName(is_string($upload['name'] ?? null) ? $upload['name'] : '', $type->extension);
         $file->mime          = $type->mime;
@@ -81,8 +86,32 @@ final class FileStore
     /** Pfad auf der Platte, oder null wenn die Datei fehlt. */
     public function path(TrainingFile $file): ?string
     {
+        return $this->resolve($file->storage_name);
+    }
+
+    /** Die umgewandelte PDF einer Office-Datei, sonst null. */
+    public function pdfPath(TrainingFile $file): ?string
+    {
+        return $file->pdf_storage_name !== null ? $this->resolve($file->pdf_storage_name) : null;
+    }
+
+    /** Legt die umgewandelte PDF neben die Datei und vermerkt sie. */
+    public function attachPdf(TrainingFile $file, string $pdf): void
+    {
+        $name = bin2hex(random_bytes(16)) . '.pdf';
+        if (!@rename($pdf, $this->dir . '/' . $name) && !(@copy($pdf, $this->dir . '/' . $name))) {
+            throw new RuntimeException('PDF konnte nicht abgelegt werden.');
+        }
+        if ($file->pdf_storage_name !== null) {
+            $this->unlink($file->pdf_storage_name);
+        }
+        $file->pdf_storage_name = $name;
+    }
+
+    private function resolve(string $storageName): ?string
+    {
         $base = realpath($this->dir);
-        $path = realpath($this->dir . '/' . basename($file->storage_name));
+        $path = realpath($this->dir . '/' . basename($storageName));
         if ($base === false || $path === false || !str_starts_with($path, $base . DIRECTORY_SEPARATOR)) {
             return null;
         }
@@ -93,6 +122,9 @@ final class FileStore
     public function delete(TrainingFile $file): void
     {
         $this->unlink($file->storage_name);
+        if ($file->pdf_storage_name !== null) {
+            $this->unlink($file->pdf_storage_name);
+        }
         $file->delete();
     }
 

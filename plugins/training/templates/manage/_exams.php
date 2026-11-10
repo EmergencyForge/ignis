@@ -35,7 +35,7 @@ $ownId   = \App\Personnel\AccountLink::currentId();
             } else {
                 $criteria = $sheet !== null ? array_sum(array_map(static fn (array $g): int => count($g['criteria']), $sheet->groups)) : 0;
                 $ko       = $sheet !== null ? array_sum(array_map(static fn (array $g): int => count(array_filter($g['criteria'], static fn (array $c): bool => $c['knockout'])), $sheet->groups)) : 0;
-                $facts    = ['Bewertungsbogen', $criteria . ' Kriterien' . ($ko > 0 ? ', ' . $ko . ' K.-o.' : '')];
+                $facts    = ['Bewertungsbogen', $criteria . ' Kriterien' . ($ko > 0 ? ', ' . $ko . ($ko === 1 ? ' muss' : ' müssen') . ' erfüllt sein' : '')];
                 if ($settings->cosign) {
                     $facts[] = 'Gegenzeichnung';
                 }

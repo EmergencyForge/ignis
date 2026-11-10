@@ -8,6 +8,7 @@
  * @var \Plugin\Training\Models\Question       $question
  * @var list<\Plugin\Training\Models\Topic>    $topics
  * @var int                                    $usage
+ * @var \EmergencyForge\Training\Exam\QuestionStats|null $stats
  * @var bool                                   $versions  Speichern legt eine neue Version an
  */
 
@@ -31,9 +32,9 @@ $choiceRow = static fn (string $i, string $text, bool $right, bool $multiple): s
     . '<label class="' . ($multiple ? 'ignis-checkbox' : 'ignis-radio') . '"><input type="' . ($multiple ? 'checkbox' : 'radio') . '" name="' . ($multiple ? 'correct[]' : 'correct') . '" value="' . $i . '"' . ($right ? ' checked' : '') . '><span>richtig</span></label>'
     . $remove . '</div>';
 $pairRow = static fn (string $i, string $left, string $right): string => '<div class="tr-answer" data-tr-row>'
-    . '<input type="text" name="pairs[' . $i . '][0]" class="ignis-input" maxlength="300" placeholder="Links" aria-label="Links" value="' . htmlspecialchars($left) . '">'
+    . '<input type="text" name="pairs[' . $i . '][0]" class="ignis-input" maxlength="300" placeholder="Begriff" aria-label="Begriff" value="' . htmlspecialchars($left) . '">'
     . '<i class="fa-solid fa-arrow-right tr-meta" aria-hidden="true"></i>'
-    . '<input type="text" name="pairs[' . $i . '][1]" class="ignis-input" maxlength="300" placeholder="Rechts" aria-label="Rechts" value="' . htmlspecialchars($right) . '">'
+    . '<input type="text" name="pairs[' . $i . '][1]" class="ignis-input" maxlength="300" placeholder="Passende Antwort" aria-label="Passende Antwort" value="' . htmlspecialchars($right) . '">'
     . $remove . '</div>';
 $itemRow = static fn (string $i, string $text): string => '<div class="tr-answer" data-tr-row>'
     . '<span class="tr-meta tr-answer__pos" aria-hidden="true"></span>'
@@ -135,11 +136,12 @@ ob_start();
                                 </div>
                             </fieldset>
                             <fieldset class="tr-spec" data-tr-spec="matching">
-                                <legend class="ignis-field__label">Paare; die rechte Seite wird gemischt</legend>
+                                <legend class="ignis-field__label">Zuordnungen</legend>
+                                <p class="ignis-field__hint">Links der Begriff, rechts die passende Antwort. In der Prüfung werden die Antworten gemischt und müssen den Begriffen zugeordnet werden.</p>
                                 <div data-tr-repeater>
                                     <div data-tr-rows><?= $rows((array) ($specOf(QuestionType::Matching)['pairs'] ?? []), 3, static fn (string $i, mixed $p): string => $pairRow($i, (string) (((array) $p)[0] ?? ''), (string) (((array) $p)[1] ?? ''))) ?></div>
                                     <template data-tr-template data-placeholder="__i__"><?= $pairRow('__i__', '', '') ?></template>
-                                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm mt-2" data-tr-add><i class="fa-solid fa-plus" aria-hidden="true"></i> Paar</button>
+                                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm mt-2" data-tr-add><i class="fa-solid fa-plus" aria-hidden="true"></i> Zuordnung</button>
                                 </div>
                             </fieldset>
                             <fieldset class="tr-spec" data-tr-spec="ordering">
@@ -224,6 +226,31 @@ ob_start();
                                 <button type="submit" form="question-delete" class="ignis-btn ignis-btn--ghost-danger ignis-btn--block"><i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen</button>
                             <?php endif; ?>
                         </div>
+                        <?php if ($stats !== null): ?>
+                            <?php
+                            $counts  = $stats->choiceCounts();
+                            $options = $kind->specClass() === \EmergencyForge\Training\Question\ChoiceSpec::class ? (array) ($spec['options'] ?? []) : [];
+                            $right   = array_map('intval', (array) ($spec['correct'] ?? []));
+                            $asked   = max(1, $stats->asked());
+                            ?>
+                            <div class="ignis-detail__block">
+                                <h2 class="ignis-detail__group-title">Auswertung</h2>
+                                <p class="ignis-detail__muted mb-2"><?= $stats->asked() ?> Versuche · <?= (int) round(($stats->correctShare() ?? 0) * 100) ?> % richtig</p>
+                                <?php if ($options !== [] && $counts !== []): ?>
+                                    <p class="ignis-detail__muted mb-2">Wie oft jede Antwort gewählt wurde, nur Version <?= (int) $question->version ?>. Richtige Antworten sind markiert.</p>
+                                    <ul class="tr-dist" aria-label="Gewählte Antworten der aktuellen Version">
+                                        <?php foreach ($options as $index => $label): ?>
+                                            <?php $n = $counts[(string) $index] ?? 0; $isRight = in_array((int) $index, $right, true); ?>
+                                            <li>
+                                                <span class="tr-dist__label"><?php if ($isRight): ?><i class="fa-solid fa-check tr-dist__right" aria-hidden="true"></i><span class="ignis-sr-only">Richtig: </span><?php endif; ?><?= htmlspecialchars((string) $label) ?></span>
+                                                <span class="tr-dist__count"><?= $n ?>×</span>
+                                                <span class="tr-bar tr-dist__bar" aria-hidden="true"><span class="<?= $isRight ? '' : 'is-warn' ?>" style="width: <?= (int) round($n / $asked * 100) ?>%"></span></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </aside>
                 </div>
             </form>

@@ -60,11 +60,11 @@ final class View
                 }
                 $parts[] = $file->label();
                 $pages   = $state['pages'] ?? null;
-                if ($file->isPdf() && is_array($pages) && (int) ($pages['total'] ?? 0) > 0) {
+                if ($file->viewsAsPdf() && is_array($pages) && (int) ($pages['total'] ?? 0) > 0) {
                     $parts[] = ($state['state'] ?? '') === 'done'
                         ? $pages['total'] . ' Seiten'
                         : sprintf('Seite %d von %d gesehen', PageCoverage::fromRanges(is_array($pages['seen'] ?? null) ? $pages['seen'] : [])->seen((int) $pages['total']), (int) $pages['total']);
-                } elseif (!$file->isPdf() && !$file->isImage()) {
+                } elseif (!$file->viewsAsPdf() && !$file->isImage()) {
                     $parts[] = 'zum Herunterladen, ' . $file->sizeLabel();
                 }
                 break;

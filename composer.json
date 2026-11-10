@@ -40,7 +40,8 @@
     "emergencyforge/mail": "^0.1",
     "emergencyforge/list-query": "^0.1",
     "emergencyforge/ui-php": "^1.9",
-    "emergencyforge/training": "^0.2"
+    "emergencyforge/training": "^0.3",
+    "chillerlan/php-qrcode": "^6.0"
   },
   "autoload": {
     "psr-4": {

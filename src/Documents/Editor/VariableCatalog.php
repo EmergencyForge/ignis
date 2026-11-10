@@ -58,6 +58,7 @@ final class VariableCatalog
             'organisation.strasse'         => 'Organisation: Straße',
             'organisation.plz'             => 'Organisation: PLZ',
             'dokument.kennung'             => 'Dokument: Kennung',
+            'dokument.pruefcode'           => 'Dokument: Prüfcode',
             'datum'                        => 'Datum (heute)',
         ] + CertificateVariables::labels();
     }
@@ -135,7 +136,9 @@ final class VariableCatalog
                     ? self::personReason($field, 'In deinem Mitarbeiterdatensatz')
                     : 'Dein Benutzerkonto ist mit keinem Mitarbeiter verknüpft. Das erledigt die Personalverwaltung.',
                 'organisation' => 'In den Systemeinstellungen ist dazu nichts eingetragen.',
-                'dokument'     => 'Das Dokument hat noch keine Kennung.',
+                'dokument'     => $field === 'pruefcode'
+                    ? 'Entsteht beim Ausstellen, wenn an der Vorlage „Prüfcode aufdrucken“ eingeschaltet ist.'
+                    : 'Das Dokument hat noch keine Kennung.',
                 // Gefüllt nur, wenn die Ausbildung das Dokument ausstellt.
                 'lehrgang', 'pruefung', 'qualifikation' => 'Kommt aus dem Abschluss eines Lehrgangs.',
                 default        => 'Dafür ist kein Wert erfasst.',

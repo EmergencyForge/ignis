@@ -84,6 +84,15 @@ final class SecretBox
         return str_starts_with($stored, self::PREFIX);
     }
 
+    /**
+     * Eigener Schlüssel je Zweck aus dem Instanz-Schlüssel, damit ein
+     * HMAC-Schlüssel nie derselbe ist, mit dem verschlüsselt wird.
+     */
+    public static function derive(string $purpose): string
+    {
+        return hash_hmac('sha256', $purpose, self::key(), true);
+    }
+
     /** Vergisst den geladenen Schlüssel (Tests). */
     public static function forget(): void
     {

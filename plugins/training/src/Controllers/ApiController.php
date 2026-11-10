@@ -27,7 +27,7 @@ final class ApiController extends BaseController
         }
         $participation = Participation::query()->where('course_id', $course->id)->where('personnel_id', $pid)->first();
         $unitModel     = Curriculum::for($course)->unit((int) $unit);
-        if ($participation === null || !$participation->canLearn() || $unitModel === null || $unitModel->file?->isPdf() !== true) {
+        if ($participation === null || !$participation->canLearn() || $unitModel === null || $unitModel->file?->viewsAsPdf() !== true) {
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
 

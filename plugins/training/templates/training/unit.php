@@ -60,7 +60,7 @@ ob_start();
                         case UnitKind::File: ?>
                             <?php if ($file === null): ?>
                                 <div class="ignis-card"><div class="ignis-card__body"><p class="m-0">Die Datei fehlt. Sag der Leitung Bescheid.</p></div></div>
-                            <?php elseif ($file->isPdf()): ?>
+                            <?php elseif ($file->viewsAsPdf()): ?>
                                 <div data-ignis-document-viewer
                                      data-src="<?= htmlspecialchars($fileUrl) ?>"
                                      data-pdfjs="<?= htmlspecialchars(asset('assets/dist/pdfjs/pdf.min.mjs')) ?>"
@@ -174,7 +174,7 @@ ob_start();
             </div>
         </div>
     </div>
-    <?php if ($file !== null && $file->isPdf()): ?>
+    <?php if ($file !== null && $file->viewsAsPdf()): ?>
         <script type="module" src="<?= $base ?>assets/js/ui/document-viewer.js"></script>
     <?php endif; ?>
     <script type="module" src="<?= htmlspecialchars(asset('plugins/training/assets/js/training.js')) ?>"></script>

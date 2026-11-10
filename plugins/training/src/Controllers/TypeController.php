@@ -25,6 +25,7 @@ use Plugin\Training\Policies\TrainingPolicy;
 use Plugin\Training\Pool;
 use Plugin\Training\ExamBoard;
 use Plugin\Training\Qualifications;
+use Plugin\Training\QuestionAnalysis;
 
 /** Lehrgangsarten unter /training/types (`training.manage`). */
 final class TypeController extends BaseController
@@ -124,6 +125,7 @@ final class TypeController extends BaseController
             'counts'    => $counts,
             'active'    => $active,
             'usage'     => Pool::usage(array_map(static fn (Question $q): int => $q->id, $questions)),
+            'stats'     => QuestionAnalysis::of($questions),
             'parts'     => ExamBoard::parts($type->id),
         ];
     }

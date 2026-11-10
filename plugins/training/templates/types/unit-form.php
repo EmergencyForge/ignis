@@ -73,7 +73,13 @@ ob_start();
                                 </label>
                                 <div class="ignis-file__selected" hidden></div>
                             </div>
-                            <p class="ignis-field__hint">Eine neue Fassung ersetzt die alte in allen Lehrgängen, der Fortschritt bleibt. PowerPoint-Dateien werden nur zum Herunterladen angeboten. Für die Anzeige im System die Präsentation als PDF speichern und zusätzlich hochladen.</p>
+                            <p class="ignis-field__hint">Eine neue Fassung ersetzt die alte in allen Lehrgängen, der Fortschritt bleibt.
+                                <?php if (\Plugin\Training\Converter::configured() !== null): ?>
+                                    PowerPoint-Dateien werden kurz nach dem Hochladen in PDF umgewandelt und dann im System angezeigt. Herunterladen lässt sich immer das Original.
+                                <?php else: ?>
+                                    PowerPoint-Dateien werden nur zum Herunterladen angeboten. Für die Anzeige im System die Präsentation als PDF speichern und zusätzlich hochladen.
+                                <?php endif; ?>
+                            </p>
                         </div>
                         <label class="flex items-center gap-2">
                             <span class="ignis-switch"><input type="checkbox" name="allow_download" value="1"<?= $unit->allow_download ? ' checked' : '' ?>><span></span></span>

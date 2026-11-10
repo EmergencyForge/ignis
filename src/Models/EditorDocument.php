@@ -37,11 +37,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null                 $created_by
  * @property int|null                 $issued_by
  * @property \Illuminate\Support\Carbon|null $issued_at
+ * @property string|null              $verification_code kompakt, ohne Bindestriche
+ * @property \Illuminate\Support\Carbon|null $revoked_at
+ * @property int|null                 $revoked_by
+ * @property string|null              $revoke_reason
  * @property \Illuminate\Support\Carbon      $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read EditorTemplate|null $template
  * @property-read EditorTemplateVersion|null $templateVersion
  * @property-read Personnel|null      $mitarbeiter
+ * @property-read User|null           $revoker
  */
 class EditorDocument extends Model
 {
@@ -63,6 +68,8 @@ class EditorDocument extends Model
         'created_by'     => 'integer',
         'issued_by'      => 'integer',
         'issued_at'      => 'datetime',
+        'revoked_at'     => 'datetime',
+        'revoked_by'     => 'integer',
         'created_at'     => 'datetime',
         'updated_at'     => 'datetime',
     ];
@@ -93,5 +100,16 @@ class EditorDocument extends Model
     public function isIssued(): bool
     {
         return $this->status === self::STATUS_ISSUED;
+    }
+
+    public function isRevoked(): bool
+    {
+        return $this->revoked_at !== null;
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function revoker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'revoked_by', 'id');
     }
 }

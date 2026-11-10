@@ -87,6 +87,7 @@ final class EditorTemplateController extends Controller
         $template             = new EditorTemplate();
         $template->name       = $data['name'];
         $template->category   = $data['category'];
+        $template->print_verification = $data['print_verification'];
         $template->is_active  = true;
         $template->created_by = SessionManager::userId();
         $template->saveContent($content, $template->created_by);
@@ -134,6 +135,7 @@ final class EditorTemplateController extends Controller
 
         $template->name     = $data['name'];
         $template->category = $data['category'];
+        $template->print_verification = $data['print_verification'];
         $template->saveContent($content, SessionManager::userId());
 
         $this->audit('Dokumentvorlage aktualisiert', $template);

@@ -11,7 +11,10 @@ use App\Notifications\NotificationManager;
 use App\Personnel\AccountLink;
 use App\Personnel\PersonalLogManager;
 use App\Policies\DocumentPolicy;
+use App\Security\SecretBox;
+use DateTimeImmutable;
 use EmergencyForge\Editor\PackageGuard;
+use EmergencyForge\Training\VerificationCode;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use RuntimeException;
 
@@ -28,6 +31,9 @@ use RuntimeException;
  */
 final class DocumentIssuer
 {
+    /** Zweck für SecretBox::derive(); geändert wären alle gedruckten Codes ungültig. */
+    public const VERIFICATION_PURPOSE = 'document-verification';
+
     public function __construct(
         private readonly NotificationManager $notifications,
         private readonly PersonalLogManager $log = new PersonalLogManager(),
@@ -60,12 +66,16 @@ final class DocumentIssuer
         try {
             $issued = Capsule::connection()->transaction(function () use (&$document, &$leftEmpty, $issuer, $userId, $extraVariables, $acceptMissing): bool {
                 // Inhalt, Pflichtfelder und PDF bleiben bis zum Commit derselbe Stand.
-                $locked = EditorDocument::query()->with(['mitarbeiter', 'templateVersion'])->lockForUpdate()->find($document->id);
+                $locked = EditorDocument::query()->with(['mitarbeiter', 'templateVersion', 'template'])->lockForUpdate()->find($document->id);
                 if ($locked === null || $locked->isIssued()) {
                     return false;
                 }
                 $document  = $locked;
                 $leftEmpty = [];
+                $now       = date('Y-m-d H:i:s');
+                $code      = $document->template?->print_verification === true
+                    ? VerificationCode::generate((int) $document->id, new DateTimeImmutable($now), SecretBox::derive(self::VERIFICATION_PURPOSE))
+                    : null;
 
                 // Mit der Fassung zählt auch ein unveränderter Vorschlagstext
                 // als offen.
@@ -73,7 +83,7 @@ final class DocumentIssuer
                     'mitarbeiter' => $document->mitarbeiter,
                     'docid'       => $document->docid,
                     'aussteller'  => $issuer,
-                ]), $extraVariables);
+                ]), $code !== null ? ['dokument.pruefcode' => VerificationCode::format($code)] : [], $extraVariables);
                 $catalog = VariableCatalog::catalog();
                 $missing = [];
                 foreach ((new PackageGuard())->openItems($document->content, $frozen, $document->templateVersion?->content) as $item) {
@@ -104,22 +114,22 @@ final class DocumentIssuer
                     );
                 }
 
-                $now = date('Y-m-d H:i:s');
-
                 $affected = Capsule::table('intra_documents')
                     ->where('id', $document->id)
                     ->where('status', EditorDocument::STATUS_DRAFT)
                     ->update([
-                        'status'        => EditorDocument::STATUS_ISSUED,
-                        'frozen_values' => json_encode($frozen, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                        'issued_by'     => $userId,
-                        'issued_at'     => $now,
-                        'updated_at'    => $now,
+                        'status'            => EditorDocument::STATUS_ISSUED,
+                        'frozen_values'     => json_encode($frozen, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                        'verification_code' => $code,
+                        'issued_by'         => $userId,
+                        'issued_at'         => $now,
+                        'updated_at'        => $now,
                     ]);
 
                 if ($affected === 0) {
                     return false;
                 }
+                $document->verification_code = $code;
 
                 $pdfPath = (new PdfGenerator())->generate($document, $frozen);
                 Capsule::table('intra_documents')->where('id', $document->id)->update(['pdf_path' => $pdfPath]);
