@@ -36,6 +36,7 @@ $router->post('/mci/patient-create', [MciController::class, 'patientStore'],  $m
 
 $router->get('/mci/patient-view',    [MciController::class, 'patientView'],   $manvAuth);
 $router->post('/mci/patient-view',   [MciController::class, 'patientUpdate'], $manvAuth);
+$router->post('/mci/patient-triage', [MciController::class, 'patientTriage'], $manvAuth);
 
 // Ressourcen: kombinierter Endpoint.
 //   GET  ?delete_id=Y   → ressourceDelete() (Legacy-GET-Delete, via showConfirm)
