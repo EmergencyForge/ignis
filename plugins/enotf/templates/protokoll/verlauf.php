@@ -412,14 +412,14 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
             }
 
             var parameterConfig = {
-                rrsys: { axis: 'y1', color: 'rgb(255, 99, 132)', label: 'RR systolisch (mmHg)' },
-                rrdias: { axis: 'y1', color: 'rgb(54, 162, 235)', label: 'RR diastolisch (mmHg)' },
-                herzfreq: { axis: 'y1', color: 'rgb(255, 205, 86)', label: 'Herzfrequenz (/min)' },
-                bz: { axis: 'y1', color: 'rgb(83, 102, 255)', label: 'Blutzucker (' + bzUnit + ')' },
-                etco2: { axis: 'y', color: 'rgb(199, 199, 199)', label: 'etCO₂ (mmHg)' },
-                spo2: { axis: 'y', color: 'rgb(75, 192, 192)', label: 'SpO₂ (%)' },
-                atemfreq: { axis: 'y', color: 'rgb(153, 102, 255)', label: 'Atemfrequenz (/min)' },
-                temp: { axis: 'y', color: 'rgb(255, 159, 64)', label: 'Temperatur (°C)' }
+                rrsys: { color: 'rgb(255, 99, 132)', label: 'RR systolisch (mmHg)' },
+                rrdias: { color: 'rgb(54, 162, 235)', label: 'RR diastolisch (mmHg)' },
+                herzfreq: { color: 'rgb(255, 205, 86)', label: 'Herzfrequenz (/min)' },
+                bz: { color: 'rgb(83, 102, 255)', label: 'Blutzucker (' + bzUnit + ')' },
+                etco2: { color: 'rgb(199, 199, 199)', label: 'etCO₂ (mmHg)' },
+                spo2: { color: 'rgb(75, 192, 192)', label: 'SpO₂ (%)' },
+                atemfreq: { color: 'rgb(153, 102, 255)', label: 'Atemfrequenz (/min)' },
+                temp: { color: 'rgb(255, 159, 64)', label: 'Temperatur (°C)' }
             };
 
             var datasets = [];
@@ -434,39 +434,49 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
                     data: data,
                     borderColor: config.color,
                     backgroundColor: config.color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
-                    tension: 0.4,
-                    yAxisID: config.axis,
+                    showLine: false,
                     pointRadius: 0,
                     pointHoverRadius: 0,
-                    borderWidth: 3,
                     hidden: false,
-                    spanGaps: true,
                     parameterKey: paramKey
                 });
             });
 
-            // BZ-Achse: Standardbereich, bei Ausreißern erweitert (v1)
-            var bzValues = (chartData.bz || []).filter(function (v) { return v !== null && v !== undefined; });
-            var rightAxisMax = bzUnit === 'mmol/l' ? 16.65 : 300;
-            if (bzValues.length > 0) {
-                var maxBZ = Math.max.apply(null, bzValues);
-                if (bzUnit === 'mmol/l' && maxBZ > 16.65) rightAxisMax = 33.3;
-                if (bzUnit !== 'mmol/l' && maxBZ > 300) rightAxisMax = 600;
-            }
-            var rightAxisStep = bzUnit === 'mmol/l'
-                ? (rightAxisMax === 33.3 ? 3.33 : 1.665)
-                : (rightAxisMax === 600 ? 60 : 30);
-
-            // Punktsymbole je Parameter (v1: Kreis, Quadrat, Dreiecke, ...)
+            // Punktsymbole je Parameter, RR als Spanne von sys bis dia
+            // wie auf Narkoseprotokollen (▼ sys oben, ▲ dia unten).
             var customPointStyles = {
                 id: 'customPointStyles',
                 afterDatasetsDraw: function (chart) {
                     var c = chart.ctx;
+                    var sysIndex = -1, diaIndex = -1;
+                    chart.data.datasets.forEach(function (dataset, i) {
+                        if (dataset.hidden) return;
+                        if (dataset.parameterKey === 'rrsys') sysIndex = i;
+                        if (dataset.parameterKey === 'rrdias') diaIndex = i;
+                    });
+                    if (sysIndex !== -1 && diaIndex !== -1) {
+                        var sysMeta = chart.getDatasetMeta(sysIndex);
+                        var diaMeta = chart.getDatasetMeta(diaIndex);
+                        var sysData = chart.data.datasets[sysIndex].data;
+                        var diaData = chart.data.datasets[diaIndex].data;
+                        c.save();
+                        c.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                        c.lineWidth = 2;
+                        sysMeta.data.forEach(function (point, index) {
+                            if (sysData[index] == null || diaData[index] == null) return;
+                            c.beginPath();
+                            c.moveTo(point.x, point.y);
+                            c.lineTo(point.x, diaMeta.data[index].y);
+                            c.stroke();
+                        });
+                        c.restore();
+                    }
+
                     chart.data.datasets.forEach(function (dataset, datasetIndex) {
                         if (dataset.hidden) return;
                         var meta = chart.getDatasetMeta(datasetIndex);
                         meta.data.forEach(function (point, index) {
-                            if (dataset.data[index] === null) return;
+                            if (dataset.data[index] == null) return;
                             var x = point.x, y = point.y, size = 6;
 
                             c.save();
@@ -483,19 +493,20 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
                                 case 'herzfreq':
                                     c.fillRect(x - size, y - size, size * 2, size * 2);
                                     break;
+                                // Spitze sitzt genau auf dem Messwert
                                 case 'rrsys':
                                     c.beginPath();
-                                    c.moveTo(x, y - size);
-                                    c.lineTo(x - size, y + size);
-                                    c.lineTo(x + size, y + size);
+                                    c.moveTo(x, y);
+                                    c.lineTo(x - size, y - size * 1.5);
+                                    c.lineTo(x + size, y - size * 1.5);
                                     c.closePath();
                                     c.fill();
                                     break;
                                 case 'rrdias':
                                     c.beginPath();
-                                    c.moveTo(x, y + size);
-                                    c.lineTo(x - size, y - size);
-                                    c.lineTo(x + size, y - size);
+                                    c.moveTo(x, y);
+                                    c.lineTo(x - size, y + size * 1.5);
+                                    c.lineTo(x + size, y + size * 1.5);
                                     c.closePath();
                                     c.fill();
                                     break;
@@ -599,37 +610,14 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
                             type: 'linear',
                             position: 'left',
                             min: 0,
-                            max: 100,
+                            // grows past 300 on its own, e.g. for BZ 450 mg/dl
+                            suggestedMax: 300,
                             ticks: {
                                 color: 'rgba(255, 255, 255, 1)',
                                 font: { size: 10, weight: 'bold' },
-                                stepSize: 10
+                                stepSize: 50
                             },
-                            grid: { color: 'rgba(75, 192, 192, 0.2)' },
-                            title: {
-                                display: true,
-                                text: 'SpO₂ / AF / etCO₂ / Temp',
-                                color: 'rgba(255, 255, 255, 1)',
-                                font: { size: 12, weight: 'bold' }
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            position: 'left',
-                            min: 0,
-                            max: rightAxisMax,
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 1)',
-                                font: { size: 10, weight: 'bold' },
-                                stepSize: rightAxisStep
-                            },
-                            grid: { display: false },
-                            title: {
-                                display: true,
-                                text: 'RR / HF / BZ',
-                                color: 'rgba(255, 255, 255, 1)',
-                                font: { size: 12, weight: 'bold' }
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         }
                     }
                 }
@@ -639,7 +627,7 @@ $renderTabelle = static function (array $gruppen, bool $mitLoeschen) use ($e, $z
 
             // Legende mit v1-Symbolen, Klick blendet Datensätze aus
             var symbols = {
-                spo2: '●', herzfreq: '■', rrsys: '▲', rrdias: '▼',
+                spo2: '●', herzfreq: '■', rrsys: '▼', rrdias: '▲',
                 atemfreq: '◆', temp: '○', bz: '★', etco2: '+'
             };
             var legendContainer = document.getElementById('legendToggle');
