@@ -13,6 +13,9 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Enrollment;
+use Plugin\Training\ExamBoard;
+use Plugin\Training\ExamState;
+use Plugin\Training\Models\Exam;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\TrainingFile;
@@ -106,7 +109,19 @@ final class TrainingController extends BaseController
             'instructor'    => $instructor,
             'missing'       => ($pid = self::personnelId()) !== null ? Qualifications::missing($pid, $course->type->prerequisiteKeys()) : [],
             'linked'        => self::personnelId() !== null,
+            'exams'         => self::examStates($course, $participation),
         ]);
+    }
+
+    /** @return list<ExamState> */
+    private static function examStates(Course $course, ?Participation $participation): array
+    {
+        if ($participation === null || !in_array($participation->status, Participation::LEARNING, true)) {
+            return [];
+        }
+        $board = ExamBoard::for($course, [$participation]);
+
+        return array_map(static fn (Exam $exam): ExamState => $board->state($participation, $exam), $board->parts);
     }
 
     /** POST /training/courses/{id}/enroll */
@@ -277,9 +292,10 @@ final class TrainingController extends BaseController
     /** GET /training/images/{id}: Bilder in Text-Einheiten. */
     public function image(Request $request, string $id): Response
     {
-        // Nur Editor-Bilder. Bilder als Unterlage laufen über file() mit Teilnahmeprüfung.
+        // Nur Editor-Bilder. Unterlagen laufen über file() mit Teilnahmeprüfung, Fragenbilder über den Versuch.
         $file = TrainingFile::query()->find((int) $id);
-        if ($file === null || !$file->isImage() || Unit::query()->where('file_id', $file->id)->exists()) {
+        if ($file === null || !$file->isImage() || Unit::query()->where('file_id', $file->id)->exists()
+            || \Plugin\Training\Models\Question::query()->where('image_path', (string) $file->id)->exists()) {
             return self::notFound();
         }
 

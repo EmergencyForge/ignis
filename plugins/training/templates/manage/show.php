@@ -1,7 +1,7 @@
 <?php
 /**
- * Lehrgang für Leitung und Ausbilder: Teilnehmer, Fortschritt, Termine,
- * Unterlagen. Prüfungen und Abschluss kommen mit den nächsten Stufen.
+ * Lehrgang für Leitung, Ausbilder und Prüfer: Teilnehmer, Fortschritt,
+ * Termine, Unterlagen, Prüfungen und Bewertungen.
  *
  * @var \Plugin\Training\Models\Course                    $course
  * @var list<\Plugin\Training\Models\Participation>       $participations
@@ -20,6 +20,10 @@
  * @var int                                               $waiting
  * @var bool                                              $canLead
  * @var bool                                              $calendar
+ * @var \Plugin\Training\ExamBoard                        $board
+ * @var bool                                              $canExamine
+ * @var list<\Plugin\Training\Models\Attempt>             $reviews
+ * @var array<int, \Plugin\Training\Models\ExamRelease>   $releases
  */
 
 use EmergencyForge\Training\CourseStatus;
@@ -84,6 +88,12 @@ ob_start();
                 ['id' => 'termine', 'label' => 'Termine', 'count' => count($sessions), 'partial' => '_sessions'],
                 ['id' => 'unterlagen', 'label' => 'Unterlagen', 'partial' => '_materials'],
             ];
+            if ($board->parts !== []) {
+                $tabs[] = ['id' => 'pruefungen', 'label' => 'Prüfungen', 'partial' => '_exams'];
+            }
+            if ($canExamine) {
+                $tabs[] = ['id' => 'bewertungen', 'label' => 'Bewertungen', 'count' => count($reviews), 'partial' => '_reviews'];
+            }
             ?>
             <div class="ignis-tabs" data-ignis-tabs data-default="<?= $status->materialsOpen() ? 'fortschritt' : 'teilnehmer' ?>">
                 <div class="ignis-tabs__headers" role="tablist">
@@ -119,4 +129,5 @@ ob_start();
         </div>
     </div>
     <script type="module" src="<?= $base ?>assets/js/ui/tabs.js"></script>
+    <script type="module" src="<?= $base ?>assets/js/ui/menu.js"></script>
     <script type="module" src="<?= htmlspecialchars(asset('plugins/training/assets/js/training.js')) ?>"></script>

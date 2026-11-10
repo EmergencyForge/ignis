@@ -23,7 +23,8 @@ final class OpenTasks
         $canDecideForms = $plugins->isActive('forms') && Gate::allows('forms.decide');
         $canEditIncidents = $plugins->isActive('firetab') && \Plugin\Firetab\Policies\FireIncidentPolicy::viewList()
             && \Plugin\Firetab\Policies\FireIncidentPolicy::update();
-        if (!$canDecideForms && !$canEditIncidents) {
+        $canGrade = $plugins->isActive('training') && \Plugin\Training\Policies\TrainingPolicy::teach();
+        if (!$canDecideForms && !$canEditIncidents && !$canGrade) {
             return null;
         }
         if ($canDecideForms) {
@@ -48,6 +49,14 @@ final class OpenTasks
                 $tasks[] = ['label' => (string) $incident->incident_number . ' · ' . (string) $incident->location,
                     'reason' => 'Eigene Einsatzleitung · Protokoll nicht abgeschlossen',
                     'href' => $base . 'firetab/view?id=' . (int) $incident->id];
+            }
+        }
+        if ($canGrade) {
+            foreach (array_slice(\Plugin\Training\Courses::reviewQueue(), 0, 20) as $attempt) {
+                $cosign = $attempt->status === \Plugin\Training\Models\Attempt::COSIGN;
+                $tasks[] = ['label' => $attempt->exam->title . ' · ' . $attempt->participation->name(),
+                    'reason' => $attempt->participation->course->title . ($cosign ? ' · wartet auf Gegenzeichnung' : ' · wartet auf Bewertung'),
+                    'href' => $base . 'training/attempts/' . (int) $attempt->id . ($attempt->exam->isTheory() ? '/review' : '/sheet')];
             }
         }
         return $tasks;

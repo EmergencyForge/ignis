@@ -15,6 +15,7 @@
  * @var bool                                             $instructor
  * @var list<string>                                     $missing
  * @var bool                                             $linked
+ * @var list<\Plugin\Training\ExamState>                 $exams
  */
 
 use EmergencyForge\Training\CourseStatus;
@@ -207,7 +208,35 @@ ob_start();
                     </div>
                     <div class="ignis-detail__block">
                         <h2 class="ignis-card__title">Prüfungen</h2>
-                        <p class="ignis-detail__muted mb-0">Theorie und Praxis öffnen in der Prüfungsphase, wenn alle Pflicht-Einheiten erledigt sind.</p>
+                        <?php if ($exams === []): ?>
+                            <p class="ignis-detail__muted mb-0">Theorie und Praxis öffnen in der Prüfungsphase, wenn alle Pflicht-Einheiten erledigt sind.</p>
+                        <?php else: ?>
+                            <ul class="tr-exam-list">
+                                <?php foreach ($exams as $examState): ?>
+                                    <?php
+                                    $part   = $examState->exam;
+                                    $result = $examState->result();
+                                    $href   = $part->isTheory() ? $base . 'training/courses/' . (int) $course->id . '/exams/' . (int) $part->id : null;
+                                    if ($result !== null && !$examState->canStart() && $examState->open() === null) {
+                                        $href = $base . 'training/attempts/' . (int) $result->id;
+                                    }
+                                    ?>
+                                    <li>
+                                        <span class="ignis-glyph ignis-glyph--sm"><i class="fa-solid <?= $part->isTheory() ? 'fa-list-check' : 'fa-clipboard-check' ?>" aria-hidden="true"></i></span>
+                                        <div>
+                                            <?php if ($href !== null): ?><a href="<?= htmlspecialchars($href) ?>"><?= htmlspecialchars($part->title) ?></a><?php else: ?><b><?= htmlspecialchars($part->title) ?></b><?php endif; ?>
+                                            <?php if (!$part->required): ?><span class="tr-meta">freiwillig</span><?php endif; ?>
+                                            <div class="tr-meta"><?= htmlspecialchars($examState->summary()) ?></div>
+                                        </div>
+                                        <?php if ($examState->canStart() || $examState->open() !== null): ?>
+                                            <?php if ($part->isTheory()): ?>
+                                                <a href="<?= htmlspecialchars($base . 'training/courses/' . (int) $course->id . '/exams/' . (int) $part->id) ?>" class="ignis-btn ignis-btn--primary ignis-btn--sm"><?= $examState->open() !== null ? 'Weiter' : 'Starten' ?></a>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                     </div>
                 </aside>
             </div>

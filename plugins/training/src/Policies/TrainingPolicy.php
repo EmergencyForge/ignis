@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Plugin\Training\Policies;
 
 use App\Auth\Permissions;
+use App\Personnel\AccountLink;
+use Plugin\Training\Courses;
+use Plugin\Training\Models\Attempt;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
 
 /**
  * Wer was in der Ausbildung darf. In einem Lehrgang zählt die Rolle dort
- * (Leitung, Ausbilder) und das Recht: wer Leitung ist, aber kein
+ * (Leitung, Ausbilder, Prüfer) und das Recht: wer Leitung ist, aber kein
  * `training.teach` mehr hat, leitet nicht mehr.
  *
  *     Gate::allows('training.lead', $course)
@@ -57,7 +60,52 @@ class TrainingPolicy
         }
 
         return Permissions::check(['training.teach'])
-            && CourseStaff::query()->where('course_id', $course->id)->where('user_id', self::userId())->exists();
+            && CourseStaff::query()->where('course_id', $course->id)->where('user_id', self::userId())->where('role', 'instructor')->exists();
+    }
+
+    /** Fragenpools und Prüfungsordnungen sehen und pflegen. */
+    public static function exams(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'training.exams']);
+    }
+
+    /** Im Lehrgang prüfen: eingetragener Prüfer, ohne Prüfer Leitung oder Ausbilder. */
+    public static function examine(?Course $course = null): bool
+    {
+        if (self::manage()) {
+            return true;
+        }
+
+        return $course !== null && Permissions::check(['training.teach']) && in_array(self::userId(), Courses::examiners($course), true);
+    }
+
+    /**
+     * Diesen Versuch bewerten oder gegenzeichnen. Niemand bewertet sich
+     * selbst, und wer bewertet hat, zeichnet nicht gegen.
+     */
+    public static function grade(Attempt $attempt): bool
+    {
+        $participation = $attempt->participation;
+        $own           = AccountLink::currentId();
+        if ($own !== null && $participation->personnel_id === $own) {
+            return false;
+        }
+        if ($attempt->status === Attempt::COSIGN && $attempt->graded_by === self::userId()) {
+            return false;
+        }
+
+        return self::examine($participation->course);
+    }
+
+    /** Versuch ansehen: die Person selbst, Lehrgangspersonal, Verwalter. */
+    public static function viewAttempt(Attempt $attempt): bool
+    {
+        $participation = $attempt->participation;
+        $own           = AccountLink::currentId();
+
+        return ($own !== null && $participation->personnel_id === $own)
+            || self::instruct($participation->course)
+            || self::examine($participation->course);
     }
 
     private static function userId(): int
