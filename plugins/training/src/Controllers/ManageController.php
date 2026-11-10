@@ -435,8 +435,10 @@ final class ManageController extends BaseController
         if (($post['remove'] ?? '') === '1') {
             $session->slides_file_id = null;
         } elseif (is_array($upload) && (int) ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            $kind = MaterialType::detect(is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '')?->kind;
-            if ($kind !== 'pdf' && $kind !== 'presentation') {
+            // Ein abgebrochener Upload hat keine Datei zum Prüfen; den Grund nennt FileStore::store() unten.
+            $failed = (int) $upload['error'] !== UPLOAD_ERR_OK;
+            $kind   = $failed ? null : MaterialType::detect(is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '')?->kind;
+            if (!$failed && $kind !== 'pdf' && $kind !== 'presentation') {
                 return self::back($back, 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.');
             }
             // Ohne Umwandler würde PowerPoint nie zur PDF und der Vortrag ließe sich nicht starten.

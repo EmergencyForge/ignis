@@ -40,6 +40,17 @@ $router->post('/training/courses/{course:\d+}/units/{unit:\d+}/done', [TrainingC
 $router->post('/training/courses/{course:\d+}/units/{unit:\d+}/open', [TrainingController::class, 'open'],     $view);
 $router->get('/training/courses/{course:\d+}/files/{file:\d+}',       [TrainingController::class, 'file'],     $view);
 $router->get('/training/courses/{course:\d+}/sessions/{session:\d+}/slides', [PresentationController::class, 'slides'], $view);
+// Vortrag: wer starten, senden, übergeben oder beenden darf, prüft der Controller.
+$live = '/training/courses/{course:\d+}/sessions/{session:\d+}/presentation';
+$router->get($live,                       [PresentationController::class, 'show'],     $view);
+$router->post($live . '/start',           [PresentationController::class, 'start'],    $view);
+$router->get($live . '/state',            [PresentationController::class, 'state'],    $view);
+$router->post($live . '/events',          [PresentationController::class, 'events'],   $view);
+$router->post($live . '/handover',        [PresentationController::class, 'handover'], $view);
+$router->post($live . '/handover/cancel', [PresentationController::class, 'cancel'],   $view);
+$router->post($live . '/handover/accept', [PresentationController::class, 'accept'],   $view);
+$router->post($live . '/handover/decline', [PresentationController::class, 'decline'], $view);
+$router->post($live . '/end',             [PresentationController::class, 'end'],      $view);
 
 // Lehrgänge leiten und betreuen
 $router->get('/training/manage',                                            [ManageController::class, 'index'],         $teach);
