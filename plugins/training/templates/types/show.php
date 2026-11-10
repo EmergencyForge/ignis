@@ -1,7 +1,8 @@
 <?php
 /**
  * Lehrgangsart. Allgemein und Lehrplan mit `training.manage`, Fragenpool
- * und Prüfungsordnung mit `training.exams`.
+ * und Prüfungsordnung mit `training.exams`, Abschluss wieder mit
+ * `training.manage`.
  *
  * @var \Plugin\Training\Models\CourseType $type
  * @var array<string, mixed>               $form
@@ -67,6 +68,9 @@ ob_start();
                         <button type="button" class="ignis-tabs__header" data-tab="fragenpool">Fragenpool <span class="ignis-tabs__count"><?= count($questions) ?></span></button>
                         <button type="button" class="ignis-tabs__header" data-tab="pruefungsordnung">Prüfungsordnung</button>
                     <?php endif; ?>
+                    <?php if ($canManage): ?>
+                        <button type="button" class="ignis-tabs__header" data-tab="abschluss">Abschluss</button>
+                    <?php endif; ?>
                 </div>
                 <div class="ignis-tabs__panels">
                     <?php if ($canManage): ?>
@@ -111,6 +115,11 @@ ob_start();
                         </section>
                         <section class="ignis-tabs__panel" data-panel="pruefungsordnung">
                             <?php require __DIR__ . '/_order.php'; ?>
+                        </section>
+                    <?php endif; ?>
+                    <?php if ($canManage): ?>
+                        <section class="ignis-tabs__panel" data-panel="abschluss">
+                            <?php require __DIR__ . '/_completion.php'; ?>
                         </section>
                     <?php endif; ?>
                 </div>

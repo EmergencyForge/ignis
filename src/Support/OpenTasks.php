@@ -24,7 +24,9 @@ final class OpenTasks
         $canEditIncidents = $plugins->isActive('firetab') && \Plugin\Firetab\Policies\FireIncidentPolicy::viewList()
             && \Plugin\Firetab\Policies\FireIncidentPolicy::update();
         $canGrade = $plugins->isActive('training') && \Plugin\Training\Policies\TrainingPolicy::teach();
-        if (!$canDecideForms && !$canEditIncidents && !$canGrade) {
+        $userId = (int) ($_SESSION['userid'] ?? 0);
+        $followUps = $plugins->isActive('training') && $userId > 0 ? \Plugin\Training\FollowUps::openFor($userId) : [];
+        if (!$canDecideForms && !$canEditIncidents && !$canGrade && $followUps === []) {
             return null;
         }
         if ($canDecideForms) {
@@ -58,6 +60,11 @@ final class OpenTasks
                     'reason' => $attempt->participation->course->title . ($cosign ? ' · wartet auf Gegenzeichnung' : ' · wartet auf Bewertung'),
                     'href' => $base . 'training/attempts/' . (int) $attempt->id . ($attempt->exam->isTheory() ? '/review' : '/sheet')];
             }
+        }
+        foreach ($followUps as $followUp) {
+            $tasks[] = ['label' => $followUp->title,
+                'reason' => 'Folgeaufgabe aus einem Lehrgang' . ($followUp->due_on !== null ? ' · bis ' . date('d.m.Y', (int) strtotime($followUp->due_on)) : ''),
+                'href' => $base . ($followUp->personnel_id !== null ? 'personnel/profile?id=' . (int) $followUp->personnel_id : 'inbox')];
         }
         return $tasks;
     }

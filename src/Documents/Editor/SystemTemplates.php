@@ -43,6 +43,9 @@ final class SystemTemplates
         ['label' => 'Luftrettungspilot/-in', 'male' => 'Luftrettungspilot', 'female' => 'Luftrettungspilotin'],
     ];
 
+    public const TRAINING_DIPLOMA = 'Urkunde (Lehrgang)';
+    public const TRAINING_COURSE  = 'Lehrgangszertifikat (Lehrgang)';
+
     private const CERTIFICATE_LAYOUT = [
         'orientation'    => 'landscape',
         'margins'        => ['top' => 25, 'right' => 35, 'bottom' => 30, 'left' => 35],
@@ -219,6 +222,49 @@ final class SystemTemplates
     }
 
     /**
+     * Lehrgangszertifikat im Hochformat: Angaben zum Lehrgang als Tabelle.
+     *
+     * @return array<string,mixed>
+     */
+    private function courseSheet(): array
+    {
+        $row = fn (string $label, string $variable): array => ['type' => 'tableRow', 'content' => [
+            ['type' => 'tableCell', 'content' => [$this->p([$this->t($label)], 'left')]],
+            ['type' => 'tableCell', 'content' => [$this->p([$this->v($variable)], 'left')]],
+        ]];
+
+        $body = [
+            $this->p([$this->v('organisation.art'), $this->t(' '), $this->v('organisation.stadt')], 'left'),
+            $this->p([$this->v('organisation.stadt'), $this->t(', den '), $this->v('datum')], 'right'),
+            $this->h(1, [$this->t('Lehrgangszertifikat')], 'left'),
+            $this->p([$this->v('mitarbeiter.name'), $this->t(' hat am folgenden Lehrgang teilgenommen und ihn erfolgreich abgeschlossen.')], 'left'),
+            ['type' => 'table', 'content' => [
+                $row('Lehrgang', 'lehrgang.titel'),
+                $row('Lehrgangsart', 'lehrgang.art'),
+                $row('Beginn', 'lehrgang.beginn'),
+                $row('Ende', 'lehrgang.ende'),
+                $row('Stunden', 'lehrgang.stunden'),
+                $row('Leitung', 'lehrgang.leitung'),
+                $row('Prüfung am', 'pruefung.datum'),
+                $row('Ergebnis', 'pruefung.ergebnis'),
+                $row('Punkte', 'pruefung.punkte'),
+                $row('Note', 'pruefung.note'),
+                $row('Qualifikation', 'qualifikation.name'),
+                $row('Gültig bis', 'qualifikation.gueltig_bis'),
+            ]],
+            $this->p(),
+            $this->p([$this->t('Zeichen: '), $this->v('dokument.kennung')], 'left'),
+            $this->p([$this->v('aussteller.name')], 'left'),
+            $this->p([$this->v('aussteller.dienstgrad')], 'left'),
+        ];
+        $footer = [
+            $this->p([$this->t('Dieses Dokument wurde elektronisch erstellt und ist ohne Unterschrift gültig.', ['italic'])], 'center'),
+        ];
+
+        return $this->package($body, [], null, $footer);
+    }
+
+    /**
      * Schreiben: Absender im Kopf, Anschrift, Betreff, fester Text, Grund
      * als Textbereich, Abbinder.
      *
@@ -358,6 +404,20 @@ final class SystemTemplates
                     $this->t(' erfolgreich absolviert hat.'),
                 ], 'center'),
             ])],
+
+            // Für den Lehrgangsabschluss, gleich gebaut wie in Lex. Die Urkunde
+            // nennt nur, was jeder bestandene Lehrgang hat; Zeitraum, Note und
+            // Qualifikation stehen im Zertifikat, eine Angabe je Zeile, damit
+            // ein fehlender Wert keinen halben Satz hinterlässt.
+            self::TRAINING_DIPLOMA => ['category' => 'Zertifikat', 'content' => $this->certificate('URKUNDE', [
+                $this->p([$this->t('Hiermit wird bestätigt, dass')], 'center'),
+                $this->h(2, [$this->v('mitarbeiter.name')]),
+                $this->p([$this->t('am '), $this->v('pruefung.datum'), $this->t(' den Lehrgang')], 'center'),
+                $this->h(3, [$this->v('lehrgang.titel')]),
+                $this->p([$this->t('der Lehrgangsart '), $this->v('lehrgang.art'), $this->t(' erfolgreich abgeschlossen hat.')], 'center'),
+            ])],
+
+            self::TRAINING_COURSE => ['category' => 'Zertifikat', 'content' => $this->courseSheet()],
 
             'Schriftliche Abmahnung' => ['category' => 'Schreiben', 'content' => $this->letter('Schriftliche Abmahnung', [
                 $this->p([$this->t('hiermit werden Sie schriftlich bezüglich der unten genannten Vorfälle abgemahnt.')]),

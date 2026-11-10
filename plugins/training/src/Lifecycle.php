@@ -23,13 +23,17 @@ use Plugin\Training\Models\Participation;
  * damit eine Absage sie zurücksetzen kann, aber nur wenn der Lehrgang sie
  * wirklich angehoben hat.
  *
- * „Abgeschlossen“ beendet nur offene Anmeldungen. Wer in Ausbildung ist,
- * bleibt es, bis der Abschluss Ergebnisse vergibt.
+ * „Abgeschlossen“ beendet offene Anmeldungen, und wer bis dahin nicht
+ * bestanden hat, hat nicht bestanden. Für die startet die Abschluss-Kette
+ * mit Ergebnis, Verlauf und Benachrichtigung. Ohne Pflichtprüfung gibt es
+ * nichts zu bestehen, dort gilt der Abschluss durch die Leitung als bestanden.
  */
 final class Lifecycle
 {
-    public function __construct(private readonly PersonnelQualifications $qualifications = new PersonnelQualifications())
-    {
+    public function __construct(
+        private readonly PersonnelQualifications $qualifications = new PersonnelQualifications(),
+        private readonly Completions $completions = new Completions(),
+    ) {
     }
 
     public function transition(Course $course, CourseStatus $to, string $editor, bool $resetQualification = false): void
@@ -40,7 +44,8 @@ final class Lifecycle
         }
 
         $started = [];
-        Capsule::connection()->transaction(function () use ($course, $from, $to, $editor, $resetQualification, &$started): void {
+        $finished = [];
+        Capsule::connection()->transaction(function () use ($course, $from, $to, $editor, $resetQualification, &$started, &$finished): void {
             $course->status = $to->value;
             $course->save();
 
@@ -56,6 +61,14 @@ final class Lifecycle
             $open = [ParticipationStatus::Waitlisted, ParticipationStatus::Enrolled, ParticipationStatus::Admitted];
             if ($to === CourseStatus::Completed) {
                 $this->abortAll($this->participations($course, $open));
+                $passed = !$this->hasRequiredExam($course);
+                foreach ($this->participations($course, [ParticipationStatus::InTraining, ParticipationStatus::InExam]) as $participation) {
+                    $participation->status      = ($passed ? ParticipationStatus::Passed : ParticipationStatus::Failed)->value;
+                    $participation->finished_at = Carbon::now();
+                    $participation->save();
+                    $this->completions->start($participation, $passed);
+                    $finished[] = $participation->id;
+                }
             }
             if ($to === CourseStatus::Cancelled) {
                 $running = $this->participations($course, [ParticipationStatus::InTraining, ParticipationStatus::InExam]);
@@ -69,7 +82,15 @@ final class Lifecycle
         });
 
         Notify::personnel($started, $course->title . ' hat begonnen', 'training/courses/' . $course->id, 'Die Unterlagen sind jetzt für dich offen.');
+        foreach ($finished as $participationId) {
+            $this->completions->run($participationId);
+        }
         SessionSync::course($course);
+    }
+
+    private function hasRequiredExam(Course $course): bool
+    {
+        return array_filter(ExamBoard::parts($course->course_type_id), static fn ($exam): bool => (bool) $exam->required) !== [];
     }
 
     /** Zugelassen wird „In Ausbildung“, mit Start-Qualifikation. */

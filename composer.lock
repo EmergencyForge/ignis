@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f97b6db903fae703f07e7143e219f886",
+    "content-hash": "f6eb533de8455a5664bcb59f2bc93bc3",
     "packages": [
         {
             "name": "brick/math",
@@ -1058,11 +1058,11 @@
         },
         {
             "name": "emergencyforge/training",
-            "version": "0.1.0",
+            "version": "0.2.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/training",
-                "reference": "1c2e7acf4e6f81ae19812a9cff04d6a4aba83529"
+                "reference": "4cb4ace35fb26b306938d2257d0460a24d96d631"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1090,7 +1090,7 @@
             "license": [
                 "proprietary"
             ],
-            "description": "Ausbildung und Lehrgänge für Lex und ignis: Status, Fragen und ihre Bewertung, Prüfungsziehung, Versuche, Notenschlüssel, Fortschritt und Dateiprüfung, ohne Datenbank.",
+            "description": "Ausbildung und Lehrgänge für Lex und ignis: Status, Fragen und ihre Bewertung, Prüfungsziehung, Versuche, Notenschlüssel, Fortschritt, Dateiprüfung und Abschluss-Kette, ohne Datenbank.",
             "transport-options": {
                 "symlink": true,
                 "relative": true

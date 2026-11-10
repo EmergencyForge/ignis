@@ -16,11 +16,15 @@
  * @var list<string>                                     $missing
  * @var bool                                             $linked
  * @var list<\Plugin\Training\ExamState>                 $exams
+ * @var \EmergencyForge\Training\Completion\Completion|null $completion
  */
 
+use EmergencyForge\Training\Completion\CompletionStep;
 use EmergencyForge\Training\CourseStatus;
 use EmergencyForge\Training\Progress\ProgressUnit;
 use EmergencyForge\Training\UnitKind;
+use Plugin\Training\Completion\Steps;
+use Plugin\Training\Models\Attempt;
 use Plugin\Training\Models\Attendance;
 use Plugin\Training\View;
 
@@ -51,7 +55,57 @@ ob_start();
 
             <div class="ignis-detail">
                 <div class="ignis-detail__main">
-                    <?php if ($learning): ?>
+                    <?php if ($participation !== null && $participation->status === 'passed'):
+                        $docId    = $completion?->value(CompletionStep::Certificate, 'document_id');
+                        $issued   = $docId !== null && $completion->value(CompletionStep::Certificate, 'draft') !== true;
+                        $qualName = $completion?->value(CompletionStep::Qualification, 'name');
+                        ?>
+                        <div class="ignis-card mb-4">
+                            <div class="ignis-card__body grid gap-4">
+                                <div class="tr-done">
+                                    <span class="tr-done__icon"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+                                    <div>
+                                        <h2>Glückwunsch, du hast bestanden.</h2>
+                                        <p><?= htmlspecialchars(implode(' · ', array_filter([
+                                            $participation->result_percent !== null ? Attempt::percentLabel((float) $participation->result_percent) : null,
+                                            $participation->grade !== null ? 'Note ' . $participation->grade : null,
+                                            $participation->finished_at !== null ? 'abgeschlossen am ' . $participation->finished_at->format('d.m.Y') : null,
+                                        ]))) ?></p>
+                                    </div>
+                                    <?php if ($issued): ?>
+                                        <a href="<?= $base ?>documents/<?= (int) $docId ?>" class="ignis-btn ignis-btn--primary tr-done__action"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Urkunde öffnen</a>
+                                    <?php endif; ?>
+                                </div>
+                                <dl class="tr-facts">
+                                    <?php foreach (Steps::results($participation) as [$part, $attempt]): ?>
+                                        <dt><?= htmlspecialchars($part->title) ?></dt>
+                                        <dd><?= htmlspecialchars(Attempt::percentLabel((float) $attempt->percent)) ?></dd>
+                                    <?php endforeach; ?>
+                                    <?php if (is_string($qualName)): ?>
+                                        <dt>Qualifikation</dt>
+                                        <dd><?= htmlspecialchars($qualName) ?><?= $participation->expires_on !== null ? ', gültig bis ' . $participation->expires_on->format('d.m.Y') : '' ?></dd>
+                                    <?php endif; ?>
+                                    <?php if ($issued): ?>
+                                        <dt>Urkunde</dt>
+                                        <dd><?= htmlspecialchars((string) $completion->value(CompletionStep::Certificate, 'docid')) ?></dd>
+                                    <?php elseif ($docId !== null): ?>
+                                        <dt>Urkunde</dt>
+                                        <dd>Die Leitung stellt sie noch fertig.</dd>
+                                    <?php endif; ?>
+                                </dl>
+                            </div>
+                        </div>
+                    <?php elseif ($participation !== null && $participation->status === 'failed'): ?>
+                        <div class="ignis-card mb-4">
+                            <div class="ignis-card__body tr-done">
+                                <span class="tr-done__icon is-failed"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i></span>
+                                <div>
+                                    <h2>Nicht bestanden</h2>
+                                    <p>Die Leitung hat den Lehrgang abgeschlossen. Fragen zum Ergebnis klärst du mit ihr.</p>
+                                </div>
+                            </div>
+                        </div>
+                    <?php elseif ($learning): ?>
                         <div class="ignis-card mb-4">
                             <div class="ignis-card__body tr-resume">
                                 <div class="tr-resume__text">

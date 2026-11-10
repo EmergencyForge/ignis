@@ -1,8 +1,9 @@
 <?php
 /**
  * Dashboard: Hinweise als Schale in der rechten Spalte. Jeder Hinweis ist
- * eine Regel aus den Daten: offene eNOTF-Protokolle, Fahrzeuge in Status
- * 6 und die offenen Aufgaben des Betrachters (App\Support\OpenTasks). Ist
+ * eine Regel aus den Daten: Bekanntgaben bestandener Lehrgänge, offene
+ * eNOTF-Protokolle, Fahrzeuge in Status 6 und die offenen Aufgaben des
+ * Betrachters (App\Support\OpenTasks). Ist
  * nichts davon offen, steht dort ein ruhiger Hinweis. Ohne Recht auf eine
  * der Quellen entfällt die Schale. Eingebunden aus index.php und, ohne
  * Aufgaben ($hintsWithoutTasks, die stehen dort in den Mitteilungen), aus
@@ -24,13 +25,19 @@ try {
     $hintTasks = [];
     $hintTasksFailed = true;
 }
-if ($hintTasks === null && $dashboardProtocols === null && $dashboardVehicles === null) {
+$hintNews = [];
+try {
+    $hintNews = $dashboardPlugins->isActive('training') ? \Plugin\Training\FollowUps::announcements() : [];
+} catch (\Throwable $error) {
+    \App\Logging\Logger::error('Bekanntgaben der Ausbildung konnten nicht geladen werden', ['error' => $error->getMessage()]);
+}
+if ($hintTasks === null && $dashboardProtocols === null && $dashboardVehicles === null && $hintNews === []) {
     return;
 }
 
 $hintDown = $dashboardVehicles['down'] ?? [];
 $hintOpen = $dashboardProtocols['open'] ?? 0;
-$hintAny  = $hintOpen > 0 || $hintDown !== [] || ($hintTasks ?? []) !== [] || $hintTasksFailed;
+$hintAny  = $hintOpen > 0 || $hintDown !== [] || ($hintTasks ?? []) !== [] || $hintTasksFailed || $hintNews !== [];
 ?>
 <section class="ignis-bezel ignis-hints" aria-labelledby="dashboard-hints-title" data-ignis-reveal>
     <div class="ignis-bezel__head">
@@ -39,6 +46,14 @@ $hintAny  = $hintOpen > 0 || $hintDown !== [] || ($hintTasks ?? []) !== [] || $h
     </div>
     <div class="ignis-bezel__well">
         <div class="ignis-bezel__scroll">
+            <?php foreach ($hintNews as $hintText): ?>
+                <div class="ignis-hint">
+                    <div class="ignis-hint__head">
+                        <span class="ignis-glyph ignis-glyph--sm" data-tone="ok" aria-hidden="true"><i class="fa-solid fa-award"></i></span>
+                        <h3 class="ignis-hint__title"><?= htmlspecialchars($hintText) ?></h3>
+                    </div>
+                </div>
+            <?php endforeach; ?>
             <?php if ($hintOpen > 0 && $dashboardProtocols !== null): ?>
                 <div class="ignis-hint">
                     <div class="ignis-hint__head">

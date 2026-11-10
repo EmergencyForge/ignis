@@ -343,9 +343,10 @@ final class EditorDocumentController extends Controller
     public function show(Request $request, string $id): void
     {
         $this->requireAuth();
-        $this->ensure('document.view', null, 'index');
-
         $document = $this->findOrRedirect((int) $id, ['mitarbeiter']);
+        if (!$this->ownIssued($document)) {
+            $this->ensure('document.view', null, 'index');
+        }
 
         if (!$document->isIssued()) {
             $this->redirect('documents/' . $document->id . '/edit');
@@ -393,9 +394,10 @@ final class EditorDocumentController extends Controller
     public function pdf(Request $request, string $id): Response
     {
         $this->requireAuth();
-        $this->ensure('document.view', null, 'index');
-
         $document = $this->findOrRedirect((int) $id);
+        if (!$this->ownIssued($document)) {
+            $this->ensure('document.view', null, 'index');
+        }
 
         $contents = (new PdfGenerator())->read($document);
         if ($contents === null) {
@@ -416,6 +418,14 @@ final class EditorDocumentController extends Controller
             ->where('id', $id)
             ->where('status', EditorDocument::STATUS_DRAFT)
             ->exists();
+    }
+
+    /** Das eigene, ausgestellte Dokument sieht jeder, auch ohne Dokumentenrecht. */
+    private function ownIssued(EditorDocument $document): bool
+    {
+        $own = AccountLink::currentId();
+
+        return $own !== null && $document->isIssued() && (int) $document->mitarbeiter_id === $own;
     }
 
     /**
