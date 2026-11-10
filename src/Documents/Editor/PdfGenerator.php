@@ -12,6 +12,7 @@ use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use EmergencyForge\Editor\Layout;
 use EmergencyForge\Editor\Migration\SectionsToPackage;
 use EmergencyForge\Editor\Package;
 use EmergencyForge\Editor\PageShell;
@@ -148,21 +149,26 @@ final class PdfGenerator
     }
 
     /**
-     * Macht den unteren Rand um den Streifen größer, damit er und die
-     * Fußzeile der Vorlage zusammen hineinpassen.
-     *
-     * ponytail: Ränder über 80 mm kappt das Layout, dann schneidet das
-     * Fußband unten ab.
+     * Macht das Fußband um den Streifen höher, damit er und die Fußzeile
+     * der Vorlage zusammen hineinpassen. Das Band reicht vom Inhalt bis zum
+     * Fußabstand über der Kante; was der Rand über 80 mm nicht hergibt,
+     * kommt aus dem Fußabstand.
      *
      * @param array<string,mixed> $package normalisiertes Paket
      * @return array<string,mixed>
      */
     private static function reserveStrip(array $package): array
     {
-        $package['layout']['margins']['bottom'] += self::STRIP;
-        if (is_array($package['layout']['firstPageMargins'] ?? null)) {
-            $package['layout']['firstPageMargins']['bottom'] += self::STRIP;
+        $short = 0;
+        foreach (['margins', 'firstPageMargins'] as $key) {
+            if (is_array($package['layout'][$key] ?? null)) {
+                $bottom = $package['layout'][$key]['bottom'];
+                $grown  = min(Layout::MARGIN_MAX, $bottom + self::STRIP);
+                $short  = max($short, self::STRIP - ($grown - $bottom));
+                $package['layout'][$key]['bottom'] = $grown;
+            }
         }
+        $package['layout']['footerDistance'] = max(Layout::DISTANCE_MIN, $package['layout']['footerDistance'] - $short);
 
         return $package;
     }

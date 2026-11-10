@@ -48,8 +48,8 @@ final class SystemTemplates
 
     private const CERTIFICATE_LAYOUT = [
         'orientation'    => 'landscape',
-        'margins'        => ['top' => 25, 'right' => 35, 'bottom' => 30, 'left' => 35],
-        'footerDistance' => 10,
+        'margins'        => ['top' => 25, 'right' => 35, 'bottom' => 35, 'left' => 35],
+        'footerDistance' => 8,
     ];
 
     /**

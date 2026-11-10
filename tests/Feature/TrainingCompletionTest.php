@@ -218,6 +218,49 @@ final class TrainingCompletionTest extends FeatureTestCase
     }
 
     #[Test]
+    public function revoking_takes_back_a_department_the_course_added(): void
+    {
+        Capsule::table('intra_mitarbeiter_fdquali')->insert(['sgnr' => 9901, 'sgname' => 'Testhöhenrettung']);
+        $this->type->pass_qualification = 'fd:9901';
+        $this->type->save();
+        $lead    = $this->account();
+        $course  = $this->course($lead['user']);
+        $learner = $this->account();
+        Capsule::table('intra_mitarbeiter')->where('id', $learner['personnel'])->update(['fachdienste' => json_encode(['3'])]);
+        $p = $this->admit($course, $learner['personnel']);
+        $this->sit($course, $p, $learner['user'], true);
+        $documentId = (int) $this->step($p, CompletionStep::Certificate)?->data['document_id'];
+
+        $this->as($lead['user'], ['admin']);
+        $this->assertStringContainsString('Qualifikation Testhöhenrettung ebenfalls entziehen', $this->get('/documents/' . $documentId)->body);
+        $this->post('/documents/' . $documentId . '/revoke', ['reason' => 'Prüfung aberkannt', 'revoke_qualification' => '1', 'csrf_token' => CsrfProtection::getToken()]);
+
+        $this->assertSame(['3'], json_decode((string) Capsule::table('intra_mitarbeiter')->where('id', $learner['personnel'])->value('fachdienste'), true));
+    }
+
+    #[Test]
+    public function a_changed_level_is_not_taken_back(): void
+    {
+        $lead    = $this->account();
+        $course  = $this->course($lead['user']);
+        $learner = $this->account();
+        $p       = $this->admit($course, $learner['personnel']);
+        $this->sit($course, $p, $learner['user'], true);
+        $documentId = (int) $this->step($p, CompletionStep::Certificate)?->data['document_id'];
+        $other      = (int) Capsule::table('intra_mitarbeiter_rdquali')->insertGetId(['priority' => 70, 'name' => 'Testnotsan', 'name_m' => 'Testnotsan', 'name_w' => 'Testnotsan', 'none' => 0, 'trainable' => 0]);
+        Capsule::table('intra_mitarbeiter')->where('id', $learner['personnel'])->update(['qualird' => $other]);
+
+        $this->as($lead['user'], ['admin']);
+        $page = $this->get('/documents/' . $documentId)->body;
+        $this->assertStringContainsString('inzwischen eine andere Stufe', $page);
+        $this->assertStringNotContainsString('ebenfalls entziehen', $page);
+        $this->post('/documents/' . $documentId . '/revoke', ['reason' => 'Prüfung aberkannt', 'revoke_qualification' => '1', 'csrf_token' => CsrfProtection::getToken()]);
+
+        $this->assertNotNull(EditorDocument::query()->findOrFail($documentId)->revoked_at);
+        $this->assertSame($other, (int) Capsule::table('intra_mitarbeiter')->where('id', $learner['personnel'])->value('qualird'));
+    }
+
+    #[Test]
     public function a_higher_qualification_stays(): void
     {
         $lead    = $this->account();

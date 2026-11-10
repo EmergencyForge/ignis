@@ -359,7 +359,7 @@ final class EditorDocumentController extends Controller
         $this->renderView('documents/show', [
             'document'      => $document->load('revoker'),
             'canRevoke'     => $canRevoke,
-            'qualification' => $canRevoke ? self::certificateQualification($document)?->name : null,
+            'qualification' => $canRevoke ? self::certificateQualification($document) : null,
         ]);
     }
 
@@ -386,7 +386,10 @@ final class EditorDocumentController extends Controller
 
         $editor        = (new UserHelper())->getCurrentUserFullnameForAction();
         $qualification = ($request->post['revoke_qualification'] ?? '') === '1' ? self::certificateQualification($document) : null;
-        $revoked       = Capsule::connection()->transaction(static function () use ($document, $reason, $qualification, $editor): bool {
+        if ($qualification?->blocked !== null) {
+            $qualification = null;
+        }
+        $revoked      = Capsule::connection()->transaction(static function () use ($document, $reason, $qualification, $editor): bool {
             $affected = Capsule::table('intra_documents')->where('id', $document->id)->whereNull('revoked_at')->update([
                 'revoked_at'    => date('Y-m-d H:i:s'),
                 'revoked_by'    => SessionManager::userId(),

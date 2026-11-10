@@ -5,7 +5,7 @@
  * Erwartete Variablen (EditorDocumentController::show()):
  *   @var \App\Models\EditorDocument $document
  *   @var bool                       $canRevoke
- *   @var string|null                $qualification
+ *   @var \Plugin\Training\CertificateQualification|null $qualification
  *
  * Fehlt `pdf_path` (was nur passieren kann, wenn das Erzeugen mitten im
  * Ausstellen gescheitert ist), steht hier ein Hinweis statt eines leeren
@@ -56,11 +56,14 @@ $SITE_TITLE = $document->title;
                                     <textarea id="revoke-reason" name="reason" class="ignis-input" rows="3" maxlength="500" required
                                               aria-describedby="revoke-hint" placeholder="z. B. Prüfung nachträglich aberkannt"></textarea>
                                     <p class="ignis-field__hint" id="revoke-hint">Steht im Verlauf und im Audit-Log, nicht auf der Prüfseite. Die Prüfseite zeigt danach „Widerrufen“. Zurücknehmen geht nicht.</p>
-                                    <?php if ($qualification !== null): ?>
+                                    <?php if ($qualification !== null && $qualification->blocked === null): ?>
                                         <label class="ignis-checkbox">
                                             <input type="checkbox" name="revoke_qualification" value="1">
-                                            <span>Qualifikation <?= htmlspecialchars($qualification) ?> ebenfalls entziehen</span>
+                                            <span>Qualifikation <?= htmlspecialchars($qualification->name) ?> ebenfalls entziehen</span>
                                         </label>
+                                    <?php elseif ($qualification !== null): ?>
+                                        <p class="ignis-field__hint">Die Qualifikation <?= htmlspecialchars($qualification->name) ?> bleibt eingetragen. <?= htmlspecialchars($qualification->blocked) ?>
+                                            Ändern lässt sie sich im <a href="<?= BASE_PATH ?>personnel/profile?id=<?= (int) $qualification->personnelId ?>">Personalprofil</a>.</p>
                                     <?php endif; ?>
                                     <button type="submit" class="ignis-btn ignis-btn--danger ignis-btn--sm">Urkunde widerrufen</button>
                                 </form>
