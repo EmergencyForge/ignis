@@ -84,8 +84,8 @@
         observers.forEach((o) => o.disconnect());
         abort.abort();
         if (renderTask) renderTask.cancel();
+        // pdf.js 6 räumt nur über den Ladeauftrag auf, das Dokument selbst hat kein destroy() mehr.
         if (loading) loading.destroy();
-        else if (doc) doc.destroy();
     }
 
     /** Statt location.reload(): lädt nur dieses Fenster neu, nicht das ganze Desk. */
@@ -124,7 +124,6 @@
             if (root.dataset.pdfjsWorker) pdfjs.GlobalWorkerOptions.workerSrc = root.dataset.pdfjsWorker;
             loading = pdfjs.getDocument({ url: root.dataset.slides, withCredentials: true });
             doc = await loading.promise;
-            loading = null;
             const first = (await doc.getPage(1)).getViewport({ scale: 1 });
             slideRatio = first.width / first.height;
         } catch (error) {
@@ -133,7 +132,7 @@
             if (!stopped) note('Die Folien lassen sich hier nicht anzeigen.');
             return;
         }
-        if (stopped) { doc.destroy(); return; }
+        if (stopped) { loading.destroy(); return; }
         fitSlide();
         pageCount = doc.numPages;
         $$('[data-live-page-count]').forEach((el) => { el.textContent = String(pageCount); });

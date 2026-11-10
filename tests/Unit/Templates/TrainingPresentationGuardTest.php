@@ -60,6 +60,13 @@ final class TrainingPresentationGuardTest extends TestCase
         self::assertStringContainsString('[data-tr-live]:not([data-tr-live-ready])', $js);
     }
 
+    #[Test]
+    public function pdf_teardown_goes_through_the_loading_task(): void
+    {
+        // pdf.js 6 kennt PDFDocumentProxy::destroy() nicht mehr; ein Aufruf wirft in stop(), und die Ansicht lädt nach einer Übergabe nie neu.
+        self::assertStringNotContainsString('doc.destroy(', self::read('assets/js/presentation.js'));
+    }
+
     private static function read(string $path): string
     {
         $file = self::PLUGIN . '/' . $path;
