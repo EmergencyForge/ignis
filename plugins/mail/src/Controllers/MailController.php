@@ -48,7 +48,7 @@ use Plugin\Mail\SignatureTemplate;
  *
  * „Postfach“ ist das gewählte (currentMailbox()): das persönliche des
  * angemeldeten Nutzers oder ein Gruppenpostfach, in dem er Mitglied ist.
- * Ein Parameter (`mailbox_id`, `?postfach=`) wählt nur unter diesen aus,
+ * Ein Parameter (`mailbox_id`, `?mailbox=`) wählt nur unter diesen aus,
  * ein fremdes lässt sich damit nicht ansprechen. Jede Aktion prüft zusätzlich,
  * dass dieses Postfach an der Nachricht beteiligt ist; `mail.admin` ist
  * davon ausdrücklich nicht ausgenommen. Ein Admin liest keine fremden
@@ -257,13 +257,13 @@ final class MailController extends Controller
         if (!is_array($body)) {
             Flash::error(is_string($body) ? $body : 'Die Signatur fehlt.');
 
-            return Response::redirect(self::basePath() . 'mail/signature?postfach=' . $mailbox->id);
+            return Response::redirect(self::basePath() . 'mail/signature?mailbox=' . $mailbox->id);
         }
 
         Signature::query()->updateOrCreate(['mailbox_id' => $mailbox->id], ['body_json' => $body, 'updated_at' => date('Y-m-d H:i:s')]);
         Flash::success($mailbox->isGroup() ? 'Signatur von ' . $mailbox->display_name . ' gespeichert.' : 'Signatur gespeichert.');
 
-        return Response::redirect(self::basePath() . 'mail/signature?postfach=' . $mailbox->id);
+        return Response::redirect(self::basePath() . 'mail/signature?mailbox=' . $mailbox->id);
     }
 
     // ── Entwürfe und Senden ───────────────────────────────────────
@@ -1258,16 +1258,16 @@ final class MailController extends Controller
     /**
      * Das Postfach dieser Anfrage, siehe Mailbox::selected(). Formulare und
      * fetch-Aufrufe nennen es (`mailbox_id`, das Postfach, für das die Seite
-     * gerendert wurde), Links zum Wechseln tragen `?postfach=`. So sendet ein
+     * gerendert wurde), Links zum Wechseln tragen `?mailbox=`. So sendet ein
      * zweiter Tab mit einem anderen Postfach nichts aus dem falschen. Ohne
      * Angabe gilt die Auswahl aus der Sitzung. Ein genanntes Postfach, das
      * das Konto nicht lesen darf, ergibt null, nie das eigene als Ersatz.
-     * Nur `?postfach=` auf einer Seite merkt sich die Wahl.
+     * Nur `?mailbox=` auf einer Seite merkt sich die Wahl.
      */
     private function currentMailbox(Request $request): ?Mailbox
     {
         $fromPost  = $request->post['mailbox_id'] ?? null;
-        $fromQuery = $request->query['postfach'] ?? null;
+        $fromQuery = $request->query['mailbox'] ?? $request->query['postfach'] ?? null;
         $raw       = $fromPost ?? $fromQuery;
         if ($raw === null || $raw === '') {
             return Mailbox::selected();

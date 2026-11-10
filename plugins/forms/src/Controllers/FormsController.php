@@ -66,7 +66,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /forms/create?typ=X: Form-Renderer für einen Antragstyp.
+     * GET /forms/create?type=X: Form-Renderer für einen Antragstyp.
      *
      * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
      */
@@ -78,7 +78,7 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        $typId = (int) ($_GET['typ'] ?? 0);
+        $typId = (int) ($_GET['type'] ?? $_GET['typ'] ?? 0);
         if ($typId <= 0) {
             Flash::set('error', 'Kein Antragstyp ausgewählt.');
             $this->redirect('index');
@@ -101,7 +101,7 @@ class FormsController extends Controller
     }
 
     /**
-     * POST /forms/create?typ=X: Antrag einreichen, Daten in Transaction speichern.
+     * POST /forms/create?type=X: Antrag einreichen, Daten in Transaction speichern.
      *
      * Auth + PolicyMiddleware('forms.create') laufen vor dem Controller.
      */
@@ -113,7 +113,7 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        $typId = (int) ($_GET['typ'] ?? 0);
+        $typId = (int) ($_GET['type'] ?? $_GET['typ'] ?? 0);
         if ($typId <= 0) {
             Flash::set('error', 'Kein Antragstyp ausgewählt.');
             $this->redirect('index');
@@ -136,7 +136,7 @@ class FormsController extends Controller
         } catch (ValidationException $e) {
             $errorMsgs = $e->errors();
             Flash::set('error', reset($errorMsgs) ?: 'Bitte überprüfe die Eingaben.');
-            $this->redirect('forms/create?typ=' . $typId);
+            $this->redirect('forms/create?type=' . $typId);
         }
 
         // Eindeutige Public-ID generieren (6 Stellen)
@@ -170,11 +170,11 @@ class FormsController extends Controller
             });
         } catch (\Throwable $e) {
             Flash::set('error', 'Fehler beim Speichern: ' . $e->getMessage());
-            $this->redirect('forms/create?typ=' . $typId);
+            $this->redirect('forms/create?type=' . $typId);
         }
 
         Flash::set('success', 'Antrag erfolgreich eingereicht!');
-        $this->redirect('forms/view?antrag=' . $uniqueId);
+        $this->redirect('forms/view?form=' . $uniqueId);
     }
 
     /**
@@ -202,7 +202,7 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /forms/view?antrag=X: Detailansicht eines Antrags.
+     * GET /forms/view?form=X: Detailansicht eines Antrags.
      *
      * Auth-Middleware erzwingt Login. Die eigentliche Zugriffs-Prüfung
      * (`Gate::denies('forms.view', $antrag)` mit geladenem Model) passiert
@@ -210,7 +210,7 @@ class FormsController extends Controller
      */
     public function view(): void
     {
-        $caseId = (string) ($_GET['antrag'] ?? '');
+        $caseId = (string) ($_GET['form'] ?? $_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
             $this->redirect('index');
@@ -282,13 +282,13 @@ class FormsController extends Controller
     }
 
     /**
-     * GET /forms/admin/view?antrag=X: Admin-Detailansicht mit Status-Form.
+     * GET /forms/admin/view?form=X: Admin-Detailansicht mit Status-Form.
      *
      * Auth + PolicyMiddleware('forms.decide') laufen vor dem Controller.
      */
     public function adminView(): void
     {
-        $caseId = (string) ($_GET['antrag'] ?? '');
+        $caseId = (string) ($_GET['form'] ?? $_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
             $this->redirect('forms/admin/list');
@@ -317,7 +317,7 @@ class FormsController extends Controller
     }
 
     /**
-     * POST /forms/admin/view?antrag=X: Status-Änderung durch Bearbeiter.
+     * POST /forms/admin/view?form=X: Status-Änderung durch Bearbeiter.
      * Schreibt Audit-Log-Einträge für jede einzelne Änderung und sendet eine
      * Notification an den Antragsteller.
      *
@@ -325,7 +325,7 @@ class FormsController extends Controller
      */
     public function decide(): void
     {
-        $caseId = (string) ($_GET['antrag'] ?? '');
+        $caseId = (string) ($_GET['form'] ?? $_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
             $this->redirect('forms/admin/list');
@@ -342,7 +342,7 @@ class FormsController extends Controller
             $data = DecideAntragRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('forms/admin/view?antrag=' . $caseId);
+            $this->redirect('forms/admin/view?form=' . $caseId);
         }
 
         $userHelper       = new UserHelper();
@@ -385,12 +385,12 @@ class FormsController extends Controller
                 'antrag',
                 "Ihr Antrag #{$caseId} wurde bearbeitet",
                 "Status: {$statusName}. Bearbeiter: {$newCirsManager}",
-                BASE_PATH . "forms/view?antrag={$caseId}"
+                BASE_PATH . "forms/view?form={$caseId}"
             );
         }
 
         Flash::set('success', 'Antrag erfolgreich aktualisiert');
-        $this->redirect('forms/view?antrag=' . $caseId);
+        $this->redirect('forms/view?form=' . $caseId);
     }
 
     // -----------------------------------------------------------------------

@@ -41,7 +41,7 @@ $pgLabel = 'Mitarbeitern';
                             <?php if ($showArchive): ?>
                                 <a href="<?= BASE_PATH ?>personnel/list" class="ignis-btn ignis-btn--secondary">Aktive Mitarbeiter</a>
                             <?php else: ?>
-                                <a href="<?= BASE_PATH ?>personnel/list?archiv=1" class="ignis-btn ignis-btn--secondary">Archiv</a>
+                                <a href="<?= BASE_PATH ?>personnel/list?archived=1" class="ignis-btn ignis-btn--secondary">Archiv</a>
                             <?php endif; ?>
                             <?php if (Gate::allows('personnel.create') && !$showArchive): ?>
                                 <a href="<?= BASE_PATH ?>personnel/create" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
@@ -138,7 +138,7 @@ $pgLabel = 'Mitarbeitern';
                                             'title'   => 'Keine Mitarbeitenden in dieser Ansicht',
                                             'text'    => 'Mit den gesetzten Filtern passt niemand.',
                                             'query'   => ['term' => $list->q, 'filters' => $activeFilters],
-                                            'actions' => [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'personnel/list' . ($showArchive ? '?archiv=1' : ''), 'style' => 'secondary']],
+                                            'actions' => [['label' => 'Filter zurücksetzen', 'href' => BASE_PATH . 'personnel/list' . ($showArchive ? '?archived=1' : ''), 'style' => 'secondary']],
                                         ];
                                     } elseif ($showArchive) {
                                         $empty = [

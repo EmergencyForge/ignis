@@ -90,8 +90,9 @@ final class MciBoardTest extends FeatureTestCase
             'manv_lage_id' => $lageId, 'patienten_nummer' => 'P-01', 'sichtungskategorie' => 'SK2', 'erstellt_von' => $user->id,
         ]);
 
-        $create = $this->get('/mci/patient-create', ['query' => ['lage_id' => (string) $lageId]]);
+        $create = $this->get('/mci/patient-create', ['query' => ['situation_id' => (string) $lageId]]);
         $this->assertOk($create);
+        $this->assertSame($create->body, $this->get('/mci/patient-create', ['query' => ['lage_id' => (string) $lageId]])->body);
         $this->assertBodyContains('<select class="ignis-input" id="sichtungskategorie" name="sichtungskategorie" required data-custom-dropdown="true">', $create);
         $this->assertBodyContains('<option value="SK1" data-color="var(--danger)">SK1 - Rot', $create);
         $this->assertBodyContains('<option value="SK4" data-color="var(--info)">SK4 - Blau', $create);

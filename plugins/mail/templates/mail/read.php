@@ -18,7 +18,7 @@ $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page ignis-mail-read" data-mail-root data-mail-base="<?= htmlspecialchars($base) ?>" data-mail-mailbox="<?= (int) $mailbox->id ?>">
-            <a class="ignis-mail-read__back" href="<?= htmlspecialchars($base . 'mail/' . $folder . '?postfach=' . (int) $mailbox->id) ?>">
+            <a class="ignis-mail-read__back" href="<?= htmlspecialchars($base . 'mail/' . $folder . '?mailbox=' . (int) $mailbox->id) ?>">
                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i> <?= htmlspecialchars($folders[$folder]['label'] ?? 'Mail') ?>
             </a>
             <article class="ignis-mail-read__pane">

@@ -66,7 +66,7 @@ final class MailPagesTest extends FeatureTestCase
         $this->assertSame('private, no-store', $page->headers['Cache-Control'] ?? null);
         $this->assertBodyContains('data-ignis-workbench', $page);
         // Vorschau und Skripte nennen das gewählte Postfach (MailController::currentMailbox()).
-        $this->assertBodyContains('data-ignis-preview-url="/mail/inbox/{id}/preview?postfach=' . $this->bob['mailbox']->id . '"', $page);
+        $this->assertBodyContains('data-ignis-preview-url="/mail/inbox/{id}/preview?mailbox=' . $this->bob['mailbox']->id . '"', $page);
         $this->assertBodyContains('data-mail-mailbox="' . $this->bob['mailbox']->id . '"', $page);
         $this->assertBodyContains('data-ignis-row="' . $id . '"', $page);
         $this->assertBodyContains('class="is-unread"', $page);
@@ -112,7 +112,7 @@ final class MailPagesTest extends FeatureTestCase
             $this->assertStringNotContainsString($other, $pane);
             $this->assertStringContainsString('data-mail-id="' . $id . '"', $pane);
             $this->assertStringNotContainsString('data-ignis-row=', $page->body, 'Ohne Liste daneben.');
-            $this->assertStringContainsString('href="/mail/inbox?postfach=' . $this->bob['mailbox']->id . '"', $page->body);
+            $this->assertStringContainsString('href="/mail/inbox?mailbox=' . $this->bob['mailbox']->id . '"', $page->body);
         }
         $this->assertStringContainsString('dienstplan-neu.txt', self::pane($this->get('/mail/inbox/' . $newer)->body));
         $this->assertStringNotContainsString('dienstplan-neu.txt', self::pane($this->get('/mail/inbox/' . $older)->body));

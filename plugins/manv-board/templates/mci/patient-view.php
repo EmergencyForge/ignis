@@ -87,22 +87,22 @@ $bodyPage = 'edivi';
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
                 <div class="ignis-card__body flex flex-wrap gap-2">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--sk1">
+                    <a href="?id=<?= $patientId ?>&quick_triage=SK1" class="ignis-btn ignis-btn--sk1">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--sk2">
+                    <a href="?id=<?= $patientId ?>&quick_triage=SK2" class="ignis-btn ignis-btn--sk2">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--sk3">
+                    <a href="?id=<?= $patientId ?>&quick_triage=SK3" class="ignis-btn ignis-btn--sk3">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--sk4">
+                    <a href="?id=<?= $patientId ?>&quick_triage=SK4" class="ignis-btn ignis-btn--sk4">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK4 - Blau
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn ignis-btn--sk5">
+                    <a href="?id=<?= $patientId ?>&quick_triage=SK5" class="ignis-btn ignis-btn--sk5">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK5 - Schwarz
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn ignis-btn--secondary">
+                    <a href="?id=<?= $patientId ?>&quick_triage=SK6" class="ignis-btn ignis-btn--secondary">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK6 - Lila
                     </a>
                 </div>

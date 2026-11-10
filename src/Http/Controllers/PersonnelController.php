@@ -43,12 +43,12 @@ class PersonnelController extends Controller
      * Filter-Logik:
      *   - Es gibt einen "Archiv-Rank" (intra_mitarbeiter_dienstgrade.archive=1)
      *   - Mitarbeiter mit diesem Rank gelten als entlassen
-     *   - ?archiv → zeige nur Archivierte
-     *   - ohne ?archiv → zeige alle aktiven (nicht im Archiv-Rank)
+     *   - ?archived → zeige nur Archivierte
+     *   - ohne ?archived → zeige alle aktiven (nicht im Archiv-Rank)
      */
     public function index(): ?Response
     {
-        $showArchive = isset($_GET['archiv']);
+        $showArchive = isset($_GET['archived']) || isset($_GET['archiv']);
 
         $archiveDienstgradIds = Rank::query()
             ->where('archive', 1)
@@ -65,7 +65,7 @@ class PersonnelController extends Controller
             'rd'         => 'rd.priority',
             'fw'         => 'fw.priority',
             'einstdatum' => 'intra_mitarbeiter.einstdatum',
-        ], 'einstdatum', 'asc', 25, ['dg', 'rd', 'fw', 'archiv']);
+        ], 'einstdatum', 'asc', 25, ['dg', 'rd', 'fw', 'archived', 'archiv']);
 
         $query = $showArchive
             ? Personnel::archived($archiveDienstgradIds)

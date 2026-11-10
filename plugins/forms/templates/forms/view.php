@@ -39,7 +39,7 @@ $isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') =
                 <div class="header-actions twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>index" class="ignis-btn ignis-btn--ghost"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Dashboard</a>
                     <?php if (Gate::allows('forms.decide', $antrag)): ?>
-                        <a href="<?= BASE_PATH ?>forms/admin/view?antrag=<?= htmlspecialchars($caseId) ?>" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-pen" aria-hidden="true"></i> Bearbeiten</a>
+                        <a href="<?= BASE_PATH ?>forms/admin/view?form=<?= htmlspecialchars($caseId) ?>" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-pen" aria-hidden="true"></i> Bearbeiten</a>
                     <?php endif; ?>
                 </div>
             </div>

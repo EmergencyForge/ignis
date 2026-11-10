@@ -98,7 +98,7 @@ final class FormPagesTest extends FeatureTestCase
     {
         $this->mitarbeiter();
 
-        $page = $this->get('/forms/create', ['query' => ['typ' => (string) $this->typ->id]]);
+        $page = $this->get('/forms/create', ['query' => ['type' => (string) $this->typ->id]]);
 
         $this->assertOk($page);
         $this->assertBodyContains('<title>Urlaubsantrag stellen', $page);
@@ -107,6 +107,7 @@ final class FormPagesTest extends FeatureTestCase
         $this->assertBodyContains('<label class="ignis-checkbox" for="vertretung">', $page);
         $this->assertBodyContains('<span class="ignis-field__required">*</span>', $page);
         $this->assertBodyContains('name="submit_antrag" class="ignis-btn ignis-btn--primary"', $page);
+        $this->assertBodyContains('<title>Urlaubsantrag stellen', $this->get('/forms/create', ['query' => ['typ' => (string) $this->typ->id]]));
         $this->assertBodyNotContains('form-select', $page);
     }
 
@@ -135,7 +136,7 @@ final class FormPagesTest extends FeatureTestCase
             $person->geschlecht = $geschlecht;
             $person->save();
 
-            $page = $this->get('/forms/create', ['query' => ['typ' => (string) $this->typ->id]]);
+            $page = $this->get('/forms/create', ['query' => ['type' => (string) $this->typ->id]]);
 
             $this->assertMatchesRegularExpression('~id="dg"\s+name="dg"\s+placeholder=""\s+value="' . preg_quote($erwartet, '~') . '"~', $page->body, 'Geschlecht ' . $geschlecht);
         }
@@ -146,17 +147,19 @@ final class FormPagesTest extends FeatureTestCase
     {
         $antrag = $this->antrag(Form::STATUS_DEFERRED);
 
-        $view = $this->get('/forms/view', ['query' => ['antrag' => $antrag->uniqueid]]);
+        $view = $this->get('/forms/view', ['query' => ['form' => $antrag->uniqueid]]);
         $this->assertOk($view);
         $this->assertBodyContains('<h1 class="ignis-detail__title">Urlaubsantrag <span class="ignis-chip ignis-chip--dot ignis-chip--warn">Aufgeschoben</span></h1>', $view);
         $this->assertBodyContains('<div class="ignis-detail">', $view);
         $this->assertBodyContains('<dl class="ignis-detail__dl">', $view);
         $this->assertBodyContains('<dd class="whitespace-pre-line">Bitte Vertretung', $view);
-        $this->assertBodyContains('href="/forms/admin/view?antrag=' . $antrag->uniqueid . '" class="ignis-btn ignis-btn--primary"', $view);
+        $this->assertBodyContains('href="/forms/admin/view?form=' . $antrag->uniqueid . '" class="ignis-btn ignis-btn--primary"', $view);
         $this->assertBodyNotContains('form-control-plaintext', $view);
+        $this->assertBodyContains('<dd class="whitespace-pre-line">Bitte Vertretung', $this->get('/forms/view', ['query' => ['antrag' => $antrag->uniqueid]]));
+        $this->assertBodyContains('<span class="ignis-mono">#' . $antrag->uniqueid . '</span>', $this->get('/forms/admin/view', ['query' => ['antrag' => $antrag->uniqueid]]));
         $this->assertBodyNotContains('.field-value', $view);
 
-        $admin = $this->get('/forms/admin/view', ['query' => ['antrag' => $antrag->uniqueid]]);
+        $admin = $this->get('/forms/admin/view', ['query' => ['form' => $antrag->uniqueid]]);
         $this->assertOk($admin);
         $this->assertBodyContains('<form method="post" class="ignis-detail">', $admin);
         $this->assertBodyContains('<select class="ignis-input" data-custom-dropdown="true" id="cirs_status" name="cirs_status" required>', $admin);
@@ -176,7 +179,7 @@ final class FormPagesTest extends FeatureTestCase
         $wert->save();
 
         foreach (['/forms/view', '/forms/admin/view'] as $route) {
-            $page = $this->get($route, ['query' => ['antrag' => $antrag->uniqueid]]);
+            $page = $this->get($route, ['query' => ['form' => $antrag->uniqueid]]);
             $this->assertOk($page);
             $this->assertBodyContains('<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">', $page);
             // Halbbreite: eine Zelle ohne Spannweite, Label über Wert.

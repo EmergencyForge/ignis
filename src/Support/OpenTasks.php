@@ -40,7 +40,7 @@ final class OpenTasks
                 // typ ist per Fremdschluessel und NOT NULL garantiert.
                 $tasks[] = ['label' => $form->typ->name . ' · ' . $form->uniqueid,
                     'reason' => 'Eigener Antrag · Bearbeitung möglich',
-                    'href' => $base . 'forms/admin/view?antrag=' . rawurlencode($form->uniqueid)];
+                    'href' => $base . 'forms/admin/view?form=' . rawurlencode($form->uniqueid)];
             }
         }
         if ($canEditIncidents && $mitarbeiterId !== null) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -119,7 +120,7 @@ final class MciFormsTest extends FeatureTestCase
             'transportziel'      => '',
             'verletzungen'       => 'Fraktur Unterarm',
             'notizen'            => '',
-        ], ['query' => ['lage_id' => (string) $lageId]]);
+        ], ['query' => ['situation_id' => (string) $lageId]]);
 
         $patient = Capsule::table('intra_manv_patienten')->where('manv_lage_id', $lageId)->first();
         $this->assertNotNull($patient);
@@ -151,9 +152,9 @@ final class MciFormsTest extends FeatureTestCase
     {
         $lageId = $this->lage();
 
-        $response = $this->post('/mci/patient-create', ['name' => ['Muster']], ['query' => ['lage_id' => (string) $lageId]]);
+        $response = $this->post('/mci/patient-create', ['name' => ['Muster']], ['query' => ['situation_id' => (string) $lageId]]);
 
-        $this->assertRedirect($response, '/mci/patient-create?lage_id=' . $lageId);
+        $this->assertRedirect($response, '/mci/patient-create?situation_id=' . $lageId);
         $this->assertFalse(Capsule::table('intra_manv_patienten')->where('manv_lage_id', $lageId)->exists());
     }
 
@@ -170,9 +171,9 @@ final class MciFormsTest extends FeatureTestCase
             'fahrzeugtyp'  => 'RTW',
             'lokalisation' => 'Haltepunkt Nord',
             'notizen'      => '',
-        ], ['query' => ['lage_id' => (string) $lageId]]);
+        ], ['query' => ['situation_id' => (string) $lageId]]);
 
-        $this->assertRedirect($response, '/mci/resources?lage_id=' . $lageId);
+        $this->assertRedirect($response, '/mci/resources?situation_id=' . $lageId);
         $ressource = Capsule::table('intra_manv_ressourcen')->where('manv_lage_id', $lageId)->first();
         $this->assertNotNull($ressource);
         $this->assertSame('RTW 2/83-1', $ressource->bezeichnung);
@@ -186,7 +187,7 @@ final class MciFormsTest extends FeatureTestCase
             'fahrzeugtyp'  => 'RTW',
             'lokalisation' => 'Bereitstellungsraum',
             'notizen'      => 'Nachgerückt',
-        ], ['query' => ['lage_id' => (string) $lageId]]);
+        ], ['query' => ['situation_id' => (string) $lageId]]);
 
         $ressource = Capsule::table('intra_manv_ressourcen')->where('id', $ressource->id)->first();
         $this->assertSame('Bereitstellungsraum', $ressource->lokalisation);
@@ -198,10 +199,44 @@ final class MciFormsTest extends FeatureTestCase
     {
         $lageId = $this->lage();
 
-        $response = $this->post('/mci/resources', ['action' => 'create', 'bezeichnung' => '  '], ['query' => ['lage_id' => (string) $lageId]]);
+        $response = $this->post('/mci/resources', ['action' => 'create', 'bezeichnung' => '  '], ['query' => ['situation_id' => (string) $lageId]]);
 
-        $this->assertRedirect($response, '/mci/resources?lage_id=' . $lageId);
+        $this->assertRedirect($response, '/mci/resources?situation_id=' . $lageId);
         $this->assertSame('Bezeichnung ist Pflichtfeld.', $_SESSION['flash']['text'] ?? null);
         $this->assertFalse(Capsule::table('intra_manv_ressourcen')->where('manv_lage_id', $lageId)->exists());
+    }
+
+    #[Test]
+    #[DataProvider('schnellsichtung')]
+    public function schnellsichtung_per_link(string $param): void
+    {
+        $lageId    = $this->lage();
+        $patientId = (int) Capsule::table('intra_manv_patienten')->insertGetId([
+            'manv_lage_id' => $lageId, 'patienten_nummer' => 'P-07', 'sichtungskategorie' => 'SK3', 'erstellt_von' => $this->userId,
+        ]);
+
+        $response = $this->get('/mci/patient-view', ['query' => ['id' => (string) $patientId, $param => 'SK1']]);
+
+        $this->assertRedirect($response, '/mci/patient-view?id=' . $patientId);
+        $this->assertSame('SK1', Capsule::table('intra_manv_patienten')->where('id', $patientId)->value('sichtungskategorie'));
+    }
+
+    /** @return array<string, array{string}> */
+    public static function schnellsichtung(): array
+    {
+        return ['neu' => ['quick_triage'], 'alt' => ['quick_sk']];
+    }
+
+    #[Test]
+    public function alte_lage_id_legt_den_patienten_in_der_lage_an(): void
+    {
+        $lageId = $this->lage();
+
+        $this->post('/mci/patient-create', [
+            'name' => 'Alt', 'vorname' => '', 'geburtsdatum' => '', 'geschlecht' => 'm', 'sichtungskategorie' => 'SK2',
+            'transportmittel_id' => '', 'transportziel' => '', 'verletzungen' => '', 'notizen' => '',
+        ], ['query' => ['lage_id' => (string) $lageId]]);
+
+        $this->assertTrue(Capsule::table('intra_manv_patienten')->where('manv_lage_id', $lageId)->where('name', 'Alt')->exists());
     }
 }

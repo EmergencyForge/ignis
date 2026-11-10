@@ -77,7 +77,7 @@ $appStatus = [
         <?php endif; ?>
         <?php foreach ($appresult as $row):
             [$stateText, $stateChip] = $appStatus[(int) $row['cirs_status']] ?? ['Unbekannt', 'secondary'];
-            $viewUrl = BASE_PATH . 'forms/view?antrag=' . urlencode((string) $row['uniqueid']);
+            $viewUrl = BASE_PATH . 'forms/view?form=' . urlencode((string) $row['uniqueid']);
         ?>
             <tr>
                 <td><i class="<?= htmlspecialchars((string) $row['typ_icon']) ?> mr-1" aria-hidden="true"></i> <?= htmlspecialchars((string) $row['typ_name']) ?></td>

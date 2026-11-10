@@ -58,7 +58,7 @@ class EnotfController extends Controller
         if (!$vehicle && Capsule::table('intra_fahrzeuge')->where('identifier', $currentVehicleId)->exists()) {
             (new EnotfSession())->deactivateAllForVehicle((string) $currentVehicleId);
             SessionManager::logoutEnotfCrew();
-            $this->redirectAbsolute(EnotfUrl::page('loggedout') . '?grund=ausser-dienst');
+            $this->redirectAbsolute(EnotfUrl::page('loggedout') . '?reason=ausser-dienst');
         }
 
         $vehicles = [];

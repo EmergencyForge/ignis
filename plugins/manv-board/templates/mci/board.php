@@ -45,7 +45,7 @@ $pgPath = 'mci/board';
                     <a href="<?= BASE_PATH ?>mci/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--secondary">
                         <i class="fas fa-edit"></i>Bearbeiten
                     </a>
-                    <a href="<?= BASE_PATH ?>mci/patient-create?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--primary">
+                    <a href="<?= BASE_PATH ?>mci/patient-create?situation_id=<?= $lageId ?>" class="ignis-btn ignis-btn--primary">
                         <i class="fas fa-user-plus"></i>Neuer Patient
                     </a>
                 </div>
@@ -147,7 +147,7 @@ $pgPath = 'mci/board';
             <div class="ignis-card ignis-card--table mb-4">
                 <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
                     <h2 class="ignis-card__title mb-0"><i class="fas fa-users mr-2"></i>Patienten an der Einsatzstelle</h2>
-                    <a href="<?= BASE_PATH ?>mci/resources?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
+                    <a href="<?= BASE_PATH ?>mci/resources?situation_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary">
                         <i class="fas fa-truck"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                     </a>
                 </div>

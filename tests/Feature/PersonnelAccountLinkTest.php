@@ -304,7 +304,7 @@ final class PersonnelAccountLinkTest extends FeatureTestCase
         AccountLink::link((int) $user->id, (int) $person->id, (int) $creator->id);
 
         $page = $this->get('/index');
-        $this->assertBodyContains('href="/forms/view?antrag=' . $antrag->uniqueid . '"', $page);
+        $this->assertBodyContains('href="/forms/view?form=' . $antrag->uniqueid . '"', $page);
         $this->assertBodyContains((string) $docId, $page);
         $this->assertBodyNotContains('Kein Mitarbeiterprofil verknüpft', $page);
         AccountLink::forget();
