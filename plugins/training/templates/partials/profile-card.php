@@ -32,7 +32,8 @@ $trainingBase = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             <?php foreach ($trainingTasks as $trainingTask): ?>
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <div><i class="fa-solid fa-list-check" aria-hidden="true"></i> <?= htmlspecialchars($trainingTask->title) ?>
-                        <?php if ($trainingTask->due_on !== null): ?><span class="ignis-detail__muted">bis <?= htmlspecialchars(date('d.m.Y', (int) strtotime($trainingTask->due_on))) ?></span><?php endif; ?></div>
+                        <?php if ($trainingTask->due_on !== null): ?><span class="ignis-detail__muted">bis <?= htmlspecialchars(date('d.m.Y', (int) strtotime($trainingTask->due_on))) ?></span><?php endif; ?>
+                        <?php if (!FollowUps::owns($trainingTask, $trainingUser) && $trainingTask->assignee !== null): ?><span class="ignis-detail__muted">· <?= htmlspecialchars($trainingTask->assignee) ?></span><?php endif; ?></div>
                     <form method="post" action="<?= $trainingBase ?>training/follow-ups/<?= (int) $trainingTask->id ?>/done">
                         <?= csrf_field() ?>
                         <input type="hidden" name="back" value="personnel/profile?id=<?= (int) $mitarbeiter->id ?>">

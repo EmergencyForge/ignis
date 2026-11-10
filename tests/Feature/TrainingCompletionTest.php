@@ -299,7 +299,7 @@ final class TrainingCompletionTest extends FeatureTestCase
     }
 
     #[Test]
-    public function a_follow_up_for_a_role_shows_up_and_only_that_role_closes_it(): void
+    public function a_follow_up_for_a_role_gives_every_active_member_an_own_task(): void
     {
         $role = FixtureFactory::role();
         $this->type->completion_plan     = ['follow_up' => true];
@@ -308,24 +308,32 @@ final class TrainingCompletionTest extends FeatureTestCase
         $lead     = $this->account();
         $course   = $this->course($lead['user']);
         $learner  = $this->account();
-        $assignee = (int) FixtureFactory::user(['role' => $role->id])->id;
+        $first    = (int) FixtureFactory::user(['role' => $role->id])->id;
+        $second   = (int) FixtureFactory::user(['role' => $role->id])->id;
+        $inactive = (int) FixtureFactory::user(['role' => $role->id, 'is_active' => false])->id;
         $stranger = $this->account();
         $p        = $this->admit($course, $learner['personnel']);
 
         $this->sit($course, $p, $learner['user'], true);
 
-        $tasks = FollowUps::openFor($assignee);
-        $this->assertCount(1, $tasks);
-        $this->assertStringStartsWith('Beförderung von ', $tasks[0]->title);
+        $this->assertSame('an 2 in der Rolle', $this->step($p, CompletionStep::FollowUp)?->message);
+        $mine = FollowUps::openFor($first);
+        $this->assertCount(1, $mine);
+        $this->assertStringStartsWith('Beförderung von ', $mine[0]->title);
+        $this->assertCount(1, FollowUps::openFor($second));
+        $this->assertNotSame($mine[0]->id, FollowUps::openFor($second)[0]->id, 'Jedes Mitglied hat einen eigenen Eintrag.');
+        $this->assertSame([], FollowUps::openFor($inactive));
         $this->assertSame([], FollowUps::openFor($stranger['user']));
 
-        $this->as($stranger['user'], []);
-        $this->post('/training/follow-ups/' . $tasks[0]->id . '/done', ['back' => 'personnel/profile?id=' . $learner['personnel']]);
-        $this->assertCount(1, FollowUps::openFor($assignee), 'Fremde dürfen nicht abhaken.');
+        $back = ['back' => 'personnel/profile?id=' . $learner['personnel']];
+        $this->as($second, []);
+        $this->post('/training/follow-ups/' . $mine[0]->id . '/done', $back);
+        $this->assertCount(1, FollowUps::openFor($first), 'Die Aufgabe eines anderen Mitglieds hakt man nicht ab.');
 
-        $this->as($assignee, []);
-        $this->post('/training/follow-ups/' . $tasks[0]->id . '/done', ['back' => 'personnel/profile?id=' . $learner['personnel']]);
-        $this->assertSame([], FollowUps::openFor($assignee));
+        $this->as($first, []);
+        $this->post('/training/follow-ups/' . $mine[0]->id . '/done', $back);
+        $this->assertSame([], FollowUps::openFor($first));
+        $this->assertCount(1, FollowUps::openFor($second), 'Das andere Mitglied hat seine noch offen.');
     }
 
     #[Test]
