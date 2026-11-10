@@ -41,7 +41,7 @@ final class EnotfPinReturnTest extends FeatureTestCase
     #[Test]
     public function fuehrt_auf_die_seite_zurueck_die_pin_activity_mitschickt(): void
     {
-        $seite = EnotfUrl::protokoll('123', 'history') . '?t=anamnese';
+        $seite = EnotfUrl::protokoll('123', 'history') . '?t=history';
 
         $this->assertOk($this->get('/enotf/lockscreen', ['query' => ['return' => $seite]]));
 
@@ -51,12 +51,12 @@ final class EnotfPinReturnTest extends FeatureTestCase
     #[Test]
     public function fuehrt_auf_die_seite_zurueck_die_die_middleware_gesperrt_hat(): void
     {
-        $seite = EnotfUrl::protokoll('123', 'assessment') . '?t=atemwege&q=2';
+        $seite = EnotfUrl::protokoll('123', 'assessment') . '?t=airway&q=2';
         $_SESSION['pin_verified']      = true;
         $_SESSION['pin_last_activity'] = time() - SessionManager::pinTimeout() - 1;
 
         $gesperrt = $this->get('/enotf/p/123/erstbefund', [
-            'query'  => ['t' => 'atemwege', 'q' => '2'],
+            'query'  => ['t' => 'airway', 'q' => '2'],
             'server' => ['REQUEST_URI' => $seite],
         ]);
         $this->assertRedirect($gesperrt, EnotfUrl::page('lockscreen'));

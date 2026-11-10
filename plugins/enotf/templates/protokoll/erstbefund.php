@@ -45,7 +45,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 $wert = static fn (string $feld): string => (string) ($protokoll[$feld] ?? '');
 
 $sectionUrl = EnotfUrl::protokoll($enr, 'assessment');
-$fokusUrl   = static fn (string $thema): string => $sectionUrl . '?t=' . rawurlencode($thema);
+$fokusUrl   = static fn (string $thema): string => EnotfUrl::focus($enr, 'assessment', $thema);
 
 // ── Blutzucker: Anzeige-Einheit aus Config, Speicherung mg/dl ────────
 $bzHelper  = new BloodSugarHelper();

@@ -49,7 +49,7 @@ final class EnotfZugangStepsTest extends FeatureTestCase
     #[DataProvider('schritte')]
     public function q_oeffnet_den_passenden_schritt(string $q, ?string $ort): void
     {
-        $page = $this->get('/enotf/p/' . $this->enr . '/interventions', ['query' => ['t' => 'zugang', 'q' => $q]]);
+        $page = $this->get('/enotf/p/' . $this->enr . '/interventions', ['query' => ['t' => 'access', 'q' => $q]]);
         $this->assertOk($page);
 
         $offen = array_values(array_filter(
@@ -63,5 +63,26 @@ final class EnotfZugangStepsTest extends FeatureTestCase
         } else {
             $this->assertStringContainsString('&quot;ort&quot;:&quot;' . $ort . '&quot;', $offen[0]);
         }
+    }
+
+    #[Test]
+    public function alter_fokuswert_oeffnet_dieselbe_ansicht(): void
+    {
+        $alt = $this->get('/enotf/p/' . $this->enr . '/interventions', ['query' => ['t' => 'zugang', 'q' => '2']]);
+        $neu = $this->get('/enotf/p/' . $this->enr . '/interventions', ['query' => ['t' => 'access', 'q' => '2']]);
+
+        $this->assertOk($alt);
+        $this->assertBodyContains('&quot;ort&quot;:&quot;Handrücken&quot;', $alt);
+        $this->assertSame($neu->body, $alt->body);
+    }
+
+    #[Test]
+    public function die_uebersicht_verlinkt_die_englischen_fokuswerte(): void
+    {
+        $page = $this->get('/enotf/p/' . $this->enr . '/interventions');
+
+        $this->assertBodyContains('/interventions?t=access"', $page);
+        $this->assertBodyContains('/interventions?t=medications"', $page);
+        $this->assertBodyNotContains('?t=zugang', $page);
     }
 }

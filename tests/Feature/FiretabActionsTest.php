@@ -55,7 +55,7 @@ final class FiretabActionsTest extends FeatureTestCase
     /** @param array<string,mixed> $felder */
     private function action(int $id, string $action, array $felder = []): \EmergencyForge\Http\Response
     {
-        return $this->post('/firetab/actions', ['action' => $action, 'incident_id' => (string) $id, 'return_tab' => 'stammdaten'] + $felder);
+        return $this->post('/firetab/actions', ['action' => $action, 'incident_id' => (string) $id, 'return_tab' => 'details'] + $felder);
     }
 
     #[Test]
@@ -108,7 +108,7 @@ final class FiretabActionsTest extends FeatureTestCase
         $id = $this->incident();
 
         $response = $this->action($id, 'add_vehicle', ['vehicle_id' => '', 'radio_name' => 'Florian Nachbar 1', 'vehicle_name' => 'HLF', 'vehicle_identifier' => '']);
-        $this->assertRedirect($response, '/firetab/view?id=' . $id . '&tab=stammdaten');
+        $this->assertRedirect($response, '/firetab/view?id=' . $id . '&tab=details');
         $row = Capsule::table('intra_fire_incident_vehicles')->where('incident_id', $id)->first();
         $this->assertNotNull($row);
         $this->assertSame('Florian Nachbar 1', $row->radio_name);

@@ -277,7 +277,7 @@ $asuStartBar    = defined('FIRE_ASU_START_BAR') ? max(50, (int) FIRE_ASU_START_B
     </div>
     <div class="asu-rows" data-asu-rows></div>
     <?php if (!empty($asuProtocols)): ?>
-        <p class="asu-legacy"><?= count($asuProtocols) ?> ältere Protokolle aus der bisherigen Überwachung stehen im <a href="<?= BASE_PATH ?>firetab/view?id=<?= (int) $id ?>&tab=bericht">Einsatzbericht</a>.</p>
+        <p class="asu-legacy"><?= count($asuProtocols) ?> ältere Protokolle aus der bisherigen Überwachung stehen im <a href="<?= BASE_PATH ?>firetab/view?id=<?= (int) $id ?>&tab=report">Einsatzbericht</a>.</p>
     <?php endif; ?>
 </div>
 

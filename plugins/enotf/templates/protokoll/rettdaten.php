@@ -151,7 +151,7 @@ $ro  = $istGesperrt ? 'readonly' : '';
                     </div>
                 </div>
             </div>
-            <div class="row shadow edivi__box <?= $istGesperrt ? '' : 'edivi__box-clickable' ?>" <?= $istGesperrt ? '' : 'data-href="' . $e($sectionUrl . '?t=von') . '" style="cursor:pointer"' ?>>
+            <div class="row shadow edivi__box <?= $istGesperrt ? '' : 'edivi__box-clickable' ?>" <?= $istGesperrt ? '' : 'data-href="' . $e(EnotfUrl::focus($enr, 'mission', 'von')) . '" style="cursor:pointer"' ?>>
                 <h5 class="text-light px-2 py-1 edivi__group-check">Transport von / Einsatzort</h5>
                 <div class="col">
                     <div class="row my-2">
@@ -212,7 +212,7 @@ $ro  = $istGesperrt ? 'readonly' : '';
                     </div>
                 </div>
             </div>
-            <div class="row shadow edivi__box <?= $istGesperrt ? '' : 'edivi__box-clickable' ?>" <?= $istGesperrt ? '' : 'data-href="' . $e($sectionUrl . '?t=ziel') . '" style="cursor:pointer"' ?>>
+            <div class="row shadow edivi__box <?= $istGesperrt ? '' : 'edivi__box-clickable' ?>" <?= $istGesperrt ? '' : 'data-href="' . $e(EnotfUrl::focus($enr, 'mission', 'ziel')) . '" style="cursor:pointer"' ?>>
                 <h5 class="text-light px-2 py-1 edivi__group-check">Transportziel</h5>
                 <div class="col">
                     <div class="row my-2">

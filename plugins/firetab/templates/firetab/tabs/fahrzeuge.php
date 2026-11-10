@@ -73,7 +73,7 @@
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="action" value="remove_vehicle">
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
-                                        <input type="hidden" name="return_tab" value="fahrzeuge">
+                                        <input type="hidden" name="return_tab" value="vehicles">
                                         <input type="hidden" name="vehicle_row_id" value="<?= (int)$av['id'] ?>">
                                         <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" aria-label="Fahrzeug entfernen" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash" aria-hidden="true"></i>
@@ -96,7 +96,7 @@
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="add_vehicle">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
-            <input type="hidden" name="return_tab" value="fahrzeuge">
+            <input type="hidden" name="return_tab" value="vehicles">
 
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>

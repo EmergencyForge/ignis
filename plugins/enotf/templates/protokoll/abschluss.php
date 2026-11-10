@@ -46,7 +46,7 @@ use Plugin\Enotf\Crew\Support\ConditionsService;
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 
 $sectionUrl = EnotfUrl::protokoll($enr, 'completion');
-$fokusUrl   = static fn (string $t): string => $sectionUrl . '?t=' . rawurlencode($t);
+$fokusUrl   = static fn (string $t): string => EnotfUrl::focus($enr, 'completion', $t);
 
 $protBy = ($protokoll['prot_by'] !== null && $protokoll['prot_by'] !== '')
     ? (int) $protokoll['prot_by']

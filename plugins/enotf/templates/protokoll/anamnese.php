@@ -45,7 +45,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 $wert = static fn (string $feld): string => (string) ($protokoll[$feld] ?? '');
 
 $sectionUrl = EnotfUrl::protokoll($enr, 'history');
-$fokusUrl   = static fn (string $thema): string => $sectionUrl . '?t=' . rawurlencode($thema);
+$fokusUrl   = static fn (string $thema): string => EnotfUrl::focus($enr, 'history', $thema);
 
 $dis = $istGesperrt ? 'disabled' : '';
 

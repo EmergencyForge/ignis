@@ -94,11 +94,11 @@ final class FiretabAppTest extends FeatureTestCase
         $this->loginVehicle();
         $id = $this->incident();
 
-        $stammdaten = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'stammdaten']]);
+        $stammdaten = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'details']]);
         $this->assertOk($stammdaten);
         $this->assertBodyContains('<select class="ignis-input" name="edit_leader_id" data-custom-dropdown="true"', $stammdaten);
 
-        $fahrzeuge = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'fahrzeuge']]);
+        $fahrzeuge = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'vehicles']]);
         $this->assertOk($fahrzeuge);
         $this->assertBodyContains('Noch keine Fahrzeuge hinzugefügt', $fahrzeuge);
         $this->assertBodyContains('<select name="vehicle_id" class="ignis-input" data-custom-dropdown="true"', $fahrzeuge);
@@ -115,19 +115,34 @@ final class FiretabAppTest extends FeatureTestCase
         $this->assertBodyNotContains('system-badge', $log);
         $this->assertBodyNotContains('table-hover', $log);
 
-        $karte = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'lagekarte']]);
+        $karte = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'situation-map']]);
         $this->assertOk($karte);
         $this->assertBodyContains('<table class="ignis-table" id="table-map-markers">', $karte);
         $this->assertBodyContains('<table class="ignis-table" id="table-map-zones">', $karte);
         $this->assertBodyNotContains('table-striped', $karte);
 
-        $asu = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'atemschutz']]);
+        $asu = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'ba']]);
         $this->assertOk($asu);
         $this->assertBodyContains('<div id="asu-board"', $asu);
         $this->assertBodyContains('data-incident="' . $id . '"', $asu);
         $this->assertBodyContains('data-asu-mayday', $asu);
 
-        $this->assertRedirect($this->get('/firetab/asu', ['query' => ['incident_id' => (string) $id]]), '/firetab/view?id=' . $id . '&tab=atemschutz');
+        $this->assertRedirect($this->get('/firetab/asu', ['query' => ['incident_id' => (string) $id]]), '/firetab/view?id=' . $id . '&tab=ba');
+    }
+
+    #[Test]
+    public function alte_reiter_namen_zeigen_denselben_reiter(): void
+    {
+        $this->loginVehicle();
+        $id = $this->incident();
+
+        $asu = $this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'atemschutz']]);
+        $this->assertOk($asu);
+        $this->assertBodyContains('<div id="asu-board"', $asu);
+        $this->assertBodyContains('&tab=ba" class="sidebar-link active"', $asu);
+
+        $response = $this->post('/firetab/actions', ['action' => 'update_notes', 'incident_id' => (string) $id, 'return_tab' => 'lagemeldungen', 'notes' => '']);
+        $this->assertRedirect($response, '/firetab/view?id=' . $id . '&tab=status-reports');
     }
 
     /**
@@ -141,6 +156,6 @@ final class FiretabAppTest extends FeatureTestCase
         $id = $this->incident();
         Capsule::table('intra_mitarbeiter')->where('id', $this->person->id)->update(['fullname' => '']);
 
-        $this->assertOk($this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'stammdaten']]));
+        $this->assertOk($this->get('/firetab/view', ['query' => ['id' => (string) $id, 'tab' => 'details']]));
     }
 }

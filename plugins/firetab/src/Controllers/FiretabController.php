@@ -44,6 +44,34 @@ use Plugin\Firetab\Requests\VehicleLoginRequest;
  */
 class FiretabController extends Controller
 {
+    /**
+     * Reiter der Einsatzansicht: Slug in ?tab= => Datei unter templates/firetab/tabs/.
+     */
+    public const TABS = [
+        'details'        => 'stammdaten',
+        'report'         => 'bericht',
+        'vehicles'       => 'fahrzeuge',
+        'status-reports' => 'lagemeldungen',
+        'ba'             => 'atemschutz',
+        'situation-map'  => 'lagekarte',
+        'completion'     => 'abschluss',
+        'log'            => 'log',
+    ];
+
+    /**
+     * Reiter-Slug zu einem Wert aus ?tab= oder return_tab. Die alten deutschen
+     * Werte (die Dateinamen) stehen in Lesezeichen und offenen Formularen.
+     */
+    public static function tabSlug(mixed $value): string
+    {
+        if (is_string($value) && isset(self::TABS[$value])) {
+            return $value;
+        }
+        $slug = array_search($value, self::TABS, true);
+
+        return is_string($slug) ? $slug : 'details';
+    }
+
     protected function viewBasePath(): string
     {
         return dirname(__DIR__, 2) . '/templates';
@@ -284,7 +312,7 @@ class FiretabController extends Controller
         }
 
         $id = (int) ($_GET['id'] ?? 0);
-        $activeTab = $_GET['tab'] ?? 'stammdaten';
+        $activeTab = self::tabSlug($_GET['tab'] ?? null);
 
         if ($id <= 0) {
             Flash::error('Ungültige Einsatz-ID');
@@ -359,14 +387,10 @@ class FiretabController extends Controller
             ->orderBy('created_at')
             ->get()->map(fn ($r) => (array) $r)->all();
 
-        $validTabs = ['stammdaten', 'bericht', 'fahrzeuge', 'lagemeldungen', 'atemschutz', 'lagekarte', 'abschluss', 'log'];
-        if (!in_array($activeTab, $validTabs, true)) {
-            $activeTab = 'stammdaten';
-        }
-
         $this->renderView('firetab/view', [
             'id'               => $id,
             'activeTab'        => $activeTab,
+            'tabTemplate'      => self::TABS[$activeTab],
             'incident'         => $incident,
             'allVehicles'      => $allVehicles,
             'attachedVehicles' => $attachedVehicles,
@@ -566,7 +590,7 @@ class FiretabController extends Controller
         }
 
         $id = (int) ($input['incident_id'] ?? $_GET['id'] ?? 0);
-        $returnTab = $input['return_tab'] ?? $_GET['tab'] ?? 'stammdaten';
+        $returnTab = self::tabSlug($input['return_tab'] ?? $_GET['tab'] ?? null);
 
         if ($id <= 0) {
             Flash::error('Ungültige Einsatz-ID');
@@ -605,7 +629,7 @@ class FiretabController extends Controller
 
         // Archive/unarchive redirect to admin list (handled inside those methods)
         \App\Session\SessionManager::skipNextViewLog();
-        $this->redirect('firetab/view?id=' . $id . '&tab=' . urlencode($returnTab));
+        $this->redirect('firetab/view?id=' . $id . '&tab=' . $returnTab);
     }
 
     // ── Individual action methods ──────────────────────────
@@ -1044,7 +1068,7 @@ class FiretabController extends Controller
     {
         $incidentId = (int) ($_GET['incident_id'] ?? 0);
         if ($incidentId > 0) {
-            $this->redirect('firetab/view?id=' . $incidentId . '&tab=atemschutz');
+            $this->redirect('firetab/view?id=' . $incidentId . '&tab=ba');
         }
         Flash::info('Die Atemschutzüberwachung findest du jetzt im Einsatz unter „Atemschutz“.');
         $this->redirect('firetab/list');

@@ -52,7 +52,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 $wert = static fn (string $feld): string => (string) ($protokoll[$feld] ?? '');
 
 $sectionUrl = EnotfUrl::protokoll($enr, 'interventions');
-$fokusUrl   = static fn (string $thema): string => $sectionUrl . '?t=' . rawurlencode($thema);
+$fokusUrl   = static fn (string $thema): string => EnotfUrl::focus($enr, 'interventions', $thema);
 
 $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS;
 

@@ -55,6 +55,44 @@ class ProtokollController extends CrewController
     public const DEFAULT_SECTION = 'mission';
 
     /**
+     * Fokuswerte für ?t= je Section: Slug in der URL => Themen-Schlüssel im
+     * Template. Die alten deutschen Werte sind die Schlüssel selbst und
+     * funktionieren deshalb in alten Links weiter. Verlauf (add, list) fehlt,
+     * dort sind Slug und Schlüssel gleich.
+     */
+    public const FOCUS = [
+        'mission' => ['origin' => 'von', 'destination' => 'ziel'],
+        'assessment' => [
+            'airway'      => 'atemwege',
+            'breathing'   => 'atmung',
+            'circulation' => 'kreislauf',
+            'neurology'   => 'neurologie',
+            'extended'    => 'erweitern',
+            'ecg'         => 'ekg',
+            'mental'      => 'psychisch',
+            'vitals'      => 'messwerte',
+        ],
+        'history' => ['history' => 'anamnese', 'condition' => 'az', 'scene' => 'einsatzort', 'symptoms' => 'symptome'],
+        'diagnosis' => ['primary' => 'haupt', 'secondary' => 'weitere', 'text' => 'text'],
+        'interventions' => [
+            'airway'           => 'atemwege',
+            'breathing'        => 'atmung',
+            'access'           => 'zugang',
+            'medications'      => 'medikamente',
+            'medication-entry' => 'medimaske',
+            'other'            => 'weitere',
+        ],
+        'completion' => ['remarks' => 'besonderheiten', 'drreq' => 'nanachf', 'cpr' => 'rea', 'handover' => 'uebergabe', 'release' => 'freigabe'],
+    ];
+
+    public static function focusSlug(string $section, string $key): string
+    {
+        $slug = array_search($key, self::FOCUS[$section] ?? [], true);
+
+        return is_string($slug) ? $slug : $key;
+    }
+
+    /**
      * GET /enotf/p/{enr}[/{section}]: Editor-Shell.
      */
     public function show(Request $request, string $enr, ?string $section = null): void
@@ -89,10 +127,12 @@ class ProtokollController extends CrewController
             : self::DEFAULT_SECTION;
 
         // Kachel-Drilldown: ?t={thema} wählt die Fokus-Ansicht innerhalb
-        // einer Section (z. B. assessment?t=atemwege). Validierung der
+        // einer Section (z. B. assessment?t=airway). Validierung der
         // erlaubten Themen-Keys übernimmt das Section-Template.
         $fokusThema = $request->query['t'] ?? null;
-        $fokusThema = is_string($fokusThema) && $fokusThema !== '' ? $fokusThema : null;
+        $fokusThema = is_string($fokusThema) && $fokusThema !== ''
+            ? (self::FOCUS[$activeSection][$fokusThema] ?? $fokusThema)
+            : null;
 
         $nurLesen = !ProtokollAccessGuard::vehicleMatches($protokoll);
 
