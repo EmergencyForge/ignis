@@ -1224,11 +1224,11 @@
         },
         {
             "name": "emergencyforge/training",
-            "version": "0.3.0",
+            "version": "0.3.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/training",
-                "reference": "fcc022da097e73f0cd8844ab2d44ba5e2ae43adb"
+                "reference": "c73f768df19fde97fd0ded1575b7c880144a62d0"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
