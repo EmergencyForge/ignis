@@ -37,7 +37,6 @@ $router->get('/training/courses/{course:\d+}/units/{unit:\d+}',       [TrainingC
 $router->post('/training/courses/{course:\d+}/units/{unit:\d+}/done', [TrainingController::class, 'done'],     $view);
 $router->post('/training/courses/{course:\d+}/units/{unit:\d+}/open', [TrainingController::class, 'open'],     $view);
 $router->get('/training/courses/{course:\d+}/files/{file:\d+}',       [TrainingController::class, 'file'],     $view);
-$router->get('/training/images/{id:\d+}',                             [TrainingController::class, 'image'],    $view);
 
 // Lehrgänge leiten und betreuen
 $router->get('/training/manage',                                            [ManageController::class, 'index'],         $teach);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc256796be025bbaaf5d4280f2d6cc6f",
+    "content-hash": "94b01b633090d9461ebdf2913bfee217",
     "packages": [
         {
             "name": "brick/math",
@@ -976,11 +976,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.6.1",
+            "version": "0.7.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "044b9564aa39d0a015c01438a751907966d5e2e8"
+                "reference": "09bc36f9eae641419bb1f345f282cdee8d8ee314"
             },
             "require": {
                 "php": ">=8.3",
@@ -1224,11 +1224,11 @@
         },
         {
             "name": "emergencyforge/training",
-            "version": "0.3.0",
+            "version": "0.3.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/training",
-                "reference": "fcc022da097e73f0cd8844ab2d44ba5e2ae43adb"
+                "reference": "c73f768df19fde97fd0ded1575b7c880144a62d0"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",

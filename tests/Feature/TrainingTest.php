@@ -269,11 +269,25 @@ final class TrainingTest extends FeatureTestCase
         $this->assertStringStartsWith('inline;', $response->headers['Content-Disposition'] ?? '');
         $this->assertSame('private, no-store', $response->headers['Cache-Control'] ?? null);
         $this->assertNotFound($this->get($url, ['query' => ['download' => '1']]));
-        // Unterlagen laufen nie über die Bild-Route ohne Teilnahmeprüfung.
-        $this->assertNotFound($this->get('/training/images/' . $file->id));
 
         $this->as($outsider['user'], ['training.view']);
         $this->assertNotFound($this->get($url));
+    }
+
+    #[Test]
+    public function only_who_may_edit_the_plan_uploads_article_images(): void
+    {
+        $url = '/api/training/modules/' . $this->unit($this->type(), [])->module_id . '/images';
+
+        $this->as($this->account()['user'], ['training.manage']);
+        $this->assertStatus(422, $this->postJson($url, []));
+
+        // Lehrgangsarten bearbeiten nur Verwalter, Ausbilder nicht.
+        $this->as($this->account()['user'], ['training.teach']);
+        $this->assertStatus(403, $this->postJson($url, []));
+
+        $this->as($this->account()['user'], ['training.view']);
+        $this->assertStatus(403, $this->postJson($url, []));
     }
 
     #[Test]
