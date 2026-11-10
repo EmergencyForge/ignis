@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int                      $id
  * @property string                   $name
  * @property string|null              $category
+ * @property bool                     $print_verification Prüfcode und QR beim Ausstellen
  * @property array<string,mixed>      $content
  * @property bool                     $is_active
  * @property int|null                 $created_by
@@ -43,6 +44,7 @@ class EditorTemplate extends Model
         'id'         => 'integer',
         'content'    => 'array',
         'is_active'  => 'boolean',
+        'print_verification' => 'boolean',
         'created_by' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

@@ -20,6 +20,7 @@ use Plugin\Training\Models\Topic;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Policies\TrainingPolicy;
 use Plugin\Training\Pool;
+use Plugin\Training\QuestionAnalysis;
 
 /** Fragenpool einer Lehrgangsart (`training.exams`). */
 final class QuestionController extends BaseController
@@ -254,6 +255,7 @@ final class QuestionController extends BaseController
             'question' => $question,
             'topics'   => Topic::query()->where('course_type_id', $type->id)->orderBy('position')->orderBy('name')->get()->all(),
             'usage'    => $usage,
+            'stats'    => $question->exists ? (QuestionAnalysis::of([$question])[$question->id] ?? null) : null,
             'versions' => $question->exists && Pool::usedInAttempts($question),
         ], $status);
     }

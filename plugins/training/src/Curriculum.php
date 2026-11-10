@@ -192,7 +192,7 @@ final class Curriculum
         if ($unit->file !== null) {
             $detail = $unit->file->label();
             $pages  = $state['pages'] ?? null;
-            if ($unit->file->isPdf() && is_array($pages) && (int) ($pages['total'] ?? 0) > 0) {
+            if ($unit->file->viewsAsPdf() && is_array($pages) && (int) ($pages['total'] ?? 0) > 0) {
                 $detail .= sprintf(', Seite %d von %d', max(1, (int) ($pages['last'] ?? 1)), (int) $pages['total']);
             }
         }

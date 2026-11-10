@@ -54,6 +54,15 @@ class DocumentPolicy
         return Permissions::check(['admin', $who]);
     }
 
+    /**
+     * Urkunden mit Prüfcode widerrufen. Das Recht bringt das Ausbildungs-
+     * Plugin mit; ohne es bleibt das den Admins.
+     */
+    public static function revoke(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'training.manage']);
+    }
+
     public static function resetTemplate(mixed $context = null): bool
     {
         return Permissions::check(['admin']);

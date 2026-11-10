@@ -31,6 +31,10 @@ The rich text editor (knowledge base, mail, documents) comes from the shared `em
 - `@floating-ui/dom` 1.8.0, © Floating UI contributors. Source: <https://github.com/floating-ui/floating-ui>.
 - `ueberdosis/tiptap-php` 2.2.0, © überdosis, renders the editor JSON to HTML on the server. Source: <https://github.com/ueberdosis/tiptap-php>.
 
+## QR codes
+
+The QR code next to the verification code on issued certificates is drawn by `chillerlan/php-qrcode` 6.0.1, © Smiley, licensed under the MIT License or the Apache License 2.0 (<https://github.com/chillerlan/php-qrcode>). Parts of it are ported from ZXing (© ZXing authors) and php-qrcode-detector-decoder (© Ashot Khanamiryan) under the Apache License 2.0; its `NOTICE` file lists them. It depends on `chillerlan/php-settings-container` 3.3.0, © Smiley, MIT License (<https://github.com/chillerlan/php-settings-container>).
+
 ## Situation map tiles
 
 The fireTab situation map (Lagekarte) offers the map styles Satellit, Hybrid, Straßen and Gelände next to the atlas map. Their tiles in `assets/img/map/satellite`, `hybrid`, `roadmap` and `terrain` (mirrored to `public/assets/img/map`) are adapted from the GTA V map tiles of gtadb.org (<https://map.gtadb.org>, source <https://github.com/rolux/gtadb.org>), licensed under CC BY 4.0 (<https://creativecommons.org/licenses/by/4.0/>), copyright gtadb.org and contributors.

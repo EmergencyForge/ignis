@@ -9,9 +9,12 @@
  * @var list<\Plugin\Training\Models\Question>   $questions
  * @var array<int, int>                          $counts  Thema (0 = ohne) => Fragen
  * @var array<int, int>                          $usage
+ * @var array<int, \EmergencyForge\Training\Exam\QuestionStats> $stats
  * @var string                                   $typeUrl
  */
 
+use EmergencyForge\Training\Exam\QuestionStats;
+use EmergencyForge\Training\Exam\QuestionVerdict;
 use EmergencyForge\Training\Question\QuestionType;
 use Plugin\Training\Exams;
 
@@ -75,6 +78,12 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
                     <option value="<?= $kind->value ?>"><?= htmlspecialchars($kind->label()) ?></option>
                 <?php endforeach; ?>
             </select>
+            <select id="pool-verdict" class="ignis-input" data-custom-dropdown="true" data-tr-filter-verdict="#pool-table" aria-label="Auswertung">
+                <option value="">Alle Fragen</option>
+                <?php foreach (QuestionVerdict::cases() as $verdict): ?>
+                    <option value="<?= $verdict->value ?>"><?= htmlspecialchars($verdict->label()) ?></option>
+                <?php endforeach; ?>
+            </select>
             <span class="flex-1"></span>
             <?php
             $importUrl    = $typeUrl . '/questions/import';
@@ -107,11 +116,15 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
         <?php else: ?>
             <div class="ignis-card ignis-card--table">
                 <table class="ignis-table" id="pool-table">
-                    <thead><tr><th scope="col">Frage</th><th scope="col">Art</th><th scope="col" class="ignis-table__num">Punkte</th><th scope="col" class="ignis-table__num">Version</th><th scope="col" class="ignis-table__num">Gestellt</th><th scope="col">Aktiv</th><th scope="col"><span class="ignis-sr-only">Aktionen</span></th></tr></thead>
+                    <thead><tr><th scope="col">Frage</th><th scope="col">Art</th><th scope="col" class="ignis-table__num">Punkte</th><th scope="col" class="ignis-table__num">Version</th><th scope="col" class="ignis-table__num">Gestellt</th><th scope="col" class="ignis-table__num">Richtig</th><th scope="col">Aktiv</th><th scope="col"><span class="ignis-sr-only">Aktionen</span></th></tr></thead>
                     <tbody>
                         <?php foreach ($shown as $question): ?>
-                            <?php $kind = $question->questionType(); ?>
-                            <tr data-kind="<?= $kind->value ?>" data-text="<?= htmlspecialchars(mb_strtolower($question->body . ' ' . ($topicNames[$question->topic_id] ?? ''))) ?>">
+                            <?php
+                            $kind    = $question->questionType();
+                            $stat    = $stats[$question->id] ?? new QuestionStats();
+                            $verdict = $stat->verdict();
+                            ?>
+                            <tr data-kind="<?= $kind->value ?>" data-verdict="<?= $verdict === null ? '' : $verdict->value ?>" data-text="<?= htmlspecialchars(mb_strtolower($question->body . ' ' . ($topicNames[$question->topic_id] ?? ''))) ?>">
                                 <td>
                                     <div class="tr-q"><a href="<?= $base ?>training/questions/<?= (int) $question->id ?>/edit"><?= htmlspecialchars($question->body) ?></a></div>
                                     <div class="tr-meta"><?= htmlspecialchars($topicNames[$question->topic_id] ?? 'Ohne Thema') ?></div>
@@ -120,6 +133,7 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
                                 <td class="ignis-table__num"><?= htmlspecialchars(Exams::number($question->points)) ?></td>
                                 <td class="ignis-table__num">v<?= (int) $question->version ?></td>
                                 <td class="ignis-table__num"><?= (int) ($usage[$question->id] ?? 0) ?></td>
+                                <td class="ignis-table__num"><?php require dirname(__DIR__) . '/partials/question-share.php'; ?></td>
                                 <td><span class="ignis-switch"><input type="checkbox" aria-label="Aktiv" data-tr-question-active="<?= $base ?>training/questions/<?= (int) $question->id ?>/active"<?= $question->is_active ? ' checked' : '' ?>><span></span></span></td>
                                 <td class="ignis-table__actions"><a href="<?= $base ?>training/questions/<?= (int) $question->id ?>/edit" class="ignis-btn ignis-btn--ghost ignis-btn--icon ignis-btn--sm" aria-label="Bearbeiten" data-ignis-tooltip="Bearbeiten"><i class="fa-solid fa-pen" aria-hidden="true"></i></a></td>
                             </tr>
@@ -128,6 +142,7 @@ $createUrl   = $typeUrl . '/questions/create' . ($current !== null ? '?topic=' .
                 </table>
             </div>
         <?php endif; ?>
+        <p class="ignis-detail__muted mt-2">„Richtig“ ist der Schnitt der erreichten Punkte über alle Versionen. Ab <?= QuestionStats::MIN_ASKED ?> Antworten gilt eine Frage unter <?= (int) (QuestionStats::TOO_HARD * 100) ?> % als zu schwer und über <?= (int) (QuestionStats::TOO_EASY * 100) ?> % als zu leicht. Antworten, die noch bewertet werden, zählen nicht mit.</p>
         <p class="ignis-detail__muted mt-2">CSV: Spalten Thema; Art; Frage; Antworten; Punkte; Erklärung. Antworten mit <code>|</code> trennen, richtige mit <code>*</code> markieren, Zuordnung als <code>links=rechts</code>, Zahl als <code>Wert|Toleranz|Einheit</code>.</p>
     </div>
 </div>

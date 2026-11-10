@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Documents\Editor;
 
+use App\Helpers\ProtocolDetection;
 use App\Logging\Logger;
 use App\Models\EditorDocument;
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use EmergencyForge\Editor\Migration\SectionsToPackage;
+use EmergencyForge\Editor\Package;
 use EmergencyForge\Editor\PageShell;
+use EmergencyForge\Training\VerificationCode;
 use RuntimeException;
 
 /**
@@ -42,6 +48,10 @@ final class PdfGenerator
     th { background: #eeeeee; font-weight: bold; text-align: left; }
     CSS;
 
+    /** Prüfcode-Block: Abstand zur unteren Blattkante und Breite in mm. */
+    private const FOOTER_INSET = 6;
+    private const QR_SIZE      = 14;
+
     /**
      * Rendert und speichert; liefert den Pfad relativ zum Projektordner,
      * wie er in `pdf_path` steht.
@@ -61,6 +71,9 @@ final class PdfGenerator
                 'Dokument "' . $document->docid . '" konnte nicht sicher gerendert werden. Ausstellen abgebrochen.',
             );
         }
+        $html = $document->verification_code !== null
+            ? str_replace('</body>', self::verificationFooter($document->verification_code, Package::normalize($package)['layout']) . '</body>', $shell->html)
+            : $shell->html;
 
         foreach ($shell->warnings as $warning) {
             Logger::warning('Dokument ' . $document->docid . ': ' . $warning);
@@ -68,7 +81,7 @@ final class PdfGenerator
 
         $options = $this->options();
         // Zwei Läufe, wenn das Dokument die Gesamtseitenzahl zeigt.
-        $pdf = PageShell::render($shell->html, static function (string $html) use ($options, $shell): array {
+        $pdf = PageShell::render($html, static function (string $html) use ($options, $shell): array {
             $dompdf = new Dompdf($options);
             $dompdf->setCallbacks(PageShell::callbacks());
             $dompdf->loadHtml($html, 'UTF-8');
@@ -130,6 +143,42 @@ final class PdfGenerator
         $contents = file_get_contents($real);
 
         return $contents === false ? null : $contents;
+    }
+
+    /**
+     * QR-Code und Prüfcode unten im rechten Seitenrand, neben allem, was die
+     * Vorlage setzt, auch neben ihrer Fußzeile. Feste Elemente stehen in
+     * Dompdf relativ zum Satzspiegel, deshalb die negativen Abstände.
+     *
+     * ponytail: rechnet mit den Rändern der ersten Seite; bei abweichender
+     * Folgeseite sitzt der Block dort um den Unterschied versetzt. Unter
+     * 14 mm rechtem Rand ragt er in den Satzspiegel.
+     *
+     * @param array<string,mixed> $layout normalisiertes Layout des Pakets
+     */
+    private static function verificationFooter(string $code, array $layout): string
+    {
+        $margins = $layout['margins'];
+        $bottom  = $layout['firstPageDifferent'] === true && is_array($layout['firstPageMargins'])
+            ? (int) $layout['firstPageMargins']['bottom']
+            : (int) $margins['bottom'];
+        $qr = (new QRCode(new QROptions([
+            'eccLevel'         => EccLevel::M,
+            'drawLightModules' => false,
+            'connectPaths'     => true,
+            'quietzoneSize'    => 0,
+        ])))->render(ProtocolDetection::buildPublicUrl('verify?code=' . $code));
+
+        return sprintf(
+            '<div style="position: fixed; right: %1$dmm; bottom: %2$dmm; width: %3$dmm; text-align: center; font-size: 5pt; line-height: 1.25; color: #444444;">'
+            . '<img src="%4$s" alt="" style="width: %5$dmm; height: %5$dmm;"><br>Echtheit prüfen<br><span style="font-family: \'DejaVu Sans Mono\', monospace;">%6$s</span></div>',
+            -intdiv((int) $margins['right'] + self::QR_SIZE, 2),
+            -($bottom - self::FOOTER_INSET),
+            self::QR_SIZE,
+            htmlspecialchars($qr),
+            self::QR_SIZE,
+            htmlspecialchars(VerificationCode::format($code)),
+        );
     }
 
     private function options(): Options

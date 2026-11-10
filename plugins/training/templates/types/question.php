@@ -8,6 +8,7 @@
  * @var \Plugin\Training\Models\Question       $question
  * @var list<\Plugin\Training\Models\Topic>    $topics
  * @var int                                    $usage
+ * @var \EmergencyForge\Training\Exam\QuestionStats|null $stats
  * @var bool                                   $versions  Speichern legt eine neue Version an
  */
 
@@ -224,6 +225,33 @@ ob_start();
                                 <button type="submit" form="question-delete" class="ignis-btn ignis-btn--ghost-danger ignis-btn--block"><i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen</button>
                             <?php endif; ?>
                         </div>
+                        <?php if ($stats !== null): ?>
+                            <?php
+                            $stat    = $stats;
+                            $verdict = $stat->verdict();
+                            $counts  = $stat->choiceCounts();
+                            $options = $kind->specClass() === \EmergencyForge\Training\Question\ChoiceSpec::class ? (array) ($spec['options'] ?? []) : [];
+                            $right   = array_map('intval', (array) ($spec['correct'] ?? []));
+                            $most    = max([1, ...array_values($counts)]);
+                            ?>
+                            <div class="ignis-detail__block">
+                                <h2 class="ignis-detail__group-title">Auswertung</h2>
+                                <p class="mb-2"><?= $stat->asked() ?> bewertete Antworten, richtig im Schnitt: <?php require dirname(__DIR__) . '/partials/question-share.php'; ?></p>
+                                <?php if ($options !== [] && $counts !== []): ?>
+                                    <ul class="tr-dist" aria-label="Gewählte Antworten der aktuellen Version">
+                                        <?php foreach ($options as $index => $label): ?>
+                                            <?php $n = $counts[(string) $index] ?? 0; ?>
+                                            <li>
+                                                <span class="tr-dist__label"><?= htmlspecialchars((string) $label) ?><?= in_array((int) $index, $right, true) ? ' <span class="ignis-chip ignis-chip--sm ignis-chip--ok">richtig</span>' : '' ?></span>
+                                                <span class="tr-dist__count"><?= $n ?>×</span>
+                                                <span class="tr-dist__bar<?= in_array((int) $index, $right, true) ? ' is-right' : '' ?>" aria-hidden="true"><span style="width: <?= (int) round($n / $most * 100) ?>%"></span></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <p class="ignis-detail__muted mt-2 mb-0">Wie oft jede Antwort gewählt wurde, nur Version <?= (int) $question->version ?>.</p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </aside>
                 </div>
             </form>

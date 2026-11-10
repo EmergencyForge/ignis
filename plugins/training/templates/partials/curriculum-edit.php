@@ -16,7 +16,14 @@ $meta = static function (\Plugin\Training\Models\Unit $unit): string {
     $parts = [$unit->type()->label()];
     if ($unit->type() === UnitKind::File && $unit->file !== null) {
         $parts[] = $unit->file->label() . ', ' . $unit->file->sizeLabel();
-        $parts[] = $unit->file->isPdf() ? ($unit->allow_download ? 'Download erlaubt' : 'ohne Download') : ($unit->file->isImage() ? 'Anzeige' : 'nur Download');
+        $parts[] = match (true) {
+            $unit->file->isPdf()      => $unit->allow_download ? 'Download erlaubt' : 'ohne Download',
+            $unit->file->isImage()    => 'Anzeige',
+            $unit->file->viewsAsPdf() => 'als PDF angezeigt',
+            $unit->file->convert_status === \Plugin\Training\Converter::PENDING && \Plugin\Training\Converter::configured() !== null => 'wird in PDF umgewandelt',
+            $unit->file->convert_status === \Plugin\Training\Converter::FAILED => 'Umwandlung fehlgeschlagen, nur Download',
+            default                   => 'nur Download',
+        };
         if ($unit->file->version > 1) {
             $parts[] = 'Fassung ' . $unit->file->version;
         }

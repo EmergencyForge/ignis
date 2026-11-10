@@ -255,17 +255,21 @@ function repeaters() {
 function poolFilter() {
     const text = document.querySelector('[data-tr-filter-text]');
     const kind = document.querySelector('[data-tr-filter-kind]');
+    const verdict = document.querySelector('[data-tr-filter-verdict]');
     const table = document.querySelector(text?.dataset.trFilterText || '#pool-table');
     if (!table) return;
     const apply = () => {
         const needle = (text?.value || '').trim().toLowerCase();
         const want = kind?.value || '';
+        const flag = verdict?.value || '';
         table.querySelectorAll('tbody tr').forEach((row) => {
-            row.hidden = (needle !== '' && !row.dataset.text.includes(needle)) || (want !== '' && row.dataset.kind !== want);
+            row.hidden = (needle !== '' && !row.dataset.text.includes(needle)) || (want !== '' && row.dataset.kind !== want)
+                || (flag !== '' && row.dataset.verdict !== flag);
         });
     };
     text?.addEventListener('input', apply);
     kind?.addEventListener('change', apply);
+    verdict?.addEventListener('change', apply);
     document.querySelectorAll('[data-tr-question-active]').forEach((input) => {
         input.addEventListener('change', async () => {
             try {

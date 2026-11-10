@@ -46,6 +46,7 @@ final class LoginBackgroundRegressionTest extends TestCase
         $login = (string) file_get_contents(dirname(__DIR__, 3) . '/login.php');
 
         self::assertStringNotContainsString('id="login-background"', $login);
-        self::assertStringContainsString('class="twplus-login__visual"', $login);
+        self::assertStringContainsString("require __DIR__ . '/templates/partials/login-stage.php'", $login);
+        self::assertStringContainsString('class="twplus-login__visual"', (string) file_get_contents(dirname(__DIR__, 3) . '/templates/partials/login-stage.php'));
     }
 }

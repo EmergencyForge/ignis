@@ -29,11 +29,13 @@ final class LayoutUsageTest extends TestCase
      * die gemeinsame Huelle der Fehlerseiten (403 und 404 fuellen sie nur
      * mit Text), zwei Vollbildansichten (Dokument zum
      * Drucken, der Vorlagen-Editor) und die fireTab-App, die wie eNOTF
-     * als eigenständige Anwendung mit Fahrzeug-Login läuft.
+     * als eigenständige Anwendung mit Fahrzeug-Login läuft. Dazu die
+     * öffentliche Prüfseite für Urkunden, die ohne Anmeldung im Login-Layout steht.
      */
     private const OWN_SHELL = [
         'templates/errors/_shell.php',
         'templates/personnel/document-view.php',
+        'templates/verify.php',
         'plugins/firetab/templates/firetab/create.php',
         'plugins/firetab/templates/firetab/list.php',
         'plugins/firetab/templates/firetab/logbook.php',

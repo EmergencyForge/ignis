@@ -22,6 +22,7 @@ class SaveDocumentTemplateRequest extends FormRequest
             v::key('name', v::stringType()->notBlank()->length(1, 150)),
             v::key('category', v::optional(v::stringType()->length(0, 100)), false),
             v::key('content', v::stringType()->notBlank()),
+            v::key('print_verification', v::in(['0', '1']), false),
             // Der Token steht im selben Formular; keySet weist sonst den
             // ganzen Satz als unbekannten Schluessel zurueck.
         );
@@ -38,7 +39,7 @@ class SaveDocumentTemplateRequest extends FormRequest
 
     /**
      * @param  array<string,mixed>  $input
-     * @return array{name: string, category: string|null, content: string}
+     * @return array{name: string, category: string|null, content: string, print_verification: bool}
      */
     protected static function cast(array $input): array
     {
@@ -48,6 +49,7 @@ class SaveDocumentTemplateRequest extends FormRequest
             'name'     => trim((string) ($input['name'] ?? '')),
             'category' => $category !== '' ? $category : null,
             'content'  => (string) ($input['content'] ?? ''),
+            'print_verification' => ($input['print_verification'] ?? '') === '1',
         ];
     }
 }

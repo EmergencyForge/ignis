@@ -280,7 +280,7 @@ final class TrainingController extends BaseController
         }
 
         // Office-Dateien zeigt der Browser nicht an, der Download ist das Lesen.
-        if ($download && $participation !== null && $this->canLearn($courseModel, $participation) && !$fileModel->isPdf() && !$fileModel->isImage()) {
+        if ($download && $participation !== null && $this->canLearn($courseModel, $participation) && !$fileModel->viewsAsPdf() && !$fileModel->isImage()) {
             foreach ($curriculum->units() as $unit) {
                 if ($unit->file_id === $fileModel->id) {
                     Curriculum::markDone($participation, $unit);

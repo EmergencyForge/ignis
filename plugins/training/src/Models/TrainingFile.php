@@ -17,6 +17,8 @@ use Illuminate\Support\Carbon;
  * @property int         $size
  * @property int         $version
  * @property int|null    $uploaded_by
+ * @property string|null $pdf_storage_name umgewandelte PDF einer Office-Datei
+ * @property string|null $convert_status   pending, done, failed (Converter)
  * @property Carbon      $created_at
  * @property Carbon      $updated_at
  *
@@ -34,6 +36,12 @@ class TrainingFile extends EloquentModel
     public function isPdf(): bool
     {
         return $this->mime === 'application/pdf';
+    }
+
+    /** PDF oder in PDF umgewandelt: läuft im Betrachter, Fortschritt über Seiten. */
+    public function viewsAsPdf(): bool
+    {
+        return $this->isPdf() || $this->pdf_storage_name !== null;
     }
 
     public function isImage(): bool
