@@ -123,7 +123,7 @@ final class EnotfProtokollAccessTest extends FeatureTestCase
     {
         $base = '/enotf/p/' . $this->enr;
 
-        $this->assertSame($base . '/completion?t=freigabe', $this->get($base . '/abschluss/freigabe')->headers['Location'] ?? null);
+        $this->assertSame($base . '/completion?t=release', $this->get($base . '/abschluss/freigabe')->headers['Location'] ?? null);
         $this->assertSame($base . '/assessment', $this->get($base . '/erstbefund/atemwege/1')->headers['Location'] ?? null);
         $this->assertSame($base . '/diagnosis', $this->get('/enotf/protokoll/diagnose/1_10_3', ['query' => ['enr' => $this->enr]])->headers['Location'] ?? null);
         $this->assertSame($base, $this->get('/enotf/protokoll/protokollart', ['query' => ['enr' => $this->enr]])->headers['Location'] ?? null);

@@ -83,7 +83,7 @@ $protokollRedirect = static function (?string $enr, string $path): \EmergencyFor
     $section  = ProtokollController::LEGACY_SECTIONS[$segments[0] ?? ''] ?? ($segments[0] ?? '');
     $url      = \Plugin\Enotf\Helpers\EnotfUrl::protokoll($enr, isset(ProtokollController::SECTIONS[$section]) ? $section : '');
     if ($section === 'completion' && ($segments[1] ?? '') === 'freigabe') {
-        $url .= '?t=freigabe';
+        $url .= '?t=release';
     }
     return \EmergencyForge\Http\Response::redirect($url, 301);
 };

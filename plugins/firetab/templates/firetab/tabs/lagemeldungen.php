@@ -43,7 +43,7 @@
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="add_sitrep">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
-            <input type="hidden" name="return_tab" value="lagemeldungen">
+            <input type="hidden" name="return_tab" value="status-reports">
 
             <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
                 <div class="md:col-span-3">

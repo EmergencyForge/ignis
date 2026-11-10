@@ -4,6 +4,7 @@
  *
  * @var int                             $id
  * @var string                          $activeTab
+ * @var string                          $tabTemplate
  * @var array<string,mixed>             $incident
  * @var array<int,array<string,mixed>>  $allVehicles
  * @var array<int,array<string,mixed>>  $attachedVehicles
@@ -73,25 +74,25 @@ function fmt_elapsed(int|string $seconds): string
         ob_start();
         ?>
         <span class="einsatz-sidebar-section">Einsatzprotokoll</span>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=stammdaten" class="sidebar-link <?= $activeTab === 'stammdaten' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=details" class="sidebar-link <?= $activeTab === 'details' ? 'active' : '' ?>">
             <i class="fa-solid fa-info-circle"></i><span>Stammdaten</span>
         </a>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=bericht" class="sidebar-link <?= $activeTab === 'bericht' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=report" class="sidebar-link <?= $activeTab === 'report' ? 'active' : '' ?>">
             <i class="fa-solid fa-file-alt"></i><span>Einsatzbericht</span>
         </a>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=fahrzeuge" class="sidebar-link <?= $activeTab === 'fahrzeuge' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=vehicles" class="sidebar-link <?= $activeTab === 'vehicles' ? 'active' : '' ?>">
             <i class="fa-solid fa-truck"></i><span>Einsatzmittel</span>
         </a>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=lagemeldungen" class="sidebar-link <?= $activeTab === 'lagemeldungen' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=status-reports" class="sidebar-link <?= $activeTab === 'status-reports' ? 'active' : '' ?>">
             <i class="fa-solid fa-broadcast-tower"></i><span>Lagemeldungen</span>
         </a>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=atemschutz" class="sidebar-link <?= $activeTab === 'atemschutz' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=ba" class="sidebar-link <?= $activeTab === 'ba' ? 'active' : '' ?>">
             <i class="fa-solid fa-mask-ventilator"></i><span>Atemschutz</span>
         </a>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=lagekarte" class="sidebar-link <?= $activeTab === 'lagekarte' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=situation-map" class="sidebar-link <?= $activeTab === 'situation-map' ? 'active' : '' ?>">
             <i class="fa-solid fa-map-marked-alt"></i><span>Lagekarte</span>
         </a>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=abschluss" class="sidebar-link <?= $activeTab === 'abschluss' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=completion" class="sidebar-link <?= $activeTab === 'completion' ? 'active' : '' ?>">
             <i class="fa-solid fa-check-circle"></i><span>Abschluss</span>
         </a>
         <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=log" class="sidebar-link <?= $activeTab === 'log' ? 'active' : '' ?>">
@@ -104,7 +105,7 @@ function fmt_elapsed(int|string $seconds): string
         <div class="einsatz-main flex-1 overflow-y-auto">
             <div class="container mx-auto my-4">
                 <?php // Atemschutz bringt eine eigene Kopfzeile mit Einsatznummer, der Platz gehört den Trupps ?>
-                <?php if ($activeTab !== 'atemschutz'): ?>
+                <?php if ($activeTab !== 'ba'): ?>
                 <div class="mb-4 flex items-center justify-between">
                     <h1>Einsatzprotokoll</h1>
                     <div class="flex items-center gap-2">
@@ -141,7 +142,7 @@ function fmt_elapsed(int|string $seconds): string
                 <?php Flash::render(); ?>
 
                 <!-- Tab Content -->
-                <?php include __DIR__ . '/tabs/' . $activeTab . '.php'; ?>
+                <?php include __DIR__ . '/tabs/' . $tabTemplate . '.php'; ?>
             </div>
         </div>
     </div>
@@ -178,7 +179,7 @@ function fmt_elapsed(int|string $seconds): string
                 form.action = '<?= BASE_PATH ?>firetab/actions';
                 form.innerHTML = '<input type="hidden" name="action" value="finalize">'
                     + '<input type="hidden" name="incident_id" value="<?= $id ?>">'
-                    + '<input type="hidden" name="return_tab" value="abschluss">';
+                    + '<input type="hidden" name="return_tab" value="completion">';
                 document.body.appendChild(form);
                 form.submit();
             });

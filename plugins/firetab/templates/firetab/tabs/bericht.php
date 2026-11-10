@@ -25,7 +25,7 @@
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="update_notes">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
-            <input type="hidden" name="return_tab" value="bericht">
+            <input type="hidden" name="return_tab" value="report">
             <textarea name="notes" class="ignis-input mb-2" rows="5" placeholder="Beschreiben Sie hier das Einsatzgeschehen..."><?= htmlspecialchars($incident['notes'] ?? '') ?></textarea>
             <div class="text-right">
                 <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--sm">
@@ -50,7 +50,7 @@ $asuTrupps = $asuTrupps ?? [];
 <div class="intra__tile mb-3 p-3">
     <div class="mb-3 flex items-center justify-between">
         <h4 class="mb-0">Atemschutzüberwachung</h4>
-        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=atemschutz" class="ignis-btn ignis-btn--danger ignis-btn--sm">
+        <a href="<?= BASE_PATH ?>firetab/view?id=<?= $id ?>&tab=ba" class="ignis-btn ignis-btn--danger ignis-btn--sm">
             <i class="fa-solid fa-mask-ventilator"></i> Überwachung öffnen
         </a>
     </div>

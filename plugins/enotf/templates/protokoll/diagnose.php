@@ -38,7 +38,7 @@ use Plugin\Enotf\Helpers\EnotfUrl;
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 
 $sectionUrl = EnotfUrl::protokoll($enr, 'diagnosis');
-$fokusUrl   = static fn (string $t): string => $sectionUrl . '?t=' . rawurlencode($t);
+$fokusUrl   = static fn (string $t): string => EnotfUrl::focus($enr, 'diagnosis', $t);
 
 $fokus = $fokusThema ?? null;
 if (!in_array($fokus, ['haupt', 'weitere', 'text'], true)) {

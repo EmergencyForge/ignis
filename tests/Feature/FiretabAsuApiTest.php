@@ -179,7 +179,7 @@ final class FiretabAsuApiTest extends FeatureTestCase
         $this->event($truppId, 'angeschlossen', ['bar' => '300']);
         $this->event($truppId, 'hinweis_13');
 
-        $page = $this->get('/firetab/view', ['query' => ['id' => (string) $this->incidentId, 'tab' => 'bericht']]);
+        $page = $this->get('/firetab/view', ['query' => ['id' => (string) $this->incidentId, 'tab' => 'report']]);
 
         $this->assertOk($page);
         $this->assertBodyContains('id="table-asu-registration"', $page);

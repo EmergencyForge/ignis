@@ -2,6 +2,8 @@
 
 namespace Plugin\Enotf\Helpers;
 
+use Plugin\Enotf\Crew\Controllers\ProtokollController;
+
 /**
  * URLs des eNOTF.
  *
@@ -37,6 +39,15 @@ class EnotfUrl
             $url .= '/' . rawurlencode($section);
         }
         return $url;
+    }
+
+    /**
+     * Fokusansicht einer Section: /enotf/p/{enr}/{section}?t={slug}, $key ist
+     * der Themen-Schlüssel aus dem Template.
+     */
+    public static function focus(string $enr, string $section, string $key): string
+    {
+        return self::protokoll($enr, $section) . '?t=' . rawurlencode(ProtokollController::focusSlug($section, $key));
     }
 
     /**
