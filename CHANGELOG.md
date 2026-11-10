@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.1.20-beta
+
+### Ausbildung
+- Im Fragenpool schlägt die KI auf Wunsch neue Fragen vor. Sie schreibt nur aus dem Material, das man auswählt: Artikel, PDFs und Wissensartikel aus dem Lehrplan, weitere Artikel aus der Wissensdatenbank oder eine hochgeladene PDF. Die Vorschläge kommen ausgeschaltet und mit Quelle in den Pool und gehen erst in Prüfungen, wenn jemand sie prüft und anschaltet. Freitextfragen schlägt sie nicht vor
+- Die KI läuft über die EmergencyForge-Konsole, die sie je Instanz mit einem Monatsbudget freischaltet. Bevor zum ersten Mal Material an Anthropic geht, bestätigt ein Administrator das einmal
+
+### eNOTF
+- Im Vitalwerte-Diagramm steht der Blutdruck als Spanne von systolisch bis diastolisch, alle Werte teilen sich eine Achse von 0 bis 300
+
 ## 2026.1.19-beta
 
 Diese Version ersetzt 2026.1.18-beta. Dort hatten zwei Migrationen dieselbe Nummer, und die Datenbankmigration brach komplett ab. Wer 2026.1.18-beta schon eingespielt hat, aktualisiert direkt auf diese Version. Alles aus 2026.1.18-beta ist enthalten.
