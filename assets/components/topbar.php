@@ -24,12 +24,17 @@ use App\Discord\DiscordNotifier;
 use App\Helpers\Navigation;
 use App\Helpers\Theme;
 use App\Security\CsrfProtection;
+use App\Support\AccountIdentity;
 use App\Support\NavigationCounters;
 
 $topBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $topLoggedIn = isset($_SESSION['userid']);
-$topUsername = (string) ($_SESSION['cirs_username'] ?? 'Unbekannt');
-$topInitials = mb_strtoupper(mb_substr($topUsername, 0, 2));
+// Name, Bild und Dienstgrad oben rechts teilt sich die Kopfleiste mit efOS.
+$topIdentity = AccountIdentity::current();
+$topUsername = $topIdentity['name'];
+$topAvatar = $topIdentity['photo'] !== null
+    ? '<img src="' . htmlspecialchars($topIdentity['photo'], ENT_QUOTES) . '" alt="">'
+    : htmlspecialchars($topIdentity['initials']);
 
 // Rolle: Name aus der Session; eine Session von vor setRoleDetails() hat
 // keinen und bekommt ihn aus den Permissions abgeleitet. Die Farbe kommt
@@ -159,16 +164,20 @@ $topPalette = Navigation::palette($topGroups);
 
         <details class="ignis-menu ignis-menu--right" data-ignis-menu>
             <summary class="ignis-topbar__user" aria-label="Kontomenü">
-                <span class="ignis-topbar__avatar" aria-hidden="true"><?= htmlspecialchars($topInitials) ?></span>
+                <span class="ignis-topbar__avatar" aria-hidden="true"><?= $topAvatar ?></span>
                 <span class="ignis-topbar__username"><?= htmlspecialchars($topUsername) ?></span>
                 <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i>
             </summary>
             <div class="ignis-menu__panel ignis-menu__panel--account" role="group" aria-label="Konto und Darstellung">
                 <div class="ignis-menu__identity">
-                    <span class="ignis-topbar__avatar" aria-hidden="true"><?= htmlspecialchars($topInitials) ?></span>
+                    <span class="ignis-topbar__avatar" aria-hidden="true"><?= $topAvatar ?></span>
                     <span class="ignis-menu__identity-text">
                         <span class="ignis-menu__identity-name"><?= htmlspecialchars($topUsername) ?></span>
+                        <?php if ($topIdentity['rank'] !== null): ?>
+                        <span class="ignis-menu__identity-role"><?= htmlspecialchars($topIdentity['rank']) ?></span>
+                        <?php else: ?>
                         <span class="ignis-menu__identity-role"><span class="ignis-menu__role-dot" style="background:<?= $topRoleColor ?>"></span><?= htmlspecialchars($topRoleName) ?></span>
+                        <?php endif; ?>
                     </span>
                 </div>
                 <div class="ignis-menu__sep"></div>
