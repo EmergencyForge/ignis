@@ -118,10 +118,17 @@ final class TabletLoginController
         $user = is_string($token) && $token !== '' ? $this->redeem($token) : null;
 
         if ($user === null || !$this->openFabricaLogin($user, (string) $token)) {
-            // Bewusst ohne Grund: ob abgelaufen, benutzt oder abgelehnt, verrät die Seite nicht.
+            // ef_bridge holt den Token auch, wenn das Tablet noch angemeldet
+            // ist. Eine offene Sitzung bleibt dann, die Fehlerpfade lassen sie
+            // unberührt.
+            if (SessionManager::isLoggedIn()) {
+                return self::private(Response::redirect(BASE_PATH . 'index'));
+            }
             SessionManager::logoutUser();
+            // Bewusst ohne Grund: ob abgelaufen, benutzt oder abgelehnt, verrät die Seite nicht.
             SessionManager::setRegistrationError('Die Anmeldung über das Tablet hat nicht geklappt. Öffne das Tablet bitte erneut.');
-            return self::private(Response::redirect(BASE_PATH . 'login'));
+            // tablet=failed: ef_bridge versucht es beim nächsten Öffnen erneut.
+            return self::private(Response::redirect(BASE_PATH . 'login?tablet=failed'));
         }
 
         SessionManager::loginAccount($user->toArray());
