@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026.1.19-beta
+
+Diese Version ersetzt 2026.1.18-beta. Dort hatten zwei Migrationen dieselbe Nummer, und die Datenbankmigration brach komplett ab. Wer 2026.1.18-beta schon eingespielt hat, aktualisiert direkt auf diese Version. Alles aus 2026.1.18-beta ist enthalten.
+
+### Ausbildung
+- Lerneinheiten vom Typ Text heißen jetzt Artikel und lassen sich im Editor mit Bildern, Hinweisboxen (Hinweis, Wichtig, Tipp) und YouTube- oder Vimeo-Videos schreiben. Ein Video lädt erst, wenn man auf Abspielen klickt, vorher geht nichts an YouTube oder Vimeo. Die Schreibfläche ist größer, die Leseansicht ruhiger gesetzt
+
+### MANV
+- Die Schnellsichtung auf der Patientenseite speichert jetzt über ein Formular. Ein alter oder vorab geladener Link ändert die Sichtungskategorie nicht mehr
+
+Dazu gehören das UI-Paket 1.11.0, der Editor 0.7.0 und training 0.3.1.
+
 ## 2026.1.18-beta
 
 ### Ausbildung
