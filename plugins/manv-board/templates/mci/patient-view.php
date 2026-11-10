@@ -86,26 +86,28 @@ $bodyPage = 'edivi';
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
-                <div class="ignis-card__body flex flex-wrap gap-2">
-                    <a href="?id=<?= $patientId ?>&quick_triage=SK1" class="ignis-btn ignis-btn--sk1">
+                <form method="post" action="<?= BASE_PATH ?>mci/patient-triage" class="ignis-card__body flex flex-wrap gap-2">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id" value="<?= (int) $patientId ?>">
+                    <button type="submit" name="category" value="SK1" class="ignis-btn ignis-btn--sk1">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK1 - Rot
-                    </a>
-                    <a href="?id=<?= $patientId ?>&quick_triage=SK2" class="ignis-btn ignis-btn--sk2">
+                    </button>
+                    <button type="submit" name="category" value="SK2" class="ignis-btn ignis-btn--sk2">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK2 - Gelb
-                    </a>
-                    <a href="?id=<?= $patientId ?>&quick_triage=SK3" class="ignis-btn ignis-btn--sk3">
+                    </button>
+                    <button type="submit" name="category" value="SK3" class="ignis-btn ignis-btn--sk3">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK3 - Grün
-                    </a>
-                    <a href="?id=<?= $patientId ?>&quick_triage=SK4" class="ignis-btn ignis-btn--sk4">
+                    </button>
+                    <button type="submit" name="category" value="SK4" class="ignis-btn ignis-btn--sk4">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK4 - Blau
-                    </a>
-                    <a href="?id=<?= $patientId ?>&quick_triage=SK5" class="ignis-btn ignis-btn--sk5">
+                    </button>
+                    <button type="submit" name="category" value="SK5" class="ignis-btn ignis-btn--sk5">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK5 - Schwarz
-                    </a>
-                    <a href="?id=<?= $patientId ?>&quick_triage=SK6" class="ignis-btn ignis-btn--secondary">
+                    </button>
+                    <button type="submit" name="category" value="SK6" class="ignis-btn ignis-btn--secondary">
                         <i class="fas fa-circle" aria-hidden="true"></i>SK6 - Lila
-                    </a>
-                </div>
+                    </button>
+                </form>
             </div>
 
             <form method="POST" action="">
