@@ -5,3 +5,7 @@
 # core.autocrlf=true) scheitert der Docker-Container am Shebang von
 # entrypoint.sh mit "no such file or directory".
 *.sh text eol=lf
+
+# Der LiveKit-Client wird bytegenau aus node_modules kopiert und enthält einzelne CRLF.
+# Normalisiert Git sie weg, weicht der Build in der CI vom committeten Stand ab.
+public/assets/dist/livekit/** -text
