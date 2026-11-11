@@ -26,8 +26,8 @@ use Plugin\Training\Models\UnitProgress;
  * der Lehrgangsart, sehen laufende Lehrgänge die neue Fassung, und der
  * Fortschritt bleibt, weil er an der Einheit hängt.
  *
- * Eine Einheit „Termin“ ist erledigt, sobald die Anwesenheit eingetragen
- * ist, gleich welche. Unentschuldigtes Fehlen zählt die Zulassung zur
+ * Eine Einheit „Termin“ oder „Präsentation“ ist erledigt, sobald die
+ * Anwesenheit am Termin dazu eingetragen ist, gleich welche. Unentschuldigtes Fehlen zählt die Zulassung zur
  * Prüfung gesondert.
  */
 final class Curriculum
@@ -148,11 +148,13 @@ final class Curriculum
         if ($unitBySession !== []) {
             $rows = Attendance::query()->whereIn('session_id', array_keys($unitBySession))->whereIn('participation_id', $participationIds)->get();
             foreach ($rows as $row) {
-                $states[$row->participation_id][$unitBySession[$row->session_id]] = [
+                $unitId = $unitBySession[$row->session_id];
+                $states[$row->participation_id][$unitId] = [
                     'state'      => 'done',
                     'manual'     => false,
                     'by'         => $row->recorded_by,
-                    'pages'      => null,
+                    // Seiten bleiben, damit der Betrachter einer Präsentation Stand und Markierungen behält.
+                    'pages'      => $states[$row->participation_id][$unitId]['pages'] ?? null,
                     'attendance' => $row->state,
                 ];
             }

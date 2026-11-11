@@ -13,25 +13,33 @@ use DomainException;
 use EmergencyForge\Training\Presentation\Attendance as AttendanceRule;
 use EmergencyForge\Training\Presentation\DrawEvent;
 use EmergencyForge\Training\Presentation\Liveness;
+use EmergencyForge\Training\Presentation\Question;
 use EmergencyForge\Training\Presentation\Signal;
+use EmergencyForge\Training\Presentation\Visit;
 use EmergencyForge\Training\Presentation\WatchTime;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
+use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Presentation;
 use Plugin\Training\Models\PresentationEvent;
+use Plugin\Training\Models\PresentationQuestion;
 use Plugin\Training\Models\PresentationViewer;
+use Plugin\Training\Models\PresentationVisit;
 use Plugin\Training\Models\Session;
+use Plugin\Training\Models\Unit;
 use Plugin\Training\Policies\TrainingPolicy;
 
 /**
  * Live-Vortrag an einem Termin: starten, Zeichnungen mit fortlaufender
- * Nummer ablegen, Seite und Modus führen, Zuschauer zählen, übergeben und
- * beenden. Zeichnungen leben nur während des Vortrags. Die Regeln
- * (Verwaisung, Zählschritt, Ereignisformat) liegen im Paket.
+ * Nummer ablegen, Seite und Modus führen, Zuschauer zählen, Fragen annehmen,
+ * Besuche führen, übergeben und beenden. Zeichnungen und Fragen leben nur
+ * während des Vortrags, die Besuche bleiben. Die Regeln (Verwaisung,
+ * Zählschritt, Ereignisformat, Fragenlänge, Besuchslücke) liegen im Paket.
  */
 final class Presentations
 {
@@ -55,10 +63,14 @@ final class Presentations
     private const SIGNAL_LIMIT  = 20;
     private const SIGNAL_WINDOW = 60;
 
-    public static function start(Session $session, int $userId): Presentation
+    /**
+     * Mit EF Sync (`$client`) bekommt der Vortrag einen Raum; der Name kommt vom Server und
+     * nie vom Browser. Den Schlüssel dafür holt erst roomToken().
+     */
+    public static function start(Session $session, int $userId, ?FabricaClient $client = null): Presentation
     {
         // Sperre auf dem Termin, damit zwei gleichzeitige Starts nur einen Vortrag anlegen.
-        $talk = Capsule::connection()->transaction(static function () use ($session, $userId): Presentation {
+        $talk = Capsule::connection()->transaction(static function () use ($session, $userId, $client): Presentation {
             Session::query()->whereKey($session->id)->lockForUpdate()->first();
             $now  = new DateTimeImmutable();
             $live = self::live($session, $now);
@@ -71,6 +83,7 @@ final class Presentations
                 'presenter_id'      => $userId,
                 'started_at'        => Carbon::instance($now),
                 'presenter_seen_at' => Carbon::instance($now),
+                'room'              => $client !== null ? bin2hex(random_bytes(16)) : null,
             ]);
         });
         if ($talk->wasRecentlyCreated) {
@@ -108,7 +121,7 @@ final class Presentations
             $ids,
             'Vortrag läuft: ' . $session->title,
             'training/courses/' . $course->id . '/sessions/' . $session->id . '/presentation',
-            self::identity($host)['name'] . ' zeigt gerade die Folien.',
+            self::identity($host)['name'] . ' hält gerade einen Vortrag.',
         );
     }
 
@@ -157,6 +170,42 @@ final class Presentations
     }
 
     /**
+     * Ob Teilnehmer des Lehrgangs die Folien einer Präsentation sehen: nach dem Vortrag
+     * nur mit dem Schalter an der Einheit, sonst solange der Termin der Einheit in
+     * diesem Lehrgang läuft. Die Einheit gehört der Lehrgangsart, ein Vortrag in einem
+     * anderen Lehrgang öffnet nichts. Die einzige Stelle für diese Regel; Ausbilder
+     * prüfen die Controller vorher.
+     */
+    public static function slidesOpen(Unit $unit, Course $course, DateTimeImmutable $now): bool
+    {
+        return $unit->slides_after_talk || self::liveSessionFor($unit, $course, $now) !== null;
+    }
+
+    /** Der Termin der Einheit in diesem Lehrgang, an dem gerade ein Vortrag läuft. */
+    public static function liveSessionFor(Unit $unit, Course $course, DateTimeImmutable $now): ?Session
+    {
+        foreach (Session::query()->where('unit_id', $unit->id)->where('course_id', $course->id)->get() as $session) {
+            if (self::live($session, $now) !== null) {
+                return $session;
+            }
+        }
+
+        return null;
+    }
+
+    /** Ob an irgendeinem Termin der Einheit, in jedem Lehrgang, ein Vortrag läuft; die Folien sind für alle dieselbe Datei. */
+    public static function liveAnywhere(Unit $unit, DateTimeImmutable $now): bool
+    {
+        foreach (Session::query()->where('unit_id', $unit->id)->get() as $session) {
+            if (self::live($session, $now) !== null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Legt Ereignisse ab und setzt Seite und Modus in einem Zug unter der Zeilensperre,
      * damit Nummern und Version nie von einem veralteten Modell zurückgeschrieben werden.
      * Ein ungültiges Ereignis lässt alle durchfallen. Die Version steigt einmal, wenn sich
@@ -180,10 +229,31 @@ final class Presentations
         if ($mode !== null && !in_array($mode, self::MODES, true)) {
             throw new InvalidArgumentException('mode');
         }
+        // Von der Ansicht zählt nur die letzte je Seite; beim Ziehen kämen sonst zwanzig Zeilen je Sekunde dazu, die jeder Nachzügler abspielt.
+        $viewPages = [];
+        foreach (array_reverse(array_keys($clean)) as $i) {
+            if ($clean[$i]['kind'] !== 'view') {
+                continue;
+            }
+            if (isset($viewPages[$clean[$i]['page']])) {
+                unset($clean[$i]);
+            } else {
+                $viewPages[$clean[$i]['page']] = true;
+            }
+        }
+        $clean = array_values($clean);
 
-        return self::locked($p, static function (Presentation $row) use ($clean, $page, $mode): int {
+        return self::locked($p, static function (Presentation $row) use ($clean, $page, $mode, $viewPages): int {
             if ($row->ended_at !== null) {
                 throw new DomainException('ended');
+            }
+            if ($viewPages !== []) {
+                $old = PresentationEvent::query()->where('presentation_id', $row->id)->where('kind', 'view')->get(['id', 'data'])
+                    ->filter(static fn (PresentationEvent $e): bool => isset($viewPages[((array) json_decode($e->data, true))['page'] ?? null]))
+                    ->pluck('id')->all();
+                if ($old !== []) {
+                    PresentationEvent::query()->whereIn('id', $old)->delete();
+                }
             }
             $seq  = $row->seq;
             $now  = Carbon::now();
@@ -226,85 +296,133 @@ final class Presentations
             ->where('created_at', '<', $now->copy()->subSeconds(self::LASER_TTL))->delete();
     }
 
-    /** Teilen endet auf den Folien. Der Raum ist damit verbraucht, ein neues Teilen bekommt einen neuen. */
+    /** Teilen endet auf den Folien. Der Raum gehört dem Vortrag und bleibt. */
     private static function stopScreen(Presentation $row): void
     {
         if ($row->mode === 'screen') {
             $row->mode = 'slides';
         }
-        $row->screen_via  = null;
-        $row->screen_room = null;
+        $row->screen_via = null;
     }
 
     /**
-     * Teilen beginnen. Mit EF Sync über LiveKit; scheitert die Konsole, geht es
-     * direkt weiter, solange der Host die Zuschauer allein versorgen kann.
+     * Teilen beginnen. Mit Raum über LiveKit. Scheitert die Konsole, entfällt der Raum und
+     * es geht direkt weiter, solange der Host die Zuschauer allein versorgen kann. Mit
+     * `$direct` (der Host kam nicht in den Raum) fragt niemand die Konsole und der Raum bleibt.
      *
      * @return array{via:'livekit'|'direct', url?:string, token?:string}
      * @throws DomainException `too_many` ohne LiveKit bei mehr als SCREEN_LIMIT Zuschauern, `ended`, `not_host`
      */
-    public static function startScreen(Presentation $p, int $userId, ?FabricaClient $client): array
+    public static function startScreen(Presentation $p, int $userId, ?FabricaClient $client, bool $direct = false): array
     {
-        $room  = null;
-        $token = null;
-        if ($client !== null) {
+        $room   = $p->room;
+        $token  = null;
+        $failed = false;
+        if (!$direct && $client !== null && $room !== null) {
             // Vor der Sperre, damit eine langsame Konsole die Zeile nicht festhält.
-            $room = bin2hex(random_bytes(16));
             try {
-                $token = $client->liveToken($room, 'u' . $userId, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], true);
-            } catch (\Throwable $e) {
-                // 503: die Konsole hat kein LiveKit eingerichtet. Das ist der Normalfall, keine Störung.
-                if ($e->getCode() !== 503) {
-                    error_log('LiveKit-Schlüssel fehlgeschlagen, Bildschirm geht direkt: ' . $e->getMessage());
-                }
-                $room = null;
+                $token = self::key($room, $userId, true, $client);
+            } catch (\RuntimeException) {
+                $failed = true;
             }
         }
 
-        return self::locked($p, static function (Presentation $row) use ($userId, $room, $token): array {
+        return self::locked($p, static function (Presentation $row) use ($userId, $room, $token, $failed): array {
             if ($row->ended_at !== null) {
                 throw new DomainException('ended');
             }
             if ($row->presenter_id !== $userId) {
                 throw new DomainException('not_host');
             }
-            if ($token === null && PresentationViewer::query()->where('presentation_id', $row->id)->where('user_id', '!=', $row->presenter_id)
+            // Zwischen Anfrage und Sperre kann ein anderer den Raum fallen gelassen haben.
+            $key  = $row->room === $room ? $token : null;
+            $live = $key !== null;
+            if (!$live && PresentationViewer::query()->where('presentation_id', $row->id)->where('user_id', '!=', $row->presenter_id)
                 ->where('last_seen_at', '>=', Carbon::now()->subSeconds(self::VIEWER_WINDOW))->count() > self::SCREEN_LIMIT) {
                 throw new DomainException('too_many');
             }
-            $row->mode        = 'screen';
-            $row->screen_via  = $token === null ? 'direct' : 'livekit';
-            $row->screen_room = $token === null ? null : $room;
+            $row->mode       = 'screen';
+            $row->screen_via = $live ? 'livekit' : 'direct';
+            if ($failed && $row->room === $room) {
+                // Die Konsole lieferte dem Host nichts; ohne seinen Schlüssel taugt der Raum nicht.
+                $row->room = null;
+            }
             $row->version++;
             // Wer noch bei Nummer 0 steht, fragt mit after=0 und bekäme keine Signale; so steht jeder danach über 0.
             $row->seq++;
             $row->save();
 
-            return $token === null ? ['via' => 'direct'] : ['via' => 'livekit'] + $token;
+            return $key !== null ? ['via' => 'livekit'] + $key : ['via' => 'direct'];
         });
     }
 
     /**
-     * Raum-Schlüssel für einen Zuschauer (oder den Host nach einem Neuverbinden).
+     * Raum-Schlüssel für einen Zuschauer oder den Host. Scheitert die Konsole beim Host,
+     * fällt der Raum des Vortrags weg (ein laufendes LiveKit-Teilen endet mit ihm) und alles
+     * läuft über die Abfrage weiter; die Version steigt, damit alle Fenster es merken. Bei einem
+     * Zuschauer ändert sich nichts am Vortrag, denn viele fragen gleichzeitig und ein
+     * kurzer Fehler soll niemandem den Raum nehmen.
      *
      * @return array{url:string, token:string}
-     * @throws DomainException wenn gerade nicht über LiveKit geteilt wird
-     * @throws \RuntimeException wenn die Konsole nicht liefert
+     * @throws DomainException `ended`, `no_room` ohne Raum, ohne Konsole oder wenn der Host keinen Schlüssel bekam, `unavailable` wenn ein Zuschauer keinen bekam
      */
-    public static function screenToken(Presentation $p, int $userId, ?FabricaClient $client): array
+    public static function roomToken(Presentation $p, int $userId, ?FabricaClient $client): array
     {
-        if ($p->mode !== 'screen' || $p->screen_via !== 'livekit' || $p->screen_room === null) {
-            throw new DomainException('not_livekit');
+        if ($p->ended_at !== null) {
+            throw new DomainException('ended');
         }
-        if ($client === null) {
-            throw new \RuntimeException('Keine EmergencyForge-Konsole.');
+        $room = $p->room;
+        if ($room === null || $client === null) {
+            throw new DomainException('no_room');
         }
 
         $host = $userId === $p->presenter_id;
-        // Zuschauer je Tab eindeutig: kommt dieselbe Identität zweimal, wirft LiveKit die ältere Verbindung hinaus.
-        $identity = 'u' . $userId . ($host ? '' : '-' . bin2hex(random_bytes(4)));
+        try {
+            return self::key($room, $userId, $host, $client);
+        } catch (\RuntimeException) {
+            if (!$host) {
+                throw new DomainException('unavailable');
+            }
+            self::locked($p, static function (Presentation $row) use ($room): void {
+                // Nur den Raum fallen lassen, der gescheitert ist; ein anderer Aufruf war vielleicht schneller.
+                if ($row->room !== $room) {
+                    return;
+                }
+                $row->room = null;
+                // Der Host hat sein LiveKit-Teilen eben verloren; ein direktes bleibt.
+                if ($row->mode === 'screen' && $row->screen_via === 'livekit') {
+                    self::stopScreen($row);
+                }
+                $row->version++;
+                $row->save();
+            });
+            throw new DomainException('no_room');
+        }
+    }
 
-        return $client->liveToken($p->screen_room, $identity, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], $host);
+    /**
+     * Schlüssel für den Raum. Zuschauer je Tab eindeutig: kommt dieselbe Identität
+     * zweimal, wirft LiveKit die ältere Verbindung hinaus. Im Raum sieht jedes Mitglied
+     * Identität und Namen aller anderen; wer kommt und geht, sehen nur Ausbilder im
+     * Protokoll, darum tragen Zuschauer dort keinen echten Namen.
+     *
+     * @return array{url:string, token:string}
+     * @throws \RuntimeException
+     */
+    private static function key(string $room, int $userId, bool $host, FabricaClient $client): array
+    {
+        $identity = 'u' . $userId . ($host ? '' : '-' . bin2hex(random_bytes(4)));
+        try {
+            $name = $host ? self::identity(User::query()->with('mitarbeiter')->find($userId))['name'] : 'Zuschauer';
+
+            return $client->liveToken($room, $identity, $name, $host);
+        } catch (\RuntimeException $e) {
+            // 503: die Konsole hat kein LiveKit eingerichtet. Das ist der Normalfall, keine Störung.
+            if ($e->getCode() !== 503) {
+                error_log('LiveKit-Schlüssel fehlgeschlagen: ' . $e->getMessage());
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -370,6 +488,9 @@ final class Presentations
             self::stopScreen($row);
             $row->save();
             PresentationEvent::query()->where('presentation_id', $row->id)->delete();
+            // Fragen leben nur im Vortrag. Offene Besuche enden mit ihrem letzten Lebenszeichen und bleiben als Protokoll.
+            PresentationQuestion::query()->where('presentation_id', $row->id)->delete();
+            PresentationVisit::query()->where('presentation_id', $row->id)->whereNull('left_at')->update(['left_at' => new Expression('last_seen_at')]);
             // Ein verwaister Vortrag endet rückwirkend; Tabs, die danach noch zählten, kämen sonst über die Vortragsdauer.
             $seconds = $row->talkSeconds();
             PresentationViewer::query()->where('presentation_id', $row->id)->where('seconds_watched', '>', $seconds)
@@ -440,9 +561,13 @@ final class Presentations
         });
     }
 
-    /** Host: Lebenszeichen. Alle anderen: Zeit zählen, je Anfrage höchstens ein Zählschritt. */
+    /**
+     * Host: Lebenszeichen. Alle anderen: Zeit zählen, je Anfrage höchstens ein Zählschritt.
+     * Jeder, auch der Host, führt dabei seinen Besuch.
+     */
     public static function heartbeat(Presentation $p, int $userId, ?int $participationId, DateTimeImmutable $now): void
     {
+        self::visit($p, $userId, $now);
         if ($userId === $p->presenter_id) {
             Presentation::query()->whereKey($p->id)->update(['presenter_seen_at' => Carbon::instance($now)]);
 
@@ -470,6 +595,211 @@ final class Presentations
                 }
             }
         }
+    }
+
+    /**
+     * Besuch verlängern oder nach einer Lücke einen neuen beginnen. Der Normalfall, ein laufender
+     * Besuch, ist ein einziges Update ohne Sperre; nur Eröffnen und Schließen laufen unter der
+     * Sperre des Vortrags, damit zwei Tabs im selben Augenblick nur einen Besuch eröffnen.
+     */
+    private static function visit(Presentation $p, int $userId, DateTimeImmutable $now): void
+    {
+        $at   = Carbon::instance($now);
+        $last = PresentationVisit::query()->where('presentation_id', $p->id)->where('user_id', $userId)->whereNull('left_at')->latest('id')->first();
+        // Die Spalte zählt ganze Sekunden: steht der Besuch schon auf dieser Sekunde, änderte das Update nichts
+        // und der Weg unter der Sperre hielte nur den Host auf.
+        if ($last !== null && $last->last_seen_at->getTimestamp() >= $now->getTimestamp()) {
+            return;
+        }
+        // Nur ein noch offener Besuch wird verlängert; hat das Ende ihn inzwischen geschlossen, trifft das Update nichts.
+        if ($last !== null && Visit::continues($last->last_seen_at->toDateTimeImmutable(), $now)
+            && PresentationVisit::query()->whereKey($last->id)->whereNull('left_at')->where('last_seen_at', '<=', $at)->update(['last_seen_at' => $at]) > 0) {
+            return;
+        }
+        self::locked($p, static function (Presentation $row) use ($userId, $at, $now): void {
+            if ($row->ended_at !== null) {
+                return;
+            }
+            $last = PresentationVisit::query()->where('presentation_id', $row->id)->where('user_id', $userId)->whereNull('left_at')->latest('id')->first();
+            if ($last !== null) {
+                if (Visit::continues($last->last_seen_at->toDateTimeImmutable(), $now)) {
+                    // Eine ältere, langsamere Anfrage zieht das Lebenszeichen nicht zurück.
+                    if ($at->greaterThan($last->last_seen_at)) {
+                        $last->update(['last_seen_at' => $at]);
+                    }
+
+                    return;
+                }
+                $last->update(['left_at' => $last->last_seen_at]);
+            }
+            PresentationVisit::query()->create(['presentation_id' => $row->id, 'user_id' => $userId, 'joined_at' => $at, 'last_seen_at' => $at]);
+        });
+    }
+
+    /**
+     * Neue Frage eines Folgenden an die Ausbilder.
+     *
+     * @throws DomainException `ended`, `invalid` bei leerem oder zu langem Text, `too_many` ab Question::LIMIT in der letzten Minute
+     */
+    public static function ask(Presentation $p, int $userId, string $raw): PresentationQuestion
+    {
+        $text = Question::text($raw);
+        if ($text === null) {
+            throw new DomainException('invalid');
+        }
+
+        return self::locked($p, static function (Presentation $row) use ($userId, $text): PresentationQuestion {
+            if ($row->ended_at !== null) {
+                throw new DomainException('ended');
+            }
+            $now = Carbon::now();
+            if (PresentationQuestion::query()->where('presentation_id', $row->id)->where('user_id', $userId)
+                ->where('asked_at', '>', $now->copy()->subSeconds(60))->count() >= Question::LIMIT) {
+                throw new DomainException('too_many');
+            }
+            $question = PresentationQuestion::query()->create(['presentation_id' => $row->id, 'user_id' => $userId, 'body' => $text, 'asked_at' => $now]);
+            $row->q_version++;
+            $row->save();
+
+            return $question;
+        });
+    }
+
+    /**
+     * Antwort eines Ausbilders. Ohne Text ist die Frage nur abgehakt (mündlich beantwortet).
+     *
+     * @throws DomainException `ended`, `not_found`, `invalid` bei zu langem Text
+     */
+    public static function answer(Presentation $p, int $questionId, int $byUserId, ?string $answer): void
+    {
+        $text = null;
+        if ($answer !== null && trim($answer) !== '') {
+            $text = Question::text($answer);
+            if ($text === null) {
+                throw new DomainException('invalid');
+            }
+        }
+
+        self::locked($p, static function (Presentation $row) use ($questionId, $byUserId, $text): void {
+            if ($row->ended_at !== null) {
+                throw new DomainException('ended');
+            }
+            $question = PresentationQuestion::query()->where('presentation_id', $row->id)->whereKey($questionId)->first();
+            if ($question === null) {
+                throw new DomainException('not_found');
+            }
+            $now = Carbon::now();
+            if ($text !== null) {
+                $question->answer      = $text;
+                $question->answered_by = $byUserId;
+                $question->answered_at = $now;
+            } else {
+                $question->done_at = $now;
+            }
+            $question->save();
+            $row->q_version++;
+            $row->save();
+        });
+    }
+
+    /**
+     * Frage als beantwortet abhaken.
+     *
+     * @throws DomainException `ended`, `not_found`
+     */
+    public static function done(Presentation $p, int $questionId, int $byUserId): void
+    {
+        self::answer($p, $questionId, $byUserId, null);
+    }
+
+    /**
+     * Fragen für die Abfrage, serverseitig nach Rolle gefiltert: Ausbilder sehen alle,
+     * jeder andere nur die eigenen.
+     *
+     * @return list<array{id:int, user_id:int, name:string, body:string, asked_at:string, answer:?string, done:bool}>
+     */
+    public static function questions(Presentation $p, int $userId, bool $staff): array
+    {
+        $query = PresentationQuestion::query()->with('user.mitarbeiter')->where('presentation_id', $p->id);
+        if (!$staff) {
+            $query->where('user_id', $userId);
+        }
+        $out = [];
+        foreach ($query->oldest('asked_at')->oldest('id')->get() as $q) {
+            $out[] = [
+                'id'       => $q->id,
+                'user_id'  => $q->user_id,
+                'name'     => self::identity($q->user)['name'],
+                'body'     => $q->body,
+                'asked_at' => $q->asked_at->toIso8601String(),
+                'answer'   => $q->answer,
+                'done'     => $q->done_at !== null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Besuche der Läufe, nach Kommen sortiert. Ein offener Besuch, der keine Lebenszeichen
+     * mehr bekommt, gilt ab dem letzten als beendet, auch bevor jemand ihn schließt.
+     *
+     * @param iterable<Presentation> $runs
+     * @return list<array{user_id:int, name:string, joined_at:string, left_at:?string}>
+     */
+    public static function visits(iterable $runs): array
+    {
+        return array_map(static fn (array $row): array => array_diff_key($row, ['session_id' => 0]), self::visitRows($runs));
+    }
+
+    /**
+     * Wie visits(), in einer Abfrage über alle Läufe und nach Termin gruppiert.
+     *
+     * @param iterable<Presentation> $runs
+     * @return array<int, list<array{user_id:int, name:string, joined_at:string, left_at:?string}>>
+     */
+    public static function visitsBySession(iterable $runs): array
+    {
+        $out = [];
+        foreach (self::visitRows($runs) as $row) {
+            $sessionId = $row['session_id'];
+            unset($row['session_id']);
+            $out[$sessionId][] = $row;
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param iterable<Presentation> $runs
+     * @return list<array{session_id:int, user_id:int, name:string, joined_at:string, left_at:?string}>
+     */
+    private static function visitRows(iterable $runs): array
+    {
+        $sessions = [];
+        foreach ($runs as $run) {
+            $sessions[$run->id] = $run->session_id;
+        }
+        if ($sessions === []) {
+            return [];
+        }
+        $now = new DateTimeImmutable();
+        $out = [];
+        foreach (PresentationVisit::query()->with('user.mitarbeiter')->whereIn('presentation_id', array_keys($sessions))->oldest('joined_at')->oldest('id')->get() as $visit) {
+            $left = $visit->left_at;
+            if ($left === null && !Visit::continues($visit->last_seen_at->toDateTimeImmutable(), $now)) {
+                $left = $visit->last_seen_at;
+            }
+            $out[] = [
+                'session_id' => $sessions[$visit->presentation_id],
+                'user_id'    => $visit->user_id,
+                'name'       => self::identity($visit->user)['name'],
+                'joined_at'  => $visit->joined_at->toIso8601String(),
+                'left_at'    => $left?->toIso8601String(),
+            ];
+        }
+
+        return $out;
     }
 
     /**

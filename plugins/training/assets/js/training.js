@@ -40,6 +40,8 @@ function trackUnit() {
 
     const viewer = root.querySelector('[data-ignis-document-viewer]');
     viewer?.addEventListener('ignis:document-pages', (event) => {
+        // Ohne URL zählt das Durchgehen nicht, etwa bei Folien nur im Vortrag.
+        if (!viewer.dataset.pagesUrl) return;
         const { pages, total } = event.detail;
         // keepalive: die letzte Meldung kommt beim Verlassen der Seite.
         post(viewer.dataset.pagesUrl, { course: Number(viewer.dataset.course), pages, total }, { json: true, keepalive: true }).catch(() => {});
@@ -210,7 +212,11 @@ function unitForm() {
     if (!form) return;
 
     const kind = form.querySelector('[data-training-kind]');
-    const show = () => form.querySelectorAll('.tr-kind-fields').forEach((block) => { block.hidden = block.dataset.kind !== kind.value; });
+    // Datei und Folien heißen beide `file`: gesendet wird nur das Feld der gewählten Art, sonst überschreibt das leere versteckte das gefüllte.
+    const show = () => form.querySelectorAll('.tr-kind-fields').forEach((block) => {
+        block.hidden = block.dataset.kind !== kind.value;
+        block.querySelectorAll('input[type="file"]').forEach((input) => { input.disabled = block.hidden; });
+    });
     kind.addEventListener('change', show);
     show();
 

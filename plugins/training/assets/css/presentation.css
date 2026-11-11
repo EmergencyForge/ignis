@@ -94,7 +94,8 @@
 }
 .tr-live__slide,
 .tr-live__screen,
-.tr-live__pause { height: var(--tr-live-h, auto); aspect-ratio: 16 / 9; }
+.tr-live__pause,
+.tr-live__wait { height: var(--tr-live-h, auto); aspect-ratio: 16 / 9; }
 .tr-live__slide {
   position: relative;
   overflow: hidden;
@@ -102,10 +103,13 @@
   background: var(--surface);
   box-shadow: var(--shadow-pop), 0 0 0 1px var(--border-subtle);
 }
-.tr-live__slide canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.tr-live--present .tr-live__ink { touch-action: none; }
+/* Folie und Zeichenfläche haben die Größe der eingepassten Seite; Zoom, Ausschnitt und Drehung setzt place() als dieselbe Transformation auf beide. */
+.tr-live__slide canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; transform-origin: 0 0; }
+.tr-live--present .tr-live__slide,
+.tr-live--present .tr-live__screen { touch-action: none; }
 
-.tr-live__pause {
+.tr-live__pause,
+.tr-live__wait {
   display: none;
   place-items: center;
   border-radius: var(--radius-2);
@@ -114,16 +118,27 @@
   background: radial-gradient(80% 80% at 50% 30%, var(--surface), var(--bg-2));
   color: var(--content-text);
 }
-.tr-live__pause > div > i { font-size: 28px; color: var(--accent); }
-.tr-live__pause strong { display: block; margin-top: 10px; font-size: clamp(16px, 2.4vw, 28px); }
-.tr-live__pause small { display: block; margin: 6px 0 0; color: var(--secondary-text); font-size: 13px; }
-.tr-live__pause .ignis-btn { margin-top: 14px; }
+.tr-live__pause > div,
+.tr-live__wait > div { padding: 0 16px; }
+.tr-live__pause > div > i,
+.tr-live__wait > div > i { font-size: 28px; color: var(--accent); }
+.tr-live__pause strong,
+.tr-live__wait strong { display: block; margin-top: 10px; font-size: clamp(16px, 2.4vw, 28px); }
+.tr-live__pause small,
+.tr-live__wait small { display: block; margin: 6px 0 0; color: var(--secondary-text); font-size: 13px; }
+.tr-live__pause .ignis-btn,
+.tr-live__wait .ignis-btn { margin-top: 14px; }
 .tr-live__frame[data-mode="pause"] > .tr-live__slide { display: none; }
 .tr-live__frame[data-mode="pause"] > .tr-live__pause { display: grid; }
+/* Wartebild: weder Folien noch ein geteilter Bildschirm. */
+.tr-live__frame[data-mode="wait"] > .tr-live__slide { display: none; }
+.tr-live__frame[data-mode="wait"] > .tr-live__wait { display: grid; }
+.tr-live__wait [hidden] { display: none; }
 
-/* Geteilter Bildschirm: nur das Bild, ohne Zeichenfläche. contain, weil Fenster jedes Seitenverhältnis haben. */
+/* Geteilter Bildschirm. contain, weil Fenster jedes Seitenverhältnis haben; die Zeichenfläche legt fitScreenInk() genau auf das Videobild. */
 .tr-live__screen { position: relative; display: none; place-items: center; overflow: hidden; border-radius: var(--radius-2); background: var(--bg-2); }
 .tr-live__screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.tr-live__screen-ink { position: absolute; left: 0; top: 0; width: 0; height: 0; display: block; pointer-events: none; }
 .tr-live__screen-note { position: relative; max-width: 32rem; margin: 0; padding: 0 16px; text-align: center; color: var(--secondary-text); font-size: 13px; }
 .tr-live__screen-note[hidden] { display: none; }
 .tr-live__frame[data-mode="screen"] > .tr-live__slide { display: none; }
@@ -146,7 +161,9 @@
 .tr-live__share[hidden] { display: none; }
 .tr-live__rec { flex: none; width: 8px; height: 8px; border-radius: 999px; background: var(--danger); }
 /* Nicht disabled: ein deaktivierter Knopf bekommt keine Maus-Ereignisse, der Tooltip sagt aber, warum es nicht geht. */
-.tr-live .ignis-segmented [aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.tr-live .ignis-segmented [aria-disabled="true"],
+.tr-live__wait .ignis-btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.tr-live .ignis-segmented [hidden] { display: none; }
 
 .tr-live__note { align-self: center; justify-self: center; margin: 0; text-align: center; color: var(--secondary-text); font-size: 13px; }
 
@@ -167,7 +184,8 @@
 }
 .tr-live__dock[hidden] { display: none; }
 .tr-live__group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px; padding: 0 4px; min-width: 0; }
-.tr-live__group + .tr-live__group { border-left: 1px solid var(--border-subtle); padding-left: 8px; }
+.tr-live__group[hidden] { display: none; }
+.tr-live__group:not([hidden]) ~ .tr-live__group { border-left: 1px solid var(--border-subtle); padding-left: 8px; }
 .tr-live__count { min-width: 3.6rem; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--secondary-text); }
 .tr-live__tool {
   display: inline-grid;
@@ -184,7 +202,8 @@
 }
 .tr-live__tool:hover { background: var(--fill-2); color: var(--content-text); }
 .tr-live__tool[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
-.tr-live__tool:disabled { opacity: .45; cursor: not-allowed; }
+.tr-live__tool:disabled,
+.tr-live__tool[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 .tr-live__swatch {
   width: 22px;
   height: 22px;
@@ -214,6 +233,7 @@
 .tr-live__width[aria-pressed="true"] { background: var(--fill-3); }
 
 .tr-live__side { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; background: var(--surface); border-left: 1px solid var(--border-subtle); }
+/* Vier Reiter beim Host stehen zwei über zwei, der mitverfolgende Ausbilder hat zwei in einer Zeile. */
 .tr-live__tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-subtle); }
 .tr-live__tabs button {
   padding: 12px 8px;
@@ -264,6 +284,70 @@
 .tr-live__thumb[aria-current="true"] { color: var(--content-text); }
 .tr-live__thumb[aria-current="true"] canvas { outline-color: var(--accent); }
 
+/* Fragen und Protokoll. Lange Namen und Texte brechen in der schmalen Seitenleiste um. */
+.tr-live__badge--new { background: var(--accent); color: var(--on-accent); }
+.tr-live__badge[hidden],
+.tr-live__question [hidden],
+.tr-live__ask [hidden],
+.tr-live__ask[hidden] { display: none; }
+.tr-live__questions { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tr-live__question {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.tr-live__question.is-done { opacity: .65; }
+.tr-live__question-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.tr-live__question-head time { color: var(--secondary-text); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tr-live__question-text { margin: 0; white-space: pre-line; }
+.tr-live__tag { padding: 1px 7px; border-radius: 999px; background: var(--fill-2); color: var(--secondary-text); font-size: 11px; }
+.tr-live__answer { padding: 6px 8px; border-left: 2px solid var(--accent); border-radius: var(--radius-1); background: var(--fill-1); }
+.tr-live__answer small { display: block; color: var(--secondary-text); font-size: 11px; }
+.tr-live__answer p { margin: 2px 0 0; white-space: pre-line; }
+.tr-live__reply { display: grid; gap: 6px; margin: 0; }
+.tr-live__reply .ignis-field { margin: 0; }
+.tr-live__reply textarea, .tr-live__ask textarea { width: 100%; resize: vertical; }
+.tr-live__reply-row, .tr-live__ask-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.tr-live__msg { margin: 0; color: var(--danger); font-size: 12px; }
+.tr-live__msg:empty { display: none; }
+.tr-live__log li.is-here small { color: var(--ok); }
+
+/*
+ * Fragefeld des Teilnehmers: rechts über der Fußleiste, damit Ton und Lautstärke darin bedienbar bleiben;
+ * es liegt dabei über der rechten unteren Ecke der Folie. Die eigenen Fragen scrollen darin.
+ */
+.tr-live__foot { position: relative; }
+.tr-live__ask {
+  position: absolute;
+  right: 14px;
+  bottom: calc(100% + 8px);
+  z-index: 6;
+  width: 340px;
+  max-width: calc(100% - 28px);
+  max-height: 60vh;
+  overflow: auto;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-pop);
+  color: var(--content-text);
+  font-size: 13px;
+  text-align: left;
+}
+.tr-live__ask form { margin: 0 0 4px; }
+.tr-live__ask .ignis-field { margin: 0 0 6px; }
+.tr-live__ask-hint { margin-right: auto; color: var(--secondary-text); }
+.tr-live__counter { color: var(--secondary-text); font-variant-numeric: tabular-nums; }
+.tr-live__counter.is-over { color: var(--danger); font-weight: 600; }
+.tr-live__ask .tr-live__msg { margin-top: 6px; }
+.tr-live__msg.is-ok { color: var(--secondary-text); }
+
 .tr-live__foot {
   display: flex;
   justify-content: space-between;
@@ -274,6 +358,12 @@
   color: var(--secondary-text);
   font-size: 12px;
 }
+.tr-live--follow .tr-live__foot { align-items: center; }
+.tr-live__sound { display: inline-flex; align-items: center; gap: 6px; }
+.tr-live__sound[hidden],
+.tr-live__sound [hidden] { display: none; }
+.tr-live__sound .tr-live__tool { width: 28px; height: 28px; font-size: 13px; }
+.tr-live__sound input[type="range"] { width: 96px; margin: 0; accent-color: var(--accent); }
 .tr-live__conn { display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--ok); }
 .tr-live__meta.is-lost { color: var(--danger); }
 .tr-live__meta.is-lost .tr-live__conn { background: var(--danger); }
@@ -351,10 +441,13 @@
 .tr-live--narrow, .tr-live--narrow .tr-live__stage { grid-template-rows: auto; grid-auto-rows: auto; }
 .tr-live--narrow .tr-live__main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
 .tr-live--narrow .tr-live__frame > * { width: 100%; }
-.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__screen, .tr-live--narrow .tr-live__pause { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
+.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__screen, .tr-live--narrow .tr-live__pause, .tr-live--narrow .tr-live__wait { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
 .tr-live--narrow .tr-live__side { max-height: 320px; border-left: 0; border-top: 1px solid var(--border-subtle); }
 .tr-live--narrow .tr-live__stage { gap: 10px; padding: 12px; }
-.tr-live--narrow .tr-live__group + .tr-live__group { padding-left: 4px; border-left: 0; }
+.tr-live--narrow .tr-live__group:not([hidden]) ~ .tr-live__group { padding-left: 4px; border-left: 0; }
+/* Am Telefon liegt das Fragefeld unter der Fußleiste statt über der Folie; die Seite scrollt ohnehin. */
+.tr-live--narrow .tr-live__foot { flex-wrap: wrap; }
+.tr-live--narrow .tr-live__ask { position: static; flex: 1 0 100%; width: auto; max-width: none; max-height: none; box-shadow: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .tr-live__dot { animation: none; }

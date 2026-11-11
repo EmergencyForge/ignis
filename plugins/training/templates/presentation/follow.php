@@ -2,6 +2,8 @@
 /**
  * Mitverfolgen eines laufenden Vortrags: Folie, Zeichnungen und Laser des
  * Hosts mit kurzer Verzögerung; assets/js/presentation.js fragt den Stand ab.
+ * Ausbilder bekommen daneben Fragen und Protokoll, Teilnehmer nur ihr
+ * eigenes Fragefeld.
  *
  * @var \Plugin\Training\Models\Course       $course
  * @var \Plugin\Training\Models\Session      $session
@@ -11,22 +13,29 @@
  * @var int                                  $userId
  */
 
+use Plugin\Training\Policies\TrainingPolicy;
+
 $layout       = 'admin';
 $bodyId       = 'training';
 $windowSingle = true;
 $SITE_TITLE   = $session->title;
 $liveRole     = 'follow';
+// Wie PresentationController::state(): wer am Lehrgang ausbildet, sieht alle Fragen und das Protokoll.
+$liveTeach    = TrainingPolicy::instruct($course);
+$liveAskId    = 'tr-live-ask-' . (int) $session->id;
 
 require __DIR__ . '/_bar.php';
 ?>
+    <?php if ($liveTeach): ?><div class="tr-live__main"><?php endif; ?>
     <div class="tr-live__stage">
         <div class="tr-live__frame" data-live-frame data-mode="slides">
             <div class="tr-live__slide" data-live-slide>
                 <canvas class="tr-live__pdf" data-live-pdf aria-hidden="true"></canvas>
                 <canvas class="tr-live__ink" data-live-ink aria-label="Folie"></canvas>
             </div>
-            <div class="tr-live__screen">
+            <div class="tr-live__screen" data-live-screen>
                 <video data-live-video playsinline autoplay muted></video>
+                <canvas class="tr-live__screen-ink" data-live-screen-ink aria-hidden="true"></canvas>
                 <p class="tr-live__screen-note" data-live-screen-note hidden></p>
             </div>
             <div class="tr-live__pause">
@@ -36,9 +45,72 @@ require __DIR__ . '/_bar.php';
                     <small>Gleich geht es weiter, du bleibst im Vortrag. <span data-live-pause-clock>00:00</span></small>
                 </div>
             </div>
+            <div class="tr-live__wait">
+                <div>
+                    <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+                    <strong>Die Übertragung startet in Kürze</strong>
+                    <small>Du bleibst im Vortrag, das Bild erscheint von selbst.</small>
+                </div>
+            </div>
             <p class="tr-live__note" data-live-note hidden></p>
         </div>
     </div>
-    <footer class="tr-live__foot"><span data-live-follow-counter>Folie 1</span><span>Du folgst dem Host.</span></footer>
+    <?php if ($liveTeach): ?>
+        <aside class="tr-live__side">
+            <div class="tr-live__tabs" role="tablist">
+                <button type="button" role="tab" aria-selected="true" data-live-tab="questions">Fragen <span class="tr-live__badge tr-live__badge--new" data-live-question-count hidden>0</span></button>
+                <button type="button" role="tab" aria-selected="false" data-live-tab="log">Protokoll</button>
+            </div>
+            <?php // Fragen und Protokoll baut das Skript aus /state; Namen und Texte nur als textContent. ?>
+            <div class="tr-live__panel" role="tabpanel" data-live-panel="questions">
+                <ul class="tr-live__questions" data-live-questions></ul>
+                <p class="tr-live__empty" data-live-no-questions>Noch keine Fragen.</p>
+                <div data-live-questions-done-block hidden>
+                    <div class="tr-live__label">Erledigt · <span data-live-done-count>0</span></div>
+                    <ul class="tr-live__questions" data-live-questions-done></ul>
+                </div>
+            </div>
+            <div class="tr-live__panel" role="tabpanel" data-live-panel="log" hidden>
+                <div class="tr-live__label">Kommen und Gehen, neueste oben</div>
+                <ul class="tr-live__people tr-live__log" data-live-log></ul>
+                <p class="tr-live__empty" data-live-no-visits>Noch ist niemand gekommen.</p>
+            </div>
+        </aside>
+    </div>
+    <?php endif; ?>
+    <footer class="tr-live__foot">
+        <span data-live-follow-counter>Folie 1</span>
+        <?php // Ton des geteilten Tabs; das Video bleibt stumm, damit der Regler allein gilt. ?>
+        <audio data-live-audio autoplay></audio>
+        <span class="tr-live__sound" data-live-sound hidden>
+            <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" data-live-unmute hidden><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Ton einschalten</button>
+            <button type="button" class="tr-live__tool" data-live-mute aria-pressed="false" aria-label="Stumm" data-ignis-tooltip="Stumm"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+            <input type="range" data-live-volume min="0" max="1" step="0.05" value="1" aria-label="Lautstärke">
+        </span>
+        <?php if ($liveTeach): ?>
+            <span>Du folgst dem Host.</span>
+        <?php else: ?>
+            <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-ask aria-expanded="false" aria-controls="<?= $liveAskId ?>"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Frage stellen <span class="tr-live__badge tr-live__badge--new" data-live-ask-news hidden>0</span></button>
+            <?php // Nur die eigenen Fragen; die anderer Teilnehmer liefert der Server gar nicht. ?>
+            <div class="tr-live__ask" id="<?= $liveAskId ?>" data-live-ask-panel hidden>
+                <form data-live-ask-form novalidate>
+                    <div class="ignis-field">
+                        <label class="ignis-field__label" for="<?= $liveAskId ?>-text">Deine Frage</label>
+                        <textarea class="ignis-input" id="<?= $liveAskId ?>-text" rows="3" data-live-ask-text aria-describedby="<?= $liveAskId ?>-hint <?= $liveAskId ?>-count"></textarea>
+                    </div>
+                    <div class="tr-live__ask-row">
+                        <small class="tr-live__ask-hint" id="<?= $liveAskId ?>-hint">Nur die Ausbilder sehen sie.</small>
+                        <small class="tr-live__counter" id="<?= $liveAskId ?>-count" data-live-ask-count>0 / 500</small>
+                        <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--sm" data-live-ask-send>Senden</button>
+                    </div>
+                    <p class="tr-live__msg" data-live-ask-msg role="status" aria-live="polite"></p>
+                </form>
+                <div data-live-own-block hidden>
+                    <div class="tr-live__label">Deine Fragen</div>
+                    <ul class="tr-live__questions" data-live-own></ul>
+                </div>
+            </div>
+        <?php endif; ?>
+    </footer>
 </section>
 <script src="<?= $e(asset('plugins/training/assets/js/presentation.js')) ?>" defer></script>

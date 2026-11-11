@@ -9,7 +9,7 @@
  * @var \Plugin\Training\Models\Session       $session
  * @var \Plugin\Training\Models\Presentation  $presentation
  * @var string                                $url
- * @var string                                $slidesUrl
+ * @var string                                $slidesUrl  leer, wenn die Präsentation keine Folien hat
  * @var int                                   $userId
  * @var list<array{id: int, name: string, initials: string, role: string}> $targets  nur present
  */
@@ -49,7 +49,8 @@ ob_start();
         <span class="tr-live__spacer"></span>
         <?php if ($livePresent): ?>
             <div class="ignis-segmented ignis-segmented--sm" role="group" aria-label="Anzeige">
-                <button type="button" data-live-mode="slides" aria-pressed="true"><i class="fa-solid fa-images" aria-hidden="true"></i> Folien</button>
+                <?php // Ohne Folien heißt „Teilen beenden“ zurück ins Wartebild; dafür braucht es keinen Knopf. ?>
+                <button type="button" data-live-mode="slides" aria-pressed="true"<?= $slidesUrl === '' ? ' hidden' : '' ?>><i class="fa-solid fa-images" aria-hidden="true"></i> Folien</button>
                 <button type="button" data-live-mode="screen" aria-pressed="false" data-ignis-tooltip="<?= $liveKit ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15' ?>"><i class="fa-solid fa-display" aria-hidden="true"></i> Bildschirm</button>
                 <button type="button" data-live-mode="pause" aria-pressed="false"><i class="fa-solid fa-mug-hot" aria-hidden="true"></i> Pause</button>
             </div>
@@ -92,7 +93,9 @@ ob_start();
         <div>
             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
             <strong>Vortrag beendet</strong>
-            <p>Die Folien stehen weiter als PDF im Lehrgang.</p>
-            <a href="<?= $e($slidesUrl) ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm" target="_blank" rel="noopener">Folien öffnen</a>
+            <?php if ($slidesUrl !== '' && $session->unit?->slides_after_talk): ?>
+                <p>Die Folien stehen weiter als PDF im Lehrgang.</p>
+                <a href="<?= $e($slidesUrl) ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm" target="_blank" rel="noopener">Folien öffnen</a>
+            <?php endif; ?>
         </div>
     </div>

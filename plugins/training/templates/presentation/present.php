@@ -1,8 +1,8 @@
 <?php
 /**
  * Vortragsmodus des Hosts: Folie mit Zeichenfläche, Werkzeugleiste,
- * Seitenleiste mit Zuschauern und Folien. Bedienung und Abgleich mit dem
- * Server macht assets/js/presentation.js.
+ * Seitenleiste mit Zuschauern, Folien, Fragen und Protokoll. Bedienung und
+ * Abgleich mit dem Server macht assets/js/presentation.js.
  *
  * @var \Plugin\Training\Models\Course       $course
  * @var \Plugin\Training\Models\Session      $session
@@ -25,6 +25,7 @@ $liveRole     = 'present';
 $liveFa      = static fn (string $icon): string => '<i class="fa-solid ' . $icon . '" aria-hidden="true"></i>';
 $liveOutline = static fn (string $shape): string => '<svg viewBox="0 0 16 16" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">' . $shape . '</svg>';
 $liveTools   = [
+    'pointer' => [$liveFa('fa-arrow-pointer'), 'Zeiger'],
     'laser'   => [$liveFa('fa-wand-sparkles'), 'Laserpointer, waagerecht wischen blättert'],
     'pen'     => [$liveFa('fa-pen'), 'Stift'],
     'marker'  => [$liveFa('fa-highlighter'), 'Textmarker'],
@@ -46,28 +47,37 @@ require __DIR__ . '/_bar.php';
                     <canvas class="tr-live__pdf" data-live-pdf aria-hidden="true"></canvas>
                     <canvas class="tr-live__ink" data-live-ink aria-label="Folie"></canvas>
                 </div>
-                <div class="tr-live__screen">
+                <div class="tr-live__screen" data-live-screen>
                     <video data-live-video playsinline autoplay muted></video>
+                    <canvas class="tr-live__screen-ink" data-live-screen-ink aria-label="Bildschirm"></canvas>
                 </div>
                 <div class="tr-live__pause">
                     <div>
                         <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
                         <strong>Pause</strong>
                         <small>Die Teilnehmer sehen das Pausenbild, die Zeit zählt weiter.</small>
-                        <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-mode="slides"><i class="fa-solid fa-images" aria-hidden="true"></i> Weiter mit Folien</button>
+                        <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-mode="slides"><?= $slidesUrl !== '' ? '<i class="fa-solid fa-images" aria-hidden="true"></i> Weiter mit Folien' : '<i class="fa-solid fa-play" aria-hidden="true"></i> Pause beenden' ?></button>
+                    </div>
+                </div>
+                <div class="tr-live__wait">
+                    <div>
+                        <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+                        <strong>Die Übertragung startet in Kürze</strong>
+                        <small>Die Teilnehmer sehen dieses Bild, bis du deinen Bildschirm teilst.</small>
+                        <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" data-live-mode="screen" data-live-wait-share><i class="fa-solid fa-display" aria-hidden="true"></i> Bildschirm teilen</button>
                     </div>
                 </div>
                 <p class="tr-live__note" data-live-note hidden></p>
             </div>
             <div class="tr-live__dock" data-live-dock role="toolbar" aria-label="Werkzeuge">
-                <div class="tr-live__group">
+                <div class="tr-live__group" data-live-pages>
                     <button type="button" class="tr-live__tool" data-live-prev aria-label="Vorherige Folie" data-ignis-tooltip="Vorherige Folie"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
                     <span class="tr-live__count" data-live-counter>1 / 1</span>
                     <button type="button" class="tr-live__tool" data-live-next aria-label="Nächste Folie" data-ignis-tooltip="Nächste Folie"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
                 </div>
                 <div class="tr-live__group">
                     <?php foreach ($liveTools as $liveTool => [$liveIcon, $liveLabel]): ?>
-                        <button type="button" class="tr-live__tool" data-tool="<?= $liveTool ?>" aria-pressed="<?= $liveTool === 'laser' ? 'true' : 'false' ?>" aria-label="<?= $e($liveLabel) ?>" data-ignis-tooltip="<?= $e($liveLabel) ?>"><?= $liveIcon ?></button>
+                        <button type="button" class="tr-live__tool" data-tool="<?= $liveTool ?>" aria-pressed="<?= $liveTool === 'pointer' ? 'true' : 'false' ?>" aria-label="<?= $e($liveLabel) ?>" data-ignis-tooltip="<?= $e($liveLabel) ?>"><?= $liveIcon ?></button>
                     <?php endforeach; ?>
                 </div>
                 <div class="tr-live__group">
@@ -84,10 +94,16 @@ require __DIR__ . '/_bar.php';
                     <button type="button" class="tr-live__tool" data-live-undo aria-label="Rückgängig (Strg+Z)" data-ignis-tooltip="Rückgängig (Strg+Z)"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
                     <button type="button" class="tr-live__tool" data-live-clear aria-label="Folie leeren" data-ignis-tooltip="Folie leeren"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                 </div>
+                <div class="tr-live__group" data-live-zoom>
+                    <button type="button" class="tr-live__tool" data-live-zoom-out aria-label="Verkleinern" data-ignis-tooltip="Verkleinern (Strg+Mausrad)"><i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i></button>
+                    <button type="button" class="tr-live__tool" data-live-zoom-in aria-label="Vergrößern" data-ignis-tooltip="Vergrößern (Strg+Mausrad)"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
+                    <button type="button" class="tr-live__tool" data-live-fit aria-label="Einpassen" data-ignis-tooltip="Einpassen"><i class="fa-solid fa-compress" aria-hidden="true"></i></button>
+                    <button type="button" class="tr-live__tool" data-live-rotate aria-label="Drehen" data-ignis-tooltip="Drehen"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></button>
+                </div>
             </div>
             <div class="tr-live__share" data-live-share hidden>
                 <span class="tr-live__rec" aria-hidden="true"></span>
-                <span>Du teilst deinen Bildschirm</span>
+                <span>Du teilst deinen Bildschirm<span data-live-share-sound hidden> mit Ton</span></span>
                 <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-mode="slides"><i class="fa-solid fa-stop" aria-hidden="true"></i> Teilen beenden</button>
             </div>
         </div>
@@ -95,6 +111,8 @@ require __DIR__ . '/_bar.php';
             <div class="tr-live__tabs" role="tablist">
                 <button type="button" role="tab" aria-selected="true" data-live-tab="people">Teilnehmer <span class="tr-live__badge" data-live-viewer-count>0</span></button>
                 <button type="button" role="tab" aria-selected="false" data-live-tab="slides">Folien <span class="tr-live__badge" data-live-page-count>0</span></button>
+                <button type="button" role="tab" aria-selected="false" data-live-tab="questions">Fragen <span class="tr-live__badge tr-live__badge--new" data-live-question-count hidden>0</span></button>
+                <button type="button" role="tab" aria-selected="false" data-live-tab="log">Protokoll</button>
             </div>
             <div class="tr-live__panel" role="tabpanel" data-live-panel="people">
                 <div class="tr-live__label">Im Lehrgang · <span data-live-course-count>0</span></div>
@@ -107,6 +125,20 @@ require __DIR__ . '/_bar.php';
             </div>
             <div class="tr-live__panel" role="tabpanel" data-live-panel="slides" hidden>
                 <div class="tr-live__thumbs" data-live-thumbs></div>
+            </div>
+            <?php // Fragen und Protokoll baut das Skript aus /state; Namen und Texte nur als textContent. ?>
+            <div class="tr-live__panel" role="tabpanel" data-live-panel="questions" hidden>
+                <ul class="tr-live__questions" data-live-questions></ul>
+                <p class="tr-live__empty" data-live-no-questions>Noch keine Fragen.</p>
+                <div data-live-questions-done-block hidden>
+                    <div class="tr-live__label">Erledigt · <span data-live-done-count>0</span></div>
+                    <ul class="tr-live__questions" data-live-questions-done></ul>
+                </div>
+            </div>
+            <div class="tr-live__panel" role="tabpanel" data-live-panel="log" hidden>
+                <div class="tr-live__label">Kommen und Gehen, neueste oben</div>
+                <ul class="tr-live__people tr-live__log" data-live-log></ul>
+                <p class="tr-live__empty" data-live-no-visits>Noch ist niemand gekommen.</p>
             </div>
         </aside>
     </div>

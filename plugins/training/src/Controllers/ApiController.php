@@ -7,6 +7,7 @@ namespace Plugin\Training\Controllers;
 use App\Personnel\AccountLink;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use EmergencyForge\Training\UnitKind;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
@@ -28,6 +29,10 @@ final class ApiController extends BaseController
         $participation = Participation::query()->where('course_id', $course->id)->where('personnel_id', $pid)->first();
         $unitModel     = Curriculum::for($course)->unit((int) $unit);
         if ($participation === null || !$participation->canLearn() || $unitModel === null || $unitModel->file?->viewsAsPdf() !== true) {
+            return self::json(['error' => 'Nicht gefunden.'], 404);
+        }
+        // Durchgehen hakt eine Präsentation nur ab, wenn die Folien nach dem Vortrag offen bleiben; im Vortrag allein zählt die Anwesenheit.
+        if ($unitModel->type() === UnitKind::Presentation && !$unitModel->slides_after_talk) {
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
 

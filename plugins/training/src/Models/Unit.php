@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Lerneinheit: Datei, Text, Link, Wissensartikel oder Termin.
+ * Lerneinheit: Datei, Text, Link, Wissensartikel, Termin oder Präsentation.
  *
  * @property int                       $id
  * @property int                       $module_id
@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property string|null               $url
  * @property int|null                  $kb_entry_id
  * @property bool                      $allow_download
+ * @property bool                      $slides_after_talk  Präsentation: Folien auch nach dem Vortrag einsehbar
  * @property Carbon                    $updated_at
  * @property-read Module            $module
  * @property-read TrainingFile|null $file
@@ -44,6 +45,7 @@ class Unit extends EloquentModel
         'file_id'        => 'integer',
         'kb_entry_id'    => 'integer',
         'allow_download' => 'boolean',
+        'slides_after_talk' => 'boolean',
         'content'        => 'array',
     ];
 
@@ -72,6 +74,7 @@ class Unit extends EloquentModel
             UnitKind::Link             => 'fa-solid fa-link',
             UnitKind::KnowledgeArticle => 'fa-solid fa-book-medical',
             UnitKind::Session          => 'fa-solid fa-calendar',
+            UnitKind::Presentation     => 'fa-solid fa-person-chalkboard',
             UnitKind::Check            => 'fa-solid fa-list-check',
         };
     }

@@ -96,13 +96,14 @@ final class TrainingController extends BaseController
         $curriculum = Curriculum::for($course);
         $state      = $participation !== null ? ($curriculum->states([$participation->id])[$participation->id] ?? []) : [];
         $progress   = $curriculum->progress($state);
-        // Laufende Vorträge der Termine mit Folien; wer nicht folgen darf, sieht keinen Hinweis,
+        // Laufende Vorträge der Termine an Präsentationen; wer nicht folgen darf, sieht keinen Hinweis,
         // der Host keinen zum eigenen Vortrag.
         $lives = [];
         if (TrainingPolicy::follow($course, $participation)) {
             $now = new \DateTimeImmutable();
+            $course->loadMissing('sessions.unit');
             foreach ($course->sessions as $session) {
-                if ($session->slides_file_id !== null && ($live = Presentations::live($session, $now)) !== null && $live->presenter_id !== self::userId()) {
+                if ($session->isPresentation() && ($live = Presentations::live($session, $now)) !== null && $live->presenter_id !== self::userId()) {
                     $lives[$session->id] = [$session, $live];
                 }
             }
@@ -201,6 +202,10 @@ final class TrainingController extends BaseController
             $state[$unitModel->id] = ['state' => 'done', 'manual' => false, 'by' => null, 'pages' => null, 'attendance' => null];
         }
 
+        // Folien einer Präsentation: Ausbilder immer, Teilnehmer nach der Regel der Einheit. Ein laufender Vortrag bekommt seinen Knopf.
+        $slidesOpen = $unitModel->type() === UnitKind::Presentation && (TrainingPolicy::instruct($courseModel) || Presentations::slidesOpen($unitModel, $courseModel, new \DateTimeImmutable()));
+        $talk       = $unitModel->type() === UnitKind::Presentation ? Presentations::liveSessionFor($unitModel, $courseModel, new \DateTimeImmutable()) : null;
+
         $units = $curriculum->units();
         $index = array_search($unitModel, $units, true);
         $html  = null;
@@ -219,6 +224,8 @@ final class TrainingController extends BaseController
             'unitState'     => $state[$unitModel->id] ?? null,
             'nextUnit'      => is_int($index) ? ($units[$index + 1] ?? null) : null,
             'session'       => $curriculum->session($unitModel),
+            'slidesOpen'    => $slidesOpen,
+            'talk'          => $talk,
             'html'          => $html,
         ]);
     }
@@ -287,15 +294,21 @@ final class TrainingController extends BaseController
             return self::notFound();
         }
 
+        $instructor = TrainingPolicy::instruct($courseModel);
+        // Folien einer Präsentation folgen deren Regel; eine Datei, die auch anderswo im Lehrplan steht, bleibt dort offen.
+        if (!$instructor && !$this->slidesVisible($curriculum, $courseModel, $fileModel)) {
+            return self::notFound();
+        }
+
         $download = $request->queryString('download') === '1';
-        if ($download && !TrainingPolicy::instruct($courseModel) && !$this->downloadAllowed($curriculum, $fileModel)) {
+        if ($download && !$instructor && !$this->downloadAllowed($curriculum, $fileModel)) {
             return self::notFound();
         }
 
         // Office-Dateien zeigt der Browser nicht an, der Download ist das Lesen.
         if ($download && $participation !== null && $this->canLearn($courseModel, $participation) && !$fileModel->viewsAsPdf() && !$fileModel->isImage()) {
             foreach ($curriculum->units() as $unit) {
-                if ($unit->file_id === $fileModel->id) {
+                if ($unit->file_id === $fileModel->id && $unit->type() !== UnitKind::Presentation) {
                     Curriculum::markDone($participation, $unit);
                 }
             }
@@ -341,10 +354,23 @@ final class TrainingController extends BaseController
         return [$courseModel, $participation, $curriculum, $unitModel];
     }
 
+    private function slidesVisible(Curriculum $curriculum, Course $course, TrainingFile $file): bool
+    {
+        $now = new \DateTimeImmutable();
+        foreach ($curriculum->units() as $unit) {
+            // Folien nur als PDF: unumgewandelt ginge sonst das Original als Anhang hinaus.
+            if ($unit->file_id === $file->id && ($unit->type() !== UnitKind::Presentation || ($file->viewsAsPdf() && Presentations::slidesOpen($unit, $course, $now)))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function downloadAllowed(Curriculum $curriculum, TrainingFile $file): bool
     {
         foreach ($curriculum->units() as $unit) {
-            if ($unit->file_id === $file->id && ($unit->allow_download || (!$file->isPdf() && !$file->isImage()))) {
+            if ($unit->file_id === $file->id && $unit->type() !== UnitKind::Presentation && ($unit->allow_download || (!$file->isPdf() && !$file->isImage()))) {
                 return true;
             }
         }

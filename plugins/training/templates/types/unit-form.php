@@ -125,6 +125,40 @@ ob_start();
                         <p class="ignis-detail__muted m-0">Datum, Uhrzeit und Ort legt die Leitung je Lehrgang im Reiter Termine fest. Erledigt ist die Einheit, sobald die Anwesenheit eingetragen ist.</p>
                     </div>
 
+                    <div class="tr-kind-fields grid gap-3" data-kind="presentation">
+                        <?php if ($unit->file !== null): ?>
+                            <p class="m-0">
+                                <i class="<?= htmlspecialchars($unit->file->icon()) ?>" aria-hidden="true"></i>
+                                <a href="<?= $base ?>training/files/<?= (int) $unit->file->id ?>" target="_blank" rel="noopener"><?= htmlspecialchars($unit->file->original_name) ?></a>
+                                <span class="ignis-detail__muted">· <?= htmlspecialchars($unit->file->sizeLabel()) ?> · Fassung <?= (int) $unit->file->version ?> vom <?= htmlspecialchars($unit->file->updated_at->format('d.m.Y')) ?></span>
+                            </p>
+                        <?php endif; ?>
+                        <div>
+                            <span class="ignis-field__label"><?= $unit->file !== null ? 'Neue Fassung der Folien hochladen' : 'Folien' ?></span>
+                            <div class="ignis-file ignis-file--dropzone" data-ignis-file data-max-bytes="<?= (int) MaterialType::DEFAULT_MAX_BYTES ?>">
+                                <input type="file" id="unit-slides" name="file" class="ignis-file__input" accept="<?= \Plugin\Training\Converter::configured() !== null ? '.pdf,.pptx' : '.pdf' ?>">
+                                <label for="unit-slides" class="ignis-file__zone">
+                                    <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+                                    <span class="ignis-file__title">Folien hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                                    <span class="ignis-file__hint"><?= \Plugin\Training\Converter::configured() !== null ? 'PDF oder PowerPoint' : 'PDF' ?> bis <?= (int) (MaterialType::DEFAULT_MAX_BYTES / 1048576) ?> MB</span>
+                                </label>
+                                <div class="ignis-file__selected" hidden></div>
+                            </div>
+                            <p class="ignis-field__hint">Die Folien sind optional. Ohne Folien lässt sich ein Vortrag trotzdem halten, etwa mit geteiltem Bildschirm.
+                                <?php if (\Plugin\Training\Converter::configured() !== null): ?>
+                                    PowerPoint-Dateien werden kurz nach dem Hochladen in PDF umgewandelt.
+                                <?php else: ?>
+                                    PowerPoint lässt sich hier nicht zeigen. Die Präsentation bitte als PDF speichern und hochladen.
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <label class="flex items-center gap-2">
+                            <span class="ignis-switch"><input type="checkbox" name="slides_after_talk" value="1"<?= ($unit->slides_after_talk ?? true) ? ' checked' : '' ?>><span></span></span>
+                            Folien nach dem Vortrag einsehbar
+                        </label>
+                        <p class="ignis-field__hint m-0">Ist der Schalter aus, sehen Teilnehmer die Folien nur, solange ein Vortrag zu dieser Einheit läuft. Abgehakt wird dann über die Anwesenheit am Termin. Wer dort keinen Eintrag hat, lässt sich von Hand abhaken.</p>
+                    </div>
+
                     <label class="flex items-center gap-2">
                         <span class="ignis-switch"><input type="checkbox" name="required" value="1"<?= $unit->required ? ' checked' : '' ?>><span></span></span>
                         Pflicht: zählt für den Fortschritt und die Zulassung zur Prüfung

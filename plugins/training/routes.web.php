@@ -47,7 +47,10 @@ $router->post($live . '/start',           [PresentationController::class, 'start
 $router->get($live . '/state',            [PresentationController::class, 'state'],    $view);
 $router->post($live . '/events',          [PresentationController::class, 'events'],   $view);
 $router->post($live . '/screen',          [PresentationController::class, 'screen'],      $view);
-$router->post($live . '/screen/token',    [PresentationController::class, 'screenToken'], $view);
+$router->post($live . '/room/token',      [PresentationController::class, 'roomToken'],   $view);
+$router->post($live . '/questions',       [PresentationController::class, 'ask'],         $view);
+$router->post($live . '/questions/{questionId:\d+}/answer', [PresentationController::class, 'answer'], $view);
+$router->post($live . '/questions/{questionId:\d+}/done',   [PresentationController::class, 'done'],   $view);
 $router->post($live . '/signal',          [PresentationController::class, 'signal'],      $view);
 $router->post($live . '/handover',        [PresentationController::class, 'handover'], $view);
 $router->post($live . '/handover/cancel', [PresentationController::class, 'cancel'],   $view);
@@ -70,7 +73,6 @@ $router->post('/training/manage/{id:\d+}/progress',                         [Man
 $router->post('/training/manage/{id:\d+}/sessions',                         [ManageController::class, 'storeSession'],  $teach);
 $router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/delete',        [ManageController::class, 'deleteSession'], $teach);
 $router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/attendance',    [ManageController::class, 'attendance'],    $teach);
-$router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/slides',        [ManageController::class, 'slides'],        $teach);
 $router->post('/training/manage/{id:\d+}/modules',                          [CurriculumController::class, 'addCourseModule'], $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/release',         [ExamController::class, 'release'],         $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/revoke',          [ExamController::class, 'revoke'],          $teach);

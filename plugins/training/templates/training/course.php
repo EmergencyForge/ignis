@@ -62,7 +62,7 @@ ob_start();
                             <i class="fa-solid fa-person-chalkboard ignis-alert__icon" aria-hidden="true"></i>
                             <div class="ignis-alert__body">
                                 <strong>Vortrag läuft: <?= htmlspecialchars($liveSession->title) ?></strong>
-                                <p class="m-0"><?= htmlspecialchars(Presentations::identity($liveTalk->presenter)['name']) ?> zeigt gerade die Folien. Wer mitverfolgt, wird für die Anwesenheit vorgeschlagen.</p>
+                                <p class="m-0"><?= htmlspecialchars(Presentations::identity($liveTalk->presenter)['name']) ?> hält gerade einen Vortrag. Wer mitverfolgt, wird für die Anwesenheit vorgeschlagen.</p>
                             </div>
                             <a class="ignis-btn ignis-btn--primary ignis-btn--sm" href="<?= $base ?>training/courses/<?= (int) $course->id ?>/sessions/<?= (int) $liveSession->id ?>/presentation"><i class="fa-solid fa-eye" aria-hidden="true"></i> Mitverfolgen</a>
                         </div>
