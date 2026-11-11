@@ -14,7 +14,7 @@
 - Laser und Striche kommen schneller an: Mit EF Sync laufen sie über den Medienserver von EmergencyForge, ohne EF Sync fragen die Zuschauer häufiger nach, solange gezeichnet wird. Der Laserpunkt gleitet, statt zu springen
 - Wer einen Browser-Tab teilt, kann dessen Ton mitsenden. Übertragen wird nur der Ton dieses Tabs, nie das Mikrofon und nicht der Ton anderer Programme wie Discord oder des Spiels. Zuschauer können stummschalten und die Lautstärke regeln. Lässt der Browser Ton nicht von selbst zu, steht dort „Ton einschalten“
 - Teilnehmer können im Vortrag schriftlich Fragen stellen, bis zu 500 Zeichen und fünf in der Minute. Die Fragen sehen nur Leitung und Ausbilder des Lehrgangs, mit Namen. Eine schriftliche Antwort sieht nur, wer gefragt hat, mündlich Beantwortetes hakt der Ausbilder ab. Mit dem Ende des Vortrags sind die Fragen weg
-- Leitung und Ausbilder sehen im Vortrag und danach am Termin ein Protokoll: wer wann gekommen und gegangen ist, auch mehrfach. Wer länger als 30 Sekunden weg war und wiederkommt, steht mit einem neuen Eintrag darin
+- Leitung und Ausbilder sehen im Vortrag und danach am Termin ein Protokoll: wer wann gekommen und gegangen ist, auch mehrfach. Wer länger als 90 Sekunden weg war und wiederkommt, steht mit einem neuen Eintrag darin
 
 Dazu gehört training 0.5.0.
 

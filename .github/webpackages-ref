@@ -13,4 +13,4 @@
 # 3. Im selben Commit composer.lock (composer update 'emergencyforge/*')
 #    und das Dist (npm run build) aus genau diesem Stand erneuern, sonst
 #    schlägt der Dist-Vergleich in php.yml fehl.
-cecb4253fe8a16175e9046134eedc6ca639021a3
+e89a9c9303c22b12a1c9727bb427886dfea17e0e

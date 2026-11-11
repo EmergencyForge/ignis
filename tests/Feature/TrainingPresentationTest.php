@@ -2317,25 +2317,26 @@ final class TrainingPresentationTest extends FeatureTestCase
         $t = $this->clock();
         $visitsOf = static fn (int $userId) => PresentationVisit::query()->where('presentation_id', $p->id)->where('user_id', $userId)->orderBy('id')->get();
 
-        foreach ([0, 10, 25] as $seconds) {
+        // 25 auf 85: eine Minute Stille, so selten meldet sich ein Tab im Hintergrund, und der Besuch läuft weiter.
+        foreach ([0, 10, 25, 85] as $seconds) {
             Presentations::heartbeat($p, $a['user'], null, $t->modify('+' . $seconds . ' seconds'));
         }
         $one = $visitsOf($a['user']);
         $this->assertCount(1, $one);
         $this->assertNull($one[0]->left_at);
-        $this->assertSame([$t->getTimestamp(), $t->getTimestamp() + 25], [$one[0]->joined_at->getTimestamp(), $one[0]->last_seen_at->getTimestamp()]);
+        $this->assertSame([$t->getTimestamp(), $t->getTimestamp() + 85], [$one[0]->joined_at->getTimestamp(), $one[0]->last_seen_at->getTimestamp()]);
 
         // Eine ältere, langsamere Anfrage zieht das Lebenszeichen nicht zurück.
         Presentations::heartbeat($p, $a['user'], null, $t->modify('+5 seconds'));
-        $this->assertSame($t->getTimestamp() + 25, $visitsOf($a['user'])[0]->last_seen_at->getTimestamp());
+        $this->assertSame($t->getTimestamp() + 85, $visitsOf($a['user'])[0]->last_seen_at->getTimestamp());
         $this->assertCount(1, $visitsOf($a['user']));
 
-        Presentations::heartbeat($p, $a['user'], null, $t->modify('+70 seconds'));
+        Presentations::heartbeat($p, $a['user'], null, $t->modify('+200 seconds'));
         $two = $visitsOf($a['user']);
         $this->assertCount(2, $two);
-        $this->assertSame($t->getTimestamp() + 25, $two[0]->left_at?->getTimestamp());
+        $this->assertSame($t->getTimestamp() + 85, $two[0]->left_at?->getTimestamp());
         $this->assertNull($two[1]->left_at);
-        $this->assertSame($t->getTimestamp() + 70, $two[1]->joined_at->getTimestamp());
+        $this->assertSame($t->getTimestamp() + 200, $two[1]->joined_at->getTimestamp());
 
         // Zwei Tabs im selben Augenblick: ein offener Besuch.
         Presentations::heartbeat($p, $b['user'], null, $t);
