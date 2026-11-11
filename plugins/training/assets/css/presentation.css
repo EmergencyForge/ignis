@@ -293,6 +293,12 @@
   color: var(--secondary-text);
   font-size: 12px;
 }
+.tr-live--follow .tr-live__foot { align-items: center; }
+.tr-live__sound { display: inline-flex; align-items: center; gap: 6px; }
+.tr-live__sound[hidden],
+.tr-live__sound [hidden] { display: none; }
+.tr-live__sound .tr-live__tool { width: 28px; height: 28px; font-size: 13px; }
+.tr-live__sound input[type="range"] { width: 96px; margin: 0; accent-color: var(--accent); }
 .tr-live__conn { display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--ok); }
 .tr-live__meta.is-lost { color: var(--danger); }
 .tr-live__meta.is-lost .tr-live__conn { background: var(--danger); }

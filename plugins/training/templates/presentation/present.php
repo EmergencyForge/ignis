@@ -103,7 +103,7 @@ require __DIR__ . '/_bar.php';
             </div>
             <div class="tr-live__share" data-live-share hidden>
                 <span class="tr-live__rec" aria-hidden="true"></span>
-                <span>Du teilst deinen Bildschirm</span>
+                <span>Du teilst deinen Bildschirm<span data-live-share-sound hidden> mit Ton</span></span>
                 <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-mode="slides"><i class="fa-solid fa-stop" aria-hidden="true"></i> Teilen beenden</button>
             </div>
         </div>

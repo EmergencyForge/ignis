@@ -47,6 +47,16 @@ require __DIR__ . '/_bar.php';
             <p class="tr-live__note" data-live-note hidden></p>
         </div>
     </div>
-    <footer class="tr-live__foot"><span data-live-follow-counter>Folie 1</span><span>Du folgst dem Host.</span></footer>
+    <footer class="tr-live__foot">
+        <span data-live-follow-counter>Folie 1</span>
+        <?php // Ton des geteilten Tabs; das Video bleibt stumm, damit der Regler allein gilt. ?>
+        <audio data-live-audio autoplay></audio>
+        <span class="tr-live__sound" data-live-sound hidden>
+            <button type="button" class="ignis-btn ignis-btn--primary ignis-btn--sm" data-live-unmute hidden><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Ton einschalten</button>
+            <button type="button" class="tr-live__tool" data-live-mute aria-pressed="false" aria-label="Stumm" data-ignis-tooltip="Stumm"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+            <input type="range" data-live-volume min="0" max="1" step="0.05" value="1" aria-label="Lautstärke">
+        </span>
+        <span>Du folgst dem Host.</span>
+    </footer>
 </section>
 <script src="<?= $e(asset('plugins/training/assets/js/presentation.js')) ?>" defer></script>

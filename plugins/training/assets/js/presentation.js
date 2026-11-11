@@ -3,13 +3,19 @@
  * (templates/presentation/present.php und follow.php). Port aus Lex.
  *
  * Host: zeichnet, blättert und wechselt den Modus. Lokale Ereignisse gehen
- * gesammelt alle 250 ms an `/events`, nie zwei POSTs gleichzeitig, damit
- * sie in der Reihenfolge ankommen. `/state` alle 2 s liefert Zuschauer
- * und Übergabe.
+ * gesammelt alle 250 ms an `/events` (ohne Raum alle 100 ms, solange Laser
+ * oder Stift laufen), nie zwei POSTs gleichzeitig, damit sie in der
+ * Reihenfolge ankommen. `/state` alle 2 s liefert Zuschauer und Übergabe.
  *
  * Teilnehmer: fragt `/state?after=seq` mit ETag ab und spielt neue
- * Ereignisse 500 ms später im Abstand ihres `t` nach, damit Striche und
- * Laser im Tempo des Hosts erscheinen.
+ * Ereignisse um einen Abfragetakt später im Abstand ihres `t` nach, damit
+ * Striche und Laser im Tempo des Hosts erscheinen. Der Laserpunkt gleitet
+ * zwischen zwei Positionen.
+ *
+ * Raum: hat der Vortrag einen LiveKit-Raum, treten Host und Zuschauer ihm
+ * beim Laden bei. Laser und Striche gehen dann zusätzlich als Datennachricht
+ * und erscheinen sofort; der Server bleibt die Quelle der Wahrheit, die
+ * Abfrage ergänzt, was der Raum nicht brachte, und zeichnet nichts doppelt.
  *
  * Koordinaten sind 0..1 relativ zur Folie, so passt jede Bildschirmgröße.
  * Zoom, Ausschnitt und Drehung gibt der Host je Seite als `view` vor; Folie
@@ -17,9 +23,9 @@
  * Seitenkoordinaten. Auf dem geteilten Bildschirm liegt eine eigene
  * Zeichenfläche genau über dem Videobild, ihre Striche haben Seite -1.
  *
- * Bildschirm teilen: der Host holt den Stream per getDisplayMedia und meldet
- * `/screen`, der Server wählt den Weg. Über LiveKit lädt der Host einmal hoch,
- * Zuschauer holen ihr Token über `/room/token`. Direkt baut der Host je
+ * Bildschirm teilen: der Host holt Bild und, nur von einem Tab, Ton per
+ * getDisplayMedia und meldet `/screen`, der Server wählt den Weg. Über LiveKit
+ * lädt der Host einmal in den Raum des Vortrags hoch. Direkt baut der Host je
  * Zuschauer eine WebRTC-Verbindung, die Signale laufen über `/signal` und die
  * normale Abfrage. livekit-client kommt erst per import(), wenn er gebraucht wird.
  *
@@ -49,10 +55,20 @@
     const MAX_STROKES = 500;
     const MAX_T = 60000;
     const FLUSH_EVERY = 250;
+    const FLUSH_ACTIVE = 100;
     const HOST_POLL = 2000;
     const POLL_FAST = 700;
+    const POLL_ACTIVE = 300;
     const POLL_SLOW = 2000;
-    const REPLAY_DELAY = 500;
+    // So lange gilt Laser oder Stift als aktiv, und so lange schlägt Laser aus dem Raum den aus der Abfrage.
+    const ACTIVE_WINDOW = 2000;
+    const RESET_WINDOW = 6000;
+    // Anteil des Abstands, den der Laserpunkt beim Zuschauer je Bild aufholt.
+    const GLIDE = 0.35;
+    // Neue Raum-Schlüssel höchstens so oft, auch nach 503 und 429.
+    const ROOM_RETRY = 10000;
+    // LiveKit empfiehlt höchstens 15 KiB je zuverlässiger Nachricht.
+    const MAX_DATA = 15000;
     const SWIPE = 60;
     // Wie Presentations::SCREEN_LIMIT; mehr Verbindungen trägt die Leitung des Hosts nicht.
     const SCREEN_LIMIT = 15;
@@ -78,6 +94,7 @@
     const screenBox = $('[data-live-screen]');
     const screenInk = $('[data-live-screen-ink]');
     const sctx = screenInk.getContext('2d');
+    const audio = $('[data-live-audio]');
 
     /* Stand der Folie: Seite, Modus, Striche je Seite (-1 ist der Bildschirm), Laserpunkt. */
     const st = { page: 0, mode: 'slides', strokes: {}, laser: null };
@@ -102,6 +119,7 @@
     const timers = [];
     const observers = [];
     let pollTimer = 0;
+    let flushTimer = 0;
     let frameId = 0;
     let stopped = false;
 
@@ -112,10 +130,15 @@
         if (host) {
             if (share) screenOff();
             stopShare();
-        } else unwatch(true);
+        } else {
+            unwatch(true);
+            sound(null);
+        }
+        leaveRoom();
         ended = true;
         timers.forEach(clearInterval);
         clearTimeout(pollTimer);
+        clearTimeout(flushTimer);
         clearTimeout(renderTimer);
         clearTimeout(viewTimer);
         cancelAnimationFrame(frameId);
@@ -481,7 +504,7 @@
         const W = canvas.width;
         const H = canvas.height;
         strokes.forEach((s) => drawStroke(c, s, W, H));
-        const l = st.laser;
+        const l = host ? st.laser : glide;
         if (!l) return;
         // Laserpunkt in --danger, damit er dem Thema folgt.
         const r = (6 * (base / 960) + 1) * unit;
@@ -503,7 +526,9 @@
         switch (e.kind) {
             case 'begin':
                 seenId(e.id);
-                strokesOf(e.page).push({ id: e.id, tool: e.tool, color: e.color, width: e.width, points: [e.p] });
+                // Dieselbe ID ein zweites Mal (nach einem Abriss des Raums bringt die Abfrage den Strich neu): ersetzen statt doppeln.
+                st.strokes[e.page] = strokesOf(e.page).filter((s) => s.id !== e.id);
+                st.strokes[e.page].push({ id: e.id, tool: e.tool, color: e.color, width: e.width, points: [e.p] });
                 break;
             case 'point': {
                 const s = strokesOf(e.page).find((x) => x.id === e.id);
@@ -545,6 +570,7 @@
     function showPage(page) {
         st.page = clampPage(page);
         st.laser = null;
+        heldLaser = null;
         const counter = $('[data-live-counter]');
         if (counter) counter.textContent = (st.page + 1) + ' / ' + (pageCount || 1);
         followCounter();
@@ -562,6 +588,7 @@
         const before = st.mode;
         st.mode = mode === 'pause' || mode === 'screen' ? mode : 'slides';
         st.laser = null;
+        heldLaser = null;
         const display = shown();
         frame.dataset.mode = display;
         pauseStart = st.mode === 'pause' ? (pauseStart || Date.now()) : 0;
@@ -588,6 +615,7 @@
     function showEnded() {
         if (host) stopShare();
         else unwatch(false);
+        leaveRoom();
         ended = true;
         st.laser = null;
         replay.length = 0;
@@ -625,10 +653,22 @@
     let inFlight = false;
     let pendingPage = null;
     let pendingMode = null;
+    let lastInk = -Infinity;
 
     function emit(e) {
         apply(e);
-        queue.push({ e, at: performance.now() });
+        const at = performance.now();
+        queue.push({ e, at });
+        if (e.kind === 'laser' || e.kind === 'begin' || e.kind === 'point') lastInk = at;
+        sendLive(e);
+    }
+
+    /** Ohne Raum geht beim Zeichnen öfter ein Paket hinaus, sonst bleibt die Last auf dem Server wie bisher. */
+    function flushLoop() {
+        flush();
+        if (stopped) return;
+        const active = !roomLive && performance.now() - lastInk < ACTIVE_WINDOW;
+        flushTimer = setTimeout(flushLoop, active ? FLUSH_ACTIVE : FLUSH_EVERY);
     }
 
     async function flush() {
@@ -682,6 +722,8 @@
     const target = { page: 0, mode: 'slides' };
     let talkId = null;
     let again = false;
+    // Die letzte Antwort brachte Laser oder Striche.
+    let busy = false;
 
     /** Neuer Lauf desselben Termins: alte Zeichnungen verwerfen und von vorn abfragen. */
     function resetTalk() {
@@ -693,6 +735,14 @@
         lastDue = 0;
         signalSeq = 0;
         unwatch(false);
+        // Jeder Lauf hat seinen eigenen Raum.
+        leaveRoom();
+        roomRefused = false;
+        roomAsked = -Infinity;
+        heldLaser = null;
+        liveStrokes.clear();
+        heldPoints.clear();
+        heldViews.clear();
         st.strokes = {};
         views = {};
         st.laser = null;
@@ -713,6 +763,12 @@
         el.lastElementChild.textContent = ok ? 'Verbunden' : 'Verbindung unterbrochen';
     }
 
+    /**
+     * Takt des Zuschauers: schneller nur, solange gezeichnet wird und der Raum nichts bringt, und nie in einem
+     * versteckten Tab. Nach diesem Takt spielt er auch nach, damit bis zur nächsten Antwort nichts stockt.
+     */
+    const pace = () => (busy && !roomFresh() && !document.hidden ? POLL_ACTIVE : POLL_FAST);
+
     async function poll() {
         if (!root.isConnected) return stop();
         if (ended) return;
@@ -720,10 +776,12 @@
         try {
             const headers = { Accept: 'application/json' };
             if (etag && !host) headers['If-None-Match'] = etag;
+            const asked = performance.now();
             const response = await fetch(base + '/state?after=' + lastSeq, { credentials: 'same-origin', cache: 'no-store', headers, signal });
             if (stopped) return;
             if (response.status === 304) {
                 idle++;
+                busy = false;
             } else if (response.status === 404) {
                 // Termin gelöscht, Teilnahme beendet oder Lehrgang abgesagt: weiterfragen bringt nichts mehr.
                 showEnded();
@@ -732,11 +790,12 @@
                 throw new Error('state ' + response.status);
             } else {
                 etag = response.headers.get('ETag');
-                idle = handleState(await response.json()) ? 0 : idle + 1;
+                idle = handleState(await response.json(), asked) ? 0 : idle + 1;
             }
             connected(true);
             if (again) { again = false; delay = 0; }
             else if (!host && idle >= 3) delay = POLL_SLOW;
+            else if (!host) delay = pace();
         } catch (error) {
             connected(false);
             delay = POLL_SLOW;
@@ -744,14 +803,19 @@
         if (!ended) pollTimer = setTimeout(poll, delay);
     }
 
-    /** @return {boolean} ob Neues kam */
-    function handleState(s) {
+    /**
+     * @param {number} asked wann die Abfrage losging (performance.now())
+     * @return {boolean} ob Neues kam
+     */
+    function handleState(s, asked) {
         if (s.status === 'ended') { showEnded(); return false; }
         // Der Host hat gewechselt: der Server rendert dann die andere Sicht.
         if ((s.presenter.id === me) !== host) { reloadView(); return false; }
         if (!host && talkId !== null && s.id !== talkId) { resetTalk(); return true; }
         talkId = s.id;
+        presenterId = s.presenter.id;
         showHandover(s);
+        wantRoom(s.room === true);
         // Folien braucht es am Termin und in der Seite; ohne sie zeigt der Folienmodus das Wartebild.
         const slides = s.slides !== false && !!root.dataset.slides;
         if (slides !== hasSlides) { hasSlides = slides; showMode(st.mode); }
@@ -784,6 +848,9 @@
         const signals = s.events.filter((e) => e.kind === 'signal' && e.seq > signalSeq);
         signals.forEach((e) => { signalSeq = Math.max(signalSeq, e.seq); });
         if (host) {
+            // Der Server hat das Teilen beendet, weil der Raum wegfiel: wie „Teilen beenden“, nur ohne eigene Meldung.
+            // Erst eine Abfrage, die nach dem Start losging, kennt das Teilen überhaupt.
+            if (share && asked > share.at && s.mode !== 'screen') { stopShare(); showMode(s.mode); }
             showViewers(s.viewers || []);
             signals.forEach(hostSignal);
             return true;
@@ -792,7 +859,9 @@
         setHost(s.presenter);
         follow(s);
         signals.forEach(viewerSignal);
-        const due = performance.now() + REPLAY_DELAY;
+        busy = s.events.some((e) => e.kind === 'begin' || e.kind === 'point' || e.kind === 'laser');
+        // Bringt der Raum gerade alles, braucht der Rest keinen Puffer.
+        const due = performance.now() + (roomFresh() ? 0 : pace());
         let fresh = signals.length > 0;
         if (s.page !== target.page) { target.page = s.page; schedule(due, { kind: 'page', page: s.page }); fresh = true; }
         if (s.mode !== target.mode) { target.mode = s.mode; schedule(due, { kind: 'mode', mode: s.mode }); fresh = true; }
@@ -1269,7 +1338,7 @@
             if (!ev.defaultPrevented) ended = true;
         });
 
-        timers.push(setInterval(flush, FLUSH_EVERY));
+        flushTimer = setTimeout(flushLoop, FLUSH_EVERY);
         pick('pointer');
         screenButton();
     }
@@ -1288,6 +1357,7 @@
     let watch = null;
 
     function lk() {
+        if (!canRoom) return Promise.reject(new Error('livekit'));
         if (!livekit) livekit = import(root.dataset.livekit).catch((error) => { livekit = null; throw error; });
         return livekit;
     }
@@ -1347,7 +1417,17 @@
         let stream = null;
         try {
             // Vor jeder Anfrage, solange der Klick noch als Nutzergeste gilt.
-            stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+            // Ton nur aus einem geteilten Tab: Systemton brächte Discord oder das Spiel zu allen Zuschauern.
+            const wish = { video: true, audio: true, systemAudio: 'exclude', selfBrowserSurface: 'exclude' };
+            try {
+                stream = await navigator.mediaDevices.getDisplayMedia(wish);
+            } catch (error) {
+                // Ein Browser, der Ton beim Teilen nicht kennt, lehnt die Wünsche mit TypeError ab: dann nur das Bild.
+                if (!error || error.name !== 'TypeError') throw error;
+                delete wish.audio;
+                delete wish.systemAudio;
+                stream = await navigator.mediaDevices.getDisplayMedia(wish);
+            }
         } catch (error) {
             // Im Auswahldialog abgebrochen: nichts senden.
             starting = false;
@@ -1370,12 +1450,13 @@
                 return;
             }
             const track = stream.getVideoTracks()[0];
-            const s = { via: data.via, stream, track, peers: new Map(), waits: new Map(), room: null };
+            const s = { via: data.via, stream, track, audio: stream.getAudioTracks()[0] || null, peers: new Map(), waits: new Map(), room: null, at: performance.now() };
             share = s;
             mine = s;
             // Auch der Browser-Knopf „Freigabe beenden“ endet hier.
             track.addEventListener('ended', () => { if (share === s) leaveScreen('slides'); });
             video.srcObject = stream;
+            $('[data-live-share-sound]').hidden = !s.audio;
             showMode('screen');
             // Ab hier läuft das Teilen; beenden muss auch gehen, während LiveKit noch verbindet.
             starting = false;
@@ -1400,26 +1481,47 @@
         }
     }
 
+    /**
+     * In den Raum des Vortrags, nicht in einen zweiten: mit demselben Namen würfe LiveKit
+     * die erste Verbindung hinaus, und mit ihr Laser und Striche. Den Schlüssel von `/screen`
+     * braucht es nur, wenn der Host noch nicht im Raum ist.
+     */
     async function publish(s, data) {
-        const { Room, RoomEvent, Track } = await lk();
+        const { Track } = await lk();
         if (share !== s) return;
-        const room = new Room();
-        s.room = room;
-        await room.connect(data.url, data.token);
+        if (roomJoin) await roomJoin;
+        if (!roomLive && share === s) await joinRoom(data);
         if (share !== s) return;
-        await room.localParticipant.publishTrack(s.track, { source: Track.Source.ScreenShare });
-        // Erst jetzt: bis hierhin führt jeder Fehler zu fallBack(). Gibt LiveKit danach endgültig auf, sähe sonst niemand mehr etwas.
-        room.on(RoomEvent.Disconnected, () => { if (share === s) leaveScreen('slides'); });
+        if (!roomLive) throw new Error('room');
+        const r = room;
+        s.room = r;
+        const local = r.localParticipant;
+        await local.publishTrack(s.track, { source: Track.Source.ScreenShare });
+        if (s.audio && share === s) {
+            try {
+                await local.publishTrack(s.audio, { source: Track.Source.ScreenShareAudio });
+            } catch (error) {
+                // Ton nicht erlaubt oder nicht angekommen: das Bild bleibt im Raum, nur ohne Ton.
+                if (share === s) $('[data-live-share-sound]').hidden = true;
+            }
+        }
+        // Während des Hochladens beendet: stopShare() fand die Spuren da noch nicht.
+        if (share !== s) unpublish(r, s);
+    }
+
+    /** Ohne zu stoppen: LiveKit hält die aufgenommene Spur selbst, ein Rückfall auf direkt braucht sie weiter. */
+    function unpublish(r, s) {
+        [s.track, s.audio].forEach((t) => { if (t) r.localParticipant.unpublishTrack(t, false).catch(() => {}); });
     }
 
     /**
      * Die Konsole gab einen Schlüssel, LiveKit selbst kommt aber nicht zustande
-     * (Dienst aus, Ports zu): einmal direkt, mit demselben Bild und ohne zweite Auswahl.
+     * (Dienst aus, Ports zu, Ton nicht erlaubt): einmal direkt, mit demselben Bild und ohne
+     * zweite Auswahl. Der Raum bleibt für Laser und Striche.
      */
     async function fallBack(s) {
-        const room = s.room;
+        if (s.room && s.room === room) unpublish(s.room, s);
         s.room = null;
-        if (room) room.disconnect();
         const { status, data } = await post('/screen', { via: 'direct' });
         if (share !== s) return;
         if (status !== 200) throw new Error(status === 409 && data.error === 'too_many' ? 'too_many' : 'direct');
@@ -1439,8 +1541,10 @@
         s.stream.getTracks().forEach((t) => t.stop());
         s.waits.forEach(clearTimeout);
         s.peers.forEach((pc) => pc.close());
-        if (s.room) s.room.disconnect();
+        // Nur die Spuren herunter, der Raum trägt weiter Laser und Striche.
+        if (s.room && s.room === room) unpublish(s.room, s);
         video.srcObject = null;
+        $('[data-live-share-sound]').hidden = true;
     }
 
     function drop(s, id) {
@@ -1476,7 +1580,9 @@
             if (pc.connectionState === 'failed' || pc.connectionState === 'closed') drop(s, from);
         });
         try {
+            // Der Ton muss vor dem Angebot drin sein, sonst handeln beide Seiten nur das Bild aus.
             pc.addTrack(s.track, s.stream);
+            if (s.audio) pc.addTrack(s.audio, s.stream);
             await pc.setLocalDescription(await pc.createOffer());
             await gathered(pc);
             if (share !== s || s.peers.get(from) !== pc) return;
@@ -1504,31 +1610,14 @@
     }
 
     function startWatch(way) {
-        const w = { via: way, pc: null, room: null, timer: 0, shown: false };
+        const w = { via: way, pc: null, timer: 0, shown: false };
         watch = w;
         screenNote('');
         w.timer = setTimeout(() => { if (watch === w && !w.shown) screenNote(MISSING); }, NO_PICTURE);
-        // Scheitert der Weg, zeigt der Zeitgeber den Hinweis.
-        if (way === 'livekit') subscribe(w).catch(() => {});
+        // Scheitert der Weg, zeigt der Zeitgeber den Hinweis. Über LiveKit kommt das Bild im Raum des
+        // Vortrags an; ist er noch nicht verbunden, bringt TrackSubscribed es später.
+        if (way === 'livekit') roomTracks();
         else signalTo({ type: 'ready' });
-    }
-
-    async function subscribe(w) {
-        const { status, data } = await post('/room/token', {});
-        if (watch !== w || status !== 200) return;
-        const { Room, RoomEvent } = await lk();
-        if (watch !== w) return;
-        const room = new Room();
-        w.room = room;
-        room.on(RoomEvent.TrackSubscribed, (track) => { if (watch === w && track.kind === 'video') track.attach(video); });
-        await room.connect(data.url, data.token);
-        // Erst nach dem Verbinden, sonst fragte ein gescheiterter Aufbau bei jeder Abfrage neu.
-        // Rausgeworfen oder aufgegeben: die nächste Abfrage verbindet neu, bis dahin steht der Hinweis.
-        room.on(RoomEvent.Disconnected, () => {
-            if (watch !== w) return;
-            unwatch(false);
-            screenNote(MISSING);
-        });
     }
 
     async function viewerSignal(e) {
@@ -1540,10 +1629,15 @@
             return;
         }
         if (e.type !== 'offer') return;
-        if (w.pc) w.pc.close();
+        if (w.pc) { w.pc.close(); sound(null); }
         const pc = new RTCPeerConnection(RTC);
         w.pc = pc;
-        pc.addEventListener('track', (ev) => { if (w.pc === pc) video.srcObject = ev.streams[0] || new MediaStream([ev.track]); });
+        pc.addEventListener('track', (ev) => {
+            if (w.pc !== pc) return;
+            // Das Video bleibt stumm, der Ton läuft über das eigene Element mit Regler.
+            if (ev.track.kind === 'audio') sound(new MediaStream([ev.track]));
+            else video.srcObject = ev.streams[0] || new MediaStream([ev.track]);
+        });
         pc.addEventListener('connectionstatechange', () => { if (w.pc === pc && pc.connectionState === 'failed') screenNote(MISSING); });
         try {
             await pc.setRemoteDescription({ type: 'offer', sdp: e.sdp });
@@ -1564,14 +1658,415 @@
         // Nach einem Moduswechsel hat der Host schon alles geschlossen; abmelden muss sich nur, wer mitten im Teilen geht.
         if (leaving && w.via === 'direct' && w.pc) signalTo({ type: 'bye' });
         if (w.pc) w.pc.close();
-        if (w.room) w.room.disconnect();
         video.srcObject = null;
+        sound(null);
         screenNote('');
+    }
+
+    /* ---------- Raum: Datenkanal und Bildschirm über LiveKit ---------- */
+
+    // Ohne Pfad zum Client wird nichts von LiveKit versucht, auch wenn der Server einen Raum meldet.
+    const canRoom = !!root.dataset.livekit;
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    // Room-Objekt ab dem Beitritt; roomLive erst, wenn es verbunden ist.
+    let room = null;
+    let roomLive = false;
+    let roomJoin = null;
+    let roomAsked = -Infinity;
+    // 409 no_room: erst wieder fragen, wenn der Stand den Raum einmal verloren und wieder hat.
+    let roomRefused = false;
+    /*
+     * Zuschauer: Was der Raum schon brachte, damit die Abfrage es nicht noch einmal zeichnet.
+     * Die Abfrage bleibt die Quelle der Wahrheit. Sie wird nur kurz zurückgehalten, solange
+     * der Raum frisch ist (ACTIVE_WINDOW), danach gilt sie wieder. So holt sie alles nach,
+     * was nicht über den Raum kam: der Host war nicht im Raum oder LiveKit verband neu.
+     * Lehnte `/events` ein Paket ab, das schon über den Raum ging, bleiben dessen Striche (und ein
+     * Leeren daraus) bei Zuschauern im Raum bis zum Neuladen bestehen, weil die Abfrage sie nie nennt.
+     *
+     * liveStrokes: Striche, deren Anfang über den Raum kam, id → { at: letzte Nachricht,
+     * polled: wie viele ihrer Punkte die Abfrage schon nachreichte, cut: der Raum speist ihn
+     * nicht mehr }. erased: Löschungen aus dem Raum, id → { at, page }. roomReset: Leeren oder
+     * Ersetzen einer Seite über den Raum, page → { at, open: so viele hat die Abfrage noch
+     * nicht nachgereicht, held: ihre Striche bis dahin }. roomView: page → Zeit der letzten Ansicht aus dem Raum.
+     * heldPoints und heldViews: der letzte zurückgehaltene Endpunkt einer Form je Strich und
+     * die letzte zurückgehaltene Ansicht je Seite; sie gelten, sobald der Raum dazu schweigt.
+     */
+    const liveStrokes = new Map();
+    const erased = new Map();
+    let roomReset = {};
+    let roomView = {};
+    let liveLaser = -Infinity;
+    let roomData = -Infinity;
+    // Laser aus der Abfrage, solange der Raum Laser bringt; gilt erst, wenn der Raum eine Weile schweigt.
+    let heldLaser = null;
+    const heldPoints = new Map();
+    const heldViews = new Map();
+    // Der Host heißt im Raum `u` und seine Nutzer-ID.
+    let presenterId = 0;
+
+    const recent = (at) => performance.now() - at < ACTIVE_WINDOW;
+    // Kommt gerade etwas über den Raum? Nur dann braucht die Abfrage weder Puffer noch schnellen Takt.
+    const roomFresh = () => recent(roomData);
+    const isErased = (id) => { const x = erased.get(id); return !!x && recent(x.at); };
+    // Länger als POLL_SLOW plus Sendetakt: das Gegenstück aus der Abfrage kommt sonst nach einer Pause zu spät.
+    // Eine Uhr je Bild: läuft die Frist mitten in der Abfrage ab, käme sonst ein Punkt vor seinem zurückgehaltenen Anfang.
+    let resetClock = 0;
+    const resetOpen = (r) => !!r && r.open > 0 && resetClock - r.at < RESET_WINDOW;
+    const resetting = (page) => resetOpen(roomReset[page]);
+
+    /**
+     * Ab hier gilt die Abfrage allein, der Raum bleibt verbunden. Die Zählung je Strich bleibt:
+     * was der Raum schon brachte, steht im Strich, die Abfrage hängt nur den Rest an.
+     */
+    function trustPoll() {
+        liveStrokes.forEach((l) => { l.at = -Infinity; l.cut = true; });
+        erased.clear();
+        flushResets(true);
+        roomReset = {};
+        roomView = {};
+        liveLaser = -Infinity;
+        roomData = -Infinity;
+    }
+
+    /**
+     * Kam das Gegenstück zu einem Leeren aus dem Raum nicht in der Frist (Paket abgelehnt),
+     * gilt, was die Abfrage solange zurückhielt; ein frisch geladener Zuschauer sähe es auch.
+     */
+    function flushResets(all) {
+        Object.values(roomReset).forEach((r) => { if (r.held.length && (all || !resetOpen(r))) r.held.splice(0).forEach(apply); });
+    }
+
+    /** Beitreten, solange der Stand einen Raum meldet; höchstens alle ROOM_RETRY ms ein neuer Schlüssel. */
+    function wantRoom(on) {
+        if (!on) {
+            roomRefused = false;
+            leaveRoom();
+            return;
+        }
+        if (!canRoom || room || roomJoin || roomRefused || ended || performance.now() - roomAsked < ROOM_RETRY) return;
+        joinRoom(null);
+    }
+
+    /** @param {{url:string, token:string}|null} key schon vorhanden (vom Teilen) oder null für `/room/token` */
+    function joinRoom(key) {
+        roomAsked = performance.now();
+        const run = connectRoom(key).catch(() => {}).then(() => { if (roomJoin === run) roomJoin = null; });
+        roomJoin = run;
+        return run;
+    }
+
+    async function connectRoom(key) {
+        if (!key) {
+            const { status, data } = await post('/room/token', {});
+            if (stopped || ended) return;
+            if (status === 409 && data.error === 'no_room') { roomRefused = true; return; }
+            if (status === 409 && data.error === 'ended') { showEnded(); return; }
+            // 503, 429 oder Netz: der nächste Versuch frühestens nach ROOM_RETRY.
+            if (status !== 200) return;
+            key = data;
+        }
+        const { Room, RoomEvent } = await lk();
+        if (stopped || ended || room) return;
+        const r = new Room();
+        room = r;
+        r.on(RoomEvent.Disconnected, () => roomGone(r));
+        // Zuschauer dürfen nichts senden; der Host bekommt deshalb auch keine Daten.
+        if (!host) {
+            r.on(RoomEvent.DataReceived, (payload) => { if (room === r) received(payload); });
+            r.on(RoomEvent.TrackSubscribed, (track) => { if (room === r) roomTrack(track, true); });
+            r.on(RoomEvent.TrackUnsubscribed, (track) => { if (room === r) roomTrack(track, false); });
+            // Was in der Lücke geschah, bringt nur die Abfrage.
+            r.on(RoomEvent.Reconnecting, () => { if (room === r) trustPoll(); });
+            r.on(RoomEvent.ParticipantDisconnected, (p) => { if (room === r && p.identity === 'u' + presenterId) trustPoll(); });
+        }
+        try {
+            await r.connect(key.url, key.token);
+        } catch (error) {
+            if (room === r) forgetRoom();
+            r.disconnect();
+            return;
+        }
+        if (room !== r) { r.disconnect(); return; }
+        roomLive = true;
+    }
+
+    /** Ab hier bringt die Abfrage wieder alles; was über den Raum kam, darf sie überschreiben. */
+    function forgetRoom() {
+        room = null;
+        roomLive = false;
+        trustPoll();
+    }
+
+    /** Ende des Vortrags, kein Raum mehr, Fenster zu. */
+    function leaveRoom() {
+        const r = room;
+        if (!r) return;
+        forgetRoom();
+        r.disconnect();
+    }
+
+    /** LiveKit hat aufgegeben oder uns hinausgeworfen; die nächste Abfrage tritt neu bei. */
+    function roomGone(r) {
+        if (room !== r) return;
+        forgetRoom();
+        if (host) {
+            if (share && share.room === r) leaveScreen('slides');
+        } else if (watch && watch.via === 'livekit') {
+            video.srcObject = null;
+            sound(null);
+            screenNote(MISSING);
+        }
+    }
+
+    /** Host: dieselben Ereignisse wie für `/events`, nur sofort. Laser darf verloren gehen, Striche nicht. */
+    function sendLive(e) {
+        if (!roomLive) return;
+        const laser = e.kind === 'laser';
+        let bytes = encoder.encode(JSON.stringify(e));
+        // Eine lange Wiederherstellung passt in kein Paket; die Zuschauer überlassen diese Seite dann der Abfrage.
+        if (bytes.length > MAX_DATA) bytes = encoder.encode(JSON.stringify({ kind: 'gap', page: e.page }));
+        room.localParticipant.publishData(bytes, { reliable: !laser, topic: laser ? 'laser' : 'ink' }).catch(() => {});
+    }
+
+    function received(payload) {
+        if (ended || !ready) return;
+        let e;
+        try {
+            e = JSON.parse(decoder.decode(payload));
+        } catch (error) {
+            return;
+        }
+        if (!e || typeof e !== 'object' || (e.kind !== 'laser' && !Number.isInteger(e.page))) return;
+        try {
+            live(e);
+        } catch (error) {
+            // Eine kaputte Nachricht darf den Raum nicht stören; die Abfrage bringt das Ereignis ohnehin.
+        }
+    }
+
+    /** Zuschauer: Nachricht aus dem Raum, sofort angewandt. */
+    function live(e) {
+        const page = e.page;
+        const now = performance.now();
+        roomData = now;
+        resetClock = now;
+        switch (e.kind) {
+            case 'laser':
+                liveLaser = now;
+                heldLaser = null;
+                break;
+            case 'begin':
+                // Kam der Anfang schon aus der Abfrage, bleibt der ganze Strich bei ihr.
+                if (strokesOf(page).some((s) => s.id === e.id)) return;
+                liveStrokes.set(e.id, { at: now, polled: 0 });
+                break;
+            case 'point': {
+                // Begann der Strich vor dem Beitritt, vervollständigt ihn die Abfrage.
+                // Nach einer Lücke im Raum zählt nur noch die Abfrage, sonst fehlen Punkte mitten im Strich.
+                const l = liveStrokes.get(e.id);
+                if (!l || l.cut) return;
+                l.at = now;
+                heldPoints.delete(e.id);
+                break;
+            }
+            case 'erase':
+                erased.set(e.id, { at: now, page });
+                break;
+            case 'restore':
+            case 'clear': {
+                if (e.kind === 'restore' && !Array.isArray(e.strokes)) return;
+                if (e.kind === 'restore') e.strokes.forEach((s) => erased.delete(s.id));
+                flushResets(false);
+                const r = roomReset[page];
+                roomReset[page] = resetOpen(r) ? { at: now, open: r.open + 1, held: r.held } : { at: now, open: 1, held: [] };
+                break;
+            }
+            case 'gap':
+                // Diese Wiederherstellung bringt nur die Abfrage; bis dahin darf sie die Seite wieder ändern.
+                delete roomReset[page];
+                erased.forEach((x, id) => { if (x.page === page) erased.delete(id); });
+                return;
+            case 'view':
+                roomView[page] = now;
+                heldViews.delete(page);
+                break;
+            default:
+                return;
+        }
+        apply(e);
+    }
+
+    /**
+     * Zuschauer: Ereignis aus der Abfrage, ohne zu wiederholen oder zurückzuholen, was der Raum
+     * gerade gebracht hat. Jede Sperre gilt nur, solange der Raum frisch ist; danach korrigiert
+     * die Abfrage den Raum. Was sie in der Sperre überspringt, holt der Takt nach (heldPoints,
+     * heldViews, heldLaser), wenn der Raum dazu nichts Neueres brachte.
+     */
+    function polled(e) {
+        const page = e.page;
+        switch (e.kind) {
+            case 'begin': {
+                const l = liveStrokes.get(e.id);
+                // Der Strich kam über den Raum und steht: die Abfrage zählt nur mit.
+                if (l && strokesOf(page).some((s) => s.id === e.id)) { l.polled = 1; return; }
+                liveStrokes.delete(e.id);
+                heldPoints.delete(e.id);
+                if (isErased(e.id)) return;
+                // Vor dem Gegenstück eines Leerens aus dem Raum: ein Strich von vor dem Leeren, also zurückhalten.
+                if (resetting(page)) { roomReset[page].held.push(e); return; }
+                break;
+            }
+            case 'point': {
+                const l = liveStrokes.get(e.id);
+                if (l) {
+                    l.polled++;
+                    const s = strokesOf(page).find((x) => x.id === e.id);
+                    // Freihand kommt aus beiden Quellen in derselben Reihenfolge: nur anhängen, was der Raum
+                    // nicht brachte. Formen ersetzen ihren Endpunkt, da gilt der Raum, solange er liefert.
+                    if (!s) return;
+                    if (freehand(s.tool)) {
+                        if (l.polled <= s.points.length) return;
+                    } else if (recent(l.at)) {
+                        heldPoints.set(e.id, e);
+                        return;
+                    }
+                    heldPoints.delete(e.id);
+                    break;
+                }
+                if (resetting(page)) { roomReset[page].held.push(e); return; }
+                heldPoints.delete(e.id);
+                break;
+            }
+            case 'erase':
+                erased.delete(e.id);
+                if (resetting(page)) { roomReset[page].held.push(e); return; }
+                break;
+            case 'clear':
+            case 'restore': {
+                // Das Gegenstück zu einem Leeren aus dem Raum: schon angewandt.
+                const r = roomReset[page];
+                // Was bis dahin zurückgehalten war, stand vor diesem Leeren und bleibt weg.
+                if (resetOpen(r)) { r.open--; r.held = []; return; }
+                apply(e.kind === 'clear' ? e : { kind: 'restore', page, strokes: e.strokes.filter((s) => !isErased(s.id)) });
+                return;
+            }
+            case 'view':
+                if (roomView[page] !== undefined && recent(roomView[page])) { heldViews.set(page, e); return; }
+                heldViews.delete(page);
+                break;
+            case 'laser':
+                if (performance.now() - liveLaser < ACTIVE_WINDOW) { heldLaser = e; return; }
+                break;
+        }
+        apply(e);
+    }
+
+    /** Zuschauer: Bildschirm über LiveKit, schon abonnierte Spuren beim Start des Zuschauens. */
+    function roomTracks() {
+        if (!roomLive) return;
+        room.remoteParticipants.forEach((p) => p.trackPublications.forEach((pub) => { if (pub.track) roomTrack(pub.track, true); }));
+    }
+
+    function roomTrack(track, on) {
+        if (!watch || watch.via !== 'livekit') return;
+        if (track.kind === 'video') {
+            if (on) track.attach(video);
+            else track.detach(video);
+        } else if (track.kind === 'audio') {
+            sound(on ? new MediaStream([track.mediaStreamTrack]) : null);
+        }
+    }
+
+    /* ---------- Zuschauer: Ton ---------- */
+
+    const SOUND_KEY = 'ignis.live.sound';
+    const soundPref = loadSound();
+    // Der Browser ließ keinen Ton ohne Klick zu; die Wiedergabe läuft stumm.
+    let blocked = false;
+
+    function loadSound() {
+        try {
+            const v = JSON.parse(localStorage.getItem(SOUND_KEY) || 'null');
+            if (v && typeof v.volume === 'number') return { muted: v.muted === true, volume: Math.min(1, Math.max(0, v.volume)) };
+        } catch (error) {
+            // Kein Speicher (privates Fenster, Tablet im Spiel): mit Ton und voller Lautstärke.
+        }
+        return { muted: false, volume: 1 };
+    }
+
+    function saveSound() {
+        try {
+            localStorage.setItem(SOUND_KEY, JSON.stringify(soundPref));
+        } catch (error) {
+            // Ohne Speicher gilt die Einstellung nur bis zum Neuladen.
+        }
+    }
+
+    /** Tonspur des geteilten Tabs an das eigene Element; null nimmt sie weg und blendet die Leiste aus. */
+    function sound(stream) {
+        if (!audio) return;
+        blocked = false;
+        audio.srcObject = stream;
+        $('[data-live-sound]').hidden = !stream;
+        if (stream) {
+            const track = stream.getAudioTracks()[0];
+            if (track) track.addEventListener('ended', () => { if (audio.srcObject === stream) sound(null); });
+            audio.volume = soundPref.volume;
+            audio.muted = soundPref.muted;
+            play();
+        }
+        soundButtons();
+    }
+
+    function play() {
+        const started = audio.play();
+        if (!started) return;
+        started.catch((error) => {
+            // Nur die Sperre ohne Klick; ein Abbruch durch eine neue Quelle ist kein Grund für stumm.
+            if (!error || error.name !== 'NotAllowedError' || !audio.srcObject || audio.muted) return;
+            // Kein Ton ohne Klick (auch im Tablet im Spiel): stumm weiter, „Ton einschalten“ holt ihn.
+            blocked = true;
+            audio.muted = true;
+            soundButtons();
+            audio.play().catch(() => {});
+        });
+    }
+
+    function setMuted(muted) {
+        soundPref.muted = muted;
+        saveSound();
+        blocked = false;
+        audio.muted = muted;
+        if (!muted) play();
+        soundButtons();
+    }
+
+    function soundButtons() {
+        if (!audio) return;
+        const mute = $('[data-live-mute]');
+        mute.setAttribute('aria-pressed', String(audio.muted));
+        mute.firstElementChild.className = audio.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+        $('[data-live-unmute]').hidden = !blocked;
+    }
+
+    function bindSound() {
+        const volume = $('[data-live-volume]');
+        volume.value = String(soundPref.volume);
+        volume.addEventListener('input', () => {
+            soundPref.volume = Number(volume.value);
+            audio.volume = soundPref.volume;
+            saveSound();
+        });
+        $('[data-live-mute]').addEventListener('click', () => setMuted(!audio.muted));
+        $('[data-live-unmute]').addEventListener('click', () => setMuted(false));
+        soundButtons();
     }
 
     /* ---------- Teilnehmer: Vollbild ---------- */
 
     function bindFollow() {
+        bindSound();
         $('[data-live-fullscreen]').addEventListener('click', () => {
             if (document.fullscreenElement) document.exitFullscreen();
             else if (root.requestFullscreen) root.requestFullscreen();
@@ -1599,10 +2094,39 @@
         if ((window.devicePixelRatio || 1) !== dpr) { dpr = window.devicePixelRatio || 1; fitSlide(); }
     }
 
+    /* ---------- Zuschauer: Laser glätten ---------- */
+
+    // Gezeigter Laserpunkt; st.laser ist nur das Ziel, zu dem er je Bild ein Stück aufholt.
+    let glide = null;
+
+    function glideLaser() {
+        const l = st.laser;
+        if (!l) {
+            if (glide) { glide = null; dirty = true; }
+            return;
+        }
+        // Taucht der Punkt neu auf, springt er hin, statt aus einer alten Ecke herüberzufliegen.
+        if (!glide) { glide = [l[0], l[1]]; dirty = true; return; }
+        const dx = l[0] - glide[0];
+        const dy = l[1] - glide[1];
+        if (!dx && !dy) return;
+        glide = Math.abs(dx) + Math.abs(dy) < 0.0005 ? [l[0], l[1]] : [glide[0] + dx * GLIDE, glide[1] + dy * GLIDE];
+        dirty = true;
+    }
+
     function loop() {
         if (!root.isConnected) return stop();
         const now = performance.now();
-        while (replay.length && replay[0].due <= now) apply(replay.shift().e);
+        // Vor der Abfrage: Zurückgehaltenes kommt vor allem, was sie danach bringt.
+        resetClock = now;
+        if (!host) flushResets(false);
+        while (replay.length && replay[0].due <= now) polled(replay.shift().e);
+        if (!host) {
+            if (heldLaser && now - liveLaser >= ACTIVE_WINDOW) { apply(heldLaser); heldLaser = null; }
+            heldPoints.forEach((e, id) => { const l = liveStrokes.get(id); if (!l || !recent(l.at)) { heldPoints.delete(id); apply(e); } });
+            heldViews.forEach((e, page) => { if (roomView[page] === undefined || !recent(roomView[page])) { heldViews.delete(page); apply(e); } });
+            glideLaser();
+        }
         if (dirty) { dirty = false; draw(); }
         frameId = requestAnimationFrame(loop);
     }
@@ -1628,6 +2152,7 @@
     // Das Videobild kennt seine Größe erst nach den Metadaten, und ein geteiltes Fenster kann sie ändern.
     ['loadedmetadata', 'resize', 'emptied'].forEach((type) => video.addEventListener(type, fitScreenInk));
     document.addEventListener('fullscreenchange', layout, { signal });
+    window.addEventListener('pagehide', leaveRoom, { signal });
     frame.dataset.mode = shown();
     layout();
     fitSlide();

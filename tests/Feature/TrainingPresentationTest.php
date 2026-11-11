@@ -1372,6 +1372,43 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function sharing_asks_for_tab_audio_only(): void
+    {
+        // Nur Tab-Ton: Discord und Spielton dürfen nie bei den Zuschauern landen.
+        $js = (string) file_get_contents(dirname(__DIR__, 2) . '/plugins/training/assets/js/presentation.js');
+        $this->assertStringContainsString("systemAudio: 'exclude'", $js);
+        $this->assertStringContainsString('audio: true', $js);
+        $this->assertStringNotContainsString('audio: false', $js);
+    }
+
+    #[Test]
+    public function follower_view_has_sound_controls(): void
+    {
+        [, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->learnerIn($course);
+        $page = $this->get($path);
+        $this->assertBodyContains('data-role="follow"', $page);
+        foreach (['data-live-audio', 'data-live-mute', 'data-live-volume', 'data-live-unmute'] as $hook) {
+            $this->assertBodyContains($hook, $page);
+        }
+        preg_match_all('~<video\b[^>]*>~', $page->body, $videos);
+        $this->assertNotEmpty($videos[0]);
+        foreach ($videos[0] as $tag) {
+            $this->assertStringContainsString(' muted', $tag);
+        }
+    }
+
+    #[Test]
+    public function ink_travels_over_the_room(): void
+    {
+        $js = (string) file_get_contents(dirname(__DIR__, 2) . '/plugins/training/assets/js/presentation.js');
+        foreach (['publishData', 'RoomEvent.DataReceived', 'ScreenShareAudio'] as $needle) {
+            $this->assertStringContainsString($needle, $js);
+        }
+    }
+
+    #[Test]
     public function host_without_other_teachers_sees_the_empty_handover_list(): void
     {
         [, , , $path] = $this->talk();
