@@ -13,6 +13,7 @@
  * @var string|null                                      $resume
  * @var bool                                             $learning
  * @var bool                                             $instructor
+ * @var array<int, array{0: \Plugin\Training\Models\Session, 1: \Plugin\Training\Models\Presentation}> $lives  laufende Vorträge, die man verfolgen darf
  * @var list<string>                                     $missing
  * @var bool                                             $linked
  * @var list<\Plugin\Training\ExamState>                 $exams
@@ -26,6 +27,7 @@ use EmergencyForge\Training\UnitKind;
 use Plugin\Training\Completion\Steps;
 use Plugin\Training\Models\Attempt;
 use Plugin\Training\Models\Attendance;
+use Plugin\Training\Presentations;
 use Plugin\Training\View;
 
 $layout     = 'admin';
@@ -55,6 +57,16 @@ ob_start();
 
             <div class="ignis-detail">
                 <div class="ignis-detail__main">
+                    <?php foreach ($lives as [$liveSession, $liveTalk]): ?>
+                        <div class="ignis-alert ignis-alert--info mb-4">
+                            <i class="fa-solid fa-person-chalkboard ignis-alert__icon" aria-hidden="true"></i>
+                            <div class="ignis-alert__body">
+                                <strong>Vortrag läuft: <?= htmlspecialchars($liveSession->title) ?></strong>
+                                <p class="m-0"><?= htmlspecialchars(Presentations::identity($liveTalk->presenter)['name']) ?> zeigt gerade die Folien. Wer mitverfolgt, wird für die Anwesenheit vorgeschlagen.</p>
+                            </div>
+                            <a class="ignis-btn ignis-btn--primary ignis-btn--sm" href="<?= $base ?>training/courses/<?= (int) $course->id ?>/sessions/<?= (int) $liveSession->id ?>/presentation"><i class="fa-solid fa-eye" aria-hidden="true"></i> Mitverfolgen</a>
+                        </div>
+                    <?php endforeach; ?>
                     <?php if ($participation !== null && $participation->status === 'passed'):
                         $docId    = $completion?->value(CompletionStep::Certificate, 'document_id');
                         $issued   = $docId !== null && $completion->value(CompletionStep::Certificate, 'draft') !== true;

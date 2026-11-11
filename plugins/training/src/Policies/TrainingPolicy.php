@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Plugin\Training\Policies;
 
 use App\Auth\Permissions;
+use App\Models\User;
 use App\Personnel\AccountLink;
 use Plugin\Training\Courses;
 use Plugin\Training\Models\Attempt;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
+use Plugin\Training\Models\Participation;
 
 /**
  * Wer was in der Ausbildung darf. In einem Lehrgang zählt die Rolle dort
@@ -61,6 +63,35 @@ class TrainingPolicy
 
         return Permissions::check(['training.teach'])
             && CourseStaff::query()->where('course_id', $course->id)->where('user_id', self::userId())->where('role', 'instructor')->exists();
+    }
+
+    /**
+     * Dem Vortrag eines Termins folgen: Leitung und Ausbilder, dazu Lernende,
+     * deren Lehrgang die Unterlagen schon freigibt. Ein bloßes Teilnehmen
+     * reicht nicht, denn Folien sind Lehrgangsmaterial.
+     */
+    public static function follow(Course $course, ?Participation $own): bool
+    {
+        return self::instruct($course)
+            || ($own !== null && $own->canLearn() && $course->state()->materialsOpen());
+    }
+
+    /**
+     * Ob ein anderes Konto lehren darf, etwa als Ziel einer Vortragsübergabe.
+     * Eine Rolle im Lehrgang allein reicht nicht, wenn das Recht inzwischen fehlt.
+     */
+    public static function canTeach(int $userId): bool
+    {
+        // Rolle und Konto direkt, denn Permissions::retrieveFromDatabase() schreibt die Rollenangaben der eigenen Sitzung um.
+        $user = User::query()->with('userRole')->find($userId);
+        if ($user === null || !$user->is_active) {
+            return false;
+        }
+        if ($user->full_admin) {
+            return true;
+        }
+
+        return array_intersect(['admin', 'training.teach', 'training.manage'], $user->userRole->permissions ?? []) !== [];
     }
 
     /** Fragenpools und Prüfungsordnungen sehen und pflegen. */

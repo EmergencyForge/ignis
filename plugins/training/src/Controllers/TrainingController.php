@@ -22,6 +22,7 @@ use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Models\Unit;
 use Plugin\Training\Policies\TrainingPolicy;
+use Plugin\Training\Presentations;
 use Plugin\Training\Qualifications;
 
 /**
@@ -95,6 +96,17 @@ final class TrainingController extends BaseController
         $curriculum = Curriculum::for($course);
         $state      = $participation !== null ? ($curriculum->states([$participation->id])[$participation->id] ?? []) : [];
         $progress   = $curriculum->progress($state);
+        // Laufende Vorträge der Termine mit Folien; wer nicht folgen darf, sieht keinen Hinweis,
+        // der Host keinen zum eigenen Vortrag.
+        $lives = [];
+        if (TrainingPolicy::follow($course, $participation)) {
+            $now = new \DateTimeImmutable();
+            foreach ($course->sessions as $session) {
+                if ($session->slides_file_id !== null && ($live = Presentations::live($session, $now)) !== null && $live->presenter_id !== self::userId()) {
+                    $lives[$session->id] = [$session, $live];
+                }
+            }
+        }
         $next       = $progress->next();
         $nextUnit   = $next !== null ? $curriculum->unit($next->id) : null;
 
@@ -108,6 +120,7 @@ final class TrainingController extends BaseController
             'resume'        => $nextUnit !== null ? $curriculum->resumeLabel($nextUnit, $state[$nextUnit->id] ?? null) : null,
             'learning'      => $this->canLearn($course, $participation),
             'instructor'    => $instructor,
+            'lives'         => $lives,
             'missing'       => ($pid = self::personnelId()) !== null ? Qualifications::missing($pid, $course->type->prerequisiteKeys()) : [],
             'linked'        => self::personnelId() !== null,
             'exams'         => self::examStates($course, $participation),
@@ -293,14 +306,7 @@ final class TrainingController extends BaseController
 
     private function participation(Course $course): ?Participation
     {
-        $personnelId = self::personnelId();
-        if ($personnelId === null) {
-            return null;
-        }
-        $participation = Participation::query()->where('course_id', $course->id)->where('personnel_id', $personnelId)->first();
-        $participation?->setRelation('course', $course);
-
-        return $participation;
+        return self::ownParticipation($course);
     }
 
     private function canLearn(Course $course, ?Participation $participation): bool

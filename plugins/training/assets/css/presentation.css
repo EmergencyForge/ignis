@@ -1,0 +1,333 @@
+/*
+ * Live-Vortrag (templates/presentation): Vortragsmodus und Mitverfolgen im
+ * Stil eines Webinar-Fensters, nach der freigegebenen Vorschau. Farben nur
+ * aus Tokens, damit Hell und Dunkel mitgehen; die Zeichenfarben setzt das
+ * Skript.
+ */
+
+.tr-live {
+  position: relative;
+  display: grid;
+  /* Höhe setzt das Skript auf den sichtbaren Platz des Fensters (layout()). */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  max-width: 100%;
+  background: var(--bg);
+  color: var(--content-text);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  outline: none;
+}
+.tr-live--follow { grid-template-rows: auto minmax(0, 1fr) auto; }
+.tr-live--follow:fullscreen { border-radius: 0; }
+
+.tr-live__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+.tr-live__title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tr-live__time { font-variant-numeric: tabular-nums; color: var(--secondary-text); }
+.tr-live__spacer { flex: 1; }
+.tr-live__meta { display: inline-flex; align-items: center; gap: 6px; color: var(--secondary-text); }
+.tr-live__who { display: grid; line-height: 1.15; }
+.tr-live__who small { color: var(--secondary-text); font-size: 11px; }
+.tr-live__bar form { margin: 0; }
+
+.tr-live__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.tr-live__dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--danger);
+  animation: tr-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tr-live-pulse { 50% { opacity: .35; } }
+
+.tr-live__toggle[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.tr-live__main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; }
+.tr-live__main--bare { grid-template-columns: minmax(0, 1fr); }
+.tr-live__main--bare .tr-live__side { display: none; }
+
+.tr-live__stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+  padding: 22px 22px 16px;
+  background: radial-gradient(120% 80% at 50% 0%, var(--bg-2) 0%, var(--bg) 65%);
+}
+.tr-live--follow .tr-live__stage { grid-template-rows: minmax(0, 1fr); padding: 22px; }
+
+/* Folie, Pausenbild und Hinweis liegen übereinander; data-mode wählt. Die Größe
+   rechnet fitSlide() aus dem freien Platz, damit die Folie in beide Richtungen passt. */
+.tr-live__frame { display: grid; place-items: center; min-width: 0; min-height: 0; overflow: hidden; }
+.tr-live__frame > * {
+  grid-area: 1 / 1;
+  width: var(--tr-live-w, 100%);
+  max-width: 100%;
+}
+.tr-live__slide,
+.tr-live__pause { height: var(--tr-live-h, auto); aspect-ratio: 16 / 9; }
+.tr-live__slide {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-2);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop), 0 0 0 1px var(--border-subtle);
+}
+.tr-live__slide canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tr-live--present .tr-live__ink { touch-action: none; }
+
+.tr-live__pause {
+  display: none;
+  place-items: center;
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  text-align: center;
+  background: radial-gradient(80% 80% at 50% 30%, var(--surface), var(--bg-2));
+  color: var(--content-text);
+}
+.tr-live__pause > div > i { font-size: 28px; color: var(--accent); }
+.tr-live__pause strong { display: block; margin-top: 10px; font-size: clamp(16px, 2.4vw, 28px); }
+.tr-live__pause small { display: block; margin: 6px 0 0; color: var(--secondary-text); font-size: 13px; }
+.tr-live__pause .ignis-btn { margin-top: 14px; }
+.tr-live__frame[data-mode="pause"] > .tr-live__slide { display: none; }
+.tr-live__frame[data-mode="pause"] > .tr-live__pause { display: grid; }
+
+.tr-live__note { align-self: center; justify-self: center; margin: 0; text-align: center; color: var(--secondary-text); font-size: 13px; }
+
+.tr-live__dock {
+  justify-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-pop);
+}
+.tr-live__dock[hidden] { display: none; }
+.tr-live__group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px; padding: 0 4px; min-width: 0; }
+.tr-live__group + .tr-live__group { border-left: 1px solid var(--border-subtle); padding-left: 8px; }
+.tr-live__count { min-width: 3.6rem; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--secondary-text); }
+.tr-live__tool {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--secondary-text);
+  font-size: 15px;
+  cursor: pointer;
+}
+.tr-live__tool:hover { background: var(--fill-2); color: var(--content-text); }
+.tr-live__tool[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.tr-live__tool:disabled { opacity: .45; cursor: not-allowed; }
+.tr-live__swatch {
+  width: 22px;
+  height: 22px;
+  margin: 0 2px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--border-control);
+  cursor: pointer;
+}
+.tr-live__swatch[aria-pressed="true"] { border-color: var(--surface); box-shadow: 0 0 0 2px var(--accent); }
+.tr-live__width {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  cursor: pointer;
+}
+.tr-live__width span { display: block; width: 16px; border-radius: 999px; background: var(--secondary-text); }
+.tr-live__width--1 span { height: 2px; }
+.tr-live__width--2 span { height: 4px; }
+.tr-live__width--4 span { height: 7px; }
+.tr-live__width[aria-pressed="true"] { background: var(--fill-3); }
+
+.tr-live__side { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; background: var(--surface); border-left: 1px solid var(--border-subtle); }
+.tr-live__tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-subtle); }
+.tr-live__tabs button {
+  padding: 12px 8px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--secondary-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tr-live__tabs button[aria-selected="true"] { color: var(--content-text); border-bottom-color: var(--accent); }
+.tr-live__badge { margin-left: 4px; padding: 1px 7px; border-radius: 999px; background: var(--fill-2); font-size: 11px; }
+.tr-live__panel { min-height: 0; overflow: auto; padding: 10px 12px; }
+.tr-live__label { margin: 8px 0 6px; color: var(--secondary-text); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.tr-live__empty { margin: 0; padding: 6px 4px; color: var(--tertiary-text); font-size: 13px; }
+.tr-live__people { margin: 0; padding: 0; list-style: none; }
+.tr-live__people li { display: flex; align-items: center; gap: 10px; padding: 6px 4px; border-radius: var(--radius-2); }
+.tr-live__people li:hover { background: var(--fill-1); }
+.tr-live__name { display: grid; font-size: 13px; line-height: 1.2; }
+.tr-live__name small { color: var(--secondary-text); font-size: 11px; }
+.tr-live__thumbs { display: grid; gap: 10px; }
+.tr-live__thumb {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  align-items: start;
+  width: 100%;
+  padding: 4px;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--secondary-text);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.tr-live__thumb:hover { background: var(--fill-1); }
+.tr-live__thumb canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-2);
+  background: var(--fill-2);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+}
+.tr-live__thumb[aria-current="true"] { color: var(--content-text); }
+.tr-live__thumb[aria-current="true"] canvas { outline-color: var(--accent); }
+
+.tr-live__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--secondary-text);
+  font-size: 12px;
+}
+.tr-live__conn { display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--ok); }
+.tr-live__meta.is-lost { color: var(--danger); }
+.tr-live__meta.is-lost .tr-live__conn { background: var(--danger); }
+
+.tr-live__pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 14px;
+  z-index: 6;
+  width: 280px;
+  max-width: calc(100% - 28px);
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-pop);
+}
+.tr-live__pop[hidden] { display: none; }
+.tr-live__pop-title { padding: 4px 6px 8px; color: var(--secondary-text); font-size: 12px; }
+.tr-live__person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: transparent;
+  color: var(--content-text);
+  text-align: left;
+  cursor: pointer;
+}
+.tr-live__person[hidden] { display: none; }
+.tr-live__person:hover { background: var(--fill-2); }
+
+.tr-live__toast {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 5;
+  width: 300px;
+  max-width: calc(100% - 32px);
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-pop);
+  font-size: 13px;
+}
+.tr-live__toast[hidden] { display: none; }
+.tr-live__toast-who { margin-bottom: 6px; color: var(--secondary-text); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.tr-live__toast-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+.tr-live__ended {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--content-text);
+  backdrop-filter: blur(2px);
+}
+/* Halbdurchsichtiger Grund ohne color-mix(), das kennt Chromium 103 nicht. */
+.tr-live__ended::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--bg); opacity: .86; }
+.tr-live__ended[hidden] { display: none; }
+.tr-live__ended i { font-size: 28px; color: var(--ok); }
+.tr-live__ended strong { display: block; margin-top: 8px; font-size: 20px; }
+.tr-live__ended p { margin: 4px 0 14px; color: var(--secondary-text); }
+
+/* Schmal (Desk-Fenster oder Telefon): setzt layout() nach der Breite der Wurzel,
+   weil Medienabfragen nur das Browserfenster kennen. Gestapelt ohne feste Höhe:
+   die Seite scrollt, die Folie nimmt die volle Breite im Verhältnis der PDF, das
+   Dock bleibt direkt darunter. */
+.tr-live--narrow, .tr-live--narrow .tr-live__stage { grid-template-rows: auto; grid-auto-rows: auto; }
+.tr-live--narrow .tr-live__main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
+.tr-live--narrow .tr-live__frame > * { width: 100%; }
+.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__pause { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
+.tr-live--narrow .tr-live__side { max-height: 320px; border-left: 0; border-top: 1px solid var(--border-subtle); }
+.tr-live--narrow .tr-live__stage { gap: 10px; padding: 12px; }
+.tr-live--narrow .tr-live__group + .tr-live__group { padding-left: 4px; border-left: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tr-live__dot { animation: none; }
+}
