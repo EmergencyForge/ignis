@@ -13,6 +13,7 @@ use EmergencyForge\Http\Response;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 use Plugin\Training\AiDrafts;
+use Plugin\Training\Converter;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Presentation;
@@ -72,7 +73,7 @@ final class PresentationController extends BaseController
         // Ohne Folien läuft der Vortrag auch; vorhandene müssen sich aber anzeigen lassen.
         $slides = $sessionModel->presentationFile();
         if ($slides !== null && !$slides->viewsAsPdf()) {
-            return self::back('training/manage/' . $courseModel->id . '#termine', 'Die Folien werden noch umgewandelt.');
+            return self::back('training/manage/' . $courseModel->id . '#termine', $slides->convert_status === Converter::FAILED ? 'Die Folien ließen sich nicht umwandeln.' : 'Die Folien werden noch umgewandelt.');
         }
         $live = Presentations::start($sessionModel, self::userId(), AiDrafts::client());
         if ($live->wasRecentlyCreated) {

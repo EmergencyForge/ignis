@@ -38,6 +38,8 @@ $done         = ($unitState['state'] ?? '') === 'done';
 $updated      = $file !== null && $file->version > 1 ? $file->updated_at : $unit->updated_at;
 $description  = [$course->title, 'Modul ' . $curriculum->moduleNumber($unit), $unit->required ? 'Pflicht' : 'Freiwillig', 'aktualisiert am ' . $updated->format('d.m.Y')];
 $markable = $participation !== null && !$done && in_array($unit->type(), [UnitKind::Text, UnitKind::File], true);
+// Präsentation: jeder Eintrag am Termin hakt ab, das Durchgehen nur bei Folien, die nach dem Vortrag offen bleiben.
+$settles  = 'Wird abgehakt, sobald die Anwesenheit am Termin eingetragen ist' . ($unit->slides_after_talk && $file !== null ? ' oder wenn du die Folien danach durchgehst' : '') . '.';
 ob_start();
 ?>
     <link rel="stylesheet" href="<?= htmlspecialchars(asset('plugins/training/assets/css/training.css')) ?>">
@@ -148,7 +150,14 @@ ob_start();
                                      <?php if ($participation !== null && $unit->slides_after_talk): ?>data-pages-url="<?= htmlspecialchars($base . 'api/training/units/' . (int) $unit->id . '/pages') ?>"
                                      data-course="<?= (int) $course->id ?>"<?php endif; ?>></div>
                             <?php endif; ?>
-                            <?php if ($session !== null): ?>
+                            <?php if ($session === null): ?>
+                                <div class="ignis-card mt-3"><div class="ignis-card__body">
+                                    <p class="m-0"><?= $participation === null ? 'Noch kein Termin. Den Vortrag startest du am Termin dieser Einheit.' : 'Noch kein Termin.' ?></p>
+                                    <?php if ($participation !== null): ?>
+                                        <p class="ignis-detail__muted mt-2 mb-0"><?= $settles ?></p>
+                                    <?php endif; ?>
+                                </div></div>
+                            <?php else: ?>
                                 <div class="ignis-card mt-3"><div class="ignis-card__body">
                                     <dl class="ignis-detail__dl">
                                         <dt>Wann</dt><dd><?= htmlspecialchars($session->when()) ?> bis <?= htmlspecialchars($session->ends_at->format('H:i')) ?> Uhr</dd>
@@ -159,6 +168,9 @@ ob_start();
                                     </dl>
                                     <?php if ($talk !== null): ?>
                                         <a href="<?= $courseUrl ?>/sessions/<?= (int) $talk->id ?>/presentation" class="ignis-btn ignis-btn--primary mt-2"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Live mitverfolgen</a>
+                                    <?php endif; ?>
+                                    <?php if ($participation !== null): ?>
+                                        <p class="ignis-detail__muted mt-2 mb-0"><?= $settles ?></p>
                                     <?php endif; ?>
                                 </div></div>
                             <?php endif; ?>

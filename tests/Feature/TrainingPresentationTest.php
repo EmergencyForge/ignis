@@ -485,6 +485,11 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertRedirect($this->post('/training/courses/' . $other->id . '/sessions/' . $waiting->id . '/presentation/start'), '/training/manage/' . $other->id . '#termine');
         $this->assertSame('Die Folien werden noch umgewandelt.', $_SESSION['flash']['text'] ?? null);
         $this->assertSame(0, Presentation::query()->where('session_id', $waiting->id)->count());
+        $pptx->convert_status = \Plugin\Training\Converter::FAILED;
+        $pptx->save();
+        $this->post('/training/courses/' . $other->id . '/sessions/' . $waiting->id . '/presentation/start');
+        $this->assertSame('Die Folien ließen sich nicht umwandeln.', $_SESSION['flash']['text'] ?? null);
+        $this->assertSame(0, Presentation::query()->where('session_id', $waiting->id)->count());
 
         // Lernende starten nichts.
         [, $course2, $session2, $path2] = $this->talk();
@@ -650,7 +655,10 @@ final class TrainingPresentationTest extends FeatureTestCase
         $checked = 'name="slides_after_talk" value="1" checked';
 
         $this->assertBodyContains($checked, $this->get('/training/modules/' . $module->id . '/units/create', ['query' => ['kind' => 'presentation']]));
-        $this->assertBodyNotContains($checked, $this->get('/training/units/' . $off->id . '/edit'));
+        $edit = $this->get('/training/units/' . $off->id . '/edit');
+        $this->assertBodyNotContains($checked, $edit);
+        $this->assertBodyContains('Abgehakt wird dann über die Anwesenheit am Termin. Wer dort keinen Eintrag hat, lässt sich von Hand abhaken.', $edit);
+        $this->assertBodyNotContains('Wer fehlt', $edit);
     }
 
     #[Test]
@@ -1224,6 +1232,7 @@ final class TrainingPresentationTest extends FeatureTestCase
         $row = Capsule::table('intra_notifications')->where('user_id', $open['user'])->where('title', 'like', 'Vortrag läuft%')->first();
         $this->assertSame('Vortrag läuft: Theorie', $row->title);
         $this->assertStringEndsWith($path, (string) $row->link);
+        $this->assertSame($this->nameOf($teacher['user']) . ' hält gerade einen Vortrag.', $row->message);
 
         $this->post($path . '/start');
         $this->assertSame(1, $this->notifications($open['user']));
@@ -1268,7 +1277,7 @@ final class TrainingPresentationTest extends FeatureTestCase
 
         $this->assertOk($response);
         $this->assertBodyContains('Vortrag läuft: Theorie', $response);
-        $this->assertBodyContains('zeigt gerade die Folien. Wer mitverfolgt, wird für die Anwesenheit vorgeschlagen.', $response);
+        $this->assertBodyContains('hält gerade einen Vortrag. Wer mitverfolgt, wird für die Anwesenheit vorgeschlagen.', $response);
         $this->assertBodyContains('/sessions/' . $session->id . '/presentation"', $response);
 
         // Ohne offene Unterlagen kein Hinweis.
@@ -2453,5 +2462,68 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertNull(Unit::query()->find($unit->id));
         $this->post('/training/modules/' . $module . '/delete');
         $this->assertNull(Module::query()->find($module));
+    }
+
+    #[Test]
+    public function a_session_unit_can_become_a_presentation(): void
+    {
+        $teacher = $this->account(permissions: ['training.teach']);
+        $type    = $this->type();
+        $course  = $this->course($type, 'running', lead: $teacher['user']);
+        $unit    = $this->unit($type, ['kind' => 'session', 'title' => 'Praxistag']);
+        $session = $this->session($course, $unit);
+        $learner = $this->account();
+        $participation = $this->admit($course, $learner['personnel']);
+        \Plugin\Training\Models\Attendance::query()->create(['session_id' => $session->id, 'participation_id' => $participation->id, 'state' => 'present', 'recorded_by' => $teacher['user']]);
+        $hint = 'Für einen Live-Vortrag die Einheit dieses Termins im Lehrplan auf Präsentation stellen.';
+
+        $this->as($teacher['user'], ['training.teach']);
+        $before = $this->get('/training/manage/' . $course->id);
+        $this->assertBodyContains($hint, $before);
+        $this->assertBodyContains('Ein Termin zu einer Präsentation lässt sich als Live-Vortrag halten.', $before);
+        $this->assertBodyNotContains('Vortrag starten', $before);
+
+        $this->as($this->account()['user'], ['training.manage']);
+        $this->assertRedirect($this->post('/training/units/' . $unit->id, ['kind' => 'presentation', 'title' => 'Praxistag']));
+        $this->assertSame('presentation', Unit::query()->find($unit->id)->kind);
+
+        $this->as($teacher['user'], ['training.teach']);
+        $after = $this->get('/training/manage/' . $course->id);
+        $this->assertBodyContains('Vortrag starten', $after);
+        $this->assertBodyNotContains($hint, $after);
+        $this->assertSame($unit->id, Session::query()->findOrFail($session->id)->unit_id);
+        $this->assertSame(1, \Plugin\Training\Models\Attendance::query()->where('session_id', $session->id)->count());
+    }
+
+    #[Test]
+    public function presentation_unit_pages_say_how_they_are_settled(): void
+    {
+        $teacher = $this->account(permissions: ['training.teach']);
+        $course  = $this->course($this->type(), 'running', lead: $teacher['user']);
+        $unit    = $this->presentation($course, $this->pdf());
+        $url     = '/training/courses/' . $course->id . '/units/' . $unit->id;
+        $settled = 'Wird abgehakt, sobald die Anwesenheit am Termin eingetragen ist';
+        $teach   = 'Noch kein Termin. Den Vortrag startest du am Termin dieser Einheit.';
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertBodyContains($teach, $this->get($url));
+
+        $this->learnerIn($course);
+        $page = $this->get($url);
+        $this->assertBodyContains('Noch kein Termin.', $page);
+        $this->assertBodyNotContains($teach, $page);
+        $this->assertBodyContains($settled . ' oder wenn du die Folien danach durchgehst.', $page);
+
+        $this->session($course, $unit);
+        $page = $this->get($url);
+        $this->assertBodyNotContains('Noch kein Termin', $page);
+        $this->assertBodyContains($settled . ' oder wenn du die Folien danach durchgehst.', $page);
+
+        $unit->slides_after_talk = false;
+        $unit->save();
+        $this->assertBodyContains($settled . '.', $this->get($url));
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertBodyNotContains('Noch kein Termin', $this->get($url));
     }
 }

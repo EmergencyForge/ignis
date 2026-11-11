@@ -156,7 +156,7 @@ ob_start();
                             <span class="ignis-switch"><input type="checkbox" name="slides_after_talk" value="1"<?= ($unit->slides_after_talk ?? true) ? ' checked' : '' ?>><span></span></span>
                             Folien nach dem Vortrag einsehbar
                         </label>
-                        <p class="ignis-field__hint m-0">Ist der Schalter aus, sehen Teilnehmer die Folien nur, solange ein Vortrag zu dieser Einheit läuft. Wer fehlt, haken Leitung oder Ausbilder von Hand ab.</p>
+                        <p class="ignis-field__hint m-0">Ist der Schalter aus, sehen Teilnehmer die Folien nur, solange ein Vortrag zu dieser Einheit läuft. Abgehakt wird dann über die Anwesenheit am Termin. Wer dort keinen Eintrag hat, lässt sich von Hand abhaken.</p>
                     </div>
 
                     <label class="flex items-center gap-2">

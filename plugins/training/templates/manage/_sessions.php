@@ -50,6 +50,9 @@ $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentati
                         <?php if ($session->isPresentation()): ?><span class="ignis-chip ignis-chip--sm">Präsentation</span><?php endif; ?>
                     </h3>
                     <div class="ignis-detail__muted"><?= htmlspecialchars($session->when()) ?> bis <?= htmlspecialchars($session->ends_at->format('H:i')) ?> Uhr<?= $session->location ? ' · ' . htmlspecialchars($session->location) : '' ?></div>
+                    <?php if ($canInstruct && $session->unit !== null && !$session->isPresentation()): ?>
+                        <div class="ignis-detail__muted">Für einen Live-Vortrag die Einheit dieses Termins im Lehrplan auf Präsentation stellen.</div>
+                    <?php endif; ?>
                 </div>
                 <?php if ($canInstruct && $session->isPresentation()): ?>
                     <span class="flex items-center gap-2">
@@ -162,7 +165,7 @@ $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentati
                             <option value="<?= (int) $slot->id ?>"><?= htmlspecialchars($slot->title) ?><?= $slot->type() === UnitKind::Presentation ? ' · Präsentation' : '' ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <p class="ignis-field__hint">Einheiten der Art „Termin“ oder „Präsentation“ aus dem Lehrplan, die noch kein Datum haben.</p>
+                    <p class="ignis-field__hint">Einheiten der Art „Termin“ oder „Präsentation“ aus dem Lehrplan, die noch kein Datum haben. Ein Termin zu einer Präsentation lässt sich als Live-Vortrag halten.</p>
                 </div>
                 <div>
                     <label for="session-title" class="ignis-field__label">Titel</label>

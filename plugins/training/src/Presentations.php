@@ -121,7 +121,7 @@ final class Presentations
             $ids,
             'Vortrag läuft: ' . $session->title,
             'training/courses/' . $course->id . '/sessions/' . $session->id . '/presentation',
-            self::identity($host)['name'] . ' zeigt gerade die Folien.',
+            self::identity($host)['name'] . ' hält gerade einen Vortrag.',
         );
     }
 

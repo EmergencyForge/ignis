@@ -1,6 +1,6 @@
 /**
  * plugins/training/assets/js/presentation.js: Live-Vortrag an einem Termin
- * (templates/presentation/present.php und follow.php). Port aus Lex.
+ * (templates/presentation/present.php und follow.php).
  *
  * Host: zeichnet, blättert und wechselt den Modus. Lokale Ereignisse gehen
  * gesammelt alle 250 ms an `/events` (ohne Raum alle 100 ms, solange Laser

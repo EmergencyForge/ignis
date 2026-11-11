@@ -5,8 +5,9 @@
 ### Ausbildung
 - Präsentation ist jetzt eine eigene Art von Lerneinheit. Die Folien hängen an der Einheit statt am Termin und sind freiwillig, eine Präsentation ohne Folien lässt sich genauso halten, etwa nur mit geteiltem Bildschirm. Ein Termin zu einer Präsentation bekommt „Vortrag starten“, die Karte „Folien“ am Termin gibt es nicht mehr
 - Je Einheit legt ein Schalter fest, ob Teilnehmer die Folien nach dem Vortrag weiter ansehen dürfen oder nur währenddessen. Herunterladen können Teilnehmer sie nicht, und solange ein Vortrag läuft, lassen sich die Folien nicht austauschen
-- Abgehakt wird eine Präsentation über die Anwesenheit am Termin. Sind die Folien danach einsehbar, zählt auch, wer sie selbst ganz durchgeht. Wer gefehlt hat, lässt sich von Hand abhaken
-- Folien, die bisher an einem Termin hingen, löst das Update vom Termin, die Datei bleibt im Lehrgang. Ein Vortrag, der während des Updates läuft, wird beendet
+- Abgehakt wird eine Präsentation, sobald die Anwesenheit am Termin eingetragen ist. Sind die Folien danach einsehbar, zählt auch, wer sie selbst ganz durchgeht. Wer keinen Eintrag hat, lässt sich von Hand abhaken
+- Folien, die bisher an einem Termin hingen, löst das Update vom Termin. Waren sie aus dem Lehrplan gewählt, bleiben sie dort in ihrer Einheit. Direkt am Termin hochgeladene Folien müssen an einer Präsentation neu hochgeladen werden. Ein Vortrag, der während des Updates läuft, wird beendet
+- Bestehende Termine bekommen „Vortrag starten“, sobald ihre Einheit im Lehrplan auf Präsentation steht
 - Der Host kann Folien vergrößern, verschieben und drehen, die Zuschauer sehen denselben Ausschnitt. Hochkante Seiten passen sich von selbst ein. Beim Start ist kein Zeichenwerkzeug mehr gewählt, sondern ein Zeiger, mit dem man blättert und den Ausschnitt verschiebt
 - Zeigt der Vortrag gerade weder Folien noch einen Bildschirm, steht bei allen „Die Übertragung startet in Kürze“
 - Laser und Stift gehen jetzt auch auf dem geteilten Bildschirm. Beim Wechsel zwischen Folien und Bildschirm verschwinden die Zeichnungen auf dem Bildschirm
