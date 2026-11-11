@@ -21,7 +21,6 @@
  */
 
 use EmergencyForge\Training\UnitKind;
-use DateTimeImmutable;
 use Plugin\Training\Converter;
 use Plugin\Training\Models\Attendance;
 use Plugin\Training\Presentations;

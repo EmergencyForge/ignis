@@ -177,14 +177,9 @@ final class ManageController extends BaseController
         // Das Protokoll läuft über alle Läufe des Termins, auch den laufenden; nur Leitung und Ausbilder sehen es.
         $visitsFor = [];
         if (TrainingPolicy::instruct($course)) {
-            /** @var array<int, list<Presentation>> $allRuns */
-            $allRuns = [];
             /** @var list<Presentation> $every */
-            $every = Presentation::query()->whereIn('session_id', array_map(static fn (Session $s): int => $s->id, $sessions))->get()->all();
-            foreach ($every as $run) {
-                $allRuns[$run->session_id][] = $run;
-            }
-            $visitsFor = array_map(Presentations::visits(...), $allRuns);
+            $every     = Presentation::query()->whereIn('session_id', array_map(static fn (Session $s): int => $s->id, $sessions))->get()->all();
+            $visitsFor = Presentations::visitsBySession($every);
         }
 
         $joined    = array_filter(array_map(static fn (Participation $p): ?int => $p->personnel_id, $participations));
@@ -221,7 +216,7 @@ final class ManageController extends BaseController
             'lives'          => $lives,
             'talks'          => $talks,
             'visitsFor'      => $visitsFor,
-            'userId'        => self::userId(),
+            'userId'         => self::userId(),
             'personnel'      => $personnel,
             'names'          => $names,
             'openSlots'      => $openSlots,

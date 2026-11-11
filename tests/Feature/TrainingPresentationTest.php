@@ -1554,12 +1554,14 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->post($path . '/start');
         $this->assertSame('livekit', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
 
-        // LiveKit kam nicht zustande; der Host weicht mit demselben Bild aus, der Raum entfällt.
-        $res = $this->assertJsonResponse($this->postJson($path . '/screen', ['via' => 'direct']));
+        // LiveKit kam nicht zustande; der Host weicht mit demselben Bild aus, der Raum bleibt (nur ein Ausfall der Konsole nimmt ihn).
+        $room = $this->live($session)->room;
+        $res  = $this->assertJsonResponse($this->postJson($path . '/screen', ['via' => 'direct']));
         $this->assertSame('direct', $res['via']);
         $this->assertCount(1, $this->sent);
         $p = $this->live($session);
-        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->room]);
+        $this->assertNotNull($room);
+        $this->assertSame(['screen', 'direct', $room], [$p->mode, $p->screen_via, $p->room]);
 
         $this->assertStatus(422, $this->postJson($path . '/screen', ['via' => 'livekit']));
 
@@ -1916,7 +1918,6 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->console([new HttpResponse(503, [], (string) json_encode(['error' => 'Nicht eingerichtet']))]);
         $this->post($path . '/start');
         $this->assertNotNull($this->live($session)->room);
-        $this->learnerIn($course);
         $before = $this->live($session)->version;
 
         $failed = $this->postJson($path . '/room/token');
@@ -1929,6 +1930,7 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertFalse($this->stateOf($path)['room']);
 
         // Weitere Schlüssel gibt es nicht, ohne dass die Konsole noch einmal gefragt wird.
+        $this->learnerIn($course);
         $this->assertStatus(409, $this->postJson($path . '/room/token'));
         $this->assertCount(1, $this->sent);
 
@@ -1937,6 +1939,61 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertSame('direct', $res['via']);
         $this->assertCount(1, $this->sent);
         $this->assertSame('direct', $this->live($session)->screen_via);
+    }
+
+    /** @return array{0: array{user: int, personnel: int}, 1: array{user: int, personnel: int}, 2: Session, 3: string} Host, Zuschauer, Termin, Pfad; LiveKit-Teilen läuft */
+    private function livekitShare(): array
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->console([$this->liveKey('host-jwt')]);
+        $this->post($path . '/start');
+        $viewer = $this->learnerIn($course);
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertSame('livekit', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
+
+        return [$teacher, $viewer, $session, $path];
+    }
+
+    #[Test]
+    public function a_viewers_failed_key_keeps_the_room(): void
+    {
+        [, $viewer, $session, $path] = $this->livekitShare();
+        $room    = $this->live($session)->room;
+        $version = $this->live($session)->version;
+        $this->console([new HttpResponse(503), $this->liveKey('viewer-jwt')]);
+        $this->as($viewer['user'], ['training.view']);
+
+        $down = $this->postJson($path . '/room/token');
+        $this->assertStatus(503, $down);
+        $this->assertSame('unavailable', $this->assertJsonResponse($down)['error']);
+        $p = $this->live($session);
+        $this->assertSame([$room, $version, 'screen', 'livekit'], [$p->room, $p->version, $p->mode, $p->screen_via]);
+        $state = $this->stateOf($path);
+        $this->assertSame(['via' => 'livekit'], $state['screen']);
+        $this->assertTrue($state['room']);
+
+        // Ist die Konsole wieder da, bekommt der Zuschauer seinen Schlüssel.
+        $res = $this->assertJsonResponse($this->postJson($path . '/room/token'));
+        $this->assertSame('viewer-jwt', $res['token']);
+    }
+
+    #[Test]
+    public function a_hosts_failed_key_ends_a_livekit_share(): void
+    {
+        [$teacher, , $session, $path] = $this->livekitShare();
+        $this->console([new HttpResponse(503)]);
+
+        $failed = $this->postJson($path . '/room/token');
+        $this->assertStatus(409, $failed);
+        $this->assertSame('no_room', $this->assertJsonResponse($failed)['error']);
+        $p = $this->live($session);
+        $this->assertSame(['slides', null, null], [$p->mode, $p->screen_via, $p->room]);
+        $state = $this->stateOf($path);
+        $this->assertNull($state['screen']);
+        $this->assertFalse($state['room']);
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertSame('direct', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
     }
 
     #[Test]
@@ -2114,6 +2171,11 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertCount(1, $one);
         $this->assertNull($one[0]->left_at);
         $this->assertSame([$t->getTimestamp(), $t->getTimestamp() + 25], [$one[0]->joined_at->getTimestamp(), $one[0]->last_seen_at->getTimestamp()]);
+
+        // Eine ältere, langsamere Anfrage zieht das Lebenszeichen nicht zurück.
+        Presentations::heartbeat($p, $a['user'], null, $t->modify('+5 seconds'));
+        $this->assertSame($t->getTimestamp() + 25, $visitsOf($a['user'])[0]->last_seen_at->getTimestamp());
+        $this->assertCount(1, $visitsOf($a['user']));
 
         Presentations::heartbeat($p, $a['user'], null, $t->modify('+70 seconds'));
         $two = $visitsOf($a['user']);

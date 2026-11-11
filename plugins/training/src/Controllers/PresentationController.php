@@ -226,7 +226,7 @@ final class PresentationController extends BaseController
         }
         try {
             // `direct`: der Host bekam einen LiveKit-Schlüssel, kam aber nicht in den Raum.
-            $result = Presentations::startScreen($live, self::userId(), $via === 'direct' ? null : AiDrafts::client());
+            $result = Presentations::startScreen($live, self::userId(), AiDrafts::client(), $via === 'direct');
         } catch (DomainException $e) {
             return self::json(['error' => $e->getMessage()], 409);
         }
@@ -252,9 +252,13 @@ final class PresentationController extends BaseController
         $_SESSION[$key] = [...$recent, $now];
         try {
             $token = Presentations::roomToken($live, $userId, AiDrafts::client());
-        } catch (DomainException) {
-            // Auch wenn die Konsole eben ausfiel: der Raum ist weg, die Abfrage trägt den Vortrag weiter.
-            return self::json(['error' => 'no_room'], 409);
+        } catch (DomainException $e) {
+            // `unavailable`: ein Zuschauer bekam keinen Schlüssel, der Raum bleibt und er darf es wieder versuchen.
+            return match ($e->getMessage()) {
+                'unavailable' => self::json(['error' => 'unavailable'], 503),
+                'ended'       => self::json(['error' => 'ended'], 409),
+                default       => self::json(['error' => 'no_room'], 409),
+            };
         }
 
         return self::json(['ok' => true] + $token);
