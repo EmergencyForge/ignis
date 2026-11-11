@@ -401,6 +401,9 @@ final class ManageController extends BaseController
         if ($session === null || !TrainingPolicy::lead($course)) {
             return self::notFound();
         }
+        if (Presentations::live($session, new \DateTimeImmutable()) !== null) {
+            return self::back('training/manage/' . $course->id . '#termine', CurriculumController::TALK_DELETE);
+        }
         SessionSync::remove($session);
         $session->delete();
 

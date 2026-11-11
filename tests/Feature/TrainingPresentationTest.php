@@ -2420,4 +2420,38 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertBodyContains('data-pages-url', $this->get('/training/courses/' . $course->id . '/units/' . $unit->id));
         $this->assertTrue($this->assertJsonResponse($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages))['done']);
     }
+
+    #[Test]
+    public function nothing_under_a_live_talk_can_be_deleted(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $unit    = $session->unit;
+        $module  = $unit->module_id;
+        $manager = $this->account()['user'];
+        $message = 'Während eines Vortrags lässt sich das nicht löschen.';
+        $deleteSession = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/delete';
+
+        $this->assertRedirect($this->post($deleteSession));
+        $this->assertSame($message, $_SESSION['flash']['text'] ?? null);
+        $this->as($manager, ['training.manage']);
+        $this->assertRedirect($this->post('/training/units/' . $unit->id . '/delete'));
+        $this->assertSame($message, $_SESSION['flash']['text'] ?? null);
+        $this->assertRedirect($this->post('/training/modules/' . $module . '/delete'));
+        $this->assertSame($message, $_SESSION['flash']['text'] ?? null);
+        $this->assertNotNull(Session::query()->find($session->id));
+        $this->assertNotNull(Unit::query()->find($unit->id));
+        $this->assertNotNull(Module::query()->find($module));
+        $this->assertNull($this->live($session)->ended_at);
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->post($path . '/end');
+        $this->post($deleteSession);
+        $this->assertNull(Session::query()->find($session->id));
+        $this->as($manager, ['training.manage']);
+        $this->post('/training/units/' . $unit->id . '/delete');
+        $this->assertNull(Unit::query()->find($unit->id));
+        $this->post('/training/modules/' . $module . '/delete');
+        $this->assertNull(Module::query()->find($module));
+    }
 }

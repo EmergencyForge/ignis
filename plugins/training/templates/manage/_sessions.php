@@ -142,7 +142,7 @@ $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentati
         </form>
     <?php endif; ?>
     <?php if ($canLead): ?>
-        <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/delete" id="delete-session-<?= (int) $session->id ?>" onsubmit="<?= confirm_attr('Termin „' . $session->title . '“ löschen? Die Anwesenheit dazu geht mit.') ?>" hidden>
+        <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/delete" id="delete-session-<?= (int) $session->id ?>" onsubmit="<?= confirm_attr('Termin „' . $session->title . '“ löschen? Die Anwesenheit und das Protokoll der Besuche dazu gehen mit.') ?>" hidden>
             <?= csrf_field() ?>
         </form>
     <?php endif; ?>

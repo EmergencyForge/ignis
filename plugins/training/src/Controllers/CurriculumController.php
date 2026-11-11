@@ -37,6 +37,8 @@ final class CurriculumController extends BaseController
     private const NEEDS_CONVERTER = 'PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.';
     private const NOT_SLIDES      = 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.';
     private const TALK_RUNNING    = 'Während des Vortrags lassen sich die Folien nicht ändern.';
+    /** Termine hängen mit Anwesenheit, Vortrag und Protokoll an der Einheit und gingen beim Löschen mit. */
+    public const TALK_DELETE      = 'Während eines Vortrags lässt sich das nicht löschen.';
 
     public function __construct(private readonly FileStore $files = new FileStore())
     {
@@ -87,6 +89,12 @@ final class CurriculumController extends BaseController
         $module = $this->module($id);
         if ($module === null) {
             return self::notFound();
+        }
+        $now = new \DateTimeImmutable();
+        foreach (Unit::query()->where('module_id', $module->id)->get() as $unit) {
+            if (Presentations::liveAnywhere($unit, $now)) {
+                return self::back(self::ownerPath($module), self::TALK_DELETE);
+            }
         }
         $fileIds = Unit::query()->where('module_id', $module->id)->whereNotNull('file_id')->pluck('file_id')->all();
         $module->delete();
@@ -149,6 +157,9 @@ final class CurriculumController extends BaseController
         [$module, $unit] = $this->unit($id);
         if ($unit === null) {
             return self::notFound();
+        }
+        if (Presentations::liveAnywhere($unit, new \DateTimeImmutable())) {
+            return self::back(self::ownerPath($module), self::TALK_DELETE);
         }
         $fileId = $unit->file_id;
         $unit->delete();
