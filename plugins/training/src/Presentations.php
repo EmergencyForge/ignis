@@ -606,6 +606,11 @@ final class Presentations
     {
         $at   = Carbon::instance($now);
         $last = PresentationVisit::query()->where('presentation_id', $p->id)->where('user_id', $userId)->whereNull('left_at')->latest('id')->first();
+        // Die Spalte zählt ganze Sekunden: steht der Besuch schon auf dieser Sekunde, änderte das Update nichts
+        // und der Weg unter der Sperre hielte nur den Host auf.
+        if ($last !== null && $last->last_seen_at->getTimestamp() >= $now->getTimestamp()) {
+            return;
+        }
         // Nur ein noch offener Besuch wird verlängert; hat das Ende ihn inzwischen geschlossen, trifft das Update nichts.
         if ($last !== null && Visit::continues($last->last_seen_at->toDateTimeImmutable(), $now)
             && PresentationVisit::query()->whereKey($last->id)->whereNull('left_at')->where('last_seen_at', '<=', $at)->update(['last_seen_at' => $at]) > 0) {

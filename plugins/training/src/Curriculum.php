@@ -148,11 +148,13 @@ final class Curriculum
         if ($unitBySession !== []) {
             $rows = Attendance::query()->whereIn('session_id', array_keys($unitBySession))->whereIn('participation_id', $participationIds)->get();
             foreach ($rows as $row) {
-                $states[$row->participation_id][$unitBySession[$row->session_id]] = [
+                $unitId = $unitBySession[$row->session_id];
+                $states[$row->participation_id][$unitId] = [
                     'state'      => 'done',
                     'manual'     => false,
                     'by'         => $row->recorded_by,
-                    'pages'      => null,
+                    // Seiten bleiben, damit der Betrachter einer Präsentation Stand und Markierungen behält.
+                    'pages'      => $states[$row->participation_id][$unitId]['pages'] ?? null,
                     'attendance' => $row->state,
                 ];
             }

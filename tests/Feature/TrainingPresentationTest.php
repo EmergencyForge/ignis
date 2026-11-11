@@ -2334,6 +2334,19 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertCount(1, $visitsOf($b['user']));
         $this->assertNull($visitsOf($b['user'])[0]->left_at);
 
+        // Zwei Abfragen in derselben Sekunde: die zweite nimmt keine Sperre und zieht nichts zurück.
+        Presentations::heartbeat($p, $b['user'], null, $t->modify('+3 seconds'));
+        $db = Capsule::connection();
+        $db->flushQueryLog();
+        $db->enableQueryLog();
+        Presentations::heartbeat($p, $b['user'], null, $t->modify('+3 seconds +700 milliseconds'));
+        $queries = array_column($db->getQueryLog(), 'query');
+        $db->disableQueryLog();
+        $this->assertSame([], array_values(array_filter($queries, static fn (string $q): bool => stripos($q, 'for update') !== false)));
+        $this->assertCount(1, $visitsOf($b['user']));
+        $this->assertNull($visitsOf($b['user'])[0]->left_at);
+        $this->assertSame($t->getTimestamp() + 3, $visitsOf($b['user'])[0]->last_seen_at->getTimestamp());
+
         // Der Host zählt ebenfalls.
         Presentations::heartbeat($p, $teacher['user'], null, $t);
         $this->assertCount(1, $visitsOf($teacher['user']));
@@ -2528,6 +2541,23 @@ final class TrainingPresentationTest extends FeatureTestCase
 
         $this->as($teacher['user'], ['training.teach']);
         $this->assertBodyNotContains('Noch kein Termin', $this->get($url));
+    }
+
+    #[Test]
+    public function the_slide_viewer_keeps_seen_pages_after_attendance(): void
+    {
+        [$teacher, $course, $session] = $this->talk();
+        $unit    = $session->unit;
+        $learner = $this->account();
+        $participation = $this->admit($course, $learner['personnel']);
+        $this->as($learner['user'], ['training.view']);
+        $this->assertOk($this->postJson('/api/training/units/' . $unit->id . '/pages', ['course' => $course->id, 'pages' => [1, 2], 'total' => 5]));
+        \Plugin\Training\Models\Attendance::query()->create(['session_id' => $session->id, 'participation_id' => $participation->id, 'state' => 'present', 'recorded_by' => $teacher['user']]);
+
+        $page = $this->get('/training/courses/' . $course->id . '/units/' . $unit->id);
+        $this->assertBodyContains('data-start-page="2"', $page);
+        $this->assertBodyContains('data-seen="1-2"', $page);
+        $this->assertBodyContains('<span class="ignis-chip ignis-chip--ok">Erledigt</span>', $page);
     }
 
     #[Test]
