@@ -233,6 +233,7 @@
 .tr-live__width[aria-pressed="true"] { background: var(--fill-3); }
 
 .tr-live__side { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; background: var(--surface); border-left: 1px solid var(--border-subtle); }
+/* Vier Reiter beim Host stehen zwei über zwei, der mitverfolgende Ausbilder hat zwei in einer Zeile. */
 .tr-live__tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-subtle); }
 .tr-live__tabs button {
   padding: 12px 8px;
@@ -282,6 +283,70 @@
 }
 .tr-live__thumb[aria-current="true"] { color: var(--content-text); }
 .tr-live__thumb[aria-current="true"] canvas { outline-color: var(--accent); }
+
+/* Fragen und Protokoll. Lange Namen und Texte brechen in der schmalen Seitenleiste um. */
+.tr-live__badge--new { background: var(--accent); color: var(--on-accent); }
+.tr-live__badge[hidden],
+.tr-live__question [hidden],
+.tr-live__ask [hidden],
+.tr-live__ask[hidden] { display: none; }
+.tr-live__questions { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tr-live__question {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-2);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.tr-live__question.is-done { opacity: .65; }
+.tr-live__question-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.tr-live__question-head time { color: var(--secondary-text); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tr-live__question-text { margin: 0; white-space: pre-line; }
+.tr-live__tag { padding: 1px 7px; border-radius: 999px; background: var(--fill-2); color: var(--secondary-text); font-size: 11px; }
+.tr-live__answer { padding: 6px 8px; border-left: 2px solid var(--accent); border-radius: var(--radius-1); background: var(--fill-1); }
+.tr-live__answer small { display: block; color: var(--secondary-text); font-size: 11px; }
+.tr-live__answer p { margin: 2px 0 0; white-space: pre-line; }
+.tr-live__reply { display: grid; gap: 6px; margin: 0; }
+.tr-live__reply .ignis-field { margin: 0; }
+.tr-live__reply textarea, .tr-live__ask textarea { width: 100%; resize: vertical; }
+.tr-live__reply-row, .tr-live__ask-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.tr-live__msg { margin: 0; color: var(--danger); font-size: 12px; }
+.tr-live__msg:empty { display: none; }
+.tr-live__log li.is-here small { color: var(--ok); }
+
+/*
+ * Fragefeld des Teilnehmers: rechts über der Fußleiste, damit Ton und Lautstärke darin bedienbar bleiben;
+ * es liegt dabei über der rechten unteren Ecke der Folie. Die eigenen Fragen scrollen darin.
+ */
+.tr-live__foot { position: relative; }
+.tr-live__ask {
+  position: absolute;
+  right: 14px;
+  bottom: calc(100% + 8px);
+  z-index: 6;
+  width: 340px;
+  max-width: calc(100% - 28px);
+  max-height: 60vh;
+  overflow: auto;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-pop);
+  color: var(--content-text);
+  font-size: 13px;
+  text-align: left;
+}
+.tr-live__ask form { margin: 0 0 4px; }
+.tr-live__ask .ignis-field { margin: 0 0 6px; }
+.tr-live__ask-hint { margin-right: auto; color: var(--secondary-text); }
+.tr-live__counter { color: var(--secondary-text); font-variant-numeric: tabular-nums; }
+.tr-live__counter.is-over { color: var(--danger); font-weight: 600; }
+.tr-live__ask .tr-live__msg { margin-top: 6px; }
+.tr-live__msg.is-ok { color: var(--secondary-text); }
 
 .tr-live__foot {
   display: flex;
@@ -380,6 +445,9 @@
 .tr-live--narrow .tr-live__side { max-height: 320px; border-left: 0; border-top: 1px solid var(--border-subtle); }
 .tr-live--narrow .tr-live__stage { gap: 10px; padding: 12px; }
 .tr-live--narrow .tr-live__group:not([hidden]) ~ .tr-live__group { padding-left: 4px; border-left: 0; }
+/* Am Telefon liegt das Fragefeld unter der Fußleiste statt über der Folie; die Seite scrollt ohnehin. */
+.tr-live--narrow .tr-live__foot { flex-wrap: wrap; }
+.tr-live--narrow .tr-live__ask { position: static; flex: 1 0 100%; width: auto; max-width: none; max-height: none; box-shadow: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .tr-live__dot { animation: none; }

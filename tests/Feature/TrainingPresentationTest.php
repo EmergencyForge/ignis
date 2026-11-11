@@ -2174,6 +2174,34 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function questions_and_log_render_only_for_instructors(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $second = $this->instructor($course);
+        $a      = $this->learnerIn($course);
+
+        $this->as($teacher['user'], ['training.teach']);
+        $host = $this->get($path);
+        $this->assertBodyContains('data-live-tab="questions"', $host);
+        $this->assertBodyContains('data-live-tab="log"', $host);
+        $this->assertBodyContains('data-live-question-count', $host);
+        $this->assertStringNotContainsString('data-live-ask', $host->body);
+
+        $this->as($a['user'], ['training.view']);
+        $follow = $this->get($path);
+        $this->assertBodyContains('data-live-ask', $follow);
+        $this->assertStringNotContainsString('data-live-tab="log"', $follow->body);
+        $this->assertStringNotContainsString('data-live-tab="questions"', $follow->body);
+
+        $this->as($second['user'], ['training.teach']);
+        $staff = $this->get($path);
+        $this->assertBodyContains('data-role="follow"', $staff);
+        $this->assertBodyContains('data-live-tab="questions"', $staff);
+        $this->assertStringNotContainsString('data-live-ask', $staff->body);
+    }
+
+    #[Test]
     public function questions_are_limited_and_validated(): void
     {
         [$teacher, $course, , $path] = $this->talk();

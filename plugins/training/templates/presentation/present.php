@@ -1,8 +1,8 @@
 <?php
 /**
  * Vortragsmodus des Hosts: Folie mit Zeichenfläche, Werkzeugleiste,
- * Seitenleiste mit Zuschauern und Folien. Bedienung und Abgleich mit dem
- * Server macht assets/js/presentation.js.
+ * Seitenleiste mit Zuschauern, Folien, Fragen und Protokoll. Bedienung und
+ * Abgleich mit dem Server macht assets/js/presentation.js.
  *
  * @var \Plugin\Training\Models\Course       $course
  * @var \Plugin\Training\Models\Session      $session
@@ -111,6 +111,8 @@ require __DIR__ . '/_bar.php';
             <div class="tr-live__tabs" role="tablist">
                 <button type="button" role="tab" aria-selected="true" data-live-tab="people">Teilnehmer <span class="tr-live__badge" data-live-viewer-count>0</span></button>
                 <button type="button" role="tab" aria-selected="false" data-live-tab="slides">Folien <span class="tr-live__badge" data-live-page-count>0</span></button>
+                <button type="button" role="tab" aria-selected="false" data-live-tab="questions">Fragen <span class="tr-live__badge tr-live__badge--new" data-live-question-count hidden>0</span></button>
+                <button type="button" role="tab" aria-selected="false" data-live-tab="log">Protokoll</button>
             </div>
             <div class="tr-live__panel" role="tabpanel" data-live-panel="people">
                 <div class="tr-live__label">Im Lehrgang · <span data-live-course-count>0</span></div>
@@ -123,6 +125,20 @@ require __DIR__ . '/_bar.php';
             </div>
             <div class="tr-live__panel" role="tabpanel" data-live-panel="slides" hidden>
                 <div class="tr-live__thumbs" data-live-thumbs></div>
+            </div>
+            <?php // Fragen und Protokoll baut das Skript aus /state; Namen und Texte nur als textContent. ?>
+            <div class="tr-live__panel" role="tabpanel" data-live-panel="questions" hidden>
+                <ul class="tr-live__questions" data-live-questions></ul>
+                <p class="tr-live__empty" data-live-no-questions>Noch keine Fragen.</p>
+                <div data-live-questions-done-block hidden>
+                    <div class="tr-live__label">Erledigt · <span data-live-done-count>0</span></div>
+                    <ul class="tr-live__questions" data-live-questions-done></ul>
+                </div>
+            </div>
+            <div class="tr-live__panel" role="tabpanel" data-live-panel="log" hidden>
+                <div class="tr-live__label">Kommen und Gehen, neueste oben</div>
+                <ul class="tr-live__people tr-live__log" data-live-log></ul>
+                <p class="tr-live__empty" data-live-no-visits>Noch ist niemand gekommen.</p>
             </div>
         </aside>
     </div>

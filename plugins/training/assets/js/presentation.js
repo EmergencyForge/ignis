@@ -5,7 +5,8 @@
  * Host: zeichnet, blättert und wechselt den Modus. Lokale Ereignisse gehen
  * gesammelt alle 250 ms an `/events` (ohne Raum alle 100 ms, solange Laser
  * oder Stift laufen), nie zwei POSTs gleichzeitig, damit sie in der
- * Reihenfolge ankommen. `/state` alle 2 s liefert Zuschauer und Übergabe.
+ * Reihenfolge ankommen. `/state` jede Sekunde liefert Zuschauer, Übergabe,
+ * Fragen und Protokoll; eine neue Frage soll der Host gleich sehen.
  *
  * Teilnehmer: fragt `/state?after=seq` mit ETag ab und spielt neue
  * Ereignisse um einen Abfragetakt später im Abstand ihres `t` nach, damit
@@ -56,7 +57,7 @@
     const MAX_T = 60000;
     const FLUSH_EVERY = 250;
     const FLUSH_ACTIVE = 100;
-    const HOST_POLL = 2000;
+    const HOST_POLL = 1000;
     const POLL_FAST = 700;
     const POLL_ACTIVE = 300;
     const POLL_SLOW = 2000;
@@ -621,6 +622,7 @@
         replay.length = 0;
         $('[data-live-toast]').hidden = true;
         $('[data-live-ended]').hidden = false;
+        questionsEnded();
     }
 
     /* ---------- Server: POSTs nacheinander ---------- */
@@ -716,6 +718,8 @@
     let signalSeq = 0;
     let etag = null;
     let idle = 0;
+    // Eine Abfrage läuft gerade; endedNow() wartet sie ab.
+    let polling = false;
     let first = true;
     const replay = [];
     let lastDue = 0;
@@ -729,6 +733,7 @@
     function resetTalk() {
         talkId = null;
         first = true;
+        ownPending.clear();
         lastSeq = 0;
         etag = null;
         replay.length = 0;
@@ -772,7 +777,9 @@
     async function poll() {
         if (!root.isConnected) return stop();
         if (ended) return;
-        let delay = host ? (connecting() ? POLL_FAST : HOST_POLL) : POLL_FAST;
+        // Im versteckten Tab braucht der Host keine schnelle Liste; Zuschauer und Fragen holt er beim Zurückkommen.
+        let delay = host ? (connecting() ? POLL_FAST : document.hidden ? POLL_SLOW : HOST_POLL) : POLL_FAST;
+        polling = true;
         try {
             const headers = { Accept: 'application/json' };
             if (etag && !host) headers['If-None-Match'] = etag;
@@ -800,6 +807,7 @@
             connected(false);
             delay = POLL_SLOW;
         }
+        polling = false;
         if (!ended) pollTimer = setTimeout(poll, delay);
     }
 
@@ -815,6 +823,8 @@
         talkId = s.id;
         presenterId = s.presenter.id;
         showHandover(s);
+        // Für Ausbilder sind neue Fragen Neues, für Teilnehmer eine Antwort auf die eigene.
+        const questionNews = showQuestions(s);
         wantRoom(s.room === true);
         // Folien braucht es am Termin und in der Seite; ohne sie zeigt der Folienmodus das Wartebild.
         const slides = s.slides !== false && !!root.dataset.slides;
@@ -875,7 +885,7 @@
             schedule(due + offset + e.t, e);
             fresh = true;
         });
-        return fresh;
+        return fresh || questionNews;
     }
 
     function setHost(presenter) {
@@ -1317,21 +1327,17 @@
             if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); doUndo(); }
         });
         root.addEventListener('pointerdown', (ev) => {
-            if (!(ev.target instanceof Element && ev.target.closest('button, a, input'))) root.focus({ preventScroll: true });
+            // Auch Textfelder (Antworten) behalten den Fokus, sonst ließe sich nicht hineintippen.
+            if (!(ev.target instanceof Element && ev.target.closest('button, a, input, textarea'))) root.focus({ preventScroll: true });
         });
 
-        // Seitenleiste und Reiter
+        // Seitenleiste; die Reiter bindet bindTabs(), die gibt es auch beim Mitverfolgen.
         const main = $('[data-live-main]');
         const side = $('[data-live-side]');
         side.addEventListener('click', () => {
             const bare = main.classList.toggle('tr-live__main--bare');
             side.setAttribute('aria-pressed', String(!bare));
         });
-        $$('[data-live-tab]').forEach((b) => b.addEventListener('click', () => {
-            $$('[data-live-tab]').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
-            $$('[data-live-panel]').forEach((panel) => { panel.hidden = panel.dataset.livePanel !== b.dataset.liveTab; });
-            if (b.dataset.liveTab === 'slides') buildThumbs();
-        }));
 
         // Nach der Bestätigung nichts mehr senden; was noch in der Schlange liegt, verwirft das Ende ohnehin.
         $('[data-live-end]').addEventListener('submit', (ev) => {
@@ -2079,6 +2085,382 @@
         }, { signal });
     }
 
+    /* ---------- Reiter, Fragen und Protokoll ---------- */
+
+    /*
+     * Ausbilder (Host und Mitverfolgende mit Lehrrecht) bekommen alle Fragen
+     * und das Protokoll, ein Teilnehmer nur das Fragefeld und seine eigenen
+     * Fragen; was fehlt, rendert der Server gar nicht erst. Zeilen bleiben je
+     * Frage stehen und werden nur angepasst, damit eine angefangene Antwort
+     * und ihr Fokus jede Abfrage überleben. Alles vom Nutzer nur als textContent.
+     */
+
+    // Wie Question::MAX_LENGTH im Paket, gezählt in Zeichen wie mb_strlen().
+    const MAX_QUESTION = 500;
+    const hhmm = (iso) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const chars = (text) => Array.from(text.trim()).length;
+    const questionRows = new Map();
+    // Teilnehmer: eben gestellte Fragen, bis eine Abfrage sie bringt; Antworten, die er schon gesehen hat.
+    const ownPending = new Map();
+    const seenAnswers = new Set();
+    let ownList = [];
+    let ownShown = '';
+    let visitsShown = '';
+    let questionsKey = '[]';
+    let asking = false;
+
+    function make(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+    }
+
+    function bindTabs() {
+        $$('[data-live-tab]').forEach((b) => b.addEventListener('click', () => {
+            $$('[data-live-tab]').forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
+            $$('[data-live-panel]').forEach((panel) => { panel.hidden = panel.dataset.livePanel !== b.dataset.liveTab; });
+            if (b.dataset.liveTab === 'slides') buildThumbs();
+        }));
+    }
+
+    /** @return {boolean} ob eine Frage neu, beantwortet oder erledigt ist; das hält den Takt der Abfrage schnell */
+    function showQuestions(s) {
+        const list = Array.isArray(s.questions) ? s.questions : [];
+        if ($('[data-live-questions]')) staffQuestions(list);
+        if ($('[data-live-own]')) ownQuestions(list);
+        if ($('[data-live-log]') && Array.isArray(s.visits)) showVisits(s.visits);
+        const key = JSON.stringify(list.map((q) => [q.id, !!q.answer, !!q.done]));
+        const news = key !== questionsKey;
+        questionsKey = key;
+        return news;
+    }
+
+    /**
+     * Ein POST bekam 404: entweder ist die Frage weg oder der ganze Vortrag. Gleich abfragen,
+     * statt auf den Takt zu warten; die Antwort zeigt ein Ende auch gleich an.
+     * @return {Promise<boolean>} ob der Vortrag vorbei ist
+     */
+    async function endedNow() {
+        // ponytail: kurz warten, bis eine laufende Abfrage durch ist; ein Versprechen je Abfrage wäre die genauere Lösung.
+        while (polling && !stopped && !ended) await new Promise((r) => setTimeout(r, 50));
+        if (!ended && !stopped) {
+            clearTimeout(pollTimer);
+            await poll();
+        }
+        return ended;
+    }
+
+    /** Vortrag vorbei: Fragen verschwinden, fragen geht nicht mehr. */
+    function questionsEnded() {
+        ownPending.clear();
+        showQuestions({ questions: [] });
+        const ask = $('[data-live-ask]');
+        if (!ask) return;
+        toggleAsk(false, false);
+        ask.disabled = true;
+    }
+
+    /* Ausbilder: offene Fragen oben in der Reihenfolge des Eingangs, erledigte darunter. */
+
+    function staffQuestions(list) {
+        const open = $('[data-live-questions]');
+        const done = $('[data-live-questions-done]');
+        const ids = new Set(list.map((q) => q.id));
+        questionRows.forEach((row, id) => { if (!ids.has(id)) { row.li.remove(); questionRows.delete(id); } });
+        list.forEach((q) => {
+            let row = questionRows.get(q.id);
+            if (!row) {
+                row = questionRow(q);
+                questionRows.set(q.id, row);
+                // Neue Fragen haben die höchste ID, sie gehören ans Ende der offenen.
+                open.append(row.li);
+            }
+            updateRow(row, q);
+        });
+        countQuestions();
+    }
+
+    function countQuestions() {
+        let open = 0;
+        questionRows.forEach((row) => { if (!row.done) open++; });
+        const badge = $('[data-live-question-count]');
+        badge.textContent = String(open);
+        badge.hidden = open === 0;
+        const empty = $('[data-live-no-questions]');
+        empty.textContent = questionRows.size ? 'Keine offenen Fragen.' : 'Noch keine Fragen.';
+        empty.hidden = open > 0;
+        $('[data-live-done-count]').textContent = String(questionRows.size - open);
+        $('[data-live-questions-done-block]').hidden = questionRows.size === open;
+    }
+
+    function questionRow(q) {
+        const row = { id: q.id, answer: null, done: false, note: '', shownNote: '' };
+        row.li = make('li', 'tr-live__question');
+        const head = make('div', 'tr-live__question-head');
+        row.tag = make('span', 'tr-live__tag');
+        head.append(make('strong', '', q.name), make('time', '', hhmm(q.asked_at)), row.tag);
+        row.answerBox = make('div', 'tr-live__answer');
+        row.answerText = make('p', '');
+        row.answerBox.append(make('small', '', 'Antwort'), row.answerText);
+
+        row.form = make('form', 'tr-live__reply');
+        // Das Feld steckt im Label: kein ID-Zähler, der mit einem zweiten Fenster desselben Vortrags kollidiert.
+        row.label = make('label', 'ignis-field');
+        row.field = make('textarea', 'ignis-input');
+        row.field.rows = 2;
+        row.field.placeholder = 'Nur ' + q.name + ' sieht sie';
+        row.label.append(make('span', 'ignis-field__label', 'Antwort an ' + q.name), row.field);
+        row.send = make('button', 'ignis-btn ignis-btn--primary ignis-btn--sm', 'Senden');
+        row.send.type = 'submit';
+        row.doneButton = make('button', 'ignis-btn ignis-btn--secondary ignis-btn--sm');
+        row.doneButton.type = 'button';
+        const check = make('i', 'fa-solid fa-check');
+        check.setAttribute('aria-hidden', 'true');
+        row.doneButton.append(check, ' Beantwortet');
+        const actions = make('div', 'tr-live__reply-row');
+        actions.append(row.doneButton, row.send);
+        row.msg = make('p', 'tr-live__msg');
+        row.msg.setAttribute('role', 'status');
+        row.form.append(row.label, actions, row.msg);
+        row.form.addEventListener('submit', (ev) => { ev.preventDefault(); sendAnswer(row); });
+        row.doneButton.addEventListener('click', () => markDone(row));
+
+        row.li.append(head, make('p', 'tr-live__question-text', q.body), row.answerBox, row.form);
+        return row;
+    }
+
+    /**
+     * Antwort und Erledigt kehren nie zurück; eine ältere Abfrage darf sie nicht wieder öffnen.
+     * Erledigt oder beantwortet jemand anderes die Frage, während hier eine Antwort entsteht,
+     * bleibt das Feld samt Text und Fokus stehen, mit Hinweis; verwerfen oder trotzdem senden geht.
+     * `own`: die Änderung kam von hier, dann gibt es nichts zu bewahren.
+     */
+    function updateRow(row, q) {
+        const before = { answer: row.answer, done: row.done };
+        if (q.answer) row.answer = q.answer;
+        if (q.done) row.done = true;
+        const keep = !q.own && (row.field.value.trim() !== '' || document.activeElement === row.field);
+        if (keep && row.done && !before.done) row.note = 'Schon von jemand anderem erledigt.';
+        else if (keep && row.answer && !before.answer) row.note = 'Schon von jemand anderem beantwortet.';
+        else if (!keep) row.note = '';
+        // Nur den eigenen Hinweis setzen oder wegnehmen, eine Fehlermeldung bleibt stehen.
+        if (row.note !== row.shownNote) {
+            if (row.note || row.msg.textContent === row.shownNote) rowMsg(row, row.note);
+            row.shownNote = row.note;
+        }
+        // Verschieben nähme dem Feld den Fokus; erst wenn nichts mehr getippt wird.
+        if (row.done && !keep && row.li.parentNode !== $('[data-live-questions-done]')) $('[data-live-questions-done]').append(row.li);
+        row.li.classList.toggle('is-done', row.done);
+        row.tag.textContent = row.done ? 'Erledigt' : row.answer ? 'Schriftlich beantwortet' : '';
+        row.tag.hidden = !row.tag.textContent;
+        row.answerText.textContent = row.answer || '';
+        row.answerBox.hidden = !row.answer;
+        // Nach einer schriftlichen Antwort bleibt nur noch abhaken.
+        row.label.hidden = !!row.answer && !keep;
+        row.send.hidden = !!row.answer && !keep;
+        row.doneButton.hidden = row.done;
+        row.form.hidden = row.done && !keep;
+    }
+
+    /** Ein deaktivierter Knopf gibt den Fokus an die Seite ab; dann zurück in die Frage, sonst greifen Escape und Tab ins Leere. */
+    function refocus(el) {
+        if (!document.activeElement || document.activeElement === document.body) el.focus();
+    }
+
+    function rowMsg(row, text) {
+        row.msg.textContent = text;
+    }
+
+    async function sendAnswer(row) {
+        const text = row.field.value.trim();
+        if (row.send.disabled || ended) return;
+        if (!text) { rowMsg(row, 'Schreib zuerst eine Antwort.'); row.field.focus(); return; }
+        if (chars(text) > MAX_QUESTION) { rowMsg(row, 'Die Antwort ist zu lang: höchstens 500 Zeichen.'); return; }
+        row.send.disabled = true;
+        rowMsg(row, '');
+        try {
+            const { status } = await post('/questions/' + row.id + '/answer', { answer: text });
+            if (status === 200) {
+                row.field.value = '';
+                rowMsg(row, '');
+                updateRow(row, { answer: text, own: true });
+                // Das Feld ist weg, der Fokus geht zum Abhaken derselben Frage, bei einer erledigten zum Reiter.
+                (row.done ? $('[data-live-tab="questions"]') : row.doneButton).focus();
+                countQuestions();
+            } else if (status === 409 || (status === 404 && await endedNow())) {
+                showEnded();
+            } else {
+                // Der Text bleibt im Feld, nochmal senden geht.
+                rowMsg(row, status === 422 ? 'Die Antwort ist zu lang: höchstens 500 Zeichen.' : status === 404 ? 'Diese Frage gibt es nicht mehr.' : 'Senden ging nicht. Bitte noch einmal.');
+            }
+        } catch (error) {
+            rowMsg(row, 'Keine Verbindung. Bitte noch einmal.');
+        } finally {
+            row.send.disabled = false;
+            refocus(row.field);
+        }
+    }
+
+    async function markDone(row) {
+        if (row.doneButton.disabled || ended) return;
+        row.doneButton.disabled = true;
+        rowMsg(row, '');
+        try {
+            const { status } = await post('/questions/' + row.id + '/done', {});
+            if (status === 200) {
+                const tab = $('[data-live-tab="questions"]');
+                updateRow(row, { done: true, own: true });
+                countQuestions();
+                if (tab) tab.focus();
+            } else if (status === 409 || (status === 404 && await endedNow())) {
+                showEnded();
+            } else {
+                rowMsg(row, status === 404 ? 'Diese Frage gibt es nicht mehr.' : 'Abhaken ging nicht. Bitte noch einmal.');
+            }
+        } catch (error) {
+            rowMsg(row, 'Keine Verbindung. Bitte noch einmal.');
+        } finally {
+            row.doneButton.disabled = false;
+            refocus(row.doneButton);
+        }
+    }
+
+    /** Protokoll: jeder Besuch eine Zeile, die neueste oben, damit sie ohne Scrollen zu sehen ist. */
+    function showVisits(list) {
+        const key = JSON.stringify(list);
+        if (key === visitsShown) return;
+        visitsShown = key;
+        $('[data-live-log]').replaceChildren(...list.slice().reverse().map((v) => {
+            const li = make('li', v.left_at ? '' : 'is-here');
+            const name = make('span', 'tr-live__name', v.name);
+            name.append(make('small', '', 'gekommen ' + hhmm(v.joined_at) + ' · ' + (v.left_at ? 'gegangen ' + hhmm(v.left_at) : 'noch da')));
+            li.append(name);
+            return li;
+        }));
+        $('[data-live-no-visits]').hidden = list.length > 0;
+    }
+
+    /* Teilnehmer: Fragefeld und eigene Fragen. */
+
+    function ownQuestions(list) {
+        list.forEach((q) => ownPending.delete(q.id));
+        ownList = list;
+        renderOwn();
+    }
+
+    function renderOwn() {
+        const all = ownList.concat(Array.from(ownPending.values()));
+        const panelOpen = !$('[data-live-ask-panel]').hidden;
+        let fresh = 0;
+        all.forEach((q) => {
+            if (!q.answer || seenAnswers.has(q.id)) return;
+            if (panelOpen) seenAnswers.add(q.id);
+            else fresh++;
+        });
+        const news = $('[data-live-ask-news]');
+        news.textContent = String(fresh);
+        news.hidden = fresh === 0;
+        const key = JSON.stringify(all);
+        if (key === ownShown) return;
+        ownShown = key;
+        $('[data-live-own]').replaceChildren(...all.slice().reverse().map(ownItem));
+        $('[data-live-own-block]').hidden = all.length === 0;
+    }
+
+    function ownItem(q) {
+        const li = make('li', 'tr-live__question');
+        const head = make('div', 'tr-live__question-head');
+        head.append(make('time', '', hhmm(q.asked_at)));
+        if (q.answer || q.done) head.append(make('span', 'tr-live__tag', 'Beantwortet'));
+        li.append(head, make('p', 'tr-live__question-text', q.body));
+        if (q.answer) {
+            const box = make('div', 'tr-live__answer');
+            box.append(make('small', '', 'Antwort'), make('p', '', q.answer));
+            li.append(box);
+        }
+        return li;
+    }
+
+    function toggleAsk(open, restoreFocus) {
+        const panel = $('[data-live-ask-panel]');
+        const button = $('[data-live-ask]');
+        if (panel.hidden === !open) return;
+        panel.hidden = !open;
+        button.setAttribute('aria-expanded', String(open));
+        if (open) {
+            renderOwn();
+            $('[data-live-ask-text]').focus();
+        } else if (restoreFocus) {
+            button.focus();
+        }
+    }
+
+    function askMsg(text, ok) {
+        const msg = $('[data-live-ask-msg]');
+        msg.textContent = text;
+        msg.classList.toggle('is-ok', !!ok);
+    }
+
+    function countAsk() {
+        const n = chars($('[data-live-ask-text]').value);
+        const counter = $('[data-live-ask-count]');
+        counter.textContent = n + ' / ' + MAX_QUESTION;
+        counter.classList.toggle('is-over', n > MAX_QUESTION);
+    }
+
+    async function ask() {
+        const field = $('[data-live-ask-text]');
+        const send = $('[data-live-ask-send]');
+        const text = field.value.trim();
+        if (asking || ended) return;
+        if (!text) { askMsg('Schreib zuerst deine Frage.'); field.focus(); return; }
+        if (chars(text) > MAX_QUESTION) { askMsg('Die Frage ist zu lang: höchstens 500 Zeichen. Kürze sie bitte.'); field.focus(); return; }
+        asking = true;
+        send.disabled = true;
+        askMsg('');
+        try {
+            const { status, data } = await post('/questions', { body: text });
+            if (status === 200) {
+                field.value = '';
+                countAsk();
+                askMsg('Gesendet. Die Antwort erscheint hier.', true);
+                if (typeof data.id === 'number') ownPending.set(data.id, { id: data.id, body: text, asked_at: new Date().toISOString(), answer: null, done: false });
+                renderOwn();
+            } else if (status === 409 || (status === 404 && await endedNow())) {
+                showEnded();
+            } else {
+                // Der Text bleibt im Feld.
+                askMsg(status === 429 ? 'Du hast gerade viele Fragen gestellt. Warte bitte eine Minute.'
+                    : status === 422 ? 'Die Frage ist leer oder zu lang: höchstens 500 Zeichen.'
+                        : 'Senden ging nicht. Versuch es bitte noch einmal.');
+            }
+        } catch (error) {
+            askMsg('Keine Verbindung. Versuch es bitte noch einmal.');
+        } finally {
+            asking = false;
+            send.disabled = false;
+            refocus(field);
+        }
+    }
+
+    function bindQuestions() {
+        const button = $('[data-live-ask]');
+        if (!button) return;
+        const panel = $('[data-live-ask-panel]');
+        button.addEventListener('click', () => toggleAsk(panel.hidden, true));
+        $('[data-live-ask-text]').addEventListener('input', () => { countAsk(); askMsg(''); });
+        $('[data-live-ask-form]').addEventListener('submit', (ev) => { ev.preventDefault(); ask(); });
+        // Am Dokument: Escape soll auch schließen, wenn der Fokus gerade nirgends im Vortrag steht.
+        // Nicht, wenn ein Dialog das Escape schon genommen hat oder der Fokus in einem anderen Fenster des Desks steht.
+        document.addEventListener('keydown', (ev) => {
+            if (ev.key !== 'Escape' || ev.defaultPrevented || panel.hidden) return;
+            const at = document.activeElement;
+            if (at && at !== document.body && !root.contains(at)) return;
+            toggleAsk(false, true);
+        }, { signal });
+    }
+
     /* ---------- Uhr und Zeichenschleife ---------- */
 
     const two = (n) => String(n).padStart(2, '0');
@@ -2140,6 +2522,8 @@
     }
 
     bindHandover();
+    bindTabs();
+    bindQuestions();
     if (host) bindHost();
     else bindFollow();
     // Wurzel und Desk-Fenster bestimmen die Höhe, der freie Platz die Folie, die Folie Zeichenfläche und PDF.
