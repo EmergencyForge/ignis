@@ -19,6 +19,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
+use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseStaff;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Presentation;
@@ -158,15 +159,32 @@ final class Presentations
     }
 
     /**
-     * Ob Teilnehmer die Folien einer Präsentation sehen: nach dem Vortrag nur mit
-     * dem Schalter an der Einheit, sonst solange irgendein Termin der Einheit läuft.
-     * Die einzige Stelle für diese Regel; Ausbilder prüfen die Controller vorher.
+     * Ob Teilnehmer des Lehrgangs die Folien einer Präsentation sehen: nach dem Vortrag
+     * nur mit dem Schalter an der Einheit, sonst solange der Termin der Einheit in
+     * diesem Lehrgang läuft. Die Einheit gehört der Lehrgangsart, ein Vortrag in einem
+     * anderen Lehrgang öffnet nichts. Die einzige Stelle für diese Regel; Ausbilder
+     * prüfen die Controller vorher.
      */
-    public static function slidesOpen(Unit $unit, DateTimeImmutable $now): bool
+    public static function slidesOpen(Unit $unit, Course $course, DateTimeImmutable $now): bool
     {
-        if ($unit->slides_after_talk) {
-            return true;
+        return $unit->slides_after_talk || self::liveSessionFor($unit, $course, $now) !== null;
+    }
+
+    /** Der Termin der Einheit in diesem Lehrgang, an dem gerade ein Vortrag läuft. */
+    public static function liveSessionFor(Unit $unit, Course $course, DateTimeImmutable $now): ?Session
+    {
+        foreach (Session::query()->where('unit_id', $unit->id)->where('course_id', $course->id)->get() as $session) {
+            if (self::live($session, $now) !== null) {
+                return $session;
+            }
         }
+
+        return null;
+    }
+
+    /** Ob an irgendeinem Termin der Einheit, in jedem Lehrgang, ein Vortrag läuft; die Folien sind für alle dieselbe Datei. */
+    public static function liveAnywhere(Unit $unit, DateTimeImmutable $now): bool
+    {
         foreach (Session::query()->where('unit_id', $unit->id)->get() as $session) {
             if (self::live($session, $now) !== null) {
                 return true;

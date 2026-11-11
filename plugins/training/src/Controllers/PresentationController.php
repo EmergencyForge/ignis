@@ -48,7 +48,7 @@ final class PresentationController extends BaseController
             return self::notFound();
         }
         // Mit abgeschaltetem Schalter an der Einheit gibt es die Folien nur im Vortrag.
-        if (!TrainingPolicy::instruct($courseModel) && !Presentations::slidesOpen($sessionModel->unit, new DateTimeImmutable())) {
+        if (!TrainingPolicy::instruct($courseModel) && !Presentations::slidesOpen($sessionModel->unit, $courseModel, new DateTimeImmutable())) {
             return self::notFound();
         }
 

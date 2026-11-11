@@ -22,6 +22,7 @@ use Plugin\Training\Models\Module;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Models\Unit;
 use Plugin\Training\Policies\TrainingPolicy;
+use Plugin\Training\Presentations;
 
 /**
  * Module und Einheiten. Ein Modul gehört einer Lehrgangsart (bearbeiten
@@ -32,6 +33,10 @@ final class CurriculumController extends BaseController
 {
     /** Was die Lehrgangsart-Seite anlegen lässt. Lernkontrollen kommen mit den Prüfungen. */
     private const KINDS = [UnitKind::File, UnitKind::Text, UnitKind::Link, UnitKind::KnowledgeArticle, UnitKind::Session, UnitKind::Presentation];
+
+    private const NEEDS_CONVERTER = 'PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.';
+    private const NOT_SLIDES      = 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.';
+    private const TALK_RUNNING    = 'Während des Vortrags lassen sich die Folien nicht ändern.';
 
     public function __construct(private readonly FileStore $files = new FileStore())
     {
@@ -304,9 +309,13 @@ final class CurriculumController extends BaseController
         $hasUpload = is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
         $doc       = json_decode((string) ($post['doc'] ?? ''), true);
 
+        // Zuschauer laden die Folien beim Beitreten; neue Folien oder ein Wechsel der Art mitten im Vortrag verschöben Seiten und Zeichnungen.
+        $slidesChange = $unit->exists && ($hasUpload || (string) $unit->getOriginal('kind') !== (string) $kind?->value);
+
         $error = match (true) {
             $kind === null || !in_array($kind, self::KINDS, true)                       => 'Bitte eine Art wählen.',
             $unit->title === ''                                                          => 'Bitte einen Titel angeben.',
+            $slidesChange && Presentations::liveAnywhere($unit, new \DateTimeImmutable()) => self::TALK_RUNNING,
             $kind === UnitKind::File && $unit->file_id === null && !$hasUpload          => 'Bitte eine Datei hochladen.',
             $kind === UnitKind::Link && TrainingController::safeUrl($post['url'] ?? null) === null => 'Bitte einen Link mit http:// oder https:// angeben.',
             $kind === UnitKind::KnowledgeArticle && (int) ($post['kb_entry_id'] ?? 0) <= 0     => 'Bitte einen Wissensartikel wählen.',
@@ -315,6 +324,11 @@ final class CurriculumController extends BaseController
         };
         if ($error === null && $kind === UnitKind::Presentation && $hasUpload) {
             $error = self::slidesError($upload);
+        }
+        // Eine behaltene Datei muss als Folien taugen, sonst ließe sich der Vortrag nie starten.
+        if ($error === null && $kind === UnitKind::Presentation && !$hasUpload && $unit->file_id !== null) {
+            $kept  = TrainingFile::query()->find($unit->file_id);
+            $error = $kept !== null ? self::keptSlidesError($kept) : null;
         }
         if ($error === null && in_array($kind, [UnitKind::File, UnitKind::Presentation], true) && $hasUpload) {
             try {
@@ -357,12 +371,23 @@ final class CurriculumController extends BaseController
         }
         $kind = MaterialType::detect(is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '')?->kind;
         if ($kind !== 'pdf' && $kind !== 'presentation') {
-            return 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.';
+            return self::NOT_SLIDES;
         }
 
-        return $kind === 'presentation' && Converter::configured() === null
-            ? 'PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.'
-            : null;
+        return $kind === 'presentation' && Converter::configured() === null ? self::NEEDS_CONVERTER : null;
+    }
+
+    /** Dieselbe Regel für eine Datei, die schon an der Einheit hängt. */
+    private static function keptSlidesError(TrainingFile $file): ?string
+    {
+        if ($file->viewsAsPdf()) {
+            return null;
+        }
+        if ($file->mime !== Converter::PPTX) {
+            return self::NOT_SLIDES;
+        }
+
+        return Converter::configured() === null ? self::NEEDS_CONVERTER : null;
     }
 
     /**
@@ -377,6 +402,13 @@ final class CurriculumController extends BaseController
         $current = $unit->file_id !== null ? TrainingFile::query()->find($unit->file_id) : null;
         if ($current === null) {
             return $this->files->store($upload, self::userId() ?: null);
+        }
+        // Die Datei kann an mehreren Einheiten hängen; läuft zu einer ein Vortrag, bleibt sie, wie sie ist.
+        $now = new \DateTimeImmutable();
+        foreach (Unit::query()->where('file_id', $current->id)->get() as $user) {
+            if (Presentations::liveAnywhere($user, $now)) {
+                throw new DomainException(self::TALK_RUNNING);
+            }
         }
         $shared = Unit::query()->where('file_id', $current->id)->where('id', '!=', $unit->id ?? 0)->exists();
         if (!$shared) {

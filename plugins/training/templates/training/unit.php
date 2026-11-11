@@ -17,7 +17,7 @@
  * @var \Plugin\Training\Models\Session|null        $session
  * @var string|null                                 $html
  * @var bool                                        $slidesOpen  Präsentation: ob die Folien für diesen Nutzer offen sind
- * @var bool                                        $talk        Präsentation: ob gerade ein Vortrag zu dieser Einheit läuft
+ * @var \Plugin\Training\Models\Session|null        $talk        Präsentation: der Termin dieses Lehrgangs, an dem gerade ein Vortrag läuft
  */
 
 use EmergencyForge\Training\Progress\ProgressUnit;
@@ -157,8 +157,8 @@ ob_start();
                                             <dt>Anwesenheit</dt><dd><?= htmlspecialchars(Attendance::STATES[$unitState['attendance']] ?? '') ?></dd>
                                         <?php endif; ?>
                                     </dl>
-                                    <?php if ($talk): ?>
-                                        <a href="<?= $courseUrl ?>/sessions/<?= (int) $session->id ?>/presentation" class="ignis-btn ignis-btn--primary mt-2"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Live mitverfolgen</a>
+                                    <?php if ($talk !== null): ?>
+                                        <a href="<?= $courseUrl ?>/sessions/<?= (int) $talk->id ?>/presentation" class="ignis-btn ignis-btn--primary mt-2"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Live mitverfolgen</a>
                                     <?php endif; ?>
                                 </div></div>
                             <?php endif; ?>

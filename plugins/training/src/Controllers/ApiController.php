@@ -33,7 +33,7 @@ final class ApiController extends BaseController
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
         // Folien einer Präsentation sind nur offen, wenn die Regel der Einheit es sagt.
-        if ($unitModel->type() === UnitKind::Presentation && !Presentations::slidesOpen($unitModel, new \DateTimeImmutable())) {
+        if ($unitModel->type() === UnitKind::Presentation && !Presentations::slidesOpen($unitModel, $course, new \DateTimeImmutable())) {
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
 

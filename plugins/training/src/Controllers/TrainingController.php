@@ -101,6 +101,7 @@ final class TrainingController extends BaseController
         $lives = [];
         if (TrainingPolicy::follow($course, $participation)) {
             $now = new \DateTimeImmutable();
+            $course->loadMissing('sessions.unit');
             foreach ($course->sessions as $session) {
                 if ($session->isPresentation() && ($live = Presentations::live($session, $now)) !== null && $live->presenter_id !== self::userId()) {
                     $lives[$session->id] = [$session, $live];
@@ -202,9 +203,8 @@ final class TrainingController extends BaseController
         }
 
         // Folien einer Präsentation: Ausbilder immer, Teilnehmer nach der Regel der Einheit. Ein laufender Vortrag bekommt seinen Knopf.
-        $slidesOpen = $unitModel->type() === UnitKind::Presentation && (TrainingPolicy::instruct($courseModel) || Presentations::slidesOpen($unitModel, new \DateTimeImmutable()));
-        $talkSession = $unitModel->type() === UnitKind::Presentation ? $curriculum->session($unitModel) : null;
-        $talk        = $talkSession !== null && Presentations::live($talkSession, new \DateTimeImmutable()) !== null;
+        $slidesOpen = $unitModel->type() === UnitKind::Presentation && (TrainingPolicy::instruct($courseModel) || Presentations::slidesOpen($unitModel, $courseModel, new \DateTimeImmutable()));
+        $talk       = $unitModel->type() === UnitKind::Presentation ? Presentations::liveSessionFor($unitModel, $courseModel, new \DateTimeImmutable()) : null;
 
         $units = $curriculum->units();
         $index = array_search($unitModel, $units, true);
@@ -296,7 +296,7 @@ final class TrainingController extends BaseController
 
         $instructor = TrainingPolicy::instruct($courseModel);
         // Folien einer Präsentation folgen deren Regel; eine Datei, die auch anderswo im Lehrplan steht, bleibt dort offen.
-        if (!$instructor && !$this->slidesVisible($curriculum, $fileModel)) {
+        if (!$instructor && !$this->slidesVisible($curriculum, $courseModel, $fileModel)) {
             return self::notFound();
         }
 
@@ -354,11 +354,11 @@ final class TrainingController extends BaseController
         return [$courseModel, $participation, $curriculum, $unitModel];
     }
 
-    private function slidesVisible(Curriculum $curriculum, TrainingFile $file): bool
+    private function slidesVisible(Curriculum $curriculum, Course $course, TrainingFile $file): bool
     {
         $now = new \DateTimeImmutable();
         foreach ($curriculum->units() as $unit) {
-            if ($unit->file_id === $file->id && ($unit->type() !== UnitKind::Presentation || Presentations::slidesOpen($unit, $now))) {
+            if ($unit->file_id === $file->id && ($unit->type() !== UnitKind::Presentation || Presentations::slidesOpen($unit, $course, $now))) {
                 return true;
             }
         }
