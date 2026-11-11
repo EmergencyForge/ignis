@@ -46,6 +46,9 @@ require __DIR__ . '/_bar.php';
                     <canvas class="tr-live__pdf" data-live-pdf aria-hidden="true"></canvas>
                     <canvas class="tr-live__ink" data-live-ink aria-label="Folie"></canvas>
                 </div>
+                <div class="tr-live__screen">
+                    <video data-live-video playsinline autoplay muted></video>
+                </div>
                 <div class="tr-live__pause">
                     <div>
                         <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
@@ -81,6 +84,11 @@ require __DIR__ . '/_bar.php';
                     <button type="button" class="tr-live__tool" data-live-undo aria-label="Rückgängig (Strg+Z)" data-ignis-tooltip="Rückgängig (Strg+Z)"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
                     <button type="button" class="tr-live__tool" data-live-clear aria-label="Folie leeren" data-ignis-tooltip="Folie leeren"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                 </div>
+            </div>
+            <div class="tr-live__share" data-live-share hidden>
+                <span class="tr-live__rec" aria-hidden="true"></span>
+                <span>Du teilst deinen Bildschirm</span>
+                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-mode="slides"><i class="fa-solid fa-stop" aria-hidden="true"></i> Teilen beenden</button>
             </div>
         </div>
         <aside class="tr-live__side">

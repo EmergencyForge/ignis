@@ -24,6 +24,7 @@
     "@fortawesome/fontawesome-free": "^7.3.1",
     "chart.js": "^4.5.1",
     "jquery": "3.7",
+    "livekit-client": "2.23.0",
     "pdfjs-dist": "6.5.438"
   }
 }

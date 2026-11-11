@@ -13,6 +13,12 @@
  *
  * Koordinaten sind 0..1 relativ zur Folie, so passt jede Bildschirmgröße.
  *
+ * Bildschirm teilen: der Host holt den Stream per getDisplayMedia und meldet
+ * `/screen`, der Server wählt den Weg. Über LiveKit lädt der Host einmal hoch,
+ * Zuschauer holen ihr Token über `/screen/token`. Direkt baut der Host je
+ * Zuschauer eine WebRTC-Verbindung, die Signale laufen über `/signal` und die
+ * normale Abfrage. livekit-client kommt erst per import(), wenn er gebraucht wird.
+ *
  * Bewusst kein ES-Modul: der Desk führt ein Modul nur einmal je Dokument
  * aus, ein klassisches Skript dagegen je Fenster.
  */
@@ -44,12 +50,18 @@
     const POLL_SLOW = 2000;
     const REPLAY_DELAY = 500;
     const SWIPE = 60;
+    // Wie Presentations::SCREEN_LIMIT; mehr Verbindungen trägt die Leitung des Hosts nicht.
+    const SCREEN_LIMIT = 15;
+    const ICE_WAIT = 3000;
+    const NO_PICTURE = 15000;
+    const RTC = { iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] };
 
     const slide = $('[data-live-slide]');
     const frame = $('[data-live-frame]');
     const pdfCanvas = $('[data-live-pdf]');
     const ink = $('[data-live-ink]');
     const ctx = ink.getContext('2d');
+    const video = $('[data-live-video]');
 
     /* Stand der Folie: Seite, Modus, Striche je Seite, Laserpunkt. */
     const st = { page: 0, mode: 'slides', strokes: {}, laser: null };
@@ -77,6 +89,11 @@
     function stop() {
         if (stopped) return;
         stopped = true;
+        // Vor dem Abbruch der Abfrage: ein Zuschauer verabschiedet sich noch beim Host.
+        if (host) {
+            if (share) screenOff();
+            stopShare();
+        } else unwatch(true);
         ended = true;
         timers.forEach(clearInterval);
         clearTimeout(pollTimer);
@@ -353,26 +370,35 @@
         st.laser = null;
         const counter = $('[data-live-counter]');
         if (counter) counter.textContent = (st.page + 1) + ' / ' + (pageCount || 1);
-        const follow = $('[data-live-follow-counter]');
-        if (follow) follow.textContent = 'Folie ' + (st.page + 1) + (pageCount ? ' von ' + pageCount : '');
+        followCounter();
         $$('.tr-live__thumb').forEach((t, i) => t.setAttribute('aria-current', i === st.page ? 'true' : 'false'));
         dirty = true;
         renderPage();
     }
 
+    function followCounter() {
+        const follow = $('[data-live-follow-counter]');
+        if (follow) follow.textContent = st.mode === 'screen' ? 'Bildschirm' : 'Folie ' + (st.page + 1) + (pageCount ? ' von ' + pageCount : '');
+    }
+
     function showMode(mode) {
-        st.mode = mode === 'pause' ? 'pause' : 'slides';
+        st.mode = mode === 'pause' || mode === 'screen' ? mode : 'slides';
         st.laser = null;
         frame.dataset.mode = st.mode;
         pauseStart = st.mode === 'pause' ? (pauseStart || Date.now()) : 0;
         if (host) {
             $$('.ignis-segmented [data-live-mode]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.liveMode === st.mode ? 'true' : 'false'));
             $('[data-live-dock]').hidden = st.mode !== 'slides';
+            $('[data-live-share]').hidden = st.mode !== 'screen';
+            screenButton();
         }
+        followCounter();
         dirty = true;
     }
 
     function showEnded() {
+        if (host) stopShare();
+        else unwatch(false);
         ended = true;
         st.laser = null;
         replay.length = 0;
@@ -436,7 +462,8 @@
         try {
             const { status, data } = await post('/events', body);
             if (stopped) return;
-            if (status === 200 && typeof data.seq === 'number') lastSeq = Math.max(lastSeq, data.seq);
+            // Beim Teilen nicht vorspringen: dazwischen kann ein Signal eines Zuschauers liegen.
+            if (status === 200 && typeof data.seq === 'number') { if (!share) lastSeq = Math.max(lastSeq, data.seq); }
             else if (status === 409) showEnded();
             else if (status === 403 || status === 404) reloadView();
             else if (status === 422 && batch.length) {
@@ -457,6 +484,7 @@
     /* ---------- Abfrage ---------- */
 
     let lastSeq = 0;
+    let signalSeq = 0;
     let etag = null;
     let idle = 0;
     let first = true;
@@ -474,6 +502,8 @@
         etag = null;
         replay.length = 0;
         lastDue = 0;
+        signalSeq = 0;
+        unwatch(false);
         st.strokes = {};
         st.laser = null;
         dirty = true;
@@ -495,7 +525,7 @@
     async function poll() {
         if (!root.isConnected) return stop();
         if (ended) return;
-        let delay = host ? HOST_POLL : POLL_FAST;
+        let delay = host ? (connecting() ? POLL_FAST : HOST_POLL) : POLL_FAST;
         try {
             const headers = { Accept: 'application/json' };
             if (etag && !host) headers['If-None-Match'] = etag;
@@ -542,25 +572,38 @@
             target.mode = s.mode;
             lastSeq = s.seq;
             ready = true;
-            if (host) showViewers(s.viewers || []);
-            else setHost(s.presenter);
+            if (host) {
+                // Neu geladen, während geteilt wurde: der Stream ist weg, die Zuschauer warteten sonst ewig.
+                if (st.mode === 'screen') { showMode('slides'); pendingMode = 'slides'; }
+                showViewers(s.viewers || []);
+            } else {
+                setHost(s.presenter);
+                follow(s);
+            }
             return true;
         }
         lastSeq = Math.max(lastSeq, s.seq);
+        // Derselbe Stand kann ein Signal zweimal liefern; ein zweites Angebot risse eine stehende Verbindung ab.
+        const signals = s.events.filter((e) => e.kind === 'signal' && e.seq > signalSeq);
+        signals.forEach((e) => { signalSeq = Math.max(signalSeq, e.seq); });
         if (host) {
             showViewers(s.viewers || []);
+            signals.forEach(hostSignal);
             return true;
         }
 
         setHost(s.presenter);
+        follow(s);
+        signals.forEach(viewerSignal);
         const due = performance.now() + REPLAY_DELAY;
-        let fresh = false;
+        let fresh = signals.length > 0;
         if (s.page !== target.page) { target.page = s.page; schedule(due, { kind: 'page', page: s.page }); fresh = true; }
         if (s.mode !== target.mode) { target.mode = s.mode; schedule(due, { kind: 'mode', mode: s.mode }); fresh = true; }
         // t zählt je Paket des Hosts ab 0; fällt es, beginnt das nächste Paket direkt dahinter.
         let offset = 0;
         let prevT = 0;
         s.events.forEach((e) => {
+            if (e.kind === 'signal') return;
             if (e.t < prevT) offset += prevT;
             prevT = e.t;
             schedule(due + offset + e.t, e);
@@ -672,6 +715,8 @@
     }
 
     function showViewers(list) {
+        audience = list.filter((v) => v.id !== me).length;
+        screenButton();
         const key = JSON.stringify(list);
         if (key === viewersShown) return;
         viewersShown = key;
@@ -755,7 +800,11 @@
     }
 
     function setMode(mode) {
-        if (!ready || mode === st.mode) return;
+        if (!ready || starting) return;
+        if (mode === 'screen') { startShare(); return; }
+        if (mode === st.mode) return;
+        // Pause oder Folien beenden das Teilen; der Server räumt den Weg mit dem Modus ab.
+        stopShare();
         showMode(mode);
         pendingMode = st.mode;
     }
@@ -874,6 +923,299 @@
 
         timers.push(setInterval(flush, FLUSH_EVERY));
         pick('laser');
+        screenButton();
+    }
+
+    /* ---------- Bildschirm teilen ---------- */
+
+    const via = root.dataset.screenVia;
+    // Das FiveM-Tablet kann nicht teilen, auch wenn es getDisplayMedia kennt; zuschauen geht dort.
+    const canShare = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) && !/CitizenFX/.test(navigator.userAgent);
+    const MISSING = 'Der Bildschirm kommt bei dir nicht an. Lade die Seite neu oder schau später wieder rein.';
+    const TOO_MANY = 'Bildschirm teilen geht gerade nicht: zu viele Zuschauer für eine direkte Übertragung.';
+    let livekit = null;
+    let share = null;
+    let starting = false;
+    let audience = 0;
+    let watch = null;
+
+    function lk() {
+        if (!livekit) livekit = import(root.dataset.livekit).catch((error) => { livekit = null; throw error; });
+        return livekit;
+    }
+
+    function hint(text) {
+        const snack = window.ignis && window.ignis.snack;
+        if (snack) snack.warning(text);
+        else note(text);
+    }
+
+    function signalTo(body) {
+        return post('/signal', body).catch(() => ({ status: 0, data: {} }));
+    }
+
+    /** Kein Trickle-ICE: Angebot und Antwort gehen mit allen Kandidaten, gesammelt höchstens ICE_WAIT lang. */
+    function gathered(pc) {
+        return new Promise((resolve) => {
+            if (pc.iceGatheringState === 'complete') { resolve(); return; }
+            const done = () => {
+                clearTimeout(timer);
+                pc.removeEventListener('icegatheringstatechange', check);
+                signal.removeEventListener('abort', done);
+                resolve();
+            };
+            const check = () => { if (pc.iceGatheringState === 'complete') done(); };
+            const timer = setTimeout(done, ICE_WAIT);
+            pc.addEventListener('icegatheringstatechange', check);
+            signal.addEventListener('abort', done);
+        });
+    }
+
+    /* Host */
+
+    function screenButton() {
+        const button = $('.ignis-segmented [data-live-mode="screen"]');
+        let reason = '';
+        if (!canShare) reason = 'Bildschirm teilen geht nur im Browser';
+        else if (!share && via === 'direct' && audience > SCREEN_LIMIT) reason = 'Bildschirm teilen geht ohne EF Sync bis 15 Zuschauer';
+        button.setAttribute('aria-disabled', reason ? 'true' : 'false');
+        button.dataset.ignisTooltip = reason || ((share ? share.via : via) === 'livekit' ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15');
+    }
+
+    const connecting = () => !!share && Array.from(share.peers.values()).some((pc) => pc.connectionState !== 'connected');
+
+    function leaveScreen(mode) {
+        stopShare();
+        showMode(mode);
+        pendingMode = st.mode;
+    }
+
+    async function startShare() {
+        if (share || starting || ended || !canShare || (via === 'direct' && audience > SCREEN_LIMIT)) return;
+        starting = true;
+        let stream = null;
+        try {
+            // Vor jeder Anfrage, solange der Klick noch als Nutzergeste gilt.
+            stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+        } catch (error) {
+            // Im Auswahldialog abgebrochen: nichts senden.
+            starting = false;
+            return;
+        }
+        const end = () => stream.getTracks().forEach((t) => t.stop());
+        let mine = null;
+        try {
+            if (stopped) { end(); return; }
+            pendingMode = null;
+            const { status, data } = await post('/screen', {});
+            if (stopped || status !== 200) {
+                end();
+                // Der Server teilt schon, das Fenster ist aber weg.
+                if (stopped) { if (status === 200) screenOff(); return; }
+                if (status === 409 && data.error === 'too_many') hint(TOO_MANY);
+                else if (status === 409 && data.error === 'ended') showEnded();
+                else if (status === 403 || status === 404 || status === 409) reloadView();
+                else hint('Bildschirm teilen hat gerade nicht geklappt.');
+                return;
+            }
+            const track = stream.getVideoTracks()[0];
+            const s = { via: data.via, stream, track, peers: new Map(), waits: new Map(), room: null };
+            share = s;
+            mine = s;
+            // Auch der Browser-Knopf „Freigabe beenden“ endet hier.
+            track.addEventListener('ended', () => { if (share === s) leaveScreen('slides'); });
+            video.srcObject = stream;
+            showMode('screen');
+            // Ab hier läuft das Teilen; beenden muss auch gehen, während LiveKit noch verbindet.
+            starting = false;
+            if (s.via === 'livekit') {
+                try {
+                    await publish(s, data);
+                } catch (error) {
+                    if (stopped || share !== s) throw error;
+                    await fallBack(s);
+                }
+            }
+        } catch (error) {
+            end();
+            // Schon beendet, etwa mit „Teilen beenden“, während LiveKit verband.
+            if (stopped || (mine && share !== mine)) return;
+            if (mine) leaveScreen('slides');
+            // Ohne Antwort weiß niemand, ob der Server schon teilt; der nächste Paket-POST stellt den Modus klar.
+            else pendingMode = st.mode;
+            hint(error && error.message === 'too_many' ? TOO_MANY : 'Bildschirm teilen hat gerade nicht geklappt.');
+        } finally {
+            starting = false;
+        }
+    }
+
+    async function publish(s, data) {
+        const { Room, RoomEvent, Track } = await lk();
+        if (share !== s) return;
+        const room = new Room();
+        s.room = room;
+        await room.connect(data.url, data.token);
+        if (share !== s) return;
+        await room.localParticipant.publishTrack(s.track, { source: Track.Source.ScreenShare });
+        // Erst jetzt: bis hierhin führt jeder Fehler zu fallBack(). Gibt LiveKit danach endgültig auf, sähe sonst niemand mehr etwas.
+        room.on(RoomEvent.Disconnected, () => { if (share === s) leaveScreen('slides'); });
+    }
+
+    /**
+     * Die Konsole gab einen Schlüssel, LiveKit selbst kommt aber nicht zustande
+     * (Dienst aus, Ports zu): einmal direkt, mit demselben Bild und ohne zweite Auswahl.
+     */
+    async function fallBack(s) {
+        const room = s.room;
+        s.room = null;
+        if (room) room.disconnect();
+        const { status, data } = await post('/screen', { via: 'direct' });
+        if (share !== s) return;
+        if (status !== 200) throw new Error(status === 409 && data.error === 'too_many' ? 'too_many' : 'direct');
+        s.via = 'direct';
+        screenButton();
+    }
+
+    /** Ohne Warten und ohne Abbruchsignal: die Zuschauer sollen auf die Folie zurück statt auf ein schwarzes Bild. */
+    function screenOff() {
+        post('/events', { page_count: Math.max(1, pageCount), events: [], mode: 'slides' }).catch(() => {});
+    }
+
+    function stopShare() {
+        const s = share;
+        if (!s) return;
+        share = null;
+        s.stream.getTracks().forEach((t) => t.stop());
+        s.waits.forEach(clearTimeout);
+        s.peers.forEach((pc) => pc.close());
+        if (s.room) s.room.disconnect();
+        video.srcObject = null;
+    }
+
+    function drop(s, id) {
+        clearTimeout(s.waits.get(id));
+        s.waits.delete(id);
+        const pc = s.peers.get(id);
+        if (!pc) return;
+        s.peers.delete(id);
+        pc.close();
+    }
+
+    async function hostSignal(e) {
+        const s = share;
+        if (!s || s.via !== 'direct') return;
+        const from = e.from;
+        if (e.type === 'bye') { drop(s, from); return; }
+        if (e.type === 'answer') {
+            const pc = s.peers.get(from);
+            if (pc && pc.signalingState === 'have-local-offer') pc.setRemoteDescription({ type: 'answer', sdp: e.sdp }).catch(() => drop(s, from));
+            return;
+        }
+        if (e.type !== 'ready') return;
+        // Ein zweites ready kommt nach dem Neuladen des Zuschauers; die alte Verbindung ist tot.
+        drop(s, from);
+        if (s.peers.size >= SCREEN_LIMIT) { signalTo({ to: from, type: 'full' }); return; }
+        const pc = new RTCPeerConnection(RTC);
+        s.peers.set(from, pc);
+        // Ohne Antwort bliebe die Verbindung ewig in `new`, belegte einen der 15 Plätze und hielte die Abfrage schnell.
+        s.waits.set(from, setTimeout(() => { if (s.peers.get(from) === pc && pc.connectionState !== 'connected') drop(s, from); }, NO_PICTURE));
+        pc.addEventListener('connectionstatechange', () => {
+            if (s.peers.get(from) !== pc) return;
+            if (pc.connectionState === 'connected') { clearTimeout(s.waits.get(from)); s.waits.delete(from); }
+            if (pc.connectionState === 'failed' || pc.connectionState === 'closed') drop(s, from);
+        });
+        try {
+            pc.addTrack(s.track, s.stream);
+            await pc.setLocalDescription(await pc.createOffer());
+            await gathered(pc);
+            if (share !== s || s.peers.get(from) !== pc) return;
+            const { status } = await signalTo({ to: from, type: 'offer', sdp: pc.localDescription.sdp });
+            if (status !== 200) drop(s, from);
+        } catch (error) {
+            drop(s, from);
+        }
+    }
+
+    /* Zuschauer */
+
+    function screenNote(text) {
+        const el = $('[data-live-screen-note]');
+        el.textContent = text;
+        el.hidden = !text;
+    }
+
+    /** Verbinden, sobald der Stand `screen` meldet, nicht erst nach der Nachspiel-Verzögerung. */
+    function follow(s) {
+        const way = s.mode === 'screen' && s.screen ? s.screen.via : null;
+        // Ein anderer Weg heißt neu verbinden, etwa wenn der Host von LiveKit auf direkt ausweicht.
+        if (watch && watch.via !== way) unwatch(false);
+        if (way && !watch) startWatch(way);
+    }
+
+    function startWatch(way) {
+        const w = { via: way, pc: null, room: null, timer: 0, shown: false };
+        watch = w;
+        screenNote('');
+        w.timer = setTimeout(() => { if (watch === w && !w.shown) screenNote(MISSING); }, NO_PICTURE);
+        // Scheitert der Weg, zeigt der Zeitgeber den Hinweis.
+        if (way === 'livekit') subscribe(w).catch(() => {});
+        else signalTo({ type: 'ready' });
+    }
+
+    async function subscribe(w) {
+        const { status, data } = await post('/screen/token', {});
+        if (watch !== w || status !== 200) return;
+        const { Room, RoomEvent } = await lk();
+        if (watch !== w) return;
+        const room = new Room();
+        w.room = room;
+        room.on(RoomEvent.TrackSubscribed, (track) => { if (watch === w && track.kind === 'video') track.attach(video); });
+        await room.connect(data.url, data.token);
+        // Erst nach dem Verbinden, sonst fragte ein gescheiterter Aufbau bei jeder Abfrage neu.
+        // Rausgeworfen oder aufgegeben: die nächste Abfrage verbindet neu, bis dahin steht der Hinweis.
+        room.on(RoomEvent.Disconnected, () => {
+            if (watch !== w) return;
+            unwatch(false);
+            screenNote(MISSING);
+        });
+    }
+
+    async function viewerSignal(e) {
+        const w = watch;
+        if (!w || w.via !== 'direct') return;
+        if (e.type === 'full') {
+            clearTimeout(w.timer);
+            screenNote('Für eine direkte Übertragung sind schon 15 Zuschauer da. Du siehst wieder mit, sobald das Teilen endet.');
+            return;
+        }
+        if (e.type !== 'offer') return;
+        if (w.pc) w.pc.close();
+        const pc = new RTCPeerConnection(RTC);
+        w.pc = pc;
+        pc.addEventListener('track', (ev) => { if (w.pc === pc) video.srcObject = ev.streams[0] || new MediaStream([ev.track]); });
+        pc.addEventListener('connectionstatechange', () => { if (w.pc === pc && pc.connectionState === 'failed') screenNote(MISSING); });
+        try {
+            await pc.setRemoteDescription({ type: 'offer', sdp: e.sdp });
+            await pc.setLocalDescription(await pc.createAnswer());
+            await gathered(pc);
+            if (watch !== w || w.pc !== pc) return;
+            await signalTo({ type: 'answer', sdp: pc.localDescription.sdp });
+        } catch (error) {
+            // Unbrauchbares Angebot: der Zeitgeber zeigt den Hinweis.
+        }
+    }
+
+    function unwatch(leaving) {
+        const w = watch;
+        if (!w) return;
+        watch = null;
+        clearTimeout(w.timer);
+        // Nach einem Moduswechsel hat der Host schon alles geschlossen; abmelden muss sich nur, wer mitten im Teilen geht.
+        if (leaving && w.via === 'direct' && w.pc) signalTo({ type: 'bye' });
+        if (w.pc) w.pc.close();
+        if (w.room) w.room.disconnect();
+        video.srcObject = null;
+        screenNote('');
     }
 
     /* ---------- Teilnehmer: Vollbild ---------- */
@@ -883,6 +1225,12 @@
             if (document.fullscreenElement) document.exitFullscreen();
             else if (root.requestFullscreen) root.requestFullscreen();
         });
+        video.addEventListener('playing', () => {
+            if (!watch) return;
+            watch.shown = true;
+            clearTimeout(watch.timer);
+            screenNote('');
+        }, { signal });
     }
 
     /* ---------- Uhr und Zeichenschleife ---------- */

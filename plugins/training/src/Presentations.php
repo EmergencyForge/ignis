@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\Training;
 
+use App\Auth\FabricaClient;
 use App\Models\User;
 use App\Support\AccountIdentity;
 use DateTimeImmutable;
@@ -12,6 +13,7 @@ use DomainException;
 use EmergencyForge\Training\Presentation\Attendance as AttendanceRule;
 use EmergencyForge\Training\Presentation\DrawEvent;
 use EmergencyForge\Training\Presentation\Liveness;
+use EmergencyForge\Training\Presentation\Signal;
 use EmergencyForge\Training\Presentation\WatchTime;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\QueryException;
@@ -33,13 +35,25 @@ use Plugin\Training\Policies\TrainingPolicy;
  */
 final class Presentations
 {
+    /** Was der Host direkt setzen darf; `screen` gibt es nur über startScreen(). */
     public const MODES = ['slides', 'pause'];
 
     /** Zuschauer gelten als da, wenn sie in den letzten Sekunden gefragt haben. */
     public const VIEWER_WINDOW = 10;
 
-    /** Laser sind flüchtig; ältere räumt apply() weg. */
+    /** Laser und Signale sind flüchtig; ältere räumt jedes Schreiben weg. */
     private const LASER_TTL = 60;
+
+    /** Ohne LiveKit lädt der Host je Zuschauer einmal hoch; mehr trägt eine normale Leitung nicht. */
+    public const SCREEN_LIMIT = 15;
+
+    /** Wer im direkten Weg welches Signal senden darf. */
+    private const HOST_SIGNALS   = ['offer', 'full', 'bye'];
+    private const VIEWER_SIGNALS = ['ready', 'answer', 'bye'];
+
+    /** Ein Verbindungsaufbau braucht drei Signale; mehr als das je Minute und Gegenüber ist ein Fehler oder Absicht. */
+    private const SIGNAL_LIMIT  = 20;
+    private const SIGNAL_WINDOW = 60;
 
     public static function start(Session $session, int $userId): Presentation
     {
@@ -193,14 +207,154 @@ final class Presentations
                 $row->mode = $mode;
                 $changed   = true;
             }
+            if ($mode !== null) {
+                self::stopScreen($row);
+            }
             if ($changed) {
                 $row->version++;
             }
             $row->save();
-            PresentationEvent::query()->where('presentation_id', $row->id)->where('kind', 'laser')
-                ->where('created_at', '<', $now->copy()->subSeconds(self::LASER_TTL))->delete();
+            self::prune($row, $now);
 
             return $seq;
+        });
+    }
+
+    private static function prune(Presentation $row, Carbon $now): void
+    {
+        PresentationEvent::query()->where('presentation_id', $row->id)->whereIn('kind', ['laser', 'signal'])
+            ->where('created_at', '<', $now->copy()->subSeconds(self::LASER_TTL))->delete();
+    }
+
+    /** Teilen endet auf den Folien. Der Raum ist damit verbraucht, ein neues Teilen bekommt einen neuen. */
+    private static function stopScreen(Presentation $row): void
+    {
+        if ($row->mode === 'screen') {
+            $row->mode = 'slides';
+        }
+        $row->screen_via  = null;
+        $row->screen_room = null;
+    }
+
+    /**
+     * Teilen beginnen. Mit EF Sync über LiveKit; scheitert die Konsole, geht es
+     * direkt weiter, solange der Host die Zuschauer allein versorgen kann.
+     *
+     * @return array{via:'livekit'|'direct', url?:string, token?:string}
+     * @throws DomainException `too_many` ohne LiveKit bei mehr als SCREEN_LIMIT Zuschauern, `ended`, `not_host`
+     */
+    public static function startScreen(Presentation $p, int $userId, ?FabricaClient $client): array
+    {
+        $room  = null;
+        $token = null;
+        if ($client !== null) {
+            // Vor der Sperre, damit eine langsame Konsole die Zeile nicht festhält.
+            $room = bin2hex(random_bytes(16));
+            try {
+                $token = $client->liveToken($room, 'u' . $userId, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], true);
+            } catch (\Throwable $e) {
+                // 503: die Konsole hat kein LiveKit eingerichtet. Das ist der Normalfall, keine Störung.
+                if ($e->getCode() !== 503) {
+                    error_log('LiveKit-Schlüssel fehlgeschlagen, Bildschirm geht direkt: ' . $e->getMessage());
+                }
+                $room = null;
+            }
+        }
+
+        return self::locked($p, static function (Presentation $row) use ($userId, $room, $token): array {
+            if ($row->ended_at !== null) {
+                throw new DomainException('ended');
+            }
+            if ($row->presenter_id !== $userId) {
+                throw new DomainException('not_host');
+            }
+            if ($token === null && PresentationViewer::query()->where('presentation_id', $row->id)->where('user_id', '!=', $row->presenter_id)
+                ->where('last_seen_at', '>=', Carbon::now()->subSeconds(self::VIEWER_WINDOW))->count() > self::SCREEN_LIMIT) {
+                throw new DomainException('too_many');
+            }
+            $row->mode        = 'screen';
+            $row->screen_via  = $token === null ? 'direct' : 'livekit';
+            $row->screen_room = $token === null ? null : $room;
+            $row->version++;
+            // Wer noch bei Nummer 0 steht, fragt mit after=0 und bekäme keine Signale; so steht jeder danach über 0.
+            $row->seq++;
+            $row->save();
+
+            return $token === null ? ['via' => 'direct'] : ['via' => 'livekit'] + $token;
+        });
+    }
+
+    /**
+     * Raum-Schlüssel für einen Zuschauer (oder den Host nach einem Neuverbinden).
+     *
+     * @return array{url:string, token:string}
+     * @throws DomainException wenn gerade nicht über LiveKit geteilt wird
+     * @throws \RuntimeException wenn die Konsole nicht liefert
+     */
+    public static function screenToken(Presentation $p, int $userId, ?FabricaClient $client): array
+    {
+        if ($p->mode !== 'screen' || $p->screen_via !== 'livekit' || $p->screen_room === null) {
+            throw new DomainException('not_livekit');
+        }
+        if ($client === null) {
+            throw new \RuntimeException('Keine EmergencyForge-Konsole.');
+        }
+
+        $host = $userId === $p->presenter_id;
+        // Zuschauer je Tab eindeutig: kommt dieselbe Identität zweimal, wirft LiveKit die ältere Verbindung hinaus.
+        $identity = 'u' . $userId . ($host ? '' : '-' . bin2hex(random_bytes(4)));
+
+        return $client->liveToken($p->screen_room, $identity, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], $host);
+    }
+
+    /**
+     * Signal für den direkten Verbindungsaufbau. Der Host schreibt an einen
+     * Zuschauer, ein Zuschauer immer an den Host; die Version bleibt, damit
+     * andere Zuschauer nicht neu laden.
+     *
+     * @param array<mixed> $raw ungeprüft aus dem JSON des Browsers
+     * @return int vergebene Nummer
+     * @throws InvalidArgumentException ungültiges Signal oder Empfänger
+     * @throws DomainException wenn nicht direkt geteilt wird; `too_many_signals` ab SIGNAL_LIMIT in der letzten Minute
+     */
+    public static function signal(Presentation $p, int $fromUserId, ?int $toUserId, array $raw): int
+    {
+        $signal = Signal::normalize($raw);
+        if ($signal === null) {
+            throw new InvalidArgumentException('Ungültiges Signal.');
+        }
+
+        return self::locked($p, static function (Presentation $row) use ($signal, $fromUserId, $toUserId): int {
+            if ($row->ended_at !== null || $row->mode !== 'screen' || $row->screen_via !== 'direct') {
+                throw new DomainException('Gerade wird nicht direkt geteilt.');
+            }
+            if ($fromUserId === $row->presenter_id) {
+                $viewer = $toUserId !== null && $toUserId !== $fromUserId
+                    && PresentationViewer::query()->where('presentation_id', $row->id)->where('user_id', $toUserId)->exists();
+                if (!$viewer || !in_array($signal['type'], self::HOST_SIGNALS, true)) {
+                    throw new InvalidArgumentException('Ungültiges Signal.');
+                }
+            } else {
+                if (!in_array($signal['type'], self::VIEWER_SIGNALS, true)) {
+                    throw new InvalidArgumentException('Ungültiges Signal.');
+                }
+                $toUserId = $row->presenter_id;
+            }
+            $now = Carbon::now();
+            // Je Absender und Empfänger: der Host schreibt an bis zu 15 Zuschauer und darf dabei nicht an der Grenze hängen.
+            // Der Absender steht immer vorn im JSON, siehe insert() unten.
+            $recent = PresentationEvent::query()->where('presentation_id', $row->id)->where('kind', 'signal')->where('to_user_id', $toUserId)
+                ->where('data', 'like', '{"from":' . $fromUserId . ',%')
+                ->where('created_at', '>=', $now->copy()->subSeconds(self::SIGNAL_WINDOW))->count();
+            if ($recent >= self::SIGNAL_LIMIT) {
+                throw new DomainException('too_many_signals');
+            }
+            PresentationEvent::query()->insert(['presentation_id' => $row->id, 'seq' => ++$row->seq, 'kind' => 'signal', 'to_user_id' => $toUserId,
+                'data' => (string) json_encode(['from' => $fromUserId] + $signal, JSON_UNESCAPED_UNICODE), 'created_at' => $now]);
+            $row->save();
+            self::prune($row, $now);
+
+            return $row->seq;
         });
     }
 
@@ -213,6 +367,7 @@ final class Presentations
             }
             $row->ended_at    = $at !== null ? Carbon::instance($at) : Carbon::now();
             $row->handover_to = null;
+            self::stopScreen($row);
             $row->save();
             PresentationEvent::query()->where('presentation_id', $row->id)->delete();
             // Ein verwaister Vortrag endet rückwirkend; Tabs, die danach noch zählten, kämen sonst über die Vortragsdauer.
@@ -263,6 +418,8 @@ final class Presentations
             }
             $row->presenter_id      = $userId;
             $row->handover_to       = null;
+            // Der Stream gehört dem alten Host.
+            self::stopScreen($row);
             // Sonst gälte der Vortrag beim neuen Host gleich als verwaist, wenn der alte lange still war.
             $row->presenter_seen_at = Carbon::now();
             $row->version++;

@@ -5,8 +5,9 @@
 ### Ausbildung
 - Termine können Folien als PDF oder PowerPoint haben, und Leitung oder Ausbilder halten den Termin daraus als Live-Vortrag. Die Teilnehmer folgen im Browser: gleiche Folie, Zeichnungen, Laserpointer und Pause kommen bei ihnen an. Beim Start bekommen die Teilnehmer eine Benachrichtigung
 - Den Vortrag kann der Host an einen anderen Ausbilder weiterreichen, der ihn erst annehmen muss. Nach dem Ende schlägt ignis die Anwesenheit vor, nach der Zeit, die jemand zugeschaut hat. Eingetragen wird erst beim Speichern
+- Statt der Folien kann der Host seinen Bildschirm teilen, übertragen wird nur das Bild. Mit EF Sync läuft das über den Medienserver von EmergencyForge, ohne EF Sync geht das Bild direkt an jeden Zuschauer, dann an höchstens 15. Teilen geht nur aus einem normalen Browser, im Tablet im Spiel kann man zuschauen. Auf dem geteilten Bildschirm wird nicht gezeichnet, „Teilen beenden“ führt zurück zu den Folien
 
-Dazu gehört training 0.4.2.
+Dazu gehört training 0.4.3.
 
 ## 2026.1.20-beta
 

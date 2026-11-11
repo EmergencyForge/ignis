@@ -10,7 +10,10 @@ use DateTimeImmutable;
 use DomainException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use Illuminate\Support\Carbon;
 use InvalidArgumentException;
+use RuntimeException;
+use Plugin\Training\AiDrafts;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Presentation;
@@ -31,6 +34,8 @@ final class PresentationController extends BaseController
 {
     private const MAX_EVENTS = 200;
     private const MAX_PAGES  = 500;
+    /** Schlüssel je Nutzer und Minute; jeder ist eine Anfrage an die Konsole mit bis zu 5 s Wartezeit. */
+    private const TOKEN_LIMIT = 10;
 
     /** GET /training/courses/{course}/sessions/{session}/slides */
     public function slides(Request $request, string $course, string $session): Response
@@ -123,10 +128,11 @@ final class PresentationController extends BaseController
         }
 
         $after  = max(0, (int) $request->queryString('after'));
-        $events = PresentationEvent::query()->where('presentation_id', $live->id)->where('seq', '>', $after);
+        // Signale sind an genau einen gerichtet; wer neu einsteigt, braucht weder alte Signale noch Laser.
+        $events = PresentationEvent::query()->where('presentation_id', $live->id)->where('seq', '>', $after)
+            ->where(static fn ($q) => $q->whereNull('to_user_id')->orWhere('to_user_id', $userId));
         if ($after === 0) {
-            // Wer neu dazukommt, braucht keine alten Zeigerpositionen.
-            $events->where('kind', '!=', 'laser');
+            $events->whereNotIn('kind', ['laser', 'signal']);
         }
         $events    = $events->oldest('seq')->get();
         $to        = $live->handover_to !== null ? User::query()->with('mitarbeiter')->find($live->handover_to) : null;
@@ -141,6 +147,7 @@ final class PresentationController extends BaseController
             'seq'       => $live->seq,
             'presenter' => ['id' => $live->presenter_id, 'name' => $presenter['name'], 'initials' => $presenter['initials']],
             'handover'  => $to === null ? null : ['to_id' => (int) $to->id, 'to_name' => Presentations::identity($to)['name']],
+            'screen'    => $live->mode === 'screen' && $live->screen_via !== null ? ['via' => $live->screen_via] : null,
             'events'    => $events->map(static fn (PresentationEvent $e): array => ['seq' => $e->seq, 'kind' => $e->kind] + (array) json_decode($e->data, true))->all(),
         ];
         if ($host) {
@@ -150,7 +157,7 @@ final class PresentationController extends BaseController
                 ->map(static function (PresentationViewer $v): array {
                     $who = Presentations::identity($v->user);
 
-                    return ['name' => $who['name'], 'initials' => $who['initials'], 'since' => $v->first_seen_at->toIso8601String(), 'in_course' => $v->participation_id !== null];
+                    return ['id' => (int) $v->user_id, 'name' => $who['name'], 'initials' => $who['initials'], 'since' => $v->first_seen_at->toIso8601String(), 'in_course' => $v->participation_id !== null];
                 })->all();
         }
 
@@ -182,6 +189,77 @@ final class PresentationController extends BaseController
             return self::json(['error' => 'invalid'], 422);
         } catch (DomainException) {
             return self::json(['error' => 'ended'], 409);
+        }
+
+        return self::json(['ok' => true, 'seq' => $seq]);
+    }
+
+    /** POST …/presentation/screen: Host beginnt das Teilen; der Weg entscheidet sich hier. */
+    public function screen(Request $request, string $course, string $session): Response
+    {
+        $live = $this->hostPresentation($course, $session, $error);
+        if ($live === null) {
+            return $error;
+        }
+        $via = ($request->json() ?? [])['via'] ?? null;
+        if ($via !== null && $via !== 'direct') {
+            return self::json(['error' => 'invalid'], 422);
+        }
+        try {
+            // `direct`: der Host bekam einen LiveKit-Schlüssel, kam aber nicht in den Raum.
+            $result = Presentations::startScreen($live, self::userId(), $via === 'direct' ? null : AiDrafts::client());
+        } catch (DomainException $e) {
+            return self::json(['error' => $e->getMessage()], 409);
+        }
+
+        return self::json(['ok' => true] + $result);
+    }
+
+    /** POST …/presentation/screen/token: LiveKit-Schlüssel für jeden, der den Vortrag sehen darf. */
+    public function screenToken(Request $request, string $course, string $session): Response
+    {
+        $ctx  = $this->context($course, $session);
+        $live = $ctx === null ? null : Presentations::live($ctx[1], new DateTimeImmutable());
+        if ($live === null) {
+            return self::json(['error' => 'not_found'], 404);
+        }
+        $userId = self::userId();
+        $key    = 'training_screen_tokens_' . $userId;
+        $now    = Carbon::now()->getTimestamp();
+        $recent = array_values(array_filter((array) ($_SESSION[$key] ?? []), static fn ($at): bool => is_int($at) && $at > $now - 60));
+        if (count($recent) >= self::TOKEN_LIMIT) {
+            return self::json(['error' => 'too_many_tokens'], 429);
+        }
+        $_SESSION[$key] = [...$recent, $now];
+        try {
+            $token = Presentations::screenToken($live, $userId, AiDrafts::client());
+        } catch (DomainException) {
+            return self::json(['error' => 'not_livekit'], 409);
+        } catch (RuntimeException) {
+            return self::json(['error' => 'unavailable'], 502);
+        }
+
+        return self::json(['ok' => true] + $token);
+    }
+
+    /** POST …/presentation/signal: Verbindungsaufbau für das direkte Teilen, vom Host oder von einem Zuschauer. */
+    public function signal(Request $request, string $course, string $session): Response
+    {
+        $ctx  = $this->context($course, $session);
+        $live = $ctx === null ? null : Presentations::live($ctx[1], new DateTimeImmutable());
+        if ($live === null) {
+            return self::json(['error' => 'not_found'], 404);
+        }
+        $json = $request->json() ?? [];
+        $to   = $json['to'] ?? null;
+        try {
+            $seq = Presentations::signal($live, self::userId(), is_int($to) ? $to : null, $json);
+        } catch (InvalidArgumentException) {
+            return self::json(['error' => 'invalid'], 422);
+        } catch (DomainException $e) {
+            return $e->getMessage() === 'too_many_signals'
+                ? self::json(['error' => 'too_many_signals'], 429)
+                : self::json(['error' => 'not_direct'], 409);
         }
 
         return self::json(['ok' => true, 'seq' => $seq]);

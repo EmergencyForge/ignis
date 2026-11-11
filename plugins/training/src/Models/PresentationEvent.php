@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int    $presentation_id
  * @property int    $seq
  * @property string $kind
+ * @property int|null $to_user_id  Empfänger; leer heißt für alle
  * @property string $data
  * @property Carbon $created_at
  * @property-read Presentation $presentation
@@ -35,6 +36,7 @@ class PresentationEvent extends EloquentModel
         'id'              => 'integer',
         'presentation_id' => 'integer',
         'seq'             => 'integer',
+        'to_user_id'      => 'integer',
         'created_at'      => 'datetime',
     ];
 
