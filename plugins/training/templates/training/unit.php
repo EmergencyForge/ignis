@@ -145,7 +145,7 @@ ob_start();
                                      data-pdfjs-worker="<?= htmlspecialchars(asset('assets/dist/pdfjs/pdf.worker.min.mjs')) ?>"
                                      data-start-page="<?= max(1, (int) ($unitState['pages']['last'] ?? 1)) ?>"
                                      data-seen="<?= htmlspecialchars(Curriculum::seenAttribute($unitState['pages'] ?? null)) ?>"
-                                     <?php if ($participation !== null): ?>data-pages-url="<?= htmlspecialchars($base . 'api/training/units/' . (int) $unit->id . '/pages') ?>"
+                                     <?php if ($participation !== null && $unit->slides_after_talk): ?>data-pages-url="<?= htmlspecialchars($base . 'api/training/units/' . (int) $unit->id . '/pages') ?>"
                                      data-course="<?= (int) $course->id ?>"<?php endif; ?>></div>
                             <?php endif; ?>
                             <?php if ($session !== null): ?>

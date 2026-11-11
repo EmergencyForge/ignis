@@ -11,7 +11,6 @@ use EmergencyForge\Training\UnitKind;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
-use Plugin\Training\Presentations;
 
 final class ApiController extends BaseController
 {
@@ -32,8 +31,8 @@ final class ApiController extends BaseController
         if ($participation === null || !$participation->canLearn() || $unitModel === null || $unitModel->file?->viewsAsPdf() !== true) {
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
-        // Folien einer Präsentation sind nur offen, wenn die Regel der Einheit es sagt.
-        if ($unitModel->type() === UnitKind::Presentation && !Presentations::slidesOpen($unitModel, $course, new \DateTimeImmutable())) {
+        // Durchgehen hakt eine Präsentation nur ab, wenn die Folien nach dem Vortrag offen bleiben; im Vortrag allein zählt die Anwesenheit.
+        if ($unitModel->type() === UnitKind::Presentation && !$unitModel->slides_after_talk) {
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
 

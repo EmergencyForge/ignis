@@ -526,7 +526,9 @@ final class TrainingPresentationTest extends FeatureTestCase
         $viewer = $this->get($unitUrl);
         $this->assertBodyContains('data-ignis-document-viewer', $viewer);
         $this->assertBodyContains('Live mitverfolgen', $viewer);
-        $this->assertOk($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages));
+        // Ansehen ja, zählen nein: nur Folien, die nach dem Vortrag offen bleiben, haken ab.
+        $this->assertBodyNotContains('data-pages-url', $viewer);
+        $this->assertNotFound($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages));
 
         // Nach dem Ende ist wieder zu.
         $this->as($teacher['user'], ['training.teach']);
@@ -575,7 +577,7 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->as($learnerA['user'], ['training.view']);
         $this->assertOk($this->get($filePath($courseA)));
         $this->assertOk($this->get('/training/courses/' . $courseA->id . '/sessions/' . $sessionA->id . '/slides'));
-        $this->assertOk($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages($courseA)));
+        $this->assertNotFound($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages($courseA)));
         $this->assertBodyContains('Live mitverfolgen', $this->get('/training/courses/' . $courseA->id . '/units/' . $unit->id));
     }
 
@@ -2355,5 +2357,67 @@ final class TrainingPresentationTest extends FeatureTestCase
         // Ein Besuch ohne Ende steht als „noch da“.
         PresentationVisit::query()->where('user_id', $a['user'])->update(['left_at' => null, 'last_seen_at' => Carbon::now()]);
         $this->assertBodyContains('noch da', $this->get('/training/manage/' . $course->id));
+    }
+
+    #[Test]
+    public function participants_never_get_powerpoint_slides_as_a_file(): void
+    {
+        [$teacher, $course, $session] = $this->talk();
+        $file = $session->unit->file;
+        $file->mime           = \Plugin\Training\Converter::PPTX;
+        $file->original_name  = 'Folien.pptx';
+        $file->convert_status = \Plugin\Training\Converter::PENDING;
+        $file->save();
+        $url = '/training/courses/' . $course->id . '/files/' . $file->id;
+        $this->learnerIn($course);
+
+        // Noch nicht oder gar nicht umgewandelt: kein Original, nichts abgehakt.
+        $this->assertNotFound($this->get($url));
+        $file->convert_status = \Plugin\Training\Converter::FAILED;
+        $file->save();
+        $this->assertNotFound($this->get($url));
+        $this->assertNull(UnitProgress::query()->where('unit_id', $session->unit_id)->first());
+
+        // Umgewandelt gibt es die PDF zum Ansehen, aber keinen Download.
+        $file->pdf_storage_name = $this->pdf()->storage_name;
+        $file->convert_status   = \Plugin\Training\Converter::DONE;
+        $file->save();
+        $shown = $this->get($url);
+        $this->assertOk($shown);
+        $this->assertSame('application/pdf', $shown->headers['Content-Type'] ?? null);
+        $this->assertStringStartsWith('inline;', (string) ($shown->headers['Content-Disposition'] ?? ''));
+        $this->assertNotFound($this->get($url, ['query' => ['download' => '1']]));
+        $this->assertNull(UnitProgress::query()->where('unit_id', $session->unit_id)->first());
+
+        // Ausbilder bekommen die Datei wie bisher, auch unumgewandelt.
+        $file->pdf_storage_name = null;
+        $file->convert_status   = \Plugin\Training\Converter::PENDING;
+        $file->save();
+        $this->as($teacher['user'], ['training.teach']);
+        $original = $this->get($url);
+        $this->assertOk($original);
+        $this->assertStringStartsWith('attachment;', (string) ($original->headers['Content-Disposition'] ?? ''));
+    }
+
+    #[Test]
+    public function pages_do_not_count_during_the_talk_when_slides_are_talk_only(): void
+    {
+        [, $course, $session, $path] = $this->talk(afterTalk: false);
+        $this->post($path . '/start');
+        $unit  = $session->unit;
+        $pages = ['course' => $course->id, 'pages' => [1], 'total' => 1];
+        $this->learnerIn($course);
+
+        $page = $this->get('/training/courses/' . $course->id . '/units/' . $unit->id);
+        $this->assertBodyContains('data-ignis-document-viewer', $page);
+        $this->assertBodyNotContains('data-pages-url', $page);
+        $this->assertNotFound($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages));
+        $this->assertNull(UnitProgress::query()->where('unit_id', $unit->id)->first());
+
+        // Bleiben die Folien nach dem Vortrag offen, zählt das Durchgehen.
+        $unit->slides_after_talk = true;
+        $unit->save();
+        $this->assertBodyContains('data-pages-url', $this->get('/training/courses/' . $course->id . '/units/' . $unit->id));
+        $this->assertTrue($this->assertJsonResponse($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages))['done']);
     }
 }

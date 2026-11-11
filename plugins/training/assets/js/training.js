@@ -40,6 +40,8 @@ function trackUnit() {
 
     const viewer = root.querySelector('[data-ignis-document-viewer]');
     viewer?.addEventListener('ignis:document-pages', (event) => {
+        // Ohne URL zählt das Durchgehen nicht, etwa bei Folien nur im Vortrag.
+        if (!viewer.dataset.pagesUrl) return;
         const { pages, total } = event.detail;
         // keepalive: die letzte Meldung kommt beim Verlassen der Seite.
         post(viewer.dataset.pagesUrl, { course: Number(viewer.dataset.course), pages, total }, { json: true, keepalive: true }).catch(() => {});

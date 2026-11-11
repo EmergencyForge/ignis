@@ -358,7 +358,8 @@ final class TrainingController extends BaseController
     {
         $now = new \DateTimeImmutable();
         foreach ($curriculum->units() as $unit) {
-            if ($unit->file_id === $file->id && ($unit->type() !== UnitKind::Presentation || Presentations::slidesOpen($unit, $course, $now))) {
+            // Folien nur als PDF: unumgewandelt ginge sonst das Original als Anhang hinaus.
+            if ($unit->file_id === $file->id && ($unit->type() !== UnitKind::Presentation || ($file->viewsAsPdf() && Presentations::slidesOpen($unit, $course, $now)))) {
                 return true;
             }
         }
