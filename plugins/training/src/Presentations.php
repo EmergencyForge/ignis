@@ -402,7 +402,9 @@ final class Presentations
 
     /**
      * Schlüssel für den Raum. Zuschauer je Tab eindeutig: kommt dieselbe Identität
-     * zweimal, wirft LiveKit die ältere Verbindung hinaus.
+     * zweimal, wirft LiveKit die ältere Verbindung hinaus. Im Raum sieht jedes Mitglied
+     * Identität und Namen aller anderen; wer kommt und geht, sehen nur Ausbilder im
+     * Protokoll, darum tragen Zuschauer dort keinen echten Namen.
      *
      * @return array{url:string, token:string}
      * @throws \RuntimeException
@@ -411,7 +413,9 @@ final class Presentations
     {
         $identity = 'u' . $userId . ($host ? '' : '-' . bin2hex(random_bytes(4)));
         try {
-            return $client->liveToken($room, $identity, self::identity(User::query()->with('mitarbeiter')->find($userId))['name'], $host);
+            $name = $host ? self::identity(User::query()->with('mitarbeiter')->find($userId))['name'] : 'Zuschauer';
+
+            return $client->liveToken($room, $identity, $name, $host);
         } catch (\RuntimeException $e) {
             // 503: die Konsole hat kein LiveKit eingerichtet. Das ist der Normalfall, keine Störung.
             if ($e->getCode() !== 503) {

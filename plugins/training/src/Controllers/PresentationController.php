@@ -251,6 +251,10 @@ final class PresentationController extends BaseController
             return self::json(['error' => 'too_many_tokens'], 429);
         }
         $_SESSION[$key] = [...$recent, $now];
+        // Die Konsole antwortet in bis zu 5 s; so lange sollen die Abfragen dieses Nutzers nicht auf die Sitzung warten.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
         try {
             $token = Presentations::roomToken($live, $userId, AiDrafts::client());
         } catch (DomainException $e) {

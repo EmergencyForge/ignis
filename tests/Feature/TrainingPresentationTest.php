@@ -1739,6 +1739,8 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertSame([$room, 'viewer'], [$sent['room'], $sent['role']]);
         // Je Tab eine eigene Identität, sonst wirft LiveKit den älteren Tab hinaus.
         $this->assertMatchesRegularExpression('/^u' . $viewer['user'] . '-[0-9a-f]{8}$/', (string) $sent['identity']);
+        // Im Raum sehen alle Mitglieder einander; wer zuschaut, bleibt dort namenlos.
+        $this->assertSame('Zuschauer', $sent['name']);
 
         // Wer den Vortrag nicht sehen darf, bekommt keinen Schlüssel.
         $this->as($this->account()['user'], ['training.view']);
@@ -1749,6 +1751,7 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->as($teacher['user'], ['training.teach']);
         $this->assertOk($this->postJson($path . '/room/token'));
         $this->assertSame([$room, 'u' . $teacher['user'], 'host'], [$this->sentBody(1)['room'], $this->sentBody(1)['identity'], $this->sentBody(1)['role']]);
+        $this->assertSame($this->nameOf($teacher['user']), $this->sentBody(1)['name']);
 
         // Der alte Weg ist weg.
         $this->assertStatus(404, $this->postJson($path . '/screen/token'));
@@ -2525,5 +2528,24 @@ final class TrainingPresentationTest extends FeatureTestCase
 
         $this->as($teacher['user'], ['training.teach']);
         $this->assertBodyNotContains('Noch kein Termin', $this->get($url));
+    }
+
+    #[Test]
+    public function a_direct_share_survives_the_hosts_failed_key(): void
+    {
+        [, , $session, $path] = $this->talk();
+        $this->console([new HttpResponse(503)]);
+        $this->post($path . '/start');
+        $this->assertNotNull($this->live($session)->room);
+        $this->assertSame('direct', $this->assertJsonResponse($this->postJson($path . '/screen', ['via' => 'direct']))['via']);
+        $this->assertCount(0, $this->sent);
+
+        $failed = $this->postJson($path . '/room/token');
+        $this->assertStatus(409, $failed);
+        $this->assertSame('no_room', $this->assertJsonResponse($failed)['error']);
+        $p = $this->live($session);
+        $this->assertNull($p->room);
+        $this->assertSame(['screen', 'direct'], [$p->mode, $p->screen_via]);
+        $this->assertSame(['via' => 'direct'], $this->stateOf($path)['screen']);
     }
 }
