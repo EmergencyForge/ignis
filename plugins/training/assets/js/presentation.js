@@ -68,6 +68,8 @@
     const GLIDE = 0.35;
     // Neue Raum-Schlüssel höchstens so oft, auch nach 503 und 429.
     const ROOM_RETRY = 10000;
+    // Nach jedem Fehlschlag doppelt so lange warten, bis hierhin.
+    const ROOM_RETRY_MAX = 60000;
     // LiveKit empfiehlt höchstens 15 KiB je zuverlässiger Nachricht.
     const MAX_DATA = 15000;
     const SWIPE = 60;
@@ -1424,7 +1426,7 @@
         try {
             // Vor jeder Anfrage, solange der Klick noch als Nutzergeste gilt.
             // Ton nur aus einem geteilten Tab: Systemton brächte Discord oder das Spiel zu allen Zuschauern.
-            const wish = { video: true, audio: true, systemAudio: 'exclude', selfBrowserSurface: 'exclude' };
+            const wish = { video: true, audio: true, systemAudio: 'exclude', windowAudio: 'exclude', selfBrowserSurface: 'exclude' };
             try {
                 stream = await navigator.mediaDevices.getDisplayMedia(wish);
             } catch (error) {
@@ -1432,12 +1434,18 @@
                 if (!error || error.name !== 'TypeError') throw error;
                 delete wish.audio;
                 delete wish.systemAudio;
+                delete wish.windowAudio;
                 stream = await navigator.mediaDevices.getDisplayMedia(wish);
             }
         } catch (error) {
             // Im Auswahldialog abgebrochen: nichts senden.
             starting = false;
             return;
+        }
+        // Die Wünsche sind nur Bitten: Ton bleibt allein bei einem Tab, auch wenn der Browser die Fläche nicht nennt.
+        const surface = stream.getVideoTracks()[0]?.getSettings().displaySurface;
+        if (surface !== 'browser') {
+            stream.getAudioTracks().forEach((t) => { t.stop(); stream.removeTrack(t); });
         }
         const end = () => stream.getTracks().forEach((t) => t.stop());
         let mine = null;
@@ -1680,6 +1688,7 @@
     let roomLive = false;
     let roomJoin = null;
     let roomAsked = -Infinity;
+    let roomWait = ROOM_RETRY;
     // 409 no_room: erst wieder fragen, wenn der Stand den Raum einmal verloren und wieder hat.
     let roomRefused = false;
     /*
@@ -1743,21 +1752,25 @@
         Object.values(roomReset).forEach((r) => { if (r.held.length && (all || !resetOpen(r))) r.held.splice(0).forEach(apply); });
     }
 
-    /** Beitreten, solange der Stand einen Raum meldet; höchstens alle ROOM_RETRY ms ein neuer Schlüssel. */
+    /** Beitreten, solange der Stand einen Raum meldet; höchstens alle roomWait ms ein neuer Schlüssel. */
     function wantRoom(on) {
         if (!on) {
             roomRefused = false;
             leaveRoom();
             return;
         }
-        if (!canRoom || room || roomJoin || roomRefused || ended || performance.now() - roomAsked < ROOM_RETRY) return;
+        if (!canRoom || room || roomJoin || roomRefused || ended || performance.now() - roomAsked < roomWait) return;
         joinRoom(null);
     }
 
     /** @param {{url:string, token:string}|null} key schon vorhanden (vom Teilen) oder null für `/room/token` */
     function joinRoom(key) {
         roomAsked = performance.now();
-        const run = connectRoom(key).catch(() => {}).then(() => { if (roomJoin === run) roomJoin = null; });
+        const run = connectRoom(key).catch(() => {}).then(() => {
+            // Ist LiveKit weg, fragt sonst jeder Zuschauer alle zehn Sekunden den ganzen Vortrag lang nach.
+            roomWait = roomLive ? ROOM_RETRY : Math.min(roomWait * 2, ROOM_RETRY_MAX);
+            if (roomJoin === run) roomJoin = null;
+        });
         roomJoin = run;
         return run;
     }
@@ -1768,7 +1781,7 @@
             if (stopped || ended) return;
             if (status === 409 && data.error === 'no_room') { roomRefused = true; return; }
             if (status === 409 && data.error === 'ended') { showEnded(); return; }
-            // 503, 429 oder Netz: der nächste Versuch frühestens nach ROOM_RETRY.
+            // 503, 429 oder Netz: der nächste Versuch frühestens nach roomWait.
             if (status !== 200) return;
             key = data;
         }

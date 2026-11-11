@@ -1393,6 +1393,15 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
+    public function sharing_drops_audio_that_is_not_from_a_tab(): void
+    {
+        // Die Wünsche an den Browser sind nur Bitten; nach dem Teilen zählt die tatsächliche Fläche.
+        $js = (string) file_get_contents(dirname(__DIR__, 2) . '/plugins/training/assets/js/presentation.js');
+        $this->assertStringContainsString("windowAudio: 'exclude'", $js);
+        $this->assertStringContainsString('displaySurface', $js);
+    }
+
+    #[Test]
     public function follower_view_has_sound_controls(): void
     {
         [, $course, , $path] = $this->talk();
