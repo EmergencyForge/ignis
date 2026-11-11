@@ -94,7 +94,8 @@
 }
 .tr-live__slide,
 .tr-live__screen,
-.tr-live__pause { height: var(--tr-live-h, auto); aspect-ratio: 16 / 9; }
+.tr-live__pause,
+.tr-live__wait { height: var(--tr-live-h, auto); aspect-ratio: 16 / 9; }
 .tr-live__slide {
   position: relative;
   overflow: hidden;
@@ -102,10 +103,13 @@
   background: var(--surface);
   box-shadow: var(--shadow-pop), 0 0 0 1px var(--border-subtle);
 }
-.tr-live__slide canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.tr-live--present .tr-live__ink { touch-action: none; }
+/* Folie und Zeichenfläche haben die Größe der eingepassten Seite; Zoom, Ausschnitt und Drehung setzt place() als dieselbe Transformation auf beide. */
+.tr-live__slide canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; transform-origin: 0 0; }
+.tr-live--present .tr-live__slide,
+.tr-live--present .tr-live__screen { touch-action: none; }
 
-.tr-live__pause {
+.tr-live__pause,
+.tr-live__wait {
   display: none;
   place-items: center;
   border-radius: var(--radius-2);
@@ -114,16 +118,27 @@
   background: radial-gradient(80% 80% at 50% 30%, var(--surface), var(--bg-2));
   color: var(--content-text);
 }
-.tr-live__pause > div > i { font-size: 28px; color: var(--accent); }
-.tr-live__pause strong { display: block; margin-top: 10px; font-size: clamp(16px, 2.4vw, 28px); }
-.tr-live__pause small { display: block; margin: 6px 0 0; color: var(--secondary-text); font-size: 13px; }
-.tr-live__pause .ignis-btn { margin-top: 14px; }
+.tr-live__pause > div,
+.tr-live__wait > div { padding: 0 16px; }
+.tr-live__pause > div > i,
+.tr-live__wait > div > i { font-size: 28px; color: var(--accent); }
+.tr-live__pause strong,
+.tr-live__wait strong { display: block; margin-top: 10px; font-size: clamp(16px, 2.4vw, 28px); }
+.tr-live__pause small,
+.tr-live__wait small { display: block; margin: 6px 0 0; color: var(--secondary-text); font-size: 13px; }
+.tr-live__pause .ignis-btn,
+.tr-live__wait .ignis-btn { margin-top: 14px; }
 .tr-live__frame[data-mode="pause"] > .tr-live__slide { display: none; }
 .tr-live__frame[data-mode="pause"] > .tr-live__pause { display: grid; }
+/* Wartebild: weder Folien noch ein geteilter Bildschirm. */
+.tr-live__frame[data-mode="wait"] > .tr-live__slide { display: none; }
+.tr-live__frame[data-mode="wait"] > .tr-live__wait { display: grid; }
+.tr-live__wait [hidden] { display: none; }
 
-/* Geteilter Bildschirm: nur das Bild, ohne Zeichenfläche. contain, weil Fenster jedes Seitenverhältnis haben. */
+/* Geteilter Bildschirm. contain, weil Fenster jedes Seitenverhältnis haben; die Zeichenfläche legt fitScreenInk() genau auf das Videobild. */
 .tr-live__screen { position: relative; display: none; place-items: center; overflow: hidden; border-radius: var(--radius-2); background: var(--bg-2); }
 .tr-live__screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.tr-live__screen-ink { position: absolute; left: 0; top: 0; width: 0; height: 0; display: block; pointer-events: none; }
 .tr-live__screen-note { position: relative; max-width: 32rem; margin: 0; padding: 0 16px; text-align: center; color: var(--secondary-text); font-size: 13px; }
 .tr-live__screen-note[hidden] { display: none; }
 .tr-live__frame[data-mode="screen"] > .tr-live__slide { display: none; }
@@ -146,7 +161,9 @@
 .tr-live__share[hidden] { display: none; }
 .tr-live__rec { flex: none; width: 8px; height: 8px; border-radius: 999px; background: var(--danger); }
 /* Nicht disabled: ein deaktivierter Knopf bekommt keine Maus-Ereignisse, der Tooltip sagt aber, warum es nicht geht. */
-.tr-live .ignis-segmented [aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.tr-live .ignis-segmented [aria-disabled="true"],
+.tr-live__wait .ignis-btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.tr-live .ignis-segmented [hidden] { display: none; }
 
 .tr-live__note { align-self: center; justify-self: center; margin: 0; text-align: center; color: var(--secondary-text); font-size: 13px; }
 
@@ -167,7 +184,8 @@
 }
 .tr-live__dock[hidden] { display: none; }
 .tr-live__group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px; padding: 0 4px; min-width: 0; }
-.tr-live__group + .tr-live__group { border-left: 1px solid var(--border-subtle); padding-left: 8px; }
+.tr-live__group[hidden] { display: none; }
+.tr-live__group:not([hidden]) ~ .tr-live__group { border-left: 1px solid var(--border-subtle); padding-left: 8px; }
 .tr-live__count { min-width: 3.6rem; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--secondary-text); }
 .tr-live__tool {
   display: inline-grid;
@@ -184,7 +202,8 @@
 }
 .tr-live__tool:hover { background: var(--fill-2); color: var(--content-text); }
 .tr-live__tool[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
-.tr-live__tool:disabled { opacity: .45; cursor: not-allowed; }
+.tr-live__tool:disabled,
+.tr-live__tool[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
 .tr-live__swatch {
   width: 22px;
   height: 22px;
@@ -351,10 +370,10 @@
 .tr-live--narrow, .tr-live--narrow .tr-live__stage { grid-template-rows: auto; grid-auto-rows: auto; }
 .tr-live--narrow .tr-live__main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
 .tr-live--narrow .tr-live__frame > * { width: 100%; }
-.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__screen, .tr-live--narrow .tr-live__pause { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
+.tr-live--narrow .tr-live__slide, .tr-live--narrow .tr-live__screen, .tr-live--narrow .tr-live__pause, .tr-live--narrow .tr-live__wait { height: auto; aspect-ratio: var(--tr-live-ratio, 16 / 9); }
 .tr-live--narrow .tr-live__side { max-height: 320px; border-left: 0; border-top: 1px solid var(--border-subtle); }
 .tr-live--narrow .tr-live__stage { gap: 10px; padding: 12px; }
-.tr-live--narrow .tr-live__group + .tr-live__group { padding-left: 4px; border-left: 0; }
+.tr-live--narrow .tr-live__group:not([hidden]) ~ .tr-live__group { padding-left: 4px; border-left: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .tr-live__dot { animation: none; }

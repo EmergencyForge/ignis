@@ -229,10 +229,31 @@ final class Presentations
         if ($mode !== null && !in_array($mode, self::MODES, true)) {
             throw new InvalidArgumentException('mode');
         }
+        // Von der Ansicht zählt nur die letzte je Seite; beim Ziehen kämen sonst zwanzig Zeilen je Sekunde dazu, die jeder Nachzügler abspielt.
+        $viewPages = [];
+        foreach (array_reverse(array_keys($clean)) as $i) {
+            if ($clean[$i]['kind'] !== 'view') {
+                continue;
+            }
+            if (isset($viewPages[$clean[$i]['page']])) {
+                unset($clean[$i]);
+            } else {
+                $viewPages[$clean[$i]['page']] = true;
+            }
+        }
+        $clean = array_values($clean);
 
-        return self::locked($p, static function (Presentation $row) use ($clean, $page, $mode): int {
+        return self::locked($p, static function (Presentation $row) use ($clean, $page, $mode, $viewPages): int {
             if ($row->ended_at !== null) {
                 throw new DomainException('ended');
+            }
+            if ($viewPages !== []) {
+                $old = PresentationEvent::query()->where('presentation_id', $row->id)->where('kind', 'view')->get(['id', 'data'])
+                    ->filter(static fn (PresentationEvent $e): bool => isset($viewPages[((array) json_decode($e->data, true))['page'] ?? null]))
+                    ->pluck('id')->all();
+                if ($old !== []) {
+                    PresentationEvent::query()->whereIn('id', $old)->delete();
+                }
             }
             $seq  = $row->seq;
             $now  = Carbon::now();

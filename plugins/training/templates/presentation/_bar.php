@@ -49,7 +49,8 @@ ob_start();
         <span class="tr-live__spacer"></span>
         <?php if ($livePresent): ?>
             <div class="ignis-segmented ignis-segmented--sm" role="group" aria-label="Anzeige">
-                <button type="button" data-live-mode="slides" aria-pressed="true"><i class="fa-solid fa-images" aria-hidden="true"></i> Folien</button>
+                <?php // Ohne Folien heißt „Teilen beenden“ zurück ins Wartebild; dafür braucht es keinen Knopf. ?>
+                <button type="button" data-live-mode="slides" aria-pressed="true"<?= $slidesUrl === '' ? ' hidden' : '' ?>><i class="fa-solid fa-images" aria-hidden="true"></i> Folien</button>
                 <button type="button" data-live-mode="screen" aria-pressed="false" data-ignis-tooltip="<?= $liveKit ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15' ?>"><i class="fa-solid fa-display" aria-hidden="true"></i> Bildschirm</button>
                 <button type="button" data-live-mode="pause" aria-pressed="false"><i class="fa-solid fa-mug-hot" aria-hidden="true"></i> Pause</button>
             </div>

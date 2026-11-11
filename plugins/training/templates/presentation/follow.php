@@ -25,8 +25,9 @@ require __DIR__ . '/_bar.php';
                 <canvas class="tr-live__pdf" data-live-pdf aria-hidden="true"></canvas>
                 <canvas class="tr-live__ink" data-live-ink aria-label="Folie"></canvas>
             </div>
-            <div class="tr-live__screen">
+            <div class="tr-live__screen" data-live-screen>
                 <video data-live-video playsinline autoplay muted></video>
+                <canvas class="tr-live__screen-ink" data-live-screen-ink aria-hidden="true"></canvas>
                 <p class="tr-live__screen-note" data-live-screen-note hidden></p>
             </div>
             <div class="tr-live__pause">
@@ -34,6 +35,13 @@ require __DIR__ . '/_bar.php';
                     <i class="fa-solid fa-mug-hot" aria-hidden="true"></i>
                     <strong>Kurze Pause</strong>
                     <small>Gleich geht es weiter, du bleibst im Vortrag. <span data-live-pause-clock>00:00</span></small>
+                </div>
+            </div>
+            <div class="tr-live__wait">
+                <div>
+                    <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+                    <strong>Die Übertragung startet in Kürze</strong>
+                    <small>Du bleibst im Vortrag, das Bild erscheint von selbst.</small>
                 </div>
             </div>
             <p class="tr-live__note" data-live-note hidden></p>

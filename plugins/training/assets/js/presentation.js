@@ -12,6 +12,10 @@
  * Laser im Tempo des Hosts erscheinen.
  *
  * Koordinaten sind 0..1 relativ zur Folie, so passt jede Bildschirmgröße.
+ * Zoom, Ausschnitt und Drehung gibt der Host je Seite als `view` vor; Folie
+ * und Zeichenfläche bekommen dieselbe CSS-Transformation, Striche bleiben in
+ * Seitenkoordinaten. Auf dem geteilten Bildschirm liegt eine eigene
+ * Zeichenfläche genau über dem Videobild, ihre Striche haben Seite -1.
  *
  * Bildschirm teilen: der Host holt den Stream per getDisplayMedia und meldet
  * `/screen`, der Server wählt den Weg. Über LiveKit lädt der Host einmal hoch,
@@ -55,6 +59,15 @@
     const ICE_WAIT = 3000;
     const NO_PICTURE = 15000;
     const RTC = { iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] };
+    const ZOOM_STEP = 1.25;
+    // Wie DrawEvent::MAX_ZOOM und SCREEN_PAGE im Paket.
+    const MAX_ZOOM = 4;
+    const SCREEN = -1;
+    const VIEW_EVERY = 50;
+    const RENDER_DELAY = 150;
+    // Zoom 4 im Vollbild ergäbe eine Leinwand von Hunderten MB; darüber wird die Folie lieber etwas weicher.
+    const MAX_PIXELS = 12e6;
+    const FIT = { z: 1, x: 0.5, y: 0.5, r: 0 };
 
     const slide = $('[data-live-slide]');
     const frame = $('[data-live-frame]');
@@ -62,9 +75,15 @@
     const ink = $('[data-live-ink]');
     const ctx = ink.getContext('2d');
     const video = $('[data-live-video]');
+    const screenBox = $('[data-live-screen]');
+    const screenInk = $('[data-live-screen-ink]');
+    const sctx = screenInk.getContext('2d');
 
-    /* Stand der Folie: Seite, Modus, Striche je Seite, Laserpunkt. */
+    /* Stand der Folie: Seite, Modus, Striche je Seite (-1 ist der Bildschirm), Laserpunkt. */
     const st = { page: 0, mode: 'slides', strokes: {}, laser: null };
+    // Ansicht je Seite {z, x, y, r}: x und y sind die Mitte des sichtbaren Ausschnitts in Seitenkoordinaten.
+    let views = {};
+    let hasSlides = !!root.dataset.slides;
     let doc = null;
     let pageCount = 0;
     let lastId = 0;
@@ -97,6 +116,8 @@
         ended = true;
         timers.forEach(clearInterval);
         clearTimeout(pollTimer);
+        clearTimeout(renderTimer);
+        clearTimeout(viewTimer);
         cancelAnimationFrame(frameId);
         observers.forEach((o) => o.disconnect());
         abort.abort();
@@ -127,6 +148,14 @@
     let thumbsWanted = false;
     let thumbsBuilt = false;
     let slideRatio = 16 / 9;
+    // Seitenverhältnis je Seite, eine PDF kann Hoch- und Querformat mischen.
+    const ratios = {};
+    let renderTimer = 0;
+    let replaying = false;
+    let renderedPage = -1;
+    // Pixel der Zeichenfläche je CSS-Pixel der eingepassten Seite.
+    let inkScale = 1;
+    let dpr = window.devicePixelRatio || 1;
 
     function note(text) {
         const el = $('[data-live-note]');
@@ -143,6 +172,7 @@
             doc = await loading.promise;
             const first = (await doc.getPage(1)).getViewport({ scale: 1 });
             slideRatio = first.width / first.height;
+            ratios[0] = slideRatio;
         } catch (error) {
             // Auch ein gescheiterter Ladeauftrag hält einen Worker, der sonst bis zum Schließen des Desks lebt.
             if (loading) loading.destroy();
@@ -152,42 +182,63 @@
             return;
         }
         if (stopped) { loading.destroy(); return; }
-        fitSlide();
         pageCount = doc.numPages;
         $$('[data-live-page-count]').forEach((el) => { el.textContent = String(pageCount); });
         showPage(st.page);
         if (thumbsWanted) buildThumbs();
     }
 
-    /** Nur bei Seitenwechsel oder neuer Breite, das Rendern ist teuer. */
+    /**
+     * Nur bei Seitenwechsel oder neuer Auflösung (Größe, Zoom), das Rendern ist teuer.
+     * Die PDF bekommt dieselbe Auflösung wie die Zeichenfläche. Gerendert wird nebenher,
+     * damit beim Zoomen das alte Bild stehen bleibt, bis das scharfe fertig ist.
+     */
     async function renderPage() {
-        const width = slide.clientWidth;
-        const key = st.page + ':' + width;
-        if (stopped || !doc || !width || key === rendered) return;
+        const w = ink.width;
+        const h = ink.height;
+        const key = st.page + ':' + w + 'x' + h;
+        if (stopped || !doc || !slide.clientWidth || key === rendered) return;
         rendered = key;
         const token = ++renderToken;
         if (renderTask) renderTask.cancel();
+        // Neue Seite: das alte Bild darf nicht unter den neuen Strichen stehen.
+        if (renderedPage !== st.page) pdfCanvas.getContext('2d').clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
         try {
             const page = await doc.getPage(st.page + 1);
             if (stopped || token !== renderToken) return;
-            const ratio = window.devicePixelRatio || 1;
-            const viewport = page.getViewport({ scale: (width * ratio) / page.getViewport({ scale: 1 }).width });
-            pdfCanvas.width = Math.floor(viewport.width);
-            pdfCanvas.height = Math.floor(viewport.height);
-            renderTask = page.render({ canvas: pdfCanvas, viewport });
+            const viewport = page.getViewport({ scale: w / page.getViewport({ scale: 1 }).width });
+            const off = document.createElement('canvas');
+            off.width = w;
+            off.height = h;
+            renderTask = page.render({ canvas: off, viewport });
             await renderTask.promise;
+            if (stopped || token !== renderToken) return;
+            pdfCanvas.width = w;
+            pdfCanvas.height = h;
+            pdfCanvas.getContext('2d').drawImage(off, 0, 0);
+            renderedPage = st.page;
+            off.width = 0;
         } catch (error) {
             // Abgebrochen (neue Seite) oder Dokument beim Schließen zerstört: nichts zu tun.
             if (!stopped && (!error || error.name !== 'RenderingCancelledException')) throw error;
         }
     }
 
-    function sizeInk() {
-        const rect = slide.getBoundingClientRect();
-        const ratio = window.devicePixelRatio || 1;
-        ink.width = Math.round(rect.width * ratio);
-        ink.height = Math.round(rect.height * ratio);
-        dirty = true;
+    /** Seitenverhältnis der aktuellen Seite holen, dann einpassen und sofort rendern. */
+    async function layoutPage() {
+        const page = st.page;
+        if (doc && ratios[page] === undefined) {
+            try {
+                const viewport = (await doc.getPage(page + 1)).getViewport({ scale: 1 });
+                ratios[page] = viewport.width / viewport.height;
+            } catch (error) {
+                // Dokument beim Schließen zerstört; sonst mit dem Verhältnis der ersten Seite weiter.
+                if (stopped) return;
+            }
+            if (stopped || page !== st.page) return;
+        }
+        fitSlide();
+        renderPage();
     }
 
     /*
@@ -217,17 +268,130 @@
     }
 
     /**
-     * Folie und Pausenbild so groß wie möglich in den freien Platz, Seitenverhältnis der PDF.
-     * Schmal ist die Höhe frei, dann nimmt die Folie per CSS die volle Breite mit diesem Verhältnis.
+     * Folie so groß wie möglich in den freien Platz, im Verhältnis der aktuellen Seite,
+     * gedreht um 90 oder 270 Grad hochkant statt quer. Bildschirm, Pause und Wartebild
+     * bleiben 16:9. Schmal ist die Höhe frei, dann nimmt die Fläche per CSS die volle
+     * Breite mit diesem Verhältnis.
      */
     function fitSlide() {
-        frame.style.setProperty('--tr-live-ratio', String(slideRatio));
+        const v = viewOf(st.page);
+        const ratio = shown() === 'slides' ? (v.r % 180 ? 1 / ratioOf(st.page) : ratioOf(st.page)) : 16 / 9;
+        frame.style.setProperty('--tr-live-ratio', String(ratio));
         const w = frame.clientWidth;
         const h = frame.clientHeight;
-        if (!w || !h || root.classList.contains('tr-live--narrow')) return;
-        const width = Math.floor(Math.min(w, h * slideRatio));
-        frame.style.setProperty('--tr-live-w', width + 'px');
-        frame.style.setProperty('--tr-live-h', Math.floor(width / slideRatio) + 'px');
+        if (w && h && !root.classList.contains('tr-live--narrow')) {
+            const width = Math.floor(Math.min(w, h * ratio));
+            frame.style.setProperty('--tr-live-w', width + 'px');
+            frame.style.setProperty('--tr-live-h', Math.floor(width / ratio) + 'px');
+        }
+        place();
+        fitScreenInk();
+    }
+
+    /* ---------- Ansicht: Zoom, Ausschnitt, Drehung ---------- */
+
+    const viewOf = (page) => views[page] || FIT;
+    const ratioOf = (page) => ratios[page] || slideRatio;
+    const round = (n, steps) => Math.round(n * steps) / steps;
+
+    /** Was das Frame zeigt: ohne Folien statt der Folie das Wartebild. */
+    const shown = () => (st.mode === 'slides' && !hasSlides ? 'wait' : st.mode);
+
+    /**
+     * Die Seite füllt die Fläche immer ganz aus. Weil die Fläche das Verhältnis der gedrehten
+     * Seite hat, ist ein halber sichtbarer Ausschnitt 0.5 / z, bei jedem Zuschauer gleich.
+     */
+    function clampView(v) {
+        const z = Math.min(MAX_ZOOM, Math.max(1, v.z));
+        const half = 0.5 / z;
+        const fit = (c) => Math.min(1 - half, Math.max(half, c));
+        return { z, x: fit(v.x), y: fit(v.y), r: v.r };
+    }
+
+    /** Fläche (Vw x Vh) und ungedrehte Seite bei Zoom 1 (Pw x Ph) in CSS-Pixeln. */
+    function geom(v) {
+        const Vw = slide.clientWidth;
+        const Vh = slide.clientHeight;
+        const turned = v.r % 180 !== 0;
+        const ratio = turned ? 1 / ratioOf(st.page) : ratioOf(st.page);
+        let w = Vw;
+        let h = Vw / ratio;
+        if (h > Vh) { h = Vh; w = Vh * ratio; }
+        return { Vw, Vh, Pw: turned ? h : w, Ph: turned ? w : h };
+    }
+
+    /**
+     * Folie und Zeichenfläche: Seitenmitte (x, y) in die Mitte der Fläche, gedreht und gezoomt.
+     * Die Auflösung wächst mit dem Zoom, gedeckelt durch MAX_PIXELS; die PDF rendert erst neu,
+     * wenn der Zoom eine Weile steht, Verschieben allein rendert nichts.
+     */
+    function place() {
+        const v = viewOf(st.page);
+        const g = geom(v);
+        if (!g.Vw || !g.Vh) return;
+        const transform = 'translate(' + g.Vw / 2 + 'px,' + g.Vh / 2 + 'px) rotate(' + v.r + 'deg) scale(' + v.z + ') translate(' + (-v.x * g.Pw) + 'px,' + (-v.y * g.Ph) + 'px)';
+        [pdfCanvas, ink].forEach((c) => {
+            c.style.width = g.Pw + 'px';
+            c.style.height = g.Ph + 'px';
+            c.style.transform = transform;
+        });
+        const sharp = Math.min(v.z, Math.sqrt(MAX_PIXELS / (g.Pw * g.Ph * dpr * dpr)));
+        const w = Math.max(1, Math.round(g.Pw * dpr * sharp));
+        const h = Math.max(1, Math.round(g.Ph * dpr * sharp));
+        if (ink.width !== w || ink.height !== h) {
+            ink.width = w;
+            ink.height = h;
+            dirty = true;
+        }
+        inkScale = w / g.Pw;
+        // Auch ohne neue Größe: war die Folie versteckt (Pause, Bildschirm), konnte nichts rendern, und
+        // inzwischen kann eine andere Seite dran sein. Nur ein neuer Zoom auf derselben Seite wartet.
+        if (doc && st.page + ':' + w + 'x' + h !== rendered) {
+            clearTimeout(renderTimer);
+            renderTimer = setTimeout(renderPage, renderedPage === st.page ? RENDER_DELAY : 0);
+        }
+        if (host) viewButtons();
+    }
+
+    /** Bildschirmpunkt in Seitenkoordinaten, über die Umkehrung der Transformation aus place(). */
+    function toPage(clientX, clientY, v) {
+        const g = geom(v);
+        const rect = slide.getBoundingClientRect();
+        // Skaliert das Desk das Fenster, weicht das Rechteck von den CSS-Maßen ab.
+        const k = g.Vw ? rect.width / g.Vw : 1;
+        const dx = (clientX - rect.left) / k - g.Vw / 2;
+        const dy = (clientY - rect.top) / k - g.Vh / 2;
+        const a = (-v.r * Math.PI) / 180;
+        const ux = dx * Math.cos(a) - dy * Math.sin(a);
+        const uy = dx * Math.sin(a) + dy * Math.cos(a);
+        return [v.x + ux / (v.z * g.Pw), v.y + uy / (v.z * g.Ph)];
+    }
+
+    /** Zeichenfläche genau über das Videobild; object-fit: contain lässt oben und unten oder links und rechts Ränder. */
+    function fitScreenInk() {
+        const W = screenBox.clientWidth;
+        const H = screenBox.clientHeight;
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        let w = 0;
+        let h = 0;
+        if (W && H && vw && vh) {
+            const k = Math.min(W / vw, H / vh);
+            w = vw * k;
+            h = vh * k;
+        }
+        const s = screenInk.style;
+        s.left = (W - w) / 2 + 'px';
+        s.top = (H - h) / 2 + 'px';
+        s.width = w + 'px';
+        s.height = h + 'px';
+        const bw = Math.round(w * dpr);
+        const bh = Math.round(h * dpr);
+        if (screenInk.width !== bw || screenInk.height !== bh) {
+            screenInk.width = bw;
+            screenInk.height = bh;
+            dirty = true;
+        }
     }
 
     /** Miniaturen einmal und klein, erst wenn der Reiter Folien offen ist. */
@@ -268,62 +432,70 @@
 
     /* ---------- Zeichnen ---------- */
 
-    function drawStroke(s, W, H) {
+    function drawStroke(c, s, W, H) {
         const lw = s.width * 2.2 * (W / 960) * (s.tool === 'marker' ? 4 : 1);
         const p = s.points.map(([x, y]) => [x * W, y * H]);
         if (!p.length) return;
-        ctx.save();
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth = lw;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.globalAlpha = s.tool === 'marker' ? 0.35 : 1;
-        ctx.beginPath();
+        c.save();
+        c.strokeStyle = s.color;
+        c.lineWidth = lw;
+        c.lineCap = 'round';
+        c.lineJoin = 'round';
+        c.globalAlpha = s.tool === 'marker' ? 0.35 : 1;
+        c.beginPath();
         if (freehand(s.tool)) {
-            ctx.moveTo(p[0][0], p[0][1]);
-            for (let i = 1; i < p.length; i++) ctx.lineTo(p[i][0], p[i][1]);
-            if (p.length === 1) ctx.lineTo(p[0][0] + 0.1, p[0][1]);
+            c.moveTo(p[0][0], p[0][1]);
+            for (let i = 1; i < p.length; i++) c.lineTo(p[i][0], p[i][1]);
+            if (p.length === 1) c.lineTo(p[0][0] + 0.1, p[0][1]);
         } else {
             const a = p[0];
             const b = p[p.length - 1];
-            if (s.tool === 'line' || s.tool === 'arrow') { ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
-            if (s.tool === 'rect') ctx.rect(a[0], a[1], b[0] - a[0], b[1] - a[1]);
-            if (s.tool === 'ellipse') ctx.ellipse((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, Math.abs(b[0] - a[0]) / 2, Math.abs(b[1] - a[1]) / 2, 0, 0, Math.PI * 2);
+            if (s.tool === 'line' || s.tool === 'arrow') { c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); }
+            if (s.tool === 'rect') c.rect(a[0], a[1], b[0] - a[0], b[1] - a[1]);
+            if (s.tool === 'ellipse') c.ellipse((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, Math.abs(b[0] - a[0]) / 2, Math.abs(b[1] - a[1]) / 2, 0, 0, Math.PI * 2);
             if (s.tool === 'arrow') {
                 const angle = Math.atan2(b[1] - a[1], b[0] - a[0]);
                 const head = Math.max(12, lw * 4);
-                ctx.moveTo(b[0], b[1]);
-                ctx.lineTo(b[0] - head * Math.cos(angle - 0.45), b[1] - head * Math.sin(angle - 0.45));
-                ctx.moveTo(b[0], b[1]);
-                ctx.lineTo(b[0] - head * Math.cos(angle + 0.45), b[1] - head * Math.sin(angle + 0.45));
+                c.moveTo(b[0], b[1]);
+                c.lineTo(b[0] - head * Math.cos(angle - 0.45), b[1] - head * Math.sin(angle - 0.45));
+                c.moveTo(b[0], b[1]);
+                c.lineTo(b[0] - head * Math.cos(angle + 0.45), b[1] - head * Math.sin(angle + 0.45));
             }
         }
-        ctx.stroke();
-        ctx.restore();
+        c.stroke();
+        c.restore();
     }
 
     function draw() {
-        const W = ink.width;
-        const H = ink.height;
-        ctx.clearRect(0, 0, W, H);
-        if (st.mode !== 'slides') return;
-        strokesOf(st.page).forEach((s) => drawStroke(s, W, H));
+        ctx.clearRect(0, 0, ink.width, ink.height);
+        sctx.clearRect(0, 0, screenInk.width, screenInk.height);
+        if (st.mode === 'slides') paint(ctx, ink, strokesOf(st.page), inkScale / viewOf(st.page).z, ink.width / inkScale);
+        else if (st.mode === 'screen' && screenInk.width) paint(sctx, screenInk, strokesOf(SCREEN), dpr, screenInk.width / dpr);
+    }
+
+    /**
+     * Striche wachsen mit dem Zoom wie Tinte auf dem Blatt, der Laserpunkt bleibt auf dem Bildschirm gleich groß.
+     * unit: Pixel der Leinwand je Bildschirmpixel; base: Breite der Ebene in CSS-Pixeln ohne Zoom.
+     */
+    function paint(c, canvas, strokes, unit, base) {
+        const W = canvas.width;
+        const H = canvas.height;
+        strokes.forEach((s) => drawStroke(c, s, W, H));
         const l = st.laser;
-        if (l) {
-            // Laserpunkt in --danger, damit er dem Thema folgt.
-            const r = 6 * (W / 960) + 2;
-            ctx.save();
-            ctx.fillStyle = getComputedStyle(root).getPropertyValue('--danger').trim() || 'red';
-            ctx.globalAlpha = 0.18;
-            ctx.beginPath();
-            ctx.arc(l[0] * W, l[1] * H, r * 2.2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 0.85;
-            ctx.beginPath();
-            ctx.arc(l[0] * W, l[1] * H, r, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-        }
+        if (!l) return;
+        // Laserpunkt in --danger, damit er dem Thema folgt.
+        const r = (6 * (base / 960) + 1) * unit;
+        c.save();
+        c.fillStyle = getComputedStyle(root).getPropertyValue('--danger').trim() || 'red';
+        c.globalAlpha = 0.18;
+        c.beginPath();
+        c.arc(l[0] * W, l[1] * H, r * 2.2, 0, Math.PI * 2);
+        c.fill();
+        c.globalAlpha = 0.85;
+        c.beginPath();
+        c.arc(l[0] * W, l[1] * H, r, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
     }
 
     /** Ein Ereignis wirkt auf beiden Seiten gleich: beim Host sofort, beim Teilnehmer verzögert. */
@@ -359,6 +531,11 @@
             case 'mode':
                 showMode(e.mode);
                 break;
+            case 'view':
+                // Beim Neuladen kommen alle Ansichten der Reihe nach, die letzte je Seite gilt.
+                views[e.page] = { z: e.z, x: e.x, y: e.y, r: e.r };
+                if (e.page === st.page && !replaying) fitSlide();
+                break;
         }
         dirty = true;
     }
@@ -373,26 +550,38 @@
         followCounter();
         $$('.tr-live__thumb').forEach((t, i) => t.setAttribute('aria-current', i === st.page ? 'true' : 'false'));
         dirty = true;
-        renderPage();
+        layoutPage();
     }
 
     function followCounter() {
         const follow = $('[data-live-follow-counter]');
-        if (follow) follow.textContent = st.mode === 'screen' ? 'Bildschirm' : 'Folie ' + (st.page + 1) + (pageCount ? ' von ' + pageCount : '');
+        if (follow) follow.textContent = st.mode === 'screen' ? 'Bildschirm' : shown() === 'wait' ? 'Gleich geht es los' : 'Folie ' + (st.page + 1) + (pageCount ? ' von ' + pageCount : '');
     }
 
     function showMode(mode) {
+        const before = st.mode;
         st.mode = mode === 'pause' || mode === 'screen' ? mode : 'slides';
         st.laser = null;
-        frame.dataset.mode = st.mode;
+        const display = shown();
+        frame.dataset.mode = display;
         pauseStart = st.mode === 'pause' ? (pauseStart || Date.now()) : 0;
         if (host) {
             $$('.ignis-segmented [data-live-mode]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.liveMode === st.mode ? 'true' : 'false'));
-            $('[data-live-dock]').hidden = st.mode !== 'slides';
+            // Auf dem Bildschirm wird gezeichnet, geblättert und gezoomt aber nicht.
+            $('[data-live-dock]').hidden = display !== 'slides' && display !== 'screen';
+            $('[data-live-pages]').hidden = display !== 'slides';
+            $('[data-live-zoom]').hidden = display !== 'slides';
+            const clear = $('[data-live-clear]');
+            const label = display === 'screen' ? 'Zeichnungen löschen' : 'Folie leeren';
+            clear.setAttribute('aria-label', label);
+            clear.dataset.ignisTooltip = label;
             $('[data-live-share]').hidden = st.mode !== 'screen';
             screenButton();
+            // Striche auf dem Bildschirm gehören zu genau einem Teilen; danach passen sie zu keinem Bild mehr.
+            if (ready && (before === 'screen') !== (st.mode === 'screen')) clearScreen();
         }
         followCounter();
+        fitSlide();
         dirty = true;
     }
 
@@ -505,7 +694,9 @@
         signalSeq = 0;
         unwatch(false);
         st.strokes = {};
+        views = {};
         st.laser = null;
+        fitSlide();
         dirty = true;
         again = true;
     }
@@ -561,11 +752,17 @@
         if (!host && talkId !== null && s.id !== talkId) { resetTalk(); return true; }
         talkId = s.id;
         showHandover(s);
+        // Folien braucht es am Termin und in der Seite; ohne sie zeigt der Folienmodus das Wartebild.
+        const slides = s.slides !== false && !!root.dataset.slides;
+        if (slides !== hasSlides) { hasSlides = slides; showMode(st.mode); }
 
         if (first) {
             // Erster Abruf: alles sofort, ohne Laser (liefert der Server da nicht).
             first = false;
+            // Ohne Einpassen je Ansicht; showPage() unten passt einmal ein.
+            replaying = true;
             s.events.forEach(apply);
+            replaying = false;
             showPage(s.page);
             showMode(s.mode);
             target.page = s.page;
@@ -734,11 +931,15 @@
 
     /* ---------- Host: Werkzeuge und Eingabe ---------- */
 
-    let tool = 'laser';
+    // Kein Werkzeug beim Start: mit dem Zeiger blättert Wischen, bei Zoom verschiebt Ziehen.
+    let tool = 'pointer';
     let color = '';
     let width = 2;
     let drawing = null;
     let swipe = null;
+    let pan = null;
+    // Zeiger, der Strich, Verschieben oder Wischen begonnen hat; ein zweiter Finger übernimmt nicht.
+    let owner = null;
     let lastLaser = 0;
     let lastPoint = 0;
     const undo = {};
@@ -748,22 +949,45 @@
     function pick(t) {
         tool = t;
         $$('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.tool === t ? 'true' : 'false'));
-        ink.style.cursor = t === 'laser' ? 'none' : t === 'eraser' ? 'cell' : 'crosshair';
+        cursor();
     }
 
+    const zoomed = () => st.mode === 'slides' && viewOf(st.page).z > 1;
+
+    function cursor() {
+        let c = 'crosshair';
+        if (tool === 'pointer') c = pan ? 'grabbing' : zoomed() ? 'grab' : '';
+        else if (tool === 'laser') c = 'none';
+        else if (tool === 'eraser') c = 'cell';
+        slide.style.cursor = c;
+        screenBox.style.cursor = c;
+    }
+
+    /** Worauf der Host gerade zeichnet: die Seite oder der Bildschirm (-1); null, solange dort nichts zu sehen ist. */
+    function layer() {
+        if (st.mode === 'screen') return screenInk.width ? SCREEN : null;
+        return st.mode === 'slides' && doc ? st.page : null;
+    }
+
+    /** Punkt 0..1 auf der Seite (über Zoom und Drehung zurückgerechnet) oder auf dem Videobild. */
     function pos(ev) {
-        const r = ink.getBoundingClientRect();
-        const x = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
-        const y = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height));
-        return [Math.round(x * 10000) / 10000, Math.round(y * 10000) / 10000];
+        let p;
+        if (st.mode === 'screen') {
+            const r = screenInk.getBoundingClientRect();
+            p = [(ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height];
+        } else p = toPage(ev.clientX, ev.clientY, viewOf(st.page));
+        const fit = (c) => round(Math.min(1, Math.max(0, c)), 10000);
+        return [fit(p[0]), fit(p[1])];
     }
 
     /** Oberster Strich in Fingerbreite um p, für den Radierer. */
-    function hit(p) {
-        const W = ink.width;
-        const H = ink.height;
-        const list = strokesOf(st.page);
-        const reach = (14 * (window.devicePixelRatio || 1)) ** 2;
+    function hit(p, page) {
+        const canvas = page === SCREEN ? screenInk : ink;
+        const W = canvas.width;
+        const H = canvas.height;
+        const list = strokesOf(page);
+        // Fingerbreite auf dem Bildschirm, umgerechnet in Pixel der Zeichenfläche (beim Zoom weniger).
+        const reach = (14 * (page === SCREEN ? dpr : inkScale / viewOf(page).z)) ** 2;
         for (let i = list.length - 1; i >= 0; i--) {
             const s = list[i];
             const a0 = s.points[0];
@@ -793,8 +1017,9 @@
     }
 
     function go(page) {
-        if (!host || !ready || !pageCount || page < 0 || page >= pageCount || page === st.page) return;
+        if (!host || !ready || st.mode !== 'slides' || !pageCount || page < 0 || page >= pageCount || page === st.page) return;
         st.laser = null;
+        pan = null;
         showPage(page);
         pendingPage = page;
     }
@@ -809,37 +1034,122 @@
         pendingMode = st.mode;
     }
 
+    function clearScreen() {
+        undo[SCREEN] = [];
+        emit({ kind: 'clear', page: SCREEN });
+    }
+
     function doUndo() {
-        const last = undoOf(st.page).pop();
+        const page = layer();
+        if (page === null) return;
+        const last = undoOf(page).pop();
         if (!last) return;
-        if (last.type === 'add') emit({ kind: 'erase', page: st.page, id: last.id });
-        if (last.type === 'clear') emit({ kind: 'restore', page: st.page, strokes: last.strokes });
-        if (last.type === 'erase') emit({ kind: 'restore', page: st.page, strokes: copy(strokesOf(st.page)).concat([last.stroke]) });
+        if (last.type === 'add') emit({ kind: 'erase', page, id: last.id });
+        if (last.type === 'clear') emit({ kind: 'restore', page, strokes: last.strokes });
+        if (last.type === 'erase') emit({ kind: 'restore', page, strokes: copy(strokesOf(page)).concat([last.stroke]) });
     }
 
     function clearPage() {
-        if (!strokesOf(st.page).length) return;
-        undoOf(st.page).push({ type: 'clear', strokes: copy(strokesOf(st.page)) });
-        emit({ kind: 'clear', page: st.page });
+        const page = layer();
+        if (page === null || !strokesOf(page).length) return;
+        undoOf(page).push({ type: 'clear', strokes: copy(strokesOf(page)) });
+        emit({ kind: 'clear', page });
     }
 
+    /* Ansicht beim Host */
+
+    let viewTimer = 0;
+    let viewSent = 0;
+    let viewPage = null;
+
+    const canView = () => host && ready && !ended && !!doc && st.mode === 'slides';
+
+    function viewButtons() {
+        const z = viewOf(st.page).z;
+        // aria-disabled statt disabled: Fokus und Tooltip bleiben, zoomBy() tut an der Grenze ohnehin nichts.
+        $('[data-live-zoom-in]').setAttribute('aria-disabled', String(z >= MAX_ZOOM));
+        $('[data-live-zoom-out]').setAttribute('aria-disabled', String(z <= 1));
+        cursor();
+    }
+
+    function sendView() {
+        clearTimeout(viewTimer);
+        viewTimer = 0;
+        const page = viewPage;
+        if (page === null) return;
+        viewPage = null;
+        viewSent = performance.now();
+        const v = viewOf(page);
+        // Gerundet wie DrawEvent, sonst lehnt der Server das ganze Paket ab.
+        emit({ kind: 'view', page, z: round(v.z, 100), x: round(v.x, 10000), y: round(v.y, 10000), r: v.r });
+    }
+
+    /** Höchstens alle VIEW_EVERY ms ein Ansichts-Ereignis, das letzte einer Geste geht immer hinaus. */
+    function shareView(final) {
+        if (viewPage !== null && viewPage !== st.page) sendView();
+        viewPage = st.page;
+        const wait = final ? 0 : VIEW_EVERY - (performance.now() - viewSent);
+        clearTimeout(viewTimer);
+        if (wait <= 0) sendView();
+        else viewTimer = setTimeout(sendView, wait);
+    }
+
+    function setView(v, final) {
+        const before = viewOf(st.page);
+        views[st.page] = clampView(v);
+        // Gedreht ändert sich das Seitenverhältnis der Fläche.
+        if (views[st.page].r !== before.r) fitSlide();
+        else place();
+        shareView(final);
+    }
+
+    /** Zoom um die Mitte oder, mit Mausrad, um den Punkt unter der Maus. */
+    function zoomBy(factor, ev) {
+        if (!canView()) return;
+        const v = viewOf(st.page);
+        const z = Math.min(MAX_ZOOM, Math.max(1, v.z * factor));
+        if (z === v.z) return;
+        let x = v.x;
+        let y = v.y;
+        if (ev) {
+            const p = toPage(ev.clientX, ev.clientY, v);
+            x = p[0] - ((p[0] - v.x) * v.z) / z;
+            y = p[1] - ((p[1] - v.y) * v.z) / z;
+        }
+        setView({ z, x, y, r: v.r }, !ev);
+    }
+
+    /* Zeiger */
+
     function pointerDown(ev) {
-        if (!ready || ended || !doc || st.mode !== 'slides') return;
-        ink.setPointerCapture(ev.pointerId);
+        const page = ready && !ended && owner === null ? layer() : null;
+        if (page === null) return;
+        ev.currentTarget.setPointerCapture(ev.pointerId);
+        if (tool === 'pointer' && page !== SCREEN && zoomed()) {
+            owner = ev.pointerId;
+            pan = { x: ev.clientX, y: ev.clientY, v: viewOf(page), moved: false };
+            cursor();
+            return;
+        }
+        if (tool === 'pointer' || tool === 'laser') {
+            // Wischen blättert nur mit Zeiger und Laser, sonst würde jeder Strich blättern.
+            if (page !== SCREEN) { owner = ev.pointerId; swipe = { x: ev.clientX, y: ev.clientY }; }
+            return;
+        }
         const p = pos(ev);
-        if (tool === 'laser') { swipe = { x: ev.clientX, y: ev.clientY }; return; }
         if (tool === 'eraser') {
-            const s = hit(p);
+            const s = hit(p, page);
             if (s) {
-                undoOf(st.page).push({ type: 'erase', stroke: copy(s) });
-                emit({ kind: 'erase', page: st.page, id: s.id });
+                undoOf(page).push({ type: 'erase', stroke: copy(s) });
+                emit({ kind: 'erase', page, id: s.id });
             }
             return;
         }
-        if (strokesOf(st.page).length >= MAX_STROKES) return;
-        drawing = { id: ++lastId, page: st.page };
-        emit({ kind: 'begin', page: st.page, id: drawing.id, tool, color, width, p });
-        undoOf(st.page).push({ type: 'add', id: drawing.id });
+        if (strokesOf(page).length >= MAX_STROKES) return;
+        owner = ev.pointerId;
+        drawing = { id: ++lastId, page };
+        emit({ kind: 'begin', page, id: drawing.id, tool, color, width, p });
+        undoOf(page).push({ type: 'add', id: drawing.id });
     }
 
     function addPoint(p) {
@@ -849,19 +1159,34 @@
     }
 
     function pointerMove(ev) {
-        if (!ready || ended) return;
+        if (!ready || ended || (owner !== null && ev.pointerId !== owner)) return;
         const now = performance.now();
+        if (pan) {
+            // Gegen die Ansicht beim Greifen gerechnet: der gegriffene Punkt bleibt unter dem Finger.
+            const a = toPage(pan.x, pan.y, pan.v);
+            const b = toPage(ev.clientX, ev.clientY, pan.v);
+            pan.moved = true;
+            setView({ z: pan.v.z, r: pan.v.r, x: pan.v.x - (b[0] - a[0]), y: pan.v.y - (b[1] - a[1]) }, false);
+            return;
+        }
         if (tool === 'laser') {
-            if (st.mode === 'slides' && now - lastLaser > 25) { lastLaser = now; emit({ kind: 'laser', p: pos(ev) }); }
+            if (layer() !== null && now - lastLaser > 25) { lastLaser = now; emit({ kind: 'laser', p: pos(ev) }); }
             return;
         }
         if (drawing && now - lastPoint > 12) { lastPoint = now; addPoint(pos(ev)); }
     }
 
     function pointerUp(ev) {
+        if (ev.pointerId !== owner) return;
+        owner = null;
+        if (pan) {
+            const moved = pan.moved;
+            pan = null;
+            if (moved) shareView(true);
+            cursor();
+        }
         if (drawing) { addPoint(pos(ev)); drawing = null; }
         if (swipe) {
-            // Wischen blättert nur mit dem Laser, sonst würde jeder Strich blättern.
             const dx = ev.clientX - swipe.x;
             const dy = ev.clientY - swipe.y;
             swipe = null;
@@ -875,7 +1200,7 @@
         $$('[data-color]').forEach((b) => b.addEventListener('click', () => {
             color = b.dataset.color;
             $$('[data-color]').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
-            if (tool === 'laser' || tool === 'eraser') pick('pen');
+            if (tool === 'pointer' || tool === 'laser' || tool === 'eraser') pick('pen');
         }));
         $$('[data-width]').forEach((b) => b.addEventListener('click', () => {
             width = Number(b.dataset.width);
@@ -887,14 +1212,37 @@
         $('[data-live-clear]').addEventListener('click', clearPage);
         $$('[data-live-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.liveMode)));
 
-        ink.addEventListener('pointerdown', pointerDown);
-        ink.addEventListener('pointermove', pointerMove);
-        ink.addEventListener('pointerup', pointerUp);
-        ink.addEventListener('pointercancel', pointerUp);
-        ink.addEventListener('pointerleave', () => { if (tool === 'laser' && st.laser) emit({ kind: 'laser', p: null }); });
+        $('[data-live-zoom-in]').addEventListener('click', () => zoomBy(ZOOM_STEP));
+        $('[data-live-zoom-out]').addEventListener('click', () => zoomBy(1 / ZOOM_STEP));
+        $('[data-live-fit]').addEventListener('click', () => { if (canView()) setView(Object.assign({}, FIT, { r: viewOf(st.page).r }), true); });
+        $('[data-live-rotate]').addEventListener('click', () => {
+            const v = viewOf(st.page);
+            if (canView()) setView({ z: v.z, x: v.x, y: v.y, r: (v.r + 90) % 360 }, true);
+        });
+        // Strg und Mausrad zoomen die Folie statt der ganzen Seite, nur über der Bühne.
+        $('.tr-live__stage').addEventListener('wheel', (ev) => {
+            if (!ev.ctrlKey || !canView()) return;
+            ev.preventDefault();
+            // Beim Verschieben rechnet die Geste gegen die Ansicht beim Greifen; ein Zoom dazwischen ließe sie springen.
+            if (pan) return;
+            const delta = ev.deltaMode ? ev.deltaY * 33 : ev.deltaY;
+            zoomBy(ZOOM_STEP ** Math.max(-1, Math.min(1, -delta / 100)), ev);
+        }, { passive: false });
+        $('[data-live-wait-share]').hidden = !canShare;
+
+        [slide, screenBox].forEach((el) => {
+            el.addEventListener('pointerdown', pointerDown);
+            el.addEventListener('pointermove', pointerMove);
+            el.addEventListener('pointerup', pointerUp);
+            el.addEventListener('pointercancel', pointerUp);
+            el.addEventListener('lostpointercapture', pointerUp);
+            el.addEventListener('pointerleave', () => { if (tool === 'laser' && st.laser) emit({ kind: 'laser', p: null }); });
+        });
 
         root.addEventListener('keydown', (ev) => {
             const onControl = ev.target instanceof Element && ev.target.closest('button, a, input, textarea');
+            // In Textfeldern gehören Pfeile, Leertaste und Strg+Z dem Text.
+            if (ev.target instanceof Element && ev.target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
             if (ev.key === 'ArrowRight' || ev.key === 'PageDown' || (ev.key === ' ' && !onControl)) { ev.preventDefault(); go(st.page + 1); }
             if (ev.key === 'ArrowLeft' || ev.key === 'PageUp') { ev.preventDefault(); go(st.page - 1); }
             if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); doUndo(); }
@@ -922,7 +1270,7 @@
         });
 
         timers.push(setInterval(flush, FLUSH_EVERY));
-        pick('laser');
+        pick('pointer');
         screenButton();
     }
 
@@ -974,12 +1322,15 @@
     /* Host */
 
     function screenButton() {
-        const button = $('.ignis-segmented [data-live-mode="screen"]');
         let reason = '';
         if (!canShare) reason = 'Bildschirm teilen geht nur im Browser';
         else if (!share && via === 'direct' && audience > SCREEN_LIMIT) reason = 'Bildschirm teilen geht ohne EF Sync bis 15 Zuschauer';
-        button.setAttribute('aria-disabled', reason ? 'true' : 'false');
-        button.dataset.ignisTooltip = reason || ((share ? share.via : via) === 'livekit' ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15');
+        const tip = reason || ((share ? share.via : via) === 'livekit' ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15');
+        // Der Knopf im Wartebild sagt dasselbe wie der im Kopf, sonst täte er stumm nichts.
+        [$('.ignis-segmented [data-live-mode="screen"]'), $('[data-live-wait-share]')].forEach((button) => {
+            button.setAttribute('aria-disabled', reason ? 'true' : 'false');
+            button.dataset.ignisTooltip = tip;
+        });
     }
 
     const connecting = () => !!share && Array.from(share.peers.values()).some((pc) => pc.connectionState !== 'connected');
@@ -1244,6 +1595,8 @@
         $('[data-live-clock]').textContent = clock(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
         const pause = $('[data-live-pause-clock]');
         if (pause && pauseStart) pause.textContent = clock(Math.floor((Date.now() - pauseStart) / 1000)).slice(3);
+        // Auf einen anderen Monitor gezogen: gleiche Größe, aber andere Pixeldichte.
+        if ((window.devicePixelRatio || 1) !== dpr) { dpr = window.devicePixelRatio || 1; fitSlide(); }
     }
 
     function loop() {
@@ -1270,14 +1623,17 @@
     if (scroller) observe(scroller, layout);
     else window.addEventListener('resize', layout, { signal });
     observe(frame, fitSlide);
-    observe(slide, () => { sizeInk(); renderPage(); });
+    observe(slide, place);
+    observe(screenBox, fitScreenInk);
+    // Das Videobild kennt seine Größe erst nach den Metadaten, und ein geteiltes Fenster kann sie ändern.
+    ['loadedmetadata', 'resize', 'emptied'].forEach((type) => video.addEventListener(type, fitScreenInk));
     document.addEventListener('fullscreenchange', layout, { signal });
+    frame.dataset.mode = shown();
     layout();
     fitSlide();
-    sizeInk();
     tick();
     timers.push(setInterval(tick, 1000));
     frameId = requestAnimationFrame(loop);
-    openPdf();
+    if (hasSlides) openPdf();
     poll();
 })();

@@ -703,6 +703,23 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertSame(2, PresentationEvent::query()->where('presentation_id', $this->live($session)->id)->count());
     }
 
+    #[Test]
+    public function only_the_latest_view_per_page_is_kept(): void
+    {
+        [, , , $path] = $this->talk();
+        $this->post($path . '/start');
+        $view = static fn (int $page, float $z): array => ['kind' => 'view', 'page' => $page, 'z' => $z, 'x' => 0.5, 'y' => 0.5, 'r' => 0, 't' => 0];
+        $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'events' => [$view(0, 1.25), $this->stroke(1), $view(0, 1.5)]]));
+        $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'events' => [$view(1, 2.0), $view(0, 1.75)]]));
+        $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'events' => [$view(0, 2.5), $this->stroke(2)]]));
+
+        $events = $this->assertJsonResponse($this->get($path . '/state', ['query' => ['after' => '0']]))['events'];
+        $views  = array_values(array_filter($events, static fn (array $e): bool => $e['kind'] === 'view'));
+        usort($views, static fn (array $a, array $b): int => $a['page'] <=> $b['page']);
+        $this->assertSame([[0, 2.5], [1, 2.0]], array_map(static fn (array $e): array => [$e['page'], (float) $e['z']], $views));
+        $this->assertSame([1, 2], array_values(array_map(static fn (array $e): int => $e['id'], array_filter($events, static fn (array $e): bool => $e['kind'] === 'begin'))));
+    }
+
     /**
      * Leitung (angemeldet, mit Lehrrecht in der DB), Lehrgang, Termin an einer Präsentation (mit Folien, wenn $slides), Pfad zum Vortrag.
      *
@@ -1304,6 +1321,54 @@ final class TrainingPresentationTest extends FeatureTestCase
         $this->assertBodyNotContains('data-handover-to', $follow);
         $this->assertBodyNotContains('data-tool=', $follow);
         $this->assertBodyNotContains($path . '/end"', $follow);
+    }
+
+    #[Test]
+    public function pointer_is_the_default_tool(): void
+    {
+        [, , , $path] = $this->talk();
+        $this->post($path . '/start');
+        $host = $this->get($path);
+        $this->assertBodyContains('data-tool="pointer" aria-pressed="true"', $host);
+        $this->assertBodyContains('data-tool="laser" aria-pressed="false"', $host);
+
+        $js = (string) file_get_contents(dirname(__DIR__, 2) . '/plugins/training/assets/js/presentation.js');
+        $this->assertStringContainsString("pick('pointer')", $js);
+        $this->assertStringNotContainsString("pick('laser')", $js);
+    }
+
+    #[Test]
+    public function both_views_carry_the_waiting_screen(): void
+    {
+        [, $course, , $path] = $this->talk(slides: false);
+        $this->post($path . '/start');
+
+        $host = $this->get($path);
+        $this->assertBodyContains('data-role="present"', $host);
+        $this->assertBodyContains('Die Übertragung startet in Kürze', $host);
+        $this->assertBodyContains('data-slides=""', $host);
+        $this->assertBodyContains('data-live-wait-share', $host);
+        $this->assertBodyContains('<button type="button" data-live-mode="slides" aria-pressed="true" hidden>', $host);
+
+        $this->learnerIn($course);
+        $follow = $this->get($path);
+        $this->assertBodyContains('data-role="follow"', $follow);
+        $this->assertBodyContains('Die Übertragung startet in Kürze', $follow);
+        $this->assertBodyContains('data-slides=""', $follow);
+        $this->assertBodyNotContains('data-live-wait-share', $follow);
+    }
+
+    #[Test]
+    public function dock_has_zoom_and_rotate(): void
+    {
+        [, , , $path] = $this->talk();
+        $this->post($path . '/start');
+        $host = $this->get($path);
+        foreach (['data-live-zoom-in', 'data-live-zoom-out', 'data-live-fit', 'data-live-rotate', 'data-live-screen-ink'] as $hook) {
+            $this->assertBodyContains($hook, $host);
+        }
+        // Mit Folien bleibt das Segment sichtbar.
+        $this->assertBodyContains('<button type="button" data-live-mode="slides" aria-pressed="true">', $host);
     }
 
     #[Test]
