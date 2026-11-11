@@ -24,7 +24,9 @@ use Plugin\Training\Models\Module;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Presentation;
 use Plugin\Training\Models\PresentationEvent;
+use Plugin\Training\Models\PresentationQuestion;
 use Plugin\Training\Models\PresentationViewer;
+use Plugin\Training\Models\PresentationVisit;
 use Plugin\Training\Models\Session;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Models\Unit;
@@ -243,7 +245,10 @@ final class TrainingPresentationTest extends FeatureTestCase
         $file      = $this->pdf();
         $unit      = $this->unit($type, ['kind' => 'session']);
         $roleId    = (int) Capsule::table('intra_users')->where('id', $teacher['user'])->value('role');
+        $room = $this->roomMigration();
         try {
+            // Die Migration kennt noch `screen_room`; den späteren Stand der Spalten also zuerst zurücknehmen.
+            $room->down();
             $migration->down();
             $this->assertTrue(Capsule::schema()->hasColumn('intra_training_sessions', 'slides_file_id'));
             $this->assertFalse(Capsule::schema()->hasColumn('intra_training_units', 'slides_after_talk'));
@@ -279,7 +284,7 @@ final class TrainingPresentationTest extends FeatureTestCase
 
             $ran = Presentation::query()->find($running);
             $this->assertSame('2026-11-12 18:30:00', $ran->ended_at?->format('Y-m-d H:i:s'));
-            $this->assertSame(['slides', null, null, null], [$ran->mode, $ran->screen_via, $ran->screen_room, $ran->handover_to]);
+            $this->assertSame(['slides', null, null, null], [$ran->mode, $ran->screen_via, $ran->getAttribute('screen_room'), $ran->handover_to]);
             $this->assertSame(0, PresentationEvent::query()->where('presentation_id', $running)->count());
             $this->assertSame(1800, (int) Capsule::table('intra_training_presentation_viewers')->where('presentation_id', $running)->value('seconds_watched'));
             // Ein bereits beendeter Vortrag bleibt, wie er war.
@@ -297,6 +302,9 @@ final class TrainingPresentationTest extends FeatureTestCase
             } elseif (!$hasSwitch) {
                 Capsule::schema()->table('intra_training_units', static fn ($table) => $table->boolean('slides_after_talk')->default(true));
             }
+            if (Capsule::schema()->hasColumn('intra_training_presentations', 'screen_room')) {
+                $room->up();
+            }
             Capsule::table('intra_training_courses')->where('id', $course->id)->delete();
             Capsule::table('intra_training_modules')->where('course_type_id', $type->id)->delete();
             Capsule::table('intra_training_course_types')->where('id', $type->id)->delete();
@@ -305,6 +313,17 @@ final class TrainingPresentationTest extends FeatureTestCase
             Capsule::table('intra_mitarbeiter')->where('id', $teacher['personnel'])->delete();
             Capsule::table('intra_users_roles')->where('id', $roleId)->delete();
         }
+    }
+
+    private function roomMigration(): \AddIntraTrainingPresentationQuestions
+    {
+        require_once dirname(__DIR__, 2) . '/plugins/training/migrations/20261111000003_add_intra_training_presentation_questions.php';
+        $adapter   = new \Phinx\Db\Adapter\MysqlAdapter(['name' => (string) $_ENV['DB_NAME']]);
+        $adapter->setConnection(Capsule::connection()->getPdo());
+        $migration = new \AddIntraTrainingPresentationQuestions('testing', 20261111000003);
+        $migration->setAdapter($adapter);
+
+        return $migration;
     }
 
     private function migration(): \AddIntraTrainingPresentationUnits
@@ -829,7 +848,7 @@ final class TrainingPresentationTest extends FeatureTestCase
         $first = $this->get($path . '/state');
         $id    = $this->live($session)->id;
         $etag  = $first->headers['ETag'] ?? '';
-        $this->assertSame('"' . $id . '-0-0"', $etag);
+        $this->assertSame('"' . $id . '-0-0-0"', $etag);
         $this->assertSame($id, $this->assertJsonResponse($first)['id']);
 
         // Ein neuer Lauf desselben Termins beginnt wieder bei 0-0 und darf nicht mit 304 antworten.
@@ -1468,33 +1487,34 @@ final class TrainingPresentationTest extends FeatureTestCase
     public function host_shares_over_livekit_with_ef_sync(): void
     {
         [$teacher, , $session, $path] = $this->talk();
-        $this->post($path . '/start');
         $this->console([$this->liveKey('host-jwt')]);
+        $this->post($path . '/start');
 
         $res = $this->assertJsonResponse($this->postJson($path . '/screen'));
         $this->assertSame(['livekit', 'wss://live.example.test', 'host-jwt'], [$res['via'], $res['url'], $res['token']]);
         $p = $this->live($session);
         $this->assertSame('screen', $p->mode);
         $this->assertSame('livekit', $p->screen_via);
-        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', (string) $p->screen_room);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', (string) $p->room);
         $this->assertSame(1, $p->version);
         $this->assertSame('https://console.example.test/api/instance/livekit/token', (string) $this->sent[0]['request']->getUri());
         $sent = $this->sentBody(0);
-        $this->assertSame([$p->screen_room, 'u' . $teacher['user'], 'host'], [$sent['room'], $sent['identity'], $sent['role']]);
+        $this->assertSame([$p->room, 'u' . $teacher['user'], 'host'], [$sent['room'], $sent['identity'], $sent['role']]);
     }
 
     #[Test]
     public function screen_falls_back_to_direct_when_fabrica_fails(): void
     {
         [, , $session, $path] = $this->talk();
-        $this->post($path . '/start');
         $this->console([new HttpResponse(503, [], (string) json_encode(['error' => 'Nicht eingerichtet']))]);
+        $this->post($path . '/start');
+        $this->assertNotNull($this->live($session)->room);
 
         $res = $this->assertJsonResponse($this->postJson($path . '/screen'));
         $this->assertSame('direct', $res['via']);
         $this->assertArrayNotHasKey('token', $res);
         $p = $this->live($session);
-        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->screen_room]);
+        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->room]);
     }
 
     #[Test]
@@ -1530,16 +1550,16 @@ final class TrainingPresentationTest extends FeatureTestCase
     public function screen_goes_direct_on_request_without_asking_the_console(): void
     {
         [, , $session, $path] = $this->talk();
-        $this->post($path . '/start');
         $this->console([$this->liveKey('host-jwt')]);
+        $this->post($path . '/start');
         $this->assertSame('livekit', $this->assertJsonResponse($this->postJson($path . '/screen'))['via']);
 
-        // LiveKit kam nicht zustande; der Host weicht mit demselben Bild aus.
+        // LiveKit kam nicht zustande; der Host weicht mit demselben Bild aus, der Raum entfällt.
         $res = $this->assertJsonResponse($this->postJson($path . '/screen', ['via' => 'direct']));
         $this->assertSame('direct', $res['via']);
         $this->assertCount(1, $this->sent);
         $p = $this->live($session);
-        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->screen_room]);
+        $this->assertSame(['screen', 'direct', null], [$p->mode, $p->screen_via, $p->room]);
 
         $this->assertStatus(422, $this->postJson($path . '/screen', ['via' => 'livekit']));
 
@@ -1554,24 +1574,25 @@ final class TrainingPresentationTest extends FeatureTestCase
     public function viewer_tokens_stop_at_ten_a_minute(): void
     {
         [$teacher, $course, , $path] = $this->talk();
+        // Jede Antwort für sich, ein Körper lässt sich nur einmal lesen.
+        $this->console(array_map(fn (): HttpResponse => $this->liveKey(), range(1, 12)));
         $this->post($path . '/start');
         $viewer = $this->learnerIn($course);
-        $this->console(array_fill(0, 11, $this->liveKey()));
         $this->as($teacher['user'], ['training.teach']);
         $this->postJson($path . '/screen');
 
         $this->as($viewer['user'], ['training.view']);
         for ($i = 0; $i < 10; $i++) {
-            $this->assertJsonResponse($this->postJson($path . '/screen/token'));
+            $this->assertJsonResponse($this->postJson($path . '/room/token'));
         }
-        $refused = $this->postJson($path . '/screen/token');
+        $refused = $this->postJson($path . '/room/token');
         $this->assertStatus(429, $refused);
         $this->assertSame('too_many_tokens', $this->assertJsonResponse($refused)['error']);
         $this->assertCount(11, $this->sent);
 
         Carbon::setTestNow(Carbon::now()->addSeconds(61));
         try {
-            $this->assertJsonResponse($this->postJson($path . '/screen/token'));
+            $this->assertJsonResponse($this->postJson($path . '/room/token'));
         } finally {
             Carbon::setTestNow();
         }
@@ -1589,40 +1610,33 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
-    public function viewer_token_only_while_sharing_over_livekit(): void
+    public function viewer_token_only_for_a_talk_they_may_see(): void
     {
         [$teacher, $course, $session, $path] = $this->talk();
+        $this->console([$this->liveKey('viewer-jwt'), $this->liveKey('viewer-jwt-2')]);
         $this->post($path . '/start');
         $viewer = $this->learnerIn($course);
-        $this->console([$this->liveKey('host-jwt'), $this->liveKey('viewer-jwt')]);
-        $this->assertStatus(409, $this->postJson($path . '/screen/token'));
+        $room   = $this->live($session)->room;
 
-        $this->as($teacher['user'], ['training.teach']);
-        $this->postJson($path . '/screen');
-        $room = $this->live($session)->screen_room;
-        $this->as($viewer['user'], ['training.view']);
-        $res = $this->assertJsonResponse($this->postJson($path . '/screen/token'));
+        $res = $this->assertJsonResponse($this->postJson($path . '/room/token'));
         $this->assertSame(['wss://live.example.test', 'viewer-jwt'], [$res['url'], $res['token']]);
-        $sent = $this->sentBody(1);
+        $sent = $this->sentBody(0);
         $this->assertSame([$room, 'viewer'], [$sent['room'], $sent['role']]);
         // Je Tab eine eigene Identität, sonst wirft LiveKit den älteren Tab hinaus.
         $this->assertMatchesRegularExpression('/^u' . $viewer['user'] . '-[0-9a-f]{8}$/', (string) $sent['identity']);
 
-        $this->console([new HttpResponse(503)]);
-        $down = $this->postJson($path . '/screen/token');
-        $this->assertStatus(502, $down);
-        $this->assertSame('unavailable', $this->assertJsonResponse($down)['error']);
-
+        // Wer den Vortrag nicht sehen darf, bekommt keinen Schlüssel.
         $this->as($this->account()['user'], ['training.view']);
-        $this->assertNotFound($this->postJson($path . '/screen/token'));
+        $this->assertNotFound($this->postJson($path . '/room/token'));
+        $this->assertCount(1, $this->sent);
 
-        // Direkt geteilt gibt es keinen Raum.
+        // Der Host bekommt den Schlüssel mit seiner Identität und der Host-Rolle.
         $this->as($teacher['user'], ['training.teach']);
-        AiDrafts::useClient(null);
-        $this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'slides', 'events' => []]);
-        $this->postJson($path . '/screen');
-        $this->as($viewer['user'], ['training.view']);
-        $this->assertStatus(409, $this->postJson($path . '/screen/token'));
+        $this->assertOk($this->postJson($path . '/room/token'));
+        $this->assertSame([$room, 'u' . $teacher['user'], 'host'], [$this->sentBody(1)['room'], $this->sentBody(1)['identity'], $this->sentBody(1)['role']]);
+
+        // Der alte Weg ist weg.
+        $this->assertStatus(404, $this->postJson($path . '/screen/token'));
     }
 
     #[Test]
@@ -1687,34 +1701,37 @@ final class TrainingPresentationTest extends FeatureTestCase
     public function signals_need_direct_screen(): void
     {
         [$teacher, $course, , $path] = $this->talk();
+        $this->console([$this->liveKey()]);
         $this->post($path . '/start');
         $a = $this->learnerIn($course);
         $this->get($path . '/state');
         $this->assertStatus(409, $this->postJson($path . '/signal', ['type' => 'ready']));
 
         $this->as($teacher['user'], ['training.teach']);
-        $this->console([$this->liveKey()]);
         $this->postJson($path . '/screen');
         $this->assertStatus(409, $this->postJson($path . '/signal', ['to' => $a['user'], 'type' => 'offer', 'sdp' => 'v=0']));
         $this->assertSame(0, PresentationEvent::query()->count());
     }
 
     #[Test]
-    public function leaving_screen_clears_the_room(): void
+    public function leaving_screen_keeps_the_room(): void
     {
         [, , $session, $path] = $this->talk();
+        $this->console([$this->liveKey(), $this->liveKey()]);
         $this->post($path . '/start');
-        $this->console([$this->liveKey()]);
+        $room = $this->live($session)->room;
         $this->postJson($path . '/screen');
-        $this->assertNotNull($this->live($session)->screen_room);
+        $this->assertNotNull($room);
 
+        // Der Raum gehört dem Vortrag; wer das Teilen beendet, lässt ihn stehen.
         $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'pause', 'events' => []]));
         $p = $this->live($session);
-        $this->assertSame(['pause', null, null], [$p->mode, $p->screen_via, $p->screen_room]);
+        $this->assertSame(['pause', null, $room], [$p->mode, $p->screen_via, $p->room]);
         $this->assertSame(2, $p->version);
         $this->assertNull($this->assertJsonResponse($this->get($path . '/state'))['screen']);
 
         $this->postJson($path . '/screen');
+        $this->assertSame($room, $this->live($session)->room);
         $this->assertOk($this->postJson($path . '/events', ['page_count' => 3, 'mode' => 'slides', 'events' => []]));
         $p = $this->live($session);
         $this->assertSame(['slides', null], [$p->mode, $p->screen_via]);
@@ -1807,9 +1824,9 @@ final class TrainingPresentationTest extends FeatureTestCase
     public function livekit_name_stays_within_fifty(): void
     {
         [$teacher, , , $path] = $this->talk();
+        $this->console([$this->liveKey()]);
         $this->post($path . '/start');
         User::query()->whereKey($teacher['user'])->update(['aktenid' => null, 'username' => str_repeat('Ä', 60) . "\u{1F600}"]);
-        $this->console([$this->liveKey()]);
 
         $this->postJson($path . '/screen');
         $this->assertSame(str_repeat('Ä', 50), $this->sentBody(0)['name']);
@@ -1837,5 +1854,314 @@ final class TrainingPresentationTest extends FeatureTestCase
         }
         $this->as($teacher['user'], ['training.teach']);
         $this->assertBodyContains('data-live-mode="screen"', $this->get($path));
+    }
+
+    /** Sekundengenau, denn die Datenbank rundet Bruchteile. */
+    private function clock(): DateTimeImmutable
+    {
+        return (new DateTimeImmutable())->setTimestamp(time());
+    }
+
+    /** @return array<string, mixed> */
+    private function stateOf(string $path): array
+    {
+        return $this->assertJsonResponse($this->get($path . '/state'));
+    }
+
+    private function nameOf(int $userId): string
+    {
+        return Presentations::identity(User::query()->with('mitarbeiter')->find($userId))['name'];
+    }
+
+    #[Test]
+    public function room_is_made_at_start_with_ef_sync(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->console([$this->liveKey('viewer-jwt'), $this->liveKey('host-jwt')]);
+        $this->post($path . '/start');
+        $room = $this->live($session)->room;
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', (string) $room);
+        // Würfeln braucht keine Anfrage an die Konsole.
+        $this->assertCount(0, $this->sent);
+
+        $viewer = $this->learnerIn($course);
+        $res    = $this->assertJsonResponse($this->postJson($path . '/room/token'));
+        $this->assertSame(['wss://live.example.test', 'viewer-jwt'], [$res['url'], $res['token']]);
+        $this->assertSame([$room, 'viewer'], [$this->sentBody(0)['room'], $this->sentBody(0)['role']]);
+        $this->assertTrue($this->stateOf($path)['room']);
+        $this->assertTrue($this->stateOf($path)['slides']);
+
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertOk($this->postJson($path . '/room/token'));
+        $this->assertSame([$room, 'u' . $teacher['user'], 'host'], [$this->sentBody(1)['room'], $this->sentBody(1)['identity'], $this->sentBody(1)['role']]);
+
+        // Ohne EF Sync gibt es keinen Raum und keinen Schlüssel.
+        $this->post($path . '/end');
+        AiDrafts::useClient(null);
+        $this->post($path . '/start');
+        $second = $this->live($session);
+        $this->assertNotSame($room, $second->room);
+        $this->assertNull($second->room);
+        $this->assertFalse($this->stateOf($path)['room']);
+        $this->as($viewer['user'], ['training.view']);
+        $none = $this->postJson($path . '/room/token');
+        $this->assertStatus(409, $none);
+        $this->assertSame('no_room', $this->assertJsonResponse($none)['error']);
+    }
+
+    #[Test]
+    public function a_failing_console_drops_the_room(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->console([new HttpResponse(503, [], (string) json_encode(['error' => 'Nicht eingerichtet']))]);
+        $this->post($path . '/start');
+        $this->assertNotNull($this->live($session)->room);
+        $this->learnerIn($course);
+        $before = $this->live($session)->version;
+
+        $failed = $this->postJson($path . '/room/token');
+        $this->assertStatus(409, $failed);
+        $this->assertSame('no_room', $this->assertJsonResponse($failed)['error']);
+        $p = $this->live($session);
+        $this->assertNull($p->room);
+        // Die Version steigt, damit alle Fenster den Raum fallen lassen.
+        $this->assertSame($before + 1, $p->version);
+        $this->assertFalse($this->stateOf($path)['room']);
+
+        // Weitere Schlüssel gibt es nicht, ohne dass die Konsole noch einmal gefragt wird.
+        $this->assertStatus(409, $this->postJson($path . '/room/token'));
+        $this->assertCount(1, $this->sent);
+
+        $this->as($teacher['user'], ['training.teach']);
+        $res = $this->assertJsonResponse($this->postJson($path . '/screen'));
+        $this->assertSame('direct', $res['via']);
+        $this->assertCount(1, $this->sent);
+        $this->assertSame('direct', $this->live($session)->screen_via);
+    }
+
+    #[Test]
+    public function questions_reach_only_instructors(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $second = $this->instructor($course);
+        $this->assertSame(0, $this->live($session)->q_version);
+        $a      = $this->learnerIn($course);
+        $b      = $this->learnerIn($course);
+
+        $this->as($a['user'], ['training.view']);
+        $asked = $this->assertJsonResponse($this->postJson($path . '/questions', ['body' => 'Was heißt SAMPLER?']));
+        $this->assertTrue($asked['ok']);
+        $id = $asked['id'];
+
+        $this->as($b['user'], ['training.view']);
+        $seenByB = $this->get($path . '/state');
+        $state   = $this->assertJsonResponse($seenByB);
+        $this->assertSame([], $state['questions']);
+        $this->assertArrayNotHasKey('visits', $state);
+        $this->assertStringNotContainsString('SAMPLER', $seenByB->body);
+
+        $this->as($a['user'], ['training.view']);
+        $own = $this->stateOf($path);
+        $this->assertCount(1, $own['questions']);
+        $this->assertSame(['Was heißt SAMPLER?', $this->nameOf($a['user']), null, false], [$own['questions'][0]['body'], $own['questions'][0]['name'], $own['questions'][0]['answer'], $own['questions'][0]['done']]);
+        $this->assertArrayNotHasKey('visits', $own);
+
+        foreach ([[$teacher['user'], 'training.teach'], [$second['user'], 'training.teach']] as [$user, $permission]) {
+            $this->as($user, [$permission]);
+            $all = $this->stateOf($path);
+            $this->assertCount(1, $all['questions']);
+            $this->assertSame([$id, $a['user'], $this->nameOf($a['user'])], [$all['questions'][0]['id'], $all['questions'][0]['user_id'], $all['questions'][0]['name']]);
+            $this->assertArrayHasKey('visits', $all);
+        }
+        // Ausbilder bekommen nie ein 304, denn Fragen und Besuche ändern sich ohne neue Version.
+        $etag = (string) ($this->get($path . '/state')->headers['ETag'] ?? '');
+        $this->assertOk($this->get($path . '/state', ['headers' => ['If-None-Match' => $etag]]));
+
+        // Beantworten und abhaken darf nur, wer am Lehrgang Rechte hat.
+        $this->as($b['user'], ['training.view']);
+        $beforeB = (string) ($this->get($path . '/state')->headers['ETag'] ?? '');
+        $this->assertForbidden($this->postJson($path . '/questions/' . $id . '/answer', ['answer' => 'Ich weiß es.']));
+        $this->assertForbidden($this->postJson($path . '/questions/' . $id . '/done'));
+        $this->as($a['user'], ['training.view']);
+        $this->assertForbidden($this->postJson($path . '/questions/' . $id . '/answer', ['answer' => 'Selbst beantwortet.']));
+        $this->assertNull(PresentationQuestion::query()->findOrFail($id)->answer);
+
+        // Der Host fragt nicht.
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertForbidden($this->postJson($path . '/questions', ['body' => 'Frage vom Host']));
+
+        $this->assertOk($this->postJson($path . '/questions/' . $id . '/answer', ['answer' => 'Das kommt gleich.']));
+        $row = PresentationQuestion::query()->findOrFail($id);
+        $this->assertSame(['Das kommt gleich.', $teacher['user']], [$row->answer, $row->answered_by]);
+        $this->assertNotNull($row->answered_at);
+
+        $this->as($a['user'], ['training.view']);
+        $this->assertSame('Das kommt gleich.', $this->stateOf($path)['questions'][0]['answer']);
+        $this->as($b['user'], ['training.view']);
+        // Auch mit dem alten Stand im Zwischenspeicher: kein 304 über den Antwortstand hinweg, und nichts Fremdes im Körper.
+        $after = $this->get($path . '/state', ['headers' => ['If-None-Match' => $beforeB]]);
+        $this->assertOk($after);
+        $this->assertSame([], $this->assertJsonResponse($after)['questions']);
+        $this->assertStringNotContainsString('Das kommt gleich.', $after->body);
+        $this->assertStringContainsString('Cookie', (string) ($after->headers['Vary'] ?? ''));
+
+        // Ohne Text ist die Frage nur abgehakt.
+        $this->as($second['user'], ['training.teach']);
+        $this->assertOk($this->postJson($path . '/questions/' . $id . '/done'));
+        $this->assertNotNull(PresentationQuestion::query()->findOrFail($id)->done_at);
+        $this->assertTrue($this->stateOf($path)['questions'][0]['done']);
+        $this->assertSame(3, $this->live($session)->q_version);
+    }
+
+    #[Test]
+    public function questions_are_limited_and_validated(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->learnerIn($course);
+
+        foreach ([['body' => ''], ['body' => " \n "], ['body' => str_repeat('ä', 501)], ['body' => 5], []] as $bad) {
+            $res = $this->postJson($path . '/questions', $bad);
+            $this->assertStatus(422, $res);
+            $this->assertSame(['error' => 'invalid'], $this->assertJsonResponse($res));
+        }
+        $this->assertSame(0, PresentationQuestion::query()->count());
+
+        $this->assertOk($this->postJson($path . '/questions', ['body' => str_repeat('ä', 500)]));
+        for ($i = 2; $i <= 5; $i++) {
+            $this->assertOk($this->postJson($path . '/questions', ['body' => 'Frage ' . $i]));
+        }
+        $sixth = $this->postJson($path . '/questions', ['body' => 'Frage 6']);
+        $this->assertStatus(429, $sixth);
+        $this->assertSame('too_many', $this->assertJsonResponse($sixth)['error']);
+        $this->assertSame(5, PresentationQuestion::query()->count());
+
+        Carbon::setTestNow(Carbon::now()->addSeconds(61));
+        try {
+            $this->assertOk($this->postJson($path . '/questions', ['body' => 'Frage 6']));
+        } finally {
+            Carbon::setTestNow();
+        }
+
+        // Antworten sind genauso begrenzt, und eine fremde Frage gibt es nicht.
+        $id = (int) PresentationQuestion::query()->value('id');
+        $this->as($teacher['user'], ['training.teach']);
+        $long = $this->postJson($path . '/questions/' . $id . '/answer', ['answer' => str_repeat('x', 501)]);
+        $this->assertStatus(422, $long);
+        $this->assertSame(['error' => 'invalid'], $this->assertJsonResponse($long));
+        $this->assertNull(PresentationQuestion::query()->findOrFail($id)->answer);
+        $this->assertNotFound($this->postJson($path . '/questions/999999/answer', ['answer' => 'Hallo']));
+        $this->assertNotFound($this->postJson($path . '/questions/999999/done'));
+    }
+
+    #[Test]
+    public function ending_drops_questions_but_keeps_visits(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $a = $this->learnerIn($course);
+        $this->stateOf($path);
+        $this->postJson($path . '/questions', ['body' => 'Noch da?']);
+        $this->as($teacher['user'], ['training.teach']);
+        $this->stateOf($path);
+        $p = $this->live($session);
+        $this->assertSame(1, PresentationQuestion::query()->where('presentation_id', $p->id)->count());
+
+        $this->assertRedirect($this->post($path . '/end'));
+        $this->assertSame(0, PresentationQuestion::query()->where('presentation_id', $p->id)->count());
+        $visits = PresentationVisit::query()->where('presentation_id', $p->id)->get();
+        $this->assertEqualsCanonicalizing([$teacher['user'], $a['user']], $visits->pluck('user_id')->all());
+        foreach ($visits as $visit) {
+            $this->assertNotNull($visit->left_at);
+            $this->assertSame($visit->last_seen_at->getTimestamp(), $visit->left_at->getTimestamp());
+        }
+    }
+
+    #[Test]
+    public function an_orphaned_talk_drops_questions_and_closes_visits(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $this->learnerIn($course);
+        $this->stateOf($path);
+        $this->postJson($path . '/questions', ['body' => 'Hallo?']);
+        $p = $this->live($session);
+        Presentation::query()->whereKey($p->id)->update(['started_at' => Carbon::now()->subHours(3), 'presenter_seen_at' => Carbon::now()->subHours(2)]);
+
+        $this->assertSame(['status' => 'ended'], $this->stateOf($path));
+        $this->assertSame(0, PresentationQuestion::query()->where('presentation_id', $p->id)->count());
+        $visit = PresentationVisit::query()->where('presentation_id', $p->id)->firstOrFail();
+        $this->assertNotNull($visit->left_at);
+        $this->assertSame($visit->last_seen_at->getTimestamp(), $visit->left_at->getTimestamp());
+    }
+
+    #[Test]
+    public function visits_split_only_after_a_gap(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk();
+        $this->post($path . '/start');
+        $a = $this->learnerIn($course);
+        $b = $this->learnerIn($course);
+        $p = $this->live($session);
+        $t = $this->clock();
+        $visitsOf = static fn (int $userId) => PresentationVisit::query()->where('presentation_id', $p->id)->where('user_id', $userId)->orderBy('id')->get();
+
+        foreach ([0, 10, 25] as $seconds) {
+            Presentations::heartbeat($p, $a['user'], null, $t->modify('+' . $seconds . ' seconds'));
+        }
+        $one = $visitsOf($a['user']);
+        $this->assertCount(1, $one);
+        $this->assertNull($one[0]->left_at);
+        $this->assertSame([$t->getTimestamp(), $t->getTimestamp() + 25], [$one[0]->joined_at->getTimestamp(), $one[0]->last_seen_at->getTimestamp()]);
+
+        Presentations::heartbeat($p, $a['user'], null, $t->modify('+70 seconds'));
+        $two = $visitsOf($a['user']);
+        $this->assertCount(2, $two);
+        $this->assertSame($t->getTimestamp() + 25, $two[0]->left_at?->getTimestamp());
+        $this->assertNull($two[1]->left_at);
+        $this->assertSame($t->getTimestamp() + 70, $two[1]->joined_at->getTimestamp());
+
+        // Zwei Tabs im selben Augenblick: ein offener Besuch.
+        Presentations::heartbeat($p, $b['user'], null, $t);
+        Presentations::heartbeat($p, $b['user'], null, $t);
+        $this->assertCount(1, $visitsOf($b['user']));
+        $this->assertNull($visitsOf($b['user'])[0]->left_at);
+
+        // Der Host zählt ebenfalls.
+        Presentations::heartbeat($p, $teacher['user'], null, $t);
+        $this->assertCount(1, $visitsOf($teacher['user']));
+
+        // Wer nach dem Ende noch fragt, eröffnet keinen Besuch.
+        Presentations::end($p, $t->modify('+80 seconds'));
+        Presentations::heartbeat($p, $b['user'], null, $t->modify('+90 seconds'));
+        $this->assertCount(1, $visitsOf($b['user']));
+        $this->assertNotNull($visitsOf($b['user'])[0]->left_at);
+    }
+
+    #[Test]
+    public function staff_sees_the_log_after_the_talk(): void
+    {
+        [$teacher, $course, , $path] = $this->talk();
+        $this->post($path . '/start');
+        $a = $this->learnerIn($course);
+        $this->stateOf($path);
+        $this->as($teacher['user'], ['training.teach']);
+        $live = $this->stateOf($path);
+        $this->assertCount(2, $live['visits']);
+        $this->assertEqualsCanonicalizing([$a['user'], $teacher['user']], array_column($live['visits'], 'user_id'));
+        $this->assertNotSame('', $live['visits'][0]['name']);
+        $this->post($path . '/end');
+        PresentationVisit::query()->where('user_id', $a['user'])->update(['joined_at' => '2026-11-11 10:05:00', 'last_seen_at' => '2026-11-11 10:42:00', 'left_at' => '2026-11-11 10:42:00']);
+
+        $page = $this->get('/training/manage/' . $course->id);
+        $this->assertBodyContains('Protokoll', $page);
+        $this->assertBodyContains($this->nameOf($a['user']), $page);
+        $this->assertBodyContains('10:05', $page);
+        $this->assertBodyContains('10:42', $page);
+
+        // Ein Besuch ohne Ende steht als „noch da“.
+        PresentationVisit::query()->where('user_id', $a['user'])->update(['left_at' => null, 'last_seen_at' => Carbon::now()]);
+        $this->assertBodyContains('noch da', $this->get('/training/manage/' . $course->id));
     }
 }

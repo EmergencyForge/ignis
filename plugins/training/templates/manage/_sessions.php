@@ -16,10 +16,12 @@
  * @var string                                      $manageUrl
  * @var array<int, \Plugin\Training\Models\Presentation> $lives  laufender Vortrag je Termin
  * @var array<int, array{minutes:int, need:int, viewers: array<int, array{minutes:int, suggested:bool}>}> $talks  alle beendeten Vorträge je Termin zusammen
+ * @var array<int, list<array{user_id:int, name:string, joined_at:string, left_at:?string}>> $visitsFor  Besuche aller Läufe je Termin, nur für Leitung und Ausbilder
  * @var int                                         $userId
  */
 
 use EmergencyForge\Training\UnitKind;
+use DateTimeImmutable;
 use Plugin\Training\Converter;
 use Plugin\Training\Models\Attendance;
 use Plugin\Training\Presentations;
@@ -103,6 +105,24 @@ $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentati
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            <?php endif; ?>
+            <?php $visits = $visitsFor[$session->id] ?? []; ?>
+            <?php if ($canInstruct && $visits !== []): ?>
+                <details class="mt-3" data-session-log="<?= (int) $session->id ?>">
+                    <summary>Protokoll (<?= count($visits) ?> <?= count($visits) === 1 ? 'Besuch' : 'Besuche' ?>)</summary>
+                    <table class="ignis-table mt-2">
+                        <thead><tr><th scope="col">Name</th><th scope="col">Gekommen</th><th scope="col">Gegangen</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($visits as $visit): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($visit['name']) ?></td>
+                                    <td><?= (new DateTimeImmutable($visit['joined_at']))->format('H:i') ?> Uhr</td>
+                                    <td><?= $visit['left_at'] === null ? 'noch da' : (new DateTimeImmutable($visit['left_at']))->format('H:i') . ' Uhr' ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </details>
             <?php endif; ?>
         </div>
         <div class="ignis-card__footer" data-form-actions>

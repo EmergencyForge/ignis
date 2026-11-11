@@ -15,7 +15,7 @@
  *
  * Bildschirm teilen: der Host holt den Stream per getDisplayMedia und meldet
  * `/screen`, der Server wählt den Weg. Über LiveKit lädt der Host einmal hoch,
- * Zuschauer holen ihr Token über `/screen/token`. Direkt baut der Host je
+ * Zuschauer holen ihr Token über `/room/token`. Direkt baut der Host je
  * Zuschauer eine WebRTC-Verbindung, die Signale laufen über `/signal` und die
  * normale Abfrage. livekit-client kommt erst per import(), wenn er gebraucht wird.
  *
@@ -1163,7 +1163,7 @@
     }
 
     async function subscribe(w) {
-        const { status, data } = await post('/screen/token', {});
+        const { status, data } = await post('/room/token', {});
         if (watch !== w || status !== 200) return;
         const { Room, RoomEvent } = await lk();
         if (watch !== w) return;

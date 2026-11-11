@@ -23,9 +23,10 @@ use Illuminate\Support\Carbon;
  * @property int         $page  ab 0
  * @property string      $mode  slides|pause|screen
  * @property string|null  $screen_via  livekit|direct, nur im Modus screen
- * @property string|null  $screen_room  LiveKit-Raum, nur bei livekit
+ * @property string|null  $room  LiveKit-Raum des Vortrags; leer ohne EF Sync oder wenn die Konsole ausfiel
  * @property int         $version
  * @property int         $seq
+ * @property int         $q_version  zählt Änderungen an den Fragen
  * @property Carbon      $presenter_seen_at
  * @property int|null    $handover_to
  * @property-read Session $session
@@ -53,9 +54,10 @@ class Presentation extends EloquentModel
         'page'              => 'integer',
         'mode'              => 'string',
         'screen_via'        => 'string',
-        'screen_room'       => 'string',
+        'room'              => 'string',
         'version'           => 'integer',
         'seq'               => 'integer',
+        'q_version'         => 'integer',
         'presenter_seen_at' => 'datetime',
         'handover_to'       => 'integer',
     ];
