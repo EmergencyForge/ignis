@@ -28,6 +28,7 @@ use Plugin\Training\Models\PresentationViewer;
 use Plugin\Training\Models\Session;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Models\Unit;
+use Plugin\Training\Models\UnitProgress;
 use Plugin\Training\Presentations;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -174,7 +175,13 @@ final class TrainingPresentationTest extends FeatureTestCase
         return $p;
     }
 
-    private function session(Course $course, ?int $slides = null): Session
+    /** Präsentation im Lehrplan der Lehrgangsart; mit Folien, wenn eine Datei da ist. */
+    private function presentation(Course $course, ?TrainingFile $file = null, bool $afterTalk = true): Unit
+    {
+        return $this->unit($course->type, ['kind' => 'presentation', 'title' => 'Vortrag', 'file_id' => $file?->id, 'slides_after_talk' => $afterTalk]);
+    }
+
+    private function session(Course $course, ?Unit $unit = null): Session
     {
         $session = new Session();
         $session->course_id      = $course->id;
@@ -182,7 +189,8 @@ final class TrainingPresentationTest extends FeatureTestCase
         $session->starts_at      = Carbon::now()->addDay();
         $session->ends_at        = Carbon::now()->addDay()->addHours(2);
         $session->required       = true;
-        $session->slides_file_id = $slides;
+        $session->unit_id        = $unit?->id;
+        $session->module_id      = $unit?->module_id;
         $session->save();
 
         return $session;
@@ -224,138 +232,298 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
-    public function migration_adds_slides_and_presentation_tables(): void
+    public function migration_detaches_slides_and_ends_running_talks(): void
     {
-        $course  = $this->course($this->type(), 'running');
-        $teacher = $this->account();
-        $session = $this->session($course, $this->pdf()->id);
+        // Die Migration ändert Schema (DDL beendet die Test-Transaktion); ab hier läuft alles ohne.
+        Capsule::connection()->rollBack();
+        $migration = $this->migration();
+        $teacher   = $this->account();
+        $type      = $this->type();
+        $course    = $this->course($type, 'running');
+        $file      = $this->pdf();
+        $unit      = $this->unit($type, ['kind' => 'session']);
+        $roleId    = (int) Capsule::table('intra_users')->where('id', $teacher['user'])->value('role');
+        try {
+            $migration->down();
+            $this->assertTrue(Capsule::schema()->hasColumn('intra_training_sessions', 'slides_file_id'));
+            $this->assertFalse(Capsule::schema()->hasColumn('intra_training_units', 'slides_after_talk'));
 
-        $presentation = new Presentation();
-        $presentation->session_id        = $session->id;
-        $presentation->presenter_id      = $teacher['user'];
-        $presentation->started_at        = Carbon::now();
-        $presentation->presenter_seen_at = Carbon::now();
-        $presentation->save();
+            // Zustand vor der Migration: Termin mit Folien, ein laufender und ein beendeter Vortrag.
+            $sessionId = (int) Capsule::table('intra_training_sessions')->insertGetId([
+                'course_id' => $course->id, 'unit_id' => $unit->id, 'slides_file_id' => $file->id, 'title' => 'Theorie',
+                'starts_at' => '2026-11-12 18:00:00', 'ends_at' => '2026-11-12 20:00:00', 'required' => 1,
+            ]);
+            $talk = static fn (?string $endedAt): int => (int) Capsule::table('intra_training_presentations')->insertGetId([
+                'session_id' => $sessionId, 'presenter_id' => $teacher['user'], 'started_at' => '2026-11-12 18:00:00', 'ended_at' => $endedAt,
+                'mode' => 'screen', 'screen_via' => 'direct', 'screen_room' => 'raum', 'seq' => 2, 'presenter_seen_at' => '2026-11-12 18:30:00', 'handover_to' => $teacher['user'],
+            ]);
+            $running = $talk(null);
+            $ended   = $talk('2026-11-12 19:00:00');
+            foreach ([$running, $ended] as $id) {
+                Capsule::table('intra_training_presentation_events')->insert([
+                    ['presentation_id' => $id, 'seq' => 1, 'kind' => 'laser', 'data' => '{}', 'created_at' => '2026-11-12 18:10:00'],
+                    ['presentation_id' => $id, 'seq' => 2, 'kind' => 'begin', 'data' => '{}', 'created_at' => '2026-11-12 18:10:01'],
+                ]);
+            }
+            // Ein Zuschauer des laufenden Vortrags, der nach dem letzten Lebenszeichen noch gezählt hat.
+            Capsule::table('intra_training_presentation_viewers')->insert([
+                'presentation_id' => $running, 'user_id' => $teacher['user'], 'first_seen_at' => '2026-11-12 18:00:00', 'last_seen_at' => '2026-11-12 18:40:00', 'seconds_watched' => 3000,
+            ]);
 
-        $session = Session::query()->find($session->id);
-        $this->assertSame('Skript.pdf', $session->slides?->original_name);
-        $this->assertSame(1, $session->presentations()->whereNull('ended_at')->count());
-        $fresh = Presentation::query()->find($presentation->id);
-        $this->assertSame(0, $fresh->page);
-        $this->assertSame('slides', $fresh->mode);
-        $this->assertTrue($fresh->isLive());
-        $this->assertSame($teacher['user'], $fresh->presenter->id);
+            $migration->up();
+
+            $this->assertFalse(Capsule::schema()->hasColumn('intra_training_sessions', 'slides_file_id'));
+            $this->assertTrue(Capsule::schema()->hasColumn('intra_training_units', 'slides_after_talk'));
+            $this->assertSame(1, (int) Capsule::table('intra_training_units')->where('id', $unit->id)->value('slides_after_talk'));
+            $this->assertNotNull(TrainingFile::query()->find($file->id));
+
+            $ran = Presentation::query()->find($running);
+            $this->assertSame('2026-11-12 18:30:00', $ran->ended_at?->format('Y-m-d H:i:s'));
+            $this->assertSame(['slides', null, null, null], [$ran->mode, $ran->screen_via, $ran->screen_room, $ran->handover_to]);
+            $this->assertSame(0, PresentationEvent::query()->where('presentation_id', $running)->count());
+            $this->assertSame(1800, (int) Capsule::table('intra_training_presentation_viewers')->where('presentation_id', $running)->value('seconds_watched'));
+            // Ein bereits beendeter Vortrag bleibt, wie er war.
+            $this->assertSame('2026-11-12 19:00:00', Presentation::query()->find($ended)->ended_at?->format('Y-m-d H:i:s'));
+            $this->assertSame(2, PresentationEvent::query()->where('presentation_id', $ended)->count());
+        } finally {
+            if (Capsule::schema()->hasColumn('intra_training_sessions', 'slides_file_id')) {
+                $migration->up();
+            }
+            Capsule::table('intra_training_courses')->where('id', $course->id)->delete();
+            Capsule::table('intra_training_modules')->where('course_type_id', $type->id)->delete();
+            Capsule::table('intra_training_course_types')->where('id', $type->id)->delete();
+            Capsule::table('intra_training_files')->where('id', $file->id)->delete();
+            Capsule::table('intra_users')->where('id', $teacher['user'])->delete();
+            Capsule::table('intra_mitarbeiter')->where('id', $teacher['personnel'])->delete();
+            Capsule::table('intra_users_roles')->where('id', $roleId)->delete();
+        }
+    }
+
+    private function migration(): \AddIntraTrainingPresentationUnits
+    {
+        require_once dirname(__DIR__, 2) . '/plugins/training/migrations/20261111000002_add_intra_training_presentation_units.php';
+        $adapter   = new \Phinx\Db\Adapter\MysqlAdapter(['name' => (string) $_ENV['DB_NAME']]);
+        $adapter->setConnection(Capsule::connection()->getPdo());
+        $migration = new \AddIntraTrainingPresentationUnits('testing', 20261111000002);
+        $migration->setAdapter($adapter);
+
+        return $migration;
     }
 
     #[Test]
-    public function instructor_uploads_slides_for_a_session(): void
+    public function presentation_unit_takes_slides_and_the_switch(): void
     {
-        $teacher = $this->account();
-        $course  = $this->course($this->type(), 'running', lead: $teacher['user']);
-        $session = $this->session($course);
-        $this->as($teacher['user'], ['training.teach']);
+        $type   = $this->type();
+        $module = new Module();
+        $module->course_type_id = $type->id;
+        $module->title          = 'Grundlagen';
+        $module->save();
+        $this->as($this->account()['user'], ['training.manage']);
+        $url = '/training/modules/' . $module->id . '/units';
 
-        $response = $this->post('/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides', [], [
-            'files' => ['slides' => $this->upload("%PDF-1.4\n%%EOF\n", 'Folien.pdf')],
-        ]);
+        // Hochgeladene PDF, Schalter aus: der Haken fehlt im Formular.
+        $this->assertRedirect($this->post($url, ['kind' => 'presentation', 'title' => 'Eigensicherung'], [
+            'files' => ['file' => $this->upload("%PDF-1.4\n%%EOF\n", 'Folien.pdf')],
+        ]));
+        $unit = Unit::query()->where('module_id', $module->id)->where('title', 'Eigensicherung')->firstOrFail();
+        $this->forgetStored($unit->file_id);
+        $this->assertSame('presentation', $unit->kind);
+        $this->assertFalse($unit->slides_after_talk);
+        $this->assertFalse($unit->allow_download);
+        $this->assertSame('Folien.pdf', $unit->file?->original_name);
 
-        $fileId = Session::query()->find($session->id)->slides_file_id;
-        $this->forgetStored($fileId);
-        $this->assertRedirect($response, '/training/manage/' . $course->id . '#termine');
-        $this->assertNotNull($fileId);
-        $this->assertSame('Folien.pdf', TrainingFile::query()->find($fileId)->original_name);
-    }
+        // Ohne Folien ist die Präsentation gültig; der Schalter wird gespeichert.
+        $this->assertRedirect($this->post($url, ['kind' => 'presentation', 'title' => 'Ohne Folien', 'slides_after_talk' => '1']));
+        $bare = Unit::query()->where('module_id', $module->id)->where('title', 'Ohne Folien')->firstOrFail();
+        $this->assertNull($bare->file_id);
+        $this->assertTrue($bare->slides_after_talk);
 
-    #[Test]
-    public function instructor_picks_slides_from_the_plan(): void
-    {
-        $teacher = $this->account();
-        $type    = $this->type();
-        $course  = $this->course($type, 'running', lead: $teacher['user']);
-        $session = $this->session($course);
-        $own     = $this->pdf();
-        $foreign = $this->pdf();
-        $this->unit($type, ['kind' => 'file', 'file_id' => $own->id]);
-        $url = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides';
-        $this->as($teacher['user'], ['training.teach']);
-
-        $this->post($url, ['slides_file_id' => (string) $foreign->id]);
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
-
-        $this->assertRedirect($this->post($url, ['slides_file_id' => (string) $own->id]), '/training/manage/' . $course->id . '#termine');
-        $this->assertSame($own->id, Session::query()->find($session->id)->slides_file_id);
-
-        $this->post($url, ['remove' => '1']);
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
-    }
-
-    #[Test]
-    public function an_upload_beats_the_pick(): void
-    {
-        $teacher = $this->account();
-        $type    = $this->type();
-        $course  = $this->course($type, 'running', lead: $teacher['user']);
-        $session = $this->session($course);
-        $own     = $this->pdf();
-        $this->unit($type, ['kind' => 'file', 'file_id' => $own->id]);
-        $this->as($teacher['user'], ['training.teach']);
-
-        $this->post('/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides', ['slides_file_id' => (string) $own->id], [
-            'files' => ['slides' => $this->upload("%PDF-1.4\n%%EOF\n", 'Neu.pdf')],
-        ]);
-
-        $fileId = Session::query()->find($session->id)->slides_file_id;
-        $this->forgetStored($fileId);
-        $this->assertNotSame($own->id, $fileId);
+        // Beim Bearbeiten ohne neuen Upload bleiben die Folien; ein Wechsel der Art löst sie.
+        $this->post('/training/units/' . $unit->id, ['kind' => 'presentation', 'title' => 'Eigensicherung', 'slides_after_talk' => '1']);
+        $this->assertSame($unit->file_id, Unit::query()->find($unit->id)->file_id);
+        $this->assertTrue(Unit::query()->find($unit->id)->slides_after_talk);
+        $this->post('/training/units/' . $unit->id, ['kind' => 'text', 'title' => 'Eigensicherung', 'doc' => (string) json_encode(['type' => 'doc', 'content' => []])]);
+        $this->assertNull(Unit::query()->find($unit->id)->file_id);
     }
 
     #[Test]
     public function powerpoint_slides_need_the_converter(): void
     {
-        $teacher = $this->account();
-        $course  = $this->course($this->type(), 'running', lead: $teacher['user']);
-        $session = $this->session($course);
-        $this->as($teacher['user'], ['training.teach']);
-        $url = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides';
+        $type   = $this->type();
+        $module = new Module();
+        $module->course_type_id = $type->id;
+        $module->title          = 'Grundlagen';
+        $module->save();
+        $this->as($this->account()['user'], ['training.manage']);
+        $url = '/training/modules/' . $module->id . '/units';
 
-        $this->post($url, [], ['files' => ['slides' => $this->upload($this->pptx(), 'Folien.pptx')]]);
-        $this->assertSame('PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.', $_SESSION['flash']['text'] ?? null);
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
+        // Die Meldung steht auf dem neu gezeigten Formular.
+        $pptx = $this->post($url, ['kind' => 'presentation', 'title' => 'Folien'], ['files' => ['file' => $this->upload($this->pptx(), 'Folien.pptx')]]);
+        $this->assertStatus(422, $pptx);
+        $this->assertBodyContains('PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.', $pptx);
 
-        $this->post($url, [], ['files' => ['slides' => $this->upload('nur Text', 'Folien.txt')]]);
-        $this->assertSame('Folien müssen ein PDF oder eine PowerPoint-Datei sein.', $_SESSION['flash']['text'] ?? null);
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
+        $text = $this->post($url, ['kind' => 'presentation', 'title' => 'Folien'], ['files' => ['file' => $this->upload('nur Text', 'Folien.txt')]]);
+        $this->assertStatus(422, $text);
+        $this->assertBodyContains('Folien müssen ein PDF oder eine PowerPoint-Datei sein.', $text);
+        $this->assertSame(0, Unit::query()->where('module_id', $module->id)->count());
     }
 
     #[Test]
-    public function learner_cannot_set_slides(): void
+    public function session_links_a_presentation_unit_and_shows_start(): void
+    {
+        $teacher = $this->account();
+        $type    = $this->type();
+        $course  = $this->course($type, 'running', lead: $teacher['user']);
+        $slides  = $this->presentation($course, $this->pdf());
+        $plain   = $this->unit($type, ['kind' => 'session', 'title' => 'Praxistag']);
+        $text    = $this->unit($type, ['kind' => 'text']);
+        $this->as($teacher['user'], ['training.teach']);
+        $url  = '/training/manage/' . $course->id . '/sessions';
+        $form = ['date' => '2026-12-01', 'from' => '18:00', 'until' => '20:00'];
+
+        // Offen ist die Präsentation im Auswahlfeld, ein Artikel nicht.
+        $page = $this->get('/training/manage/' . $course->id);
+        $this->assertBodyContains('<option value="' . $slides->id . '">Vortrag · Präsentation</option>', $page);
+        $this->assertBodyNotContains('<option value="' . $text->id . '">', $page);
+
+        $this->post($url, $form + ['unit_id' => (string) $text->id]);
+        $this->assertSame(0, Session::query()->where('course_id', $course->id)->count());
+
+        $this->assertRedirect($this->post($url, $form + ['unit_id' => (string) $slides->id]));
+        $session = Session::query()->where('course_id', $course->id)->firstOrFail();
+        $this->assertSame($slides->id, $session->unit_id);
+        $this->assertSame($slides->module_id, $session->module_id);
+        $this->assertSame('Vortrag', $session->title);
+
+        // Eine Einheit hat höchstens einen Termin, auch eine Präsentation.
+        $this->post($url, $form + ['unit_id' => (string) $slides->id]);
+        $this->assertSame('Für diese Einheit gibt es schon einen Termin.', $_SESSION['flash']['text'] ?? null);
+        $this->assertSame(1, Session::query()->where('course_id', $course->id)->count());
+
+        $this->post($url, $form + ['unit_id' => (string) $plain->id]);
+        $both = $this->get('/training/manage/' . $course->id);
+        $this->assertOk($both);
+        // Der Start-Knopf gehört nur zum Termin der Präsentation.
+        $this->assertSame(1, substr_count($both->body, 'Vortrag starten'));
+        $this->assertBodyContains('<span class="ignis-chip ignis-chip--sm">Präsentation</span>', $both);
+        $this->assertBodyNotContains('Folien speichern', $both);
+    }
+
+    #[Test]
+    public function session_card_flags_slides_that_are_still_converting(): void
     {
         $teacher = $this->account();
         $course  = $this->course($this->type(), 'running', lead: $teacher['user']);
-        $session = $this->session($course);
-        $url     = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides';
-        $files   = ['files' => ['slides' => $this->upload("%PDF-1.4\n%%EOF\n", 'Folien.pdf')]];
+        $pptx    = $this->pdf();
+        $pptx->mime           = \Plugin\Training\Converter::PPTX;
+        $pptx->original_name  = 'Folien.pptx';
+        $pptx->convert_status = \Plugin\Training\Converter::PENDING;
+        $pptx->save();
+        $this->session($course, $this->presentation($course, $pptx));
+        $this->as($teacher['user'], ['training.teach']);
 
-        // Mit Lehrrecht, aber nicht in diesem Lehrgang: 404.
-        $other = $this->account();
-        $this->as($other['user'], ['training.teach']);
-        $this->assertNotFound($this->post($url, [], $files));
+        $page = $this->get('/training/manage/' . $course->id);
 
-        // Lernende haben das Recht gar nicht; die Middleware schickt sie weg wie bei jeder Verwaltungsroute.
-        $learner = $this->account();
-        $this->admit($course, $learner['personnel']);
+        $this->assertOk($page);
+        $this->assertBodyContains('PowerPoint wird umgewandelt', $page);
+        $this->assertBodyNotContains('Vortrag starten', $page);
+    }
+
+    #[Test]
+    public function start_needs_a_presentation_unit_not_slides(): void
+    {
+        [, , , $path] = $this->talk(slides: false);
+
+        // Eine Präsentation ohne Folien startet, der Vortrag läuft dann ohne PDF.
+        $this->assertRedirect($this->post($path . '/start'), $path);
+        $this->assertSame(1, Presentation::query()->whereNull('ended_at')->count());
+
+        // Ein Termin ohne Präsentation hat nichts zu zeigen.
+        $type  = $this->type();
+        $other = $this->course($type, 'running', lead: $this->account(permissions: ['training.teach'])['user']);
+        foreach ([null, $this->unit($type, ['kind' => 'session'])] as $unit) {
+            $session = $this->session($other, $unit);
+            $this->as((int) $other->lead_user_id, ['training.teach']);
+            $this->assertRedirect($this->post('/training/courses/' . $other->id . '/sessions/' . $session->id . '/presentation/start'), '/training/manage/' . $other->id . '#termine');
+            $this->assertSame('Dieser Termin hat keine Präsentation.', $_SESSION['flash']['text'] ?? null);
+            $this->assertSame(0, Presentation::query()->where('session_id', $session->id)->count());
+        }
+
+        // PowerPoint, die noch nicht umgewandelt ist, lässt sich nicht zeigen.
+        $pptx = $this->pdf();
+        $pptx->mime           = \Plugin\Training\Converter::PPTX;
+        $pptx->convert_status = \Plugin\Training\Converter::PENDING;
+        $pptx->save();
+        $waiting = $this->session($other, $this->presentation($other, $pptx));
+        $this->assertRedirect($this->post('/training/courses/' . $other->id . '/sessions/' . $waiting->id . '/presentation/start'), '/training/manage/' . $other->id . '#termine');
+        $this->assertSame('Die Folien werden noch umgewandelt.', $_SESSION['flash']['text'] ?? null);
+        $this->assertSame(0, Presentation::query()->where('session_id', $waiting->id)->count());
+
+        // Lernende starten nichts.
+        [, $course2, $session2, $path2] = $this->talk();
+        $this->learnerIn($course2);
+        $this->assertRedirect($this->post($path2 . '/start'), '/training/courses/' . $course2->id);
+        $this->assertSame(0, Presentation::query()->where('session_id', $session2->id)->count());
+    }
+
+    #[Test]
+    public function slides_only_during_the_talk_stay_hidden_otherwise(): void
+    {
+        [$teacher, $course, $session, $path] = $this->talk(afterTalk: false);
+        $unit  = $session->unit;
+        $file  = $unit->file;
+        $slides = '/training/courses/' . $course->id . '/sessions/' . $session->id . '/slides';
+        $files  = '/training/courses/' . $course->id . '/files/' . $file->id;
+        $unitUrl = '/training/courses/' . $course->id . '/units/' . $unit->id;
+        $pages   = ['course' => $course->id, 'pages' => [1], 'total' => 1];
+        $learner = $this->learnerIn($course);
+
+        // Ohne laufenden Vortrag sieht ein Teilnehmer nichts davon.
+        $this->assertNotFound($this->get($slides));
+        $this->assertNotFound($this->get($files));
+        $this->assertNotFound($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages));
+        $this->assertBodyContains('Die Folien gibt es nur im Vortrag.', $this->get($unitUrl));
+        $this->assertNull(UnitProgress::query()->where('unit_id', $unit->id)->first());
+
+        // Ausbilder immer.
+        $this->as($teacher['user'], ['training.teach']);
+        $this->assertOk($this->get($slides));
+        $this->assertOk($this->get($files));
+        $this->assertBodyContains('data-ignis-document-viewer', $this->get($unitUrl));
+
+        // Mit laufendem Vortrag auch der Teilnehmer, mit Hinweis zum Mitverfolgen.
+        $this->post($path . '/start');
         $this->as($learner['user'], ['training.view']);
-        $this->assertRedirect($this->post($url, [], $files));
+        $this->assertOk($this->get($slides));
+        $this->assertOk($this->get($files));
+        $viewer = $this->get($unitUrl);
+        $this->assertBodyContains('data-ignis-document-viewer', $viewer);
+        $this->assertBodyContains('Live mitverfolgen', $viewer);
+        $this->assertOk($this->postJson('/api/training/units/' . $unit->id . '/pages', $pages));
 
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
+        // Nach dem Ende ist wieder zu.
+        $this->as($teacher['user'], ['training.teach']);
+        $this->post($path . '/end');
+        $this->as($learner['user'], ['training.view']);
+        $this->assertNotFound($this->get($slides));
+        $this->assertNotFound($this->get($files));
+        $this->assertNotFound($this->get($files, ['query' => ['download' => '1']]));
+
+        // Mit dem Schalter an bleibt das PDF im Lehrgang.
+        $unit->slides_after_talk = true;
+        $unit->save();
+        $this->assertOk($this->get($slides));
+        $this->assertOk($this->get($files));
+        $this->assertNotFound($this->get($files, ['query' => ['download' => '1']]));
     }
 
     #[Test]
     public function slides_are_delivered_to_learners_with_open_materials(): void
     {
         $teacher  = $this->account();
-        $course   = $this->course($this->type(), 'running', lead: $teacher['user']);
-        $session  = $this->session($course, $this->pdf()->id);
+        $type     = $this->type();
+        $course   = $this->course($type, 'running', lead: $teacher['user']);
+        $session  = $this->session($course, $this->presentation($course, $this->pdf()));
         $learner  = $this->account();
         $outsider = $this->account();
         $this->admit($course, $learner['personnel']);
@@ -372,82 +540,44 @@ final class TrainingPresentationTest extends FeatureTestCase
 
         // Teilnahme besteht, der Lehrgang gibt die Unterlagen aber noch nicht frei.
         $closed        = $this->course($this->type(), 'planned');
-        $closedSession = $this->session($closed, $this->pdf()->id);
+        $closedSession = $this->session($closed, $this->presentation($closed, $this->pdf()));
         $this->admit($closed, $learner['personnel']);
         $this->as($learner['user'], ['training.view']);
         $this->assertNotFound($this->get('/training/courses/' . $closed->id . '/sessions/' . $closedSession->id . '/slides'));
 
+        // Ein Termin ohne Präsentation oder ohne Folien liefert nichts.
         $this->as($teacher['user'], ['training.teach']);
         $this->assertOk($this->get($url));
+        $this->assertNotFound($this->get('/training/courses/' . $course->id . '/sessions/' . $this->session($course)->id . '/slides'));
+        $this->assertNotFound($this->get('/training/courses/' . $course->id . '/sessions/' . $this->session($course, $this->presentation($course))->id . '/slides'));
     }
 
     #[Test]
-    public function session_card_shows_the_slides_form_and_a_pending_conversion(): void
+    public function events_without_slides_only_take_screen_strokes(): void
     {
-        $teacher = $this->account();
-        $course  = $this->course($this->type(), 'running', lead: $teacher['user']);
-        $pptx    = $this->pdf();
-        $pptx->mime            = \Plugin\Training\Converter::PPTX;
-        $pptx->original_name    = 'Folien.pptx';
-        $pptx->convert_status   = \Plugin\Training\Converter::PENDING;
-        $pptx->save();
-        $session = $this->session($course, $pptx->id);
-        $this->as($teacher['user'], ['training.teach']);
-
-        $response = $this->get('/training/manage/' . $course->id);
-
-        $this->assertOk($response);
-        $this->assertBodyContains('id="slides-' . $session->id . '"', $response);
-        $this->assertBodyContains('Ohne Umwandler gehen hier nur PDF-Folien.', $response);
-        $this->assertBodyContains('wird umgewandelt', $response);
-        $this->assertBodyContains('Folien.pptx', $response);
-    }
-
-    #[Test]
-    public function slides_upload_error_names_the_failure(): void
-    {
-        $teacher = $this->account();
-        $course  = $this->course($this->type(), 'running', lead: $teacher['user']);
-        $session = $this->session($course);
-        $this->as($teacher['user'], ['training.teach']);
-        $url = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides';
-
-        $failed = static fn (int $error): array => ['files' => ['slides' => ['name' => 'Folien.pdf', 'tmp_name' => '', 'error' => $error, 'size' => 0]]];
-        $this->assertRedirect($this->post($url, [], $failed(UPLOAD_ERR_INI_SIZE)), '/training/manage/' . $course->id . '#termine');
-        $this->assertSame('Die Datei ist zu groß (höchstens 25 MB).', $_SESSION['flash']['text'] ?? null);
-        $this->post($url, [], $failed(UPLOAD_ERR_PARTIAL));
-        $this->assertSame('Der Upload ist fehlgeschlagen.', $_SESSION['flash']['text'] ?? null);
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
-    }
-
-    #[Test]
-    public function slides_stay_put_during_a_live_talk(): void
-    {
-        [, $course, $session, $path] = $this->talk();
-        $slides = $session->slides_file_id;
+        [, , $session, $path] = $this->talk(slides: false);
         $this->post($path . '/start');
-        $url = '/training/manage/' . $course->id . '/sessions/' . $session->id . '/slides';
 
-        $this->assertRedirect($this->post($url, ['remove' => '1']), '/training/manage/' . $course->id . '#termine');
-        $this->assertSame('Während eines laufenden Vortrags lassen sich die Folien nicht ändern.', $_SESSION['flash']['text'] ?? null);
-        $this->post($url, [], ['files' => ['slides' => $this->upload("%PDF-1.4\n%%EOF\n", 'Neu.pdf')]]);
-        $this->assertSame($slides, Session::query()->find($session->id)->slides_file_id);
-
-        $this->assertRedirect($this->post($path . '/end'));
-        $this->post($url, ['remove' => '1']);
-        $this->assertNull(Session::query()->find($session->id)->slides_file_id);
+        // Ohne Folien zählt die Seite -1 (geteilter Bildschirm), eine Folie gibt es nicht.
+        $this->assertOk($this->postJson($path . '/events', ['page_count' => 0, 'events' => [$this->stroke(1, ['page' => -1])]]));
+        $this->assertSame(1, PresentationEvent::query()->where('presentation_id', $this->live($session)->id)->count());
+        $this->assertStatus(422, $this->postJson($path . '/events', ['page_count' => 0, 'events' => [$this->stroke(2, ['page' => 0])]]));
+        $this->assertStatus(422, $this->postJson($path . '/events', ['page_count' => 0, 'page' => 0, 'events' => []]));
+        $this->assertStatus(422, $this->postJson($path . '/events', ['page_count' => -1, 'events' => []]));
+        $this->assertStatus(422, $this->postJson($path . '/events', ['page_count' => 501, 'events' => []]));
+        $this->assertSame(1, PresentationEvent::query()->where('presentation_id', $this->live($session)->id)->count());
     }
 
     /**
-     * Leitung (angemeldet, mit Lehrrecht in der DB), Lehrgang, Termin mit Folien, Pfad zum Vortrag.
+     * Leitung (angemeldet, mit Lehrrecht in der DB), Lehrgang, Termin an einer Präsentation (mit Folien, wenn $slides), Pfad zum Vortrag.
      *
      * @return array{0: array{user: int, personnel: int}, 1: Course, 2: Session, 3: string}
      */
-    private function talk(string $status = 'running'): array
+    private function talk(string $status = 'running', bool $slides = true, bool $afterTalk = true): array
     {
         $teacher = $this->account(permissions: ['training.teach']);
         $course  = $this->course($this->type(), $status, lead: $teacher['user']);
-        $session = $this->session($course, $this->pdf()->id);
+        $session = $this->session($course, $this->presentation($course, $slides ? $this->pdf() : null, $afterTalk));
         $this->as($teacher['user'], ['training.teach']);
 
         return [$teacher, $course, $session, '/training/courses/' . $course->id . '/sessions/' . $session->id . '/presentation'];
@@ -542,29 +672,6 @@ final class TrainingPresentationTest extends FeatureTestCase
         $outsider = $this->account();
         $this->as($outsider['user'], ['training.view']);
         $this->assertNotFound($this->post($path . '/start'));
-        $this->assertSame(0, Presentation::query()->where('session_id', $session->id)->count());
-    }
-
-    #[Test]
-    public function start_needs_slides(): void
-    {
-        [, $course, $session, $path] = $this->talk();
-        $back = '/training/manage/' . $course->id . '#termine';
-        $session->slides_file_id = null;
-        $session->save();
-
-        $this->assertRedirect($this->post($path . '/start'), $back);
-        $this->assertSame('Dieser Termin hat keine Folien.', $_SESSION['flash']['text'] ?? null);
-
-        // PowerPoint, die noch nicht umgewandelt ist, zählt nicht als Folien.
-        $pptx = $this->pdf();
-        $pptx->mime           = \Plugin\Training\Converter::PPTX;
-        $pptx->convert_status = \Plugin\Training\Converter::PENDING;
-        $pptx->save();
-        $session->slides_file_id = $pptx->id;
-        $session->save();
-        $this->assertRedirect($this->post($path . '/start'), $back);
-
         $this->assertSame(0, Presentation::query()->where('session_id', $session->id)->count());
     }
 

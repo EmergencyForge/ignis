@@ -40,12 +40,15 @@ final class PresentationController extends BaseController
     /** GET /training/courses/{course}/sessions/{session}/slides */
     public function slides(Request $request, string $course, string $session): Response
     {
-        $courseModel = self::findCourse($course);
-        $file        = $courseModel !== null
-            ? Session::query()->where('course_id', $courseModel->id)->with('slides')->find((int) $session)?->slides
-            : null;
+        $courseModel  = self::findCourse($course);
+        $sessionModel = $courseModel !== null ? Session::query()->where('course_id', $courseModel->id)->with('unit.file')->find((int) $session) : null;
+        $file         = $sessionModel?->presentationFile();
         // Die Route lässt jeden mit Ausbildungssicht herein; Folien sind Lehrgangsmaterial.
         if ($courseModel === null || !TrainingPolicy::follow($courseModel, self::ownParticipation($courseModel)) || $file === null || !$file->viewsAsPdf()) {
+            return self::notFound();
+        }
+        // Mit abgeschaltetem Schalter an der Einheit gibt es die Folien nur im Vortrag.
+        if (!TrainingPolicy::instruct($courseModel) && !Presentations::slidesOpen($sessionModel->unit, new DateTimeImmutable())) {
             return self::notFound();
         }
 
@@ -63,8 +66,13 @@ final class PresentationController extends BaseController
         if (!TrainingPolicy::instruct($courseModel)) {
             return self::back('training/courses/' . $courseModel->id, 'Einen Vortrag starten Leitung und Ausbilder des Lehrgangs.');
         }
-        if ($sessionModel->slides === null || !$sessionModel->slides->viewsAsPdf()) {
-            return self::back('training/manage/' . $courseModel->id . '#termine', 'Dieser Termin hat keine Folien.');
+        if (!$sessionModel->isPresentation()) {
+            return self::back('training/manage/' . $courseModel->id . '#termine', 'Dieser Termin hat keine Präsentation.');
+        }
+        // Ohne Folien läuft der Vortrag auch; vorhandene müssen sich aber anzeigen lassen.
+        $slides = $sessionModel->presentationFile();
+        if ($slides !== null && !$slides->viewsAsPdf()) {
+            return self::back('training/manage/' . $courseModel->id . '#termine', 'Die Folien werden noch umgewandelt.');
         }
         $live = Presentations::start($sessionModel, self::userId());
         if ($live->wasRecentlyCreated) {
@@ -93,7 +101,9 @@ final class PresentationController extends BaseController
             'session'      => $sessionModel,
             'presentation' => $live,
             'url'          => self::url($courseModel, $sessionModel),
-            'slidesUrl'    => self::base() . 'training/courses/' . $courseModel->id . '/sessions/' . $sessionModel->id . '/slides',
+            'slidesUrl'    => $sessionModel->presentationFile()?->viewsAsPdf() === true
+                ? self::base() . 'training/courses/' . $courseModel->id . '/sessions/' . $sessionModel->id . '/slides'
+                : '',
             'userId'       => self::userId(),
             'targets'      => $host ? Presentations::targets($live) : [],
         ]);
@@ -176,7 +186,8 @@ final class PresentationController extends BaseController
         $pageCount = $json['page_count'] ?? 1;
         $page      = $json['page'] ?? null;
         $mode      = $json['mode'] ?? null;
-        if (!is_int($pageCount) || $pageCount < 1 || $pageCount > self::MAX_PAGES
+        // Ohne Folien ist page_count 0: dann gibt es keine Seite, nur Striche auf dem geteilten Bildschirm (Seite -1).
+        if (!is_int($pageCount) || $pageCount < 0 || $pageCount > self::MAX_PAGES
             || !is_array($events) || !array_is_list($events) || count($events) > self::MAX_EVENTS
             || ($page !== null && (!is_int($page) || $page < 0 || $page >= $pageCount))
             || ($mode !== null && !in_array($mode, Presentations::MODES, true))) {
@@ -377,7 +388,7 @@ final class PresentationController extends BaseController
     private function context(string $course, string $session): ?array
     {
         $courseModel  = self::findCourse($course);
-        $sessionModel = $courseModel !== null ? Session::query()->where('course_id', $courseModel->id)->with('slides')->find((int) $session) : null;
+        $sessionModel = $courseModel !== null ? Session::query()->where('course_id', $courseModel->id)->with('unit.file')->find((int) $session) : null;
         if ($courseModel === null || $sessionModel === null) {
             return null;
         }

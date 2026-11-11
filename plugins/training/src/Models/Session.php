@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Plugin\Training\Models;
 
+use EmergencyForge\Training\UnitKind;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * Präsenztermin eines Lehrgangs, eingeplant für eine Lerneinheit „Termin“.
+ * Präsenztermin eines Lehrgangs, eingeplant für eine Lerneinheit „Termin“ oder „Präsentation“.
  *
  * @property int         $id
  * @property int         $course_id
  * @property int|null    $module_id
  * @property int|null    $unit_id
- * @property int|null    $slides_file_id
  * @property string      $title
  * @property Carbon      $starts_at
  * @property Carbon      $ends_at
@@ -24,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property bool        $required
  * @property int|null    $calendar_event_id
  * @property-read Course $course
- * @property-read TrainingFile|null $slides
+ * @property-read Unit|null $unit
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Attendance> $attendance
  *
  * @mixin \Illuminate\Database\Eloquent\Builder<static>
@@ -41,7 +41,6 @@ class Session extends EloquentModel
         'course_id'         => 'integer',
         'module_id'         => 'integer',
         'unit_id'           => 'integer',
-        'slides_file_id'    => 'integer',
         'required'          => 'boolean',
         'calendar_event_id' => 'integer',
         'starts_at'         => 'datetime',
@@ -60,10 +59,22 @@ class Session extends EloquentModel
         return $this->hasMany(Attendance::class, 'session_id');
     }
 
-    /** @return BelongsTo<TrainingFile, $this> */
-    public function slides(): BelongsTo
+    /** @return BelongsTo<Unit, $this> */
+    public function unit(): BelongsTo
     {
-        return $this->belongsTo(TrainingFile::class, 'slides_file_id');
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
+
+    /** Ob der Termin an einer Präsentation hängt, zu der sich ein Vortrag starten lässt. */
+    public function isPresentation(): bool
+    {
+        return $this->unit?->type() === UnitKind::Presentation;
+    }
+
+    /** Die Folien der Präsentation; null ohne Präsentation oder ohne Datei. */
+    public function presentationFile(): ?TrainingFile
+    {
+        return $this->isPresentation() ? $this->unit?->file : null;
     }
 
     /** @return HasMany<Presentation, $this> */

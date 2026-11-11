@@ -31,6 +31,10 @@ $meta = static function (\Plugin\Training\Models\Unit $unit): string {
     if ($unit->type() === UnitKind::Session) {
         $parts[] = 'wird je Lehrgang terminiert';
     }
+    if ($unit->type() === UnitKind::Presentation) {
+        $parts[] = $unit->file !== null ? $unit->file->label() . ', ' . $unit->file->sizeLabel() : 'ohne Folien';
+        $parts[] = $unit->slides_after_talk ? 'Folien auch nach dem Vortrag' : 'Folien nur im Vortrag';
+    }
     if ($unit->type() === UnitKind::Link) {
         $parts[] = (string) parse_url((string) $unit->url, PHP_URL_HOST);
     }

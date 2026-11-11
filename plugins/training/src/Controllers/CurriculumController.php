@@ -11,8 +11,10 @@ use App\Plugins\PluginLoader;
 use DomainException;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use EmergencyForge\Training\MaterialType;
 use EmergencyForge\Training\UnitKind;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Training\Converter;
 use Plugin\Training\FileStore;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseType;
@@ -29,7 +31,7 @@ use Plugin\Training\Policies\TrainingPolicy;
 final class CurriculumController extends BaseController
 {
     /** Was die Lehrgangsart-Seite anlegen lässt. Lernkontrollen kommen mit den Prüfungen. */
-    private const KINDS = [UnitKind::File, UnitKind::Text, UnitKind::Link, UnitKind::KnowledgeArticle, UnitKind::Session];
+    private const KINDS = [UnitKind::File, UnitKind::Text, UnitKind::Link, UnitKind::KnowledgeArticle, UnitKind::Session, UnitKind::Presentation];
 
     public function __construct(private readonly FileStore $files = new FileStore())
     {
@@ -101,6 +103,7 @@ final class CurriculumController extends BaseController
         $unit->title          = '';
         $unit->required       = true;
         $unit->allow_download = true;
+        $unit->slides_after_talk = true;
 
         return $this->unitForm($module, $unit);
     }
@@ -288,7 +291,11 @@ final class CurriculumController extends BaseController
         $kind = UnitKind::tryFrom((string) ($post['kind'] ?? ''));
         $unit->title          = mb_substr(trim((string) ($post['title'] ?? '')), 0, 200);
         $unit->required       = ($post['required'] ?? '') === '1';
-        $unit->allow_download = ($post['allow_download'] ?? '') === '1';
+        // Folien einer Präsentation gibt es nur zum Ansehen, ein Download ginge am Vortrag vorbei.
+        $unit->allow_download = $kind !== UnitKind::Presentation && ($post['allow_download'] ?? '') === '1';
+        if ($kind === UnitKind::Presentation) {
+            $unit->slides_after_talk = ($post['slides_after_talk'] ?? '') === '1';
+        }
         if ($kind !== null && in_array($kind, self::KINDS, true)) {
             $unit->kind = $kind->value;
         }
@@ -306,7 +313,10 @@ final class CurriculumController extends BaseController
             $kind === UnitKind::Text && (!is_array($doc) || ($doc['type'] ?? null) !== 'doc') => 'Der Text ließ sich nicht lesen.',
             default                                                                      => null,
         };
-        if ($error === null && $kind === UnitKind::File && $hasUpload) {
+        if ($error === null && $kind === UnitKind::Presentation && $hasUpload) {
+            $error = self::slidesError($upload);
+        }
+        if ($error === null && in_array($kind, [UnitKind::File, UnitKind::Presentation], true) && $hasUpload) {
             try {
                 $unit->file_id = $this->storeFile($upload, $unit)->id;
             } catch (DomainException $e) {
@@ -323,7 +333,7 @@ final class CurriculumController extends BaseController
         $unit->url         = $kind === UnitKind::Link ? TrainingController::safeUrl($post['url'] ?? null) : null;
         $unit->kb_entry_id = $kind === UnitKind::KnowledgeArticle ? (int) $post['kb_entry_id'] : null;
         $unit->content     = $kind === UnitKind::Text ? ['doc' => $doc] : null;
-        if ($kind !== UnitKind::File) {
+        if (!in_array($kind, [UnitKind::File, UnitKind::Presentation], true)) {
             $unit->file_id = null;
         }
         $unit->save();
@@ -332,6 +342,27 @@ final class CurriculumController extends BaseController
         }
 
         return self::back(self::ownerPath($module), null, 'Einheit „' . $unit->title . '“ gespeichert.');
+    }
+
+    /**
+     * Folien müssen sich im Vortrag zeigen lassen: PDF, oder PowerPoint, wenn ein Umwandler da ist.
+     *
+     * @param array<string, mixed> $upload
+     */
+    private static function slidesError(array $upload): ?string
+    {
+        // Ein abgebrochener Upload hat keine Datei zum Prüfen; den Grund nennt FileStore::store().
+        if ((int) ($upload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+        $kind = MaterialType::detect(is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '')?->kind;
+        if ($kind !== 'pdf' && $kind !== 'presentation') {
+            return 'Folien müssen ein PDF oder eine PowerPoint-Datei sein.';
+        }
+
+        return $kind === 'presentation' && Converter::configured() === null
+            ? 'PowerPoint braucht hier den Umwandler. Bitte als PDF hochladen.'
+            : null;
     }
 
     /**

@@ -26,8 +26,8 @@ use Plugin\Training\Models\UnitProgress;
  * der Lehrgangsart, sehen laufende Lehrgänge die neue Fassung, und der
  * Fortschritt bleibt, weil er an der Einheit hängt.
  *
- * Eine Einheit „Termin“ ist erledigt, sobald die Anwesenheit eingetragen
- * ist, gleich welche. Unentschuldigtes Fehlen zählt die Zulassung zur
+ * Eine Einheit „Termin“ oder „Präsentation“ ist erledigt, sobald die
+ * Anwesenheit am Termin dazu eingetragen ist, gleich welche. Unentschuldigtes Fehlen zählt die Zulassung zur
  * Prüfung gesondert.
  */
 final class Curriculum

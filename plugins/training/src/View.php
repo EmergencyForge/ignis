@@ -73,7 +73,8 @@ final class View
                 $parts[] = 'öffnet in neuem Tab';
                 break;
             case UnitKind::Session:
-                $parts[] = 'Termin';
+            case UnitKind::Presentation:
+                $parts[] = $unit->type()->label();
                 $parts[] = $session !== null ? $session->when() . ' Uhr' : 'noch nicht geplant';
                 if (($state['attendance'] ?? null) !== null) {
                     $parts[] = mb_strtolower(Attendance::STATES[$state['attendance']] ?? '');

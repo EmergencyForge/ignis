@@ -25,6 +25,7 @@ use Plugin\Training\Models\Presentation;
 use Plugin\Training\Models\PresentationEvent;
 use Plugin\Training\Models\PresentationViewer;
 use Plugin\Training\Models\Session;
+use Plugin\Training\Models\Unit;
 use Plugin\Training\Policies\TrainingPolicy;
 
 /**
@@ -154,6 +155,25 @@ final class Presentations
         }
 
         return $p;
+    }
+
+    /**
+     * Ob Teilnehmer die Folien einer Präsentation sehen: nach dem Vortrag nur mit
+     * dem Schalter an der Einheit, sonst solange irgendein Termin der Einheit läuft.
+     * Die einzige Stelle für diese Regel; Ausbilder prüfen die Controller vorher.
+     */
+    public static function slidesOpen(Unit $unit, DateTimeImmutable $now): bool
+    {
+        if ($unit->slides_after_talk) {
+            return true;
+        }
+        foreach (Session::query()->where('unit_id', $unit->id)->get() as $session) {
+            if (self::live($session, $now) !== null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

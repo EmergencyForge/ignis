@@ -9,7 +9,7 @@
  * @var \Plugin\Training\Models\Session       $session
  * @var \Plugin\Training\Models\Presentation  $presentation
  * @var string                                $url
- * @var string                                $slidesUrl
+ * @var string                                $slidesUrl  leer, wenn die Präsentation keine Folien hat
  * @var int                                   $userId
  * @var list<array{id: int, name: string, initials: string, role: string}> $targets  nur present
  */
@@ -92,7 +92,9 @@ ob_start();
         <div>
             <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
             <strong>Vortrag beendet</strong>
-            <p>Die Folien stehen weiter als PDF im Lehrgang.</p>
-            <a href="<?= $e($slidesUrl) ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm" target="_blank" rel="noopener">Folien öffnen</a>
+            <?php if ($slidesUrl !== '' && $session->unit?->slides_after_talk): ?>
+                <p>Die Folien stehen weiter als PDF im Lehrgang.</p>
+                <a href="<?= $e($slidesUrl) ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm" target="_blank" rel="noopener">Folien öffnen</a>
+            <?php endif; ?>
         </div>
     </div>

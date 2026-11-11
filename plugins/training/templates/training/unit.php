@@ -1,7 +1,7 @@
 <?php
 /**
  * Eine Lerneinheit: PDF im Betrachter, Bild, Download, Artikel, Link,
- * Wissensartikel oder Termin. Rechts der Lehrplan mit Stand. Videos im
+ * Wissensartikel, Termin oder Präsentation. Rechts der Lehrplan mit Stand. Videos im
  * Artikel lädt training.js erst auf Klick.
  *
  * Ohne Teilnahme (Ausbilder in der Vorschau) meldet die Seite nichts.
@@ -16,6 +16,8 @@
  * @var \Plugin\Training\Models\Unit|null           $nextUnit
  * @var \Plugin\Training\Models\Session|null        $session
  * @var string|null                                 $html
+ * @var bool                                        $slidesOpen  Präsentation: ob die Folien für diesen Nutzer offen sind
+ * @var bool                                        $talk        Präsentation: ob gerade ein Vortrag zu dieser Einheit läuft
  */
 
 use EmergencyForge\Training\Progress\ProgressUnit;
@@ -129,6 +131,38 @@ ob_start();
                                 <p class="ignis-detail__muted mt-2 mb-0">Die Anwesenheit tragen Leitung oder Ausbilder ein.</p>
                             </div></div>
                             <?php break;
+                        case UnitKind::Presentation: ?>
+                            <?php if ($file === null): ?>
+                                <div class="ignis-card"><div class="ignis-card__body"><p class="m-0">Diese Präsentation hat keine Folien.</p></div></div>
+                            <?php elseif (!$slidesOpen): ?>
+                                <div class="ignis-card"><div class="ignis-card__body"><p class="m-0">Die Folien gibt es nur im Vortrag.</p></div></div>
+                            <?php elseif (!$file->viewsAsPdf()): ?>
+                                <div class="ignis-card"><div class="ignis-card__body"><p class="m-0">Die Folien werden noch umgewandelt. Bitte gleich noch einmal ansehen.</p></div></div>
+                            <?php else: ?>
+                                <div data-ignis-document-viewer
+                                     data-src="<?= htmlspecialchars($fileUrl) ?>"
+                                     data-pdfjs="<?= htmlspecialchars(asset('assets/dist/pdfjs/pdf.min.mjs')) ?>"
+                                     data-pdfjs-worker="<?= htmlspecialchars(asset('assets/dist/pdfjs/pdf.worker.min.mjs')) ?>"
+                                     data-start-page="<?= max(1, (int) ($unitState['pages']['last'] ?? 1)) ?>"
+                                     data-seen="<?= htmlspecialchars(Curriculum::seenAttribute($unitState['pages'] ?? null)) ?>"
+                                     <?php if ($participation !== null): ?>data-pages-url="<?= htmlspecialchars($base . 'api/training/units/' . (int) $unit->id . '/pages') ?>"
+                                     data-course="<?= (int) $course->id ?>"<?php endif; ?>></div>
+                            <?php endif; ?>
+                            <?php if ($session !== null): ?>
+                                <div class="ignis-card mt-3"><div class="ignis-card__body">
+                                    <dl class="ignis-detail__dl">
+                                        <dt>Wann</dt><dd><?= htmlspecialchars($session->when()) ?> bis <?= htmlspecialchars($session->ends_at->format('H:i')) ?> Uhr</dd>
+                                        <?php if ($session->location): ?><dt>Ort</dt><dd><?= htmlspecialchars($session->location) ?></dd><?php endif; ?>
+                                        <?php if (($unitState['attendance'] ?? null) !== null): ?>
+                                            <dt>Anwesenheit</dt><dd><?= htmlspecialchars(Attendance::STATES[$unitState['attendance']] ?? '') ?></dd>
+                                        <?php endif; ?>
+                                    </dl>
+                                    <?php if ($talk): ?>
+                                        <a href="<?= $courseUrl ?>/sessions/<?= (int) $session->id ?>/presentation" class="ignis-btn ignis-btn--primary mt-2"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Live mitverfolgen</a>
+                                    <?php endif; ?>
+                                </div></div>
+                            <?php endif; ?>
+                            <?php break;
                         default: ?>
                             <p class="ignis-detail__muted">Diese Einheit gibt es erst mit den Prüfungen.</p>
                     <?php endswitch; ?>
@@ -178,7 +212,7 @@ ob_start();
             </div>
         </div>
     </div>
-    <?php if ($file !== null && $file->viewsAsPdf()): ?>
+    <?php if ($file !== null && $file->viewsAsPdf() && ($unit->type() !== UnitKind::Presentation || $slidesOpen)): ?>
         <script type="module" src="<?= $base ?>assets/js/ui/document-viewer.js"></script>
     <?php endif; ?>
     <script type="module" src="<?= htmlspecialchars(asset('plugins/training/assets/js/training.js')) ?>"></script>

@@ -7,9 +7,11 @@ namespace Plugin\Training\Controllers;
 use App\Personnel\AccountLink;
 use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
+use EmergencyForge\Training\UnitKind;
 use Plugin\Training\Curriculum;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
+use Plugin\Training\Presentations;
 
 final class ApiController extends BaseController
 {
@@ -28,6 +30,10 @@ final class ApiController extends BaseController
         $participation = Participation::query()->where('course_id', $course->id)->where('personnel_id', $pid)->first();
         $unitModel     = Curriculum::for($course)->unit((int) $unit);
         if ($participation === null || !$participation->canLearn() || $unitModel === null || $unitModel->file?->viewsAsPdf() !== true) {
+            return self::json(['error' => 'Nicht gefunden.'], 404);
+        }
+        // Folien einer Präsentation sind nur offen, wenn die Regel der Einheit es sagt.
+        if ($unitModel->type() === UnitKind::Presentation && !Presentations::slidesOpen($unitModel, new \DateTimeImmutable())) {
             return self::json(['error' => 'Nicht gefunden.'], 404);
         }
 

@@ -10,11 +10,14 @@ use EmergencyForge\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
+use Plugin\Training\Curriculum;
+use Plugin\Training\Models\Attendance;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\CourseType;
 use Plugin\Training\Models\Module;
 use Plugin\Training\Models\Participation;
 use Plugin\Training\Models\Prerequisite;
+use Plugin\Training\Models\Session;
 use Plugin\Training\Models\TrainingFile;
 use Plugin\Training\Models\Unit;
 use Plugin\Training\Models\UnitProgress;
@@ -348,6 +351,65 @@ final class TrainingTest extends FeatureTestCase
         $this->assertSame('done', $row?->status);
         $this->assertSame($lead['user'], $row->completed_by);
         $this->assertSame(1, PersonnelLog::query()->where('profilid', $learner['personnel'])->where('type', PersonalLogManager::TYPE_TRAINING)->count());
+    }
+
+    #[Test]
+    public function attendance_completes_a_presentation_unit(): void
+    {
+        $lead    = $this->account();
+        $type    = $this->type();
+        $course  = $this->course($type, 'running', lead: $lead['user']);
+        $open    = $this->unit($type, ['kind' => 'presentation', 'file_id' => $this->pdf()->id, 'slides_after_talk' => true]);
+        $closed  = $this->unit($type, ['kind' => 'presentation', 'file_id' => $this->pdf()->id, 'slides_after_talk' => false]);
+        $learner = $this->account();
+        $p       = $this->admit($course, $learner['personnel']);
+
+        $session = new Session();
+        $session->course_id = $course->id;
+        $session->unit_id   = $open->id;
+        $session->module_id = $open->module_id;
+        $session->title     = 'Vortrag';
+        $session->starts_at = Carbon::now()->addDay();
+        $session->ends_at   = Carbon::now()->addDay()->addHours(2);
+        $session->save();
+
+        $this->as($lead['user'], ['training.teach']);
+        $this->post('/training/manage/' . $course->id . '/sessions/' . $session->id . '/attendance', ['state' => [(string) $p->id => 'present']]);
+        $this->assertSame('done', Curriculum::for($course)->states([$p->id])[$p->id][$open->id]['state'] ?? null);
+
+        // Auch die Seiten zählen, wenn die Folien offen sind; sonst gibt es sie nicht.
+        Attendance::query()->delete();
+        $this->as($learner['user'], ['training.view']);
+        $this->assertSame(['seen' => 3, 'total' => 3, 'done' => true], $this->assertJsonResponse($this->postJson('/api/training/units/' . $open->id . '/pages', ['course' => $course->id, 'pages' => [1, 2, 3], 'total' => 3])));
+        $this->assertSame('done', UnitProgress::query()->where('participation_id', $p->id)->where('unit_id', $open->id)->value('status'));
+        $this->assertNotFound($this->postJson('/api/training/units/' . $closed->id . '/pages', ['course' => $course->id, 'pages' => [1, 2, 3], 'total' => 3]));
+        $this->assertNull(UnitProgress::query()->where('participation_id', $p->id)->where('unit_id', $closed->id)->first());
+    }
+
+    #[Test]
+    public function instructor_marks_a_presentation_unit_by_hand(): void
+    {
+        $lead    = $this->account();
+        $type    = $this->type();
+        $course  = $this->course($type, 'running', lead: $lead['user']);
+        $unit    = $this->unit($type, ['kind' => 'presentation', 'slides_after_talk' => false]);
+        $dated   = $this->unit($type, ['kind' => 'session']);
+        $learner = $this->account();
+        $p       = $this->admit($course, $learner['personnel']);
+        $url     = '/training/manage/' . $course->id . '/progress';
+
+        // Wer bei einem Vortrag nur während des Vortrags gefehlt hat, wird von Hand abgehakt; Termine bleiben bei der Anwesenheit.
+        $this->as($lead['user'], ['training.teach']);
+        $this->assertSame(['done' => true], $this->assertJsonResponse($this->post($url, ['participation' => (string) $p->id, 'unit' => (string) $unit->id, 'done' => '1'])));
+        $row = UnitProgress::query()->where('participation_id', $p->id)->where('unit_id', $unit->id)->first();
+        $this->assertSame('done', $row?->status);
+        $this->assertSame($lead['user'], $row->completed_by);
+
+        $this->assertStatus(422, $this->post($url, ['participation' => (string) $p->id, 'unit' => (string) $dated->id, 'done' => '1']));
+        $this->assertNull(UnitProgress::query()->where('participation_id', $p->id)->where('unit_id', $dated->id)->first());
+
+        $this->assertSame(['done' => false], $this->assertJsonResponse($this->post($url, ['participation' => (string) $p->id, 'unit' => (string) $unit->id, 'done' => '0'])));
+        $this->assertNull(UnitProgress::query()->where('participation_id', $p->id)->where('unit_id', $unit->id)->first());
     }
 
     #[Test]

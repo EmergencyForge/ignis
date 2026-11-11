@@ -11,7 +11,6 @@
  * @var list<\Plugin\Training\Models\Unit>          $openSlots
  * @var bool                                        $canLead
  * @var bool                                        $canInstruct
- * @var bool                                        $converter  ob ein Umwandler für PowerPoint eingetragen ist
  * @var \Plugin\Training\Curriculum                $curriculum
  * @var bool                                        $calendar
  * @var string                                      $manageUrl
@@ -28,33 +27,44 @@ use Plugin\Training\Presentations;
 $base    = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $present = array_values(array_filter($participations, static fn ($p): bool => in_array($p->status, ['admitted', 'in_training', 'in_exam', 'passed', 'failed'], true)));
 $rsvp    = ['accepted' => 'hat zugesagt', 'declined' => 'hat abgesagt', 'tentative' => 'vielleicht'];
-// Folien aus dem Lehrplan: PDFs, und PowerPoint nur, wenn sich etwas umwandeln lässt.
-$slideChoices = [];
-if ($canInstruct) {
-    foreach ($curriculum->units() as $unit) {
-        $file = $unit->type() === UnitKind::File ? $unit->file : null;
-        if ($file !== null && ($file->viewsAsPdf() || ($converter && $file->mime === Converter::PPTX))) {
-            $slideChoices[$file->id] = $file->original_name;
-        }
-    }
-}
 ?>
 <p class="ignis-detail__muted">
     <?= $calendar ? 'Jeder Termin steht als Schulung im Kalender der aktiven Teilnehmer.' : 'Ohne das Kalender-Plugin bleiben die Termine hier im Lehrgang.' ?>
-    Ein Termin, der an einer Einheit „Termin“ hängt, zählt als erledigt, sobald die Anwesenheit eingetragen ist.
+    Ein Termin, der an einer Einheit „Termin“ oder „Präsentation“ hängt, zählt als erledigt, sobald die Anwesenheit eingetragen ist.
 </p>
 
-<?php foreach ($sessions as $session): $talk = $talks[$session->id] ?? null; ?>
-    <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/attendance" class="ignis-card <?= $canInstruct ? 'mb-2' : 'mb-3' ?>" data-session-card="<?= (int) $session->id ?>">
+<?php foreach ($sessions as $session):
+    $talk    = $talks[$session->id] ?? null;
+    $slides  = $session->presentationFile();
+    $live    = $lives[$session->id] ?? null;
+    $talkUrl = $base . 'training/courses/' . (int) $course->id . '/sessions/' . (int) $session->id . '/presentation';
+?>
+    <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/attendance" class="ignis-card mb-3" data-session-card="<?= (int) $session->id ?>">
         <?= csrf_field() ?>
         <div class="ignis-card__body">
             <div class="flex items-start justify-between gap-3 flex-wrap mb-2">
                 <div>
                     <h3 class="ignis-card__title m-0"><?= htmlspecialchars($session->title) ?>
                         <?php if ($session->required): ?><span class="ignis-chip ignis-chip--sm ignis-chip--warn">Pflicht</span><?php endif; ?>
+                        <?php if ($session->isPresentation()): ?><span class="ignis-chip ignis-chip--sm">Präsentation</span><?php endif; ?>
                     </h3>
                     <div class="ignis-detail__muted"><?= htmlspecialchars($session->when()) ?> bis <?= htmlspecialchars($session->ends_at->format('H:i')) ?> Uhr<?= $session->location ? ' · ' . htmlspecialchars($session->location) : '' ?></div>
                 </div>
+                <?php if ($canInstruct && $session->isPresentation()): ?>
+                    <span class="flex items-center gap-2">
+                        <?php if ($slides !== null && !$slides->viewsAsPdf()): ?>
+                            <?php if ($slides->convert_status !== Converter::FAILED): ?>
+                                <span class="ignis-chip ignis-chip--sm ignis-chip--warn">PowerPoint wird umgewandelt</span>
+                            <?php else: ?>
+                                <span class="ignis-chip ignis-chip--sm ignis-chip--danger">Umwandlung fehlgeschlagen</span>
+                            <?php endif; ?>
+                        <?php elseif ($live !== null && $live->presenter_id !== $userId): ?>
+                            <a href="<?= $talkUrl ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-eye" aria-hidden="true"></i> Mitverfolgen</a>
+                        <?php else: ?>
+                            <button type="submit" form="presentation-start-<?= (int) $session->id ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-person-chalkboard" aria-hidden="true"></i> <?= $live !== null ? 'Vortrag fortsetzen' : 'Vortrag starten' ?></button>
+                        <?php endif; ?>
+                    </span>
+                <?php endif; ?>
             </div>
             <?php if ($present === []): ?>
                 <p class="ignis-detail__muted m-0">Noch niemand zugelassen.</p>
@@ -104,65 +114,10 @@ if ($canInstruct) {
             <?php endif; ?>
         </div>
     </form>
-    <?php if ($canInstruct): $slides = $session->slides; $live = $lives[$session->id] ?? null; $talkUrl = $base . 'training/courses/' . (int) $course->id . '/sessions/' . (int) $session->id . '/presentation'; ?>
-        <form method="post" action="<?= $manageUrl ?>/sessions/<?= (int) $session->id ?>/slides" enctype="multipart/form-data" id="slides-<?= (int) $session->id ?>" class="ignis-card mb-3">
-            <?= csrf_field() ?>
-            <div class="ignis-card__body grid gap-3">
-                <div class="flex items-center justify-between gap-3 flex-wrap">
-                    <h4 class="ignis-card__title m-0">Folien</h4>
-                    <?php if ($slides !== null): ?>
-                        <span class="flex items-center gap-2">
-                            <span class="ignis-chip ignis-chip--sm"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> <?= htmlspecialchars($slides->original_name) ?></span>
-                            <?php if (!$slides->viewsAsPdf() && $slides->convert_status !== Converter::FAILED): ?>
-                                <span class="ignis-chip ignis-chip--sm ignis-chip--warn">wird umgewandelt</span>
-                            <?php elseif (!$slides->viewsAsPdf()): ?>
-                                <span class="ignis-chip ignis-chip--sm ignis-chip--danger">Umwandlung fehlgeschlagen</span>
-                            <?php endif; ?>
-                            <?php if ($slides->viewsAsPdf()): ?>
-                                <?php if ($live !== null && $live->presenter_id !== $userId): ?>
-                                    <a href="<?= $talkUrl ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-eye" aria-hidden="true"></i> Mitverfolgen</a>
-                                <?php else: ?>
-                                    <button type="submit" form="presentation-start-<?= (int) $session->id ?>" class="ignis-btn ignis-btn--secondary ignis-btn--sm"><i class="fa-solid fa-person-chalkboard" aria-hidden="true"></i> <?= $live !== null ? 'Vortrag fortsetzen' : 'Vortrag starten' ?></button>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                            <button type="submit" name="remove" value="1" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm" formnovalidate>Entfernen</button>
-                        </span>
-                    <?php endif; ?>
-                </div>
-                <?php if ($live !== null && $live->handover_to === $userId): ?>
-                    <p class="ignis-detail__muted m-0"><i class="fa-solid fa-right-left" aria-hidden="true"></i> <?= htmlspecialchars(Presentations::identity($live->presenter)['name']) ?> möchte dir den Vortrag übergeben. <a class="ignis-chip ignis-chip--sm" href="<?= $talkUrl ?>"><i class="fa-solid fa-person-chalkboard" aria-hidden="true"></i> Zum Vortrag</a></p>
-                <?php endif; ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <div class="ignis-file ignis-file--dropzone" data-ignis-file data-max-bytes="26214400">
-                            <input type="file" id="slides-file-<?= (int) $session->id ?>" name="slides" class="ignis-file__input" accept="<?= $converter ? '.pdf,.pptx' : '.pdf' ?>">
-                            <label for="slides-file-<?= (int) $session->id ?>" class="ignis-file__zone">
-                                <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
-                                <span class="ignis-file__title">Folien hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
-                                <span class="ignis-file__hint"><?= $converter ? 'PDF oder PowerPoint, höchstens 25 MB' : 'PDF, höchstens 25 MB' ?></span>
-                            </label>
-                            <div class="ignis-file__selected" hidden></div>
-                        </div>
-                        <?php if (!$converter): ?><p class="ignis-field__hint">Ohne Umwandler gehen hier nur PDF-Folien.</p><?php endif; ?>
-                    </div>
-                    <?php if ($slideChoices !== []): ?>
-                        <div>
-                            <label for="slides-pick-<?= (int) $session->id ?>" class="ignis-field__label">Oder aus dem Lehrplan</label>
-                            <select id="slides-pick-<?= (int) $session->id ?>" name="slides_file_id" class="ignis-input" data-custom-dropdown="true">
-                                <option value="">Keine Auswahl</option>
-                                <?php foreach ($slideChoices as $fileId => $fileName): ?>
-                                    <option value="<?= (int) $fileId ?>"<?= $session->slides_file_id === $fileId ? ' selected' : '' ?>><?= htmlspecialchars($fileName) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <p class="ignis-field__hint">Ein Upload geht vor der Auswahl.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="ignis-card__footer" data-form-actions>
-                <button type="submit" class="ignis-btn ignis-btn--secondary"><i class="fa-solid fa-display" aria-hidden="true"></i> Folien speichern</button>
-            </div>
-        </form>
+    <?php if ($canInstruct && $session->isPresentation()): ?>
+        <?php if ($live !== null && $live->handover_to === $userId): ?>
+            <p class="ignis-detail__muted mb-3"><i class="fa-solid fa-right-left" aria-hidden="true"></i> <?= htmlspecialchars(Presentations::identity($live->presenter)['name']) ?> möchte dir den Vortrag übergeben. <a class="ignis-chip ignis-chip--sm" href="<?= $talkUrl ?>"><i class="fa-solid fa-person-chalkboard" aria-hidden="true"></i> Zum Vortrag</a></p>
+        <?php endif; ?>
         <form method="post" action="<?= $talkUrl ?>/start" id="presentation-start-<?= (int) $session->id ?>" hidden>
             <?= csrf_field() ?>
         </form>
@@ -185,10 +140,10 @@ if ($canInstruct) {
                     <select id="session-unit" name="unit_id" class="ignis-input" data-custom-dropdown="true">
                         <option value="">Kein Lehrplan-Termin</option>
                         <?php foreach ($openSlots as $slot): ?>
-                            <option value="<?= (int) $slot->id ?>"><?= htmlspecialchars($slot->title) ?></option>
+                            <option value="<?= (int) $slot->id ?>"><?= htmlspecialchars($slot->title) ?><?= $slot->type() === UnitKind::Presentation ? ' · Präsentation' : '' ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <p class="ignis-field__hint">Einheiten der Art „Termin“ aus dem Lehrplan, die noch kein Datum haben.</p>
+                    <p class="ignis-field__hint">Einheiten der Art „Termin“ oder „Präsentation“ aus dem Lehrplan, die noch kein Datum haben.</p>
                 </div>
                 <div>
                     <label for="session-title" class="ignis-field__label">Titel</label>

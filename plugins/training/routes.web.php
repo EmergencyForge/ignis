@@ -70,7 +70,6 @@ $router->post('/training/manage/{id:\d+}/progress',                         [Man
 $router->post('/training/manage/{id:\d+}/sessions',                         [ManageController::class, 'storeSession'],  $teach);
 $router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/delete',        [ManageController::class, 'deleteSession'], $teach);
 $router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/attendance',    [ManageController::class, 'attendance'],    $teach);
-$router->post('/training/manage/{id:\d+}/sessions/{sid:\d+}/slides',        [ManageController::class, 'slides'],        $teach);
 $router->post('/training/manage/{id:\d+}/modules',                          [CurriculumController::class, 'addCourseModule'], $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/release',         [ExamController::class, 'release'],         $teach);
 $router->post('/training/manage/{id:\d+}/exams/{exam:\d+}/revoke',          [ExamController::class, 'revoke'],          $teach);
