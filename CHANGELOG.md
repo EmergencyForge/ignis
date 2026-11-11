@@ -5,9 +5,16 @@
 ### Ausbildung
 - Termine können Folien als PDF oder PowerPoint haben, und Leitung oder Ausbilder halten den Termin daraus als Live-Vortrag. Die Teilnehmer folgen im Browser: gleiche Folie, Zeichnungen, Laserpointer und Pause kommen bei ihnen an. Beim Start bekommen die Teilnehmer eine Benachrichtigung
 - Den Vortrag kann der Host an einen anderen Ausbilder weiterreichen, der ihn erst annehmen muss. Nach dem Ende schlägt ignis die Anwesenheit vor, nach der Zeit, die jemand zugeschaut hat. Eingetragen wird erst beim Speichern
-- Statt der Folien kann der Host seinen Bildschirm teilen, übertragen wird nur das Bild. Mit EF Sync läuft das über den Medienserver von EmergencyForge, ohne EF Sync geht das Bild direkt an jeden Zuschauer, dann an höchstens 15. Teilen geht nur aus einem normalen Browser, im Tablet im Spiel kann man zuschauen. Auf dem geteilten Bildschirm wird nicht gezeichnet, „Teilen beenden“ führt zurück zu den Folien
+- Statt der Folien kann der Host seinen Bildschirm teilen, übertragen wird nur das Bild. Mit EF Sync läuft das über den Medienserver von EmergencyForge, ohne EF Sync geht das Bild direkt an jeden Zuschauer, dann an höchstens 15. Teilen geht nur aus einem normalen Browser, im Tablet im Spiel kann man zuschauen. Auf dem geteilten Bildschirm wird nicht gezeichnet, „Teilen beenden“ führt zurück zu den Folien. Kommt die Verbindung zum Medienserver nicht zustande, teilt ignis direkt
 
-Dazu gehört training 0.4.3.
+### efOS und Konto
+- Oben rechts, in der Menüleiste von efOS und in der Statusleiste des Tablets steht bei einem Konto mit verknüpftem Mitarbeiter jetzt dessen Name mit Profilbild, im Kontomenü dazu der Dienstgrad. Ohne Verknüpfung bleibt es beim Benutzernamen
+
+### Tablet in FiveM
+- Die Anmeldeseite meldet dem Tablet im Spiel, wenn eine Anmeldung abgelehnt wurde oder die Sitzung abgelaufen ist, damit ef_bridge einen neuen Zugang holen kann. ef_bridge wertet das noch nicht aus, bis dahin ändert sich im Spiel nichts
+- Ein abgelehnter Tablet-Zugang beendet keine Sitzung mehr, die noch offen ist
+
+Dazu gehören das UI-Paket 1.12.0, der Editor 0.8.0 und training 0.4.3.
 
 ## 2026.1.20-beta
 
