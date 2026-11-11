@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026.1.22-beta
+
+### Ausbildung
+- Präsentation ist jetzt eine eigene Art von Lerneinheit. Die Folien hängen an der Einheit statt am Termin und sind freiwillig, eine Präsentation ohne Folien lässt sich genauso halten, etwa nur mit geteiltem Bildschirm. Ein Termin zu einer Präsentation bekommt „Vortrag starten“, die Karte „Folien“ am Termin gibt es nicht mehr
+- Je Einheit legt ein Schalter fest, ob Teilnehmer die Folien nach dem Vortrag weiter ansehen dürfen oder nur währenddessen. Herunterladen können Teilnehmer sie nicht, und solange ein Vortrag läuft, lassen sich die Folien nicht austauschen
+- Abgehakt wird eine Präsentation über die Anwesenheit am Termin. Sind die Folien danach einsehbar, zählt auch, wer sie selbst ganz durchgeht. Wer gefehlt hat, lässt sich von Hand abhaken
+- Folien, die bisher an einem Termin hingen, löst das Update vom Termin, die Datei bleibt im Lehrgang. Ein Vortrag, der während des Updates läuft, wird beendet
+- Der Host kann Folien vergrößern, verschieben und drehen, die Zuschauer sehen denselben Ausschnitt. Hochkante Seiten passen sich von selbst ein. Beim Start ist kein Zeichenwerkzeug mehr gewählt, sondern ein Zeiger, mit dem man blättert und den Ausschnitt verschiebt
+- Zeigt der Vortrag gerade weder Folien noch einen Bildschirm, steht bei allen „Die Übertragung startet in Kürze“
+- Laser und Stift gehen jetzt auch auf dem geteilten Bildschirm. Beim Wechsel zwischen Folien und Bildschirm verschwinden die Zeichnungen auf dem Bildschirm
+- Laser und Striche kommen schneller an: Mit EF Sync laufen sie über den Medienserver von EmergencyForge, ohne EF Sync fragen die Zuschauer häufiger nach, solange gezeichnet wird. Der Laserpunkt gleitet, statt zu springen
+- Wer einen Browser-Tab teilt, kann dessen Ton mitsenden. Übertragen wird nur der Ton dieses Tabs, nie das Mikrofon und nicht der Ton anderer Programme wie Discord oder des Spiels. Zuschauer können stummschalten und die Lautstärke regeln. Lässt der Browser Ton nicht von selbst zu, steht dort „Ton einschalten“
+- Teilnehmer können im Vortrag schriftlich Fragen stellen, bis zu 500 Zeichen und fünf in der Minute. Die Fragen sehen nur Leitung und Ausbilder des Lehrgangs, mit Namen. Eine schriftliche Antwort sieht nur, wer gefragt hat, mündlich Beantwortetes hakt der Ausbilder ab. Mit dem Ende des Vortrags sind die Fragen weg
+- Leitung und Ausbilder sehen im Vortrag und danach am Termin ein Protokoll: wer wann gekommen und gegangen ist, auch mehrfach. Wer länger als 30 Sekunden weg war und wiederkommt, steht mit einem neuen Eintrag darin
+
+Dazu gehört training 0.5.0.
+
 ## 2026.1.21-beta
 
 ### Ausbildung
