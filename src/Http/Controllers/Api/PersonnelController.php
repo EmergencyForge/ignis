@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Discord\DiscordBot;
-use App\Discord\DiscordBotException;
-use App\Discord\DiscordNotifier;
+use App\Discord\InvitationDelivery;
 use App\Exceptions\UploadException;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Personnel\UpdateProfileRequest;
@@ -146,13 +145,10 @@ final class PersonnelController
         }
 
         if ($viaDiscord && $person !== null) {
-            try {
-                DiscordBot::sendDirectMessage((string) $person->discordtag, self::inviteMessage((string) $person->fullname, $result['inviteUrl']));
-                (new AuditLogger())->log((int) ($_SESSION['userid'] ?? 0), 'Einladung per Discord gesendet', $label, 'Benutzer', 1, ['mitarbeiter_id' => $mitarbeiterId]);
-                $result['discord'] = ['sent' => true];
-            } catch (DiscordBotException $e) {
-                $result['discord'] = ['sent' => false, 'message' => $e->getMessage()];
-            }
+            $error = InvitationDelivery::send(RegistrationCode::query()->where('code', $code)->firstOrFail());
+            $result['discord'] = $error === null
+                ? ['sent' => true, 'sentAt' => date('d.m.Y H:i')]
+                : ['sent' => false, 'message' => $error];
         }
 
         return Response::json($result);
@@ -197,31 +193,6 @@ final class PersonnelController
         );
 
         return [$code, false];
-    }
-
-    /**
-     * Die Einladung als Discord-Nachricht: Embed mit Link und ein Knopf,
-     * der direkt zur Registrierung führt.
-     *
-     * @return array<string, mixed>
-     */
-    private static function inviteMessage(string $name, string $url): array
-    {
-        $system = defined('SYSTEM_NAME') ? (string) SYSTEM_NAME : 'ıgnıs';
-        $hello  = trim($name) !== '' ? 'Hallo ' . trim($name) . ', d' : 'D';
-
-        return [
-            'embeds' => [DiscordNotifier::embed(
-                'Einladung zu ' . $system,
-                $hello . 'u bist eingeladen, dir ein Konto anzulegen. Über den Link meldest du dich an, das Konto ist dann gleich mit deinem Personaleintrag verknüpft.',
-                $url,
-                'Einladung',
-            )],
-            'components' => [[
-                'type'       => 1,
-                'components' => [['type' => 2, 'style' => 5, 'label' => 'Konto anlegen', 'url' => $url]],
-            ]],
-        ];
     }
 
     /**

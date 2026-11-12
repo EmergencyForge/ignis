@@ -91,6 +91,9 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                             <?php if ($pendingInvite && !empty($pendingInvite['expires_at'])): ?>
                                 <span style="font-size: var(--fs-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
                             <?php endif; ?>
+                            <?php if ($pendingInvite && !empty($pendingInvite['discord_sent_at'])): ?>
+                                <span style="font-size: var(--fs-xs); opacity: 0.7;" data-invite-sent><i class="fa-brands fa-discord mr-1" aria-hidden="true"></i>Zugestellt am <?= (new DateTime($pendingInvite['discord_sent_at']))->format('d.m.Y H:i') ?></span>
+                            <?php endif; ?>
                             <?php if ($canInvite && $pendingInvite): ?>
                                 <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-invite-copy="<?= htmlspecialchars(\App\Models\RegistrationCode::inviteUrl((string) $pendingInvite['code']), ENT_QUOTES) ?>">
                                     <i class="fa-solid fa-copy mr-1" aria-hidden="true"></i>Link kopieren
@@ -98,7 +101,7 @@ $rankBadgeUrl = rank_badge_url($dginfo['badge'] ?? null);
                             <?php endif; ?>
                             <?php if ($inviteDiscord && $pendingInvite): ?>
                                 <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-invite-discord data-fullname="<?= htmlspecialchars($row['fullname']) ?>" data-ignis-tooltip="Schickt den Einladungslink per Discord-DM">
-                                    <i class="fa-brands fa-discord mr-1" aria-hidden="true"></i>Per Discord senden
+                                    <i class="fa-brands fa-discord mr-1" aria-hidden="true"></i><?= !empty($pendingInvite['discord_sent_at']) ? 'Erneut senden' : 'Per Discord senden' ?>
                                 </button>
                             <?php endif; ?>
                         <?php else: ?>
