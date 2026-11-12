@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\FeatureTestCase;
 use Tests\FixtureFactory;
@@ -76,6 +77,48 @@ final class UserFormsTest extends FeatureTestCase
         $this->assertRedirect($this->post('/users/registration-codes', ['action' => 'delete', 'code_id' => (string) $code->id]), '/users/registration-codes');
 
         $this->assertNull(RegistrationCode::query()->find($code->id));
+    }
+
+    #[Test]
+    public function einladung_erstellen_steht_im_audit_log(): void
+    {
+        $person = FixtureFactory::personnel(['fullname' => 'Erika Einladung']);
+
+        $this->assertRedirect($this->post('/users/registration-codes', ['action' => 'generate', 'mitarbeiter_id' => (string) $person->id]), '/users/registration-codes');
+
+        $audit = Capsule::table('intra_audit_log')->where('action', 'Einladung erstellt')->get()->all();
+        $this->assertCount(1, $audit);
+        $this->assertSame((int) $_SESSION['userid'], (int) $audit[0]->user);
+        $this->assertSame('Erika Einladung', $audit[0]->details);
+        $this->assertSame('Benutzer', $audit[0]->module);
+        $this->assertSame(['mitarbeiter_id' => (int) $person->id], json_decode((string) $audit[0]->context, true));
+    }
+
+    #[Test]
+    public function einladung_loeschen_steht_im_audit_log(): void
+    {
+        $code = $this->code();
+
+        $this->post('/users/registration-codes', ['action' => 'delete', 'code_id' => (string) $code->id]);
+
+        $audit = Capsule::table('intra_audit_log')->where('action', 'Einladung gelöscht')->get()->all();
+        $this->assertCount(1, $audit);
+        $this->assertSame((int) $_SESSION['userid'], (int) $audit[0]->user);
+        $this->assertSame('Test', $audit[0]->details);
+        $this->assertSame('Benutzer', $audit[0]->module);
+    }
+
+    #[Test]
+    public function verwendete_einladung_loeschen_schreibt_nichts_ins_audit_log(): void
+    {
+        $code = $this->code();
+        $code->is_used = true;
+        $code->save();
+
+        $this->post('/users/registration-codes', ['action' => 'delete', 'code_id' => (string) $code->id]);
+
+        $this->assertNotNull(RegistrationCode::query()->find($code->id));
+        $this->assertSame(0, Capsule::table('intra_audit_log')->where('action', 'Einladung gelöscht')->count());
     }
 
     #[Test]
