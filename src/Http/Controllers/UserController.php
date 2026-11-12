@@ -424,6 +424,15 @@ class UserController extends Controller
         $rc->is_used    = false;
         $rc->save();
 
+        (new AuditLogger())->log(
+            (int) $_SESSION['userid'],
+            'Einladung erstellt',
+            $rc->label,
+            'Benutzer',
+            1,
+            ['mitarbeiter_id' => $rc->mitarbeiter_id],
+        );
+
         $inviteUrl = RegistrationCode::inviteUrl($code);
         Flash::set('success', 'Einladungslink erstellt: ' . $inviteUrl);
 
@@ -440,12 +449,24 @@ class UserController extends Controller
             $codeId = 0;
         }
 
+        $code = RegistrationCode::query()->find($codeId);
+
+        // Die Bedingung bleibt am DELETE: zwischen Lesen und Löschen kann
+        // die Einladung eingelöst worden sein.
         $deleted = RegistrationCode::query()
             ->where('id', $codeId)
             ->where('is_used', 0)
             ->delete();
 
         if ($deleted > 0) {
+            (new AuditLogger())->log(
+                (int) $_SESSION['userid'],
+                'Einladung gelöscht',
+                $code?->label,
+                'Benutzer',
+                1,
+                ['mitarbeiter_id' => $code?->mitarbeiter_id],
+            );
             Flash::success('Einladung erfolgreich gelöscht.');
         } else {
             Flash::error('Einladung konnte nicht gelöscht werden (bereits verwendet oder nicht gefunden).');
