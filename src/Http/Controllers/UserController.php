@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Gate;
+use App\Discord\DiscordBot;
+use App\Discord\InvitationDelivery;
 use App\Helpers\Flash;
 use App\Http\Requests\IdRequest;
 use App\Http\Requests\Users\DeleteRegistrationCodeRequest;
 use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
 use App\Http\Requests\Users\LinkPersonnelRequest;
 use App\Http\Requests\Users\RegistrationCodeActionRequest;
+use App\Http\Requests\Users\SendRegistrationCodeRequest;
 use App\Http\Requests\Users\SetUserActiveRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Models\Personnel;
@@ -330,6 +333,7 @@ class UserController extends Controller
      * GET /users/registration-codes: Einladungs-Codes verwalten.
      * POST mit `action=generate` → neuen Code erzeugen
      * POST mit `action=delete`   → Code löschen (nur ungenutzte)
+     * POST mit `action=send`     → offene Einladung per Discord zustellen
      *
      * Internes Dispatching nach REQUEST_METHOD + action. Der Stub bleibt
      * dadurch ein 2-Zeiler. 
@@ -354,6 +358,9 @@ class UserController extends Controller
                 $this->deleteRegistrationCode();
                 return;
             }
+            if ($action === 'send') {
+                $this->sendRegistrationCode();
+            }
         }
 
         $codes = RegistrationCode::query()
@@ -366,7 +373,26 @@ class UserController extends Controller
             'freePersonnel'    => self::unlinkedPersonnel(),
             'registrationMode' => defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open',
             'systemUrl'        => RegistrationCode::baseUrl(),
+            'discordActive'    => DiscordBot::active(),
         ]);
+    }
+
+    /** Stellt die offene Einladung eines Mitarbeiters per Discord zu. */
+    private function sendRegistrationCode(): never
+    {
+        try {
+            $codeId = SendRegistrationCodeRequest::validate($_POST)['code_id'];
+        } catch (ValidationException) {
+            $codeId = 0;
+        }
+
+        $code  = RegistrationCode::query()->find($codeId);
+        $error = $code !== null ? InvitationDelivery::send($code) : 'Die Einladung wurde nicht gefunden.';
+        $error === null
+            ? Flash::success('Die Einladung ist per Discord zugestellt.')
+            : Flash::warning('Die Einladung kam per Discord nicht an: ' . $error);
+
+        $this->redirect('users/registration-codes');
     }
 
     private function generateRegistrationCode(): void

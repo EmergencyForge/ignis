@@ -305,16 +305,59 @@ final class DiscordBotTest extends FeatureTestCase
         $this->assertSame($result['inviteUrl'], $message['components'][0]['components'][0]['url']);
         $this->assertSame(1, Capsule::table('intra_audit_log')->where('action', 'Einladung per Discord gesendet')->where('details', 'Dora Discord')->count());
 
+        // Der Zeitpunkt steht an der Einladung, das Profil zeigt ihn und bietet "Erneut senden".
+        $sentAt = RegistrationCode::query()->where('mitarbeiter_id', $person->id)->firstOrFail()->discord_sent_at;
+        $this->assertNotNull($sentAt);
+        $this->assertSame($sentAt->format('d.m.Y H:i'), $result['discord']['sentAt']);
+        $profile = $this->get('/personnel/profile', ['query' => ['id' => (string) $person->id]]);
+        $this->assertBodyContains('Zugestellt am ' . $sentAt->format('d.m.Y H:i'), $profile);
+        $this->assertBodyContains('Erneut senden', $profile);
+
         // Lässt Discord die DM nicht zu, bleibt die Einladung trotzdem bestehen.
         $this->failures['/channels/' . self::CHANNEL_ID . '/messages'] = ['status' => 403, 'body' => '{"message":"Cannot send messages to this user","code":50007}'];
         $again = $invite($person->id);
         $this->assertTrue($again['existing']);
         $this->assertFalse($again['discord']['sent']);
         $this->assertStringContainsString('keine Direktnachricht', $again['discord']['message']);
+        $this->assertSame(1, Capsule::table('intra_audit_log')->where('action', 'Einladung per Discord nicht zugestellt')->count());
 
         // Ohne Discord-ID am Mitarbeiter: keine Einladung.
         $without = FixtureFactory::personnel(['discordtag' => null]);
         $this->assertFalse($invite($without->id)['success']);
         $this->assertSame(0, RegistrationCode::query()->where('mitarbeiter_id', $without->id)->count());
+    }
+
+    #[Test]
+    public function einladung_per_discord_aus_der_einladungsliste(): void
+    {
+        $this->activateBot();
+        $this->loginAdmin();
+        $person = FixtureFactory::personnel(['fullname' => 'Lisa Liste', 'discordtag' => '523456789012345678']);
+        $expires = date('Y-m-d H:i:s', time() + 86400);
+        $code = RegistrationCode::create(['code' => bin2hex(random_bytes(8)), 'label' => 'Lisa Liste', 'mitarbeiter_id' => $person->id, 'expires_at' => $expires]);
+        $free = RegistrationCode::create(['code' => bin2hex(random_bytes(8)), 'label' => 'Frei']);
+
+        // Nur die Einladung für einen Mitarbeiter mit Discord-ID bekommt den Knopf.
+        $this->assertSame(1, substr_count($this->get('/users/registration-codes')->body, 'name="action" value="send"'));
+
+        $this->assertRedirect($this->post('/users/registration-codes', ['action' => 'send', 'code_id' => (string) $code->id]), '/users/registration-codes');
+        $this->assertSame(['523456789012345678'], $this->dmRecipients());
+        $message = $this->sentMessages()[0];
+        $this->assertSame(RegistrationCode::inviteUrl((string) $code->code), $message['embeds'][0]['url']);
+        $this->assertStringContainsString('gültig bis ' . date('d.m.Y H:i', strtotime($expires)), $message['embeds'][0]['footer']['text']);
+        $sentAt = $code->refresh()->discord_sent_at;
+        $this->assertNotNull($sentAt);
+        $this->assertBodyContains('zugestellt ' . $sentAt->format('d.m.Y H:i'), $this->get('/users/registration-codes'));
+
+        // Freie Einladung: niemand, dem der Bot schreiben könnte.
+        $this->post('/users/registration-codes', ['action' => 'send', 'code_id' => (string) $free->id]);
+        $this->assertCount(1, $this->sentMessages());
+        $this->assertNull($free->refresh()->discord_sent_at);
+
+        // Lehnt Discord ab, bleibt die Einladung gültig und der Grund steht in der Meldung.
+        $this->failures['/channels/' . self::CHANNEL_ID . '/messages'] = ['status' => 403, 'body' => '{"message":"Cannot send messages to this user","code":50007}'];
+        $this->post('/users/registration-codes', ['action' => 'send', 'code_id' => (string) $code->id]);
+        $this->assertTrue($code->refresh()->isRedeemable());
+        $this->assertStringContainsString('keine Direktnachricht', (string) json_encode($_SESSION, JSON_UNESCAPED_UNICODE));
     }
 }

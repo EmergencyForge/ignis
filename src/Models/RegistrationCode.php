@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int|null    $used_by
  * @property Carbon|null    $used_at
  * @property Carbon|null    $expires_at
+ * @property Carbon|null    $discord_sent_at zuletzt per Discord zugestellt (App\Discord\InvitationDelivery)
  * @property bool        $is_used
  * @property-read User|null $creator
  * @property-read User|null $usedByUser
@@ -42,6 +43,7 @@ class RegistrationCode extends Model
         'created_at' => 'datetime',
         'used_at'    => 'datetime',
         'expires_at' => 'datetime',
+        'discord_sent_at' => 'datetime',
     ];
 
     /**

@@ -6,6 +6,7 @@
  * @var iterable<\App\Models\Personnel>                                              $freePersonnel Mitarbeiter ohne Konto
  * @var string                                                                       $registrationMode
  * @var string                                                                       $systemUrl
+ * @var bool                                                                         $discordActive der Discord-Bot läuft
  */
 
 
@@ -119,6 +120,9 @@ $bodyId = 'benutzer';
                                             <?php else: ?>
                                                 <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Verfügbar</span>
                                             <?php endif; ?>
+                                            <?php if ($code->discord_sent_at !== null): ?>
+                                                <br><small class="text-tertiary-text"><i class="fa-brands fa-discord" aria-hidden="true"></i> zugestellt <?= htmlspecialchars($code->discord_sent_at->format('d.m.Y H:i')) ?></small>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if ($code->is_used): ?>
@@ -134,6 +138,17 @@ $bodyId = 'benutzer';
                                                     <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-ignis-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
                                                         <i class="fa-solid fa-copy"></i>
                                                     </button>
+                                                    <?php if ($discordActive && \App\Discord\InvitationDelivery::reachable($code->mitarbeiter)): ?>
+                                                        <?php $sendLabel = $code->discord_sent_at !== null ? 'Erneut per Discord senden' : 'Per Discord senden'; ?>
+                                                        <form method="POST" class="inline">
+                                                            <?= csrf_field() ?>
+                                                            <input type="hidden" name="action" value="send">
+                                                            <input type="hidden" name="code_id" value="<?= (int) $code->id ?>">
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary ignis-btn--icon" data-ignis-tooltip="<?= $sendLabel ?>" aria-label="<?= $sendLabel ?>">
+                                                                <i class="fa-brands fa-discord" aria-hidden="true"></i>
+                                                            </button>
+                                                        </form>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                                 <?php if (!$code->is_used): ?>
                                                     <form method="POST" class="inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result => { if(result) this.submit(); });">

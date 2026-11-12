@@ -13,13 +13,14 @@ use Respect\Validation\Validator as v;
  *
  * Bewusst ohne `v::keySet()`: hier geht es nur um `action`. Die übrigen
  * Felder prüft danach die Regelmenge der Aktion
- * (GenerateRegistrationCodeRequest, DeleteRegistrationCodeRequest).
+ * (GenerateRegistrationCodeRequest, DeleteRegistrationCodeRequest,
+ * SendRegistrationCodeRequest).
  */
 class RegistrationCodeActionRequest extends FormRequest
 {
     protected static function rules(): Validatable
     {
-        return v::key('action', v::in(['generate', 'delete'], true));
+        return v::key('action', v::in(['generate', 'delete', 'send'], true));
     }
 
     protected static function messages(): array

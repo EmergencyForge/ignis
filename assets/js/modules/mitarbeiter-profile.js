@@ -68,6 +68,21 @@
     return inline ? copy : btn;
   }
 
+  // Nach der Zustellung per Discord: Vermerk und „Erneut senden“, wie nach
+  // dem nächsten Laden der Seite.
+  function markSent(btn, sentAt) {
+    let note = document.querySelector('[data-invite-sent]');
+    if (!note) {
+      note = document.createElement('span');
+      note.dataset.inviteSent = '';
+      note.style.cssText = 'font-size: var(--fs-xs); opacity: 0.7;';
+      btn.parentNode.insertBefore(note, btn);
+    }
+    note.innerHTML = '<i class="fa-brands fa-discord mr-1" aria-hidden="true"></i>';
+    note.append('Zugestellt am ' + sentAt);
+    btn.innerHTML = '<i class="fa-brands fa-discord mr-1" aria-hidden="true"></i>Erneut senden';
+  }
+
   function bindInviteButtons(config) {
     if (!config.canInvite) return;
 
@@ -142,6 +157,7 @@
         }
         if (document.getElementById('generateInviteBtn')) showPending(btn, data.inviteUrl);
         if (data.discord && data.discord.sent) {
+          markSent(btn, data.discord.sentAt);
           toast('Einladung per Discord-DM verschickt', 'success');
         } else {
           toast(((data.discord && data.discord.message) || 'Die DM ging nicht raus.') + ' Der Link lässt sich weiter kopieren.', 'warning');
