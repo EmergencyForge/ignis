@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8e6b53ab1ee16510f49edb8de94247f",
+    "content-hash": "bfa6a1387a5fc2af1c6249b5ab16efb1",
     "packages": [
         {
             "name": "brick/math",
@@ -976,11 +976,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.10.0",
+            "version": "0.11.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "5aff751bff7184962078cd188e38327d21c6aedd"
+                "reference": "84ee70ad317970808b28d33a66374f60840faaf3"
             },
             "require": {
                 "php": ">=8.3",
@@ -1113,6 +1113,46 @@
                 "MIT"
             ],
             "description": "Schlanker HTTP-Kern der EmergencyForge-Anwendungen: Router (FastRoute), Middleware-Pipeline, Request/Response ohne PSR-7.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/i18n",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/i18n/php",
+                "reference": "66d6ff52a26ac2a5f9e42b0c6aa8808dfdc6216a"
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "suggest": {
+                "ext-intl": "Pluralregeln für Sprachen außer de und en"
+            },
+            "bin": [
+                "bin/i18n-check"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\I18n\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\I18n\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Übersetzer für i18next-JSON mit Platzhaltern, Plural und Rückfall auf Deutsch, dazu i18n-check gegen fehlende und verwaiste Schlüssel. Die JS-Hälfte liegt unter ../js.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1264,11 +1304,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.12.2",
+            "version": "1.13.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "293546337517ab826e4a3eee801b8aca1a04bf1b"
+                "reference": "d0c08d3def0b5cdde932172c7135a8d4f0215d34"
             },
             "require": {
                 "php": ">=8.3"

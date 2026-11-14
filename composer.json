@@ -12,7 +12,8 @@
     { "type": "path", "url": "../WebPackages/packages/mail",           "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/list-query",     "options": { "symlink": true } },
     { "type": "path", "url": "../WebPackages/packages/ui/php",         "options": { "symlink": true } },
-    { "type": "path", "url": "../WebPackages/packages/training",       "options": { "symlink": true } }
+    { "type": "path", "url": "../WebPackages/packages/training",       "options": { "symlink": true } },
+    { "type": "path", "url": "../WebPackages/packages/i18n/php",       "options": { "symlink": true } }
   ],
   "require": {
     "php": ">=8.3",
@@ -31,7 +32,7 @@
     "illuminate/queue": "^11.0",
     "symfony/console": "^7.0",
     "dragonmantank/cron-expression": "^3.6",
-    "emergencyforge/editor-php": "^0.10",
+    "emergencyforge/editor-php": "^0.11",
     "emergencyforge/http-kernel": "^0.1.3",
     "emergencyforge/plugin-system": "^0.1",
     "emergencyforge/health-check": "^0.1",
@@ -41,6 +42,7 @@
     "emergencyforge/list-query": "^0.1",
     "emergencyforge/ui-php": "^1.9",
     "emergencyforge/training": "^0.6",
+    "emergencyforge/i18n": "^0.1",
     "chillerlan/php-qrcode": "^6.0"
   },
   "autoload": {
