@@ -872,16 +872,16 @@
         },
         {
             "name": "dragonmantank/cron-expression",
-            "version": "v3.6.0",
+            "version": "v3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dragonmantank/cron-expression.git",
-                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013"
+                "reference": "4189372ffeff09bf14f731f67a9de90c7b413ebe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/d61a8a9604ec1f8c3d150d09db6ce98b32675013",
-                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013",
+                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/4189372ffeff09bf14f731f67a9de90c7b413ebe",
+                "reference": "4189372ffeff09bf14f731f67a9de90c7b413ebe",
                 "shasum": ""
             },
             "require": {
@@ -892,8 +892,8 @@
             },
             "require-dev": {
                 "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^1.12.32|^2.1.31",
-                "phpunit/phpunit": "^8.5.48|^9.0"
+                "phpstan/phpstan": "^2.1.31",
+                "phpunit/phpunit": "^11.5.43 || ^12.4"
             },
             "type": "library",
             "extra": {
@@ -924,7 +924,7 @@
             ],
             "support": {
                 "issues": "https://github.com/dragonmantank/cron-expression/issues",
-                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.6.0"
+                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.6.1"
             },
             "funding": [
                 {
@@ -932,7 +932,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-31T18:51:33+00:00"
+            "time": "2026-10-19T17:53:57+00:00"
         },
         {
             "name": "emergencyforge/cron-scheduler",
@@ -940,7 +940,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "b8635438d6118e87a0375c9bf04d6a7cd9232461"
+                "reference": "211d2e455d50bb32eae61ea76bd996182a138f2f"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -980,7 +980,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "5aff751bff7184962078cd188e38327d21c6aedd"
+                "reference": "5e436949b63731db6606dd607ae7c2e64352cfe4"
             },
             "require": {
                 "php": ">=8.3",
@@ -1019,7 +1019,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/fuzzy-search",
-                "reference": "4427f102cd2ffc856e50b9b584f401e1d1bdd277"
+                "reference": "330bf4f3324f9434dae6f312515594ea236253bc"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -1054,7 +1054,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "d58871cef18a2a2a888409493aecdfcc2b0c160a"
+                "reference": "d0f2a26e455ca2ca495cb84d2d7d73feceb21409"
             },
             "require": {
                 "php": ">=8.3"
@@ -1088,7 +1088,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "24b08e6ebb209ed71c6c1a4756380a7167e26ab9"
+                "reference": "b32f4949b76d6236e124d83a955bb840e2e6c88c"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
@@ -1124,7 +1124,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/list-query",
-                "reference": "2ee34e7f4bfe33fa05f944b49eb79e11b1c50163"
+                "reference": "003e4ec03c5875a3d816b9facab06c2221c743ec"
             },
             "require": {
                 "php": ">=8.3"
@@ -1158,7 +1158,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "237086d571f685e37251ba5b36807e1bbf7869fd"
+                "reference": "d7bbd79216de5df1008aa3f2f1376f6401dd933f"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1193,7 +1193,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "a18e6bdd23ab8fc7e56319ff0aebf8c2e1a46a73"
+                "reference": "73d8ebffed9e6743f4c58b7c906d8d343fe5a576"
             },
             "require": {
                 "ext-tokenizer": "*",
@@ -1228,7 +1228,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/training",
-                "reference": "7d91abe2814bffc439d4c739763e353bf951faa9"
+                "reference": "a309a485137539920b23e8cbc3f26961b93f3951"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1268,7 +1268,7 @@
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "293546337517ab826e4a3eee801b8aca1a04bf1b"
+                "reference": "c7b3b415bb0d0dbeb063194f86987e318ec07970"
             },
             "require": {
                 "php": ">=8.3"
@@ -8053,15 +8053,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.3.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
