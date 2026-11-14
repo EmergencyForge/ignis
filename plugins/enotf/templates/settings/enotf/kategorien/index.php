@@ -9,7 +9,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 6) . '/assets/components/_base/admin/head.php'; ?>

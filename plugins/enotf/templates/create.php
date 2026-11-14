@@ -22,7 +22,7 @@ $pinEnabled  = CrewPolicy::pinEnabled() ? 'true' : 'false';
 $createError = (string) ($_GET['error'] ?? '');
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

@@ -19,7 +19,7 @@ use Plugin\Enotf\Helpers\EnotfUrl;
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

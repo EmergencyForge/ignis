@@ -24,7 +24,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES);
 $pinEnabled = CrewPolicy::pinEnabled() ? 'true' : 'false';
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

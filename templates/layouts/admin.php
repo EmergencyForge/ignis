@@ -34,7 +34,7 @@ $layoutThemeFade = \App\Helpers\Theme::consumeTransition();
 $layoutTheme = \App\Helpers\Theme::mode();
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-efe-icons="fontawesome" data-efe-tooltip="data-ignis-tooltip" data-page-motion="<?= $layoutMotion ?>">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-efe-icons="fontawesome" data-efe-tooltip="data-ignis-tooltip" data-page-motion="<?= $layoutMotion ?>">
 
 <head>
     <?php if ($layoutMotion !== '' || $layoutThemeFade): ?><style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style><?php endif; ?>

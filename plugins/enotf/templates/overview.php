@@ -34,7 +34,7 @@ foreach (($crew['members'] ?? []) as $member) {
 date_default_timezone_set('Europe/Berlin');
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

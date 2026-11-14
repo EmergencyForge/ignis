@@ -119,6 +119,18 @@ if (!function_exists('csrf_token')) {
     }
 }
 
+if (!function_exists('t')) {
+    /**
+     * Text aus lang/<sprache>.json in der aktiven Sprache. Escapt nicht.
+     *
+     * @param array<string, string|int|float> $params
+     */
+    function t(string $key, array $params = []): string
+    {
+        return \App\Localization\Locale::translator()->t($key, $params);
+    }
+}
+
 if (!function_exists('csrf_field')) {
     /**
      * Das versteckte Feld fuer ein Formular:

@@ -304,7 +304,7 @@ $SITE_TITLE = 'Cron-Jobs';
             const iso = utcString.replace(' ', 'T') + 'Z';
             const d = new Date(iso);
             if (isNaN(d.getTime())) return utcString;
-            return d.toLocaleString('de-DE', {
+            return d.toLocaleString(document.documentElement.lang || 'de', {
                 timeZone: 'Europe/Berlin',
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit'

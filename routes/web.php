@@ -176,6 +176,8 @@ foreach (['/notifications', '/notifications/', '/notifications/index', '/notific
 // ----------------------------------------------------------------------------
 
 $router->post('/profile/theme', [ProfileController::class, 'theme'], [new AuthMiddleware()]);
+// Sprache aus APP_LOCALES, gepostet aus dem Kontrollzentrum der Desktop-Hülle.
+$router->post('/profile/locale', [ProfileController::class, 'locale'], [new AuthMiddleware()]);
 $router->post('/profile/discord-dm', [ProfileController::class, 'discordDm'], [new AuthMiddleware()]);
 // Oberfläche dieses Geräts (klassisch oder Desktop-Hülle), ebenfalls aus dem Benutzermenü.
 $router->post('/profile/ui', [ProfileController::class, 'ui'], [new AuthMiddleware()]);

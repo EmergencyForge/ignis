@@ -360,7 +360,7 @@ class ErrorHandler
         }
 
         // Inline fallback
-        echo '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">';
+        echo '<!DOCTYPE html><html lang="' . \App\Localization\Locale::htmlLang() . '"><head><meta charset="utf-8">';
         echo '<title>Fehler - ıgnıs</title>';
         echo '<style>body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#e0e0e0;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}';
         echo '.error-box{background:#16213e;padding:2rem 3rem;border-radius:12px;max-width:600px;text-align:center;border:1px solid #0f3460}';

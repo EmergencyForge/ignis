@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <meta charset="UTF-8">

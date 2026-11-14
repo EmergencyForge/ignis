@@ -701,7 +701,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
         function formatDate(str) {
             if (!str) return '';
             var d = new Date(str);
-            return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            return d.toLocaleDateString(document.documentElement.lang || 'de') + ' ' + d.toLocaleTimeString(document.documentElement.lang || 'de', { hour: '2-digit', minute: '2-digit' });
         }
 
         function escHtml(s) {

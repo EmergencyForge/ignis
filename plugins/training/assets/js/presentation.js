@@ -1000,7 +1000,7 @@
         viewersShown = key;
         const inCourse = list.filter((v) => v.in_course);
         const others = list.filter((v) => !v.in_course);
-        const time = (iso) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const time = (iso) => new Date(iso).toLocaleTimeString(document.documentElement.lang || 'de', { hour: '2-digit', minute: '2-digit' });
         $$('[data-live-viewer-count]').forEach((el) => { el.textContent = String(list.length); });
         $('[data-live-course-count]').textContent = String(inCourse.length);
         $('[data-live-others-count]').textContent = String(others.length);
@@ -2110,7 +2110,7 @@
 
     // Wie Question::MAX_LENGTH im Paket, gezählt in Zeichen wie mb_strlen().
     const MAX_QUESTION = 500;
-    const hhmm = (iso) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const hhmm = (iso) => new Date(iso).toLocaleTimeString(document.documentElement.lang || 'de', { hour: '2-digit', minute: '2-digit' });
     const chars = (text) => Array.from(text.trim()).length;
     const questionRows = new Map();
     // Teilnehmer: eben gestellte Fragen, bis eine Abfrage sie bringt; Antworten, die er schon gesehen hat.

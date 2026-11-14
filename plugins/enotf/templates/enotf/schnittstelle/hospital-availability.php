@@ -102,7 +102,7 @@ $status_config = [
 ?>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <meta charset="UTF-8">

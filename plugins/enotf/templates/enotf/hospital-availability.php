@@ -43,7 +43,7 @@ $defaultUrl = EnotfUrl::page('overview');
 ?>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

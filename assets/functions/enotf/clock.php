@@ -7,12 +7,12 @@
         const berlinTime = new Date(now.toLocaleString("en-US", {
             timeZone: "Europe/Berlin"
         }));
-        const time = berlinTime.toLocaleTimeString('de-DE', {
+        const time = berlinTime.toLocaleTimeString(document.documentElement.lang || 'de', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
         });
-        const date = berlinTime.toLocaleDateString('de-DE', {
+        const date = berlinTime.toLocaleDateString(document.documentElement.lang || 'de', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
