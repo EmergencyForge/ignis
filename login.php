@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     <?php // Akzentrollen aus SYSTEM_COLOR wie auf allen anderen Seiten (dort über shell.js). ?>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/preferences.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/login-stage.js"></script>
+    <?= \App\Support\SiteCode::head() ?>
 </head>
 
 <body id="alogin" class="relative" data-ui-skin="core">
@@ -149,6 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 
     <?php // Im Tablet von ef_bridge: ohne Sitzung holt die Bridge einen neuen Tablet-Login. ?>
     <script>if (window.parent !== window) window.parent.postMessage({ type: 'ef_tablet_signed_out', failed: new URLSearchParams(location.search).get('tablet') === 'failed' }, '*');</script>
+    <?= \App\Support\SiteCode::bodyEnd() ?>
 </body>
 
 </html>

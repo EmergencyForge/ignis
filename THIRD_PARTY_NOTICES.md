@@ -31,6 +31,10 @@ The rich text editor (knowledge base, mail, documents) comes from the shared `em
 - `@floating-ui/dom` 1.8.0, © Floating UI contributors. Source: <https://github.com/floating-ui/floating-ui>.
 - `ueberdosis/tiptap-php` 2.2.0, © überdosis, renders the editor JSON to HTML on the server. Source: <https://github.com/ueberdosis/tiptap-php>.
 
+## Custom CSS
+
+The admin's custom SCSS under Settings › System › Design is compiled on save by `scssphp/scssphp` 2.1.0, © Leaf Corcoran, Anthon Pang and contributors, licensed under the MIT License, through the shared `emergencyforge/theme` package. Source: <https://github.com/scssphp/scssphp>.
+
 ## QR codes
 
 The QR code next to the verification code on issued certificates is drawn by `chillerlan/php-qrcode` 6.0.1, © Smiley, licensed under the MIT License or the Apache License 2.0 (<https://github.com/chillerlan/php-qrcode>). Parts of it are ported from ZXing (© ZXing authors) and php-qrcode-detector-decoder (© Ashot Khanamiryan) under the Apache License 2.0; its `NOTICE` file lists them. It depends on `chillerlan/php-settings-container` 3.3.0, © Smiley, MIT License (<https://github.com/chillerlan/php-settings-container>).

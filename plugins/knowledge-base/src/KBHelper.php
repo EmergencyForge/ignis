@@ -207,7 +207,7 @@ class KBHelper
      */
     private const ALLOWED_TAGS = [
         'p', 'br', 'hr', 'strong', 'b', 'em', 'i', 'u', 's', 'h2', 'h3', 'h4',
-        'ul', 'ol', 'li', 'blockquote', 'a', 'img',
+        'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'span',
         'figure', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
     ];
 
@@ -253,7 +253,7 @@ class KBHelper
             return null;
         }
 
-        $result = (new Renderer())->render($doc, allowLinks: true);
+        $result = (new Renderer(\App\Support\SiteCode::styles()->keys()))->render($doc, allowLinks: true);
         if ($result->error) {
             return null;
         }
@@ -367,6 +367,18 @@ class KBHelper
                     }
                 }
                 return $html;
+
+            case 'p':
+            case 'h2':
+            case 'h3':
+            case 'h4':
+            case 'span':
+                // Editor styles (Settings > System > Design); the renderer has already dropped unknown keys.
+                $class = $node->getAttribute('class');
+                if (preg_match('/^efs-[a-z][a-z0-9-]{0,31}$/D', $class) === 1) {
+                    return ' class="' . $class . '"';
+                }
+                return $tag === 'span' ? null : '';
 
             case 'figure':
                 $class = $node->getAttribute('class');

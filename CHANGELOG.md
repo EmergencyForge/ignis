@@ -1,5 +1,15 @@
 # Changelog
 
+## Unveröffentlicht
+
+### Design
+- Neu unter Einstellungen › System › Design: eigenes CSS, das ignis nach seinem eigenen lädt. SCSS geht auch, es wird beim Speichern übersetzt, und bei einem Fehler steht die Zeile dabei
+- Unter „Editor-Stile“ legt man Stile für den Editor an: Name, Klasse und ein paar CSS-Angaben, als Absatzstil oder für eine markierte Textstelle. Sie stehen dann in Dokumenten, Mails, der Wissensdatenbank und in Lerneinheiten im Menü „Stil“ und gelten auch im PDF
+- Eigenes JavaScript für den Kopf und das Ende jeder Seite darf nur ein Admin+ ändern, denn so ein Skript handelt im Namen jedes Nutzers
+- Jede Änderung steht im Audit-Log. Mit `?safemode=1` an der Adresse schaltet ignis eigenes CSS und JavaScript ab, bis man den Modus über die gelbe Leiste unten beendet. Das hilft, wenn eigener Code die Seite zerlegt hat. eNOTF und fireTab laden keinen eigenen Code
+
+Dazu gehören theme 0.1.0 und editor 0.11.0.
+
 ## 2026.1.22-beta
 
 ### Ausbildung

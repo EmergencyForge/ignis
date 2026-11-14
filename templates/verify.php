@@ -23,6 +23,7 @@ $e = static fn (string $text): string => htmlspecialchars($text, ENT_QUOTES, 'UT
     <meta name="robots" content="noindex">
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/preferences.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/login-stage.js"></script>
+    <?= \App\Support\SiteCode::head() ?>
 </head>
 
 <body id="alogin" class="relative" data-ui-skin="core">
@@ -77,6 +78,7 @@ $e = static fn (string $text): string => htmlspecialchars($text, ENT_QUOTES, 'UT
         </section>
         <?php require __DIR__ . '/partials/login-stage.php'; ?>
     </div>
+    <?= \App\Support\SiteCode::bodyEnd() ?>
 </body>
 
 </html>

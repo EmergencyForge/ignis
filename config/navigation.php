@@ -414,6 +414,15 @@ return [
                     'permissions' => ['admin'],
                     'match'       => ['/settings/system/discord'],
                 ],
+                [
+                    'label'       => 'Design',
+                    'href'        => BASE_PATH . 'settings/system/design',
+                    'icon'        => 'fa-solid fa-palette',
+                    'description' => 'Eigenes CSS, Stile für den Editor und eigenes JavaScript.',
+                    'keywords'    => 'CSS SCSS Stil Editor JavaScript Skript Aussehen',
+                    'permissions' => ['admin'],
+                    'match'       => ['/settings/system/design'],
+                ],
             ],
         ],
 

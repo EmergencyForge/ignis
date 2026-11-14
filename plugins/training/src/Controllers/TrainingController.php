@@ -211,7 +211,7 @@ final class TrainingController extends BaseController
         $html  = null;
         if ($unitModel->type() === UnitKind::Text) {
             $doc  = is_array($unitModel->content['doc'] ?? null) ? $unitModel->content['doc'] : ['type' => 'doc', 'content' => []];
-            $html = (new Renderer())->render($doc, allowLinks: true)->html;
+            $html = (new Renderer(\App\Support\SiteCode::styles()->keys()))->render($doc, allowLinks: true)->html;
         }
 
         return $this->page('training/unit', [

@@ -36,6 +36,7 @@ $deskPalette = Navigation::palette(Navigation::groups());
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/workbench.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/palette.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/breadcrumb.js"></script>
+    <?= \App\Support\SiteCode::head() ?>
 </head>
 
 <body class="ignis-desk-body" data-ui-skin="core" data-preference-key="<?= htmlspecialchars((string) ($_SESSION['userid'] ?? 'local'), ENT_QUOTES) ?>">
@@ -43,6 +44,7 @@ $deskPalette = Navigation::palette(Navigation::groups());
         <input type="search" data-ignis-global-search aria-label="Suche" autocomplete="off">
     </div>
     <?= DeskShell::render($layoutUrl, $layoutFragment) ?>
+    <?= \App\Support\SiteCode::bodyEnd() ?>
 </body>
 
 </html>
