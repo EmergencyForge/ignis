@@ -31,6 +31,8 @@ final class TrainingUpkeepTest extends FeatureTestCase
 {
     private CourseType $type;
 
+    private int $courseNumber = 0;
+
     /** @var list<string> */
     private array $paths = [];
 
@@ -69,7 +71,8 @@ final class TrainingUpkeepTest extends FeatureTestCase
         $course = new Course();
         $course->course_type_id = $this->type->id;
         $course->title          = 'TF ' . $status;
-        $course->number         = random_int(1, 9999);
+        // Nummer ist je Kursart und Jahr eindeutig, eine Zufallszahl kollidiert bei mehreren Kursen pro Test.
+        $course->number         = ++$this->courseNumber;
         $course->year           = 2026;
         $course->status         = $status;
         $course->starts_on      = $startsOn !== null ? Carbon::parse($startsOn) : null;

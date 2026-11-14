@@ -67,7 +67,7 @@ final class Completions
     {
         $now ??= new DateTimeImmutable();
         $count = 0;
-        foreach ($this->table->pending($limit) as $completion) {
+        foreach ($this->table->pending($now, $limit) as $completion) {
             if ($completion->isDue($now)) {
                 $this->run($completion->participationId, false, $now);
                 $count++;

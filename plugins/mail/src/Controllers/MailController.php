@@ -100,7 +100,8 @@ final class MailController extends Controller
         private readonly AttachmentStorage $attachments,
         private readonly NotificationManager $notifications,
     ) {
-        $this->mailer = new Mailer($store, $directory, $renderer);
+        // Zustellungen sind je Rolle eindeutig: eine Mail an sich selbst liegt in Posteingang und Gesendet.
+        $this->mailer = new Mailer($store, $directory, $renderer, senderInInbox: true);
     }
 
     // ── Seiten ────────────────────────────────────────────────────
@@ -339,7 +340,7 @@ final class MailController extends Controller
             return $fields;
         }
 
-        $this->store->updateMessage($draft->id, new NewMessage(
+        $saved = $this->store->updateMessage($draft->id, new NewMessage(
             sender: MailDirectory::ref($mailbox),
             subject: $fields['subject'],
             bodyJson: $fields['body'] ?? $draft->body_json,
@@ -348,6 +349,9 @@ final class MailController extends Controller
             inReplyTo: $draft->in_reply_to,
             recipients: $fields['recipients'],
         ));
+        if (!$saved) {
+            return self::json(['success' => false, 'message' => 'Der Entwurf wurde inzwischen gesendet.'], 409);
+        }
 
         return self::json(['success' => true, 'messageId' => $draft->id]);
     }

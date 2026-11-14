@@ -1507,19 +1507,22 @@ final class TrainingPresentationTest extends FeatureTestCase
     }
 
     #[Test]
-    public function short_talk_shows_under_one_minute(): void
+    public function short_talk_suggests_whoever_saw_all_of_it(): void
     {
         [$teacher, $course, $session] = $this->talk();
-        $in  = $this->admit($course, $this->account()['personnel']);
-        $out = $this->admit($course, $this->account()['personnel']);
+        $in   = $this->admit($course, $this->account()['personnel']);
+        $out  = $this->admit($course, $this->account()['personnel']);
+        $part = $this->admit($course, $this->account()['personnel']);
         // Der zweite Zuschauer hat länger gezählt, als der Vortrag lief (später Abruf nach dem Ende).
-        $this->endedTalk($session, $teacher['user'], 20, [$in->id => 20, $out->id => 600]);
+        $this->endedTalk($session, $teacher['user'], 20, [$in->id => 20, $out->id => 600, $part->id => 10]);
 
         $response = $this->get('/training/manage/' . $course->id);
 
         $this->assertBodyContains('Vortrag lief 1 Minute. Vorgeschlagen wird, wer mindestens 1 Minute dabei war.', $response);
-        $this->assertSame(2, substr_count($response->body, 'unter 1 Min.'));
-        $this->assertSame(0, substr_count($response->body, '</i> anwesend</span>'));
+        // Wer den ganzen Vortrag gesehen hat, zählt mit allen Minuten, auch wenn er kürzer als eine Minute lief.
+        $this->assertSame(2, substr_count($response->body, '1 von 1 Min.'));
+        $this->assertSame(2, substr_count($response->body, '</i> anwesend</span>'));
+        $this->assertSame(1, substr_count($response->body, 'unter 1 Min.'));
     }
 
     #[Test]
