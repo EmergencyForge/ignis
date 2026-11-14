@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6abd419d2e38553109448b01d29427fe",
+    "content-hash": "a8e6b53ab1ee16510f49edb8de94247f",
     "packages": [
         {
             "name": "brick/math",
@@ -936,11 +936,11 @@
         },
         {
             "name": "emergencyforge/cron-scheduler",
-            "version": "0.1.1",
+            "version": "0.2.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/cron-scheduler",
-                "reference": "65d84bf2d7db846a3f2d14cbf2f65569791c16f1"
+                "reference": "b8635438d6118e87a0375c9bf04d6a7cd9232461"
             },
             "require": {
                 "dragonmantank/cron-expression": "^3.6",
@@ -976,11 +976,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.8.0",
+            "version": "0.10.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "64b47c1b5cec0f4d74c07287a391e19a33369c4e"
+                "reference": "5aff751bff7184962078cd188e38327d21c6aedd"
             },
             "require": {
                 "php": ">=8.3",
@@ -1050,11 +1050,11 @@
         },
         {
             "name": "emergencyforge/health-check",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/health-check",
-                "reference": "9718e0af085bd54887c46d1add5d065d13f8ca49"
+                "reference": "d58871cef18a2a2a888409493aecdfcc2b0c160a"
             },
             "require": {
                 "php": ">=8.3"
@@ -1084,11 +1084,11 @@
         },
         {
             "name": "emergencyforge/http-kernel",
-            "version": "0.1.4",
+            "version": "0.1.5",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/http-kernel",
-                "reference": "3fa7c5bd8647206af09b1a0e7fa8c0a925675793"
+                "reference": "24b08e6ebb209ed71c6c1a4756380a7167e26ab9"
             },
             "require": {
                 "nikic/fast-route": "^1.3",
@@ -1120,11 +1120,11 @@
         },
         {
             "name": "emergencyforge/list-query",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/list-query",
-                "reference": "52372ca02747645051cd1ca198e8b92555a4f4e5"
+                "reference": "2ee34e7f4bfe33fa05f944b49eb79e11b1c50163"
             },
             "require": {
                 "php": ">=8.3"
@@ -1154,11 +1154,11 @@
         },
         {
             "name": "emergencyforge/mail",
-            "version": "0.1.0",
+            "version": "0.2.1",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/mail",
-                "reference": "b6ad57b3856ce3163e276e2cdd3e05d24982e7d4"
+                "reference": "237086d571f685e37251ba5b36807e1bbf7869fd"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1189,11 +1189,11 @@
         },
         {
             "name": "emergencyforge/plugin-system",
-            "version": "0.1.0",
+            "version": "0.1.2",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/plugin-system",
-                "reference": "86d39abe912783f75a01293284400eb680c7721c"
+                "reference": "a18e6bdd23ab8fc7e56319ff0aebf8c2e1a46a73"
             },
             "require": {
                 "ext-tokenizer": "*",
@@ -1224,11 +1224,11 @@
         },
         {
             "name": "emergencyforge/training",
-            "version": "0.5.0",
+            "version": "0.6.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/training",
-                "reference": "cecb4253fe8a16175e9046134eedc6ca639021a3"
+                "reference": "7d91abe2814bffc439d4c739763e353bf951faa9"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1264,11 +1264,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.12.0",
+            "version": "1.12.2",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "a50f96b3c5f6a17121a5720d1d29210c55a8206c"
+                "reference": "293546337517ab826e4a3eee801b8aca1a04bf1b"
             },
             "require": {
                 "php": ">=8.3"

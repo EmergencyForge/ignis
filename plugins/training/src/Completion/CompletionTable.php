@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\Training\Completion;
 
+use DateTimeImmutable;
 use EmergencyForge\Training\Completion\Completion;
 use EmergencyForge\Training\Completion\CompletionStore;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -14,9 +15,11 @@ final class CompletionTable implements CompletionStore
 {
     private const TABLE = 'intra_training_completions';
 
-    public function pending(int $limit): array
+    public function pending(DateTimeImmutable $now, int $limit): array
     {
-        $rows = Capsule::table(self::TABLE)->where('finished', false)->orderBy('id')->limit($limit)->get(['participation_id', 'state']);
+        $rows = Capsule::table(self::TABLE)->where('finished', false)
+            ->where(static fn ($q) => $q->whereNull('due_at')->orWhere('due_at', '<=', $now->format('Y-m-d H:i:s')))
+            ->orderBy('id')->limit($limit)->get(['participation_id', 'state']);
 
         return array_values(array_map(self::fromRow(...), $rows->all()));
     }
@@ -30,6 +33,8 @@ final class CompletionTable implements CompletionStore
                 'passed'     => $completion->passed,
                 'state'      => json_encode($completion->toArray(), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
                 'finished'   => $completion->isFinished(),
+                // In der Zone, in der Completions::runPending() `$now` erzeugt.
+                'due_at'     => $completion->dueAt()?->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s'),
                 'updated_at' => $now,
             ],
         );

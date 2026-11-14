@@ -318,6 +318,8 @@ final class TrainingCompletionTest extends FeatureTestCase
         $this->sit($course, $p, $learner['user'], true);
         $this->assertSame(StepResult::FAILED, $this->step($p, CompletionStep::Announce)?->state);
         $this->assertSame(0, (new Completions())->runPending(), 'Nach dem Fehlschlag wartet der Cron fünf Minuten.');
+        $this->assertNotNull(Capsule::table('intra_training_completions')->where('participation_id', $p->id)->value('due_at'));
+        $this->assertSame([], (new CompletionTable())->pending(new \DateTimeImmutable(), 50), 'Ein wartender Abschluss belegt das Limit nicht.');
 
         $this->as($lead['user'], ['training.teach']);
         $this->post('/training/manage/' . $course->id . '/completions/' . $p->id . '/retry');

@@ -32,11 +32,25 @@ final class MailMessageStore implements MessageStore
         return $row->id;
     }
 
-    public function updateMessage(int $messageId, NewMessage $message): void
+    /**
+     * Schreibt nur, solange die Absenderkopie noch in den Entwürfen liegt;
+     * Bedingung und Schreiben in einem UPDATE. So schreibt ein spätes
+     * Autosave keine gesendete Mail um und niemand ändert einen fremden
+     * Entwurf.
+     */
+    public function updateMessage(int $messageId, NewMessage $message): bool
     {
-        $row = Message::query()->findOrFail($messageId);
+        $row = new Message();
         $this->fill($row, $message);
-        $row->save();
+        $ownDraft = static fn () => Message::query()->whereKey($messageId)
+            ->whereExists(static fn ($q) => $q->from('intra_mail_deliveries')
+                ->whereColumn('intra_mail_deliveries.message_id', 'intra_mail_messages.id')
+                ->where('intra_mail_deliveries.mailbox_id', $message->sender->id)
+                ->where('intra_mail_deliveries.role', 'sender')
+                ->where('intra_mail_deliveries.folder', 'drafts'));
+
+        // MySQL zählt nur geänderte Zeilen: ein Autosave ohne Änderung in derselben Sekunde ergibt 0.
+        return $ownDraft()->update($row->getAttributes()) === 1 || $ownDraft()->exists();
     }
 
     /**

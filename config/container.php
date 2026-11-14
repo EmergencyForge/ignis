@@ -362,6 +362,7 @@ return [
                     'job'     => $c->get(\App\Cron\JobHandler\JobDispatchHandler::class),
                 ],
                 logger: \App\Logging\Logger::getInstance(),
+                timezone: new \DateTimeZone('Europe/Berlin'),
             )
     ),
 

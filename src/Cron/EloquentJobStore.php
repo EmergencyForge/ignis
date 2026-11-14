@@ -60,15 +60,17 @@ final class EloquentJobStore implements JobStore
      * gleichzeitig anklopfen.
      *
      * Dazu rückt `next_run_at` für die Dauer des Laufs eine Stunde vor
-     * (LEASE_MINUTES). Ohne das wäre der Job während des Laufs weiter
-     * fällig, und ein Tick, der erst jetzt liest, bekäme mit dem neuen
-     * `last_run_at` ebenfalls den Lock. saveOutcome() setzt danach den
-     * echten Termin; bricht der Lauf hart ab, kommt der Job nach Ablauf
-     * der Stunde wieder dran.
+     * (LEASE_MINUTES), damit dueJobs() den laufenden Job gar nicht erst
+     * liefert. `locked_until` hält außerdem „Jetzt ausführen“ fern, das an
+     * dueJobs() vorbeikommt. saveOutcome() setzt danach den echten Termin
+     * und leert die Sperre; bricht der Lauf hart ab, läuft sie nach
+     * Timeout plus einer Minute ab.
      */
-    public function acquireLock(Job $job): bool
+    public function acquireLock(Job $job, string $lockedUntil): bool
     {
-        $query = Capsule::table('intra_cron_jobs')->where('id', $job->id);
+        $query = Capsule::table('intra_cron_jobs')
+            ->where('id', $job->id)
+            ->where(static fn ($q) => $q->whereNull('locked_until')->orWhereRaw('locked_until < UTC_TIMESTAMP()'));
 
         if ($job->lastRunAt === null) {
             $query->whereNull('last_run_at');
@@ -78,7 +80,8 @@ final class EloquentJobStore implements JobStore
 
         return $query->update([
             'last_run_at' => Capsule::connection()->raw('UTC_TIMESTAMP()'),
-            'next_run_at' => Capsule::connection()->raw('UTC_TIMESTAMP() + INTERVAL ' . self::LEASE_MINUTES . ' MINUTE'),
+            'next_run_at'  => Capsule::connection()->raw('UTC_TIMESTAMP() + INTERVAL ' . self::LEASE_MINUTES . ' MINUTE'),
+            'locked_until' => $lockedUntil,
         ]) === 1;
     }
 
@@ -111,6 +114,7 @@ final class EloquentJobStore implements JobStore
             'last_output'      => $result->output,
             'next_run_at'      => $nextRunAt,
             'fail_count'       => $failCount,
+            'locked_until'     => null,
         ];
         if ($paused) {
             $update['active'] = 0;
