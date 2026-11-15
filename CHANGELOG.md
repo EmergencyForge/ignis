@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026.1.23-beta
+
+### Ausbildung
+- Fürs Bildschirmteilen im Vortrag lässt sich ein eigener LiveKit-Server eintragen, mit `LIVEKIT_URL`, `LIVEKIT_API_KEY` und `LIVEKIT_API_SECRET` in der `.env`. ignis nimmt ihn dann statt des Medienservers von EmergencyForge, EF Sync braucht es dafür nicht. Fehlt einer der drei Werte, bleibt es beim Medienserver von EmergencyForge und das Log nennt den Grund. Wie man den Server aufsetzt, steht unter https://docs.emergencyforge.de/ignis/livekit/
+- Der Tooltip am Knopf zum Teilen sagt, welcher Server gerade dran ist
+- Bei einem Vortrag unter einer Minute schlägt ignis Anwesenheit für alle vor, die ihn ganz gesehen haben
+
+### Sprache
+- ignis kann Englisch als zweite Sprache anbieten. Mit `APP_LOCALES=de,en-GB` in der `.env` erscheint im Kontrollzentrum „Sprache“, und jedes Konto wählt dort selbst. Auf Englisch wechseln bisher nur die Texte von Fenstern, Menüleiste und Kontrollzentrum, die Seiten von ignis bleiben deutsch. Ohne den Eintrag ändert sich nichts
+
+### Einladungen
+- Aus der Einladungsliste lassen sich Einladungen jetzt auch per Discord verschicken, bei jeder offenen Einladung eines Mitarbeiters mit Discord-ID. Unter dem Status steht, wann die letzte Nachricht rausging. Im Profil heißt der Knopf danach „Erneut senden“
+- Die Discord-Nachricht nennt, bis wann die Einladung gilt. Lehnt Discord die Nachricht ab, vermerkt ignis das mit Grund, die Einladung bleibt gültig
+- Erstellen und Löschen in der Einladungsliste stehen jetzt im Audit-Log, wie es vom Profil aus schon war
+
+### Tablet
+- Im Tablet im Spiel blieb der Bildschirm nach „Anmelden“ schwarz, bis die Resource neu startete. Discord und EF Sync lassen sich im Tablet nicht öffnen, darum zeigt die Anmeldeseite im Spiel weder diesen Knopf noch das Feld für den Einladungscode. Dort steht jetzt, dass sich das Tablet selbst anmeldet und man es sonst schließen und neu öffnen soll
+
+### Weiteres
+- Geplante Aufgaben laufen nach deutscher Zeit. Eine Aufgabe, die noch läuft, startet nicht ein zweites Mal
+- Eine Mail an die eigene Adresse liegt jetzt im Posteingang und unter Gesendet
+
+Dazu gehören editor 0.13.0, training 0.7.0, mail 0.2.1, cron-scheduler 0.2.1, ui 1.14.0 und i18n 0.1.0.
+
 ## 2026.1.22-beta
 
 ### Ausbildung
