@@ -14,14 +14,16 @@
  * @var list<array{id: int, name: string, initials: string, role: string}> $targets  nur present
  */
 
-use Plugin\Training\AiDrafts;
+use EmergencyForge\Training\Presentation\LiveKitServer;
 use Plugin\Training\Presentations;
 
 $liveHost    = Presentations::identity($presentation->presenter()->with('mitarbeiter')->first());
 $livePresent = $liveRole === 'present';
 $liveElapsed = max(0, time() - $presentation->started_at->getTimestamp());
-// Mit EF Sync geht das Teilen über LiveKit; fällt die Konsole aus, zeigt sich das erst beim Start.
-$liveKit     = AiDrafts::client() !== null;
+// Mit eigenem Server oder EF Sync geht das Teilen über LiveKit; fällt er aus, zeigt sich das erst beim Start.
+$liveTokens  = Presentations::roomTokens();
+$liveKit     = $liveTokens !== null;
+$liveKitTip  = $liveTokens instanceof LiveKitServer ? 'Über den eigenen Medienserver' : 'Über den Medienserver von EmergencyForge';
 $e           = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
 ob_start();
 ?>
@@ -51,7 +53,7 @@ ob_start();
             <div class="ignis-segmented ignis-segmented--sm" role="group" aria-label="Anzeige">
                 <?php // Ohne Folien heißt „Teilen beenden“ zurück ins Wartebild; dafür braucht es keinen Knopf. ?>
                 <button type="button" data-live-mode="slides" aria-pressed="true"<?= $slidesUrl === '' ? ' hidden' : '' ?>><i class="fa-solid fa-images" aria-hidden="true"></i> Folien</button>
-                <button type="button" data-live-mode="screen" aria-pressed="false" data-ignis-tooltip="<?= $liveKit ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15' ?>"><i class="fa-solid fa-display" aria-hidden="true"></i> Bildschirm</button>
+                <button type="button" data-live-mode="screen" aria-pressed="false" data-livekit-tip="<?= $e($liveKitTip) ?>" data-ignis-tooltip="<?= $liveKit ? $e($liveKitTip) : 'Direkt an jeden Zuschauer, bis 15' ?>"><i class="fa-solid fa-display" aria-hidden="true"></i> Bildschirm</button>
                 <button type="button" data-live-mode="pause" aria-pressed="false"><i class="fa-solid fa-mug-hot" aria-hidden="true"></i> Pause</button>
             </div>
             <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm" data-live-handover aria-expanded="false"><i class="fa-solid fa-right-left" aria-hidden="true"></i> <span>Weiterreichen</span></button>
