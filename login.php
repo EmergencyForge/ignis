@@ -24,6 +24,8 @@ if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf' && class_exists(\P
 $centralLogin = \App\Auth\FabricaClient::enabled();
 $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
 $error = \App\Session\SessionManager::pullRegistrationError();
+// Discord and Sync forbid framing: in the ef_bridge tablet their button only led to a black frame.
+$inGame = \App\Http\FiveMSupport::isCitizenFx();
 
 // Handle code submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
@@ -76,7 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                 <?php // Die Wortmarke ist der Kopf der Schale, alles bis zu den Aktionen liegt in der Mulde, der Fuß steht auf dem Rand. ?>
                 <div class="twplus-login__well">
                     <h1 id="loginHeader" class="twplus-login__title">Willkommen zurück</h1>
-                    <p class="twplus-login__lead">Melde dich an, um in <?= htmlspecialchars((string) SERVER_CITY) ?> weiterzuarbeiten.</p>
+                    <?php if ($inGame): ?>
+                        <p class="twplus-login__lead">Im Spiel meldet dich das Tablet selbst an. Klappt das nicht, schließe das Tablet und öffne es erneut.</p>
+                    <?php else: ?>
+                        <p class="twplus-login__lead">Melde dich an, um in <?= htmlspecialchars((string) SERVER_CITY) ?> weiterzuarbeiten.</p>
+                    <?php endif; ?>
 
                     <?php
                     if ($error) {
@@ -86,11 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                     }
 
                     // Normal login view
-                    if ($registrationMode === 'closed' && !$error) {
+                    // No registration in the game: the code form ends at Discord or Sync as well.
+                    if (!$inGame && $registrationMode === 'closed' && !$error) {
                         echo '<div class="ignis-alert ignis-alert--warn mb-4" role="alert">';
                         echo '<i class="fa-solid fa-lock ignis-alert__icon"></i><div class="ignis-alert__body">Registrierung für neue Benutzer ist derzeit geschlossen.</div>';
                         echo '</div>';
-                    } elseif ($registrationMode === 'code') {
+                    } elseif (!$inGame && $registrationMode === 'code') {
                         if (!$error) {
                             echo '<div class="ignis-alert ignis-alert--info mb-4" role="alert">';
                             echo '<i class="fa-solid fa-ticket ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung erforderlich</strong><br>Neue Benutzer benötigen einen Registrierungscode.</div>';
@@ -110,9 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                     }
                     ?>
 
+                    <?php if (!$inGame): ?>
                     <div class="twplus-login__actions">
                         <a href="<?= BASE_PATH ?><?= $centralLogin ? 'auth/fabrica' : 'auth/discord' ?>" class="ignis-btn ignis-btn--primary ignis-btn--lg block w-full"><?php if ($centralLogin): ?><span aria-hidden="true" style="display:inline-flex;align-self:center;flex-shrink:0;"><?= str_replace('<svg ', '<svg width="28" height="16" ', (string) file_get_contents(__DIR__ . '/assets/img/ef-mark.svg')) ?></span><?php else: ?><i class="fa-brands fa-discord" aria-hidden="true"></i><?php endif; ?> Mit <?= $centralLogin ? 'Sync' : 'Discord' ?> anmelden</a>
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <?php
