@@ -333,7 +333,7 @@ $statusMap = [
                         } else {
                             let protocolsList = data.protocols.map(p => {
                                 const date = new Date(p.created_at);
-                                const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                                const dateStr = date.toLocaleDateString(document.documentElement.lang || 'de') + ' ' + date.toLocaleTimeString(document.documentElement.lang || 'de', { hour: '2-digit', minute: '2-digit' });
                                 const statusBadge = p.finalized == 1 ? '<span class="ignis-chip ignis-chip--ok">Abgeschlossen</span>' : '<span class="ignis-chip ignis-chip--secondary">Unfertig</span>';
                                 return `<tr><td>${p.incident_number || '<em>-</em>'}</td><td>${p.location || '<em>-</em>'}</td><td>${p.keyword || '<em>-</em>'}</td><td>${p.leader_name || '<em>-</em>'}</td><td>${dateStr}</td><td>${statusBadge}</td></tr>`;
                             }).join('');

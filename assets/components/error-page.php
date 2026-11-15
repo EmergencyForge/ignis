@@ -88,7 +88,7 @@ $appFrames = array_filter($frames, fn($f) => !$f['is_vendor']);
 $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -99,8 +99,8 @@ const MOCK_NOTE =
 /* Gemeinsame Topbar + Sektionsnav für alle Varianten */
 function renderChrome(subtitle) {
   const now = new Date();
-  const time = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
-  const date = now.toLocaleDateString("de-DE");
+  const time = now.toLocaleTimeString(document.documentElement.lang || "de", { hour: "2-digit", minute: "2-digit" });
+  const date = now.toLocaleDateString(document.documentElement.lang || "de");
 
   document.getElementById("chrome").innerHTML = `
     <div class="topbar">
@@ -139,7 +139,7 @@ function renderChrome(subtitle) {
 let toastTimer = null;
 function showSaveToast(fieldLabel) {
   const toast = document.getElementById("save-toast");
-  const time = new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+  const time = new Date().toLocaleTimeString(document.documentElement.lang || "de", { hour: "2-digit", minute: "2-digit" });
   toast.innerHTML = `Gespeichert: <strong>${fieldLabel}</strong> <span class="muted">· ${time}</span>`;
   toast.classList.add("visible");
   clearTimeout(toastTimer);

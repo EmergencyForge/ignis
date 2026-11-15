@@ -382,7 +382,7 @@ function exam() {
                 location.reload();
                 return;
             }
-            status.textContent = `gespeichert ${new Date().toLocaleTimeString('de-DE')}`;
+            status.textContent = `gespeichert ${new Date().toLocaleTimeString(document.documentElement.lang || 'de')}`;
         } catch {
             status.textContent = 'nicht gespeichert, neuer Versuch beim nächsten Schritt';
         }

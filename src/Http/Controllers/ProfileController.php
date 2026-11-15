@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Flash;
 use App\Helpers\Theme;
+use App\Localization\Locale;
 use App\Models\User;
 use App\Security\CsrfProtection;
 use App\Session\SessionManager;
@@ -48,6 +49,35 @@ final class ProfileController extends Controller
         }
         SessionManager::set('theme', $theme);
         Theme::flagTransition();
+
+        return Response::redirect($back);
+    }
+
+    /**
+     * POST /profile/locale: Sprache speichern, nur eine aus APP_LOCALES.
+     * Wie beim Darstellungsmodus wirkt die Session sofort, die Spalte
+     * intra_users.locale beim nächsten Login.
+     */
+    public function locale(Request $request): Response
+    {
+        $back = $this->backTarget($request);
+
+        if (!CsrfProtection::validateToken((string) ($request->post['csrf_token'] ?? ''))) {
+            Flash::error(t('ignis.request.invalid'));
+            return Response::redirect($back);
+        }
+
+        $locale = (string) ($request->post['locale'] ?? '');
+        if (!Locale::isAvailable($locale)) {
+            Flash::error(t('ignis.profile.locale_unknown'));
+            return Response::redirect($back);
+        }
+
+        $userId = SessionManager::userId();
+        if ($userId !== null) {
+            User::query()->whereKey($userId)->update(['locale' => $locale]);
+        }
+        SessionManager::set('locale', $locale);
 
         return Response::redirect($back);
     }

@@ -249,6 +249,19 @@ final class TabletLoginTest extends FeatureTestCase
     }
 
     #[Test]
+    public function im_spiel_zeigt_die_login_seite_keinen_discord_oder_sync_knopf(): void
+    {
+        $this->assertStringContainsString('auth/discord', $this->get('/login')->body);
+
+        // Discord and Sync refuse to be framed, the tablet would turn black.
+        $game = $this->get('/login', ['headers' => ['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 CitizenFX/1.0.0.12345 Safari/537.36']])->body;
+        $this->assertStringNotContainsString('auth/discord', $game);
+        $this->assertStringNotContainsString('auth/fabrica', $game);
+        $this->assertStringContainsString('schließe das Tablet und öffne es erneut', $game);
+        $this->assertStringContainsString('ef_tablet_signed_out', $game);
+    }
+
+    #[Test]
     public function ein_abgelaufener_oder_fremder_token_meldet_nicht_an(): void
     {
         $user = FixtureFactory::user();

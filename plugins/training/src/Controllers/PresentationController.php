@@ -12,7 +12,6 @@ use EmergencyForge\Http\Request;
 use EmergencyForge\Http\Response;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
-use Plugin\Training\AiDrafts;
 use Plugin\Training\Converter;
 use Plugin\Training\Models\Course;
 use Plugin\Training\Models\Participation;
@@ -75,7 +74,7 @@ final class PresentationController extends BaseController
         if ($slides !== null && !$slides->viewsAsPdf()) {
             return self::back('training/manage/' . $courseModel->id . '#termine', $slides->convert_status === Converter::FAILED ? 'Die Folien ließen sich nicht umwandeln.' : 'Die Folien werden noch umgewandelt.');
         }
-        $live = Presentations::start($sessionModel, self::userId(), AiDrafts::client());
+        $live = Presentations::start($sessionModel, self::userId(), Presentations::roomTokens());
         if ($live->wasRecentlyCreated) {
             (new AuditLogger())->log(self::userId(), 'Vortrag gestartet', $sessionModel->title, 'Ausbildung', 0, ['change_type' => 'training_presentation_started']);
         }
@@ -227,7 +226,7 @@ final class PresentationController extends BaseController
         }
         try {
             // `direct`: der Host bekam einen LiveKit-Schlüssel, kam aber nicht in den Raum.
-            $result = Presentations::startScreen($live, self::userId(), AiDrafts::client(), $via === 'direct');
+            $result = Presentations::startScreen($live, self::userId(), Presentations::roomTokens(), $via === 'direct');
         } catch (DomainException $e) {
             return self::json(['error' => $e->getMessage()], 409);
         }
@@ -256,7 +255,7 @@ final class PresentationController extends BaseController
             session_write_close();
         }
         try {
-            $token = Presentations::roomToken($live, $userId, AiDrafts::client());
+            $token = Presentations::roomToken($live, $userId, Presentations::roomTokens());
         } catch (DomainException $e) {
             // `unavailable`: ein Zuschauer bekam keinen Schlüssel, der Raum bleibt und er darf es wieder versuchen.
             return match ($e->getMessage()) {

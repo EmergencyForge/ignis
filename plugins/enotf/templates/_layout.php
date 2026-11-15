@@ -68,7 +68,7 @@ $__initials = static function (string $name): string {
 };
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="light">
 
 <head>
     <?= csrf_head() ?>

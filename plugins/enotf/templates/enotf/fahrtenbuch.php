@@ -19,7 +19,7 @@ $currentDate = date('d.m.Y');
 ?>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null    $deactivated_by
  * @property array<string, mixed>|null $theme_config
  * @property string      $theme  dark|light|system, siehe ProfileController::theme()
+ * @property string|null $locale BCP-47-Tag, null für APP_LOCALE, siehe ProfileController::locale()
  * @property-read Role|null $userRole
  * @property-read Personnel|null $mitarbeiter
  *
