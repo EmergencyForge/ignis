@@ -25,7 +25,7 @@ $layoutTheme = \App\Helpers\Theme::mode();
 $deskPalette = Navigation::palette(Navigation::groups());
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-efe-icons="fontawesome" data-efe-tooltip="data-ignis-tooltip">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="<?= htmlspecialchars($layoutTheme) ?>" data-efe-icons="fontawesome" data-efe-tooltip="data-ignis-tooltip">
 
 <head>
     <?php if ($layoutThemeFade): ?><style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style><?php endif; ?>

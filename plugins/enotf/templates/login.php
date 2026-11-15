@@ -40,7 +40,7 @@ if ($charLocked && $hasPrefill) {
 $charQuali = $charLocked ? ($personnelQuali[$charName] ?? '') : '';
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php

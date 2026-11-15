@@ -139,8 +139,9 @@ class AutoMigrator
         http_response_code(200);
         header('Content-Type: text/html; charset=utf-8');
         $url = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/');
+        $lang = \App\Localization\Locale::htmlLang();
         echo <<<HTML
-<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<!DOCTYPE html><html lang="{$lang}"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="1;url={$url}">
 <title>ıgnıs: Initialisierung</title>

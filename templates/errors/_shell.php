@@ -35,7 +35,7 @@ if (!defined('BASE_PATH') && is_file(dirname(__DIR__, 2) . '/assets/config/confi
 $errBase = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">

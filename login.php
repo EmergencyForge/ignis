@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 }
 ?>
 <!DOCTYPE html>
-<html lang="de" class="h-full">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" class="h-full">
 
 <head>
     <?php

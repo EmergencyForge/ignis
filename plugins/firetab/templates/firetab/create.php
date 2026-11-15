@@ -9,7 +9,7 @@
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>

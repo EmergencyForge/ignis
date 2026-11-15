@@ -341,7 +341,7 @@
 
     function render() {
         var t = now();
-        els.clock.textContent = new Date(t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        els.clock.textContent = new Date(t).toLocaleTimeString(document.documentElement.lang || 'de', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         var derived = state.trupps.map(function (tr) { return { trupp: tr, s: derive(tr) }; });
         var active = derived.filter(function (d) { return d.s.tone !== 'done'; });

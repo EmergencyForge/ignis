@@ -31,7 +31,7 @@ if ($ziel) {
 ?>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>">
 
 <head>
     <?php
@@ -244,7 +244,7 @@ if ($ziel) {
                 if (row.arrival) {
                     try {
                         var d = new Date(row.arrival.replace(' ', 'T'));
-                        arrival = d.toLocaleTimeString('de-DE', {
+                        arrival = d.toLocaleTimeString(document.documentElement.lang || 'de', {
                             hour: '2-digit',
                             minute: '2-digit',
                             hour12: false

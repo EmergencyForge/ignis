@@ -6,6 +6,7 @@ namespace App\Support;
 
 use App\Helpers\Navigation;
 use App\Helpers\Theme;
+use App\Localization\Locale;
 use App\Session\SessionManager;
 use EmergencyForge\Ui\Desk;
 use EmergencyForge\Ui\Ui;
@@ -177,8 +178,31 @@ final class DeskShell
                 'token' => csrf_token(),
                 'current' => Theme::mode(),
             ],
+            ...self::localeOption($base),
             'now' => (int) round(microtime(true) * 1000),
         ]);
+    }
+
+    /**
+     * Den Block „Sprache“ im Kontrollzentrum gibt es erst, wenn APP_LOCALES
+     * mehr als eine Sprache freischaltet.
+     *
+     * @return array{locale?: array{action: string, field: string, token: string, current: string, options: list<array{string, string}>}}
+     */
+    private static function localeOption(string $base): array
+    {
+        $available = Locale::available();
+        if (count($available) < 2) {
+            return [];
+        }
+
+        return ['locale' => [
+            'action' => $base . 'profile/locale',
+            'field' => 'csrf_token',
+            'token' => csrf_token(),
+            'current' => Locale::current(),
+            'options' => array_map(static fn (string $tag): array => [$tag, Locale::NAMES[$tag]], $available),
+        ]];
     }
 
     public static function render(string $initialUrl, string $initialHtml): string

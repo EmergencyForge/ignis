@@ -227,6 +227,8 @@ class SessionManager
         // ihn über App\Helpers\Theme, ProfileController::theme() hält
         // Session und Spalte gleich.
         $_SESSION['theme']              = (string) ($user['theme'] ?? 'dark');
+        // null: Sprache der Installation, App\Localization\Locale.
+        $_SESSION['locale']             = is_string($user['locale'] ?? null) ? $user['locale'] : null;
         $_SESSION['permissions']        = $permissions;
         $_SESSION['permissions_loaded'] = time();
     }

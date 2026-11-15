@@ -14,7 +14,7 @@ use App\Http\Controllers\VerifyController;
 $e = static fn (string $text): string => htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
-<html lang="de" class="h-full">
+<html lang="<?= \App\Localization\Locale::htmlLang() ?>" class="h-full">
 
 <head>
     <?php

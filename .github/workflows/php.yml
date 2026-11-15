@@ -102,6 +102,11 @@ jobs:
       - name: PHP Lint
         run: find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
 
+      # Ohne --strict: eine fehlende Übersetzung ist nur ein Hinweis,
+      # fehlende und verwaiste Schlüssel in lang/de.json brechen ab.
+      - name: i18n-check
+        run: vendor/bin/i18n-check --lang lang --src src --src templates --src assets/components --src assets/functions --src assets/js
+
   # ─────────────────────────────────────────────
   # 2. Build PHP 8.5 (experimentell, blockiert nicht)
   # ─────────────────────────────────────────────

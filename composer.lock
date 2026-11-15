@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20ad4f9115b92ab181175cf2ff36a1c4",
+    "content-hash": "a4d73465d59bd3a09eeea9953c1f40ac",
     "packages": [
         {
             "name": "brick/math",
@@ -1113,6 +1113,46 @@
                 "MIT"
             ],
             "description": "Schlanker HTTP-Kern der EmergencyForge-Anwendungen: Router (FastRoute), Middleware-Pipeline, Request/Response ohne PSR-7.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "emergencyforge/i18n",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "../WebPackages/packages/i18n/php",
+                "reference": "66d6ff52a26ac2a5f9e42b0c6aa8808dfdc6216a"
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.5"
+            },
+            "suggest": {
+                "ext-intl": "Pluralregeln für Sprachen außer de und en"
+            },
+            "bin": [
+                "bin/i18n-check"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EmergencyForge\\I18n\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EmergencyForge\\I18n\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Übersetzer für i18next-JSON mit Platzhaltern, Plural und Rückfall auf Deutsch, dazu i18n-check gegen fehlende und verwaiste Schlüssel. Die JS-Hälfte liegt unter ../js.",
             "transport-options": {
                 "symlink": true,
                 "relative": true

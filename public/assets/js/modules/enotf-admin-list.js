@@ -184,8 +184,8 @@
 
                     const rows = data.protocols.map((p) => {
                         const date = new Date(p.sendezeit);
-                        const dateStr = date.toLocaleDateString('de-DE') + ' ' +
-                            date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        const dateStr = date.toLocaleDateString(document.documentElement.lang || 'de') + ' ' +
+                            date.toLocaleTimeString(document.documentElement.lang || 'de', { hour: '2-digit', minute: '2-digit' });
                         return `
                             <tr>
                                 <td>${esc(p.enr)}</td>
