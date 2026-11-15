@@ -87,6 +87,8 @@
     "assets/js/asu.js",
     "public/assets/js/asu.js",
     "plugins/firetab/templates/firetab/asu.php",
-    "plugins/firetab/templates/firetab/tabs/asu_trupps.php"
+    "plugins/firetab/templates/firetab/tabs/asu_trupps.php",
+    "src/Localization/Lang.php",
+    "assets/lang"
   ]
 }
