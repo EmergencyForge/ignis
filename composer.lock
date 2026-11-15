@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8e6b53ab1ee16510f49edb8de94247f",
+    "content-hash": "20ad4f9115b92ab181175cf2ff36a1c4",
     "packages": [
         {
             "name": "brick/math",
@@ -976,11 +976,11 @@
         },
         {
             "name": "emergencyforge/editor-php",
-            "version": "0.10.0",
+            "version": "0.13.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/editor/php",
-                "reference": "5aff751bff7184962078cd188e38327d21c6aedd"
+                "reference": "8f2e934b4e1f03c4f84a0c813b8d03335208dfd4"
             },
             "require": {
                 "php": ">=8.3",
@@ -1224,11 +1224,11 @@
         },
         {
             "name": "emergencyforge/training",
-            "version": "0.6.0",
+            "version": "0.7.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/training",
-                "reference": "7d91abe2814bffc439d4c739763e353bf951faa9"
+                "reference": "be7fe7331367acb3c4c3067802504758b70cb759"
             },
             "require": {
                 "emergencyforge/fuzzy-search": "^0.1",
@@ -1264,11 +1264,11 @@
         },
         {
             "name": "emergencyforge/ui-php",
-            "version": "1.12.2",
+            "version": "1.14.0",
             "dist": {
                 "type": "path",
                 "url": "../WebPackages/packages/ui/php",
-                "reference": "293546337517ab826e4a3eee801b8aca1a04bf1b"
+                "reference": "5c0368a48eb5802dd448503fbe5da2b2b34b4a08"
             },
             "require": {
                 "php": ">=8.3"
