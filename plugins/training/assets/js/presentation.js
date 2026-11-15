@@ -1403,7 +1403,7 @@
         let reason = '';
         if (!canShare) reason = 'Bildschirm teilen geht nur im Browser';
         else if (!share && via === 'direct' && audience > SCREEN_LIMIT) reason = 'Bildschirm teilen geht ohne EF Sync bis 15 Zuschauer';
-        const tip = reason || ((share ? share.via : via) === 'livekit' ? 'Über den Medienserver von EmergencyForge' : 'Direkt an jeden Zuschauer, bis 15');
+        const tip = reason || ((share ? share.via : via) === 'livekit' ? $('.ignis-segmented [data-live-mode="screen"]').dataset.livekitTip : 'Direkt an jeden Zuschauer, bis 15');
         // Der Knopf im Wartebild sagt dasselbe wie der im Kopf, sonst täte er stumm nichts.
         [$('.ignis-segmented [data-live-mode="screen"]'), $('[data-live-wait-share]')].forEach((button) => {
             button.setAttribute('aria-disabled', reason ? 'true' : 'false');

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\Training;
 
-use App\Auth\FabricaClient;
+use App\Logging\Logger;
 use App\Models\User;
 use App\Support\AccountIdentity;
 use DateTimeImmutable;
@@ -12,8 +12,10 @@ use DateTimeInterface;
 use DomainException;
 use EmergencyForge\Training\Presentation\Attendance as AttendanceRule;
 use EmergencyForge\Training\Presentation\DrawEvent;
+use EmergencyForge\Training\Presentation\LiveKitServer;
 use EmergencyForge\Training\Presentation\Liveness;
 use EmergencyForge\Training\Presentation\Question;
+use EmergencyForge\Training\Presentation\RoomTokens;
 use EmergencyForge\Training\Presentation\Signal;
 use EmergencyForge\Training\Presentation\Visit;
 use EmergencyForge\Training\Presentation\WatchTime;
@@ -64,10 +66,27 @@ final class Presentations
     private const SIGNAL_WINDOW = 60;
 
     /**
-     * Mit EF Sync (`$client`) bekommt der Vortrag einen Raum; der Name kommt vom Server und
+     * Woher die LiveKit-Schlüssel kommen: der eigene Server aus der `.env`,
+     * sonst die Konsole. Eine halb ausgefüllte `.env` legt den Vortrag nicht
+     * lahm, es gilt dann die Konsole und das Log sagt, was fehlt.
+     */
+    public static function roomTokens(): ?RoomTokens
+    {
+        try {
+            $own = LiveKitServer::fromEnv($_ENV);
+        } catch (InvalidArgumentException $e) {
+            Logger::error('Eigener LiveKit-Server nicht nutzbar, es gilt die Konsole: ' . $e->getMessage());
+            $own = null;
+        }
+
+        return $own ?? AiDrafts::client();
+    }
+
+    /**
+     * Mit Schlüsselquelle (`$client`) bekommt der Vortrag einen Raum; der Name kommt vom Server und
      * nie vom Browser. Den Schlüssel dafür holt erst roomToken().
      */
-    public static function start(Session $session, int $userId, ?FabricaClient $client = null): Presentation
+    public static function start(Session $session, int $userId, ?RoomTokens $client = null): Presentation
     {
         // Sperre auf dem Termin, damit zwei gleichzeitige Starts nur einen Vortrag anlegen.
         $talk = Capsule::connection()->transaction(static function () use ($session, $userId, $client): Presentation {
@@ -306,20 +325,20 @@ final class Presentations
     }
 
     /**
-     * Teilen beginnen. Mit Raum über LiveKit. Scheitert die Konsole, entfällt der Raum und
+     * Teilen beginnen. Mit Raum über LiveKit. Scheitert die Schlüsselquelle, entfällt der Raum und
      * es geht direkt weiter, solange der Host die Zuschauer allein versorgen kann. Mit
-     * `$direct` (der Host kam nicht in den Raum) fragt niemand die Konsole und der Raum bleibt.
+     * `$direct` (der Host kam nicht in den Raum) fragt niemand die Schlüsselquelle und der Raum bleibt.
      *
      * @return array{via:'livekit'|'direct', url?:string, token?:string}
      * @throws DomainException `too_many` ohne LiveKit bei mehr als SCREEN_LIMIT Zuschauern, `ended`, `not_host`
      */
-    public static function startScreen(Presentation $p, int $userId, ?FabricaClient $client, bool $direct = false): array
+    public static function startScreen(Presentation $p, int $userId, ?RoomTokens $client, bool $direct = false): array
     {
         $room   = $p->room;
         $token  = null;
         $failed = false;
         if (!$direct && $client !== null && $room !== null) {
-            // Vor der Sperre, damit eine langsame Konsole die Zeile nicht festhält.
+            // Vor der Sperre, damit eine langsame Schlüsselquelle die Zeile nicht festhält.
             try {
                 $token = self::key($room, $userId, true, $client);
             } catch (\RuntimeException) {
@@ -344,7 +363,7 @@ final class Presentations
             $row->mode       = 'screen';
             $row->screen_via = $live ? 'livekit' : 'direct';
             if ($failed && $row->room === $room) {
-                // Die Konsole lieferte dem Host nichts; ohne seinen Schlüssel taugt der Raum nicht.
+                // Die Schlüsselquelle lieferte dem Host nichts; ohne seinen Schlüssel taugt der Raum nicht.
                 $row->room = null;
             }
             $row->version++;
@@ -357,16 +376,16 @@ final class Presentations
     }
 
     /**
-     * Raum-Schlüssel für einen Zuschauer oder den Host. Scheitert die Konsole beim Host,
+     * Raum-Schlüssel für einen Zuschauer oder den Host. Scheitert die Schlüsselquelle beim Host,
      * fällt der Raum des Vortrags weg (ein laufendes LiveKit-Teilen endet mit ihm) und alles
      * läuft über die Abfrage weiter; die Version steigt, damit alle Fenster es merken. Bei einem
      * Zuschauer ändert sich nichts am Vortrag, denn viele fragen gleichzeitig und ein
      * kurzer Fehler soll niemandem den Raum nehmen.
      *
      * @return array{url:string, token:string}
-     * @throws DomainException `ended`, `no_room` ohne Raum, ohne Konsole oder wenn der Host keinen Schlüssel bekam, `unavailable` wenn ein Zuschauer keinen bekam
+     * @throws DomainException `ended`, `no_room` ohne Raum, ohne Schlüsselquelle oder wenn der Host keinen Schlüssel bekam, `unavailable` wenn ein Zuschauer keinen bekam
      */
-    public static function roomToken(Presentation $p, int $userId, ?FabricaClient $client): array
+    public static function roomToken(Presentation $p, int $userId, ?RoomTokens $client): array
     {
         if ($p->ended_at !== null) {
             throw new DomainException('ended');
@@ -409,7 +428,7 @@ final class Presentations
      * @return array{url:string, token:string}
      * @throws \RuntimeException
      */
-    private static function key(string $room, int $userId, bool $host, FabricaClient $client): array
+    private static function key(string $room, int $userId, bool $host, RoomTokens $client): array
     {
         $identity = 'u' . $userId . ($host ? '' : '-' . bin2hex(random_bytes(4)));
         try {
