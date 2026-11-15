@@ -48,6 +48,7 @@ $layoutTheme = \App\Helpers\Theme::mode();
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/breadcrumb.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/notifications.js"></script>
     <?= $layoutHead ?>
+    <?= \App\Support\SiteCode::head() ?>
 </head>
 
 <body id="<?= htmlspecialchars($layoutBodyId) ?>" class="ignis-app" data-ui-skin="core" data-preference-key="<?= htmlspecialchars((string) ($_SESSION['userid'] ?? 'local'), ENT_QUOTES) ?>" data-page="<?= htmlspecialchars($layoutBodyPage) ?>">
@@ -60,6 +61,7 @@ $layoutTheme = \App\Helpers\Theme::mode();
 <?= $layoutContent ?>
         <?php include dirname(__DIR__, 2) . '/assets/components/footer.php'; ?>
     </main>
+    <?= \App\Support\SiteCode::bodyEnd() ?>
 </body>
 
 </html>

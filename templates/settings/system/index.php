@@ -54,6 +54,12 @@ $cards = [
         'desc' => 'System-Daten, API-Keys, Brand-Identität.',
     ],
     [
+        'href' => BASE_PATH . 'settings/system/design',
+        'icon' => 'fa-solid fa-palette',
+        'title' => 'Design',
+        'desc' => 'Eigenes CSS, Stile für den Editor und eigenes JavaScript.',
+    ],
+    [
         'href' => BASE_PATH . 'settings/system/plugins',
         'icon' => 'fa-solid fa-puzzle-piece',
         'title' => 'Plugins',

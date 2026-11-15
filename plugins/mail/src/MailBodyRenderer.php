@@ -17,7 +17,7 @@ final class MailBodyRenderer implements BodyRenderer
 {
     public function render(array $bodyJson): string
     {
-        return (new Renderer())->render($bodyJson, allowLinks: true)->html;
+        return (new Renderer(\App\Support\SiteCode::styles()->keys()))->render($bodyJson, allowLinks: true)->html;
     }
 
     /**

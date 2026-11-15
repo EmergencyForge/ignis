@@ -108,6 +108,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
             padding: 0.25rem 0.5rem;
         }
     </style>
+    <?= \App\Support\SiteCode::head() ?>
 </head>
 <body>
 
@@ -218,5 +219,6 @@ $SITE_TITLE = htmlspecialchars($typLabel);
     </script>
     <?php endif; ?>
 
+    <?= \App\Support\SiteCode::bodyEnd() ?>
 </body>
 </html>

@@ -156,6 +156,30 @@ class ConfigManager
     }
 
     /**
+     * Writes one value even if the row is not editable on the config page.
+     * Only for keys with their own settings page and checks there.
+     */
+    public function set(string $key, ?string $value, ?int $userId = null): bool
+    {
+        try {
+            self::$configCache = null;
+
+            Capsule::table('intra_config')
+                ->where('config_key', $key)
+                ->update([
+                    'config_value' => $value,
+                    'updated_by'   => $userId,
+                    'updated_at'   => Capsule::connection()->raw('NOW()'),
+                ]);
+
+            return true;
+        } catch (\PDOException $e) {
+            \App\Logging\Logger::error("Failed to set config value: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Update multiple configuration values at once
      *
      * @param array<string, mixed> $updates Array of key => value pairs

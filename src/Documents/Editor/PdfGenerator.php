@@ -69,7 +69,8 @@ final class PdfGenerator
         if ($code !== null) {
             $package = self::reserveStrip(Package::normalize($package));
         }
-        $shell = PageShell::html($package, $variables, self::PRODUCT_CSS, new TemplateImageSource());
+        $styles  = \App\Support\SiteCode::styles();
+        $shell   = PageShell::html($package, $variables, self::PRODUCT_CSS . $styles->css(), new TemplateImageSource(), $styles->keys());
 
         if ($shell->error) {
             throw new RuntimeException(

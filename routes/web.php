@@ -486,6 +486,12 @@ $router->post('/settings/system/modules',       [\App\Http\Controllers\Settings\
 $router->get('/settings/system/discord',        [\App\Http\Controllers\Settings\DiscordBotController::class, 'index'],   $settingsAuth);
 $router->post('/settings/system/discord',       [\App\Http\Controllers\Settings\DiscordBotController::class, 'save'],    $settingsAuth);
 $router->post('/settings/system/discord/test',  [\App\Http\Controllers\Settings\DiscordBotController::class, 'test'],    $settingsAuth);
+$router->get('/settings/system/design',         [\App\Http\Controllers\Settings\DesignController::class, 'index'],       $settingsAuth);
+$router->post('/settings/system/design/css',    [\App\Http\Controllers\Settings\DesignController::class, 'saveCss'],     $settingsAuth);
+$router->post('/settings/system/design/styles', [\App\Http\Controllers\Settings\DesignController::class, 'saveStyles'],  $settingsAuth);
+$router->post('/settings/system/design/js',     [\App\Http\Controllers\Settings\DesignController::class, 'saveJs'],      $settingsAuth);
+// No login: the login page loads the custom CSS too. Files are named by their hash.
+$router->get('/theme/{file}',                   [\App\Http\Controllers\Settings\DesignController::class, 'file']);
 // POST: Wiederholen und Löschen fehlgeschlagener Jobs (logs-app.js)
 $router->match(['GET', 'POST'], '/settings/system/logs', [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 

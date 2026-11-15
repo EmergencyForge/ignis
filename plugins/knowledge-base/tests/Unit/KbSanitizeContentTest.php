@@ -42,6 +42,7 @@ class KbSanitizeContentTest extends TestCase
             'Kommentar'                        => ['<!--<img src=x onerror=alert(1)>--><p>k</p>', '<p>k</p>'],
             'unbekannte Elemente entpackt'     => ['<div class="x"><span style="color:red">t</span></div>', 't'],
             'Klasse am Absatz'                 => ['<p class="ck-x" id="y">t</p>', '<p>t</p>'],
+            'zwei Klassen am Absatz'           => ['<p class="efs-a b">t</p>', '<p>t</p>'],
             'fremde Klasse an figure'          => ['<figure class="image"><table><tr><td>c</td></tr></table></figure>', '<figure><table><tr><td>c</td></tr></table></figure>'],
             'kaputte Zellspannen'              => ['<table><tr><td rowspan="0" colspan="2;x">c</td></tr></table>', '<table><tr><td>c</td></tr></table>'],
             'fremdes target'                   => ['<a href="https://x.de" target="_top">x</a>', '<a href="https://x.de">x</a>'],
@@ -88,6 +89,7 @@ class KbSanitizeContentTest extends TestCase
             'Umbrüche'       => ["<p>a<br>b</p>\n<p>c&nbsp;d</p>"],
             'Umlaute'        => ['<p>Ärztliche Maßnahme: Säure &amp; Öl, 5 € &lt; 10 € "zitiert" 😀</p>'],
             'Klartext'       => ["• Anaphylaxie\n• Asthma"],
+            'Editor-Stile'   => ['<h2 class="efs-titel">T</h2><p class="efs-hinweis">a <span class="efs-marker">b</span></p>'],
         ];
     }
 
