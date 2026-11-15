@@ -50,6 +50,9 @@ final class TrainingPresentationTest extends FeatureTestCase
 
     private ?string $converterBefore = null;
 
+    /** @var array<string, string|null> LIVEKIT_* vor dem Test, null = nicht gesetzt */
+    private array $envBefore = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -68,6 +71,13 @@ final class TrainingPresentationTest extends FeatureTestCase
             unset($_ENV['TRAINING_CONVERTER']);
         } else {
             $_ENV['TRAINING_CONVERTER'] = $this->converterBefore;
+        }
+        foreach ($this->envBefore as $key => $value) {
+            if ($value === null) {
+                unset($_ENV[$key]);
+            } else {
+                $_ENV[$key] = $value;
+            }
         }
         parent::tearDown();
     }
@@ -2001,6 +2011,45 @@ final class TrainingPresentationTest extends FeatureTestCase
     private function nameOf(int $userId): string
     {
         return Presentations::identity(User::query()->with('mitarbeiter')->find($userId))['name'];
+    }
+
+    /** @param array<string, string> $values */
+    private function ownLiveKit(array $values): void
+    {
+        foreach (['LIVEKIT_URL', 'LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET'] as $key) {
+            if (!array_key_exists($key, $this->envBefore)) {
+                $this->envBefore[$key] = isset($_ENV[$key]) ? (string) $_ENV[$key] : null;
+            }
+            unset($_ENV[$key]);
+        }
+        $_ENV = $values + $_ENV;
+    }
+
+    #[Test]
+    public function own_livekit_server_wins_over_the_console(): void
+    {
+        [, $course, $session, $path] = $this->talk();
+        $this->console([]);
+        $this->ownLiveKit(['LIVEKIT_URL' => 'wss://live.ignis.test', 'LIVEKIT_API_KEY' => 'ignis', 'LIVEKIT_API_SECRET' => str_repeat('k', 40)]);
+        $this->post($path . '/start');
+        $room = (string) $this->live($session)->room;
+
+        $viewer = $this->learnerIn($course);
+        $res    = $this->assertJsonResponse($this->postJson($path . '/room/token'));
+        $this->assertSame('wss://live.ignis.test', $res['url']);
+        $claims = (array) json_decode((string) base64_decode(strtr(explode('.', (string) $res['token'])[1], '-_', '+/')), true);
+        $this->assertSame([$room, false, true], [$claims['video']['room'], $claims['video']['canPublish'], $claims['video']['canSubscribe']]);
+        $this->assertMatchesRegularExpression('/^u' . $viewer['user'] . '-[0-9a-f]{8}$/', (string) $claims['sub']);
+        $this->assertSame([], $this->sent, 'Die Konsole wird nicht gefragt.');
+    }
+
+    #[Test]
+    public function half_an_own_livekit_setup_falls_back_to_the_console(): void
+    {
+        $this->console([]);
+        $this->ownLiveKit(['LIVEKIT_URL' => 'wss://live.ignis.test']);
+
+        $this->assertInstanceOf(FabricaClient::class, Presentations::roomTokens());
     }
 
     #[Test]

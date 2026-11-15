@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Auth;
 
+use EmergencyForge\Training\Presentation\RoomTokens;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use RuntimeException;
 use Throwable;
 
 /** Internal Fabrica handoff; authentik's OIDC tokens stay at Fabrica. */
-final class FabricaClient
+final class FabricaClient implements RoomTokens
 {
     public function __construct(
         public readonly string $origin,
