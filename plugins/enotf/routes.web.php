@@ -209,7 +209,7 @@ $router->match(['GET', 'POST'], '/enotf/monitor/code',     [EnotfSchnittstelleCo
 
 $router->match(['GET', 'POST'], '/enotf/monitor/prereg',     [EnotfSchnittstelleController::class, 'voranmeldung'], $enotfPublic);
 
-$router->get('/enotf/monitor/availability',     [EnotfSchnittstelleController::class, 'hospitalAvailability'], $enotfPublic);
+$router->match(['GET', 'POST'], '/enotf/monitor/availability',     [EnotfSchnittstelleController::class, 'hospitalAvailability'], $enotfPublic);
 
 // ----------------------------------------------------------------------------
 //  Settings: Schnellzugriff/Kategorien, Medikamente, POIs
