@@ -177,7 +177,8 @@ function fmt_elapsed(int|string $seconds): string
                 var form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '<?= BASE_PATH ?>firetab/actions';
-                form.innerHTML = '<input type="hidden" name="action" value="finalize">'
+                form.innerHTML = <?= json_encode(csrf_field(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>
+                    + '<input type="hidden" name="action" value="finalize">'
                     + '<input type="hidden" name="incident_id" value="<?= $id ?>">'
                     + '<input type="hidden" name="return_tab" value="completion">';
                 document.body.appendChild(form);

@@ -49,6 +49,29 @@ final class CsrfFieldCoverageTest extends TestCase
     }
 
     /**
+     * Formulare, die ein Skript erst beim Klick baut, stehen nicht als
+     * `<form>` im Quelltext und rutschen am Test oben vorbei.
+     */
+    #[Test]
+    public function per_skript_gebaute_formulare_tragen_den_token(): void
+    {
+        $ohne = [];
+
+        foreach ($this->templates() as $pfad => $inhalt) {
+            $teile = preg_split('~createElement\(\s*["\']form["\']\s*\)~', $inhalt) ?: [];
+            foreach (array_slice($teile, 1) as $nr => $rest) {
+                $ende  = strpos($rest, '.submit()');
+                $rumpf = $ende === false ? $rest : substr($rest, 0, $ende);
+                if (preg_match('~csrf_field\(\)|csrf_token|_csrf~', $rumpf) !== 1) {
+                    $ohne[] = $pfad . ' (Formular ' . ($nr + 1) . ')';
+                }
+            }
+        }
+
+        $this->assertSame([], $ohne, "Per Skript gebaute Formulare ohne CSRF-Token:\n  " . implode("\n  ", $ohne));
+    }
+
+    /**
      * Die Rümpfe aller `<form method="POST">` einer Vorlage.
      *
      * Für die Erkennung werden PHP-Blöcke durch Leerzeichen gleicher Länge
@@ -98,7 +121,7 @@ final class CsrfFieldCoverageTest extends TestCase
     private function templates(): array
     {
         $wurzel = dirname(__DIR__, 3);
-        $verzeichnisse = [$wurzel . '/templates', ...(glob($wurzel . '/plugins/*/templates', GLOB_ONLYDIR) ?: [])];
+        $verzeichnisse = [$wurzel . '/templates', $wurzel . '/assets/components', ...(glob($wurzel . '/plugins/*/templates', GLOB_ONLYDIR) ?: [])];
         $out = [];
         foreach ($verzeichnisse as $verzeichnis) {
             $iter = new \RecursiveIteratorIterator(

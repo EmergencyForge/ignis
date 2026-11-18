@@ -1,6 +1,12 @@
 # Changelog
 
-## Unveröffentlicht
+## 2026.1.24-beta
+
+### fireTab
+- Ein Einsatz ließ sich nicht abschließen: nach „Jetzt abschließen“ kam die Seite „Formular abgelaufen (403)“, egal wie oft man neu lud. Der Abschluss geht wieder, das Protokoll landet wie vorgesehen in der QM-Sichtung
+
+### eNOTF
+- Im Klinikportal für die Bettenverfügbarkeit endete die Anmeldung mit dem Zugangscode auf einer Fehlerseite (405). Anmelden und Speichern der Verfügbarkeit gehen wieder
 
 ### Design
 - Neu unter Einstellungen › System › Design: eigenes CSS, das ignis nach seinem eigenen lädt. SCSS geht auch, es wird beim Speichern übersetzt, und bei einem Fehler steht die Zeile dabei
