@@ -1,5 +1,102 @@
 # Changelog
 
+## 2026.1.24
+
+Fasst die Betas 2026.1.8 bis 2026.1.24 für alle zusammen, die bei 2026.1.7 stehen.
+
+### efOS: ignis als Desktop und Tablet
+- ignis lässt sich jetzt auch als Desktop oder als Tablet bedienen, im Benutzermenü unter „Oberfläche“. Die Wahl gilt für dieses Gerät, „Klassisch“ bleibt die Vorgabe. „Automatisch“ wählt je nach Bildschirm zwischen Desktop und Tablet
+- Im Desktop werden die Bereiche zu Apps im Dock, jede Seite öffnet in einem eigenen Fenster. Fenster lassen sich verschieben, an allen Kanten in der Größe ändern und für Hälften und Viertel an den Rand ziehen, sichtbare Zonen zeigen dabei, wo sie andocken. Die Fensterübersicht (F3) zeigt alle auf einmal
+- Im Tablet steht ein Startbildschirm mit allen Apps, jede App läuft im Vollbild. Zwei Apps nebeneinander, Slide Over und Wischen an der Home-Leiste zum Wechseln sind dabei. Ein Wisch vom linken Fensterrand geht eine Seite zurück, am Seitenanfang nach unten ziehen lädt neu
+- Die Menüleiste hat Systemmenü, App, „Ablage“, „Gehe zu“ und „Fenster“. Alt N öffnet ein neues Fenster, Alt W schließt es, Alt Q beendet die App, Alt ← und Alt → blättern zurück und vor. Strg P und „Drucken …“ drucken nur den Inhalt des vorderen Fensters
+- Formulare, die in der klassischen Oberfläche von rechts hereinfahren, öffnen als Tab im Fenster, aus dem sie kommen. Mehrere können gleichzeitig offen sein, ein Punkt am Tab zeigt ungespeicherte Eingaben
+- Mitarbeiter, Fahrzeug und Mangel lassen sich aus „Ablage“ in einer Zeile anlegen. Was zu einer Auswahl passt, etwa Dienstgrad, Fahrzeug oder Kategorie, wird erkannt, der Rest ist Name oder Titel
+- Die Suche klappt am Desktop unter der Lupe in der Menüleiste auf. Jeder Treffer trägt das Symbol seiner App, ohne Eingabe zeigt die Suche, was zuletzt offen war
+- Der Schreibtisch zeigt die Kennzahlen und Hinweise der Übersicht als Widgets. Benachrichtigungen erscheinen als Banner oben rechts und gestapelt nach App in der Mitteilungszentrale, dort stehen auch die offenen Aufgaben. „Nicht stören“ hält die Banner zurück
+- Das Kontrollzentrum stellt Darstellung, Dichte, Oberfläche, Dockgröße und Vergrößerung ein und legt fest, was die vier Bildschirmecken auslösen. Der Regler „Durchscheinend“ macht Fenster und Leisten durchlässig für den Hintergrund, der Leistungsmodus schaltet das ab
+- Nach fünf Minuten ohne Eingabe legt sich ein Ruhebildschirm mit Uhrzeit, Datum, neuen Mitteilungen und der Zahl im Posteingang über den Schreibtisch
+- Ein Link lässt sich aus einem Fenster auf ein Feld in einem anderen ziehen, dann steht dort sein Name, bei einer Auswahlliste wird der passende Eintrag gewählt
+- Fenster zeigen beim Laden ein Skelett der Seite. Kann ein Fenster eine Seite nicht laden, steht dort warum, mit „Erneut laden“ und „Im Browser öffnen“. Ohne Netz lädt es von selbst neu, sobald die Verbindung zurück ist
+- Am Desktop gibt es Mauszeiger im Stil des Mac (aus apple_cursor, GPL 3.0)
+- eNOTF und fireTab stehen im Dock, öffnen aber weiter ihre eigene Oberfläche
+
+### Ausbildung
+- Neues Plugin Ausbildung, ab Werk an. Lehrgangsarten haben einen Lehrplan aus Modulen und Lerneinheiten (Datei, Artikel, Link, Wissensartikel, Termin, Präsentation), Voraussetzungen und eine Start- und Abschlussqualifikation. Lehrgänge haben Leitung, Ausbilder, Plätze, Anmeldung mit Warteliste und einen Status von geplant bis abgeschlossen
+- Teilnehmer arbeiten ihre Einheiten ab. Ein PDF gilt als gelesen, wenn jede Seite einmal offen war. Termine stehen im Kalender, die Anwesenheit hakt sie ab
+- Artikel schreibt man im Editor mit Bildern, Hinweisboxen (Hinweis, Wichtig, Tipp) und YouTube- oder Vimeo-Videos. Ein Video lädt erst, wenn man auf Abspielen klickt, vorher geht nichts an YouTube oder Vimeo
+- Zu jeder Lehrgangsart gehört ein Fragenpool mit Themen, acht Fragetypen und Import und Export als CSV oder JSON. Theorieprüfungen ziehen ihre Fragen aus dem Pool und laufen mit Zeitlimit, Praxisprüfungen nutzen einen Bewertungsbogen, auf Wunsch mit zweitem Prüfer. Freitexte bewerten die Prüfer im Reiter Bewertungen
+- Im Fragenpool schlägt die KI auf Wunsch neue Fragen vor, nur aus dem Material, das man auswählt. Die Vorschläge kommen ausgeschaltet und mit Quelle in den Pool und gehen erst in Prüfungen, wenn jemand sie prüft und anschaltet. Die KI läuft über die EmergencyForge-Konsole, die sie je Instanz mit einem Monatsbudget freischaltet. Bevor zum ersten Mal Material an Anthropic geht, bestätigt ein Administrator das einmal
+- Wer den letzten Pflichtteil besteht, hat bestanden. ignis hebt dann die Qualifikation an, stellt die Urkunde aus und meldet das Ergebnis, auf Wunsch auch mit Bekanntgabe und Folgeaufgabe. Was passiert, stellt man im Reiter Abschluss der Lehrgangsart ein
+- Urkunden tragen einen Prüfcode mit QR-Code. Unter `/verify` prüft jeder ohne Anmeldung, ob eine Urkunde echt ist und noch gilt, höchstens 20 Mal in der Stunde. Mit `training.manage` lässt sich eine Urkunde mit Begründung widerrufen, auf Wunsch samt Qualifikation oder Fachdienst
+- 30 Tage vor Ablauf einer Qualifikation bekommen die Person und die Leitung einen Hinweis
+- Neu sind die Vorlagen Urkunde und Lehrgangszertifikat
+
+### Ausbildung: Live-Vortrag
+- Eine Präsentation hält die Leitung oder ein Ausbilder am Termin über „Vortrag starten“. Die Teilnehmer bekommen eine Benachrichtigung und folgen im Browser: gleiche Folie, Zeichnungen, Laserpointer und Pause kommen bei ihnen an. Folien als PDF oder PowerPoint sind freiwillig, ein Vortrag geht auch nur mit geteiltem Bildschirm
+- Der Host kann Folien vergrößern, verschieben und drehen, die Zuschauer sehen denselben Ausschnitt. Den Vortrag kann er an einen anderen Ausbilder weiterreichen, der ihn erst annehmen muss
+- Statt der Folien kann der Host seinen Bildschirm teilen, auch darauf gehen Laser und Stift. Mit EF Sync läuft das über den Medienserver von EmergencyForge, ohne EF Sync geht das Bild direkt an höchstens 15 Zuschauer. Teilen geht nur aus einem normalen Browser, im Tablet im Spiel kann man zuschauen
+- Ein eigener LiveKit-Server lässt sich mit `LIVEKIT_URL`, `LIVEKIT_API_KEY` und `LIVEKIT_API_SECRET` in der `.env` eintragen, EF Sync braucht es dann nicht. Wie man ihn aufsetzt, steht unter https://docs.emergencyforge.de/ignis/livekit/
+- Wer einen Browser-Tab teilt, kann dessen Ton mitsenden. Übertragen wird nur der Ton dieses Tabs, nie das Mikrofon und nicht der Ton anderer Programme
+- Teilnehmer können schriftlich Fragen stellen, bis zu 500 Zeichen und fünf in der Minute. Die Fragen sehen nur Leitung und Ausbilder, mit dem Ende des Vortrags sind sie weg
+- Leitung und Ausbilder sehen ein Protokoll, wer wann gekommen und gegangen ist. Nach dem Ende schlägt ignis die Anwesenheit vor, eingetragen wird erst beim Speichern
+- Je Einheit legt ein Schalter fest, ob Teilnehmer die Folien nach dem Vortrag weiter ansehen dürfen. Herunterladen können sie sie nicht
+
+### Personal und Konto
+- RD-Stufe, FW-Stufe und Fachdienste ändern sich über einen gemeinsamen Weg, jede Änderung steht gleich im Verlauf. Neu ist die Verlaufsart Ausbildung
+- Plugins können eigene Karten ins Personalprofil setzen
+- Oben rechts steht bei einem Konto mit verknüpftem Mitarbeiter dessen Name mit Profilbild, im Kontomenü dazu der Dienstgrad. Ohne Verknüpfung bleibt es beim Benutzernamen
+- Aus der Einladungsliste lassen sich Einladungen per Discord verschicken, bei jeder offenen Einladung eines Mitarbeiters mit Discord-ID. Die Nachricht nennt, bis wann die Einladung gilt. Lehnt Discord sie ab, vermerkt ignis das mit Grund, die Einladung bleibt gültig
+
+### Dokumente
+- Vorlagen haben Fassungen: Wer eine schon benutzte Vorlage ändert, legt eine neue an. Laufende Entwürfe behalten ihren Text und zeigen einen Hinweis, wenn es eine neuere Fassung gibt
+- Briefköpfe unter Einstellungen teilen Ränder, Kopf- und Fußzeilen über mehrere Vorlagen. Das neue Recht `personnel.documents.approve` regelt Felder, die nur bestimmte Personen ausfüllen dürfen
+- Ausstellen schreibt einen Eintrag ins Personalprofil und benachrichtigt das verknüpfte Konto
+- Dienstgrad und RD-Qualifikation sind auf Beförderungs-, Ernennungs- und Ausbildungsurkunden Auswahllisten aus den Stammdaten. Im Felddialog des Vorlageneditors lassen sich beide Listen als Quelle wählen
+- Urkunden im Querformat zeigen die Fußzeile vollständig
+
+### Design
+- Neu unter Einstellungen › System › Design: eigenes CSS, das ignis nach seinem eigenen lädt. SCSS geht auch, es wird beim Speichern übersetzt, und bei einem Fehler steht die Zeile dabei
+- Unter „Editor-Stile“ legt man Stile für den Editor an, als Absatzstil oder für eine markierte Textstelle. Sie stehen dann in Dokumenten, Mails, der Wissensdatenbank und in Lerneinheiten im Menü „Stil“ und gelten auch im PDF
+- Eigenes JavaScript für den Kopf und das Ende jeder Seite darf nur ein Admin+ ändern, denn so ein Skript handelt im Namen jedes Nutzers
+- Jede Änderung steht im Audit-Log. Mit `?safemode=1` an der Adresse schaltet ignis eigenes CSS und JavaScript ab, bis man den Modus über die gelbe Leiste unten beendet. eNOTF und fireTab laden keinen eigenen Code
+- Favicons und das Zeichen in der Topbar sind ein App-Icon auf oranger Kachel, im Logo-Schriftzug folgt die Kachel weiter der Akzentfarbe. Das Logo darf 5 MB groß sein
+
+### Einstellungen
+- Auf jeder Einstellungsseite zeigt die Seitenleiste die Bereiche der Einstellungen, ganz oben „Zurück“ und „Übersicht“. Von einem Bereich zum nächsten geht es direkt
+- Updates, Plugins, Leistung, Telemetrie, Logs und Cronjobs stehen als Gruppe „Wartung“ in der Seitenleiste und auf der Übersicht
+- Die Suche (Strg K) findet einzelne Felder der System-Konfiguration, etwa die Hauptfarbe, und springt direkt hin
+
+### Mail und Kalender
+- Doppelklick, Enter oder „Öffnen“ in der Vorschau holen eine Mail auf eine eigene Seite in voller Breite, in efOS in ein eigenes Fenster neben dem Postfach
+- Eine Mail an die eigene Adresse liegt im Posteingang und unter Gesendet
+- Im Kalender hat jede Kategorie eine feste Farbe, mit der neue Termine starten, etwa Schulung grün und Besprechung blau. Eine selbst gewählte Farbe bleibt
+
+### Sprache
+- ignis kann Englisch als zweite Sprache anbieten. Mit `APP_LOCALES=de,en-GB` in der `.env` erscheint im Kontrollzentrum „Sprache“, und jedes Konto wählt dort selbst. Auf Englisch wechseln bisher nur die Texte von Fenstern, Menüleiste und Kontrollzentrum, die Seiten von ignis bleiben deutsch. Ohne den Eintrag ändert sich nichts
+
+### Tablet im Spiel
+- Der Tablet-Login über ef_bridge funktioniert auch auf Instanzen hinter der EmergencyForge Console, die Sitzung bleibt nach der Anmeldung bestehen
+- Die Console gibt die Discord-ID bei jeder Anmeldung mit, sie steht danach am Konto, sofern kein anderes aktives Konto sie schon hat. Dafür muss Discord im Konto verknüpft sein, und jeder meldet sich nach dem Update einmal neu an
+- Die Anmeldeseite zeigt im Spiel weder den Discord-Knopf noch das Feld für den Einladungscode, beides lässt sich im Tablet nicht öffnen. Dort steht, dass sich das Tablet selbst anmeldet und man es sonst schließen und neu öffnen soll
+- Mit `?ui=tablet` in der Adresse stellt ef_bridge beim Öffnen gleich die Tablet-Oberfläche ein
+
+### eNOTF, fireTab und MANV
+- Im Vitalwerte-Diagramm steht der Blutdruck als Spanne von systolisch bis diastolisch, alle Werte teilen sich eine Achse von 0 bis 300
+- eNOTF, fireTab und die APIs nutzen englische Pfade, Reiter und Parameter, etwa `/enotf/monitor` statt `/enotf/schnittstelle` und `?mailbox=` statt `?postfach=`. Alte Adressen und Lesezeichen funktionieren weiter, auch die des Klinikmonitors mit `index.php`. Gespeicherte Links in Benachrichtigungen und Dashboard-Kacheln stellt das Update um
+- Die Schnellsichtung auf der MANV-Patientenseite speichert über ein Formular. Ein alter oder vorab geladener Link ändert die Sichtungskategorie nicht mehr
+- Das Fahrtenbuch filtert den Zeitraum mit einer Pille wie bei Fahrzeug und Fahrttyp statt mit zwei Datumsfeldern
+
+### Betrieb und Sicherheit
+- Im Container läuft der Cron in einer eigenen Schleife und hält keine Seitenaufrufe mehr auf, `CRON_LOOP=0` schaltet zurück. Geplante Aufgaben laufen nach deutscher Zeit, und eine Aufgabe, die noch läuft, startet nicht ein zweites Mal
+- Hub-Mitteilungen werden höchstens einmal in der Stunde abgerufen, auch wenn der Hub nicht erreichbar ist
+- `symfony/config` und `symfony/filesystem` stehen auf 7.4.23 und schließen zwei am 2026-11-04 gemeldete Sicherheitslücken
+
+### Behoben
+- Im fireTab ließ sich ein Einsatz nicht abschließen: nach „Jetzt abschließen“ kam die Seite „Formular abgelaufen (403)“. Der Abschluss geht wieder, das Protokoll landet in der QM-Sichtung
+- Im Klinikportal für die Bettenverfügbarkeit endete die Anmeldung mit dem Zugangscode auf einer Fehlerseite (405). Anmelden und Speichern der Verfügbarkeit gehen wieder
+
+Dazu gehören editor 0.13.0, training 0.7.0, mail 0.2.1, cron-scheduler 0.2.1, ui 1.14.0, i18n 0.1.0 und theme 0.1.0.
+
 ## 2026.1.24-beta
 
 ### fireTab
