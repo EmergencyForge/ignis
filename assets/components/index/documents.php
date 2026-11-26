@@ -23,8 +23,8 @@ if ($userData) {
         if ($list->q !== '') {
             $docQuery->where(function ($q) use ($list) {
                 $q->where('pd.docid', 'LIKE', $list->like())
-                    ->orWhere('pd.aussteller_name', 'LIKE', $list->like())
-                    ->orWhere('m.fullname', 'LIKE', $list->like());
+                    ->orWhere('pd.title', 'LIKE', $list->like())
+                    ->orWhere('pd.ersteller_name', 'LIKE', $list->like());
             });
         }
         $docRows = $list->paginate($docQuery);
@@ -41,6 +41,9 @@ $docTh = static fn (string $key, string $label): string => $list !== null
 // Chip je Dokumenttyp. Die Kategorien des alten Systems gibt es nicht
 // mehr; was bleibt, ist die Semantik der festen Typen.
 $documentChip = static function (array $doc): string {
+    if ($doc['document_id'] !== null) {
+        return $doc['revoked_at'] !== null ? 'ignis-chip--danger' : 'ignis-chip--info';
+    }
     $type = (int) $doc['type'];
     if ($type === 99) {
         return 'ignis-chip--info';
@@ -97,8 +100,12 @@ $documentChip = static function (array $doc): string {
             <tr><td colspan="5"><?php require dirname(__DIR__, 3) . '/templates/partials/empty.php'; ?></td></tr>
         <?php endif; ?>
         <?php foreach ($dokuresult as $doks):
-            $docart  = \App\Models\PersonnelDocument::typeLabel((int) $doks['type']);
-            $pdfPath = BASE_PATH . 'storage/documents/' . $doks['docid'] . '.pdf';
+            $docart  = $doks['document_id'] !== null
+                ? (string) $doks['title'] . ($doks['revoked_at'] !== null ? ' (widerrufen)' : '')
+                : \App\Models\PersonnelDocument::typeLabel((int) $doks['type']);
+            $pdfPath = $doks['document_id'] !== null
+                ? BASE_PATH . 'documents/' . (int) $doks['document_id'] . '/pdf'
+                : BASE_PATH . 'storage/documents/' . $doks['docid'] . '.pdf';
         ?>
             <tr>
                 <td><span class="ignis-chip <?= htmlspecialchars($documentChip($doks)) ?>"><?= htmlspecialchars($docart) ?></span></td>

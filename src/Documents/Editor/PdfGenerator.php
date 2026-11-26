@@ -121,7 +121,43 @@ final class PdfGenerator
      */
     public function read(EditorDocument $document): ?string
     {
-        if (!$document->isIssued() || $document->pdf_path === null) {
+        $path = $document->isIssued() ? $this->path($document) : null;
+        if ($path === null) {
+            return null;
+        }
+
+        $contents = file_get_contents($path);
+
+        return $contents === false ? null : $contents;
+    }
+
+    /**
+     * Legt ein hochgeladenes PDF im Dokumentenordner ab, unter einem
+     * Zufallsnamen, bis {@see adoptUpload()} es der Kennung zuordnet.
+     *
+     * @param  array<string,mixed>  $file  Eintrag aus $_FILES
+     * @throws \App\Exceptions\UploadException
+     */
+    public static function storeUpload(array $file): string
+    {
+        return \App\Support\FileUpload::store($file, (new self())->documentsDir(), 10 * 1024 * 1024, ['application/pdf' => 'pdf'])['pfad'];
+    }
+
+    /** Benennt die Datei nach der Kennung um; liefert `pdf_path` oder null. */
+    public function adoptUpload(string $storedPath, string $docid): ?string
+    {
+        $relativePath = 'storage/private/editor-documents/' . $docid . '.pdf';
+
+        return @rename($storedPath, dirname(__DIR__, 3) . '/' . $relativePath) ? $relativePath : null;
+    }
+
+    /**
+     * Absoluter Pfad des gespeicherten PDFs. `null`, wenn keines hinterlegt
+     * ist oder der Pfad aus dem Dokumentenordner herauszeigt.
+     */
+    public function path(EditorDocument $document): ?string
+    {
+        if ($document->pdf_path === null) {
             return null;
         }
 
@@ -144,9 +180,7 @@ final class PdfGenerator
             return null;
         }
 
-        $contents = file_get_contents($real);
-
-        return $contents === false ? null : $contents;
+        return $real;
     }
 
     /**

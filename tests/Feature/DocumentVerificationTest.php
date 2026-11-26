@@ -250,4 +250,76 @@ final class DocumentVerificationTest extends FeatureTestCase
         $this->assertStringNotContainsString('Urkunde ansehen', $response->body);
         $this->assertStatus(404, $this->pdf($document->verification_code));
     }
+
+    #[Test]
+    public function loeschen_entfernt_dokument_und_pdf_endgueltig(): void
+    {
+        $document = $this->issued();
+        $pdf      = dirname(__DIR__, 2) . '/' . $document->pdf_path;
+        $this->assertFileExists($pdf);
+
+        $response = $this->postWithToken('/documents/' . $document->id . '/delete');
+
+        $this->assertRedirect($response, '/personnel/profile?id=' . $this->mitarbeiterId);
+        $this->assertNull(EditorDocument::find($document->id));
+        $this->assertFileDoesNotExist($pdf);
+        $this->assertStringNotContainsString('gültige Urkunde', $this->verify($document->verification_code)->body);
+    }
+
+    #[Test]
+    public function loeschen_braucht_das_recht_dokumente_zu_verwalten(): void
+    {
+        $document = $this->issued();
+        $user     = FixtureFactory::user();
+        $this->actingAs($user->id, ['permissions' => ['training.manage'], 'cirs_username' => $user->username]);
+
+        $this->assertForbidden($this->postWithToken('/documents/' . $document->id . '/delete'));
+        $this->assertNotNull(EditorDocument::find($document->id));
+    }
+
+    #[Test]
+    public function hochgeladenes_pdf_steht_in_der_akte_und_unter_meine_dokumente(): void
+    {
+        $response = $this->post('/personnel/' . $this->mitarbeiterId . '/documents/upload', ['title' => 'Zeugnis Grundlehrgang'], [
+            'files' => ['file' => $this->upload("%PDF-1.4
+%%EOF
+", 'zeugnis.pdf')],
+        ]);
+
+        $this->assertRedirect($response);
+        $document = EditorDocument::query()->where('mitarbeiter_id', $this->mitarbeiterId)->firstOrFail();
+        $this->pdfFiles[] = dirname(__DIR__, 2) . '/' . $document->pdf_path;
+        $this->assertTrue($document->isIssued());
+        $this->assertTrue($document->isUpload());
+        $this->assertNull($document->verification_code);
+        $this->assertStringStartsWith('%PDF', $this->get('/documents/' . $document->id . '/pdf')->body);
+
+        // Der Mitarbeiter selbst, ohne Dokumentenrecht.
+        $own = FixtureFactory::user(['aktenid' => $this->mitarbeiterId]);
+        $this->actingAs($own->id, ['permissions' => [], 'cirs_username' => $own->username]);
+        $list = $this->get('/me/documents');
+        $this->assertBodyContains('Zeugnis Grundlehrgang', $list);
+        $this->assertBodyContains('/documents/' . $document->id . '/pdf', $list);
+        $this->assertStringStartsWith('%PDF', $this->get('/documents/' . $document->id . '/pdf')->body);
+    }
+
+    #[Test]
+    public function hochladen_nimmt_nur_pdf(): void
+    {
+        $this->post('/personnel/' . $this->mitarbeiterId . '/documents/upload', ['title' => 'Kein PDF'], [
+            'files' => ['file' => $this->upload("nur Text
+", 'zeugnis.pdf')],
+        ]);
+
+        $this->assertFalse(EditorDocument::query()->where('mitarbeiter_id', $this->mitarbeiterId)->exists());
+    }
+
+    /** @return array<string,mixed> wie ein Eintrag in $_FILES */
+    private function upload(string $contents, string $name): array
+    {
+        $tmp = (string) tempnam(sys_get_temp_dir(), 'upl');
+        file_put_contents($tmp, $contents);
+
+        return ['name' => $name, 'type' => 'application/pdf', 'tmp_name' => $tmp, 'error' => UPLOAD_ERR_OK, 'size' => strlen($contents)];
+    }
 }

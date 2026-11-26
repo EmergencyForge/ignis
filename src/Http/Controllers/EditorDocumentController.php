@@ -13,7 +13,9 @@ use App\Documents\Editor\VariableCatalog;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
+use App\Exceptions\UploadException;
 use App\Http\Requests\Documents\SaveDocumentRequest;
+use App\Http\Requests\Documents\UploadDocumentRequest;
 use App\Logging\Logger;
 use App\Models\EditorDocument;
 use App\Models\EditorTemplate;
@@ -359,6 +361,7 @@ final class EditorDocumentController extends Controller
         $this->renderView('documents/show', [
             'document'      => $document->load('revoker'),
             'canRevoke'     => $canRevoke,
+            'canDelete'     => Gate::allows('document.manage'),
             'qualification' => $canRevoke ? self::certificateQualification($document) : null,
         ]);
     }
@@ -419,6 +422,108 @@ final class EditorDocumentController extends Controller
         }
         $this->audit('Dokument widerrufen', $document, ', Grund: ' . $reason . $withdrawn);
         Flash::success('Dokument „' . $document->title . '“ wurde widerrufen.' . $withdrawn);
+        $this->redirect($back);
+    }
+
+    /**
+     * POST /documents/{id}/delete: Entwurf oder falsch ausgestelltes
+     * Dokument endgültig entfernen, samt PDF. Verlauf und Audit-Log behalten
+     * einen Vermerk; /verify kennt den Prüfcode danach nicht mehr.
+     */
+    public function destroy(Request $request, string $id): void
+    {
+        $this->requireAuth();
+        $this->ensure('document.manage', null, 'documents/' . (int) $id);
+
+        $document = $this->findOrRedirect((int) $id, ['mitarbeiter']);
+        $pdf      = $document->pdf_path !== null ? (new PdfGenerator())->path($document) : null;
+
+        $document->delete();
+        if ($pdf !== null) {
+            @unlink($pdf);
+        }
+
+        if ($document->mitarbeiter !== null) {
+            (new PersonalLogManager())->addEntry(
+                (int) $document->mitarbeiter_id,
+                PersonalLogManager::TYPE_DOCUMENT,
+                sprintf('Dokument %s (%s) wurde gelöscht.', htmlspecialchars($document->title), htmlspecialchars($document->docid)),
+                (new UserHelper())->getCurrentUserFullnameForAction(),
+                ['change_type' => 'document_deleted', 'docid' => $document->docid],
+            );
+        }
+        $this->audit('Dokument gelöscht', $document, $document->isIssued() ? ', war ausgestellt' : ', Entwurf');
+        Flash::success('Dokument „' . $document->title . '“ wurde gelöscht.');
+        $this->redirect($document->mitarbeiter !== null ? 'personnel/profile?id=' . $document->mitarbeiter_id : 'index');
+    }
+
+    /**
+     * POST /personnel/{id}/documents/upload: ein PDF von außen, etwa ein
+     * anerkanntes Zeugnis, landet als ausgestelltes Dokument in der Akte.
+     * Es läuft danach über dieselben Wege wie ein ausgestelltes (Ansehen,
+     * PDF, Löschen), nur ohne Vorlage und Prüfcode.
+     */
+    public function upload(Request $request, string $id): void
+    {
+        $this->requireAuth();
+        $this->ensure('document.manage', null, 'personnel/list');
+
+        $mitarbeiter = Personnel::find((int) $id);
+        if ($mitarbeiter === null) {
+            Flash::error('Der Mitarbeiter wurde nicht gefunden.');
+            $this->redirect('personnel/list');
+        }
+        $back = 'personnel/profile?id=' . $mitarbeiter->id . '#documents';
+
+        try {
+            $title = UploadDocumentRequest::validate($request->post)['title'];
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect($back);
+        }
+        $file = $request->files['file'] ?? null;
+        if (!is_array($file)) {
+            Flash::error('Es wurde keine Datei ausgewählt.');
+            $this->redirect($back);
+        }
+
+        try {
+            $stored = PdfGenerator::storeUpload($file);
+        } catch (UploadException $e) {
+            Flash::error($e->getMessage());
+            $this->redirect($back);
+        }
+
+        $userId   = SessionManager::userId();
+        $document = DocumentId::create(static fn (string $docid): EditorDocument => EditorDocument::create([
+            'docid'          => $docid,
+            'mitarbeiter_id' => $mitarbeiter->id,
+            'title'          => $title,
+            'content'        => EditorDocument::uploadContent((string) ($file['name'] ?? '')),
+            'status'         => EditorDocument::STATUS_ISSUED,
+            'created_by'     => $userId,
+            'issued_by'      => $userId,
+            'issued_at'      => date('Y-m-d H:i:s'),
+        ]));
+        // Erst jetzt steht die Kennung fest, nach der PdfGenerator::read() die Datei sucht.
+        $document->pdf_path = (new PdfGenerator())->adoptUpload($stored, $document->docid);
+        if ($document->pdf_path === null) {
+            $document->delete();
+            @unlink($stored);
+            Flash::error('Die Datei konnte nicht gespeichert werden.');
+            $this->redirect($back);
+        }
+        $document->save();
+
+        (new PersonalLogManager())->addEntry(
+            (int) $mitarbeiter->id,
+            PersonalLogManager::TYPE_DOCUMENT,
+            sprintf('Dokument <a href="%s">%s</a> (%s) wurde hochgeladen.', htmlspecialchars(BASE_PATH . 'documents/' . $document->id), htmlspecialchars($document->title), htmlspecialchars($document->docid)),
+            (new UserHelper())->getCurrentUserFullnameForAction(),
+            ['change_type' => 'document_uploaded', 'document_id' => (int) $document->id, 'docid' => $document->docid],
+        );
+        $this->audit('Dokument hochgeladen', $document);
+        Flash::success('Dokument „' . $document->title . '“ wurde hochgeladen.');
         $this->redirect($back);
     }
 

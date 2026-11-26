@@ -22,19 +22,46 @@ final class OwnRecords
 {
     public const PREVIEW = 5;
 
+    /**
+     * Dokumente des alten Systems und ausgestellte aus dem Editor in einer
+     * Liste `pd`. `document_id` ist bei alten null, `type` bei neuen.
+     */
     public static function documents(): Builder
     {
-        return Capsule::table('intra_mitarbeiter_dokumente as pd')
+        // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
+        $own = AccountLink::currentId() ?? 0;
+        $raw = static fn (string $sql) => Capsule::connection()->raw($sql);
+
+        $legacy = Capsule::table('intra_mitarbeiter_dokumente as pd')
             ->leftJoin('intra_users as u', 'pd.aussteller_user_id', '=', 'u.id')
             ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
-            // Ohne verknüpften Mitarbeiter bleibt die Liste leer: die 0 trifft keine ID.
-            ->where('pd.profileid', AccountLink::currentId() ?? 0)
+            ->where('pd.profileid', $own)
             ->select([
-                'pd.docid',
+                $raw('CAST(pd.docid AS CHAR) as docid'),
                 'pd.ausstellungsdatum',
                 'pd.type',
-                Capsule::connection()->raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+                $raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+                $raw('NULL as title'),
+                $raw('NULL as document_id'),
+                $raw('NULL as revoked_at'),
             ]);
+
+        $editor = Capsule::table('intra_documents as d')
+            ->leftJoin('intra_users as u', 'd.issued_by', '=', 'u.id')
+            ->leftJoin('intra_mitarbeiter as m', 'u.aktenid', '=', 'm.id')
+            ->where('d.mitarbeiter_id', $own)
+            ->where('d.status', 'ausgestellt')
+            ->select([
+                'd.docid',
+                $raw('DATE(d.issued_at) as ausstellungsdatum'),
+                $raw('NULL as type'),
+                $raw("COALESCE(m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+                'd.title',
+                'd.id as document_id',
+                'd.revoked_at',
+            ]);
+
+        return Capsule::connection()->query()->fromSub($legacy->unionAll($editor), 'pd')->select('pd.*');
     }
 
     public static function applications(): Builder

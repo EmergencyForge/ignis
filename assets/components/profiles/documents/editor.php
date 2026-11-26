@@ -6,7 +6,8 @@
  * Erwartet `$openedID` aus templates/personnel/profile.php.
  *
  * Neu angelegt wird aus einer aktiven Vorlage; danach führt der Weg in den
- * Editor. Ausgestellte Dokumente zeigen auf ihr PDF.
+ * Editor. Ein PDF von außen wird direkt hochgeladen und gilt als
+ * ausgestellt. Ausgestellte Dokumente zeigen auf ihr PDF.
  */
 
 use App\Models\EditorDocument;
@@ -21,10 +22,40 @@ $editorDocs = EditorDocument::query()
     ->get();
 
 /** @var \Illuminate\Support\Collection<int,EditorTemplate> $editorTemplates */
-$editorTemplates = DocumentPolicy::manage()
+$canManageDocs   = DocumentPolicy::manage();
+$editorTemplates = $canManageDocs
     ? EditorTemplate::active()->orderBy('name')->get()
     : collect();
 ?>
+<?php if ($canManageDocs): ?>
+    <details class="mb-3">
+        <summary style="cursor: pointer;">PDF hochladen, z. B. ein anerkanntes Zeugnis</summary>
+        <form method="POST" action="<?= BASE_PATH ?>personnel/<?= (int) $openedID ?>/documents/upload"
+              enctype="multipart/form-data" class="grid gap-2 mt-2">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken()) ?>">
+            <div class="ignis-field">
+                <label class="ignis-field__label" for="document-upload-title">Titel</label>
+                <input type="text" class="ignis-input" id="document-upload-title" name="title" maxlength="200" required
+                       placeholder="z. B. Zeugnis Grundlehrgang (BF Musterstadt)">
+            </div>
+            <div class="ignis-file ignis-file--dropzone" data-ignis-file data-max-bytes="<?= 10 * 1024 * 1024 ?>">
+                <input type="file" id="document-upload-file" name="file" accept="application/pdf,.pdf" class="ignis-file__input" required>
+                <label for="document-upload-file" class="ignis-file__zone">
+                    <span class="ignis-file__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+                    <span class="ignis-file__title">PDF hierher ziehen oder <span class="ignis-file__link">auswählen</span></span>
+                    <span class="ignis-file__hint">Nur PDF, max. 10 MB. Der Mitarbeiter sieht es unter „Meine Dokumente“.</span>
+                </label>
+                <div class="ignis-file__selected" hidden></div>
+                <p class="ignis-file__error" role="alert" hidden></p>
+            </div>
+            <div>
+                <button type="submit" class="ignis-btn ignis-btn--secondary">
+                    <i class="fa-solid fa-upload" aria-hidden="true"></i> Hochladen
+                </button>
+            </div>
+        </form>
+    </details>
+<?php endif; ?>
 <?php if ($editorDocs->isNotEmpty() || $editorTemplates->isNotEmpty()): ?>
     <?php if ($editorTemplates->isNotEmpty()): ?>
         <form method="POST" action="<?= BASE_PATH ?>personnel/<?= (int) $openedID ?>/documents"
@@ -60,7 +91,11 @@ $editorTemplates = DocumentPolicy::manage()
                         <td><?= htmlspecialchars($doc->title) ?></td>
                         <td><?= htmlspecialchars($doc->docid) ?></td>
                         <td>
-                            <?php if ($doc->isIssued()): ?>
+                            <?php if ($doc->isRevoked()): ?>
+                                <span class="ignis-chip ignis-chip--danger">Widerrufen</span>
+                            <?php elseif ($doc->isUpload()): ?>
+                                <span class="ignis-chip ignis-chip--info">Hochgeladen</span>
+                            <?php elseif ($doc->isIssued()): ?>
                                 <span class="ignis-chip ignis-chip--ok">Ausgestellt</span>
                             <?php else: ?>
                                 <span class="ignis-chip ignis-chip--secondary">Entwurf</span>

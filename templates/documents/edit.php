@@ -157,6 +157,8 @@ $layoutHead = '<link rel="stylesheet" href="' . asset('assets/dist/editor.css') 
                         </div>
                         <div class="flex items-center gap-2" style="margin-left: auto;">
                             <span id="document-save-status" class="text-sm"></span>
+                            <?php $deleteAction = BASE_PATH . 'documents/' . (int) $document->id . '/delete'; ?>
+                            <?php require __DIR__ . '/../partials/document-delete-menu.php'; ?>
                             <button type="button" id="document-save-button" class="ignis-btn ignis-btn--primary"
                                     <?= $readOnly ? 'disabled data-ignis-tooltip="Kein Speichern möglich, die Vorlage fehlt."' : '' ?>>
                                 <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern

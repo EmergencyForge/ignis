@@ -408,6 +408,16 @@ $router->post(
     [\App\Http\Controllers\EditorDocumentController::class, 'revoke'],
     [new AuthMiddleware()],
 );
+$router->post(
+    '/documents/{id:\d+}/delete',
+    [\App\Http\Controllers\EditorDocumentController::class, 'destroy'],
+    [new AuthMiddleware()],
+);
+$router->post(
+    '/personnel/{id:\d+}/documents/upload',
+    [\App\Http\Controllers\EditorDocumentController::class, 'upload'],
+    [new AuthMiddleware()],
+);
 
 // Echtheitsprüfung von Urkunden, öffentlich.
 $router->get('/verify', [\App\Http\Controllers\VerifyController::class, 'show']);

@@ -5,6 +5,7 @@
  * Erwartete Variablen (EditorDocumentController::show()):
  *   @var \App\Models\EditorDocument $document
  *   @var bool                       $canRevoke
+ *   @var bool                       $canDelete
  *   @var \Plugin\Training\CertificateQualification|null $qualification
  *
  * Fehlt `pdf_path` (was nur passieren kann, wenn das Erzeugen mitten im
@@ -37,7 +38,7 @@ $SITE_TITLE = $document->title;
                     <p class="twplus-page-header__eyebrow">Dokumente</p>
                     <h1><?= htmlspecialchars($document->title) ?></h1>
                     <p class="twplus-page-header__description">
-                        Kennung <?= htmlspecialchars($document->docid) ?>, ausgestellt<?php
+                        Kennung <?= htmlspecialchars($document->docid) ?>, <?= $document->isUpload() ? 'hochgeladen' : 'ausgestellt' ?><?php
                         if ($document->issued_at !== null) {
                             echo ' am ' . htmlspecialchars($document->issued_at->format('d.m.Y H:i'));
                         } ?>.<?php if ($document->verification_code !== null): ?>
@@ -69,6 +70,10 @@ $SITE_TITLE = $document->title;
                                 </form>
                             </div>
                         </details>
+                    <?php endif; ?>
+                    <?php if ($canDelete): ?>
+                        <?php $deleteAction = BASE_PATH . 'documents/' . (int) $document->id . '/delete'; ?>
+                        <?php require __DIR__ . '/../partials/document-delete-menu.php'; ?>
                     <?php endif; ?>
                     <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" rel="noopener"
                        class="ignis-btn ignis-btn--primary">

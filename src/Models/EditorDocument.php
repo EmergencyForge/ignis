@@ -107,6 +107,22 @@ class EditorDocument extends Model
         return $this->revoked_at !== null;
     }
 
+    /**
+     * Ein hochgeladenes PDF hat kein Dokumentpaket; `content` merkt sich nur
+     * die Herkunft und den Dateinamen, damit Liste und Ansicht es erkennen.
+     *
+     * @return array{format: string, file: string}
+     */
+    public static function uploadContent(string $fileName): array
+    {
+        return ['format' => 'upload', 'file' => mb_substr(basename($fileName), 0, 200)];
+    }
+
+    public function isUpload(): bool
+    {
+        return ($this->content['format'] ?? null) === 'upload';
+    }
+
     /** @return BelongsTo<User, $this> */
     public function revoker(): BelongsTo
     {
