@@ -6,7 +6,7 @@ Diese Anleitung führt dich durch die Installation von ignis. Es gibt drei Wege,
 |---|---|---|
 | Installationspaket mit Assistent | einen Webspace bei einem Hoster hast (Plesk, cPanel, Confixx, …) und dich durch ein paar Formulare klicken willst | [Weg A](#weg-a-webspace-mit-installationsassistent) |
 | Eigener Server | einen eigenen Server mit Apache oder nginx und PHP betreibst | [Weg B](#weg-b-eigener-server-mit-apache-oder-nginx) |
-| Docker | Docker und Docker Compose auf deinem Server hast | [Weg C](#weg-c-docker) |
+| Docker | Docker auf deinem Server hast oder einen Linux-Server mit eigener Domain, dann reicht ein Befehl | [Weg C](#weg-c-docker) |
 
 Egal welchen Weg du nimmst: Lies vorher [Was du brauchst](#was-du-brauchst) und leg die [Discord-Anwendung](#discord-anwendung-anlegen) an. Danach geht es mit der [Ersteinrichtung](#nach-der-installation) weiter.
 
@@ -235,6 +235,20 @@ Der Pfad beginnt und endet mit `/`. Denk auch an die passende Redirect-Adresse i
 
 Für Docker gibt es ein fertiges Image und eine Compose-Datei mit MariaDB.
 
+### Schnellweg: ein Befehl
+
+Auf einem Linux-Server (Debian, Ubuntu und ähnliche) richtet ein Skript alles in einem Rutsch ein. Es installiert Docker, falls es fehlt, fragt Domain und Discord-Zugang ab, erzeugt das Datenbank-Passwort und startet ignis gleich mit HTTPS:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/EmergencyForge/ignis/main/docker/install.sh | sudo bash
+```
+
+Vorher muss die Domain auf den Server zeigen, und die Ports 80 und 443 müssen offen sein. ignis landet in `/opt/ignis`, die Zugangsdaten stehen dort in der `.env`. Läuft auf dem Server schon ein Reverse Proxy, beantworte die Frage nach HTTPS mit Nein.
+
+Ohne Rückfragen, zum Beispiel per cloud-init, setzt du vorher `IGNIS_DOMAIN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` und `IGNIS_HTTPS` (`j` oder `n`). Einen anderen Ordner wählst du mit `IGNIS_DIR`.
+
+Willst du jeden Schritt selbst machen, geht es hier weiter.
+
 ### 1. Dateien holen
 
 Leg einen Ordner an und lade die Compose-Datei und die Vorlage für die Einstellungen herunter:
@@ -274,6 +288,8 @@ Beim Start wartet ignis auf die Datenbank und legt die Tabellen an. Nach etwa ei
 
 ignis lauscht jetzt auf `127.0.0.1:8080`, also nur auf dem Server selbst. Für den Zugriff von außen gehört ein Reverse Proxy mit HTTPS davor, siehe [Reverse Proxy und HTTPS](#reverse-proxy-und-https). Einen anderen Port stellst du mit `IGNIS_PORT` in der `.env` ein.
 
+Hast du noch keinen Reverse Proxy, nimm den mitgelieferten: Trag `COMPOSE_PROFILES=https` in die `.env` ein und starte erneut. Dann läuft Caddy mit und holt sich das Zertifikat für die Domain aus `SYSTEM_URL` selbst. Die Domain muss dafür auf den Server zeigen, und die Ports 80 und 443 müssen frei sein.
+
 Melde dich danach **sofort** mit Discord an. Wer sich als Erstes anmeldet, wird Administrator.
 
 ### Was wo gespeichert wird
@@ -300,7 +316,7 @@ Die Datenbank wird beim Start automatisch angepasst. Der Updater in den Einstell
 
 ## Reverse Proxy und HTTPS
 
-ignis braucht HTTPS. Bei Weg A kümmert sich dein Hoster darum (meist über Let's Encrypt im Kundenmenü). Bei Weg B konfigurierst du das Zertifikat im Webserver. Bei Docker oder wenn ignis hinter einem anderen Server steht, brauchst du einen Reverse Proxy.
+ignis braucht HTTPS. Bei Weg A kümmert sich dein Hoster darum (meist über Let's Encrypt im Kundenmenü). Bei Weg B konfigurierst du das Zertifikat im Webserver. Bei Docker oder wenn ignis hinter einem anderen Server steht, brauchst du einen Reverse Proxy. Für Docker bringt die Compose-Datei einen mit, siehe [Weg C](#3-starten).
 
 Wichtig ist, dass der Proxy die ursprüngliche Adresse weiterreicht. ignis baut daraus Links und die Discord-Redirect-Adresse. Diese Header müssen gesetzt sein:
 

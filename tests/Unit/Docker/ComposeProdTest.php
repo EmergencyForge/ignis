@@ -39,8 +39,7 @@ final class ComposeProdTest extends TestCase
     public function loest_sich_mit_der_env_vorlage_auf(): void
     {
         $root = dirname(__DIR__, 3);
-        $env = (string) file_get_contents($root . '/docker/.env.example');
-        file_put_contents($this->dir . '/.env', str_replace("DB_PASS=\n", "DB_PASS=geheim\n", $env));
+        file_put_contents($this->dir . '/.env', str_replace("DB_PASS=\n", "DB_PASS=geheim\n", $this->envTemplate($root)));
 
         [$code, $out, $err] = $this->exec([
             'docker', 'compose',
@@ -76,6 +75,22 @@ final class ComposeProdTest extends TestCase
     }
 
     #[Test]
+    public function caddy_kommt_nur_mit_dem_profil_https_dazu(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $env = str_replace("DB_PASS=\n", "DB_PASS=geheim\n", $this->envTemplate($root));
+
+        file_put_contents($this->dir . '/.env', $env);
+        self::assertArrayNotHasKey('caddy', $this->config($root)['services']);
+
+        file_put_contents($this->dir . '/.env', str_replace('# COMPOSE_PROFILES=https', 'COMPOSE_PROFILES=https', $env));
+        $caddy = $this->config($root)['services']['caddy'];
+
+        self::assertSame(['caddy', 'reverse-proxy', '--from', 'https://ignis.example.de', '--to', 'app:80'], $caddy['command']);
+        self::assertSame(['80', '443', '443'], array_map(static fn (array $p): string => (string) $p['published'], $caddy['ports']));
+    }
+
+    #[Test]
     public function ohne_datenbankpasswort_bricht_compose_ab(): void
     {
         $root = dirname(__DIR__, 3);
@@ -92,6 +107,31 @@ final class ComposeProdTest extends TestCase
         self::assertStringContainsString('DB_PASS fehlt', $err);
     }
 
+    // Ein Windows-Checkout mit core.autocrlf liefert die Vorlage mit CRLF.
+    private function envTemplate(string $root): string
+    {
+        return str_replace("\r\n", "\n", (string) file_get_contents($root . '/docker/.env.example'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function config(string $root): array
+    {
+        [$code, $out, $err] = $this->exec([
+            'docker', 'compose',
+            '-f', $root . '/docker-compose.prod.yml',
+            '--project-directory', $this->dir,
+            'config', '--format', 'json',
+        ]);
+        self::assertSame(0, $code, $err);
+
+        $config = json_decode($out, true);
+        self::assertIsArray($config);
+
+        return $config;
+    }
+
     /**
      * @param list<string> $command
      * @return array{0: int, 1: string, 2: string}
@@ -102,7 +142,7 @@ final class ComposeProdTest extends TestCase
         // und tests/bootstrap.php setzt DB_* für die Integrationstests.
         $env = array_filter(
             getenv(),
-            static fn (string $key): bool => preg_match('/^(DB_|IMAGE_TAG$|IGNIS_)/', $key) !== 1,
+            static fn (string $key): bool => preg_match('/^(DB_|IMAGE_TAG$|IGNIS_|COMPOSE_PROFILES$|SYSTEM_URL$)/', $key) !== 1,
             ARRAY_FILTER_USE_KEY,
         );
         $process = @proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, $env);

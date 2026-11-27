@@ -18,7 +18,8 @@
 #
 # Die Instanz lauscht nur auf 127.0.0.1. Davor gehört ein Reverse Proxy mit
 # TLS, der X-Forwarded-Proto und X-Forwarded-Host setzt (Beispiel am Ende
-# von nginx.conf.example).
+# von nginx.conf.example). Ohne eigenen Proxy schaltet COMPOSE_PROFILES=https
+# in der .env den caddy-Dienst unten zu.
 
 name: ignis
 
@@ -63,7 +64,26 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  # HTTPS ohne eigenen Proxy. Caddy holt das Zertifikat für die Domain aus
+  # SYSTEM_URL bei Let's Encrypt und setzt die X-Forwarded-Header selbst.
+  # Dafür muss die Domain auf diesen Server zeigen und 80 und 443 müssen
+  # frei und von außen erreichbar sein.
+  caddy:
+    image: caddy:2
+    profiles: [https]
+    command: caddy reverse-proxy --from ${SYSTEM_URL} --to app:80
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy:/data
+    depends_on:
+      - app
+    restart: unless-stopped
+
 volumes:
   db:
   storage:
   plugins:
+  caddy:
