@@ -3,6 +3,8 @@
  * View: eNOTF Klinikcode-Eingabe (Public)
  */
 
+use EmergencyForge\Http\Response;
+use Illuminate\Database\Capsule\Manager as DB;
 use Plugin\Enotf\Helpers\EnotfUrl;
 use Plugin\Enotf\Models\EdiviKlinikcode;
 
@@ -17,19 +19,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
         $error = 'Bitte geben Sie einen Code ein.';
     } else {
         try {
-            // Suche nach gültigem Code
+            // Den Ablauf hat die Datenbankuhr geschrieben (NOW() + 1 Stunde),
+            // also entscheidet sie auch, ob er erreicht ist. PHP und Datenbank
+            // laufen nicht immer in derselben Zeitzone.
             $result = EdiviKlinikcode::where('code', $code)
                 ->orderByDesc('created_at')
-                ->first(['enr', 'expires_at']);
+                ->first(['enr', DB::connection()->raw('expires_at > NOW() AS gueltig')]);
 
             if (!$result) {
                 $error = 'Ungültiger Code.';
-            } elseif (strtotime($result['expires_at']) < time()) {
+            } elseif (!(int) $result['gueltig']) {
                 $error = 'Dieser Code ist abgelaufen.';
             } else {
                 \App\Session\SessionManager::loginKlinikcode($result['enr']);
-                header("Location: " . EnotfUrl::print($result['enr']));
-                exit();
+                return Response::redirect(EnotfUrl::print($result['enr']));
             }
         } catch (PDOException $e) {
             error_log("Fehler bei Klinikcode-Validierung: " . $e->getMessage());

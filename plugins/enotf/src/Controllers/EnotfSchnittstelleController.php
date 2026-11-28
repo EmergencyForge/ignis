@@ -36,10 +36,11 @@ class EnotfSchnittstelleController extends Controller
         $this->renderView('enotf/schnittstelle/index', []);
     }
 
-    public function klinikcode(): void
+    public function klinikcode(): ?Response
     {
         FiveMSupport::prepareCookiesAndHeaders();
-        $this->renderView('enotf/schnittstelle/klinikcode', []);
+        // Nach gültigem Code gibt das Template seinen Redirect zurück.
+        return $this->renderView('enotf/schnittstelle/klinikcode', []);
     }
 
     public function voranmeldung(): ?Response
